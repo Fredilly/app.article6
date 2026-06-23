@@ -27,6 +27,7 @@ type ParserDebugPayload = {
   parserAdapterId: string;
   parserFallbackFrom?: string;
   pythonPath?: string;
+  parserBinary?: string;
   pythonPackagesPath?: string;
   pythonPackagesExists?: boolean;
   pythonPackagesFitzExists?: boolean;
@@ -46,7 +47,7 @@ function buildParserDebug(): ParserDebugPayload {
 
   if (adapterId !== "pymupdf") return debug;
 
-  // Probe the packages directory
+  // Probe the packages directory (Python interpreter mode)
   const probePaths = [
     path.resolve(cwd, "public", ".python"),
     path.resolve(cwd, "node_modules", ".python"),
@@ -65,22 +66,36 @@ function buildParserDebug(): ParserDebugPayload {
     }
   }
 
-  // Capture fitz import error detail
-  const python3 = availability.pythonPath;
-  const env: NodeJS.ProcessEnv = { ...process.env };
-  if (debug.pythonPackagesPath) {
-    env.PYTHONPATH = env.PYTHONPATH
-      ? `${debug.pythonPackagesPath}:${env.PYTHONPATH}`
-      : debug.pythonPackagesPath;
-  }
-  try {
-    execFileSync(python3, ["-c", "import fitz; print(fitz.version)"], {
-      timeout: 10000,
-      encoding: "utf-8",
-      env,
-    });
-  } catch (e) {
-    debug.fitzImportError = e instanceof Error ? e.message : String(e);
+  // Verify the parser works via the correct mode
+  if (availability.parserBinary) {
+    // Compiled binary mode: run --version
+    debug.parserBinary = availability.parserBinary;
+    try {
+      execFileSync(availability.parserBinary, ["--version"], {
+        timeout: 10000,
+        encoding: "utf-8",
+      });
+    } catch (e) {
+      debug.fitzImportError = e instanceof Error ? e.message : String(e);
+    }
+  } else {
+    // Python interpreter mode: run -c import fitz
+    const python3 = availability.pythonPath;
+    const env: NodeJS.ProcessEnv = { ...process.env };
+    if (debug.pythonPackagesPath) {
+      env.PYTHONPATH = env.PYTHONPATH
+        ? `${debug.pythonPackagesPath}:${env.PYTHONPATH}`
+        : debug.pythonPackagesPath;
+    }
+    try {
+      execFileSync(python3, ["-c", "import fitz; print(fitz.version)"], {
+        timeout: 10000,
+        encoding: "utf-8",
+        env,
+      });
+    } catch (e) {
+      debug.fitzImportError = e instanceof Error ? e.message : String(e);
+    }
   }
 
   if (availability.available) return debug;

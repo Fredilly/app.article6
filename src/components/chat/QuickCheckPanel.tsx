@@ -2197,17 +2197,27 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                     <span className="font-mono font-medium text-slate-900">
                                       {extractionState.analysis.parserAdapterId}
                                     </span>
-                                    {extractionState.analysis.parserFallbackFrom ? (
-                                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
-                                        fallback
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                        active
-                                      </span>
-                                    )}
+                                    {(() => {
+                                      const debug = extractionState.analysis.parserDebug;
+                                      const isFallback = Boolean(
+                                        extractionState.analysis.parserFallbackFrom ||
+                                        debug?.fitzImportError
+                                      );
+                                      if (isFallback) {
+                                        return (
+                                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                                            fallback
+                                          </span>
+                                        );
+                                      }
+                                      return (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                          active
+                                        </span>
+                                      );
+                                    })()}
                                   </div>
-                                  {extractionState.analysis.parserFallbackFrom ? (
+                                  {extractionState.analysis.parserFallbackFrom || extractionState.analysis.parserDebug?.fitzImportError ? (
                                     <div className="mt-1.5 text-xs text-slate-500">
                                       Configured parser “{extractionState.analysis.parserAdapterId}” fell back — PyMuPDF is not available in this environment.
                                     </div>
@@ -2215,7 +2225,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   {extractionState.analysis.parserDebug ? (
                                     <div className="mt-2 border-t border-slate-100 pt-2">
                                       <div className="grid gap-1 font-mono text-[11px] text-slate-500">
-                                        <div><span className="text-slate-400">pythonPath</span> {extractionState.analysis.parserDebug.pythonPath ?? "—"}</div>
+                                        {extractionState.analysis.parserDebug.parserBinary ? (
+                                          <div><span className="text-slate-400">binary</span> {extractionState.analysis.parserDebug.parserBinary}</div>
+                                        ) : (
+                                          <div><span className="text-slate-400">pythonPath</span> {extractionState.analysis.parserDebug.pythonPath ?? "—"}</div>
+                                        )}
                                         <div><span className="text-slate-400">packagesPath</span> {extractionState.analysis.parserDebug.pythonPackagesPath ?? "—"}</div>
                                         <div><span className="text-slate-400">packagesExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesExists ?? false)}</div>
                                         <div><span className="text-slate-400">fitzExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesFitzExists ?? false)}</div>

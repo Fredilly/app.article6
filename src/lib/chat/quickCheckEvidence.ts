@@ -76,6 +76,7 @@ export type QuickCheckPdfParserDebug = {
   parserAdapterId: string;
   parserFallbackFrom?: string;
   pythonPath?: string;
+  parserBinary?: string;
   pythonPackagesPath?: string;
   pythonPackagesExists?: boolean;
   pythonPackagesFitzExists?: boolean;

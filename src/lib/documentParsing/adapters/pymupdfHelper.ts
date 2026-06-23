@@ -39,6 +39,7 @@ export type PymupdfAvailabilityCheck = {
   pythonVersion?: string;
   pymupdfVersion?: string;
   pythonPackagesPath?: string;
+  parserBinary?: string;
 };
 
 function isVercelPreview(): boolean {
@@ -65,7 +66,8 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
       const result: PymupdfAvailabilityCheck = {
         available: true,
         reason: "PyMuPDF is available (compiled binary)",
-        pythonPath: compiledBinary,
+        pythonPath: "python3",  // not actually used for execution
+        parserBinary: compiledBinary,
         pymupdfVersion: versionOutput,
       };
       _availabilityCache = result;
@@ -76,6 +78,7 @@ export function checkPymupdfAvailability(): PymupdfAvailabilityCheck {
         available: false,
         reason: `Compiled binary at "${compiledBinary}" exists but failed to run.`,
         pythonPath: compiledBinary,
+        parserBinary: compiledBinary,
       };
       if (detail) result.reason += ` Detail: ${detail}`;
       _availabilityCache = result;
