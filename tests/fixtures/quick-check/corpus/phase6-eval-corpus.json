@@ -495,10 +495,10 @@
             "goldEvidence": {
               "pages": [1],
               "spanAnchors": [
-                "Baseline Emissions"
+                "The baseline scenario describes the most plausible scenario in the absence of the Project Activity"
               ],
               "sectionHints": [
-                "Baseline Emissions"
+                "Baseline Scenario"
               ]
             },
             "visibleAnswerStatus": "likely_yes",
@@ -540,10 +540,10 @@
             "goldEvidence": {
               "pages": [1],
               "spanAnchors": [
-                "Additional Information"
+                "As per VT0001"
               ],
               "sectionHints": [
-                "Additional Information"
+                "Additionality"
               ]
             },
             "visibleAnswerStatus": "likely_yes",

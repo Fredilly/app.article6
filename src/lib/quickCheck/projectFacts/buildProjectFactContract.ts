@@ -1163,6 +1163,24 @@ export function buildProjectFactContract(document: EvidenceDocument): ProjectFac
             ],
         { allowMedium: true },
       );
+  // Truncate overly long methodology values (e.g. full Modules and Tools
+  // tables) to the primary methodology name and version.
+  if (methodologyPrimary.value && methodologyPrimary.value.length > 300) {
+    const hardDelim = /(?:Always\s+Mandatory|Methods\s+for|The\s+following|Module\s+ID|As\s+per|Table\s+\d|Source:|Figure\s+\d)/i;
+    const codeMatch = methodologyPrimary.value.match(
+      /(VM|VMR|ACM|AM|AMS|GS)\d{3,5}[A-Z.-]*/i,
+    );
+    if (codeMatch) {
+      const afterCode = methodologyPrimary.value.slice(codeMatch.index!);
+      const stop = afterCode.search(hardDelim);
+      const trimmed = stop > 0
+        ? afterCode.slice(0, stop).trim().replace(/[)»>.,;:]+$/, "").trim()
+        : afterCode.slice(0, 120).replace(/[.,;:]\s*$/, "").trim();
+      if (trimmed && trimmed.length < methodologyPrimary.value.length) {
+        methodologyPrimary.value = trimmed as string;
+      }
+    }
+  }
   const baselineMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "baselineMethodology") as FieldRule);
   const monitoringMethodology = findField(document, FIELD_RULES.find((rule) => rule.field === "monitoringMethodology") as FieldRule);
   const creditingPeriod = findField(document, FIELD_RULES.find((rule) => rule.field === "creditingPeriod") as FieldRule);

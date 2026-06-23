@@ -13,7 +13,7 @@ import type {
 } from "@/lib/quickCheck/indexing/types";
 
 const TOPIC_PATTERNS: Record<SectionTopic, RegExp[]> = {
-  baseline: [/\bbaseline\b/i, /\bwithout the project\b/i],
+  baseline: [/\bbaseline scenario\b/i, /\bbaseline\b/i, /\bwithout the project\b/i],
   monitoring: [/\bmonitoring\b/i, /\bmonitoring plan\b/i],
   leakage: [/\bleakage\b/i],
   additionality: [/\badditionality\b/i, /\badditional\b/i],
@@ -225,11 +225,28 @@ function collectTopicReference(input: {
 
   const headingText = normalizeForSearch(input.node.heading);
   const headingPathText = normalizeForSearch(input.node.headingPath.join(" "));
-  const confidence = matchedPatterns.some((pattern) => pattern.test(headingText))
-    ? 0.95
-    : matchedPatterns.some((pattern) => pattern.test(headingPathText))
-      ? 0.88
-      : 0.78;
+
+  let confidence: number;
+  if (matchedPatterns.some((pattern) => pattern.test(headingText))) {
+    confidence = 0.95;
+  } else if (matchedPatterns.some((pattern) => pattern.test(headingPathText))) {
+    confidence = 0.88;
+  } else {
+    confidence = 0.78;
+  }
+
+  // Boost headings that match a canonical / highly-specific pattern
+  // so they rank above partial matches in the same topic.
+  // E.g. "Additionality" beats "Additional Information", and
+  // "Baseline Scenario" beats "Baseline Emissions".
+  if (confidence >= 0.95) {
+    if (
+      (input.topic === "additionality" && /\badditionality\b/i.test(headingText))
+      || (input.topic === "baseline" && /\bbaseline scenario\b/i.test(headingText))
+    ) {
+      confidence = 0.97;
+    }
+  }
 
   return {
     topic: input.topic,
