@@ -2219,28 +2219,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   </div>
                                   {extractionState.analysis.parserFallbackFrom || extractionState.analysis.parserDebug?.fitzImportError ? (
                                     <div className="mt-1.5 text-xs text-slate-500">
-                                      Configured parser “{extractionState.analysis.parserAdapterId}” fell back — PyMuPDF is not available in this environment.
-                                    </div>
-                                  ) : null}
-                                  {extractionState.analysis.parserDebug ? (
-                                    <div className="mt-2 border-t border-slate-100 pt-2">
-                                      <div className="grid gap-1 font-mono text-[11px] text-slate-500">
-                                        {extractionState.analysis.parserDebug.parserBinary ? (
-                                          <div><span className="text-slate-400">binary</span> {extractionState.analysis.parserDebug.parserBinary}</div>
-                                        ) : (
-                                          <div><span className="text-slate-400">pythonPath</span> {extractionState.analysis.parserDebug.pythonPath ?? "—"}</div>
-                                        )}
-                                        <div><span className="text-slate-400">packagesPath</span> {extractionState.analysis.parserDebug.pythonPackagesPath ?? "—"}</div>
-                                        <div><span className="text-slate-400">packagesExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesExists ?? false)}</div>
-                                        <div><span className="text-slate-400">fitzExists</span> {String(extractionState.analysis.parserDebug.pythonPackagesFitzExists ?? false)}</div>
-                                        <div><span className="text-slate-400">cwd</span> {extractionState.analysis.parserDebug.cwd ?? "—"}</div>
-                                        {extractionState.analysis.parserDebug.pythonPackagesTopEntries?.length ? (
-                                          <div><span className="text-slate-400">topEntries</span> [{extractionState.analysis.parserDebug.pythonPackagesTopEntries.join(", ")}]</div>
-                                        ) : null}
-                                        {extractionState.analysis.parserDebug.fitzImportError ? (
-                                          <div className="text-rose-600"><span className="text-rose-400">importError</span> {extractionState.analysis.parserDebug.fitzImportError}</div>
-                                        ) : null}
-                                      </div>
+                                      Configured parser &ldquo;{extractionState.analysis.parserAdapterId}&rdquo; fell back &mdash; PyMuPDF is not available in this environment.
                                     </div>
                                   ) : null}
                                 </div>
