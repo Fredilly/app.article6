@@ -7,7 +7,8 @@ const CONTACT_TITLE_RE = /\b(?:phone|tel|fax|email|e-mail|website|url|contact|fo
 
 const REFERENCE_RE = /\b(?:(?:[A-Z][a-z]+,\s[A-Z]\.\s*\(?\d{4}\)?)|(?:et al\.?,\s\d{4})|DOI[:\s]|(?:doi\.org\/)|(?:ISBN[:\s])|(?:ISSN[:\s]))/;
 const BIBLIOGRAPHY_SECTION_RE = /\b(?:references?|bibliography|works cited|literature cited|citations?|sources?)\b/i;
-const SOURCE_CAPTION_RE = /\b(?:figure\s+\d+|fig\.?\s*\d+|table\s+\d+|map\s+\d+|source\s*:|adapted from|courtesy of|reproduced from|modified from)\b/i;
+const CAPTION_PREFIX_RE = /^(?:figure\s+\d+|fig\.?\s*\d+|table\s+\d+|map\s+\d+|chart\s+\d+|source\s*:|adapted\s+from|modified\s+from|reproduced\s+from|courtesy\s+of)\b/i;
+const SOURCE_ATTRIBUTION_RE = /\b(?:source\s*:|adapted\s+from|modified\s+from|reproduced\s+from|courtesy\s+of)\b/i;
 const TOC_EXPLICIT_RE = /^(?:table\s+of\s+contents|contents|list of figures|list of tables|list of abbreviations|acronyms? and abbreviations)$/i;
 const TOC_LEADER_RE = /\.{3,}\s*\d+\s*$/;
 const HEADER_FOOTER_DECLARATION_RE = /^(?:page\s+\d+(?:\s+of\s+\d+)?|\d+\s+of\s+\d+|v\d+(?:\.\d+)+|draft|confidential|for internal use only)\s*$/i;
@@ -64,11 +65,9 @@ export function detectNoiseContexts(
     contexts.push("reference");
   }
 
-  if (
-    isStandalone && (
-    SOURCE_CAPTION_RE.test(trimmed) ||
-    (isShort && /^(?:source|figure|map|table|chart)\b/i.test(trimmed)))
-  ) {
+  if (isStandalone && CAPTION_PREFIX_RE.test(trimmed)) {
+    contexts.push("source-caption");
+  } else if (isStandalone && SOURCE_ATTRIBUTION_RE.test(trimmed)) {
     contexts.push("source-caption");
   }
 

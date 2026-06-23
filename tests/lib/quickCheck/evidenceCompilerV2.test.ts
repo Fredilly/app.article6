@@ -624,6 +624,27 @@ describe("Noise context detection in Evidence Compiler v2", () => {
     }
   });
 
+  test("does not flag body text that mentions a figure as source-caption", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Location",
+        "The project area is shown in Figure 1 below.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "body-figure-doc",
+      documentStructure,
+    });
+
+    const bodyTextSpan = compiled.spans.find((span) =>
+      span.text.includes("shown in Figure 1")
+    );
+    expect(bodyTextSpan).toBeDefined();
+    // Body text mentioning a figure should not be excluded
+    expect(bodyTextSpan?.reliability).not.toBe("excluded");
+  });
+
   test("every compiled span has stable provenance fields", () => {
     const parsedDocument = parseDocumentText({
       rawText: [
