@@ -18,10 +18,19 @@ export type EvidenceBlockType =
 
 export type EvidenceSpanReliability = "primary" | "limited" | "excluded";
 
+export type NoiseContext =
+  | "header"
+  | "footer"
+  | "toc"
+  | "contact"
+  | "reference"
+  | "source-caption";
+
 export type EvidenceLayoutMetadata = {
   boundingBox?: ParsedBoundingBox;
   repeatedHeaderFooter?: boolean;
   limitedProvenance?: boolean;
+  noiseContexts?: NoiseContext[];
 };
 
 export type EvidenceTableCellMetadata = {
@@ -67,6 +76,7 @@ export type EvidenceSpan = {
   table?: EvidenceTableMetadata;
   reliability: EvidenceSpanReliability;
   confidence: number;
+  noise?: NoiseContext[];
 };
 
 export type EvidenceDocument = {

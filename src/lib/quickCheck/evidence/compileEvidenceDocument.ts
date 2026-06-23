@@ -9,6 +9,7 @@ import type {
   EvidenceTableCellMetadata,
   EvidenceTableMetadata,
 } from "@/lib/quickCheck/evidence/evidenceTypes";
+import { detectNoiseContexts, adjustReliabilityForNoise } from "@/lib/quickCheck/evidence/noiseDetection";
 
 type PageSlice = {
   index: number;
@@ -383,7 +384,12 @@ function buildEvidenceSpan(input: {
   parserAdapterId?: EvidenceDocument["parserAdapterId"];
   documentFamily?: EvidenceDocument["documentFamily"];
   block: CandidateBlock;
+  noiseContexts?: import("@/lib/quickCheck/evidence/evidenceTypes").NoiseContext[];
 }): EvidenceSpan {
+  const noise = input.noiseContexts?.length ? input.noiseContexts : undefined;
+  const reliability = noise?.length
+    ? adjustReliabilityForNoise(input.block.reliability, noise)
+    : input.block.reliability;
   return {
     spanId: buildSpanId({
       docId: input.docId,
@@ -410,8 +416,9 @@ function buildEvidenceSpan(input: {
     documentFamily: input.documentFamily,
     layout: input.block.layout,
     table: input.block.table,
-    reliability: input.block.reliability,
+    reliability,
     confidence: input.block.confidence,
+    noise,
   };
 }
 
@@ -535,6 +542,13 @@ export function compileEvidenceDocumentFromStructure(input: {
   let cursor = 0;
   let hasSeenSectionedHeading = false;
 
+  const pages = splitPages(rawText);
+  const pageEdgeLines = collectRepeatedPageEdgeLines(pages);
+  const sectionHeadings = new Map<string, string>();
+  for (const section of input.documentStructure.sections) {
+    sectionHeadings.set(section.id, section.titleRaw);
+  }
+
   const spans: EvidenceSpan[] = input.documentStructure.blocks.flatMap((block) => {
     const treatAsTitle =
       block.type === "heading"
@@ -579,6 +593,29 @@ export function compileEvidenceDocumentFromStructure(input: {
         || block.type === "list_item",
     });
 
+    // Detect noise contexts
+    const sectionHeading = block.sectionId ? sectionHeadings.get(block.sectionId) : undefined;
+    const isPageEdge = block.type === "header" || block.type === "footer"
+      || pageEdgeLines.headers.has(block.rawText.trim())
+      || pageEdgeLines.footers.has(block.rawText.trim());
+    const noiseContexts = detectNoiseContexts(block.rawText, {
+      blockType: block.type,
+      sectionHeading,
+      isPageEdge,
+      isRepeated:
+        pageEdgeLines.headers.has(block.rawText.trim())
+        || pageEdgeLines.footers.has(block.rawText.trim()),
+      page: block.pageNumber,
+      isFirstPage: block.pageNumber === 1,
+    });
+
+    const layout = {
+      boundingBox: block.boundingBox,
+      repeatedHeaderFooter: block.type === "header" || block.type === "footer",
+      limitedProvenance: block.type === "list_item" || blockType === "table" || !block.boundingBox,
+      noiseContexts: noiseContexts.length > 0 ? noiseContexts : undefined,
+    };
+
     return [buildEvidenceSpan({
       docId: input.docId,
       parserSource: input.documentStructure.source,
@@ -599,12 +636,9 @@ export function compileEvidenceDocumentFromStructure(input: {
         confidence: block.confidence,
         reliability,
         table,
-        layout: {
-          boundingBox: block.boundingBox,
-          repeatedHeaderFooter: block.type === "header" || block.type === "footer",
-          limitedProvenance: block.type === "list_item" || blockType === "table" || !block.boundingBox,
-        },
+        layout,
       },
+      noiseContexts: noiseContexts.length > 0 ? noiseContexts : undefined,
     })];
   });
 

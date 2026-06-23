@@ -513,3 +513,165 @@ describe("Evidence Compiler v2", () => {
     expect(missing).toEqual(expect.objectContaining({ valid: false, matchType: "missing", confidence: "low" }));
   });
 });
+
+describe("Noise context detection in Evidence Compiler v2", () => {
+  test("labels TOC lines as toc noise with excluded reliability", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "Table of Contents",
+        "1 Project Details ......... 3",
+        "1.1 Location .............. 5",
+        "2 Baseline Scenario ....... 8",
+        "",
+        "1 Project Details",
+        "The project is located in Indonesia.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "toc-doc",
+      documentStructure,
+    });
+
+    const tocSpans = compiled.spans.filter((span) => span.noise?.includes("toc"));
+    expect(tocSpans.length).toBeGreaterThan(0);
+    for (const span of tocSpans) {
+      expect(span.reliability).toBe("excluded");
+    }
+
+    const primarySpans = compiled.spans.filter((span) => span.reliability === "primary");
+    expect(primarySpans.length).toBeGreaterThan(0);
+  });
+
+  test("labels contact details as contact noise with limited reliability", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "Contact Information",
+        "For further information contact: coordinator@example.com",
+        "Tel: +62 21 555 1234",
+        "Website: www.example.org",
+        "",
+        "1 Project Details",
+        "Host country: Indonesia",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "contact-doc",
+      documentStructure,
+    });
+
+    const contactSpans = compiled.spans.filter((span) => span.noise?.includes("contact"));
+    expect(contactSpans.length).toBeGreaterThan(0);
+    for (const span of contactSpans) {
+      expect(span.reliability).not.toBe("primary");
+    }
+  });
+
+  test("labels source-caption lines as source-caption noise with excluded reliability", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Location",
+        "The project area is shown in Figure 1 below.",
+        "Figure 1: Map of project area. Source: Adapted from regional land use plan.",
+        "",
+        "2 Baseline Scenario",
+        "The baseline scenario represents the most likely land use.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "source-caption-doc",
+      documentStructure,
+    });
+
+    const captionSpans = compiled.spans.filter((span) => span.noise?.includes("source-caption"));
+    expect(captionSpans.length).toBeGreaterThan(0);
+    for (const span of captionSpans) {
+      expect(span.reliability).toBe("excluded");
+    }
+  });
+
+  test("treats headers/footers as excluded noise", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "Project Description Document",
+        "",
+        "1 Project Details",
+        "Host country: Indonesia",
+        "\f",
+        "Project Description Document",
+        "",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion.",
+        "\f",
+        "Project Description Document",
+        "",
+        "3 Monitoring Plan",
+        "The monitoring plan describes annual monitoring.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "header-doc",
+      documentStructure,
+    });
+
+    const headerSpans = compiled.spans.filter((span) => span.noise?.includes("header"));
+    expect(headerSpans.length).toBeGreaterThan(0);
+    for (const span of headerSpans) {
+      expect(span.reliability).toBe("excluded");
+    }
+  });
+
+  test("does not flag body text that mentions a figure as source-caption", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Location",
+        "The project area is shown in Figure 1 below.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "body-figure-doc",
+      documentStructure,
+    });
+
+    const bodyTextSpan = compiled.spans.find((span) =>
+      span.text.includes("shown in Figure 1")
+    );
+    expect(bodyTextSpan).toBeDefined();
+    // Body text mentioning a figure should not be excluded
+    expect(bodyTextSpan?.reliability).not.toBe("excluded");
+  });
+
+  test("every compiled span has stable provenance fields", () => {
+    const parsedDocument = parseDocumentText({
+      rawText: [
+        "1 Project Details",
+        "Host country: Indonesia",
+        "Project location: Central Kalimantan",
+        "",
+        "2 Baseline Scenario",
+        "Baseline scenario: forest conversion without the project.",
+      ].join("\n"),
+    });
+    const documentStructure = buildDocumentStructure({ parsedDocument });
+    const compiled = compileEvidenceDocumentFromStructure({
+      docId: "provenance-doc",
+      documentStructure,
+    });
+
+    for (const span of compiled.spans) {
+      expect(typeof span.spanId).toBe("string");
+      expect(span.spanId.length).toBeGreaterThan(0);
+      expect(span.text).toBeTruthy();
+      expect(span.normalizedText).toBeTruthy();
+      expect(span.reliability).toBeDefined();
+      expect(span.confidence).toBeGreaterThan(0);
+      expect(Array.isArray(span.headingPath)).toBe(true);
+      expect(Array.isArray(span.sectionPath)).toBe(true);
+      expect(["header", "title", "section_heading", "paragraph", "table", "field", "formula", "annex", "toc", "footer"]).toContain(span.blockType);
+    }
+  });
+});
