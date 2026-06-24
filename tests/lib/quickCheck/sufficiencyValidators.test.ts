@@ -247,4 +247,36 @@ describe("evidence sufficiency validators", () => {
     expect(result.sufficient).toBeDefined();
     // sufficient results are from validators that received non-empty resolvedSpans
   });
+
+  // ── Regression: baseline with emission factors + scenario ──────────────
+
+  test("baseline evidence with emission factors AND scenario narrative stays sufficient", () => {
+    const result = evaluateEvidenceSufficiency(makeInput({
+      reviewArea: "baseline",
+      answerText: "Baseline scenario: Without the project activity, deforestation continues at 2.3% annually. The baseline emission factor is 0.714 tCO2/MWh based on the grid emission factor calculation.",
+      quotes: ["Without the project activity, deforestation continues at 2.3% annually."],
+      resolvedSpans: [resolvedSpan({
+        heading: "Baseline Scenario",
+        headingPath: ["Baseline Scenario"],
+        text: "Without the project activity, deforestation continues at 2.3% annually. The baseline emission factor is 0.714 tCO2/MWh.",
+      })],
+    }));
+    expectSufficient(result);
+  });
+
+  // ── Regression: stakeholder text with "contacted" ──────────────────────
+
+  test("stakeholder evidence containing contacted/contacting is not flagged as boilerplate", () => {
+    const result = evaluateEvidenceSufficiency(makeInput({
+      reviewArea: "stakeholder",
+      answerText: "Local stakeholders were contacted and community meetings held. No negative comments were received.",
+      quotes: ["Local stakeholders were contacted and community meetings held. No negative comments were received."],
+      resolvedSpans: [resolvedSpan({
+        heading: "Stakeholder Consultation",
+        headingPath: ["Stakeholder Consultation"],
+        text: "Local stakeholders were contacted and community meetings held. No negative comments were received.",
+      })],
+    }));
+    expectSufficient(result);
+  });
 });

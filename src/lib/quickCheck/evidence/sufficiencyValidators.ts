@@ -30,7 +30,6 @@ const BOILERPLATE_TERMS = [
   "date of issue",
   "report id",
   "report title",
-  "contact",
 ];
 const METHODOLOGY_PREAMBLE = [
   "this methodology was developed",
@@ -127,28 +126,33 @@ function validateBaseline(input: SufficiencyInput): EvidenceSufficiencyResult {
     };
   }
 
-  // Reject calculation/grid emission factor tables
-  if (
+  // Check for scenario narrative before deciding whether calculation
+  // terms are disqualifying.  A baseline scenario section that discusses
+  // emission factors as part of the scenario description is valid.
+  const hasScenario = /\bscenario\b/i.test(lower) || /\bwithout.?(?:the)?\s*project\b/i.test(lower);
+  const hasNarrativeSignal = /\bcontinu/i.test(lower)
+    || /\bdeforest/i.test(lower)
+    || /\bland use\b/i.test(lower)
+    || /\bbusiness.?(?:as)?\s*usual\b/i.test(lower)
+    || /\bcurrent practice\b/i.test(lower)
+    || /\bhistorical\b/i.test(lower);
+  const hasCalcTerms =
     /\b(?:emission factor|grid emission|om calculation|bm calculation|combined margin)\b/i.test(lower)
-    || /\bex.?(?:ante)?\s*calculation\b/i.test(lower)
-  ) {
+    || /\bex.?(?:ante)?\s*calculation\b/i.test(lower);
+
+  // Calculation-only text (no scenario narrative) is insufficient.
+  // But calculation terms alongside a valid scenario description
+  // are fine — many baseline sections include emission numbers.
+  if (hasCalcTerms && !hasScenario && !hasNarrativeSignal) {
     return {
       sufficient: false,
-      reason: "Baseline evidence is calculation/emission-factor data, not scenario narrative",
+      reason: "Baseline evidence is calculation/emission-factor data without scenario narrative",
       warnings: ["calculation_table_evidence"],
       downgradeTo: "unclear",
     };
   }
 
-  // Must describe a scenario, not just mention "baseline"
-  const hasScenario = /\bscenario\b/i.test(lower) || /\bwithout.?(?:the)?\s*project\b/i.test(lower);
-  const hasDescription = /\bcontinu/i.test(lower)
-    || /\bdeforest/i.test(lower)
-    || /\bland use\b/i.test(lower)
-    || /\bbusiness.?(?:as)?\s*usual\b/i.test(lower)
-    || /\bcurrent practice\b/i.test(lower)
-    || /\bhistorical\b/i.test(lower)
-    || lower.split(/\s+/).filter(Boolean).length > 30;
+  const hasDescription = hasNarrativeSignal || lower.split(/\s+/).filter(Boolean).length > 30;
 
   if (hasScenario && hasDescription) {
     return { sufficient: true, reason: "Baseline evidence describes the scenario with specific context", warnings: [] };
