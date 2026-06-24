@@ -164,13 +164,22 @@ function evaluateQuestion(input: {
   const noEvidenceFalseNegativeTotal = expectation.expectedStatus === "no_evidence" ? 1 : 0;
   const noEvidenceFalseNegativeFailures = noEvidenceFalseNegativeTotal === 1 && reviewResult.routerResult.status !== "no_evidence" ? 1 : 0;
 
-  // Answer-quality checks — enforce concise, substantive answers
-  if (expectation.expectedAnswerContains?.length) {
+  // Answer-quality checks — enforce concise, substantive answers.
+  // These are strict-gated: failures route to routerFailures so they
+  // count as regressions and block CI under --strict.
+  if (expectation.expectedVisibleAnswerContains?.length) {
     const answerText = reviewResult.routerResult.answerText;
+    for (const term of expectation.expectedVisibleAnswerContains) {
+      if (!includesNormalized(answerText, term)) {
+        routerFailures.push(`expected visible answer to contain "${term}"`);
+      }
+    }
+  }
+  if (expectation.expectedEvidenceContains?.length) {
     const quotes = reviewResult.routerResult.quotes.join("\n");
-    for (const term of expectation.expectedAnswerContains) {
-      if (!includesNormalized(answerText + "\n" + quotes, term)) {
-        routerFailures.push(`expected answer/quote to contain "${term}"`);
+    for (const term of expectation.expectedEvidenceContains) {
+      if (!includesNormalized(quotes, term)) {
+        routerFailures.push(`expected evidence quotes to contain "${term}"`);
       }
     }
   }
@@ -194,7 +203,7 @@ function evaluateQuestion(input: {
   if (typeof expectation.maxVisibleAnswerLength === "number") {
     const visibleLen = reviewResult.routerResult.answerText.length;
     if (visibleLen > expectation.maxVisibleAnswerLength) {
-      visibleFailures.push(
+      routerFailures.push(
         `visible answer length ${visibleLen} exceeds max ${expectation.maxVisibleAnswerLength}`,
       );
     }

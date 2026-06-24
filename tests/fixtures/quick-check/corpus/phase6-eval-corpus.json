@@ -492,7 +492,7 @@
           "baseline_scenario": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
-            "expectedAnswerContains": [
+            "expectedVisibleAnswerContains": [
               "traditional",
               "absence of the project",
               "baseline scenario"

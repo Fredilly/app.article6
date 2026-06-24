@@ -33,7 +33,8 @@ export type EvalCorpusQuestionExpectation = {
   expectedEvidenceEmpty?: boolean;
   goldEvidence?: EvalCorpusGoldEvidence;
   expectedAnswer?: string;
-  expectedAnswerContains?: string[];
+  expectedVisibleAnswerContains?: string[];
+  expectedEvidenceContains?: string[];
   forbiddenAnswerContains?: string[];
   forbiddenStatus?: DeterministicRouterStatus[];
   maxVisibleAnswerLength?: number;

@@ -430,7 +430,7 @@ describe("Quick Check — PD_REDD_v1_130 regression", () => {
     const quotes = r.routerResult.quotes.join("\n").toLowerCase();
     expect(quotes).toContain("baseline scenario");
     // Must not be a giant full-section dump
-    expect(r.routerResult.answerText.length).toBeLessThan(500);
+    expect(r.routerResult.answerText.length).toBeLessThanOrEqual(500);
   });
 
   it("visible answer is not a full section blob", () => {
