@@ -82,6 +82,7 @@ import {
   documentPurposeLabel,
   type DocumentPurpose,
 } from "@/lib/documentClassification/classifyDocumentPurpose";
+import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 
 type MethodInventoryRecord = {
   code: string;
@@ -2284,6 +2285,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
+
+          {/* ── Dev-only: Fixture Replay overlay ─────────────────────── */}
+          {process.env.NODE_ENV !== "production" && extractionPreviewView ? (
+            <FixtureReplayOverlay
+              preview={extractionPreviewView}
+              fileName={selectedEvidenceLabel}
+            />
+          ) : null}
 
           {/* ── Evidence Checks ─────────────────────────────────────── */}
           {selectedEvidenceSources.length > 0 && !submitting ? (
