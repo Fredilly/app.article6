@@ -2,41 +2,83 @@
  * Dev-only Fixture Replay UI overlay.
  *
  * Renders a side-by-side comparison of actual Quick Check output vs
- * expected fixture contract values. Only shown in non-production builds.
+ * expected fixture contract values.
  *
- * The first visible mismatch:
- *   CCB report → actual: "VM0007" primary, expected: no primary methodology,
- *   VM0007 as supporting_carbon_accounting_reference only.
+ * Only rendered in non-production environments. The fixture contract
+ * must be pre-loaded server-side and passed in as a prop — this
+ * component does NOT import fs or path.
+ *
+ * First observable mismatch:
+ *   CCB report → actual "VM0007" primary, fixture expects no primary,
+ *   VM0007 only as supporting carbon-accounting reference.
  */
 
 "use client";
 
 import { useMemo, useState } from "react";
 import type { ExtractionPreviewViewModel } from "@/lib/chat/quickCheckUi";
-import { compareWithFixture } from "@/lib/dev/fixtureReplay";
+import {
+  compareWithFixture,
+  type FixtureContract,
+  type ComparisonResult,
+} from "@/lib/dev/fixtureReplay";
 
 type Props = {
+  contract: FixtureContract | null;
   preview: ExtractionPreviewViewModel | null;
   fileName: string | null;
 };
 
-export function FixtureReplayOverlay({ preview, fileName }: Props) {
+export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const result = useMemo(
-    () => preview !== null ? compareWithFixture(preview as ExtractionPreviewViewModel, fileName) : null,
-    [preview, fileName],
+    () => preview !== null
+      ? compareWithFixture(contract, preview, fileName)
+      : null,
+    [contract, preview, fileName],
   );
 
-  if (!result) return null;
-
-  const { comparisons, mismatchCount } = result;
-
-  // Only show in non-production
+  // ── Guard: production env or no analysis yet ──
   if (typeof process !== "undefined" && process.env.NODE_ENV === "production") {
     return null;
   }
+  if (!preview || !result) return null;
 
+  const {
+    summary,
+    comparisons,
+    mismatchCount,
+    contractLoaded,
+    contractError,
+  } = result;
+
+  // ── Contract didn't load — show error state visibly ──
+  if (!contractLoaded) {
+    return (
+      <div className="mt-4 rounded-[1.5rem] border border-rose-300 bg-rose-50 p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-rose-800">
+          <span>⚠️</span> Fixture Replay: Contract not loaded
+        </div>
+        <div className="mt-2 text-xs text-rose-700">
+          {contractError ?? "Unknown error loading contract"}
+        </div>
+      </div>
+    );
+  }
+
+  // ── No matching fixture — file not in contract ──
+  if (comparisons.length === 0) {
+    return (
+      <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-white shadow">
+        <div className="px-4 py-3 text-xs text-slate-500">
+          Fixture Replay: {summary}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Show comparison table ──
   const allPass = mismatchCount === 0;
 
   return (
@@ -61,8 +103,9 @@ export function FixtureReplayOverlay({ preview, fileName }: Props) {
       {expanded && (
         <div className="border-t border-slate-200 px-4 py-3">
           <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-            {activeFixtureName(fileName)}
+            {activeFixtureLabel(fileName)}
           </div>
+          <div className="mb-3 text-xs text-slate-600">{summary}</div>
 
           <table className="w-full text-xs">
             <thead>
@@ -74,45 +117,55 @@ export function FixtureReplayOverlay({ preview, fileName }: Props) {
               </tr>
             </thead>
             <tbody>
-              {comparisons.map((comparison) => (
-                <tr key={comparison.check} className="border-b border-slate-100 last:border-0">
-                  <td className="py-1.5 pr-2 font-medium text-slate-700">{comparison.check}</td>
-                  <td className="py-1.5 pr-2 text-slate-600">{formatValue(comparison.actual)}</td>
-                  <td className="py-1.5 pr-2 text-slate-600">{formatValue(comparison.expected)}</td>
-                  <td className="py-1.5">
-                    {comparison.passed
-                      ? <span className="inline-flex items-center gap-1 text-emerald-700">✓ Pass</span>
-                      : <span className="inline-flex items-center gap-1 text-rose-700">✗ Fail</span>}
-                  </td>
-                </tr>
+              {comparisons.map((cmp) => (
+                <ComparisonRow key={cmp.check} comparison={cmp} />
               ))}
             </tbody>
           </table>
-
-          {!allPass && (
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              <strong>First visible mismatch:</strong>{" "}
-              The CCB report currently shows VM0007 as primary methodology,
-              but the fixture expects no primary methodology — VM0007 should
-              only appear as supporting carbon-accounting reference.
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-function activeFixtureName(fileName: string | null): string {
-  if (!fileName) return "Unknown file";
-  if (fileName.includes("CCB_Validation")) return "CCB Validation Report (CCBA/CCB)";
-  if (fileName.includes("VCS_Validation")) return "VCS Validation Report (VCS)";
-  if (fileName.includes("PROJ_DESC")) return "Project Description / PDD (VCS+CCB)";
-  if (fileName.includes("MONIT_REP")) return "Monitoring Report (VCS+CCB)";
-  return "Unknown fixture";
+function ComparisonRow({ comparison }: { comparison: ComparisonResult }) {
+  const statusBadge = comparison.provenanceKnownGap
+    ? <span className="inline-flex items-center gap-1 text-amber-700 text-[11px]">~ Known gap</span>
+    : comparison.passed
+    ? <span className="inline-flex items-center gap-1 text-emerald-700">✓ Pass</span>
+    : <span className="inline-flex items-center gap-1 text-rose-700">✗ Fail</span>;
+
+  return (
+    <tr className="border-b border-slate-100 last:border-0">
+      <td className="py-1.5 pr-2 font-medium text-slate-700">
+        {comparison.label}
+      </td>
+      <td className="py-1.5 pr-2 text-slate-600">
+        <FormatValue value={comparison.actual} />
+      </td>
+      <td className="py-1.5 pr-2 text-slate-600">
+        <FormatValue value={comparison.expected} />
+      </td>
+      <td className="py-1.5">{statusBadge}</td>
+    </tr>
+  );
 }
 
-function formatValue(value: string | null): string {
-  if (value === null) return <span className="text-slate-400">null</span> as unknown as string;
-  return value.length > 50 ? value.slice(0, 47) + "..." : value;
+function FormatValue({ value }: { value: string | null }) {
+  if (value === null) {
+    return <span className="text-slate-400 italic">null</span>;
+  }
+  if (value.length > 80) {
+    return <span title={value}>{value.slice(0, 77)}...</span>;
+  }
+  return <>{value}</>;
+}
+
+function activeFixtureLabel(fileName: string | null): string {
+  if (!fileName) return "Unknown file";
+  if (fileName.includes("CCB_Validation")) return "CCB Validation (CCBA/CCB)";
+  if (fileName.includes("VCS_Validation")) return "VCS Validation (VCS)";
+  if (fileName.includes("PROJ_DESC")) return "PDD (VCS+CCB)";
+  if (fileName.includes("MONIT_REP")) return "Monitoring Report (VCS+CCB)";
+  return "Unknown fixture";
 }
