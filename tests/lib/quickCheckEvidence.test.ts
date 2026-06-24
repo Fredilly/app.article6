@@ -53,7 +53,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The PDD references the mapped project area or AOI",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
         "The project location is described in the PDD",
         "The project has documented monitoring evidence",
       ]),
@@ -101,7 +101,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The PDD references the mapped project area or AOI",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
         "The project has documented monitoring evidence",
       ]),
     );
@@ -202,7 +202,7 @@ describe("quick check evidence analysis", () => {
 
     expect(preview.extractedFacts).toEqual([
       "The PDD references the mapped project area or AOI: Project area Makueni County and Kitui County.",
-      "The PDF states a monitoring or reporting period: Reporting period 1 April 2024 - 31 March 2025.",
+      "The file contains an explicit reporting or monitoring period with a date range: Reporting period 1 April 2024 - 31 March 2025.",
       "The project has documented monitoring evidence",
     ]);
   });
@@ -440,7 +440,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The project location is described in the PDD",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
       ]),
     );
     expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));

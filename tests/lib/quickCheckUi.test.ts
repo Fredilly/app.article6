@@ -58,7 +58,7 @@ describe("quick check ui helpers", () => {
           {
             id: "reporting-period",
             category: "reporting-period",
-            summary: "The PDF states a monitoring or reporting period",
+            summary: "The file contains an explicit reporting or monitoring period with a date range",
             matchText: "reporting period stated",
             sourceLabel: "malawi-strong-signal-evidence.pdf",
             detail: "Reporting period: 1 January 2025 to 31 December 2025.",
@@ -73,7 +73,7 @@ describe("quick check ui helpers", () => {
     });
 
     expect(snapshot.extractedFacts).toEqual([
-      "The PDF states a monitoring or reporting period: Reporting period: 1 January 2025 to 31 December 2025.",
+      "The file contains an explicit reporting or monitoring period with a date range: Reporting period: 1 January 2025 to 31 December 2025.",
     ]);
   });
 
@@ -109,7 +109,7 @@ describe("quick check ui helpers", () => {
           {
             id: "reporting-period",
             category: "reporting-period",
-            summary: "The PDF states a monitoring or reporting period",
+            summary: "The file contains an explicit reporting or monitoring period with a date range",
             matchText: "reporting period stated",
             sourceLabel: "fresh-monitoring-report.pdf",
             detail: "Reporting period: 1 January 2025 to 31 December 2025.",
@@ -281,7 +281,7 @@ describe("quick check ui helpers", () => {
           {
             id: "reporting-period",
             category: "reporting-period",
-            summary: "The PDF states a monitoring or reporting period",
+            summary: "The file contains an explicit reporting or monitoring period with a date range",
             matchText: "reporting period",
             sourceLabel: "monitoring-upload.pdf",
             detail: "Reporting period: 1 January 2017 to 31 December 2017.",
@@ -592,7 +592,7 @@ describe("quick check ui helpers", () => {
       extraction: {
         documentType: "PDD / PDF",
         extractedFacts: [
-          "The PDF states a monitoring or reporting period",
+          "The file contains an explicit reporting or monitoring period with a date range",
           "The project has documented monitoring evidence",
         ],
         methodologyMentions: [],
