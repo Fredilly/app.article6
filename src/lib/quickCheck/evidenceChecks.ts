@@ -918,7 +918,14 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
       || /\bmost attractive course of action\b/i.test(displayable)
       || /\bprevailing practice\b/i.test(displayable)
       || /\bmost likely alternative scenario is the baseline\b/i.test(displayable)
-      || /\bselected baseline scenario\b/i.test(displayable);
+      || /\bselected baseline scenario\b/i.test(displayable)
+      || /\babsence of the project\b/i.test(displayable)
+      || /\btraditional agricultural practices\b/i.test(displayable)
+      || /\bslash-and-burn\b/i.test(displayable)
+      || /\bmost plausible scenario\b/i.test(displayable)
+      || /\bwithout the project\b/i.test(displayable)
+      || /\bwithout-project\b/i.test(displayable)
+      || /\bbaseline scenario\b/i.test(displayable);
     if (!hasBaselineEvidence) {
       return { valid: false, reason: "Text does not identify the selected baseline scenario" };
     }
@@ -1012,7 +1019,8 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
     }
   }
   const bestFailed = validateCandidate(contract, candidates[0]);
-  return { status: "unclear", answerText: candidates[0].text, downgradeReason: bestFailed.reason };
+  const truncated = candidates[0].text.length > 500 ? candidates[0].text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : candidates[0].text;
+  return { status: "unclear", answerText: truncated, downgradeReason: bestFailed.reason };
 }
 
 // ── Contracts ──────────────────────────────────────────────────────────────
