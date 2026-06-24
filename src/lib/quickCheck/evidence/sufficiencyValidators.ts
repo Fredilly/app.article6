@@ -50,10 +50,7 @@ function validateAdditionality(input: SufficiencyInput): EvidenceSufficiencyResu
 
   // Reject generic methodology paragraphs that merely mention
   // additionality in context of "methodology requires additionality assessment"
-  if (
-    lower.length < 60
-    || lower.split(/\s+/).filter(Boolean).length < 8
-  ) {
+  if (lower.length < 30 || lower.split(/\s+/).filter(Boolean).length < 5) {
     return {
       sufficient: false,
       reason: "Evidence text too short to demonstrate additionality",
@@ -82,16 +79,23 @@ function validateAdditionality(input: SufficiencyInput): EvidenceSufficiencyResu
     };
   }
 
-  // Must contain specific additionality discussion
+  // Must contain a substantive additionality claim, not just the word
+  // "additionality" in a methodology description paragraph.  Short but
+  // clear statements like "The project passes the additionality test"
+  // are accepted.
   const hasAdditionality = /\badditionality\b/i.test(lower);
-  const hasDemonstration = /\bdemonstrat/i.test(lower) || /\bjustif/i.test(lower) || /\bprove\b/i.test(lower);
-  const hasSpecific = /\bwould not\b/i.test(lower)
-    || /\bwithout carbon\b/i.test(lower)
-    || /\bbarrier\b/i.test(lower)
-    || /\binvestment analysis\b/i.test(lower)
-    || /\bcommon practice\b/i.test(lower);
+  const hasAdditional = /\badditional\b/i.test(lower);
+  const hasSubstantive = (
+    /\bdemonstrat/i.test(lower) || /\bjustif/i.test(lower) || /\bprove\b/i.test(lower)
+    || /\bwould not\b/i.test(lower) || /\bwithout carbon\b/i.test(lower)
+    || /\bbarrier\b/i.test(lower) || /\binvestment analysis\b/i.test(lower)
+    || /\bcommon practice\b/i.test(lower)
+    || /\bpasses? the additionality\b/i.test(lower)
+    || /\bconsidered additional\b/i.test(lower)
+    || /\bmeets the additionality\b/i.test(lower)
+  );
 
-  if (hasAdditionality && (hasDemonstration || hasSpecific)) {
+  if ((hasAdditionality || hasAdditional) && hasSubstantive) {
     return { sufficient: true, reason: "Additionality evidence is specific and project-grounded", warnings: [] };
   }
 

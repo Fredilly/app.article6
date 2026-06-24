@@ -211,8 +211,12 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
   // Before committing to "answered", validate that the evidence is actually
   // sufficient for the specific check.  Generic, TOC, preamble, or calculation-
   // table evidence must downgrade to unclear or no_evidence.
+  //
+  // Fact-contract routes are exempt: the contract itself already enforces
+  // labeled field extraction with provenance guards.
   const preSufficiencyStatus = candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear";
-  const sufficiency = preSufficiencyStatus === "answered"
+  const skipSufficiency = candidate.route === "project_fact_contract";
+  const sufficiency = (preSufficiencyStatus === "answered" && !skipSufficiency)
     ? evaluateEvidenceSufficiency({
         reviewArea,
         answerText: candidate.answerText,
