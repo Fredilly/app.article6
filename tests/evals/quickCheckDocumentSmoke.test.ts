@@ -406,4 +406,46 @@ describe("Quick Check — PD_REDD_v1_130 regression", () => {
     expect(r.routerResult.quotes).toEqual([]);
     expect(r.documentAnswer.status).not.toBe("likely_yes");
   });
+
+  // ── Answer-quality regression ──────────────────────────────────────────
+  it("baseline answer is found, not unclear, with concise visible text", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+    });
+    // Must not be unclear
+    expect(r.routerResult.status).not.toBe("unclear");
+    expect(r.routerResult.status).toBe("answered");
+    // Visible answer must be concise (≤ 500 chars)
+    expect(r.routerResult.answerText.length).toBeLessThanOrEqual(500);
+    // Must contain core baseline meaning
+    const answerText = r.routerResult.answerText.toLowerCase();
+    expect(answerText).toContain("baseline");
+    expect(answerText).toContain("absence");
+    expect(answerText).toContain("traditional");
+    // Must have evidence quote anchored to baseline section
+    expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+    const quotes = r.routerResult.quotes.join("\n").toLowerCase();
+    expect(quotes).toContain("baseline scenario");
+    // Must not be a giant full-section dump
+    expect(r.routerResult.answerText.length).toBeLessThanOrEqual(500);
+  });
+
+  it("visible answer is not a full section blob", () => {
+    const r = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+    });
+    // Answer text must end with truncation … or be naturally short
+    const len = r.routerResult.answerText.length;
+    if (len >= 500) {
+      expect(r.routerResult.answerText).toContain("\u2026");
+    }
+    // Evidence quotes hold the full detail
+    expect(r.routerResult.quotes.length).toBeGreaterThan(0);
+  });
 });

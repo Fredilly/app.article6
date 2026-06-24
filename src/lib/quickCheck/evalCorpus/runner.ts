@@ -164,6 +164,51 @@ function evaluateQuestion(input: {
   const noEvidenceFalseNegativeTotal = expectation.expectedStatus === "no_evidence" ? 1 : 0;
   const noEvidenceFalseNegativeFailures = noEvidenceFalseNegativeTotal === 1 && reviewResult.routerResult.status !== "no_evidence" ? 1 : 0;
 
+  // Answer-quality checks — enforce concise, substantive answers.
+  // These are strict-gated: failures route to routerFailures so they
+  // count as regressions and block CI under --strict.
+  if (expectation.expectedVisibleAnswerContains?.length) {
+    const answerText = reviewResult.routerResult.answerText;
+    for (const term of expectation.expectedVisibleAnswerContains) {
+      if (!includesNormalized(answerText, term)) {
+        routerFailures.push(`expected visible answer to contain "${term}"`);
+      }
+    }
+  }
+  if (expectation.expectedEvidenceContains?.length) {
+    const quotes = reviewResult.routerResult.quotes.join("\n");
+    for (const term of expectation.expectedEvidenceContains) {
+      if (!includesNormalized(quotes, term)) {
+        routerFailures.push(`expected evidence quotes to contain "${term}"`);
+      }
+    }
+  }
+  if (expectation.forbiddenAnswerContains?.length) {
+    const answerText = reviewResult.routerResult.answerText;
+    const quotes = reviewResult.routerResult.quotes.join("\n");
+    const combined = (answerText + "\n" + quotes).toLowerCase();
+    for (const term of expectation.forbiddenAnswerContains) {
+      if (combined.includes(term.toLowerCase())) {
+        routerFailures.push(`forbidden answer content found: "${term}"`);
+      }
+    }
+  }
+  if (expectation.forbiddenStatus?.length) {
+    for (const forbidden of expectation.forbiddenStatus) {
+      if (reviewResult.routerResult.status === forbidden) {
+        routerFailures.push(`status "${forbidden}" is forbidden for this question`);
+      }
+    }
+  }
+  if (typeof expectation.maxVisibleAnswerLength === "number") {
+    const visibleLen = reviewResult.routerResult.answerText.length;
+    if (visibleLen > expectation.maxVisibleAnswerLength) {
+      routerFailures.push(
+        `visible answer length ${visibleLen} exceeds max ${expectation.maxVisibleAnswerLength}`,
+      );
+    }
+  }
+
   const answeredTotal = reviewResult.routerResult.status === "answered" ? 1 : 0;
   const answeredWithoutProvenance = answeredTotal === 1 && (
     (expectation.goldEvidence?.pages?.length ? !expectation.goldEvidence.pages.every((page) => reviewResult.routerResult.pages.includes(page)) : false)

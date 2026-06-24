@@ -492,6 +492,14 @@
           "baseline_scenario": {
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
+            "expectedVisibleAnswerContains": [
+              "traditional",
+              "absence of the project",
+              "baseline scenario"
+            ],
+            "forbiddenAnswerContains": [],
+            "forbiddenStatus": ["unclear"],
+            "maxVisibleAnswerLength": 500,
             "goldEvidence": {
               "pages": [1],
               "spanAnchors": [

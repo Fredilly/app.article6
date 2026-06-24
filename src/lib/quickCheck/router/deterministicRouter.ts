@@ -432,9 +432,15 @@ function buildSectionCandidate(input: DeterministicRouterInput): RouterCandidate
     }
   }
   const answerText = node ? `${sectionDisplay(node)}: ${effectiveText}` : effectiveText;
+  // Truncate long section body text so visible answer cards are concise.
+  // The full section text is preserved in quotes (evidence tab / details view).
+  const MAX_ANSWER_LENGTH = 500;
+  const truncatedAnswer = answerText.length > MAX_ANSWER_LENGTH
+    ? answerText.slice(0, MAX_ANSWER_LENGTH).replace(/\s+\S*$/, "") + "\u2026"
+    : answerText;
 
   return {
-    answerText,
+    answerText: truncatedAnswer,
     route: "section_index",
     confidence: clampConfidence(Math.min(
       input.queryIntentAnalysis.confidence,

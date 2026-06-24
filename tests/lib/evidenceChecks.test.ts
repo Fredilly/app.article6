@@ -298,4 +298,29 @@ describe("authoritative evidence check selectors", () => {
     expect(result.answerText.toLowerCase()).toMatch(/stakeholders|village meetings/);
     expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
   });
+
+  it("baseline_scenario Evidence Checks result is found, concise, and not a giant blob", () => {
+    const structuredQueryContext = getStructuredQueryContext(PD_REDD_DOC_TEXT);
+    const questionResult = buildReviewQuestionResult({
+      claimText: "What is the baseline scenario?",
+      methodologyId: "VM0007",
+      methodologyVersion: "4.2",
+      rawPddText: PD_REDD_DOC_TEXT,
+      structuredQueryContext,
+    });
+
+    const validated = validateCheck(getContract("baseline_scenario"), {
+      evidenceDocument: structuredQueryContext.evidenceDocument,
+      projectFactContract: structuredQueryContext.projectFactContract,
+      sectionTableIndex: structuredQueryContext.sectionTableIndex,
+      routerResult: questionResult.routerResult,
+      queryIntentAnalysis: questionResult.queryIntentAnalysis,
+      rawText: PD_REDD_DOC_TEXT,
+    });
+
+    expect(validated.status).toBe("found");
+    expect(validated.answerText.length).toBeLessThanOrEqual(500);
+    expect(validated.downgradeReason).toBe("");
+    expect(validated.answerText).not.toMatch(/^Quick Check did not find/i);
+  });
 });
