@@ -85,24 +85,17 @@ Status: `done` — PR [#805](https://github.com/Fredilly/app.article6/pull/805)
 - Exemption: preamble check allows valid country names starting with articles (e.g. "The Gambia").
 - Geo-reference heading no longer banned (preferred host-country context).
 
-## Current phase
-
 ### Phase 3: Hierarchical Section + Table Index
 
-Branch: `feat/qc-section-table-index-v2`
+Status: `done` — PR [#809](https://github.com/Fredilly/app.article6/pull/809)
 
-Goal: Use parser-preserved hierarchy and table structure to improve section/table retrieval.
+- Stricter topic patterns: additionality no longer matches "Additional Information" (removed `/\badditional\b/i`).
+- Baseline calculation context guard excludes grid emission factor, OM/BM/combined margin, and ex-ante calculation sections.
+- "Baseline Scenario" canonical heading promoted; "Baseline Emissions" (no "Scenario") excluded.
+- Multi-word first-pass patterns for monitoring and leakage.
+- 7 new tests (16 total): additionality guard, baseline exclusion, numeric hierarchy, parser fallback, table provenance.
 
-Expected outcome:
-
-- better baseline retrieval
-- better additionality retrieval
-- better monitoring retrieval
-- better leakage retrieval
-- better table-backed evidence retrieval
-- router still validates final evidence
-
-## Next phases
+## Current phase
 
 ### Phase 4: Evidence Sufficiency Validators
 
@@ -118,6 +111,8 @@ Expected outcome:
 - weak related evidence becomes `unclear`
 - unsupported evidence becomes `no_evidence`
 - no fake answers
+
+## Next phases
 
 ### Phase 5: Eval Corpus + CI Gate
 
