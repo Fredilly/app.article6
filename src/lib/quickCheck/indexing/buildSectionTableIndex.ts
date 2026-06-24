@@ -13,17 +13,68 @@ import type {
 } from "@/lib/quickCheck/indexing/types";
 
 const TOPIC_PATTERNS: Record<SectionTopic, RegExp[]> = {
-  baseline: [/\bbaseline scenario\b/i, /\bbaseline\b/i, /\bwithout the project\b/i],
-  monitoring: [/\bmonitoring\b/i, /\bmonitoring plan\b/i],
-  leakage: [/\bleakage\b/i],
-  additionality: [/\badditionality\b/i, /\badditional\b/i],
-  methodology: [/\bmethodology\b/i, /\bapplied methodology\b/i, /\bmethodological\b/i],
-  project_location: [/\bproject location\b/i, /\blocation\b/i, /\bhost country\b/i, /\bproject area\b/i],
+  baseline: [/\bbaseline scenario\b/i, /\bwithout the project\b/i, /\bbaseline\b/i],
+  monitoring: [/\bmonitoring plan\b/i, /\bmonitoring methodology\b/i, /\bmonitoring report\b/i, /\bmonitoring\b/i],
+  leakage: [/\bleakage management\b/i, /\bleakage assessment\b/i, /\bleakage\b/i],
+  additionality: [/\badditionality\b/i, /\bprior consideration\b/i],
+  methodology: [/\bapplied methodology\b/i, /\bmethodology\b/i, /\bmethodological\b/i],
+  project_location: [/\bproject location\b/i, /\bhost country\b/i, /\bproject area\b/i, /\blocation\b/i],
   project_participants: [/\bproject participants?\b/i, /\bproject proponent\b/i, /\bparticipants?\b/i, /\bdeveloper\b/i],
   crediting_period: [/\bcrediting period\b/i, /\bcrediting\b/i],
   safeguards: [/\bsafeguards?\b/i, /\bstakeholders?\b/i, /\bgrievance\b/i, /\bfpic\b/i],
   sdg: [/\bsdgs?\b/i, /\bsustainable development\b/i, /\bco-benefits?\b/i],
 };
+
+/**
+ * Check if a section heading or body text is a baseline calculation / grid
+ * emission factor section rather than a narrative baseline scenario section.
+ *
+ * Baseline scenario questions must prefer narrative descriptions
+ * of the without-project land use scenario, not OM/BM/grid emission
+ * factor calculation tables.
+ */
+function isBaselineCalculationContext(heading: string, bodyText: string): boolean {
+  const headingLower = heading.toLowerCase();
+  const bodyLower = bodyText.toLowerCase();
+
+  // Explicit calculation / grid emission factor sections
+  if (
+    /emission factor/i.test(headingLower)
+    || /grid emission/i.test(headingLower)
+    || /\bom\b/i.test(headingLower) && /calculation/i.test(headingLower)
+    || /\bbm\b/i.test(headingLower) && /calculation/i.test(headingLower)
+    || /combined margin/i.test(headingLower)
+    || /ex\s*-?\s*ante/i.test(headingLower) && /calculation/i.test(headingLower)
+    || /emission reduction calculation/i.test(headingLower)
+    || /data (?:and|&) parameters/i.test(headingLower)
+  ) {
+    return true;
+  }
+
+  // Sections whose body is dominated by calculation/math, not narrative
+  const bodyTerms = [
+    "emission factor",
+    "grid emission factor",
+    "combined margin",
+    "om calculation",
+    "bm calculation",
+    "ex-ante calculation",
+  ];
+  const bodyTermMatches = bodyTerms.filter((term) => bodyLower.includes(term));
+  if (bodyTermMatches.length >= 2) return true;
+
+  // "Baseline emissions" heading alone (without "scenario") is a
+  // calculation section in most carbon documents
+  if (
+    /\bbaseline\b/i.test(headingLower)
+    && /\bemission/i.test(headingLower)
+    && !/\bscenario\b/i.test(headingLower)
+  ) {
+    return true;
+  }
+
+  return false;
+}
 
 function uniqueNumbers(values: Array<number | null | undefined>): number[] {
   return Array.from(new Set(values.filter((value): value is number => typeof value === "number"))).sort((a, b) => a - b);
@@ -226,6 +277,16 @@ function collectTopicReference(input: {
   const headingText = normalizeForSearch(input.node.heading);
   const headingPathText = normalizeForSearch(input.node.headingPath.join(" "));
 
+  // ── Exclusion: baseline calculation / grid emission factor sections ─────
+  if (input.topic === "baseline" && isBaselineCalculationContext(input.node.heading, input.searchableText)) {
+    // A canonical "Baseline Scenario" heading still gets promoted even
+    // if some calculation terms appear in the body — but "Baseline Emissions"
+    // without "Scenario" is excluded entirely.
+    if (!/\bbaseline scenario\b/i.test(headingText) || /\bemission\b/i.test(headingText) && !/\bscenario\b/i.test(headingText)) {
+      return null;
+    }
+  }
+
   let confidence: number;
   if (matchedPatterns.some((pattern) => pattern.test(headingText))) {
     confidence = 0.95;
@@ -237,8 +298,7 @@ function collectTopicReference(input: {
 
   // Boost headings that match a canonical / highly-specific pattern
   // so they rank above partial matches in the same topic.
-  // E.g. "Additionality" beats "Additional Information", and
-  // "Baseline Scenario" beats "Baseline Emissions".
+  // E.g. "Baseline Scenario" beats "Baseline Emissions".
   if (confidence >= 0.95) {
     if (
       (input.topic === "additionality" && /\badditionality\b/i.test(headingText))
@@ -246,6 +306,15 @@ function collectTopicReference(input: {
     ) {
       confidence = 0.97;
     }
+  }
+
+  // ── Demotion: baseline calculation sections that leaked through ─────────
+  if (
+    input.topic === "baseline"
+    && confidence >= 0.95
+    && isBaselineCalculationContext(input.node.heading, input.searchableText)
+  ) {
+    confidence = 0.82;
   }
 
   return {
