@@ -54,7 +54,8 @@
       "id": "phase-3-hierarchical-section-table-index",
       "name": "Hierarchical Section + Table Index",
       "branch": "feat/qc-section-table-index-v2",
-      "status": "not_started",
+      "status": "in_progress",
+      "pr": 809,
       "goal": "Use parser-preserved hierarchy and table structure to improve section and table retrieval."
     },
     {
