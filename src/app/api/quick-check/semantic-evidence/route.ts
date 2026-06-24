@@ -6,7 +6,7 @@ import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { suggestSemanticEvidence } from "@/lib/quickCheck/semanticEvidence/huggingFace";
 
 function qcJson(body: unknown, init?: ResponseInit): NextResponse {
-  return qcJson(body, {
+  return NextResponse.json(body, {
     ...init,
     headers: {
       "Cache-Control": "no-store, no-cache, must-revalidate",

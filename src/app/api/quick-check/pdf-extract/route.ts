@@ -14,7 +14,7 @@ import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing"
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
 
 function qcJson(body: unknown, init?: ResponseInit): NextResponse {
-  return qcJson(body, {
+  return NextResponse.json(body, {
     ...init,
     headers: {
       "Cache-Control": "no-store, no-cache, must-revalidate",
