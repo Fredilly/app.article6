@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
-import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents, extractMethodologyMentions, extractPdfText } from "@/lib/chat/quickCheckEvidence";
+import { analyzeQuickCheckEvidence, buildLocalRuleCandidates, buildQuickCheckQueryTexts, classifyQuickCheckClaimIntents, extractMethodologyMentions, extractPdfText, extractReportingPeriodDetail } from "@/lib/chat/quickCheckEvidence";
 import { buildQuickCheckExtractionSnapshot, deriveQuickCheckExtractionState } from "@/lib/chat/quickCheckUi";
 import { parseWorkbookEvidenceAsset } from "@/lib/evidence/workbook";
 import { putAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -53,7 +53,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The PDD references the mapped project area or AOI",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
         "The project location is described in the PDD",
         "The project has documented monitoring evidence",
       ]),
@@ -101,7 +101,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The PDD references the mapped project area or AOI",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
         "The project has documented monitoring evidence",
       ]),
     );
@@ -202,7 +202,7 @@ describe("quick check evidence analysis", () => {
 
     expect(preview.extractedFacts).toEqual([
       "The PDD references the mapped project area or AOI: Project area Makueni County and Kitui County.",
-      "The PDF states a monitoring or reporting period: Reporting period 1 April 2024 - 31 March 2025.",
+      "The file contains an explicit reporting or monitoring period with a date range: Reporting period 1 April 2024 - 31 March 2025.",
       "The project has documented monitoring evidence",
     ]);
   });
@@ -440,7 +440,7 @@ describe("quick check evidence analysis", () => {
     expect(analysis.facts.map((fact) => fact.summary)).toEqual(
       expect.arrayContaining([
         "The project location is described in the PDD",
-        "The PDF states a monitoring or reporting period",
+        "The file contains an explicit reporting or monitoring period with a date range",
       ]),
     );
     expect(analysis.warnings).not.toContain(expect.stringContaining("fallback parser"));
@@ -715,7 +715,29 @@ describe("extractMethodologyMentions — standard detection hardening", () => {
       "APD",
       "ARR",
       "RWE",
-      "APWD",
-    ]));
+       "APWD",
+     ]));
+  });
+});
+
+describe("extractReportingPeriodDetail", () => {
+  it("accepts full date range with to separator", () => {
+    const result = extractReportingPeriodDetail("Reporting period 01 January 2024 to 31 December 2024.");
+    expect(result).toBe("Reporting period 01 January 2024 to 31 December 2024.");
+  });
+
+  it("accepts full date range with dash separator", () => {
+    const result = extractReportingPeriodDetail("Monitoring period 1 April 2024 - 31 March 2025.");
+    expect(result).toBe("Reporting period 1 April 2024 - 31 March 2025.");
+  });
+
+  it("rejects single date with no end date", () => {
+    const result = extractReportingPeriodDetail("Reporting period: 01 January 2024");
+    expect(result).toBeUndefined();
+  });
+
+  it("rejects incidental mention with no date range", () => {
+    const result = extractReportingPeriodDetail("The monitoring period was adequate for this validation.");
+    expect(result).toBeUndefined();
   });
 });

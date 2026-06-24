@@ -1,6 +1,7 @@
 import type { EvidenceDocument, EvidenceSpan, QuoteValidationInput } from "@/lib/quickCheck/evidence/evidenceTypes";
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
 import { buildEvidenceSpanIndex } from "@/lib/quickCheck/evidence/buildEvidenceSpanIndex";
+import { resolveEvidenceSpans, pagesFromResolvedSpans, sectionsFromResolvedSpans, quotesFromResolvedSpans } from "@/lib/quickCheck/evidence/resolveEvidenceSpans";
 import type { SectionNode, SectionTableIndex, TableCellReference, IndexedTable } from "@/lib/quickCheck/indexing";
 import type { ProjectFactContract, ProjectFactField, ProjectFactConfidence, ProjectFactValue } from "@/lib/quickCheck/projectFacts/types";
 import type { QueryIntentAnalysis, ProjectFactId } from "@/lib/quickCheck/queryIntent";
@@ -144,17 +145,27 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
 
   const matchedSpanIds = dedupe(validQuotes.flatMap(({ validation }) => validation.matchedSpanIds));
   const spanLookup = getSpanLookup(document);
-  const pages = dedupe([
-    ...matchedSpanIds
-      .map((spanId) => spanLookup.get(spanId)?.page)
-      .filter((page): page is number => typeof page === "number"),
-  ]).sort((left, right) => left - right);
+
+  // Resolve candidate's original evidenceSpanIds as the canonical provenance
+  // source. Quote-validation matchedSpanIds may span pages differently,
+  // especially when EvidenceSpan.page is null (filterCandidateSpans skips
+  // the page guard, letting page-1 spans compete).
+  const canonicalResolution = resolveEvidenceSpans(candidate.evidenceSpanIds, document);
+  const matchingResolution = resolveEvidenceSpans(matchedSpanIds, document);
+
+  // Prefer resolved candidate spans for pages; fall back to quote-matched
+  // spans only when the candidate spans have no pages (parser limitation).
+  const resolvedPages = pagesFromResolvedSpans(canonicalResolution);
+  const quotePages = pagesFromResolvedSpans(matchingResolution);
+  const pages = resolvedPages.length > 0
+    ? resolvedPages
+    : quotePages.length > 0
+      ? quotePages
+      : [];
   const sectionPaths = dedupe([
     ...candidate.sectionPaths,
-    ...matchedSpanIds
-      .map((spanId) => spanLookup.get(spanId)?.sectionPath ?? [])
-      .filter((path) => path.length > 0)
-      .map((path) => formatSectionPath(path)),
+    ...sectionsFromResolvedSpans(canonicalResolution),
+    ...(resolvedPages.length === 0 ? sectionsFromResolvedSpans(matchingResolution) : []),
   ]);
   const headingPaths = dedupe(matchedSpanIds
     .map((spanId) => spanLookup.get(spanId)?.headingPath ?? [])
@@ -167,7 +178,16 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
       : pages.length > 0
         ? ["Document root"]
         : [];
-  const quotes = dedupe(validQuotes.map(({ quoteInput }) => quoteInput.quote));
+  const quotes = quotesFromResolvedSpans(canonicalResolution).length > 0
+    ? quotesFromResolvedSpans(canonicalResolution)
+    : quotesFromResolvedSpans(matchingResolution);
+
+  if (!canonicalResolution.allResolved) {
+    candidate.warnings.push("Some candidate evidenceSpanIds could not be resolved");
+  }
+  if (resolvedPages.length === 0 && quotePages.length > 0) {
+    candidate.warnings.push("Candidate spans had no page provenance — using quote-matched pages");
+  }
 
   if (matchedSpanIds.length === 0 || quotes.length === 0 || pages.length === 0 || structuralPaths.length === 0) {
     return buildFallback({
@@ -178,12 +198,20 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
     });
   }
 
+  // evidenceSpanIds must match the provenance source: canonical candidate
+  // spans when they provided the pages/quotes, quote-matched spans only when
+  // used as fallback.
+  const usingCanonicalProvenance = resolvedPages.length > 0;
+  const evidenceSpanIds = usingCanonicalProvenance
+    ? candidate.evidenceSpanIds
+    : matchedSpanIds;
+
   return {
     answerText: candidate.answerText,
     status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
     route: candidate.route,
     confidence: clampConfidence(candidate.confidence),
-    evidenceSpanIds: matchedSpanIds,
+    evidenceSpanIds,
     quotes,
     pages,
     sectionPaths: structuralPaths,
