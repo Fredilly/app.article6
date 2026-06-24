@@ -45,8 +45,12 @@ export function findBestTopicMatch(
   // heading-level (0.95).  Multiple heading-level matches in the
   // same topic are expected in well-structured documents (e.g.
   // several stakeholder sections in a verification report).
+  // A canonical heading match (≥ 0.97) is never ambiguous — it is
+  // the preferred match for the topic (e.g. "Baseline Scenario" vs
+  // "Baseline Emissions", "Additionality" vs "Additional Information").
   if (
     second
+    && best.confidence < 0.97
     && (best.confidence < 0.95 || second.confidence < 0.95)
     && (best.confidence - second.confidence) < ambiguityMargin
   ) {

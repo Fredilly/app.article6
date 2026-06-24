@@ -72,9 +72,16 @@ Each queue item records:
 
 ## Active queue
 
-<!-- Add queue items below as they are reviewed. Follow the format above. -->
+### PD_REDD_v1_130 — host_country/methodology/baseline/additionality/leakage/stakeholder corrections
 
-_No items currently pending._
+- **Wrong answers:** host_country = Portugal (from Figure 2 source citation); methodology = full Modules and Tools table; baseline = unclear; additionality = VT0001 procedural intro
+- **Correct answers:** host_country = Guinea-Bissau (from project location); methodology = VM0007 – REDD Methodology Framework (REDD-MF), Version 1.4; baseline = continuation of traditional land-use practices / Alternative Scenario I with accelerated deforestation; additionality = project is additional due to financial barriers, institutional barriers, and first-of-its-kind barrier; leakage = displacement of unplanned deforestation, market leakage zero, 20% leakage factor; stakeholder = CBMP participatory process with safeguard consultations, workshops, radio, Park Committees
+- **Failure reason:** `deriveCountryFromLocation` picked Portugal from split segments of a figure caption (exact match against KNOWN_COUNTRY_NAMES) instead of Guinea-Bissau from the project description (which required substring matching). Methodology label "Title and Reference of Methodology" was missing from VCS_PD labels. Project title used "Project Title" label which wasn't detected in title blocks. Router had no hostCountry → projectCountry fallback.
+- **Likely fix:** Fix `deriveCountryFromLocation` to (a) reject figure/map/source-caption segments, (b) prefer substring matches in early content segments over exact matches in later segments, (c) use whole-token guards. Add `hostCountry → ["projectCountry"]` fallback to router. Add "Title and Reference of Methodology" to methodology labels. Add "title" blockType to `findProjectTitle` labeled-field check.
+- **Priority:** high
+- **Status:** promoted
+- **Fix:** buildProjectFactContract.ts `deriveCountryFromLocation` rewrite + labeled-title detection + methodology label addition; deterministicRouter.ts fallback map addition; new gold fixture `real-pd-redd-v130-full` in phase6-eval-corpus.json
+- **Notes:** Portugal must never be accepted as host country for this document. The strict eval now gates this — returning Portugal fails the gold fixture.
 
 ## Promoted items
 
