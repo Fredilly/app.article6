@@ -198,12 +198,20 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
     });
   }
 
+  // evidenceSpanIds must match the provenance source: canonical candidate
+  // spans when they provided the pages/quotes, quote-matched spans only when
+  // used as fallback.
+  const usingCanonicalProvenance = resolvedPages.length > 0;
+  const evidenceSpanIds = usingCanonicalProvenance
+    ? candidate.evidenceSpanIds
+    : matchedSpanIds;
+
   return {
     answerText: candidate.answerText,
     status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
     route: candidate.route,
     confidence: clampConfidence(candidate.confidence),
-    evidenceSpanIds: matchedSpanIds,
+    evidenceSpanIds,
     quotes,
     pages,
     sectionPaths: structuralPaths,

@@ -182,8 +182,11 @@ function extractLabeledDetail(text: string, pattern: RegExp, maxLength = 120): s
   return detail.length > maxLength ? `${detail.slice(0, maxLength - 3).trimEnd()}...` : detail;
 }
 
-function extractReportingPeriodDetail(text: string): string | undefined {
+export function extractReportingPeriodDetail(text: string): string | undefined {
   const normalized = normalizeSnippetText(text);
+  // Require an explicit start-to-end date range: both a start and end date
+  // separated by "to" or "-".  Single dates or incidental mentions are
+  // not valid reporting periods.
   const explicitDateRange =
     normalized.match(/\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\s*(?:to|-)\s*\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b/) ??
     normalized.match(/\b\d{4}\s*Q[1-4]\s*(?:to|-)\s*\d{4}\s*Q[1-4]\b/i);
@@ -192,7 +195,8 @@ function extractReportingPeriodDetail(text: string): string | undefined {
     return `Reporting period ${normalizeSnippetText(explicitDateRange[0])}.`;
   }
 
-  return extractLabeledDetail(normalized, /(reporting period|monitoring period)\s*[:\-]?\s*/i);
+  // No fallback — only explicit date ranges are valid evidence.
+  return undefined;
 }
 
 function asLower(value: string): string {
@@ -825,13 +829,12 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   }
 
   if (reportingPeriodPattern.test(haystack)) {
-    // Only add as evidence-backed when an explicit date range is found
+    // Only add as evidence-backed when an explicit date RANGE is found
     // (e.g. "01 January 2024 to 31 December 2024"), not when a document
-    // merely mentions "reporting period" or "monitoring period" in passing.
+    // merely mentions "reporting period" or has only a single date.
     const periodDetail = extractReportingPeriodDetail(text);
     const hasDateRange = periodDetail != null
-      && /\b\d{4}\b/.test(periodDetail ?? "")
-      && /\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b|\b\d{4}\s*(?:to|-)\s*\d{4}\b/.test(periodDetail);
+      && /\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\s*(?:to|-)\s*\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b/i.test(periodDetail);
     if (hasDateRange) {
       addFact(next, {
         category: "reporting-period",

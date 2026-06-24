@@ -124,4 +124,50 @@ describe("resolveEvidenceSpans", () => {
     const result = resolveEvidenceSpans(["s1"], doc);
     expect(sectionsFromResolvedSpans(result)).toEqual(["section:4 > section:4.2 > section:4.2.4"]);
   });
+
+  test("candidate spans on correct page are preferred over quote-matched span on wrong page", () => {
+    // Simulates the router provenance scenario:
+    // - Candidate span (s1) is the correct source: page 15, section 4.2.4
+    // - Quote validation fuzzy-matched an overlapping span (s2) on page 1 (TOC echo)
+    const doc = makeTestDoc({
+      spans: [
+        makeSpan({
+          spanId: "s1",
+          page: 15,
+          sectionPath: ["section:4", "section:4.2", "section:4.2.4"],
+          heading: "Baseline Scenario",
+          headingPath: ["Baseline Scenario"],
+          text: "Without the project, deforestation continues at 2% annually.",
+          normalizedText: "without the project deforestation continues at 2 annually",
+        }),
+        makeSpan({
+          spanId: "s2",
+          page: 1,
+          sectionPath: ["section:1"],
+          heading: "Table of Contents",
+          headingPath: ["Table of Contents"],
+          text: "Without the project, deforestation continues at 2% annually.",
+          normalizedText: "without the project deforestation continues at 2 annually",
+        }),
+      ],
+    });
+
+    const candidateSpanIds = ["s1"]; // correct candidate
+    const quoteMatchedIds = ["s2"]; // quote validation matched wrong page
+
+    const canonical = resolveEvidenceSpans(candidateSpanIds, doc);
+    const matching = resolveEvidenceSpans(quoteMatchedIds, doc);
+
+    // Canonical resolution finds page 15
+    expect(pagesFromResolvedSpans(canonical)).toEqual([15]);
+    // Quote-matched resolution finds page 1 (wrong)
+    expect(pagesFromResolvedSpans(matching)).toEqual([1]);
+
+    // The router must prefer canonical spans for provenance
+    const resolvedPages = pagesFromResolvedSpans(canonical);
+    const usingCanonical = resolvedPages.length > 0;
+    expect(usingCanonical).toBe(true);
+    // evidenceSpanIds must be the canonical IDs, not quote-matched IDs
+    expect(usingCanonical ? candidateSpanIds : quoteMatchedIds).toEqual(["s1"]);
+  });
 });

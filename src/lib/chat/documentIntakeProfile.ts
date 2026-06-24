@@ -1,4 +1,5 @@
 import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import { resolveEvidenceSpans } from "@/lib/quickCheck/evidence/resolveEvidenceSpans";
 
 export type DetectedContent = {
   label: string;
@@ -16,107 +17,81 @@ export type DocumentIntakeProfile = {
 };
 
 /**
- * Build a DocumentIntakeProfile from parsed evidence.
+ * Evidence-backed intake signal.  Every positive signal includes span IDs
+ * and page numbers from the resolved EvidenceDocument.  Signals without
+ * evidence are omitted (not emitted with empty provenance).
+ */
+export type IntakeSignal = {
+  label: string;
+  confidence: number;
+  reason: string;
+  evidenceSpanIds: string[];
+  pageNumbers: number[];
+  negativeWarning?: string;
+};
+
+/**
+ * Build a DocumentIntakeProfile from evidence-backed signals.
  *
- * Unlike the loose keyword-based `derivePdfFactsFromText`, this profile
- * is evidence-backed: every detected content includes span IDs and page
- * numbers from the resolved EvidenceDocument.
+ * Only signals with non-empty `evidenceSpanIds` are emitted.  If
+ * `evidenceDocument` is provided and a signal is missing its own span
+ * IDs, matching spans are derived from body-text evidence.
  */
 export function buildDocumentIntakeProfile(input: {
   documentType: string;
   documentFamily: string;
   evidenceDocument?: EvidenceDocument;
-  containsMonitoringPlan: boolean;
-  containsLeakage: boolean;
-  containsProjectBoundary: boolean;
-  containsAdditionality: boolean;
-  containsBaselineScenario: boolean;
-  containsValidationEvidence: boolean;
-  containsReportingPeriod: boolean;
+  signals: IntakeSignal[];
 }): DocumentIntakeProfile {
   const contents: DetectedContent[] = [];
 
-  // Map evidence-backed signals to detected content items.
-  // Each uses resolved EvidenceSpan provenance where available.
-
-  const addContent = (params: {
-    label: string;
-    confidence: number;
-    reason: string;
-    negativeWarning?: string;
-    hasEvidence: boolean;
-    evidenceSpanIds?: string[];
-    pageNumbers?: number[];
-  }) => {
-    if (!params.hasEvidence) return;
+  // Document type itself is metadata (no evidence spans), but it is
+  // always emitted because it classifies the document.
+  if (input.documentType) {
     contents.push({
-      label: params.label,
-      confidence: params.confidence,
-      evidenceSpanIds: params.evidenceSpanIds ?? [],
-      pageNumbers: params.pageNumbers ?? [],
-      reason: params.reason,
-      negativeWarning: params.negativeWarning,
+      label: input.documentType,
+      confidence: 0.95,
+      evidenceSpanIds: [],
+      pageNumbers: [],
+      reason: `Document classified as ${input.documentType}`,
     });
-  };
+  }
 
-  addContent({
-    label: input.documentType,
-    confidence: 0.95,
-    reason: `Document classified as ${input.documentType}`,
-    hasEvidence: Boolean(input.documentType),
-  });
+  for (const signal of input.signals) {
+    // Derive evidence from the EvidenceDocument if the signal doesn't
+    // provide its own span IDs but claims to have evidence.
+    let spans = signal.evidenceSpanIds;
+    let pages = signal.pageNumbers;
 
-  addContent({
-    label: "Project boundary",
-    confidence: 0.88,
-    reason: "Document contains project boundary information",
-    hasEvidence: input.containsProjectBoundary,
-  });
+    if (spans.length === 0 && input.evidenceDocument) {
+      const resolution = resolveEvidenceSpans(
+        input.evidenceDocument.spans.map((s) => s.spanId),
+        input.evidenceDocument,
+      );
+      // Keep only body-text spans whose normalized text contains any
+      // signal-relevant keywords (from the label).
+      const keywords = signal.label.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+      const matching = resolution.resolved.filter((r) =>
+        keywords.some((kw) => r.normalizedText.includes(kw)),
+      );
+      spans = matching.map((r) => r.spanId);
+      pages = matching
+        .map((r) => r.page)
+        .filter((p): p is number => typeof p === "number");
+    }
 
-  addContent({
-    label: "Monitoring plan",
-    confidence: 0.88,
-    reason: "Document describes monitoring plan or procedures",
-    hasEvidence: input.containsMonitoringPlan,
-  });
+    // Only emit if there is real evidence (span IDs)
+    if (spans.length === 0) continue;
 
-  addContent({
-    label: "Leakage",
-    confidence: 0.90,
-    reason: "Document contains leakage assessment or management information",
-    hasEvidence: input.containsLeakage,
-  });
-
-  addContent({
-    label: "Baseline scenario",
-    confidence: 0.90,
-    reason: "Document describes the baseline scenario",
-    hasEvidence: input.containsBaselineScenario,
-  });
-
-  addContent({
-    label: "Additionality",
-    confidence: 0.90,
-    reason: "Document demonstrates project additionality",
-    hasEvidence: input.containsAdditionality,
-  });
-
-  addContent({
-    label: "Validation evidence",
-    confidence: 0.92,
-    reason: "Document is or contains a validation report or opinion",
-    hasEvidence: input.containsValidationEvidence,
-  });
-
-  addContent({
-    label: "Reporting period",
-    confidence: 0.85,
-    reason: "Document contains an explicit reporting or monitoring period with a date range",
-    hasEvidence: input.containsReportingPeriod,
-    negativeWarning: !input.containsReportingPeriod
-      ? "No explicit reporting period date range found"
-      : undefined,
-  });
+    contents.push({
+      label: signal.label,
+      confidence: signal.confidence,
+      evidenceSpanIds: spans,
+      pageNumbers: Array.from(new Set(pages)).sort((a, b) => a - b),
+      reason: signal.reason,
+      negativeWarning: signal.negativeWarning,
+    });
+  }
 
   return {
     documentType: input.documentType,
