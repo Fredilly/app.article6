@@ -5,12 +5,23 @@ import { withMetrics } from "@/lib/metrics";
 import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { suggestSemanticEvidence } from "@/lib/quickCheck/semanticEvidence/huggingFace";
 
+function qcJson(body: unknown, init?: ResponseInit): NextResponse {
+  return NextResponse.json(body, {
+    ...init,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      ...init?.headers,
+    },
+  });
+}
+
 async function handlePost(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body.", code: "invalid-json" }, { status: 400 });
+    return qcJson({ error: "Invalid JSON body.", code: "invalid-json" }, { status: 400 });
   }
 
   const claimText = typeof body === "object" && body && "claimText" in body && typeof body.claimText === "string" ? body.claimText : "";
@@ -21,10 +32,10 @@ async function handlePost(request: Request) {
   const methodologyVersion = typeof body === "object" && body && "methodologyVersion" in body && typeof body.methodologyVersion === "string" ? body.methodologyVersion : "";
 
   if (!claimText.trim() || !rawPddText.trim()) {
-    return NextResponse.json({ error: "claimText and rawPddText are required.", code: "missing-input" }, { status: 400 });
+    return qcJson({ error: "claimText and rawPddText are required.", code: "missing-input" }, { status: 400 });
   }
 
-  return NextResponse.json(await suggestSemanticEvidence({
+  return qcJson(await suggestSemanticEvidence({
     claimText,
     rawPddText,
     pdfFilePath,
@@ -34,7 +45,7 @@ async function handlePost(request: Request) {
 }
 
 async function handleGet() {
-  return NextResponse.json({
+  return qcJson({
     ok: true,
     configured: Boolean(process.env.HF_API_KEY),
     model: "openbmb/MiniCPM5-1B",

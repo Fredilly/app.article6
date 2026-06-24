@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const gitSha = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GIT_SHA ?? "";
+const pkgVersion = "0.1.0";
+const appVersion = gitSha ? `${pkgVersion}+${gitSha.slice(0, 7)}` : pkgVersion;
 
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_GIT_SHA: gitSha,
+    NEXT_PUBLIC_APP_VERSION: appVersion,
   },
   serverExternalPackages: ["pdf-parse", "pdfjs-dist", "@napi-rs/canvas"],
   outputFileTracingIncludes: {

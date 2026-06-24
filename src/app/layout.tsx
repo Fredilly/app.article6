@@ -3,6 +3,7 @@ import Link from "next/link";
 import DemoNav from "@/components/DemoNav";
 import FooterHealth from "@/components/FooterHealth";
 import HealthBadge from "@/components/HealthBadge";
+import VersionRefreshGate from "@/components/VersionRefreshGate";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/GeistMono-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="bg-[#f9f9f9] antialiased">
+        <VersionRefreshGate>
         <div className="flex min-h-screen flex-col">
           <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/92 backdrop-blur">
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-8">
@@ -45,6 +47,7 @@ export default function RootLayout({
             </div>
           </footer>
         </div>
+        </VersionRefreshGate>
       </body>
     </html>
   );
