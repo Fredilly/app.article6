@@ -24,11 +24,12 @@ export const cordilleraAzulFixtures = [
   // Document family: CCBA/CCB (Climate, Community & Biodiversity Alliance)
   //
   // Key signal rule:
-  //   VM0007 appears 11 times. Every occurrence is in the context of
-  //   "joint assessment under VCS and the REDD methodology VM0007"
-  //   (Section 2.0, Methodology) or incidental background (auditor
-  //   qualifications mentioning VCS VM0007 experience).
+  //   VM0007 appears 11 times as supporting carbon-accounting evidence
+  //   (joint assessment under VCS, carbon quantification reference).
   //   The governing standard is CCBA Standards Second Edition.
+  //   CCB has no ingested methodology pack, so CCB is treated as
+  //   standard/document family, not as methodology.
+  //
   //
   //   CCB is NOT a Verra/VCS program family. It must have its own
   //   documentFamily ("CCBA/CCB") and program signal.
@@ -69,22 +70,22 @@ export const cordilleraAzulFixtures = [
       {
         methodologyId: "VM0007",
         version: null,
-        role: "incidental_mention",
+        role: "supporting_carbon_accounting_reference",
         page: 4,
         quote:
           "This review was continued during the site visit (22 October – 6 November 2012), during a joint assessment under the Verified Carbon Standard and the REDD methodology VM0007.",
         whyThisRole:
-          "VM0007 is mentioned in passing as the methodology used under VCS for the joint assessment. The CCB validation does not evaluate the project against VM0007 criteria. This is an incidental mention within an auditor background paragraph.",
+          "VM0007 is mentioned as the methodology used under VCS for the joint assessment. The CCB validation does not evaluate the project against VM0007 criteria. VM0007 is supporting carbon-accounting evidence referenced in the report.",
       },
       {
         methodologyId: "VM0007",
         version: null,
-        role: "incidental_mention",
+        role: "supporting_carbon_accounting_reference",
         page: 37,
         quote:
           "on a per hectare basis for each forest type using the VCS VM0007 methodology. While a few deviations from the methodology were detected, all variations...",
         whyThisRole:
-          "Appendix reference to VM0007 in the context of carbon quantification methods. Not central to the CCB validation conclusion.",
+          "Appendix reference to VM0007 for carbon quantification methods. Supporting evidence for how carbon stocks were calculated, not central to the CCB validation conclusion.",
       },
     ],
     expectedResolverBehavior: {
