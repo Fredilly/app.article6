@@ -22,6 +22,7 @@ export async function resolveQuickCheckPdfText(input: {
     const response = await fetch("/api/quick-check/pdf-extract", {
       method: "POST",
       body: form,
+      cache: "no-store",
     });
 
     if (!response.ok) {

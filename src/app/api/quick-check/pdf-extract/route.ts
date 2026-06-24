@@ -13,6 +13,17 @@ import { withMetrics } from "@/lib/metrics";
 import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
 
+function qcJson(body: unknown, init?: ResponseInit): NextResponse {
+  return qcJson(body, {
+    ...init,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      ...init?.headers,
+    },
+  });
+}
+
 function saveTempPdf(bytes: ArrayBuffer): string {
   const dir = path.join(os.tmpdir(), "quick-check-pdfs");
   if (!existsSync(dir)) {
@@ -137,21 +148,21 @@ async function handlePost(request: Request) {
   }
 
   if (!bytes || bytes.byteLength === 0) {
-    return NextResponse.json({ error: "Missing PDF bytes.", code: "missing-file" }, { status: 400 });
+    return qcJson({ error: "Missing PDF bytes.", code: "missing-file" }, { status: 400 });
   }
 
   // Content-type validation: only enforce on raw path or when clearly wrong.
   // For multipart uploads (the normal browser path) we rely primarily on magic bytes.
   const isRawPath = !contentType.includes("multipart");
   if (isRawPath && !/application\/pdf|octet-stream/i.test(contentType)) {
-    return NextResponse.json(
+    return qcJson(
       { error: `Uploaded file "${declaredFilename}" must be a PDF.`, code: "invalid-file" },
       { status: 415 },
     );
   }
 
   if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) {
-    return NextResponse.json(
+    return qcJson(
       {
         error: `PDF "${declaredFilename}" exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`,
         code: "file-too-large",
@@ -160,7 +171,7 @@ async function handlePost(request: Request) {
     );
   }
   if (!isLikelyPdfBytes(bytes)) {
-    return NextResponse.json(
+    return qcJson(
       { error: `Uploaded file "${declaredFilename}" is not a valid PDF.`, code: "invalid-file" },
       { status: 400 },
     );
@@ -179,7 +190,7 @@ async function handlePost(request: Request) {
     // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
     if (extraction.text.trim().length > 0) {
       const parserDebug = buildParserDebug();
-      return NextResponse.json({
+      return qcJson({
         text: extraction.text,
         engine: extraction.engine,
         metadata: extraction.metadata,
@@ -197,7 +208,7 @@ async function handlePost(request: Request) {
 
   const fallbackText = extractPdfText(bytes);
   const parserDebug = buildParserDebug();
-  return NextResponse.json({
+  return qcJson({
     text: fallbackText,
     engine: "heuristic",
     pdfRef,
@@ -221,7 +232,7 @@ async function handlePost(request: Request) {
 }
 
 async function handleGet() {
-  return NextResponse.json({
+  return qcJson({
     ok: true,
     engine: "pdf-parse",
     runtime: "nodejs",
