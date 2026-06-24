@@ -4,6 +4,7 @@
 
 import type { DeterministicRouterResult } from "@/lib/quickCheck/retrieval/types";
 import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import { resolveEvidenceSpans, pagesFromResolvedSpans } from "@/lib/quickCheck/evidence/resolveEvidenceSpans";
 import type { ProjectFactContract, ProjectFactField } from "@/lib/quickCheck/projectFacts/types";
 import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
 import { findBestTopicMatch, type SectionTopic } from "@/lib/quickCheck/indexing";
@@ -942,9 +943,33 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
   const result = validateCheckInternal(contract, ctx);
   // Build provenance from the best candidate that passed validation
   const quotes: string[] = result.candidateText ? [result.candidateText] : [];
-  const pages: number[] = result.candidatePage != null ? [result.candidatePage] : [];
+  let pages: number[] = result.candidatePage != null && result.candidatePage > 0 ? [result.candidatePage] : [];
   const sections: string[] = result.candidateSectionPath ?? [];
-  const evidenceSpanIds: string[] = result.candidateSpanId ? [result.candidateSpanId] : [];
+  let evidenceSpanIds: string[] = result.candidateSpanId ? [result.candidateSpanId] : [];
+  const warnings: string[] = [];
+
+  // Resolve candidate span against the canonical EvidenceDocument to confirm
+  // page provenance.  If the candidate's page disagrees with the resolved
+  // span, prefer the resolved span and emit a warning.
+  if (result.candidateSpanId && ctx.evidenceDocument) {
+    const resolution = resolveEvidenceSpans([result.candidateSpanId], ctx.evidenceDocument);
+    if (resolution.resolved.length > 0) {
+      const resolvedSpan = resolution.resolved[0];
+      const resolvedQuotes = [resolvedSpan.text];
+      const resolvedPages = pagesFromResolvedSpans(resolution);
+      if (quotes.length === 0) quotes.push(...resolvedQuotes);
+      if (pages.length === 0) {
+        pages = resolvedPages;
+      } else if (resolvedPages.length > 0 && !pages.some((p) => resolvedPages.includes(p))) {
+        pages = resolvedPages;
+        warnings.push("Candidate page provenance corrected from resolved span");
+      }
+      evidenceSpanIds = [resolvedSpan.spanId];
+    } else {
+      warnings.push("Candidate evidenceSpanId could not be resolved — provenance may be incomplete");
+    }
+  }
+
   return {
     checkId: "" as EvidenceCheckId,
     status: result.status,
@@ -954,7 +979,7 @@ export function validateCheck(contract: EvidenceCheckContract, ctx: CheckValidat
     pages,
     sections,
     evidenceSpanIds,
-    warnings: [],
+    warnings,
   };
 }
 

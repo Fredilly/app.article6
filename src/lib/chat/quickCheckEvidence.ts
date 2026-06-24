@@ -762,7 +762,6 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   const workbookPattern = /(workbook|spreadsheet|excel)/i;
   const monitoringEvidencePattern = /(monitoring plan|monitoring report|monitoring records|monitoring data|monitoring procedures)/i;
   const projectAreaDetail = extractLabeledDetail(text, /(project area|project location)\s*[:\-]?\s*/i);
-  const reportingPeriodDetail = extractReportingPeriodDetail(text);
   const monitoringClaimDetail = extractLabeledDetail(text, /(claim support|primary claim)\s*[:\-]?\s*/i);
 
   if (projectDocumentPattern.test(haystack)) {
@@ -826,13 +825,22 @@ function derivePdfFactsFromText(text: string, sourceLabel: string): QuickCheckEv
   }
 
   if (reportingPeriodPattern.test(haystack)) {
-    addFact(next, {
-      category: "reporting-period",
-      summary: "The PDF states a monitoring or reporting period",
-      matchText: "reporting period stated",
-      sourceLabel,
-      detail: reportingPeriodDetail ?? extractMatchSnippet(text, reportingPeriodPattern),
-    });
+    // Only add as evidence-backed when an explicit date range is found
+    // (e.g. "01 January 2024 to 31 December 2024"), not when a document
+    // merely mentions "reporting period" or "monitoring period" in passing.
+    const periodDetail = extractReportingPeriodDetail(text);
+    const hasDateRange = periodDetail != null
+      && /\b\d{4}\b/.test(periodDetail ?? "")
+      && /\b\d{1,2}\s+[A-Z][a-z]+\s+\d{4}\b|\b\d{4}\s*(?:to|-)\s*\d{4}\b/.test(periodDetail);
+    if (hasDateRange) {
+      addFact(next, {
+        category: "reporting-period",
+        summary: "The file contains an explicit reporting or monitoring period with a date range",
+        matchText: "reporting period explicitly stated",
+        sourceLabel,
+        detail: periodDetail,
+      });
+    }
   }
 
   if (baselineScenarioPattern.test(haystack)) {
