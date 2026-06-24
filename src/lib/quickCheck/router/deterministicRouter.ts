@@ -2,6 +2,7 @@ import type { EvidenceDocument, EvidenceSpan, QuoteValidationInput } from "@/lib
 import { validateQuotes } from "@/lib/quickCheck/evidence/validateQuotes";
 import { buildEvidenceSpanIndex } from "@/lib/quickCheck/evidence/buildEvidenceSpanIndex";
 import { resolveEvidenceSpans, pagesFromResolvedSpans, sectionsFromResolvedSpans, quotesFromResolvedSpans } from "@/lib/quickCheck/evidence/resolveEvidenceSpans";
+import { evaluateEvidenceSufficiency } from "@/lib/quickCheck/evidence/sufficiencyValidators";
 import type { SectionNode, SectionTableIndex, TableCellReference, IndexedTable } from "@/lib/quickCheck/indexing";
 import type { ProjectFactContract, ProjectFactField, ProjectFactConfidence, ProjectFactValue } from "@/lib/quickCheck/projectFacts/types";
 import type { QueryIntentAnalysis, ProjectFactId } from "@/lib/quickCheck/queryIntent";
@@ -128,7 +129,7 @@ function buildFallback(input: {
   };
 }
 
-function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidate): DeterministicRouterResult {
+function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidate, reviewArea: ReviewArea): DeterministicRouterResult {
   const validations = validateQuotes(document, candidate.quoteInputs);
   const validQuotes = validations
     .map((validation, index) => ({ validation, quoteInput: candidate.quoteInputs[index] }))
@@ -206,18 +207,43 @@ function finalizeCandidate(document: EvidenceDocument, candidate: RouterCandidat
     ? candidate.evidenceSpanIds
     : matchedSpanIds;
 
+  // ── Evidence sufficiency ─────────────────────────────────────────────
+  // Before committing to "answered", validate that the evidence is actually
+  // sufficient for the specific check.  Generic, TOC, preamble, or calculation-
+  // table evidence must downgrade to unclear or no_evidence.
+  const preSufficiencyStatus = candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear";
+  const sufficiency = preSufficiencyStatus === "answered"
+    ? evaluateEvidenceSufficiency({
+        reviewArea,
+        answerText: candidate.answerText,
+        quotes,
+        pages,
+        resolvedSpans: canonicalResolution.resolved,
+        route: candidate.route,
+        confidence: candidate.confidence,
+      })
+    : null;
+
+  const allWarnings = [...candidate.warnings];
+  if (sufficiency && !sufficiency.sufficient) {
+    allWarnings.push(sufficiency.reason);
+    allWarnings.push(...sufficiency.warnings);
+  }
+
   return {
     answerText: candidate.answerText,
-    status: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD ? "answered" : "unclear",
+    status: sufficiency && !sufficiency.sufficient
+      ? (sufficiency.downgradeTo ?? "unclear")
+      : preSufficiencyStatus,
     route: candidate.route,
     confidence: clampConfidence(candidate.confidence),
     evidenceSpanIds,
     quotes,
     pages,
     sectionPaths: structuralPaths,
-    warnings: candidate.confidence >= ANSWER_CONFIDENCE_THRESHOLD
-      ? candidate.warnings
-      : [...candidate.warnings, "low_confidence"],
+    warnings: preSufficiencyStatus === "unclear"
+      ? [...allWarnings, "low_confidence"]
+      : allWarnings,
   };
 }
 
@@ -723,10 +749,10 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
             : [...sectionCandidate.warnings, "low_confidence", "structured_input_provenance"],
         };
       }
-      return finalizeCandidate(input.evidenceDocument, sectionCandidate);
+      return finalizeCandidate(input.evidenceDocument, sectionCandidate, input.reviewArea);
     }
     const lexicalCandidate = buildLexicalCandidate(input);
-    if (lexicalCandidate) return finalizeCandidate(input.evidenceDocument, lexicalCandidate);
+    if (lexicalCandidate) return finalizeCandidate(input.evidenceDocument, lexicalCandidate, input.reviewArea);
     return buildFallback({
       answerText: "Quick Check found multiple plausible evidence paths and did not choose one deterministically.",
       status: "unclear",
@@ -768,5 +794,5 @@ export function buildDeterministicRouterResult(input: DeterministicRouterInput):
     };
   }
 
-  return finalizeCandidate(input.evidenceDocument, candidate);
+  return finalizeCandidate(input.evidenceDocument, candidate, input.reviewArea);
 }
