@@ -1,0 +1,1124 @@
+{
+  "description": "Cordillera Azul reliability fixture contract — machine-readable gold expectations for 4 PDFs",
+  "generatedAt": "2026-06-24",
+  "strictEvalEligible": false,
+  "fixtures": [
+    {
+      "fixtureId": "cordillera-azul-ccb-validation-2013",
+      "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf",
+      "documentKind": "validation_report",
+      "expectedDocumentFamily": "CCBA/CCB",
+      "expectedPageCount": 44,
+      "checks": [
+        {
+          "check": "additionality",
+          "currentWrongAnswer": "Not found (CCB uses 'without-project' framing, not VCS additionality tool)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "CCB G2/G3 criteria establish additionality through project design and without-project comparison",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 11,
+            "quote": "G3 – Project Design and Goals ... The project impacts will be measured against this 'without-project' reference scenario."
+          },
+          "weakEvidenceToReject": [
+            "Keyword \"additionality\" count (CCB doc uses 'without-project' framing)",
+            "VCS VT0001 Tool reference (this is a CCB report, not VCS)"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "CCB validation uses CCB G-criteria framing, not VCS VT0001 Tool. Keyword match on 'additionality' misses CCB-specific language.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: G2/G3 sections on pages 11-13"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "baseline_scenario",
+          "currentWrongAnswer": "Not found or keyword match from ToC",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Without-project scenario based on deforestation threat; 10-year baseline period avoiding 15,752,683 tCO2e",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 2,
+            "quote": "It is estimated that the Cordillera Azul National Park unplanned deforestation REDD project (Project) will avoid 15,752,683 tCO2e over the 10 year baseline period through the prevention of illegal logging and reduction of deforestation from agricultural conversion. This 'without project' scenario is consistent with common practice within the reference region."
+          },
+          "weakEvidenceToReject": [
+            "\"Baseline Projections\" header from ToC (page ii, line 38)",
+            "Generic \"baseline\" keyword count",
+            "Keyword match on Executive Summary paragraph that references baseline"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "ToC references to baseline must not be counted as body evidence. G2 section starts at page 11.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: G2 baseline is on page 11+"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "crediting_period",
+          "currentWrongAnswer": "19 FEBRUARY 2013 (cover page date)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "\"19 FEBRUARY 2013\" on cover page (document date, not crediting period)",
+            "\"2013\" anywhere in text",
+            "Keyword \"period\" without crediting context"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Validation report dates must not be confused with project crediting periods.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_crediting_period_in_doc: CCB validation reports don't contain crediting periods"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "document_family",
+          "currentWrongAnswer": "Verra (CCB signal mapped to Verra program in PROGRAM_SIGNALS)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "CCBA / CCB Standards Second Edition",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 1,
+            "quote": "conforms to the Climate, Community and Biodiversity Project Design Standards (Second Edition)"
+          },
+          "weakEvidenceToReject": [
+            "\"CCB\" mapped to program \"Verra\"",
+            "\"VCS\" from joint-assessment mention",
+            "Generic \"CCB Standards\" without Second Edition qualifier"
+          ],
+          "mustNotClassifyAs": [
+            "Verra",
+            "VCS"
+          ],
+          "bugPrevented": "CCB is collapsed into Verra program family via PROGRAM_SIGNALS. CCBA must be its own family.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "ccb_collapsed_into_verra: PROGRAM_SIGNALS maps CCB→Verra"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "document_type",
+          "currentWrongAnswer": "Validation Report (generic, no CCBA qualifier)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "CCBA Project Validation Report",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 1,
+            "quote": "Final CCBA Project Validation Report V3-1"
+          },
+          "weakEvidenceToReject": [
+            "\"Validation Report\" without \"CCBA\" qualifier",
+            "Filename alone",
+            "TOC line referencing validation report"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Every validation report gets the same generic label. CCBA-specific labeling is lost.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: only first ~3 pages extracted"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "host_country",
+          "currentWrongAnswer": "Not detected",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Peru",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 2,
+            "quote": "Central Peru in the Department of: San Martín, Ucayali, Huánuco, and Loreto"
+          },
+          "weakEvidenceToReject": [
+            "Filename",
+            "Vague \"South America\"",
+            "Generic \"developing country\""
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "If extraction only gets first page, host country on page 2 is missed.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: page 2 not always extracted"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "leakage",
+          "currentWrongAnswer": "Not found or generic keyword match",
+          "expectedStatus": "answered",
+          "expectedAnswer": "CL2 – Offsite Climate Impacts ('Leakage') — quantified and mitigated per CCB standards",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 23,
+            "quote": "CL2 – Offsite Climate Impacts ('Leakage') ... The Project Proponents must quantify and mitigate increased GHG emissions that occur beyond the project area and are caused by project activities (commonly referred to as 'leakage')."
+          },
+          "weakEvidenceToReject": [
+            "Generic \"leakage\" from summary paragraph",
+            "ToC reference to CL2",
+            "Keyword \"leakage\" from intro/scope"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "CL2 section on page 23 is beyond current extraction depth (~3 pages).",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: CL2 leakage is on page 23"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "monitoring_plan",
+          "currentWrongAnswer": "Not found or keyword match from ToC",
+          "expectedStatus": "answered",
+          "expectedAnswer": "CL3 – Climate Impact Monitoring per CCB standards",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 24,
+            "quote": "CL3 – Climate Impact Monitoring ... stock changes and GHG emissions, as required by G1.4, G2.3, CL1 and CL3"
+          },
+          "weakEvidenceToReject": [
+            "\"monitoring plan\" from ToC (page ii)",
+            "Generic \"monitoring\" keyword from Executive Summary"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "CL3 on page 24 is beyond current extraction depth.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: CL3 monitoring is on page 24"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "primary_methodology",
+          "currentWrongAnswer": "VM0007 (detected as primary methodology with 99% confidence — CCB document treated as VCS)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 1,
+            "quote": "conforms to the Climate, Community and Biodiversity Project Design Standards (Second Edition)"
+          },
+          "weakEvidenceToReject": [
+            "\"VM0007\" anywhere in extracted text — all 11 occurrences are incidental",
+            "\"VCS\" from joint-assessment context: 'during a joint assessment under the Verified Carbon Standard and the REDD methodology VM0007'",
+            "Auditor qualifications mentioning VCS VM0007 experience",
+            "Appendix reference: 'using the VCS VM0007 methodology'",
+            "Any VM0007 mention treated as primary governing methodology"
+          ],
+          "mustNotClassifyAs": [
+            "VM0007_PRIMARY"
+          ],
+          "bugPrevented": "VM0007 appears 11 times in this CCB report — every occurrence is incidental (joint assessment context, auditor qualifications, appendix reference). None is governing. Without documentFamily context, all 11 mentions gate identically to a VCS validation report. CCB/CCBA is the standard family — CCB methodologies are not ingested, so CCB has no methodology pack to resolve.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_document_family_field: cannot distinguish mentioned from governing",
+            "ccb_collapsed_into_verra: CCB mapped to Verra, so CCB+VCS+VM0007 all suggest Verra family"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "project_id",
+          "currentWrongAnswer": "None (no project ID in this document)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "Filename does not contain project ID",
+            "Any number from document that looks like an ID but isn't"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Must not hallucinate a project ID where none exists in the document body.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_project_id_in_doc: CCB validation report has no project ID"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "reporting_period",
+          "currentWrongAnswer": "19 FEBRUARY 2013 (cover page date extracted as reporting period)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "\"19 FEBRUARY 2013\" (document date, not reporting period)",
+            "Any date from cover page or header"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Document issue date must not be extracted as a reporting period. Only monitoring reports have reporting periods.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_reporting_period_in_doc: validation reports don't contain reporting periods"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        },
+        {
+          "check": "supporting_carbon_methodology",
+          "currentWrongAnswer": "Not detected (VM0007 missed entirely, or only captured as primary)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VM0007",
+          "role": "supporting_carbon_accounting_reference",
+          "expectedDocumentFamily": "CCBA/CCB",
+          "evidence": {
+            "page": 4,
+            "quote": "This review was continued during the site visit (22 October – 6 November 2012), during a joint assessment under the Verified Carbon Standard and the REDD methodology VM0007."
+          },
+          "weakEvidenceToReject": [
+            "VM0007 cited without 'joint assessment' context that explains it's incidental",
+            "VM0007 marked as primary methodology (it's supporting/reference only)",
+            "VM0007 from appendix without context that it's a carbon-quantification reference"
+          ],
+          "mustNotClassifyAs": [
+            "VM0007_PRIMARY"
+          ],
+          "bugPrevented": "VM0007 IS mentioned in the CCB report (11 times) and IS relevant as supporting carbon-accounting evidence. The bug is treating it as PRIMARY methodology. CCB is governed by CCBA Standards, not VCS/VM0007. CCB methodologies are not ingested, so CCB has no methodology pack — CCB is treated as standard/document family.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_document_family_field: cannot mark VM0007 as 'supporting' without documentFamily context",
+            "no_methodology_role_field: resolver has no concept of 'supporting vs governing' roles"
+          ],
+          "fixtureId": "cordillera-azul-ccb-validation-2013",
+          "sourceFile": "doc_0bd5d5d439f5_CCB_ValidationReport_V3-1_021913.pdf"
+        }
+      ]
+    },
+    {
+      "fixtureId": "cordillera-azul-vcs-validation-2013",
+      "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf",
+      "documentKind": "validation_report",
+      "expectedDocumentFamily": "VCS",
+      "expectedPageCount": 47,
+      "checks": [
+        {
+          "check": "document_type",
+          "currentWrongAnswer": "Validation Report (generic, no VCS qualifier)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VCS Validation Report",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 1,
+            "quote": "VALIDATION REPORT: VCS Version 3"
+          },
+          "weakEvidenceToReject": [
+            "\"Validation Report\" without \"VCS\" qualifier",
+            "TOC reference",
+            "Filename alone"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Must distinguish VCS validation report from CCB validation report.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "generic_validation_report_label: VCS/CCB/CCBA all produce same label"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "document_family",
+          "currentWrongAnswer": "Verra (correct but generic — should be VCS-specific)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VCS / Verified Carbon Standard Version 3.3",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 2,
+            "quote": "valid... against the Verified Carbon Standard version 3.3"
+          },
+          "weakEvidenceToReject": [
+            "\"VCS Version 3\" from header text alone",
+            "\"VCS\" keyword match without version context"
+          ],
+          "mustNotClassifyAs": [
+            "CCBA",
+            "CCB"
+          ],
+          "bugPrevented": "VCS is the governing standard (not CCB). CCB mention count (5) is incidental.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "ccb_collapsed_into_verra: CCB and VCS both map to Verra"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "host_country",
+          "currentWrongAnswer": "Not detected or from filename",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Peru",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 2,
+            "quote": "Cordillera Azul National Park in Peru"
+          },
+          "weakEvidenceToReject": [
+            "No explicit country mention",
+            "Filename",
+            "Generic location reference"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Host country must be explicitly extracted from body text, not inferred.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: must get past cover page to Summary paragraph"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "methodology",
+          "currentWrongAnswer": "VM0007 (correct code but missing version v1.3)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VM0007 v1.3 (REDD Methodology Modules)",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 2,
+            "quote": "the approved methodology VM0007 version 1.3, 'REDD Methodology Modules'"
+          },
+          "weakEvidenceToReject": [
+            "Just \"VM0007\" without version (resolver normalizes to VM0007, dropping v1.3)",
+            "ToC reference to methodology",
+            "Generic header mention"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Version (v1.3) and full methodology name must be preserved. Resolver normalizes VM0007 v1.3 → 'VM0007', losing provenance.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "version_information_lost: resolver drops v1.3 in normalization"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "baseline_scenario",
+          "currentWrongAnswer": "Not found or keyword match from ToC",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Baseline per VT0001 Tool + VM0007 module BL-UP VMD0007",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 18,
+            "quote": "The project has identified it's baseline scenario in accordance with the VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, Version 3 and VM0007 methodology module BL-UP 'VMD0007 Estimation of baseline carbon stock changes and greenhouse gas emissions from unplanned deforestation', version 3.0."
+          },
+          "weakEvidenceToReject": [
+            "Generic \"baseline\" from ToC (page 2)",
+            "\"Baseline\" from Summary paragraph"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 4.2.4 on page 18 is beyond current extraction depth.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: baseline section is on page 18+"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "additionality",
+          "currentWrongAnswer": "Not found or keyword match only",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Additionality assessed per VCS standard requirements via VT0001",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 18,
+            "quote": "Assessment of and issuance of an opinion on issues of leakage and additionality"
+          },
+          "weakEvidenceToReject": [
+            "Simple keyword \"additionality\" from scope paragraph",
+            "ToC reference"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Additionality assessment by VCS standard, not keyword match.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: additionality section on page 18+"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "leakage",
+          "currentWrongAnswer": "Not found or generic scope mention",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Leakage managed through buffer zone activities, assessed per VM0007 requirements",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 23,
+            "quote": "The project includes activities conducted in the buffer zone of the project area designed to mitigate leakage. These activities are described in section 1.8 of the PD and summarized in section 3.1.7 of this report. The activities are consistent with the guidelines and requirements of the selected methodology."
+          },
+          "weakEvidenceToReject": [
+            "Generic \"leakage\" from scope paragraph (page 5)",
+            "\"Leakage Management\" ToC entry",
+            "Keyword count"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Specific leakage management section 4.1.11.2 is on page 23+.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: leakage section is on page 23+"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "monitoring_plan",
+          "currentWrongAnswer": "Not found or ToC match only",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Monitoring plan provided in Section 4.3 of the PD, evaluated for conformance with VCS standard",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 21,
+            "quote": "The project proponent has provided a monitoring plan in Section 4.3 of the project document and is consistent with the monitoring and implementation plans submitted by the project proponent and is in conformance with the requirements of the VCS standard."
+          },
+          "weakEvidenceToReject": [
+            "\"Monitoring Plan\" ToC entry (page 2, line 222)",
+            "Keyword \"monitoring\" from scope paragraph"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "ToC reference on page 2 is not body evidence.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: monitoring section is on page 21+"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "crediting_period",
+          "currentWrongAnswer": "Not found (brief mention in Section 4.1.5)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "20 years from 8 August 2008",
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": 12,
+            "quote": "agreement was renewed for one-to-two year terms until August 8, 2008 when CIMA and the Peruvian government signed a 20-year, full management contract."
+          },
+          "weakEvidenceToReject": [
+            "\"2008\" from cover page or header",
+            "\"20-year\" from generic context",
+            "Keyword \"crediting\" from ToC"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 4.1.5 is on page 12 — beyond current shallow extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_extraction_depth: crediting period section on page 12+"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "reporting_period",
+          "currentWrongAnswer": "25 January 2013 (report date extracted as reporting period)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "\"25 January 2013\" (report ID/version date)",
+            "\"1 February 2013\" (date of issue)",
+            "Any date from cover page or header"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Document issue date must not be extracted as reporting period.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_reporting_period_in_doc: validation reports don't contain reporting periods"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        },
+        {
+          "check": "project_id",
+          "currentWrongAnswer": "None (not in document)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "VCS",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "\"985\" from filename of a different document",
+            "Any number from document that isn't explicitly labeled as project ID"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Must not hallucinate project ID from filename of a different document.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_project_id_in_doc: VCS validation report does not contain project ID"
+          ],
+          "fixtureId": "cordillera-azul-vcs-validation-2013",
+          "sourceFile": "doc_1a31ffead659_VCS_ValidationReport_020113.pdf"
+        }
+      ]
+    },
+    {
+      "fixtureId": "cordillera-azul-pdd-2012",
+      "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf",
+      "documentKind": "project_description",
+      "expectedDocumentFamily": "project_description",
+      "expectedPageCount": 198,
+      "checks": [
+        {
+          "check": "document_type",
+          "currentWrongAnswer": "Not detected (413 PAYLOAD TOO LARGE)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Project Description (PDD) — VCS + CCB dual standard",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 1,
+            "quote": "CORDILLERA AZUL NATIONAL PARK REDD PROJECT ... Project Title ... Version 4.0 ... Date of Issue December 20, 2012"
+          },
+          "weakEvidenceToReject": [
+            "\"Project Description\" from header alone without standard context",
+            "Filename \"PROJ_DESC_985\""
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Must distinguish PDD from validation report or monitoring report.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "document_family",
+          "currentWrongAnswer": "Verra (both VCS and CCB map to Verra — dual standard collapsed into single bucket)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VCS Version 3 + CCB Standards Second Edition (dual)",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 5,
+            "quote": "Two protocols were identified to develop and monitor the project: Verified Carbon Standard (VCS) and the Community, Climate and Biodiversity (CCB) protocol."
+          },
+          "weakEvidenceToReject": [
+            "\"VCS\" alone (CCB is also a governing standard)",
+            "\"CCB\" alone (VCS is also a governing standard)",
+            "Both mapped to Verra (collapsed distinction)"
+          ],
+          "mustNotClassifyAs": [
+            "Verra"
+          ],
+          "bugPrevented": "Dual standard must NOT collapse into single Verra program bucket. Both VCS and CCB must be preserved as distinct standards.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "ccb_collapsed_into_verra: VCS and CCB both map to Verra in PROGRAM_SIGNALS"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "host_country",
+          "currentWrongAnswer": "Not detected (UNCLEAR on live site)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Peru",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 1,
+            "quote": "Lima, Peru"
+          },
+          "weakEvidenceToReject": [
+            "No explicit country mention",
+            "Filename"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Host country is on page 1 — even partial extraction should find it.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "methodology",
+          "currentWrongAnswer": "Not detected (primary shows 'Not detected' on live site)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VM0007 REDD Methodology Modules (REDD-MF)",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 5,
+            "quote": "Under VCS, the project is using VM0007 REDD Methodology Modules (REDD-MF) for unplanned frontier deforestation for carbon stock and avoided emissions assessment."
+          },
+          "weakEvidenceToReject": [
+            "Any TOC line mentioning VM0007",
+            "Page 1 header text",
+            "Filename"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 2.1 (page ~70) contains the canonical 'Title and Reference of Methodology' reference. First body mention is on page 5. Not TOC.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "baseline_scenario",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Section 2.4 Baseline Scenario — without-project deforestation projection using VMD0007",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 74,
+            "quote": "Baseline Scenario (G1.7, G2.1, G2.4, G2.5, G3.6) ... Baseline Identification and Justification"
+          },
+          "weakEvidenceToReject": [
+            "Generic \"baseline\" from ToC (page 2)",
+            "Summary paragraph reference to baseline"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 2.4 on page 74 is unreachable without deep extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB, 198 pages — baseline on page 74"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "additionality",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Additionality demonstrated per VCS Tool VT0001",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 78,
+            "quote": "Additionality (G2.2, G3.11, G4.7) ... The project applied the steps outlined in the VCS Tool, VT0001, 'Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities' to demonstrate the additionality of the project."
+          },
+          "weakEvidenceToReject": [
+            "Keyword \"additionality\" from summary paragraph",
+            "ToC reference"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 2.5 on page 78 is unreachable without deep extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB, 198 pages — additionality on page 78"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "leakage",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Section 3.3 Leakage — quantified using VMD0010 (LK-ASU)",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 123,
+            "quote": "Leakage (CCB: CL2.3) ... LK-ASU \"VMD0010 Estimation of emissions from activity shifting for avoided unplanned deforestation\", version 1.0"
+          },
+          "weakEvidenceToReject": [
+            "\"Leakage\" from ToC (page 2)",
+            "Generic leakage mention in summary",
+            "Keyword count of \"leakage\""
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 3.3 on page 123 is unreachable without deep extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB, 198 pages — leakage on page 123"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "monitoring_plan",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Section 4 Monitoring — comprehensive plan with carbon, community, biodiversity monitoring",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 151,
+            "quote": "Description of the Monitoring Plan ... Revision of the baseline ... Monitoring of actual carbon stock changes and greenhouse gas emissions ... Quality Assurance /Quality Control and Data Archiving Procedures ... Monitoring of leakage carbon stock changes"
+          },
+          "weakEvidenceToReject": [
+            "\"Monitoring\" from ToC (page 2)",
+            "Keyword match without section context"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 4.3 on page 151 is unreachable without deep extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB, 198 pages — monitoring on page 151"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "crediting_period",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "20 years from August 8, 2008 to August 7, 2028",
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": 17,
+            "quote": "The project crediting period is twenty years long extending from August 8, 2008 – August 7, 2028, because this is the length of the management contract between CIMA and the Peruvian government."
+          },
+          "weakEvidenceToReject": [
+            "\"20 year\" from cover page or ToC",
+            "\"2008\" from any context",
+            "Filename"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Section 1.6 on page 17 is beyond current shallow extraction (~page 3).",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 12MB, 198 pages — crediting period on page 17"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "reporting_period",
+          "currentWrongAnswer": "2008 (start of crediting period confused with reporting period)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "\"2008\" (start of crediting period, not reporting period)",
+            "\"August 8, 2008\" (crediting period start, not reporting)",
+            "Any mention of crediting period as if it were a reporting period"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "PDDs don't have reporting/monitoring periods. Only monitoring reports do.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "no_reporting_period_in_pdd: PDDs contain crediting period, not reporting period"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        },
+        {
+          "check": "project_id",
+          "currentWrongAnswer": "985 (from filename, not document body)",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "project_description",
+          "evidence": {
+            "page": null,
+            "quote": null
+          },
+          "weakEvidenceToReject": [
+            "Filename \"PROJ_DESC_985\"",
+            "\"985\" anywhere in document without explicit 'Project ID' label"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "The PDD body does NOT contain '985' as a project ID. Only the filename does. Must not accept filename evidence.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "project_id_not_in_pdd_body: '985' appears only in filename for this document"
+          ],
+          "fixtureId": "cordillera-azul-pdd-2012",
+          "sourceFile": "doc_177895326a9e_PROJ_DESC_985_20DEC2012.pdf"
+        }
+      ]
+    },
+    {
+      "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+      "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf",
+      "documentKind": "monitoring_report",
+      "expectedDocumentFamily": "project_monitoring",
+      "expectedPageCount": 184,
+      "notes": "Self-verified by Hermes: file accessible, metadata confirmed. Quick Check extraction FAILED (413 PAYLOAD TOO LARGE). 9MB PDF. All expectations are documented from Hermes direct PDF analysis.",
+      "checks": [
+        {
+          "check": "document_type",
+          "currentWrongAnswer": "Monitoring Report (generic, no standard versions)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Monitoring Report — CCB Version 2, VCS Version 3",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 1,
+            "quote": "MONITORING REPORT: CCB Version 2, VCS Version 3"
+          },
+          "weakEvidenceToReject": [
+            "\"Monitoring Report\" alone without standard versions",
+            "Filename \"MONIT_REP_985\"",
+            "TOC reference"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Dual-standard header context must be preserved.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "document_family",
+          "currentWrongAnswer": "Verra (both VCS and CCB map to Verra — dual standard collapsed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VCS Version 3.4 + CCB Version 2.0 (dual)",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 1,
+            "quote": "CCB v2.0, VCS v3.4"
+          },
+          "weakEvidenceToReject": [
+            "\"VCS\" alone (CCB is also listed in header: 378 mentions)",
+            "\"CCB\" alone (VCS also listed: 380 mentions)",
+            "Both collapsed to Verra"
+          ],
+          "mustNotClassifyAs": [
+            "Verra"
+          ],
+          "bugPrevented": "VCS (380 mentions) + CCB (378 mentions) = dual standard, not either alone. Both are equally governing.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "host_country",
+          "currentWrongAnswer": "Not detected (UNCLEAR on live site)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Peru",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 1,
+            "quote": "Project Location ... Peru ... Departments: San Martín, Loreto, Huánuco and Ucayali"
+          },
+          "weakEvidenceToReject": [
+            "No mention of country",
+            "Filename"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Host country is on page 1. Even partial extraction should find it.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "methodology",
+          "currentWrongAnswer": "Not detected (primary shows 'Not detected' on live site)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "VM0007 REDD Methodology Modules Version 1.3",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 30,
+            "quote": "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules, Version 1.3 approved 20 November 2012."
+          },
+          "weakEvidenceToReject": [
+            "\"VM0007\" from header text",
+            "ToC mention",
+            "Generic keyword match without methodology section context"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Methodology section must be cited from Title and Reference section, not first occurrence.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "baseline_scenario",
+          "currentWrongAnswer": "Baseline mentioned referencing PDD tables",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": null,
+            "quote": "Baseline tables, from PD (refer to PDD — monitoring report does not re-establish baseline)"
+          },
+          "weakEvidenceToReject": [
+            "\"Baseline\" mentioned in reference to PDD tables",
+            "\"without-project\" scenario mentioned as reference only"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Monitoring reports do not re-establish baselines. Baseline is in the PDD (document #3).",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413",
+            "baseline_out_of_scope: monitoring reports don't contain baseline"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "additionality",
+          "currentWrongAnswer": "\"Additionally\" (transition word) confused with additionality criterion",
+          "expectedStatus": "not_found",
+          "expectedAnswer": null,
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": null,
+            "quote": "Additionally, the temperature rises from 24°C to 26°C (transition word, not additionality criterion)"
+          },
+          "weakEvidenceToReject": [
+            "\"Additionally\" as a transition word (e.g., \"Additionally, the temperature rises\")",
+            "Keyword \"addition\" without additionality criterion context"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "\"Additionally\" as transition word must not be confused with additionality as a carbon criterion.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413",
+            "additionality_out_of_scope: monitoring reports don't contain additionality"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "leakage",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Leakage mitigated through CIMA's positive social impacts in buffer zone; quantified via LK-ASU VMD0010",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 30,
+            "quote": "LK-ASU \"VMD0010 Estimation of emissions from activity shifting for avoided unplanned deforestation\", version 1.0"
+          },
+          "weakEvidenceToReject": [
+            "Simple \"leakage\" keyword count",
+            "ToC reference to leakage"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Specific LK-ASU module reference must be cited, not just generic 'leakage' signal.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "monitoring_plan",
+          "currentWrongAnswer": "Not detected or generic keyword",
+          "expectedStatus": "answered",
+          "expectedAnswer": "Adjustments made to monitoring plan from PDD; detailed monitoring procedures provided",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 85,
+            "quote": "While it was not a deviation from the methodology, adjustments were made to monitoring plan."
+          },
+          "weakEvidenceToReject": [
+            "\"monitoring plan\" from ToC only",
+            "Generic keyword without context that adjustments were made"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "PDD's monitoring plan was adjusted — this change is material and must be documented.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "crediting_period",
+          "currentWrongAnswer": "Not detected (server extraction failed)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "20 years, 8 August 2008 - 7 August 2028; CCB and VCS coincident",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 3,
+            "quote": "The project crediting period is 20 years, extending from 8 August 2008 to 7 August 2028. The CCB and VCS have coincident crediting period."
+          },
+          "weakEvidenceToReject": [
+            "\"2008\" from header or filename",
+            "\"985\" from filename",
+            "Generic \"20 year\" without start/end dates"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Crediting period is stated explicitly on early pages (page 3) and should be extractable even from shallow extraction.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "reporting_period",
+          "currentWrongAnswer": "Not detected (signal 'reporting period' detected but no date values)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "August 8, 2016 to August 7, 2018 (two sub-periods: 2016-2017 and 2017-2018)",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 3,
+            "quote": "August 8, 2016 to August 7, 2017; and August 8, 2017 to August 7, 2018"
+          },
+          "weakEvidenceToReject": [
+            "\"Reporting period\" label without actual dates",
+            "Single date (e.g. just \"2016\")",
+            "Generic \"monitoring period\" without values"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Signal 'reporting period' without value extraction is insufficient. The actual dates (two sub-periods) must be extracted.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        },
+        {
+          "check": "project_id",
+          "currentWrongAnswer": "Not detected (from filename only)",
+          "expectedStatus": "answered",
+          "expectedAnswer": "985",
+          "expectedDocumentFamily": "project_monitoring",
+          "evidence": {
+            "page": 1,
+            "quote": "Project ID 985"
+          },
+          "weakEvidenceToReject": [
+            "Filename \"MONIT_REP_985\" (must come from document body)",
+            "Any inferred ID without explicit 'Project ID' label"
+          ],
+          "mustNotClassifyAs": [],
+          "bugPrevented": "Project ID must be extracted from document content, not filename. The monitoring report explicitly states 'Project ID 985'.",
+          "strictEvalEligible": false,
+          "blockedBy": [
+            "parser_payload_limit: 9MB PDF returns 413"
+          ],
+          "fixtureId": "cordillera-azul-monitoring-985-2016-2018",
+          "sourceFile": "doc_7839a149da9a_MONIT_REP_985_08AUG2016_07AUG2018.pdf"
+        }
+      ]
+    }
+  ]
+}
