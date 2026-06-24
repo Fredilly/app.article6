@@ -2,7 +2,7 @@
 
 ## Goal
 
-Replace Quick Check's fragile raw-text / regex-based PDF extraction with a higher-fidelity parser, starting with Docling, while keeping Article6 evidence judgment intact.
+Replace Quick Check's fragile raw-text / regex-based PDF extraction with a higher-fidelity parser while keeping Article6 evidence judgment intact.
 
 The parser should improve document structure, reading order, headings, sections, tables, and page provenance.
 
@@ -14,7 +14,7 @@ Parsing is plumbing.
 
 Evidence judgment is the product.
 
-Docling or any future parser may produce better structured document input, but Article6 still owns:
+Docling, PyMuPDF, or any future parser may produce better structured document input, but Article6 still owns:
 
 - EvidenceDocument
 - EvidenceSpanIndex
@@ -29,154 +29,69 @@ Docling or any future parser may produce better structured document input, but A
 
 ### Phase 0A: Parser Adapter Boundary
 
-Status:
-
-`done`
-
-PR:
-
-`#794`
-
-Outcome:
+Status: `done` — PR [#794](https://github.com/Fredilly/app.article6/pull/794)
 
 - `ParserAdapter` boundary exists.
 - Current raw-text extractor is wrapped as an adapter.
-- `ParsedDocument` shape exists.
-- `ParsedDocument` normalizes into the existing evidence path.
-- Existing Quick Check behavior remains unchanged.
-- No external parser dependency was added.
-- Router remains final authority.
-- UI was not changed.
-- Eval thresholds were not weakened.
+- `ParsedDocument` shape exists and normalizes into the existing evidence path.
+- Existing Quick Check behavior unchanged.
+- No external parser dependency added.
 
-## Current phase
+### Phase 0B: Experimental Parser Adapters
 
-### Phase 0B: Docling Experimental Adapter
+Status: `done` — PR [#797](https://github.com/Fredilly/app.article6/pull/797)
 
-Branch:
-
-`feat/qc-docling-adapter`
-
-Goal:
-
-Add Docling as an experimental parser adapter behind a feature flag.
-
-Expected outcome:
-
-- Docling adapter exists.
-- Current raw-text adapter remains default.
-- Docling can parse a PDF into `ParsedDocument`.
-- Docling output normalizes into the existing `DocumentStructure` / `EvidenceDocument` path.
-- No router behavior change.
-- No UI change.
-- No default parser switch yet.
-
-Success criteria:
-
-- Existing tests still pass.
-- Existing strict eval corpus still passes.
-- Docling adapter can be tested locally or in controlled mode.
-- No answer status is decided by Docling.
-- No evidence judgment is bypassed.
-
-## Next phases
+- **PyMuPDF adapter** (`QUICK_CHECK_PARSER=pymupdf`): primary successful Phase 0B adapter.
+- **Docling adapter** (`QUICK_CHECK_PARSER=docling`): optional/unavailable-safe.
+- `current-extractor` remains the default.
+- Both adapters fall back to `current-extractor` on failure.
+- 55+ tests covering both adapters, fallback paths, runtime init.
 
 ### Phase 0C: Parser Bakeoff Scorecard
 
-Branch:
+Status: `done` — PR [#801](https://github.com/Fredilly/app.article6/pull/801)
 
-`feat/qc-parser-bakeoff`
-
-Goal:
-
-Compare current raw-text adapter vs Docling on frozen carbon PDFs.
-
-Score:
-
-- project title extraction
-- host country extraction
-- methodology extraction
-- document family signals
-- heading preservation
-- section hierarchy
-- additionality section retrieval
-- baseline section retrieval
-- monitoring section retrieval
-- leakage section retrieval
-- table extraction
-- page provenance
-- quote validation compatibility
-- latency
-- failure rate
-
-Expected outcome:
-
-- JSON scorecard generated.
-- No default parser switch yet.
-- No eval threshold weakening.
+- Compared `current-extractor` vs PyMuPDF on real messy carbon PDFs.
+- PyMuPDF: 9 tables, 7 headings (vs current-extractor: 0 tables, 15 headings).
+- Docling unavailable (expected).
+- Both parsers pass strict eval corpus with 0 regressions.
+- Bakeoff evidence captured in `docs/quickcheck/parser-bakeoff-scorecard.json`.
 
 ### Phase 0D: Default Parser Switch Decision
 
-Branch:
+Status: `done`
 
-`feat/qc-parser-default-decision`
+- Default parser remains `current-extractor` (PyMuPDF available as opt-in).
+- PyMuPDF adapter is available but not promoted to default — decision can be revisited.
 
-Goal:
+### Phase 1: Evidence Compiler v2 — Noise Context Detection
 
-Switch default parser only if Docling beats the current adapter on frozen PDFs and does not weaken Quick Check reliability.
+Status: `done` — PR [#804](https://github.com/Fredilly/app.article6/pull/804)
 
-Expected outcome:
+- `EvidenceSpan` now carries: stable spanId, normalized/ original text, page number, sectionId, heading, headingPath, sectionPath, blockType, parserSource, parserAdapterId, documentFamily signal, table metadata, layout metadata, confidence, charStart/charEnd.
+- **Noise contexts**: header, footer, toc, source-caption (excluded); contact, reference (limited).
+- Context-aware detection only flags short standalone lines; body paragraphs are not mislabeled.
+- Eval corpus: 100% first-pass with both default and PyMuPDF parsers.
 
-- Docling becomes default only if bakeoff evidence supports it.
-- Raw-text adapter remains available as fallback.
-- Rollback path exists.
-- Strict eval corpus passes.
+### Phase 2: Family-Aware ProjectFactContract v2 — Host-Country Hardening
 
-### Phase 1: Evidence Compiler v2
+Status: `done` — PR [#805](https://github.com/Fredilly/app.article6/pull/805)
 
-Branch:
+- Forbidden section contexts: methodology, baseline, monitoring, leakage, additionality, stakeholder, appendix, annex, references, citations.
+- Forbidden noise contexts: header, footer, toc, source-caption, reference.
+- Preferred sections: project overview, title, location.
+- Methodology-code/version-string preamble rejection.
+- 11 regression tests for weak/ambiguous country match rejection.
+- Exemption: preamble check allows valid country names starting with articles (e.g. "The Gambia").
+- Geo-reference heading no longer banned (preferred host-country context).
 
-`feat/qc-evidence-compiler-v2`
-
-Goal:
-
-Use better parser structure to improve canonical evidence spans.
-
-Expected outcome:
-
-- better page provenance
-- better section provenance
-- better heading hierarchy
-- better span typing
-- better table/cell provenance where available
-- router behavior remains controlled
-
-### Phase 2: Family-Aware ProjectFactContract v2
-
-Branch:
-
-`feat/qc-project-fact-contract-v2`
-
-Goal:
-
-Improve project title, host country, and methodology extraction using document-family-aware rules.
-
-Expected outcome:
-
-- CDM PDD extraction improves
-- VCS/Verra PD extraction improves
-- Gold Standard extraction improves
-- confidence/provenance remains required
+## Current phase
 
 ### Phase 3: Hierarchical Section + Table Index
 
-Branch:
+Branch: `feat/qc-section-table-index-v2`
 
-`feat/qc-section-table-index-v2`
-
-Goal:
-
-Use parser-preserved hierarchy and table structure to improve section/table retrieval.
+Goal: Use parser-preserved hierarchy and table structure to improve section/table retrieval.
 
 Expected outcome:
 
@@ -187,15 +102,13 @@ Expected outcome:
 - better table-backed evidence retrieval
 - router still validates final evidence
 
+## Next phases
+
 ### Phase 4: Evidence Sufficiency Validators
 
-Branch:
+Branch: `feat/qc-evidence-sufficiency-validators`
 
-`feat/qc-evidence-sufficiency-validators`
-
-Goal:
-
-Improve Article6 judgment by requiring check-specific evidence sufficiency before returning `answered`.
+Goal: Improve Article6 judgment by requiring check-specific evidence sufficiency before returning `answered`.
 
 Expected outcome:
 
@@ -208,13 +121,9 @@ Expected outcome:
 
 ### Phase 5: Eval Corpus + CI Gate
 
-Branch:
+Branch: `feat/qc-parser-evidence-ci-gate`
 
-`feat/qc-parser-evidence-ci-gate`
-
-Goal:
-
-Lock parser and evidence improvements into CI.
+Goal: Lock parser and evidence improvements into CI.
 
 Expected outcome:
 
