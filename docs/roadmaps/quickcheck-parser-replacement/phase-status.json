@@ -1,7 +1,7 @@
 {
   "roadmap": "quickcheck-parser-replacement",
   "status": "active",
-  "current_phase": "phase-1-evidence-compiler-v2",
+  "current_phase": "phase-3-hierarchical-section-table-index",
   "phases": [
     {
       "id": "phase-0a-parser-adapter-boundary",
@@ -38,14 +38,16 @@
       "id": "phase-1-evidence-compiler-v2",
       "name": "Evidence Compiler v2",
       "branch": "feat/qc-evidence-compiler-v2",
-      "status": "not_started",
+      "status": "done",
+      "pr": 804,
       "goal": "Use better parser structure to improve canonical EvidenceDocument spans."
     },
     {
       "id": "phase-2-family-aware-projectfactcontract-v2",
       "name": "Family-Aware ProjectFactContract v2",
       "branch": "feat/qc-project-fact-contract-v2",
-      "status": "not_started",
+      "status": "done",
+      "pr": 805,
       "goal": "Improve project title, host country, and methodology extraction using document-family-aware rules."
     },
     {
