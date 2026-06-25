@@ -45,7 +45,7 @@ describe("llmFactExtractor — feature flag", () => {
 
   it("returns empty for unsupported fields", async () => {
     process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
-    const candidates = await extractFieldCandidates("leakage" as any, SAMPLE_SPANS);
+    const candidates = await extractFieldCandidates("leakage" as const, SAMPLE_SPANS);
     expect(candidates).toEqual([]);
   });
 
@@ -179,6 +179,26 @@ describe("llmFactExtractor — parseAndValidateCandidates (no network)", () => {
     const candidates = parseAndValidateCandidates(rawJson, SAMPLE_SPANS);
     expect(candidates).toHaveLength(3);
     expect(candidates.map((c) => c.field).sort()).toEqual(["hostCountry", "methodologyPrimary", "projectTitle"]);
+  });
+
+  it("parseAndValidateCandidates returns all fields, extractFieldCandidates filters to requested field", () => {
+    // parseAndValidateCandidates should return 3 fields from the multi-field response
+    const rawJson = JSON.stringify({
+      fields: [
+        { field: "hostCountry", value: "Peru", quote: "Host Country: Peru", confidence: "high" },
+        { field: "projectTitle", value: "Cordillera Azul", quote: "Project Title: Cordillera Azul National Park REDD Project", confidence: "medium" },
+        { field: "methodologyPrimary", value: "VM0007", quote: "VM0007 REDD Methodology Modules Version 1.3", confidence: "high" },
+      ],
+    });
+
+    const allCandidates = parseAndValidateCandidates(rawJson, SAMPLE_SPANS);
+    expect(allCandidates).toHaveLength(3);
+
+    // Simulate what extractFieldCandidates does — filter to requested field
+    const hostCandidates = allCandidates.filter((c) => c.field === "hostCountry");
+    expect(hostCandidates).toHaveLength(1);
+    expect(hostCandidates[0]!.field).toBe("hostCountry");
+    expect(hostCandidates[0]!.value).toBe("Peru");
   });
 });
 

@@ -218,5 +218,6 @@ export async function extractFieldCandidates(
     return [];
   }
 
-  return parseAndValidateCandidates(response.response, limitedSpans);
+  const allCandidates = parseAndValidateCandidates(response.response, limitedSpans);
+  return allCandidates.filter((c) => c.field === field);
 }
