@@ -11,6 +11,7 @@ import { buildReviewQuestionResult, getStructuredQueryContext } from "@/lib/chat
 import type { EvidenceCheckId } from "@/lib/quickCheck/evidenceChecks";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 import { pymupdfAdapter } from "@/lib/documentParsing/adapters/pymupdfAdapter";
+import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
 import { buildDocumentStructure } from "@/lib/documentModel";
 import { compileEvidenceDocumentFromStructure } from "@/lib/quickCheck/evidence/compileEvidenceDocument";
 import { buildProjectFactContract } from "@/lib/quickCheck/projectFacts";
@@ -331,6 +332,14 @@ describe("authoritative evidence check selectors", () => {
   });
 
   it("methodology check finds VM0007 when it appears after page 3 in a real PyMuPDF-extracted PDD", () => {
+    // This test requires PyMuPDF (fitz) to be available. In CI it's not
+    // installed, so we skip when unavailable — same as production fallback.
+    const pymupdfAvail = checkPymupdfAvailability();
+    if (!pymupdfAvail.available) {
+      console.warn("Skipping PyMuPDF test:", pymupdfAvail.reason);
+      return;
+    }
+
     // This PDF has:
     //   Page 1-3: Project description + misleading parameter text
     //            ("Value applied: 376.3 t CO2-e ha-1" near "methodology" keyword)
