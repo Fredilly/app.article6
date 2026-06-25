@@ -1870,8 +1870,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRunningEvidenceChecks(false);
 
     // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
-    // Fetches candidate suggestions for missing/unclear checks only.
-    // Never overrides deterministic status or answer.
+    // Fetches candidate suggestions for missing, unclear, or suspiciously
+    // short found answers only. Never overrides deterministic status or answer.
     // Runs after checks complete so it doesn't block the spinner.
     if (isLlmUiEnabled()) {
       const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
@@ -1882,7 +1882,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       })) ?? [];
 
       const missingOrUnclear = results.filter(
-        (r: EvidenceCheckResult) => r.status === "missing" || r.status === "unclear",
+        (r: EvidenceCheckResult) =>
+          r.status === "missing"
+          || r.status === "unclear"
+          || (r.status === "found" && r.answerText.trim().length < 3),
       );
 
       // Fire-and-forget: deterministic results are already visible
