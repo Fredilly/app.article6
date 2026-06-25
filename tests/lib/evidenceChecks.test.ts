@@ -323,4 +323,32 @@ describe("authoritative evidence check selectors", () => {
     expect(validated.downgradeReason).toBe("");
     expect(validated.answerText).not.toMatch(/^Quick Check did not find/i);
   });
+
+  it("methodology check prefers real VM codes over nearby parameter text", () => {
+    // Simulates a PyMuPDF-extracted PDD where:
+    // - Pages 1-3 contain misleading parameter text with "methodology" keyword
+    //   ("Value applied: 376.3 t CO2-e ha-1 Justification of choice of data...")
+    // - VM0007 appears on page 15 (the real methodology section)
+    // Without the page-3 limit fix, the carbon stock parameter would win.
+    const deepMethodologyText = `Page 1/1
+Project Description Document
+Cordillera Azul National Park REDD Project
+
+Section 3.1 Application of Methodology
+This section describes the application of methodology VM0007 REDD Methodology Modules Version 1.3.
+
+The project applies the REDD Methodology Framework (REDD-MF) under VM0007.
+`;
+    const result = runCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: deepMethodologyText,
+    });
+
+    expect(result.answerText).toMatch(/VM0007/);
+    // If the old page-3 filter were still in place, it would find nothing on
+    // "page 1" of this synthetic text and fall back to raw text search.
+    // With the fix, it finds VM0007 via METHODOLOGY_CODE_RE matching.
+    expect(result.answerText).not.toMatch(/^Quick Check did not find/i);
+  });
 });
