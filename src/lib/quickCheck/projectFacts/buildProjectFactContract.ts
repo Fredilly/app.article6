@@ -8,7 +8,7 @@ import type {
   ProjectFactValue,
 } from "@/lib/quickCheck/projectFacts/types";
 
-type Candidate = {
+export type Candidate = {
   value: string;
   normalizedValue: string;
   confidence: ProjectFactConfidence;

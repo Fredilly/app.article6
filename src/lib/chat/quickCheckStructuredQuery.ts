@@ -33,6 +33,44 @@ export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?:
       documentStructure,
     });
     const projectFactContract = buildProjectFactContract(evidenceDocument);
+
+    // LLM-assisted field extraction (feature-flagged, default off)
+    // When deterministic extraction finds no candidates for a field, tries
+    // Ollama to propose candidates. Only accepts candidates whose quotes
+    // are verified against source spans with provenanced evidenceSpanIds.
+    const llmExtractor = await import(
+      "@/lib/quickCheck/llmFactExtractor"
+    );
+    const { tryLlmFallback } = await import(
+      "@/lib/quickCheck/projectFacts/llmCandidateBridge"
+    );
+    if (llmExtractor.isLlmFactExtractorEnabled()) {
+      // Host country: try LLM only when deterministic truly found nothing
+      // (no candidates at all — empty evidenceSpanIds). If deterministic
+      // found conflicting but rejected evidence, preserve the uncertainty.
+      if (!projectFactContract.hostCountry.value && projectFactContract.hostCountry.evidenceSpanIds.length === 0) {
+        const hostCandidates = await tryLlmFallback(evidenceDocument, "hostCountry", []);
+        if (hostCandidates.length > 0) {
+          const best = hostCandidates[0]!;
+          projectFactContract.hostCountry = {
+            value: best.value,
+            confidence: best.confidence,
+            evidenceSpanIds: [best.span.spanId],
+            pageNumbers: best.span.page != null ? [best.span.page] : [],
+            sectionPath: best.span.sectionPath ?? [],
+            heading: best.span.heading,
+            extractionRule: "llm:ollama",
+            warnings: [],
+          };
+          // Mirror hostCountry into projectCountry to keep them consistent
+          projectFactContract.projectCountry = {
+            ...projectFactContract.hostCountry,
+            extractionRule: "llm:ollama:mirror-project-country",
+          };
+        }
+      }
+    }
+
     const sectionTableIndex = buildSectionTableIndex({
       documentStructure,
       evidenceDocument,
