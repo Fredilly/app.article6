@@ -8,6 +8,12 @@
  * The first observable mismatch (for CCB report):
  *   actual primary: "VM0007", fixture expects: no primary methodology,
  *   VM0007 only as supporting carbon-accounting reference.
+ *
+ * Three result statuses:
+ *   "pass"     — the observable check matches the fixture
+ *   "fail"     — the observable check contradicts the fixture
+ *   "known_gap" — cannot be validated from the extraction preview;
+ *                 requires extraction-depth or provenance fixes first
  */
 
 import type { ExtractionPreviewViewModel } from "@/lib/chat/quickCheckUi";
@@ -43,28 +49,25 @@ export type ContractCheck = {
   blockedBy: string[];
 };
 
+export type CheckStatus = "pass" | "fail" | "known_gap";
+
 export type FixtureReplayResult = {
-  /** Human-readable description of fixture state */
   summary: string;
-  /** Per-check comparison results */
   comparisons: ComparisonResult[];
-  /** Total failed comparisons */
-  mismatchCount: number;
-  /** Whether the contract loaded successfully */
+  passedCount: number;
+  failedCount: number;
+  knownGapCount: number;
+  totalChecks: number;
   contractLoaded: boolean;
-  /** Error message if contract failed */
   contractError: string | null;
 };
 
 export type ComparisonResult = {
   check: string;
-  /** Human-readable label */
   label: string;
   actual: string | null;
   expected: string | null;
-  passed: boolean;
-  /** Whether missing page/quote provenance is a known gap */
-  provenanceKnownGap: boolean;
+  status: CheckStatus;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -74,7 +77,6 @@ function cleanSourceFile(src: string): string {
   return src.replace(/^doc_[a-f0-9]+_/, "");
 }
 
-/** Known document-key → sourceFile suffix. */
 const FIXTURE_KEYS: Record<string, string> = {
   CCB_ValidationReport: "CCB_ValidationReport_V3-1_021913.pdf",
   VCS_ValidationReport: "VCS_ValidationReport_020113.pdf",
@@ -93,22 +95,50 @@ function findFixture(contract: FixtureContract, fileName: string): FixtureEntry 
   );
 }
 
-/** Compare two strings case-insensitively after normalizing whitespace. */
-function normalizedMatch(a: string | null | undefined, b: string | null | undefined): boolean {
-  if (!a && !b) return true;
-  if (!a || !b) return false;
-  return a.replace(/\s+/g, " ").trim().toLowerCase() ===
-         b.replace(/\s+/g, " ").trim().toLowerCase();
+/**
+ * Match a methodology ID from a fixture's expected answer.
+ *
+ * Fixture expectedAnswer: "VM0007 v1.3 (REDD Methodology Modules)"
+ * Actual primaryMethodology.id: "VM0007"
+ *
+ * Strategy: extract the canonical methodology code (e.g. "VM0007") from
+ * the fixture's expected answer, then check if the actual starts with it
+ * (or vice versa).
+ */
+function methodologyCanonicalMatch(
+  actual: string | null | undefined,
+  expected: string | null | undefined,
+): boolean {
+  if (!actual && !expected) return true;
+  if (!actual || !expected) return false;
+  const a = actual.replace(/\s+/g, " ").trim();
+  const b = expected.replace(/\s+/g, " ").trim();
+  // If either starts with the other, that's a canonical match
+  if (a.startsWith(b) || b.startsWith(a)) return true;
+  // Case-insensitive full match
+  if (a.toLowerCase() === b.toLowerCase()) return true;
+  // Extract canonical code from expected (e.g. "VM0007" from "VM0007 v1.3...")
+  const codeMatch = b.match(/^(VM\d{4}|ACM\d{4}|AR-ACM\d{4}|GS-\w+)/);
+  if (codeMatch && a.includes(codeMatch[1])) return true;
+  return false;
 }
 
-/** Check whether `actual` answer text contains the fixture's expected answer (fuzzy). */
+/** Check whether `actual` text contains the fixture's expected answer (fuzzy). */
 function answerContains(actual: string | null, expected: string | null): boolean {
   if (!actual && !expected) return true;
   if (!actual || !expected) return false;
   return actual.toLowerCase().includes(expected.toLowerCase());
 }
 
-// ─── Main comparison ──────────────────────────────────────────────────────
+// ─── Known-gap sets ──────────────────────────────────────────────────────
+
+/** Checks the extraction preview cannot validate because they need extraction depth. */
+const EXTRACTION_DEPTH_GAPS = new Set([
+  "baseline_scenario", "additionality", "leakage",
+  "monitoring_plan", "crediting_period", "reporting_period", "project_id",
+]);
+
+// ─── Labels ───────────────────────────────────────────────────────────────
 
 const CHECK_LABELS: Record<string, string> = {
   primary_methodology: "Primary methodology",
@@ -126,27 +156,34 @@ const CHECK_LABELS: Record<string, string> = {
   project_id: "Project ID",
 };
 
+// ─── Main comparison ─────────────────────────────────────────────────────
+
 /**
  * Compare live Quick Check output against a loaded fixture contract.
  * Pure function — no I/O, no imports from Node.js.
  *
- * @param contract  Pre-loaded fixture contract (must be loaded server-side)
- * @param preview   Current extraction preview from Quick Check
- * @param fileName  The uploaded filename
+ * Every check receives one of three statuses:
+ *   "pass"      — observable and matches the fixture
+ *   "fail"      — observable and contradicts the fixture
+ *   "known_gap" — not observable from the extraction preview;
+ *                 needs extraction-depth or provenance fixes
  */
 export function compareWithFixture(
   contract: FixtureContract | null,
   preview: ExtractionPreviewViewModel,
   fileName: string | null,
 ): FixtureReplayResult {
-  // Build the result object even on contract failure — makes error visible
+  // Contract load failure — visible error
   if (!contract) {
     return {
       summary: "Fixture contract not loaded. Is the contract JSON reachable?",
       comparisons: [],
-      mismatchCount: 0,
+      passedCount: 0,
+      failedCount: 0,
+      knownGapCount: 0,
+      totalChecks: 0,
       contractLoaded: false,
-      contractError: "Contract data is null. Ensure cordillera-azul-reliability-contract.json is deployed alongside this build.",
+      contractError: "Contract data is null. Ensure cordillera-azul-reliability-contract.json is deployed.",
     };
   }
 
@@ -154,7 +191,10 @@ export function compareWithFixture(
     return {
       summary: "No filename available for fixture comparison",
       comparisons: [],
-      mismatchCount: 0,
+      passedCount: 0,
+      failedCount: 0,
+      knownGapCount: 0,
+      totalChecks: 0,
       contractLoaded: true,
       contractError: null,
     };
@@ -165,7 +205,10 @@ export function compareWithFixture(
     return {
       summary: `"${fileName}" is not a known Cordillera Azul fixture. No comparison performed.`,
       comparisons: [],
-      mismatchCount: 0,
+      passedCount: 0,
+      failedCount: 0,
+      knownGapCount: 0,
+      totalChecks: 0,
       contractLoaded: true,
       contractError: null,
     };
@@ -175,20 +218,18 @@ export function compareWithFixture(
   const checks = fixture.checks;
 
   // ── Methodology (primary) ──
-  // Handles both "primary_methodology" (CCB split) and "methodology" (VCS/PDD/Monitoring)
   const actualPrimary = preview.primaryMethodology?.id ?? null;
   const methCheck = checks.find((c) => c.check === "primary_methodology" || c.check === "methodology");
   if (methCheck) {
     const passed = methCheck.expectedStatus === "not_found"
       ? actualPrimary === null
-      : normalizedMatch(actualPrimary, methCheck.expectedAnswer);
+      : methodologyCanonicalMatch(actualPrimary, methCheck.expectedAnswer);
     comparisons.push({
       check: "primary_methodology",
       label: CHECK_LABELS.primary_methodology,
       actual: actualPrimary,
       expected: methCheck.expectedStatus === "not_found" ? "null" : methCheck.expectedAnswer,
-      passed,
-      provenanceKnownGap: false,
+      status: passed ? "pass" : "fail",
     });
   }
 
@@ -204,8 +245,7 @@ export function compareWithFixture(
       label: CHECK_LABELS.supporting_carbon_methodology,
       actual: actualRefs,
       expected: supCheck.expectedAnswer ?? "null",
-      passed,
-      provenanceKnownGap: false,
+      status: passed ? "pass" : "fail",
     });
   }
 
@@ -219,8 +259,7 @@ export function compareWithFixture(
       label: CHECK_LABELS.document_family,
       actual: actualFamily,
       expected: famCheck.expectedAnswer ?? "",
-      passed,
-      provenanceKnownGap: false,
+      status: passed ? "pass" : "fail",
     });
   }
 
@@ -234,14 +273,11 @@ export function compareWithFixture(
       label: CHECK_LABELS.document_type,
       actual: actualDocType,
       expected: docTypeCheck.expectedAnswer ?? "",
-      passed,
-      provenanceKnownGap: false,
+      status: passed ? "pass" : "fail",
     });
   }
 
-  // ── Host country ──
-  // Host country is extracted from the PDF but not visible in the
-  // extraction preview signals — we note it as a known gap.
+  // ── Host country (known_gap — not visible in extraction preview signals) ──
   const countryCheck = checks.find((c) => c.check === "host_country");
   if (countryCheck) {
     comparisons.push({
@@ -249,17 +285,12 @@ export function compareWithFixture(
       label: CHECK_LABELS.host_country,
       actual: "extraction detail (not in preview signals)",
       expected: countryCheck.expectedAnswer ?? "null",
-      passed: true,
-      provenanceKnownGap: true,
+      status: "known_gap",
     });
   }
 
-  // ── Baseline, additionality, leakage, monitoring, crediting period ──
-  // These are deep-content checks that the extraction preview doesn't show.
-  // We mark them as provenance known gaps — the preview can't surface
-  // them without extraction-depth fixes.
-  for (const deepCheck of ["baseline_scenario", "additionality", "leakage",
-    "monitoring_plan", "crediting_period", "reporting_period", "project_id"]) {
+  // ── Deep-content checks (known_gap — need extraction depth) ──
+  for (const deepCheck of EXTRACTION_DEPTH_GAPS) {
     const c = checks.find((ch) => ch.check === deepCheck);
     if (c) {
       comparisons.push({
@@ -267,23 +298,39 @@ export function compareWithFixture(
         label: CHECK_LABELS[deepCheck] ?? deepCheck,
         actual: "requires extraction depth (page >10)",
         expected: c.expectedAnswer ?? (c.expectedStatus === "not_found" ? "null" : c.expectedAnswer),
-        passed: true,
-        provenanceKnownGap: true,
+        status: "known_gap",
       });
     }
   }
 
-  const mismatchCount = comparisons.filter((c) => !c.passed && !c.provenanceKnownGap).length;
-  const summary = mismatchCount > 0
-    ? `${mismatchCount} mismatch(es) — first visible: CCB report shows VM0007 primary, expected null`
-    : "All observable checks match fixture";
+  // ── Counts ──
+  const passedCount = comparisons.filter((c) => c.status === "pass").length;
+  const failedCount = comparisons.filter((c) => c.status === "fail").length;
+  const knownGapCount = comparisons.filter((c) => c.status === "known_gap").length;
+  const totalChecks = checks.length;
+
+  // ── Honest summary ──
+  const parts: string[] = [];
+  if (passedCount > 0) parts.push(`${passedCount} passed`);
+  if (failedCount > 0) parts.push(`${failedCount} failed`);
+  if (knownGapCount > 0) parts.push(`${knownGapCount} not validated (known gaps)`);
+
+  const detail = failedCount > 0
+    ? `First visible: CCB report shows VM0007 primary, fixture expects no primary methodology.`
+    : "";
+
+  const summary = totalChecks > 0
+    ? `${parts.join("; ")} of ${totalChecks} contract checks. ${detail}`
+    : "No checks to compare.";
 
   return {
     summary,
     comparisons,
-    mismatchCount,
+    passedCount,
+    failedCount,
+    knownGapCount,
+    totalChecks,
     contractLoaded: true,
     contractError: null,
   };
 }
-

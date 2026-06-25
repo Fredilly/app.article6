@@ -1,16 +1,17 @@
 /**
  * Dev-only Fixture Replay UI overlay.
  *
- * Renders a side-by-side comparison of actual Quick Check output vs
- * expected fixture contract values.
+ * Renders a side-by-side comparison of live Quick Check output vs
+ * expected fixture contract values with three status categories:
  *
- * Only rendered in non-production environments. The fixture contract
- * must be pre-loaded server-side and passed in as a prop — this
- * component does NOT import fs or path.
+ *   pass      — observable and matches the fixture
+ *   fail      — observable and contradicts the fixture
+ *   known_gap — not observable from the extraction preview
  *
- * First observable mismatch:
- *   CCB report → actual "VM0007" primary, fixture expects no primary,
- *   VM0007 only as supporting carbon-accounting reference.
+ * The overlay never implies full reliability when known gaps exist.
+ * Counters clearly separate passed, failed, and not-validated checks.
+ *
+ * Only rendered in non-production environments.
  */
 
 "use client";
@@ -39,7 +40,6 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
     [contract, preview, fileName],
   );
 
-  // ── Guard: production env or no analysis yet ──
   if (typeof process !== "undefined" && process.env.NODE_ENV === "production") {
     return null;
   }
@@ -48,12 +48,15 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
   const {
     summary,
     comparisons,
-    mismatchCount,
+    passedCount,
+    failedCount,
+    knownGapCount,
+    totalChecks,
     contractLoaded,
     contractError,
   } = result;
 
-  // ── Contract didn't load — show error state visibly ──
+  // ── Contract load failure — visible error ──
   if (!contractLoaded) {
     return (
       <div className="mt-4 rounded-[1.5rem] border border-rose-300 bg-rose-50 p-4">
@@ -67,20 +70,19 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
     );
   }
 
-  // ── No matching fixture — file not in contract ──
+  // ── No matching fixture ──
   if (comparisons.length === 0) {
     return (
       <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-white shadow">
-        <div className="px-4 py-3 text-xs text-slate-500">
-          Fixture Replay: {summary}
-        </div>
+        <div className="px-4 py-3 text-xs text-slate-500">{summary}</div>
       </div>
     );
   }
 
-  // ── Show comparison table ──
-  const allPass = mismatchCount === 0;
+  const hasFailures = failedCount > 0;
+  const hasKnownGaps = knownGapCount > 0;
 
+  // ── Overlay header ──
   return (
     <div className="mt-4 rounded-[1.5rem] border border-slate-300 bg-white shadow">
       <button
@@ -89,12 +91,12 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-2">
-          <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white ${allPass ? "bg-emerald-600" : "bg-rose-600"}`}>
-            {allPass ? "✓" : "✗"}
-          </span>
+          <StatusIcon hasFailures={hasFailures} hasKnownGaps={hasKnownGaps} />
           <span className="text-sm font-semibold text-slate-900">Fixture Replay</span>
-          <span className={`text-xs font-medium ${allPass ? "text-emerald-700" : "text-rose-700"}`}>
-            {mismatchCount === 0 ? "All checks pass" : `${mismatchCount} mismatch(es)`}
+          <span className={`text-xs font-medium ${
+            hasFailures ? "text-rose-700" : hasKnownGaps ? "text-amber-700" : "text-emerald-700"
+          }`}>
+            {hasFailures ? `${failedCount} mismatch(es)` : hasKnownGaps ? `${knownGapCount} gap(s)` : "All checks pass"}
           </span>
         </div>
         <span className="text-xs text-slate-400">{expanded ? "▲" : "▼"}</span>
@@ -102,11 +104,34 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
 
       {expanded && (
         <div className="border-t border-slate-200 px-4 py-3">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+          {/* Fixture name */}
+          <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
             {activeFixtureLabel(fileName)}
           </div>
+          {/* Honest summary */}
           <div className="mb-3 text-xs text-slate-600">{summary}</div>
 
+          {/* Counters row */}
+          <div className="mb-3 flex flex-wrap gap-3 text-xs">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 font-medium text-emerald-800">
+              ✓ {passedCount} passed
+            </span>
+            {failedCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 font-medium text-rose-800">
+                ✗ {failedCount} failed
+              </span>
+            )}
+            {knownGapCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 font-medium text-amber-800">
+                ~ {knownGapCount} not validated
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-500">
+              {totalChecks} total
+            </span>
+          </div>
+
+          {/* Comparison table */}
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-500">
@@ -128,18 +153,31 @@ export function FixtureReplayOverlay({ contract, preview, fileName }: Props) {
   );
 }
 
+// ─── Sub-components ──────────────────────────────────────────────────────
+
+function StatusIcon({ hasFailures, hasKnownGaps }: { hasFailures: boolean; hasKnownGaps: boolean }) {
+  if (hasFailures) {
+    return <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[11px] font-bold text-white">✗</span>;
+  }
+  if (hasKnownGaps) {
+    return <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[11px] font-bold text-white">~</span>;
+  }
+  return <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[11px] font-bold text-white">✓</span>;
+}
+
 function ComparisonRow({ comparison }: { comparison: ComparisonResult }) {
-  const statusBadge = comparison.provenanceKnownGap
-    ? <span className="inline-flex items-center gap-1 text-amber-700 text-[11px]">~ Known gap</span>
-    : comparison.passed
+  const { status } = comparison;
+  const isKnownGap = status === "known_gap";
+
+  const statusBadge = status === "pass"
     ? <span className="inline-flex items-center gap-1 text-emerald-700">✓ Pass</span>
-    : <span className="inline-flex items-center gap-1 text-rose-700">✗ Fail</span>;
+    : status === "fail"
+    ? <span className="inline-flex items-center gap-1 text-rose-700">✗ Fail</span>
+    : <span className="inline-flex items-center gap-1 text-amber-700">~ Known gap</span>;
 
   return (
-    <tr className="border-b border-slate-100 last:border-0">
-      <td className="py-1.5 pr-2 font-medium text-slate-700">
-        {comparison.label}
-      </td>
+    <tr className={`border-b border-slate-100 last:border-0 ${isKnownGap ? "opacity-70" : ""}`}>
+      <td className="py-1.5 pr-2 font-medium text-slate-700">{comparison.label}</td>
       <td className="py-1.5 pr-2 text-slate-600">
         <FormatValue value={comparison.actual} />
       </td>
