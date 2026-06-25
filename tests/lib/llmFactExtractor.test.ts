@@ -45,7 +45,7 @@ describe("llmFactExtractor — feature flag", () => {
 
   it("returns empty for unsupported fields", async () => {
     process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
-    const candidates = await extractFieldCandidates("leakage" as const, SAMPLE_SPANS);
+    const candidates = await extractFieldCandidates("unsupported_field" as const, SAMPLE_SPANS);
     expect(candidates).toEqual([]);
   });
 
@@ -96,7 +96,7 @@ describe("llmFactExtractor — parseAndValidateCandidates (no network)", () => {
 
   it("rejects unsupported field", () => {
     const rawJson = JSON.stringify({
-      fields: [{ field: "leakage", value: "some value", quote: "Host Country: Peru", confidence: "high" }],
+      fields: [{ field: "invalid_field_name", value: "some value", quote: "Host Country: Peru", confidence: "high" }],
     });
 
     const candidates = parseAndValidateCandidates(rawJson, SAMPLE_SPANS);
