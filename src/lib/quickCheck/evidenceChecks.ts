@@ -500,7 +500,6 @@ function buildMethodologyCandidates(contract: EvidenceCheckContract, ctx: CheckV
     .map((span, index, allSpans) => ({ span, index, previous: index > 0 ? allSpans[index - 1] : undefined }))
     .filter(({ span }) => span.reliability !== "excluded")
     .filter(({ span }) => ["paragraph", "field", "title", "formula"].includes(span.blockType))
-    .filter(({ span }) => (span.page ?? 1) <= 3)
     .filter(({ span }) => !span.layout?.repeatedHeaderFooter)
     .filter(({ span }) => !["toc", "header", "footer", "annex"].includes(span.blockType))
     .filter(({ span, previous }) => {
