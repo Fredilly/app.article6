@@ -53,12 +53,21 @@ const SUPPORTED_FIELDS = [
   "hostCountry",
   "projectTitle",
   "methodologyPrimary",
+  "baselineScenario",
+  "additionality",
+  "leakage",
+  "stakeholderConsultation",
+  "monitoringPlan",
+  "projectBoundary",
+  "creditingPeriod",
+  "emissionReductionCalculation",
+  "applicabilityConditions",
 ] as const;
 
 const JSON_SHAPE_DESCRIPTION = `{
   "fields": [
     {
-      "field": "hostCountry" | "projectTitle" | "methodologyPrimary",
+      "field": "hostCountry" | "projectTitle" | "methodologyPrimary" | "baselineScenario" | "additionality" | "leakage" | "stakeholderConsultation" | "monitoringPlan" | "projectBoundary" | "creditingPeriod" | "emissionReductionCalculation" | "applicabilityConditions",
       "value": "extracted value as string",
       "quote": "exact verbatim text from the document that supports this value",
       "page": number or null,
@@ -78,12 +87,16 @@ export function isLlmFactExtractorEnabled(): boolean {
  * Build a prompt for the LLM from candidate evidence spans.
  * Only feeds relevant spans (not the full PDD text) to keep context small.
  */
-function buildPrompt(field: string, spans: InputSpan[]): string {
+function buildPrompt(field: string, spans: InputSpan[], question?: string): string {
   const snippetPreview = spans
     .map((s, i) => `[span ${i + 1}] (page ${s.page ?? "?"}): ${s.text}`)
     .join("\n");
 
-  return `You are a carbon project document analyst. Extract the "${field}" field from the following document spans.
+  const questionLine = question
+    ? `\nContext question: "${question}"`
+    : "";
+
+  return `You are a carbon project document analyst. Extract the "${field}" field from the following document spans.${questionLine}
 
 Rules:
 - Return ONLY valid JSON matching the shape below.
@@ -198,11 +211,13 @@ export function parseAndValidateCandidates(
  *
  * @param field - The field to extract (e.g. "hostCountry")
  * @param spans - Array of structured input spans with id, text, page
+ * @param question - Optional context question to guide extraction
  * @returns Array of validated candidate proposals (may be empty)
  */
 export async function extractFieldCandidates(
   field: string,
   spans: InputSpan[],
+  question?: string,
 ): Promise<LlmFactCandidate[]> {
   if (!isLlmFactExtractorEnabled()) return [];
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
@@ -211,7 +226,7 @@ export async function extractFieldCandidates(
   // Limit spans to keep context small
   const limitedSpans = spans.slice(0, 20);
 
-  const prompt = buildPrompt(field, limitedSpans);
+  const prompt = buildPrompt(field, limitedSpans, question);
   const response = await callOllama(prompt);
 
   if (!response || response.error || !response.response) {
