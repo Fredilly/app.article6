@@ -45,8 +45,10 @@ export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?:
       "@/lib/quickCheck/projectFacts/llmCandidateBridge"
     );
     if (llmExtractor.isLlmFactExtractorEnabled()) {
-      // Host country: try LLM when deterministic found nothing
-      if (!projectFactContract.hostCountry.value) {
+      // Host country: try LLM only when deterministic truly found nothing
+      // (no candidates at all — empty evidenceSpanIds). If deterministic
+      // found conflicting but rejected evidence, preserve the uncertainty.
+      if (!projectFactContract.hostCountry.value && projectFactContract.hostCountry.evidenceSpanIds.length === 0) {
         const hostCandidates = await tryLlmFallback(evidenceDocument, "hostCountry", []);
         if (hostCandidates.length > 0) {
           const best = hostCandidates[0]!;
@@ -59,6 +61,11 @@ export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?:
             heading: best.span.heading,
             extractionRule: "llm:ollama",
             warnings: [],
+          };
+          // Mirror hostCountry into projectCountry to keep them consistent
+          projectFactContract.projectCountry = {
+            ...projectFactContract.hostCountry,
+            extractionRule: "llm:ollama:mirror-project-country",
           };
         }
       }
