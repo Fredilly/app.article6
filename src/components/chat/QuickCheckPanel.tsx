@@ -1867,10 +1867,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     setEvidenceCheckResults(results);
+    setRunningEvidenceChecks(false);
 
-    // LLM-assisted suggestions (feature-flagged, default off)
+    // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
     // Fetches candidate suggestions for missing/unclear checks only.
     // Never overrides deterministic status or answer.
+    // Runs after checks complete so it doesn't block the spinner.
     if (isLlmUiEnabled()) {
       const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
         spanId: s.spanId,
@@ -1879,26 +1881,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         blockType: s.blockType,
       })) ?? [];
 
-      const suggestionPromises = results
-        .filter((r: EvidenceCheckResult) => r.status === "missing" || r.status === "unclear")
-        .map(async (r: EvidenceCheckResult) => {
-          const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
-          return { checkId: r.checkId, candidates };
-        });
+      const missingOrUnclear = results.filter(
+        (r: EvidenceCheckResult) => r.status === "missing" || r.status === "unclear",
+      );
 
-      const suggestionResults = await Promise.all(suggestionPromises);
-      const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
-      for (const sr of suggestionResults) {
-        if (sr.candidates.length > 0) {
-          suggestionsMap[sr.checkId] = sr.candidates;
-        }
-      }
-      setLlmSuggestions(suggestionsMap);
+      // Fire-and-forget: deterministic results are already visible
+      fetchLlmSuggestions(missingOrUnclear, evidenceSpans);
     } else {
       setLlmSuggestions({});
     }
+  }
 
-    setRunningEvidenceChecks(false);
+  /** Fetch LLM suggestions in the background after checks complete. */
+  async function fetchLlmSuggestions(
+    checkResults: EvidenceCheckResult[],
+    evidenceSpans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
+  ): Promise<void> {
+    const suggestionPromises = checkResults.map(async (r) => {
+      const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
+      return { checkId: r.checkId, candidates };
+    });
+
+    const suggestionResults = await Promise.all(suggestionPromises);
+    const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
+    for (const sr of suggestionResults) {
+      if (sr.candidates.length > 0) {
+        suggestionsMap[sr.checkId] = sr.candidates;
+      }
+    }
+    setLlmSuggestions(suggestionsMap);
   }
 
   async function handleTryDemoCheck() {
