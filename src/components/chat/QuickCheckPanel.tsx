@@ -84,6 +84,8 @@ import {
 } from "@/lib/documentClassification/classifyDocumentPurpose";
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
+import { fetchLlmCandidate, isLlmUiEnabled } from "@/lib/quickCheck/llmUiClient";
+import type { LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
 
 type MethodInventoryRecord = {
   code: string;
@@ -617,6 +619,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [documentPurpose, setDocumentPurpose] = useState<DocumentPurpose | null>(null);
   const [evidenceCheckResults, setEvidenceCheckResults] = useState<EvidenceCheckResult[]>([]);
+  const [llmSuggestions, setLlmSuggestions] = useState<Record<string, LlmFactCandidate[]>>({});
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -1067,6 +1070,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowMethodology(false);
     setShowExtractionDetails(false);
     setEvidenceCheckResults([]);
+    setLlmSuggestions({});
     setRunningEvidenceChecks(false);
     setDocumentPurpose(null);
   }
@@ -1863,6 +1867,37 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     setEvidenceCheckResults(results);
+
+    // LLM-assisted suggestions (feature-flagged, default off)
+    // Fetches candidate suggestions for missing/unclear checks only.
+    // Never overrides deterministic status or answer.
+    if (isLlmUiEnabled()) {
+      const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
+        spanId: s.spanId,
+        text: s.text,
+        page: s.page,
+        blockType: s.blockType,
+      })) ?? [];
+
+      const suggestionPromises = results
+        .filter((r: EvidenceCheckResult) => r.status === "missing" || r.status === "unclear")
+        .map(async (r: EvidenceCheckResult) => {
+          const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
+          return { checkId: r.checkId, candidates };
+        });
+
+      const suggestionResults = await Promise.all(suggestionPromises);
+      const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
+      for (const sr of suggestionResults) {
+        if (sr.candidates.length > 0) {
+          suggestionsMap[sr.checkId] = sr.candidates;
+        }
+      }
+      setLlmSuggestions(suggestionsMap);
+    } else {
+      setLlmSuggestions({});
+    }
+
     setRunningEvidenceChecks(false);
   }
 
@@ -2407,6 +2442,32 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           >
                             Export correction
                           </button>
+                          {llmSuggestions[result.checkId]?.length > 0 ? (
+                            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3">
+                              <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-500">
+                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z" />
+                                </svg>
+                                LLM suggestion
+                              </div>
+                              {llmSuggestions[result.checkId]!.map((suggestion, si) => (
+                                <div key={si} className="mt-1 text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-indigo-900">{suggestion.value}</span>
+                                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
+                                      suggestion.confidence === "high"
+                                        ? "bg-emerald-100 text-emerald-600"
+                                        : suggestion.confidence === "medium"
+                                          ? "bg-amber-100 text-amber-600"
+                                          : "bg-slate-100 text-slate-500"
+                                    }`}>{suggestion.confidence}</span>
+                                  </div>
+                                  <div className="mt-0.5 italic text-indigo-600/70">&ldquo;{suggestion.quote.slice(0, 200)}{suggestion.quote.length > 200 ? "\u2026" : ""}&rdquo;</div>
+                                  {suggestion.page != null ? <div className="mt-0.5 text-[10px] text-indigo-400/70">p.{suggestion.page}</div> : null}
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
                       </details>
                     );
