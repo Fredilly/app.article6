@@ -82,6 +82,8 @@ import {
   documentPurposeLabel,
   type DocumentPurpose,
 } from "@/lib/documentClassification/classifyDocumentPurpose";
+import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
+import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 
 type MethodInventoryRecord = {
   code: string;
@@ -93,6 +95,8 @@ type QuickCheckPanelProps = {
   initialMethod?: string | null;
   initialVersion?: string | null;
   onContinueToWorkspace?: (url: string) => void;
+  /** Optional fixture contract for dev-only Fixture Replay */
+  fixtureContract?: FixtureContract | null;
 };
 
 type MatchCandidate = {
@@ -590,7 +594,7 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
-export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
+export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace, fixtureContract }: QuickCheckPanelProps) {
   const showReviewRoutingDiagnostic = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
@@ -2284,6 +2288,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             </div>
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
+
+          {/* ── Dev-only: Fixture Replay overlay ─────────────────────── */}
+          {process.env.NODE_ENV !== "production" && extractionPreviewView ? (
+            <FixtureReplayOverlay
+              contract={fixtureContract ?? null}
+              preview={extractionPreviewView}
+              fileName={selectedEvidenceLabel}
+            />
+          ) : null}
 
           {/* ── Evidence Checks ─────────────────────────────────────── */}
           {selectedEvidenceSources.length > 0 && !submitting ? (
