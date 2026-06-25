@@ -9,6 +9,13 @@ import {
 } from "@/lib/quickCheck/evidenceChecks";
 import { buildReviewQuestionResult, getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import type { EvidenceCheckId } from "@/lib/quickCheck/evidenceChecks";
+import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
+import { pymupdfAdapter } from "@/lib/documentParsing/adapters/pymupdfAdapter";
+import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
+import { buildDocumentStructure } from "@/lib/documentModel";
+import { compileEvidenceDocumentFromStructure } from "@/lib/quickCheck/evidence/compileEvidenceDocument";
+import { buildProjectFactContract } from "@/lib/quickCheck/projectFacts";
+import { buildSectionTableIndex } from "@/lib/quickCheck/indexing";
 
 const FIXTURE_DIR = path.join(process.cwd(), "tests/fixtures/quick-check");
 const PLUM_A_DOC_TEXT = fs.readFileSync(path.join(FIXTURE_DIR, "a-pdf-extracted.txt"), "utf-8");
@@ -322,5 +329,79 @@ describe("authoritative evidence check selectors", () => {
     expect(validated.answerText.length).toBeLessThanOrEqual(500);
     expect(validated.downgradeReason).toBe("");
     expect(validated.answerText).not.toMatch(/^Quick Check did not find/i);
+  });
+
+  it("methodology check finds VM0007 when it appears after page 3 in a real PyMuPDF-extracted PDD", () => {
+    // This test requires PyMuPDF (fitz) to be available. In CI it's not
+    // installed, so we skip when unavailable — same as production fallback.
+    const pymupdfAvail = checkPymupdfAvailability();
+    if (!pymupdfAvail.available) {
+      console.warn("Skipping PyMuPDF test:", pymupdfAvail.reason);
+      return;
+    }
+
+    // This PDF has:
+    //   Page 1-3: Project description + misleading parameter text
+    //            ("Value applied: 376.3 t CO2-e ha-1" near "methodology" keyword)
+    //   Page 4:   VM0007 in "Section 3.1 Application of Methodology"
+    //
+    // Before the page-3 filter fix, buildMethodologyCandidates would scan
+    // pages 1-3 only, find nothing, fall back to raw-text search, and
+    // return the parameter text instead of VM0007.
+    initPymupdfAdapterRuntime();
+    const pdfPath = path.join(FIXTURE_DIR, "deep-methodology-pdd.pdf");
+    expect(fs.existsSync(pdfPath)).toBe(true);
+
+    const parsed = pymupdfAdapter.parseText({
+      rawText: "",
+      pdfFilePath: pdfPath,
+    });
+
+    // Verify PyMuPDF found 4 pages
+    expect(parsed.pages.length).toBe(4);
+    expect(parsed.rawText.length).toBeGreaterThan(1000);
+
+    // Build the QueryContext the same way runCheck does
+    const documentStructure = buildDocumentStructure({ parsedDocument: parsed });
+    const evidenceDocument = compileEvidenceDocumentFromStructure({
+      docId: "deep-methodology-test",
+      documentStructure,
+    });
+    const projectFactContract = buildProjectFactContract(evidenceDocument);
+    const sectionTableIndex = buildSectionTableIndex({
+      documentStructure,
+      evidenceDocument,
+    });
+
+    // Build router result for methodology check
+    const routerResult = buildReviewQuestionResult({
+      claimText: "What methodology was applied?",
+      methodologyId: "VM0007",
+      methodologyVersion: "1.3",
+      rawPddText: parsed.rawText,
+      structuredQueryContext: {
+        parsedDocument: parsed,
+        documentStructure,
+        evidenceDocument,
+        projectFactContract,
+        sectionTableIndex,
+        parserAdapterId: "pymupdf",
+      },
+    });
+
+    const validated = validateCheck(getContract("methodology"), {
+      evidenceDocument,
+      projectFactContract,
+      sectionTableIndex,
+      routerResult: routerResult.routerResult,
+      queryIntentAnalysis: routerResult.queryIntentAnalysis,
+      rawText: parsed.rawText,
+    });
+
+    expect(validated.status).toBe("found");
+    expect(validated.answerText).toMatch(/VM0007/);
+    // Must NOT return the parameter text from pages 1-3
+    expect(validated.answerText).not.toMatch(/376\.3/);
+    expect(validated.downgradeReason).toBe("");
   });
 });
