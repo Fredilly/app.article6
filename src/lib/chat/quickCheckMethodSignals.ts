@@ -122,7 +122,8 @@ const PRIMARY_ALIASES: AliasEntry[] = [
 const PROGRAM_SIGNALS: ProgramEntry[] = [
   { pattern: /^Verra$/i, program: "Verra", priority: 0 },
   { pattern: /^VCS$/i, program: "Verra", priority: 1 },
-  { pattern: /^CCB$/i, program: "Verra", priority: 2 },
+  { pattern: /^CCB$/i, program: "CCBA", priority: 2 },
+  { pattern: /^CCBA$/i, program: "CCBA", priority: 2 },
   { pattern: /^Verified\s*Carbon\s*Standard$/i, program: "Verra", priority: 1 },
   { pattern: /^UNFCCC$/i, program: "UNFCCC", priority: 0 },
   { pattern: /^CDM$/i, program: "UNFCCC", priority: 1 },

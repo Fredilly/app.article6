@@ -268,7 +268,7 @@ describe("Cordillera Azul — current behavior (all pass)", () => {
 //
 // Run them explicitly: npx jest --no-coverage tests/lib/quickCheckMethodSignals.cordillera.test.ts
 
-describe.skip("Cordillera Azul — gap detectors (will pass after fixes)", () => {
+describe.skip("Cordillera Azul — gap detectors (will pass after full-text awareness)", () => {
   it("CCB report: VM0007 must NOT resolve as primary methodology", () => {
     const mentions = ccbReportMentions();
     const result = resolveMethodologySignals(mentions, FULL_INVENTORY);
@@ -306,20 +306,6 @@ describe.skip("Cordillera Azul — gap detectors (will pass after fixes)", () =>
     expect(label).toBeNull();
   });
 
-  it("PDD: Dual VCS+CCB standards must NOT collapse into single Verra bucket", () => {
-    const mentions = pddMentions();
-    const result = resolveMethodologySignals(mentions, FULL_INVENTORY);
-    const uniquePrograms = new Set(result.detectedPrograms.map((p) => p.program));
-    expect(uniquePrograms.size).toBeGreaterThanOrEqual(2);
-  });
-
-  it("Monitoring: Dual VCS+CCB must not collapse into single Verra bucket", () => {
-    const mentions = monitoringMentions();
-    const result = resolveMethodologySignals(mentions, FULL_INVENTORY);
-    const uniquePrograms = new Set(result.detectedPrograms.map((p) => p.program));
-    expect(uniquePrograms.size).toBeGreaterThanOrEqual(2);
-  });
-
   it("Cross-doc: methodology role NOT decided by mention count alone", () => {
     const ccbMentions = ccbReportMentions();
     const vcsMentions = vcsReportMentions();
@@ -354,6 +340,27 @@ describe.skip("Cordillera Azul — gap detectors (will pass after fixes)", () =>
   });
 });
 
+// ─── Recently enabled gap detectors ──────────────────────────────────────
+//
+// These were previously in describe.skip but now PASS with the
+// CCBA program signal fix in quickCheckMethodSignals.ts.
+
+describe("Cordillera Azul — newly enabled (previously gap detectors)", () => {
+  it("PDD: Dual VCS+CCB standards must NOT collapse into single Verra bucket", () => {
+    const mentions = pddMentions();
+    const result = resolveMethodologySignals(mentions, FULL_INVENTORY);
+    const uniquePrograms = new Set(result.detectedPrograms.map((p) => p.program));
+    expect(uniquePrograms.size).toBeGreaterThanOrEqual(2);
+  });
+
+  it("Monitoring: Dual VCS+CCB must not collapse into single Verra bucket", () => {
+    const mentions = monitoringMentions();
+    const result = resolveMethodologySignals(mentions, FULL_INVENTORY);
+    const uniquePrograms = new Set(result.detectedPrograms.map((p) => p.program));
+    expect(uniquePrograms.size).toBeGreaterThanOrEqual(2);
+  });
+});
+
 // ─── Before/after behavior documentation ─────────────────────────────────
 //
 // BEFORE FIX:
@@ -362,7 +369,7 @@ describe.skip("Cordillera Azul — gap detectors (will pass after fixes)", () =>
 //   VCS and CCB reports → identical program resolution (both "Verra")
 //
 // AFTER FIX:
-//   ccbReportMentions() → resolveMethodologySignals → noMethodDetected: true
+//   ccbReportMentions() → resolveMethodologySignals → noMethodDetected: true (needs full-text awareness)
 //   CCB program → "CCBA/CCB" (separate family)
 //   VCS report → program "Verra/VCS"
 //   CCB report → program "CCBA/CCB"

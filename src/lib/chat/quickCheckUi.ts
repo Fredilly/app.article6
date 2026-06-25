@@ -539,6 +539,9 @@ export function buildExtractionPreviewViewModel(input: {
     methodologyConfidence = confidenceBucket(input.analysis.extractionConfidence) === "low" ? "medium" : confidenceBucket(input.analysis.extractionConfidence);
   } else if (input.methodologyResolution?.status === "multiple" || input.methodologyResolution?.status === "unsupported") {
     methodologyConfidence = "low";
+  } else if (input.methodologyResolution?.status === "deferred") {
+    detectedMethodology = "Not confidently detected";
+    methodologyConfidence = "low";
   }
 
   const warning =

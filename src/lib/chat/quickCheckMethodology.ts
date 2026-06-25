@@ -56,6 +56,15 @@ export type QuickCheckMethodologyResolution =
       primaryMethodology: QuickCheckPrimaryMethodology;
     }
   | {
+      status: "deferred";
+      rawMentions: string[];
+      programSignals: string[];
+      signals: QuickCheckMethodologySignal[];
+      matchedMethods: QuickCheckResolvedMethodology[];
+      unsupportedCanonicalKeys: string[];
+      primaryMethodology: null;
+    }
+  | {
       status: "multiple";
       rawMentions: string[];
       programSignals: string[];
@@ -239,6 +248,28 @@ const NEGATIVE_CONTEXT_PATTERNS = [
   /\bannex\b/i,
 ];
 
+const JOINT_ASSESSMENT_PATTERNS = [
+  /\bjoint\s+assessment\b/i,
+  /\bauditor\s+qualifications?\b/i,
+  /\bwork\s+carried\s+out\s+by\b/i,
+  /\btechnical\s+expert\b/i,
+  /\btechnical\s+reviewer\b/i,
+];
+
+const CCB_FAMILY_PATTERNS = [
+  /\bccba\s+(?:project\s+)?validation\s+report\b/i,
+  /\bclimate,\s*community\s*and\s*biodiversity\s+(?:project\s+)?design\s+standards?\b/i,
+  /\bccb\s+(?:standards?\s+)?second\s+edition\b/i,
+  /\bccb[- ]?validation\s+conclusion\b/i,
+  /\bgold\s+level\b.*\bccb\b/i,
+];
+
+const VCS_FAMILY_PATTERNS = [
+  /\bvcs\s+version\s+\d+\b/i,
+  /\bverified\s+carbon\s+standard\s+version\s+\d+(?:\.\d+)?\b/i,
+  /\bvalidation\s+report:?\s*vcs\b/i,
+];
+
 function buildSignalSearchPatterns(signal: QuickCheckMethodologySignal): RegExp[] {
   const canonical = signal.canonicalKey;
   const patterns = new Set<string>([canonical, signal.raw.trim().toUpperCase()]);
@@ -254,11 +285,27 @@ function buildSignalSearchPatterns(signal: QuickCheckMethodologySignal): RegExp[
   return Array.from(patterns).map((pattern) => new RegExp(`\\b${pattern}\\b`, "i"));
 }
 
-function scoreMethodologyContext(rawText: string | undefined, signal: QuickCheckMethodologySignal): number {
+function detectDocumentFamily(rawText: string | undefined): string | null {
+  if (!rawText?.trim()) return null;
+  const header = rawText.slice(0, 2000).toLowerCase();
+  let ccbScore = 0;
+  let vcsScore = 0;
+  for (const pattern of CCB_FAMILY_PATTERNS) {
+    if (pattern.test(header)) ccbScore += 1;
+  }
+  for (const pattern of VCS_FAMILY_PATTERNS) {
+    if (pattern.test(header)) vcsScore += 1;
+  }
+  if (ccbScore > 0 && ccbScore >= vcsScore) return "CCBA/CCB";
+  if (vcsScore > 0) return "VCS";
+  return null;
+}
+
+function scoreMethodologyContext(rawText: string | undefined, signal: QuickCheckMethodologySignal, documentFamily?: string | null): number {
   if (!rawText?.trim()) return 0;
   const lines = rawText.split(/\r?\n/);
   const searchPatterns = buildSignalSearchPatterns(signal);
-  let bestScore = 0;
+  let bestScore: number | null = null;
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index] ?? "";
@@ -276,10 +323,16 @@ function scoreMethodologyContext(rawText: string | undefined, signal: QuickCheck
     if (POSITIVE_CONTEXT_PATTERNS.some((pattern) => pattern.test(localWindow))) score += 20;
     if (NEGATIVE_CONTEXT_PATTERNS.some((pattern) => pattern.test(localWindow))) score -= 80;
 
-    bestScore = Math.max(bestScore, score);
+    // CCBA/CCB joint-assessment penalty: VM methods mentioned in assessment context are supporting references
+    const isVMMethod = /^VM\d{4}$/i.test(signal.canonicalKey);
+    if (documentFamily === "CCBA/CCB" && isVMMethod) {
+      if (JOINT_ASSESSMENT_PATTERNS.some((pattern) => pattern.test(localWindow))) score -= 120;
+    }
+
+    if (bestScore === null || score < bestScore) bestScore = score;
   }
 
-  return bestScore;
+  return bestScore ?? 0;
 }
 
 export function resolvePrimaryMethodology(input: {
@@ -295,7 +348,8 @@ export function resolvePrimaryMethodology(input: {
     const signal = parseMethodologySignal(mention);
     if (!signal || signal.kind !== "method") continue;
     const candidates = methodIndex.get(signal.canonicalKey) ?? [];
-    const contextScore = scoreMethodologyContext(input.rawText, signal);
+    const documentFamily = detectDocumentFamily(input.rawText);
+    const contextScore = scoreMethodologyContext(input.rawText, signal, documentFamily);
     const existing = scoredCandidates.get(signal.canonicalKey);
     const next = {
       canonicalKey: signal.canonicalKey,
@@ -309,7 +363,9 @@ export function resolvePrimaryMethodology(input: {
     }
     existing.supported = existing.supported || next.supported;
     existing.priority = Math.min(existing.priority, next.priority);
-    existing.contextScore = Math.max(existing.contextScore, next.contextScore);
+    existing.contextScore = existing.contextScore === null
+      ? next.contextScore
+      : Math.min(existing.contextScore, next.contextScore ?? 0);
   }
 
   const ranked = Array.from(scoredCandidates.values()).sort(
@@ -323,7 +379,8 @@ export function resolvePrimaryMethodology(input: {
 
   const top = ranked[0]!;
   const second = ranked[1] ?? null;
-  if (ranked.length > 1 && top.contextScore <= 0) return null;
+  // Reject when the best candidate has negative context score (e.g. CCBA/CCB joint-assessment penalty)
+  if ((!second && top.contextScore < 0) || (input.rawText?.trim() && ranked.length > 1 && top.contextScore <= 0)) return null;
   const ambiguous = second && top.contextScore === second.contextScore && top.priority === second.priority;
   const effectiveTop = ambiguous ? null : top;
   if (!effectiveTop) return null;
@@ -447,6 +504,17 @@ export function resolveQuickCheckMethodology(input: {
   }
 
   if (resolvedMethods.length === 1 && unsupportedCanonicalKeys.length === 0) {
+    if (!primaryMethodology) {
+      return {
+        status: "deferred",
+        rawMentions,
+        programSignals,
+        signals,
+        matchedMethods: resolvedMethods,
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      };
+    }
     return {
       status: "single",
       rawMentions,
@@ -454,12 +522,7 @@ export function resolveQuickCheckMethodology(input: {
       signals,
       matchedMethods: [resolvedMethods[0]!],
       unsupportedCanonicalKeys: [],
-      primaryMethodology: primaryMethodology ?? {
-        canonicalKey: resolvedMethods[0]!.canonicalKeys[0] ?? resolvedMethods[0]!.methodologyId,
-        supported: true,
-        matchedMethod: resolvedMethods[0]!,
-        secondaryCanonicalKeys: [],
-      },
+      primaryMethodology,
     };
   }
 
@@ -467,7 +530,7 @@ export function resolveQuickCheckMethodology(input: {
       const hasStrongPrimary =
         (primaryMethodology.matchedMethod.contextScore ?? 0) > 0 ||
         primaryMethodology.secondaryCanonicalKeys.length > 0;
-    if (hasStrongPrimary) {
+    if (hasStrongPrimary && resolvedMethods.length <= 1) {
       return {
         status: "single",
         rawMentions,
@@ -481,6 +544,17 @@ export function resolveQuickCheckMethodology(input: {
   }
 
   if (resolvedMethods.length > 0) {
+    if (!primaryMethodology) {
+      return {
+        status: "deferred",
+        rawMentions,
+        programSignals,
+        signals,
+        matchedMethods: resolvedMethods,
+        unsupportedCanonicalKeys,
+        primaryMethodology: null,
+      };
+    }
     return {
       status: "multiple",
       rawMentions,
@@ -488,12 +562,19 @@ export function resolveQuickCheckMethodology(input: {
       signals,
       matchedMethods: resolvedMethods,
       unsupportedCanonicalKeys,
-      primaryMethodology: primaryMethodology ?? {
-        canonicalKey: resolvedMethods[0]!.canonicalKeys[0] ?? resolvedMethods[0]!.methodologyId,
-        supported: true,
-        matchedMethod: resolvedMethods[0]!,
-        secondaryCanonicalKeys: resolvedMethods.slice(1).map((method) => method.canonicalKeys[0] ?? method.methodologyId),
-      },
+      primaryMethodology,
+    };
+  }
+
+  if (!primaryMethodology && unsupportedCanonicalKeys.length === 0) {
+    return {
+      status: "none",
+      rawMentions,
+      programSignals,
+      signals,
+      matchedMethods: [],
+      unsupportedCanonicalKeys: [],
+      primaryMethodology: null,
     };
   }
 

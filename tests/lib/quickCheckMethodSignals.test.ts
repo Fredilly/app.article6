@@ -152,13 +152,13 @@ describe("Program signals (Tier 2)", () => {
     expect(result.detectedPrograms[0]!.program).toBe("Verra");
   });
 
-  it("detects CCB as Verra program", () => {
+  it("detects CCB as CCBA program", () => {
     const result = resolveMethodologySignals(
       ["CCB"],
       makeInventory(["VM0007"]),
     );
     expect(result.programOnly).toBe(true);
-    expect(result.detectedPrograms[0]!.program).toBe("Verra");
+    expect(result.detectedPrograms[0]!.program).toBe("CCBA");
   });
 
   it("detects UNFCCC as program only", () => {
