@@ -12,6 +12,8 @@ import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { withMetrics } from "@/lib/metrics";
 import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
+import { parsePymupdfText } from "@/lib/documentParsing/adapters/pymupdfAdapter";
+import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 
 function qcJson(body: unknown, init?: ResponseInit): NextResponse {
   return NextResponse.json(body, {
@@ -116,6 +118,7 @@ function buildParserDebug(): ParserDebugPayload {
 }
 
 async function handlePost(request: Request) {
+  initPymupdfAdapterRuntime();
   const contentType = request.headers.get("content-type") ?? "";
   let bytes: ArrayBuffer | null = null;
   let declaredFilename = "uploaded.pdf";
@@ -180,8 +183,38 @@ async function handlePost(request: Request) {
   const pdfFilePath = saveTempPdf(bytes);
   const pdfRef = storePdfRef(pdfFilePath);
 
-  let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
+  let fallbackReason = "pymupdf returned empty text";
   let diagnostics: PdfExtractionDiagnostics | undefined;
+
+  // Try PyMuPDF first (page-aware, handles large PDFs)
+  try {
+    const parsed = parsePymupdfText({ rawText: "", pdfFilePath });
+    const rawText = parsed.rawText ?? parsed.normalizedText ?? "";
+    if (rawText.trim().length > 0) {
+      const parserDebug = buildParserDebug();
+      return qcJson({
+        text: rawText,
+        engine: "pdf-parse",
+        metadata: {
+          parser: "pdf-parse",
+          diagnostics: {
+            failureKind: undefined,
+            parserPath: "bundled-pdf-parse",
+            pageExtractionAttempted: true,
+            textFallbackAttempted: false,
+            extractedTextLength: rawText.length,
+            pageCount: parsed.pages?.length ?? 1,
+            likelyScannedOrImageOnly: false,
+            partialTextRecovered: false,
+          },
+        },
+        pdfRef,
+        parserDebug,
+      });
+    }
+  } catch (error) {
+    fallbackReason = `pymupdf threw: ${error instanceof Error ? error.message : String(error)} — falling back to pdf-parse`;
+  }
 
   try {
     const extraction = await extractPdfTextWithPdfParse({ bytes });
