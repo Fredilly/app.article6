@@ -9,8 +9,9 @@
  *   PyMuPDF → EvidenceDocument (spans with page numbers)
  *     → candidate spans selected for each field
  *     → Ollama proposes { field, value, quote, page, confidence }
- *     → validator: does the quote actually exist in the referenced span?
- *     → if yes: return as candidate for ProjectFactContract
+ *     → validator: quote must exist verbatim in ONE specific span;
+ *       evidenceSpanId and page are set from that matched span
+ *     → if valid: return as candidate for ProjectFactContract
  *     → if no: discard, fall back to deterministic
  *     → router remains final authority
  */
@@ -19,6 +20,12 @@ const OLLAMA_ENDPOINT = "http://127.0.0.1:11434/api/generate";
 const OLLAMA_MODEL = "llama3.2:3b";
 const LLM_TIMEOUT_MS = 30_000;
 const FEATURE_FLAG = "QUICK_CHECK_LLM_FACT_EXTRACTOR";
+
+export type InputSpan = {
+  id: string;
+  text: string;
+  page: number | null;
+};
 
 export type LlmFactCandidate = {
   field: string;
@@ -48,7 +55,7 @@ const SUPPORTED_FIELDS = [
   "methodologyPrimary",
 ] as const;
 
-const JSON_SCHEMA = `{
+const JSON_SHAPE_DESCRIPTION = `{
   "fields": [
     {
       "field": "hostCountry" | "projectTitle" | "methodologyPrimary",
@@ -71,24 +78,23 @@ export function isLlmFactExtractorEnabled(): boolean {
  * Build a prompt for the LLM from candidate evidence spans.
  * Only feeds relevant spans (not the full PDD text) to keep context small.
  */
-function buildPrompt(field: string, spanTexts: string[]): string {
-  const snippetCount = spanTexts.length;
-  const snippetPreview = spanTexts
-    .map((text, i) => `[span ${i + 1}]: ${text}`)
+function buildPrompt(field: string, spans: InputSpan[]): string {
+  const snippetPreview = spans
+    .map((s, i) => `[span ${i + 1}] (page ${s.page ?? "?"}): ${s.text}`)
     .join("\n");
 
   return `You are a carbon project document analyst. Extract the "${field}" field from the following document spans.
 
 Rules:
-- Return ONLY valid JSON matching the schema below.
+- Return ONLY valid JSON matching the shape below.
 - The "quote" field MUST be a verbatim substring from one of the provided spans.
 - If the field cannot be determined from the spans, set value to null.
 - Do not guess. Do not invent text.
 
-JSON schema:
-${JSON_SCHEMA}
+JSON shape:
+${JSON_SHAPE_DESCRIPTION}
 
-Document spans (${snippetCount} total):
+Document spans (${spans.length} total):
 ${snippetPreview}
 
 Return only JSON:`;
@@ -134,11 +140,18 @@ async function callOllama(prompt: string): Promise<OllamaResponse | null> {
 
 /**
  * Parse the LLM JSON response and validate each candidate.
- * A candidate is valid only if its quote exists verbatim in the provided spans.
+ *
+ * Validation rules (per approved design):
+ * 1. Quote must exist verbatim in exactly one source span
+ * 2. evidenceSpanId is set to the matching span's ID
+ * 3. page is taken from the matching span (not trusted from LLM)
+ * 4. Unsupported fields are rejected
+ * 5. Missing fields are rejected
+ * 6. Confidence is normalized to high/medium/low
  */
-function parseAndValidateCandidates(
+export function parseAndValidateCandidates(
   rawResponse: string,
-  spanTexts: string[],
+  spans: InputSpan[],
 ): LlmFactCandidate[] {
   let parsed: { fields?: Array<Record<string, unknown>> };
 
@@ -156,28 +169,24 @@ function parseAndValidateCandidates(
     const field = String(entry.field ?? "");
     const value = String(entry.value ?? "");
     const quote = String(entry.quote ?? "");
-    const confidence = String(entry.confidence ?? "low");
 
     if (!field || !value || !quote) continue;
-
     if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) continue;
 
-    // Validate: the quote must exist verbatim in at least one span
-    const quoteExists = spanTexts.some((text) => text.includes(quote));
-    if (!quoteExists) continue;
-
-    const page = typeof entry.page === "number" ? entry.page : null;
+    // Find the exact span that contains the quote
+    const matchedSpan = spans.find((s) => s.text.includes(quote));
+    if (!matchedSpan) continue;
 
     candidates.push({
       field,
       value,
       quote,
-      page,
-      evidenceSpanId: null, // caller must resolve span ID
-      confidence: ["high", "medium", "low"].includes(confidence)
-        ? (confidence as "high" | "medium" | "low")
+      page: matchedSpan.page, // use span's page, not LLM's
+      evidenceSpanId: matchedSpan.id, // pin to the exact span
+      confidence: ["high", "medium", "low"].includes(String(entry.confidence ?? ""))
+        ? (String(entry.confidence) as "high" | "medium" | "low")
         : "low",
-      warnings: quoteExists ? [] : ["Quote does not match any source span — discarded"],
+      warnings: [],
     });
   }
 
@@ -188,21 +197,19 @@ function parseAndValidateCandidates(
  * Extract field candidates using Ollama.
  *
  * @param field - The field to extract (e.g. "hostCountry")
- * @param spanTexts - Array of evidence span texts from the document
+ * @param spans - Array of structured input spans with id, text, page
  * @returns Array of validated candidate proposals (may be empty)
  */
 export async function extractFieldCandidates(
   field: string,
-  spanTexts: string[],
+  spans: InputSpan[],
 ): Promise<LlmFactCandidate[]> {
   if (!isLlmFactExtractorEnabled()) return [];
-
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
+  if (spans.length === 0) return [];
 
-  if (spanTexts.length === 0) return [];
-
-  // Limit spans to keep context small (per GPT's feedback: don't feed full PDD)
-  const limitedSpans = spanTexts.slice(0, 20);
+  // Limit spans to keep context small
+  const limitedSpans = spans.slice(0, 20);
 
   const prompt = buildPrompt(field, limitedSpans);
   const response = await callOllama(prompt);
