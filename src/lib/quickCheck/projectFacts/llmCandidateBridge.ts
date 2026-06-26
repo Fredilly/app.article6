@@ -23,9 +23,14 @@ export async function tryLlmFallback(
   field: string,
   existingCandidates: Candidate[],
 ): Promise<Candidate[]> {
-  // Skip if flag is off or deterministic already found candidates
+  // Skip if flag is off
   if (!isLlmFactExtractorEnabled()) return existingCandidates;
-  if (existingCandidates.length > 0) return existingCandidates;
+
+  // Run LLM when deterministic found zero candidates,
+  // OR when all candidates have short (< 3 char) values
+  const hasShortAnswer = existingCandidates.length > 0
+    && existingCandidates.every((c) => String(c.value).trim().length < 3);
+  if (existingCandidates.length > 0 && !hasShortAnswer) return existingCandidates;
 
   // Build input spans from all document spans (limit to 20 in extractor)
   const spans: InputSpan[] = document.spans
@@ -53,7 +58,7 @@ export async function tryLlmFallback(
       normalizedValue: llm.value.trim().toLowerCase().replace(/\s+/g, " "),
       confidence: llm.confidence,
       span,
-      extractionRule: "llm:ollama",
+      extractionRule: "llm:openrouter",
       warnings: [],
     });
   }
