@@ -1392,6 +1392,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           },
         ],
       }));
+
+      // Auto-run evidence checks after upload completes
+      // Fire after current render cycle so the evidence is visible
+      setTimeout(() => { void runEvidenceChecks(); }, 0);
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
