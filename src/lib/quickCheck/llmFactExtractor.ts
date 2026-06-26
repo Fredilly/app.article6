@@ -18,7 +18,7 @@
 
 const OLLAMA_ENDPOINT = "http://127.0.0.1:11434/api/generate";
 const OLLAMA_MODEL = "llama3.2:3b";
-const LLM_TIMEOUT_MS = 30_000;
+const LLM_TIMEOUT_MS = 60_000;
 const FEATURE_FLAG = "QUICK_CHECK_LLM_FACT_EXTRACTOR";
 
 export type InputSpan = {
@@ -187,7 +187,8 @@ export function parseAndValidateCandidates(
     if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) continue;
 
     // Find the exact span that contains the quote
-    const matchedSpan = spans.find((s) => s.text.includes(quote));
+    // Find the exact span that contains the quote (lenient: trim whitespace)
+    const matchedSpan = spans.find((s) => s.text.includes(quote) || s.text.includes(quote.trim()));
     if (!matchedSpan) continue;
 
     candidates.push({
@@ -223,8 +224,9 @@ export async function extractFieldCandidates(
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
   if (spans.length === 0) return [];
 
-  // Limit spans to keep context small
-  const limitedSpans = spans.slice(0, 20);
+  // Limit spans to keep context small — use a generous cap for real PDDs
+  // (20 is too few: methodology, baseline etc. live deep in sections B/C/D)
+  const limitedSpans = spans.slice(0, 100);
 
   const prompt = buildPrompt(field, limitedSpans, question);
   const response = await callOllama(prompt);

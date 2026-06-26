@@ -93,8 +93,8 @@ describe("llmUiClient — extractSpansForLlm", () => {
     expect(result[0]!.id).toBe("s2");
   });
 
-  it("limits to 20 spans", () => {
-    const spans = Array.from({ length: 50 }, (_, i) => ({
+  it("limits to 100 spans", () => {
+    const spans = Array.from({ length: 150 }, (_, i) => ({
       spanId: `s${i}`,
       text: `Span ${i} with enough text to pass filter`,
       page: 1,
@@ -102,7 +102,7 @@ describe("llmUiClient — extractSpansForLlm", () => {
     }));
 
     const result = extractSpansForLlm(spans);
-    expect(result).toHaveLength(20);
+    expect(result).toHaveLength(100);
   });
 
   it("returns empty for unknown block types", () => {
