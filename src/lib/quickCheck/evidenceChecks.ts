@@ -934,6 +934,10 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
     if (/:|;|\(|\)/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
     if (/\b(?:standard|methodology|version|requirements?|project)\b/i.test(candidate.text)) return { valid: false, reason: "Contains standard/methodology text, not a country name" };
+    // Reject obviously non-country values like "ha", "tCO2", "tCO2e", numbers, units
+    if (/^[a-z]{1,3}$/i.test(candidate.text.trim()) && !/^[A-Z][a-z]/.test(candidate.text.trim())) return { valid: false, reason: "Too short to be a country name" };
+    if (/^\d/.test(candidate.text.trim())) return { valid: false, reason: "Starts with a number — not a country name" };
+    if (/\b(?:tCO2|tCO2e|ha|hectare|tonne|kg|m[32]|km2)\b/i.test(candidate.text)) return { valid: false, reason: "Contains unit/measurement, not a country name" };
   }
   return { valid: true, reason: "" };
 }
