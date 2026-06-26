@@ -5,6 +5,10 @@
  * this for each check that returned "missing" or "unclear".
  * Returns validated candidates with span provenance, or empty
  * array if LLM is unavailable or couldn't find the answer.
+ *
+ * LLM results are NEVER used to mutate EvidenceCheckResult.status.
+ * The router/validator remains the sole authority for visible status.
+ * See: https://github.com/Fredilly/app.article6/pull/825
  */
 import type { InputSpan, LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
 
@@ -38,15 +42,40 @@ export function isLlmUiEnabled(): boolean {
 
 /**
  * Extract candidate spans from the evidence document for LLM analysis.
- * Returns the first N content spans (not TOC, headers, footers, annexes).
+ * Returns content spans relevant to the given field.
+ * For hostCountry, prefers spans mentioning country/location keywords.
  */
 export function extractSpansForLlm(
   spans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  maxSpans = 20,
+  field?: string,
+  maxSpans = 100,
 ): InputSpan[] {
-  return spans
+  const valid = spans
     .filter((s) => s.text.trim().length > 15)
-    .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType))
+    .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType));
+
+  // For hostCountry, prioritize spans with location keywords
+  if (field === "hostCountry") {
+    const countryKeywords = [
+      "country", "location", "papua", "new guinea", "peru", "ghana",
+      "indonesia", "brazil", "colombia", "nigeria", "kenya", "congo",
+      "tanzania", "myanmar", "laos", "cambodia", "vietnam", "chile",
+      "ecuador", "bolivia", "project area",
+    ];
+    const keywordSpans = valid.filter((s) =>
+      countryKeywords.some((kw) => s.text.toLowerCase().includes(kw)),
+    );
+    const otherSpans = valid.filter((s) =>
+      !countryKeywords.some((kw) => s.text.toLowerCase().includes(kw)),
+    );
+    // Prioritize keyword spans, fill rest with other spans up to maxSpans
+    const prioritized = [...keywordSpans, ...otherSpans]
+      .slice(0, maxSpans)
+      .map((s) => ({ id: s.spanId, text: s.text, page: s.page }));
+    return prioritized;
+  }
+
+  return valid
     .slice(0, maxSpans)
     .map((s) => ({ id: s.spanId, text: s.text, page: s.page }));
 }
@@ -57,6 +86,9 @@ export function extractSpansForLlm(
  * @param checkId - The Quick Check check ID (e.g. "host_country")
  * @param documentSpans - All evidence spans from the extracted document
  * @returns Array of validated candidates (empty if none found or unavailable)
+ *
+ * LLM candidates do NOT mutate EvidenceCheckResult.status.
+ * They are suggestions only — the router controls final answer visibility.
  */
 export async function fetchLlmCandidate(
   checkId: string,
@@ -67,7 +99,7 @@ export async function fetchLlmCandidate(
   const mapping = CHECK_TO_FIELD[checkId];
   if (!mapping) return [];
 
-  const spans = extractSpansForLlm(documentSpans);
+  const spans = extractSpansForLlm(documentSpans, mapping.field);
   if (spans.length === 0) return [];
 
   try {
@@ -79,7 +111,7 @@ export async function fetchLlmCandidate(
         question: mapping.question,
         spans,
       }),
-      signal: AbortSignal.timeout(35_000),
+      signal: AbortSignal.timeout(65_000),
     });
 
     if (!response.ok) return [];

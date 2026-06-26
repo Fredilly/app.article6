@@ -2,6 +2,7 @@
 
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import type { StructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import type { ProjectFactField } from "@/lib/quickCheck/projectFacts/types";
 import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
@@ -38,6 +39,10 @@ export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?:
     // When deterministic extraction finds no candidates for a field, tries
     // Ollama to propose candidates. Only accepts candidates whose quotes
     // are verified against source spans with provenanced evidenceSpanIds.
+    //
+    // The router/validator remains the sole authority for visible answer status.
+    // LLM candidates only fill ProjectFactContract fields when deterministic
+    // evidence is empty — they never override conflicted evidence.
     const llmExtractor = await import(
       "@/lib/quickCheck/llmFactExtractor"
     );
@@ -45,30 +50,40 @@ export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?:
       "@/lib/quickCheck/projectFacts/llmCandidateBridge"
     );
     if (llmExtractor.isLlmFactExtractorEnabled()) {
-      // Host country: try LLM only when deterministic truly found nothing
-      // (no candidates at all — empty evidenceSpanIds). If deterministic
-      // found conflicting but rejected evidence, preserve the uncertainty.
-      if (!projectFactContract.hostCountry.value && projectFactContract.hostCountry.evidenceSpanIds.length === 0) {
-        const hostCandidates = await tryLlmFallback(evidenceDocument, "hostCountry", []);
-        if (hostCandidates.length > 0) {
-          const best = hostCandidates[0]!;
-          projectFactContract.hostCountry = {
-            value: best.value,
-            confidence: best.confidence,
-            evidenceSpanIds: [best.span.spanId],
-            pageNumbers: best.span.page != null ? [best.span.page] : [],
-            sectionPath: best.span.sectionPath ?? [],
-            heading: best.span.heading,
-            extractionRule: "llm:ollama",
-            warnings: [],
-          };
-          // Mirror hostCountry into projectCountry to keep them consistent
-          projectFactContract.projectCountry = {
-            ...projectFactContract.hostCountry,
-            extractionRule: "llm:ollama:mirror-project-country",
-          };
-        }
+      // LLM fallback for fields where deterministic found nothing.
+      // Tries Ollama for each field, only accepts candidates with
+      // verified quotes from real spans. Does NOT override conflicted
+      // deterministic evidence — only fills in total gaps.
+
+      const llmFieldFallback = async (
+        field: string,
+        pfcField: ProjectFactField<string | null>,
+      ): Promise<void> => {
+        if (pfcField.value || pfcField.evidenceSpanIds.length > 0) return;
+        const candidates = await tryLlmFallback(evidenceDocument, field, []);
+        if (candidates.length === 0) return;
+        const best = candidates[0]!;
+        pfcField.value = best.value;
+        pfcField.confidence = best.confidence;
+        pfcField.evidenceSpanIds = [best.span.spanId];
+        pfcField.pageNumbers = best.span.page != null ? [best.span.page] : [];
+        pfcField.sectionPath = best.span.sectionPath ?? [];
+        pfcField.heading = best.span.heading;
+        pfcField.extractionRule = "llm:ollama";
+        pfcField.warnings = [];
+      };
+
+      await llmFieldFallback("hostCountry", projectFactContract.hostCountry);
+      // Mirror hostCountry into projectCountry
+      if (projectFactContract.hostCountry.value && !projectFactContract.projectCountry.value) {
+        projectFactContract.projectCountry = {
+          ...projectFactContract.hostCountry,
+          extractionRule: "llm:ollama:mirror-project-country",
+        };
       }
+      await llmFieldFallback("methodologyPrimary", projectFactContract.methodologyPrimary);
+      await llmFieldFallback("projectTitle", projectFactContract.projectTitle);
+      await llmFieldFallback("creditingPeriod", projectFactContract.creditingPeriod);
     }
 
     const sectionTableIndex = buildSectionTableIndex({
