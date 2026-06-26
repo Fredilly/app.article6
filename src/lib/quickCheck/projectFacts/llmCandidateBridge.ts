@@ -30,7 +30,7 @@ export async function tryLlmFallback(
   // Build input spans from all document spans (limit to 20 in extractor)
   const spans: InputSpan[] = document.spans
     .filter((s) => s.reliability !== "excluded")
-    .filter((s) => ["paragraph", "field", "title", "formula"].includes(s.blockType))
+    .filter((s) => ["paragraph", "field", "title", "formula", "section_heading"].includes(s.blockType))
     .filter((s) => !s.layout?.repeatedHeaderFooter)
     .filter((s) => !["toc", "header", "footer", "annex"].includes(s.blockType))
     .map((s) => ({ id: s.spanId, text: s.text, page: s.page }));

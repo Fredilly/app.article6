@@ -82,15 +82,16 @@ describe("llmUiClient — extractSpansForLlm", () => {
     expect(result[1]!.id).toBe("s4");
   });
 
-  it("filters out short spans (< 15 chars)", () => {
+  it("includes short spans (no longer filtered by length)", () => {
     const spans = [
       { spanId: "s1", text: "Peru", page: 1, blockType: "paragraph" },
       { spanId: "s2", text: "Host Country: Papua New Guinea", page: 1, blockType: "paragraph" },
     ];
 
     const result = extractSpansForLlm(spans);
-    expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe("s2");
+    expect(result).toHaveLength(2);
+    expect(result[0]!.id).toBe("s1");
+    expect(result[1]!.id).toBe("s2");
   });
 
   it("limits to 100 spans", () => {

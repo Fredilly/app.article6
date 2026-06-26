@@ -1,14 +1,14 @@
 /**
  * LLM Fact Extractor — proposes candidate field values from evidence spans.
  *
- * Feature-flagged behind QUICK_CHECK_LLM_FACT_EXTRACTOR=ollama.
+ * Feature-flagged behind QUICK_CHECK_LLM_FACT_EXTRACTOR=openrouter.
  * Default off. The LLM only proposes candidates — the deterministic
  * ProjectFactContract build process decides whether to use them.
  *
  * Architecture (per approved plan):
  *   PyMuPDF → EvidenceDocument (spans with page numbers)
  *     → candidate spans selected for each field
- *     → Ollama proposes { field, value, quote, page, confidence }
+ *     → OpenRouter (Nemotron Nano 12B) proposes { field, value, quote, page, confidence }
  *     → validator: quote must exist verbatim in ONE specific span;
  *       evidenceSpanId and page are set from that matched span
  *     → if valid: return as candidate for ProjectFactContract
@@ -16,9 +16,10 @@
  *     → router remains final authority
  */
 
-const OLLAMA_ENDPOINT = "http://127.0.0.1:11434/api/generate";
-const OLLAMA_MODEL = "llama3.2:3b";
-const LLM_TIMEOUT_MS = 60_000;
+const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free";
+const SPAN_LIMIT = 30;
+const LLM_TIMEOUT_MS = 45_000;
 const FEATURE_FLAG = "QUICK_CHECK_LLM_FACT_EXTRACTOR";
 
 export type InputSpan = {
@@ -77,10 +78,10 @@ const JSON_SHAPE_DESCRIPTION = `{
 }`;
 
 /**
- * Check whether the Ollama fact extractor feature flag is enabled.
+ * Check whether the LLM fact extractor feature flag is enabled.
  */
 export function isLlmFactExtractorEnabled(): boolean {
-  return process.env[FEATURE_FLAG] === "ollama";
+  return process.env[FEATURE_FLAG] === "openrouter";
 }
 
 /**
@@ -101,7 +102,8 @@ function buildPrompt(field: string, spans: InputSpan[], question?: string): stri
 Rules:
 - Return ONLY valid JSON matching the shape below.
 - The "quote" field MUST be a verbatim substring from one of the provided spans.
-- If the field cannot be determined from the spans, set value to null.
+- If the field cannot be determined from the spans, set value to null AND quote to null.
+- If you cannot find the answer, respond IMMEDIATELY with null values.
 - Do not guess. Do not invent text.
 
 JSON shape:
@@ -110,42 +112,61 @@ ${JSON_SHAPE_DESCRIPTION}
 Document spans (${spans.length} total):
 ${snippetPreview}
 
-Return only JSON:`;
+Return only JSON (no markdown, no backticks):`;
 }
 
 /**
- * Call Ollama with a prompt and parse the JSON response.
+ * Call OpenRouter (chat completions API) with a prompt and parse the JSON response.
  * Returns null on any failure (timeout, parse error, model error).
  */
 async function callOllama(prompt: string): Promise<OllamaResponse | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
 
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return { error: "OPENROUTER_API_KEY is not set" };
+  }
+
   try {
-    const response = await fetch(OLLAMA_ENDPOINT, {
+    const response = await fetch(OPENROUTER_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        model: OLLAMA_MODEL,
-        prompt,
-        stream: false,
-        format: "json",
+        model: OPENROUTER_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 200,
+        temperature: 0.1,
       }),
       signal: controller.signal,
     });
 
     if (!response.ok) {
-      return { error: `Ollama HTTP ${response.status}: ${response.statusText}` };
+      const errorBody = await response.text().catch(() => "");
+      return { error: `OpenRouter HTTP ${response.status}: ${errorBody.substring(0, 200)}` };
     }
 
-    const data = (await response.json()) as OllamaResponse;
-    return data;
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) {
+      return { error: "OpenRouter returned empty response" };
+    }
+
+    // OpenRouter returns chat completions format.
+    // We normalize to OllamaResponse shape: { response?: string, error?: string }
+    return { response: content };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (err instanceof DOMException && err.name === "AbortError") {
-      return { error: `Ollama timed out after ${LLM_TIMEOUT_MS}ms` };
+      return { error: `OpenRouter timed out after ${LLM_TIMEOUT_MS}ms` };
     }
-    return { error: `Ollama request failed: ${message}` };
+    return { error: `OpenRouter request failed: ${message}` };
   } finally {
     clearTimeout(timeout);
   }
@@ -224,9 +245,8 @@ export async function extractFieldCandidates(
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
   if (spans.length === 0) return [];
 
-  // Limit spans to keep context small — use a generous cap for real PDDs
-  // (20 is too few: methodology, baseline etc. live deep in sections B/C/D)
-  const limitedSpans = spans.slice(0, 100);
+  // Limit spans to keep context small — 30 is enough for LLM to find answers
+  const limitedSpans = spans.slice(0, SPAN_LIMIT);
 
   const prompt = buildPrompt(field, limitedSpans, question);
   const response = await callOllama(prompt);
