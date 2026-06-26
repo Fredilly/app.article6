@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_GIT_SHA: gitSha,
     NEXT_PUBLIC_APP_VERSION: appVersion,
-    NEXT_PUBLIC_QUICK_CHECK_LLM: process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ? "1" : "0",
+    NEXT_PUBLIC_QUICK_CHECK_LLM: process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" || process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter" ? "1" : "0",
   },
   serverExternalPackages: ["pdf-parse", "pdfjs-dist", "@napi-rs/canvas"],
   outputFileTracingIncludes: {

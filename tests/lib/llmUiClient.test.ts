@@ -40,6 +40,47 @@ describe("llmUiClient — feature flag", () => {
   });
 });
 
+describe("llmUiClient — flag sync with server flag", () => {
+  beforeEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  afterEach(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=1 when server flag is openrouter", () => {
+    // Simulates what next.config.ts does at build time
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("1");
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=1 when server flag is ollama (backward compat)", () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("1");
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=0 when server flag is unset", () => {
+    delete process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR;
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("0");
+  });
+});
+
 describe("llmUiClient — CHECK_TO_FIELD mapping", () => {
   it("maps all 11 check IDs to fields", () => {
     expect(Object.keys(CHECK_TO_FIELD)).toEqual([

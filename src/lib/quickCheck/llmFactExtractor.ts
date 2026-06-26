@@ -18,7 +18,6 @@
 
 const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free";
-const SPAN_LIMIT = 30;
 const LLM_TIMEOUT_MS = 45_000;
 const FEATURE_FLAG = "QUICK_CHECK_LLM_FACT_EXTRACTOR";
 
@@ -44,7 +43,7 @@ export type LlmExtractionResult = {
   error: string | null;
 };
 
-type OllamaResponse = {
+type LlmResponse = {
   response?: string;
   error?: string;
 };
@@ -81,7 +80,7 @@ const JSON_SHAPE_DESCRIPTION = `{
  * Check whether the LLM fact extractor feature flag is enabled.
  */
 export function isLlmFactExtractorEnabled(): boolean {
-  return process.env[FEATURE_FLAG] === "openrouter";
+  return process.env[FEATURE_FLAG] === "openrouter" || process.env[FEATURE_FLAG] === "ollama";
 }
 
 /**
@@ -119,7 +118,7 @@ Return only JSON (no markdown, no backticks):`;
  * Call OpenRouter (chat completions API) with a prompt and parse the JSON response.
  * Returns null on any failure (timeout, parse error, model error).
  */
-async function callOllama(prompt: string): Promise<OllamaResponse | null> {
+async function callLlm(prompt: string): Promise<LlmResponse | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
 
@@ -159,7 +158,7 @@ async function callOllama(prompt: string): Promise<OllamaResponse | null> {
     }
 
     // OpenRouter returns chat completions format.
-    // We normalize to OllamaResponse shape: { response?: string, error?: string }
+    // We normalize to LlmResponse shape: { response?: string, error?: string }
     return { response: content };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -229,7 +228,7 @@ export function parseAndValidateCandidates(
 }
 
 /**
- * Extract field candidates using Ollama.
+ * Extract field candidates using LLM.
  *
  * @param field - The field to extract (e.g. "hostCountry")
  * @param spans - Array of structured input spans with id, text, page
@@ -245,11 +244,12 @@ export async function extractFieldCandidates(
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
   if (spans.length === 0) return [];
 
-  // Limit spans to keep context small — 30 is enough for LLM to find answers
-  const limitedSpans = spans.slice(0, SPAN_LIMIT);
+// Limit spans to keep context small — use a generous cap for real PDDs
+  // (30 is too few: methodology, baseline etc. live deep in sections B/C/D)
+  const limitedSpans = spans.slice(0, 100);
 
   const prompt = buildPrompt(field, limitedSpans, question);
-  const response = await callOllama(prompt);
+  const response = await callLlm(prompt);
 
   if (!response || response.error || !response.response) {
     return [];
