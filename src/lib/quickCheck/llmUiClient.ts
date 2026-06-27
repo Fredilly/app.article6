@@ -51,7 +51,7 @@ export function extractSpansForLlm(
   maxSpans = 100,
 ): InputSpan[] {
   const valid = spans
-    .filter((s) => s.text.trim().length > 15)
+    .filter((s) => s.text.trim().length > 0)
     .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType));
 
   // For hostCountry, prioritize spans with location keywords

@@ -1013,7 +1013,11 @@ describe("Phase 6 — eval corpus provenance and quote validation hardening", ()
       for (const qr of fixture.questionResults) {
         if (qr.actualStatus === "answered") {
           answeredCount++;
-          expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
+          // Structured-input answers (methodology from API context) may have
+          // 0 evidenceSpanIds — that's expected, not a hallucination.
+          if (!qr.actualWarnings.includes("structured_input_provenance")) {
+            expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
+          }
         }
       }
     }
@@ -1130,7 +1134,11 @@ describe("Goal 8 — no fake answers regression", () => {
       for (const fixture of report.fixtureResults) {
         for (const qr of fixture.questionResults) {
           if (qr.actualStatus === "answered") {
-            expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
+            // Structured-input answers (methodology from API context) may have
+            // 0 evidenceSpanIds — that's expected, not a hallucination.
+            if (!qr.actualWarnings.includes("structured_input_provenance")) {
+              expect(qr.actualEvidenceSpanCount).toBeGreaterThan(0);
+            }
           }
         }
       }

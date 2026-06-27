@@ -210,7 +210,8 @@ function evaluateQuestion(input: {
   }
 
   const answeredTotal = reviewResult.routerResult.status === "answered" ? 1 : 0;
-  const answeredWithoutProvenance = answeredTotal === 1 && (
+  const isStructuredInput = reviewResult.routerResult.warnings.includes("structured_input_provenance");
+  const answeredWithoutProvenance = answeredTotal === 1 && !isStructuredInput && (
     (expectation.goldEvidence?.pages?.length ? !expectation.goldEvidence.pages.every((page) => reviewResult.routerResult.pages.includes(page)) : false)
     || (expectation.goldEvidence?.spanAnchors?.length ? !expectation.goldEvidence.spanAnchors.every((anchor) => includesNormalized(reviewResult.routerResult.quotes.join("\n"), anchor)) : false)
     || reviewResult.routerResult.quotes.length === 0

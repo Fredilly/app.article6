@@ -1,0 +1,15 @@
+Project Description Document
+VM0007 Version 4.2
+Verra VCS
+
+A. Project Description
+A.1 Project title: Forest Conservation Project Example
+A.2 Project location: Tropical Region
+
+B. Methodology Application
+The methodology applied is VM0007 Version 4.2, REDD+ Methodology Modules.
+
+This methodology provides the framework for identifying baseline scenarios,
+demonstrating additionality, monitoring carbon stocks, and accounting for leakage.
+
+The project follows the additionality procedures described in VM0007 Section 3.

@@ -5,7 +5,7 @@ import { isLlmFactExtractorEnabled, extractFieldCandidates } from "@/lib/quickCh
 async function handlePost(request: Request) {
   if (!isLlmFactExtractorEnabled()) {
     return NextResponse.json(
-      { error: "LLM fact extractor is not enabled. Set QUICK_CHECK_LLM_FACT_EXTRACTOR=ollama." },
+      { error: "LLM fact extractor is not enabled. Set QUICK_CHECK_LLM_FACT_EXTRACTOR=openrouter (or ollama for legacy)." },
       { status: 400 },
     );
   }
