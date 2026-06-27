@@ -1375,11 +1375,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setFieldErrors({ evidence: attachmentResult.message });
         return;
       }
-      updateSession((current) => ({
-        ...current,
-        draft: (() => {
-          const nextMethodology = resetMethodologyForUserInput(current.draft);
-          return {
+      updateSession((current) => {
+        const nextMethodology = resetMethodologyForUserInput(current.draft);
+        return {
+          ...current,
+          draft: {
             ...current.draft,
             ...nextMethodology,
             sourceMode: "uploaded_file",
@@ -1389,30 +1389,41 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             result: null,
             resultId: undefined,
             updatedAt: nowIso(),
-          };
-        })(),
-        result: null,
-        stagedUploads: [
+          },
+          result: null,
+          stagedUploads: [
+            {
+              evidenceId,
+              filename: attachmentResult.attachment.filename,
+              mime: attachmentResult.attachment.mime,
+              createdAt: attachmentResult.attachment.created_at,
+              attachment: attachmentResult.attachment,
+            },
+          ],
+        };
+      });
+
+      // SNAPSHOT: built from LOCAL values inside the upload handler, NOT from
+      // React render-time state (selectedEvidenceSources, draft.*) which still
+      // reflects the previous document before the next render cycle.
+      // We reuse the same nextMethodology from the updateSession callback
+      // by re-computing it on the session state's draft (same computation).
+      const sessionDraft = session.draft;
+      const snapshotNextMethodology = resetMethodologyForUserInput(sessionDraft);
+      const snapshot = {
+        evidenceSources: [
           {
             evidenceId,
-            filename: attachmentResult.attachment.filename,
-            mime: attachmentResult.attachment.mime,
-            createdAt: attachmentResult.attachment.created_at,
-            attachment: attachmentResult.attachment,
+            sourceLabel: attachmentResult.attachment.filename,
+            attachments: [attachmentResult.attachment],
+            pddFragments: undefined,
           },
         ],
-      }));
-
-      // SNAPSHOT: capture current document context BEFORE scheduling async work.
-      // This prevents the setTimeout(0) from reading stale React state that
-      // still reflects the previous document (fixes cross-document contamination).
-      const snapshot = {
-        evidenceSources: selectedEvidenceSources,
         resolvePdfText,
-        evidenceIds: draft.evidenceIds,
-        fileName: draft.evidenceFileName || "",
-        methodologyId: draft.methodologyId,
-        methodologyVersion: draft.methodologyVersion,
+        evidenceIds: [evidenceId],
+        fileName: attachmentResult.attachment.filename,
+        methodologyId: snapshotNextMethodology.methodologyId,
+        methodologyVersion: snapshotNextMethodology.methodologyVersion,
         methods,
       };
 
