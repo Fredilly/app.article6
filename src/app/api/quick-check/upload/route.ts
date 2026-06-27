@@ -17,25 +17,41 @@ import { withMetrics } from "@/lib/metrics";
  * browser-to-Blob uploads (bypassing Vercel body limit entirely).
  */
 async function handlePost() {
-  const hasBlobToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  const blobAvailable = checkBlobAvailability();
 
   return NextResponse.json({
     ok: true,
-    store: hasBlobToken ? "vercel-blob" : "in-memory",
+    store: blobAvailable ? "vercel-blob" : "in-memory",
     maxSizeBytes: 20 * 1024 * 1024,
     maxSizeLabel: "20MB",
   });
 }
 
 async function handleGet() {
-  const hasBlobToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  const blobAvailable = checkBlobAvailability();
 
   return NextResponse.json({
     ok: true,
-    store: hasBlobToken ? "vercel-blob" : "in-memory",
+    store: blobAvailable ? "vercel-blob" : "in-memory",
     maxSizeBytes: 20 * 1024 * 1024,
     maxSizeLabel: "20MB",
   });
+}
+
+/**
+ * Check whether Vercel Blob storage credentials are available.
+ *
+ * Supports three auth methods:
+ *   1. BLOB_READ_WRITE_TOKEN — explicit token from env
+ *   2. VERCEL_OIDC_TOKEN + BLOB_STORE_ID — OIDC-based auth on Vercel deployments
+ *   3. BLOB_TOKEN — legacy alias (some Vercel setups)
+ */
+function checkBlobAvailability(): boolean {
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID) ||
+    process.env.BLOB_TOKEN,
+  );
 }
 
 export const POST = withMetrics("api/quick-check/upload:POST", handlePost);

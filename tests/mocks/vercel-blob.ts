@@ -4,11 +4,17 @@
  * The real @vercel/blob package has transitive ESM dependencies (jose)
  * that cannot be transformed by Jest's CJS transform. This mock provides
  * the minimal surface area needed by the Quick Check Blob helpers.
+ *
+ * All URLs use the .private.blob.vercel-storage.com shape to match
+ * Vercel's documented private blob URL format.
  */
 
+const PRIVATE_BLOB_URL = "https://mock.private.blob.vercel-storage.com/quick-check/pdfs/mock.pdf";
+const PRIVATE_BLOB_PATHNAME = "quick-check/pdfs/mock.pdf";
+
 export const put = jest.fn().mockResolvedValue({
-  url: "https://mock.blob.vercel-storage.com/quick-check/pdfs/mock.pdf",
-  pathname: "quick-check/pdfs/mock.pdf",
+  url: PRIVATE_BLOB_URL,
+  pathname: PRIVATE_BLOB_PATHNAME,
   contentType: "application/pdf",
   contentDisposition: 'attachment; filename="mock.pdf"',
 });
@@ -26,9 +32,9 @@ export const get = jest.fn().mockImplementation(async (_url: string) => {
     }),
     headers: new Headers(),
     blob: {
-      url: "https://mock.blob.vercel-storage.com/quick-check/pdfs/mock.pdf",
-      downloadUrl: "https://mock.blob.vercel-storage.com/quick-check/pdfs/mock.pdf?download=1",
-      pathname: "quick-check/pdfs/mock.pdf",
+      url: PRIVATE_BLOB_URL,
+      downloadUrl: `${PRIVATE_BLOB_URL}?download=1`,
+      pathname: PRIVATE_BLOB_PATHNAME,
       contentType: "application/pdf",
       contentDisposition: 'attachment; filename="mock.pdf"',
       cacheControl: "public, max-age=31536000",

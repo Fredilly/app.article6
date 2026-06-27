@@ -82,12 +82,19 @@ export async function downloadBlobToTemp(blobUrl: string): Promise<string> {
 
 /**
  * Check if a string is a Vercel Blob URL that can be used as a durable pdfRef.
+ *
+ * Matches both private and public Vercel Blob URL shapes:
+ *   - https://<store>.private.blob.vercel-storage.com/...
+ *   - https://<store>.public.blob.vercel-storage.com/...
+ *
+ * The subdomain is a store ID (alphanumeric + hyphens/underscores).
+ * The path is required (forward slash after the TLD).
  */
 export function isBlobUrl(value: string): boolean {
   return (
     typeof value === "string" &&
     value.length > 0 &&
-    /^https:\/\/[a-zA-Z0-9_-]+\.(public\.)?blob\.vercel-storage\.com\//.test(
+    /^https:\/\/[a-zA-Z0-9_-]+\.(private|public)\.blob\.vercel-storage\.com\//.test(
       value,
     )
   );
