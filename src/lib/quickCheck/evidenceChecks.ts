@@ -975,9 +975,22 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     if (/^project description:\s*vcs\s+version/i.test(candidate.text.trim())) {
       return { valid: false, reason: "Project description header — not evidence of applied methodology" };
     }
-    // Must contain an explicit methodology code (VM####, VMD####, ACM####, etc.)
-    const hasCode = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
-    if (!hasCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };
+    // Must contain an explicit primary methodology code (VM####, ACM####, etc.)
+    // VMD/tool/module-only codes are NOT primary methodologies.
+    const hasPrimaryCode = /\b(?:VM\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
+    const hasVmdCode = /\bVMD\d{4}\b/i.test(candidate.text);
+    if (!hasPrimaryCode && !hasVmdCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };
+    // Reject VMD/tool/module-only evidence: a VMD code without a primary
+    // methodology code nearby is not proof the project applies a methodology.
+    if (hasVmdCode && !hasPrimaryCode) {
+      return { valid: false, reason: "VMD/tool/module code only — not evidence of applied primary methodology" };
+    }
+    // Reject if the candidate is primarily about modules or tools rather than
+    // the methodology itself (e.g. "VMD0001 module describes..." without a
+    // higher-level methodology code).
+    if (/^(?:the\s+)?(?:module|vmd)\s+\d+|the\s+(?:module|tool)/i.test(candidate.text.trimStart()) && !hasPrimaryCode) {
+      return { valid: false, reason: "Module/tool description — not evidence of applied primary methodology" };
+    }
     // Reject if the code appears only in a "modules and tools" list or boilerplate
     // without any evidence the project actually applies it.
     // Allow passages that explicitly say the project applies the methodology
@@ -994,7 +1007,7 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
       return { valid: false, reason: "Describes methodology instructions — not evidence of applied methodology" };
     }
     // Accept when the code appears in a title/reference section or fact contract
-    if (candidate.source.startsWith("fact:") && hasCode) return { valid: true, reason: "" };
+    if (candidate.source.startsWith("fact:") && (hasPrimaryCode || hasVmdCode)) return { valid: true, reason: "" };
   }
   return { valid: true, reason: "" };
 }
