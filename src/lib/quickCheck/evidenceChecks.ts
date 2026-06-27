@@ -966,8 +966,15 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     if (/\b(?:VVB|validator|verifier|developer|project proponent|buyer)\b/i.test(candidate.text)) return { valid: false, reason: "References registry participant — not a country name" };
     // Reject generic registry/address text that doesn't name a country
     if (/\b(?:registry|register)\b/i.test(candidate.text) && !containsRegistryCountry(candidate.text)) return { valid: false, reason: "Registry reference without recognized country name" };
+    // Reject URL path fragments used as country references (e.g. "information/zimbabwe/en/")
+    if (/\/[a-z]+\/[a-z]+\//.test(candidate.text)) return { valid: false, reason: "Contains URL path fragment — not a country name" };
   }
   if (contract.expectedShape === "methodology_name_version") {
+    // Reject generic project-description header text (e.g. "PROJECT DESCRIPTION:
+    // VCS Version 3...") that should not return FOUND for methodology.
+    if (/^project description:\s*vcs\s+version/i.test(candidate.text.trim())) {
+      return { valid: false, reason: "Project description header — not evidence of applied methodology" };
+    }
     // Must contain an explicit methodology code (VM####, VMD####, ACM####, etc.)
     const hasCode = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
     if (!hasCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };

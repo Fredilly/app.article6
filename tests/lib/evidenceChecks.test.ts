@@ -634,3 +634,59 @@ describe("methodology final status", () => {
     expect(["unclear", "missing"]).toContain(result.status);
   });
 });
+// ---------------------------------------------------------------------------
+// Kariba PDD regression tests
+// ---------------------------------------------------------------------------
+
+function runValidateCheck(input: {
+  checkId: EvidenceCheckId;
+  claimText: string;
+  rawText: string;
+}) {
+  const sqc = getStructuredQueryContext(input.rawText);
+  const qr = buildReviewQuestionResult({
+    claimText: input.claimText,
+    methodologyId: "",
+    methodologyVersion: "",
+    rawPddText: input.rawText,
+    structuredQueryContext: sqc,
+  });
+  return validateCheck(getContract(input.checkId), {
+    evidenceDocument: sqc.evidenceDocument,
+    projectFactContract: sqc.projectFactContract,
+    sectionTableIndex: sqc.sectionTableIndex,
+    routerResult: qr.routerResult,
+    queryIntentAnalysis: qr.queryIntentAnalysis,
+    rawText: input.rawText,
+  });
+}
+
+describe("Kariba PDD regression", () => {
+  it("host_country rejects URL path fragment information/zimbabwe/en/", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "FAO country information Zimbabwe: http://www.fao.org/isfp/country-information/zimbabwe/en/",
+    });
+    expect(result.status).not.toBe("found");
+  });
+
+  it("methodology returns VM0009 from title and reference text", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "APPLICATION OF METHODOLOGY\n2.1 Title and Reference of Methodology\nVM0009 - Methodology for Avoided Mosaic Deforestation of Tropical Forests, v1.1",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0009");
+  });
+
+  it("methodology rejects PROJECT DESCRIPTION: VCS Version header as missing", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "PROJECT DESCRIPTION: VCS Version 3\nv3.1\nProject Title  Kariba REDD+ Project",
+    });
+    expect(result.status).toBe("missing");
+  });
+});
