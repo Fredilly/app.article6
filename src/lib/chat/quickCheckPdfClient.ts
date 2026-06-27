@@ -1,6 +1,13 @@
 import { extractMethodologyMentions, extractPdfText, type QuickCheckPdfParserDebug, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
 import { formatQuickCheckPdfLimitLabel, type QuickCheckPdfRouteErrorCode } from "@/lib/chat/quickCheckPdfUpload";
 
+/**
+ * Threshold above which the client switches from FormData upload to direct
+ * browser-to-Blob upload (presigned). Files above this size risk hitting
+ * Vercel's 4.5MB Function payload limit.
+ */
+const DIRECT_BLOB_UPLOAD_THRESHOLD = 4 * 1024 * 1024; // 4 MB
+
 function uniqueMentions(...groups: Array<string[] | undefined>): string[] {
   return Array.from(new Set(groups.flatMap((group) => group ?? []).map((item) => item.trim()).filter(Boolean)));
 }
@@ -11,20 +18,44 @@ const RECOVERED_TEXT_WARNING =
 /**
  * Resolve PDF text from an uploaded file.
  *
- * Primary flow: server receives bytes, uploads to Vercel Blob for durable
- * storage, and returns the blob URL as the pdfRef. The blob URL survives
- * cold starts and has no TTL.
+ * Two upload paths:
  *
- * Fallback: if Blob is unavailable, uses the legacy in-memory pdfRef.
+ *   1. Small files (≤4MB) — FormData POST to /api/quick-check/pdf-extract.
+ *      [Legacy path; works for small PDFs.]
+ *
+ *   2. Large files (>4MB) — Direct browser-to-Vercel-Blob upload via presigned URL,
+ *      then POST the blob URL to /api/quick-check/pdf-extract for extraction.
+ *      [Bypasses Vercel 4.5MB Function payload limit.]
+ *
+ * In both cases, the server returns extracted text + a durable blob URL as pdfRef.
  */
 export async function resolveQuickCheckPdfText(input: {
   bytes: ArrayBuffer;
   filename: string;
 }): Promise<QuickCheckResolvedPdfText> {
+  const { bytes, filename } = input;
+
+  // Large files: direct browser-to-Blob upload, then extract from blob URL
+  if (bytes.byteLength > DIRECT_BLOB_UPLOAD_THRESHOLD) {
+    return resolveLargePdfText(bytes, filename);
+  }
+
+  // Small files: legacy FormData path
+  return resolveSmallPdfText(bytes, filename);
+}
+
+/**
+ * Small file path: upload PDF bytes to server via FormData, server extracts
+ * text and stores to Blob for durability.
+ */
+async function resolveSmallPdfText(
+  bytes: ArrayBuffer,
+  filename: string,
+): Promise<QuickCheckResolvedPdfText> {
   try {
     const form = new FormData();
-    form.append("file", new Blob([new Uint8Array(input.bytes)], { type: "application/pdf" }), input.filename || "document.pdf");
-    form.append("filename", input.filename || "document.pdf");
+    form.append("file", new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), filename || "document.pdf");
+    form.append("filename", filename || "document.pdf");
 
     const response = await fetch("/api/quick-check/pdf-extract", {
       method: "POST",
@@ -32,23 +63,48 @@ export async function resolveQuickCheckPdfText(input: {
       cache: "no-store",
     });
 
-    return handleExtractResponse(response, input.bytes);
+    return handleExtractResponse(response, bytes);
   } catch (err) {
-    const localHeuristicText = extractPdfText(input.bytes);
-    const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
-    const message = err instanceof Error ? err.message : String(err);
-    const isRequestFailure = /HTTP|failed|network|fetch|abort|timeout/i.test(message);
-    return {
-      text: localHeuristicText,
-      engine: "heuristic",
-      methodologyMentions: uniqueMentions(localHeuristicMentions),
-      warning: localHeuristicText.trim()
-        ? RECOVERED_TEXT_WARNING
-        : isRequestFailure
-          ? "Quick Check PDF extraction request failed (service or network issue)."
-          : "PDF extraction request failed.",
-      diagnosticCode: isRequestFailure ? "upload-request-failed" : "parser-failed",
-    };
+    return handleClientFallback(err, bytes);
+  }
+}
+
+/**
+ * Large file path: upload PDF directly to Vercel Blob via presigned URL,
+ * then send the blob URL to the extraction endpoint.
+ *
+ * The PDF bytes never pass through a Vercel Function body, bypassing the
+ * 4.5MB payload limit.
+ */
+async function resolveLargePdfText(
+  bytes: ArrayBuffer,
+  filename: string,
+): Promise<QuickCheckResolvedPdfText> {
+  try {
+    // Step 1: Upload directly to Vercel Blob from the browser
+    const { upload } = await import("@vercel/blob/client");
+
+    const pathname = `quick-check/pdfs/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.pdf`;
+
+    const blobResult = await upload(pathname, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), {
+      access: "private",
+      handleUploadUrl: "/api/quick-check/presigned-upload",
+      contentType: "application/pdf",
+    });
+
+    const blobUrl = blobResult.url;
+
+    // Step 2: Send blob URL to extraction endpoint
+    const response = await fetch("/api/quick-check/pdf-extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ blobUrl, filename }),
+      cache: "no-store",
+    });
+
+    return handleExtractResponse(response, bytes);
+  } catch (err) {
+    return handleClientFallback(err, bytes);
   }
 }
 
@@ -125,5 +181,30 @@ async function handleExtractResponse(
     parserAdapterId: parserDebug?.parserAdapterId ?? payload.parserAdapterId,
     parserFallbackFrom: parserDebug?.parserFallbackFrom ?? payload.parserFallbackFrom,
     parserDebug,
+  };
+}
+
+/**
+ * Client-side fallback when the server is unreachable: extract text locally
+ * using the heuristic extractor.
+ */
+function handleClientFallback(
+  err: unknown,
+  bytes: ArrayBuffer,
+): QuickCheckResolvedPdfText {
+  const localHeuristicText = extractPdfText(bytes);
+  const localHeuristicMentions = extractMethodologyMentions(localHeuristicText);
+  const message = err instanceof Error ? err.message : String(err);
+  const isRequestFailure = /HTTP|failed|network|fetch|abort|timeout/i.test(message);
+  return {
+    text: localHeuristicText,
+    engine: "heuristic",
+    methodologyMentions: uniqueMentions(localHeuristicMentions),
+    warning: localHeuristicText.trim()
+      ? RECOVERED_TEXT_WARNING
+      : isRequestFailure
+        ? "Quick Check PDF extraction request failed (service or network issue)."
+        : "PDF extraction request failed.",
+    diagnosticCode: isRequestFailure ? "upload-request-failed" : "parser-failed",
   };
 }

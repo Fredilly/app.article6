@@ -44,3 +44,17 @@ export const get = jest.fn().mockImplementation(async (_url: string) => {
     },
   };
 });
+
+// Client-side upload functions (from @vercel/blob/client)
+// Used by resolveLargePdfText for direct browser-to-Blob upload.
+export const upload = jest.fn().mockImplementation(
+  async (_pathname: string, _body: unknown, _options: unknown) => {
+    return {
+      url: PRIVATE_BLOB_URL,
+      pathname: PRIVATE_BLOB_PATHNAME,
+      contentType: "application/pdf",
+      contentDisposition: 'attachment; filename="mock.pdf"',
+      size: 1024,
+    };
+  },
+);
