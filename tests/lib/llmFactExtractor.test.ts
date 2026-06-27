@@ -59,6 +59,53 @@ describe("llmFactExtractor — feature flag", () => {
     const candidates = await extractFieldCandidates("hostCountry", []);
     expect(candidates).toEqual([]);
   });
+
+  it("returns empty for OpenRouter without an API key without starting a timeout", async () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
+    delete process.env.OPENROUTER_API_KEY;
+    const timeoutSpy = jest.spyOn(globalThis, "setTimeout");
+    const fetchSpy = jest.spyOn(globalThis, "fetch");
+
+    const candidates = await extractFieldCandidates("hostCountry", SAMPLE_SPANS);
+
+    expect(candidates).toEqual([]);
+    expect(timeoutSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    timeoutSpy.mockRestore();
+    fetchSpy.mockRestore();
+  });
+
+  it("uses the local Ollama request path for the legacy ollama flag", async () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
+    const fetchSpy = jest.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        response: JSON.stringify({
+          fields: [
+            {
+              field: "hostCountry",
+              value: "Peru",
+              quote: "Host Country: Peru",
+              confidence: "high",
+            },
+          ],
+        }),
+      }),
+    } as Response);
+
+    const candidates = await extractFieldCandidates("hostCountry", SAMPLE_SPANS);
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]!.value).toBe("Peru");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "http://127.0.0.1:11434/api/generate",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining("\"model\":\"llama3.2:3b\""),
+      }),
+    );
+    fetchSpy.mockRestore();
+  });
 });
 
 describe("llmFactExtractor — parseAndValidateCandidates (no network)", () => {

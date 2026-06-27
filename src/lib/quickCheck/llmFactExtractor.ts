@@ -18,6 +18,8 @@
 
 const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free";
+const OLLAMA_ENDPOINT = "http://127.0.0.1:11434/api/generate";
+const OLLAMA_MODEL = "llama3.2:3b";
 const LLM_TIMEOUT_MS = 45_000;
 const FEATURE_FLAG = "QUICK_CHECK_LLM_FACT_EXTRACTOR";
 
@@ -115,24 +117,45 @@ Return only JSON (no markdown, no backticks):`;
 }
 
 /**
- * Call OpenRouter (chat completions API) with a prompt and parse the JSON response.
+ * Call the configured LLM provider with a prompt and normalize the response.
  * Returns null on any failure (timeout, parse error, model error).
  */
 async function callLlm(prompt: string): Promise<LlmResponse | null> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
+  const provider = process.env[FEATURE_FLAG];
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
+  if (provider === "openrouter" && !process.env.OPENROUTER_API_KEY) {
     return { error: "OPENROUTER_API_KEY is not set" };
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
+
   try {
+    if (provider === "ollama") {
+      const response = await fetch(OLLAMA_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          prompt,
+          stream: false,
+          format: "json",
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        return { error: `Ollama HTTP ${response.status}: ${response.statusText}` };
+      }
+
+      return (await response.json()) as LlmResponse;
+    }
+
     const response = await fetch(OPENROUTER_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
         model: OPENROUTER_MODEL,
@@ -163,9 +186,9 @@ async function callLlm(prompt: string): Promise<LlmResponse | null> {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (err instanceof DOMException && err.name === "AbortError") {
-      return { error: `OpenRouter timed out after ${LLM_TIMEOUT_MS}ms` };
+      return { error: `${provider === "ollama" ? "Ollama" : "OpenRouter"} timed out after ${LLM_TIMEOUT_MS}ms` };
     }
-    return { error: `OpenRouter request failed: ${message}` };
+    return { error: `${provider === "ollama" ? "Ollama" : "OpenRouter"} request failed: ${message}` };
   } finally {
     clearTimeout(timeout);
   }
@@ -244,7 +267,7 @@ export async function extractFieldCandidates(
   if (!SUPPORTED_FIELDS.includes(field as typeof SUPPORTED_FIELDS[number])) return [];
   if (spans.length === 0) return [];
 
-// Limit spans to keep context small — use a generous cap for real PDDs
+  // Limit spans to keep context small — use a generous cap for real PDDs
   // (30 is too few: methodology, baseline etc. live deep in sections B/C/D)
   const limitedSpans = spans.slice(0, 100);
 
