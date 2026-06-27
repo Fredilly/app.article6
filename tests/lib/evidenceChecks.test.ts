@@ -405,3 +405,90 @@ describe("authoritative evidence check selectors", () => {
     expect(validated.downgradeReason).toBe("");
   });
 });
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Host country rejection tests (strict contract)
+// ---------------------------------------------------------------------------
+
+it("rejects profile?countryCode=GW as host country and returns unclear", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "The host country is profile?countryCode=GW. The project is located in Guinea-Bissau.",
+  });
+
+  // The validator rejects the URL-containing text. The full line is returned
+  // as unclear, but the downgrade reason shows it was rejected.
+  expect(result.downgradeReason).not.toBe("");
+});
+
+it("rejects URLs as host country", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "Project participant: https://registry.verra.org/profile?pid=12345. Host Country: Indonesia",
+  });
+
+  expect(result.answerText).not.toContain("https");
+  expect(result.answerText).not.toContain("registry");
+});
+
+it("rejects VVB/developer references as host country", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "VVB: TÜV Rheinland. Project developer: EcoProjects Ltd. Host country: Peru.",
+  });
+
+  expect(result.answerText).not.toContain("VVB");
+  expect(result.answerText).not.toContain("TÜV");
+  expect(result.answerText).toContain("Peru");
+});
+
+it("returns unclear for junk-only host country text", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "This validation report covers project PDD v1.5. profile?countryCode=GW is the reference.",
+  });
+
+  // Should contain a downgrade reason about not being a specific country value
+  expect(result.downgradeReason).not.toBe("");
+});
+
+// ---------------------------------------------------------------------------
+// Methodology rejection tests (strict contract)
+// ---------------------------------------------------------------------------
+
+it("rejects generic methodology prose without an explicit methodology code", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "The methodology provides modules and tools for quantifying emission reductions from reduced deforestation. This section describes the methodology framework applied to the project.",
+  });
+
+  // No VM/ACM/AM code means the result should have a downgrade reason
+  expect(result.downgradeReason).not.toBe("");
+});
+
+it("accepts explicit VM0007 when tied to applied methodology", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "Title and reference of methodology applied: VM0007 Methodology Framework for REDD+ Projects v1.0. The project applies VM0007 as the baseline and monitoring methodology.",
+  });
+
+  expect(result.answerText).toContain("VM0007");
+});
+
+it("rejects methodology code in module/tool boilerplate without being proven as applied", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
+  });
+
+  // VM0007 appears in "modules" context — should have a downgrade reason
+  expect(result.downgradeReason).not.toBe("");
+});
