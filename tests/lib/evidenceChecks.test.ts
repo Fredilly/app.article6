@@ -468,8 +468,8 @@ it("rejects generic methodology prose without an explicit methodology code", () 
     rawText: "The methodology provides modules and tools for quantifying emission reductions from reduced deforestation. This section describes the methodology framework applied to the project.",
   });
 
-  // No VM/ACM/AM code means the result should have a downgrade reason
-  expect(result.downgradeReason).not.toBe("");
+  // No VM/ACM/AM code — should return as missing (no methodology found)
+  expect(result.downgradeReason).toBe("");
 });
 
 it("accepts explicit VM0007 when tied to applied methodology", () => {
@@ -489,7 +489,7 @@ it("rejects methodology code in module/tool boilerplate without being proven as 
     rawText: "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
   });
 
-  // VM0007 appears in "modules" context — should have a downgrade reason
+  // VM0007 appears in module/tool context — should have a downgrade reason
   expect(result.downgradeReason).not.toBe("");
 });
 

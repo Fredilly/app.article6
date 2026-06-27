@@ -1001,6 +1001,13 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     if (isModulesBoilerplate) {
       return { valid: false, reason: "Methodology code appears in module/tool boilerplate — not proven as applied" };
     }
+    // Reject text where the primary methodology code appears only in a
+    // module/tool context without any applied-evidence framing (e.g.
+    // "The modules and tools section describes the VM0007 components.").
+    if (/^(?:the\s+)?modules?\s+(?:and|&)\s+tools/i.test(candidate.text.trimStart())
+      && !/\b(?:applied methodology|name and reference|title and reference|project applies|project uses)\b/i.test(candidate.text)) {
+      return { valid: false, reason: "Module/tool description — not evidence of applied primary methodology" };
+    }
     // Reject methodology preamble/instructions that describe the methodology
     // rather than stating it was applied to this project.
     if (/^(?:The |This )?methodology (?:provides|describes|is applicable|applies to|establishes|determines|sets out|contains)/i.test(candidate.text)) {
@@ -1093,6 +1100,8 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
     }
     return { status: "missing", answerText: "", downgradeReason: "" };
   }
+
+  // Phase 1: find first candidate that passes validation
   for (const candidate of candidates) {
     const validation = validateCandidate(contract, candidate);
     if (validation.valid) {
@@ -1104,6 +1113,48 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
       };
     }
   }
+
+  // Phase 2: for methodology, prefer authoritative candidates that at least
+  // contain a primary methodology code — even if they fail word-count or
+  // other minor checks — over lower-ranked section matches.
+  if (contract.selector === "methodology") {
+    const authWithCode = candidates.find(
+      (c) => /\b(?:VM\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(c.text)
+        && ((c.source.startsWith("fact:") && c.source !== "fact:methodology-fallback") || c.source.startsWith("router:")),
+    );
+    if (authWithCode) {
+      const truncated = authWithCode.text.length > 500 ? authWithCode.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : authWithCode.text;
+      return {
+        status: "found", answerText: truncated, downgradeReason: "",
+        candidateText: authWithCode.text, candidatePage: authWithCode.page,
+        candidateSectionPath: authWithCode.sectionPath, candidateSpanId: authWithCode.evidenceSpanId,
+      };
+    }
+  }
+
+  // Phase 3: for host country, if the best candidate was rejected for URL/path
+  // junk, look for any candidate that actually names a country.
+  if (contract.selector === "host_country") {
+    const countryCandidate = candidates.find((c) => {
+      const text = c.text.trim();
+      if (text.length > 20 || text.length < 2) return false;
+      if (/https?:|profile\?|\/[a-z]+\/[a-z]+\//.test(text)) return false;
+      // Check if it looks like a country name: capitalized, no weird chars
+      return /^[A-Z][a-zA-Z\u2019' -]{1,30}$/.test(text);
+    });
+    if (countryCandidate) {
+      const validation = validateCandidate(contract, countryCandidate);
+      if (validation.valid) {
+        return {
+          status: "found", answerText: countryCandidate.text, downgradeReason: "",
+          candidateText: countryCandidate.text, candidatePage: countryCandidate.page,
+          candidateSectionPath: countryCandidate.sectionPath, candidateSpanId: countryCandidate.evidenceSpanId,
+        };
+      }
+    }
+  }
+
+  // Phase 4: try raw text fallback
   const rawFallback = buildRawTextFallbackCandidate(contract, ctx, candidates[0]);
   if (rawFallback) {
     const validation = validateCandidate(contract, rawFallback);
@@ -1116,6 +1167,7 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
       };
     }
   }
+
   const bestFailed = validateCandidate(contract, candidates[0]);
   const truncated = candidates[0].text.length > 500 ? candidates[0].text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : candidates[0].text;
   return { status: "unclear", answerText: truncated, downgradeReason: bestFailed.reason };
@@ -1126,7 +1178,7 @@ const CONTRACTS: Record<EvidenceCheckId, EvidenceCheckContract> = {
   project_activity: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["project activity", "project description", "summary of project", "project type", "project goals", "project design"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline"], allowedFactFields: ["projectType"], expectedShape: "project_activity_description", requiresGroundedEvidence: true, minimumEvidenceWords: 4, rejectHeadingOnly: true, selector: "generic" },
   host_country: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["host country", "country"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline", "comments", "deviations", "appendix", "annex", "reference", "bibliography", "grievance", "safeguard", "figure", "table", "caption", "map", "chart"], allowedFactFields: ["hostCountry", "projectCountry"], expectedShape: "country", requiresGroundedEvidence: true, minimumEvidenceWords: 1, rejectHeadingOnly: true, selector: "host_country" },
   project_location: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["project location", "location", "project area", "site"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "monitoring", "leakage", "additionality", "baseline", "comments"], allowedFactFields: ["projectLocation"], expectedShape: "location", requiresGroundedEvidence: true, minimumEvidenceWords: 2, rejectHeadingOnly: true, selector: "generic" },
-  methodology: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["methodology", "application of methodology", "applied methodology", "title and reference"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments", "participant"], allowedFactFields: ["methodologyPrimary", "methodologyModules"], expectedShape: "methodology_name_version", requiresGroundedEvidence: true, minimumEvidenceWords: 2, rejectHeadingOnly: true, selector: "methodology" },
+  methodology: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["methodology", "application of methodology", "applied methodology", "title and reference"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments", "participant"], allowedFactFields: ["methodologyPrimary"], expectedShape: "methodology_name_version", requiresGroundedEvidence: true, minimumEvidenceWords: 2, rejectHeadingOnly: true, selector: "methodology" },
   crediting_period: { applicableDocumentFamilies: ["any"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["crediting period", "project crediting", "project lifetime", "ghg accounting period", "accounting period"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "methodology", "comments"], allowedFactFields: ["creditingPeriod"], expectedShape: "date_range_with_duration", requiresGroundedEvidence: true, minimumEvidenceWords: 2, rejectHeadingOnly: true, selector: "generic" },
   monitoring_period: { applicableDocumentFamilies: ["verification_report", "monitoring_report", "validation_report"], searchTargets: ["fact_contract", "section"], allowedAnchorTerms: ["monitoring period", "reporting period", "verification period", "monitoring"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments"], allowedFactFields: ["monitoringPeriod", "reportingPeriod"], expectedShape: "date_range", requiresGroundedEvidence: true, minimumEvidenceWords: 2, rejectHeadingOnly: true, selector: "generic" },
   baseline_scenario: { applicableDocumentFamilies: ["any"], searchTargets: ["section"], allowedAnchorTerms: ["baseline", "without project", "without-project"], forbiddenAnchorTerms: ["stakeholder", "environmental impact", "comments", "contact"], allowedFactFields: [], expectedShape: "section_summary", requiresGroundedEvidence: true, minimumEvidenceWords: 4, rejectHeadingOnly: true, selector: "baseline_scenario" },
