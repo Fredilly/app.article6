@@ -28,7 +28,7 @@ interface PddRegressionCase {
   fixture: string;
   /** Gold answers keyed by check ID.  Omitted checks are not tested. */
   gold: Partial<Record<
-    "host_country" | "methodology",
+    "host_country" | "methodology" | "baseline_scenario" | "additionality" | "leakage" | "stakeholder_consultation",
     GoldAnswer
   >>;
 }
@@ -116,6 +116,44 @@ const PDD_REGRESSION_CORPUS: PddRegressionCase[] = [
       },
     },
   },
+  {
+    label: "Envira Amazonia (Verra, VM0007, Brazil)",
+    fixture: "proj-desc-1382-extracted.txt",
+    gold: {
+      host_country: {
+        // BUG: hostCountry fact contract extraction fails for this PDD
+        // (no "Host Country:" label — uses "Acre, Brazil" in title).
+        // Returns garbage "of" from mis-extracted projectCountry.
+        status: "unclear",
+        noDowngrade: false,
+      },
+      methodology: {
+        status: "found",
+        answerContains: "VM0007",
+        noDowngrade: true,
+      },
+      baseline_scenario: {
+        status: "found",
+        answerContains: "deforestation",
+        noDowngrade: true,
+      },
+      additionality: {
+        status: "found",
+        answerContains: "Tool for the Demonstration and Assessment of Additionality",
+        noDowngrade: true,
+      },
+      leakage: {
+        status: "found",
+        answerContains: "Leakage emissions from displacement",
+        noDowngrade: true,
+      },
+      stakeholder_consultation: {
+        status: "found",
+        answerContains: "stakeholders were involved",
+        noDowngrade: true,
+      },
+    },
+  },
 ];
 
 function runContext(rawText: string, checkId: string, claimText: string) {
@@ -141,6 +179,10 @@ function runContext(rawText: string, checkId: string, claimText: string) {
 const CLAIMS: Record<string, string> = {
   host_country: "What is the host country?",
   methodology: "What methodology was applied?",
+  baseline_scenario: "What is the baseline scenario?",
+  additionality: "What does the document say about additionality?",
+  leakage: "What does the document say about leakage?",
+  stakeholder_consultation: "What does the document say about stakeholder consultation?",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
