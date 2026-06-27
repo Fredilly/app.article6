@@ -27,7 +27,7 @@ async function handlePost(request: Request) {
   const claimText = typeof body === "object" && body && "claimText" in body && typeof body.claimText === "string" ? body.claimText : "";
   const rawPddText = typeof body === "object" && body && "rawPddText" in body && typeof body.rawPddText === "string" ? body.rawPddText : "";
   const pdfRef = typeof body === "object" && body && "pdfRef" in body && typeof body.pdfRef === "string" ? body.pdfRef : undefined;
-  const pdfFilePath = pdfRef ? resolvePdfRef(pdfRef) : undefined;
+  const pdfFilePath = pdfRef ? await resolvePdfRef(pdfRef) : undefined;
   const methodologyId = typeof body === "object" && body && "methodologyId" in body && typeof body.methodologyId === "string" ? body.methodologyId : "";
   const methodologyVersion = typeof body === "object" && body && "methodologyVersion" in body && typeof body.methodologyVersion === "string" ? body.methodologyVersion : "";
 

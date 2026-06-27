@@ -9,6 +9,7 @@ import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
 import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
+import { uploadPdfToBlob } from "@/lib/chat/quickCheckPdfBlob";
 import { withMetrics } from "@/lib/metrics";
 import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
@@ -58,7 +59,6 @@ function buildParserDebug(): ParserDebugPayload {
 
   if (adapterId !== "pymupdf") return debug;
 
-  // Probe the packages directory (Python interpreter mode)
   const probePaths = [
     path.resolve(cwd, "public", ".python"),
     path.resolve(cwd, "node_modules", ".python"),
@@ -77,9 +77,7 @@ function buildParserDebug(): ParserDebugPayload {
     }
   }
 
-  // Verify the parser works via the correct mode
   if (availability.parserBinary) {
-    // Compiled binary mode: run --version
     debug.parserBinary = availability.parserBinary;
     try {
       execFileSync(availability.parserBinary, ["--version"], {
@@ -90,7 +88,6 @@ function buildParserDebug(): ParserDebugPayload {
       debug.fitzImportError = e instanceof Error ? e.message : String(e);
     }
   } else {
-    // Python interpreter mode: run -c import fitz
     const python3 = availability.pythonPath;
     const env: NodeJS.ProcessEnv = { ...process.env };
     if (debug.pythonPackagesPath) {
@@ -115,19 +112,24 @@ function buildParserDebug(): ParserDebugPayload {
   return debug;
 }
 
+/**
+ * Handle PDF extraction from uploaded bytes.
+ *
+ * After extracting text, uploads the PDF to Vercel Blob for durable storage.
+ * The blob URL becomes the pdfRef — survives cold starts, has no TTL.
+ *
+ * When BLOB_READ_WRITE_TOKEN is not configured, falls back to the legacy
+ * in-memory pdfRef (10-min TTL, lost on cold start).
+ */
 async function handlePost(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
   let bytes: ArrayBuffer | null = null;
   let declaredFilename = "uploaded.pdf";
 
-  // Robust upload handling: prefer multipart/form-data (avoids CORS preflight,
-  // works reliably from browser fetch for binary content). Fall back to raw
-  // body for direct clients or older callers.
   if (contentType.includes("multipart/form-data")) {
     try {
       const form = await request.formData();
       const fileField = form.get("file");
-      // Duck-type check (File/Blob may not be instanceof in all server contexts)
       const hasArrayBuffer = fileField && typeof fileField === "object" && "arrayBuffer" in fileField;
       if (hasArrayBuffer) {
         const f = fileField as { arrayBuffer: () => Promise<ArrayBuffer>; name?: string; size?: number };
@@ -142,7 +144,6 @@ async function handlePost(request: Request) {
   }
 
   if (!bytes) {
-    // Raw body fallback path (kept for compatibility and tests)
     bytes = await request.arrayBuffer().catch(() => null);
     declaredFilename = request.headers.get("x-article6-filename") || declaredFilename;
   }
@@ -151,8 +152,6 @@ async function handlePost(request: Request) {
     return qcJson({ error: "Missing PDF bytes.", code: "missing-file" }, { status: 400 });
   }
 
-  // Content-type validation: only enforce on raw path or when clearly wrong.
-  // For multipart uploads (the normal browser path) we rely primarily on magic bytes.
   const isRawPath = !contentType.includes("multipart");
   if (isRawPath && !/application\/pdf|octet-stream/i.test(contentType)) {
     return qcJson(
@@ -177,8 +176,19 @@ async function handlePost(request: Request) {
     );
   }
 
+  // Save to temp, upload to Blob for durability, return blob URL as pdfRef
   const pdfFilePath = saveTempPdf(bytes);
-  const pdfRef = storePdfRef(pdfFilePath);
+  let pdfRef: string;
+
+  try {
+    const blob = await uploadPdfToBlob(bytes);
+    pdfRef = blob.url;
+    console.log("[quick-check/pdf-extract] Uploaded PDF to Blob storage:", blob.pathname);
+  } catch (error) {
+    // Blob upload failed — fall back to in-memory pdfRef
+    console.warn("[quick-check/pdf-extract] Failed to upload to Blob, using in-memory pdfRef:", error);
+    pdfRef = storePdfRef(pdfFilePath);
+  }
 
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
   let diagnostics: PdfExtractionDiagnostics | undefined;
@@ -186,8 +196,6 @@ async function handlePost(request: Request) {
   try {
     const extraction = await extractPdfTextWithPdfParse({ bytes });
     diagnostics = extraction.metadata.diagnostics;
-    // pdf-parse can succeed but return empty text for ASCII85-encoded streams.
-    // Fall through to heuristic extractor which has custom ASCII85 + FlateDecode.
     if (extraction.text.trim().length > 0) {
       const parserDebug = buildParserDebug();
       return qcJson({
@@ -236,6 +244,7 @@ async function handleGet() {
     ok: true,
     engine: "pdf-parse",
     runtime: "nodejs",
+    storage: "vercel-blob",
   });
 }
 
