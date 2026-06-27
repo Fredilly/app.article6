@@ -604,6 +604,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
   const reviewQuestionRunRef = useRef(0);
 
+  /**
+   * Guards against cross-document contamination: record the current document
+   * evidence IDs and filename when checks start. If the value changes before
+   * checks complete, results are discarded.
+   */
+  const documentSnapshotRef = useRef<{ evidenceIds: string[]; fileName: string }>({
+    evidenceIds: [],
+    fileName: "",
+  });
+
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -1393,9 +1403,28 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         ],
       }));
 
-      // Auto-run evidence checks after upload completes
+      // SNAPSHOT: capture current document context BEFORE scheduling async work.
+      // This prevents the setTimeout(0) from reading stale React state that
+      // still reflects the previous document (fixes cross-document contamination).
+      const snapshot = {
+        evidenceSources: selectedEvidenceSources,
+        resolvePdfText,
+        evidenceIds: draft.evidenceIds,
+        fileName: draft.evidenceFileName || "",
+        methodologyId: draft.methodologyId,
+        methodologyVersion: draft.methodologyVersion,
+        methods,
+      };
+
+      // Clear previous check results before auto-running
+      setEvidenceCheckResults([]);
+      setLlmSuggestions({});
+      setRunningEvidenceChecks(false);
+
       // Fire after current render cycle so the evidence is visible
-      setTimeout(() => { void runEvidenceChecks(); }, 0);
+      setTimeout(() => {
+        void runEvidenceChecksFromSnapshot(snapshot);
+      }, 0);
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -1803,9 +1832,46 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  async function runEvidenceChecks() {
-    const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+  /**
+   * Run evidence checks against an explicit immutable snapshot of document state.
+   *
+   * This function is the single source of truth for evidence checking. It accepts
+   * all inputs as arguments rather than reading React state, which eliminates
+   * cross-document contamination from stale closures.
+   *
+   * Callers are expected to provide a snapshot captured at the moment the checks
+   * were triggered (not read lazily from state).
+   */
+  async function runEvidenceChecksFromSnapshot(snapshot: {
+    evidenceSources: typeof selectedEvidenceSources;
+    resolvePdfText: typeof resolvePdfText;
+    evidenceIds: string[];
+    fileName: string;
+    methodologyId: string;
+    methodologyVersion: string;
+    methods: MethodInventoryRecord[];
+  }) {
+    const { evidenceSources, resolvePdfText: resolveFn, evidenceIds, fileName, methodologyId, methodologyVersion } = snapshot;
+
+    // Update the document snapshot guard so concurrent checks from a different
+    // document can detect the mismatch and discard stale results.
+    documentSnapshotRef.current = { evidenceIds, fileName };
+
+    const evidenceAnalysis = await analyzeQuickCheckEvidence(evidenceSources, { resolvePdfText: resolveFn });
     if (!evidenceAnalysis.rawPddText?.trim()) return;
+
+    // Guard: if the document changed while we were analyzing, discard results
+    const currentSnapshot = documentSnapshotRef.current;
+    if (
+      currentSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !currentSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      currentSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed while checks were running — discarding stale results.",
+      );
+      return;
+    }
 
     // Classify document purpose before running checks
     const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
@@ -1814,11 +1880,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     const currentMethodologyResolution = resolveQuickCheckMethodology({
       mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-      methods,
+      methods: snapshot.methods,
     });
-    const resolvedMethodologyId = draft.methodologyId.trim()
+    const resolvedMethodologyId = methodologyId.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-    const resolvedMethodologyVersion = draft.methodologyVersion.trim()
+    const resolvedMethodologyVersion = methodologyVersion.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
     const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
 
@@ -1826,6 +1892,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
     const allChecks = getAllChecks(resolvedMethodologyId || undefined);
     const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
+
+    // Guard: re-check document identity before writing results
+    const midRunSnapshot = documentSnapshotRef.current;
+    if (
+      midRunSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !midRunSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      midRunSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed during evidence checks — discarding results.",
+      );
+      return;
+    }
 
     setRunningEvidenceChecks(true);
     const results: EvidenceCheckResult[] = [];
@@ -1856,7 +1935,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
-      // Provenance now comes from the validated candidate, not the router.
       results.push({
         checkId: check.id,
         status: validated.status,
@@ -1870,13 +1948,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       });
     }
 
+    // Final guard: only write results if we're still on the same document
+    const finalSnapshot = documentSnapshotRef.current;
+    if (
+      finalSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !finalSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      finalSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed before final write — discarding results.",
+      );
+      setRunningEvidenceChecks(false);
+      return;
+    }
+
     setEvidenceCheckResults(results);
     setRunningEvidenceChecks(false);
 
     // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
-    // Fetches candidate suggestions for missing, unclear, or suspiciously
-    // short found answers only. Never overrides deterministic status or answer.
-    // Runs after checks complete so it doesn't block the spinner.
     if (isLlmUiEnabled()) {
       const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
         spanId: s.spanId,
@@ -1892,11 +1981,32 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           || (r.status === "found" && r.answerText.trim().length < 3),
       );
 
-      // Fire-and-forget: deterministic results are already visible
       fetchLlmSuggestions(missingOrUnclear, evidenceSpans);
     } else {
       setLlmSuggestions({});
     }
+  }
+
+  /**
+   * Run evidence checks using the current React state.
+   *
+   * This is the manual "Run Checks" button handler. It reads current state
+   * and delegates to runEvidenceChecksFromSnapshot with an immutable snapshot.
+   *
+   * For auto-run after upload, the upload handler captures its own snapshot
+   * before the setTimeout(0) to avoid stale closures.
+   */
+  async function runEvidenceChecks() {
+    // Delegate to the snapshot-based implementation with current React state
+    return runEvidenceChecksFromSnapshot({
+      evidenceSources: selectedEvidenceSources,
+      resolvePdfText,
+      evidenceIds: draft.evidenceIds,
+      fileName: draft.evidenceFileName || "",
+      methodologyId: draft.methodologyId,
+      methodologyVersion: draft.methodologyVersion,
+      methods,
+    });
   }
 
   /** Fetch LLM suggestions in the background after checks complete. */
