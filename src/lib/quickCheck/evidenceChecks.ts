@@ -932,12 +932,35 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   }
   if (contract.expectedShape === "country") {
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
-    if (/:|;|\(|\)/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
+    if (/[():;]/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
     if (/\b(?:standard|methodology|version|requirements?|project)\b/i.test(candidate.text)) return { valid: false, reason: "Contains standard/methodology text, not a country name" };
     // Reject obviously non-country values like "ha", "tCO2", "tCO2e", numbers, units
     if (/^[a-z]{1,3}$/i.test(candidate.text.trim()) && !/^[A-Z][a-z]/.test(candidate.text.trim())) return { valid: false, reason: "Too short to be a country name" };
     if (/^\d/.test(candidate.text.trim())) return { valid: false, reason: "Starts with a number — not a country name" };
     if (/\b(?:tCO2|tCO2e|ha|hectare|tonne|kg|m[32]|km2)\b/i.test(candidate.text)) return { valid: false, reason: "Contains unit/measurement, not a country name" };
+    // Reject URLs, query strings, registry profile links, and VVB/buyer/developer addresses
+    if (/https?:\/\//i.test(candidate.text)) return { valid: false, reason: "Contains URL — not a country name" };
+    if (/\?[a-z]+=/i.test(candidate.text)) return { valid: false, reason: "Contains query string — not a country name" };
+    if (/profile\?/i.test(candidate.text)) return { valid: false, reason: "Contains profile reference — not a country name" };
+    if (/\b(?:VVB|validator|verifier|developer|project proponent|buyer)\b/i.test(candidate.text)) return { valid: false, reason: "References registry participant — not a country name" };
+    // Reject generic registry/address text that doesn't name a country
+    if (/\b(?:registry|register)\b/i.test(candidate.text) && !/\b(?:Guinea|Guinea-Bissau|Guinea Bissau|Indonesia|Cambodia|Peru|Brazil|Colombia|Kenya|Uganda|Tanzania|Ethiopia|Ghana|Nigeria|DRC|Congo|Nepal|India|China|Vietnam|Myanmar|Laos|Thailand|Philippines|Papua|Fiji)\b/i.test(candidate.text)) return { valid: false, reason: "Registry reference without recognized country name" };
+  }
+  if (contract.expectedShape === "methodology_name_version") {
+    // Must contain an explicit methodology code (VM####, VMD####, ACM####, etc.)
+    const hasCode = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\d{4}|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
+    if (!hasCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };
+    // Reject if the code appears only in a "modules and tools" list or boilerplate
+    if (/\bmodules? and tools?\b/i.test(candidate.text) && !/\bapplied methodology\b/i.test(candidate.text)) {
+      return { valid: false, reason: "Methodology code appears in module/tool boilerplate — not proven as applied" };
+    }
+    // Reject methodology preamble/instructions that describe the methodology
+    // rather than stating it was applied to this project.
+    if (/^(?:The |This )?methodology (?:provides|describes|is applicable|applies to|establishes|determines|sets out|contains)/i.test(candidate.text)) {
+      return { valid: false, reason: "Describes methodology instructions — not evidence of applied methodology" };
+    }
+    // Accept when the code appears in a title/reference section or fact contract
+    if (candidate.source.startsWith("fact:") && hasCode) return { valid: true, reason: "" };
   }
   return { valid: true, reason: "" };
 }
