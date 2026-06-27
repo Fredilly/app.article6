@@ -316,8 +316,9 @@ describe("QuickCheckPanel upload regression", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Validation Report");
     expect(text).toContain("Title and headers read “Validation Report”.");
+    expect(text).toContain("VALIDATIONREPORT");
+    expect(text).toContain("VM0007");
     expect(text).not.toContain("page 1 title");
     expect(text).not.toContain('body: "validation opinion"');
-    expect(text).not.toContain("VALIDATIONREPORT");
   });
 });
