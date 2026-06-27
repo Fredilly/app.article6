@@ -1,5 +1,6 @@
 import { currentExtractorAdapter } from "@/lib/documentParsing/adapters/currentExtractor";
 import { buildPddHeadingIndex, extractPddSections } from "@/lib/chat/quickCheckSectionExtractor";
+import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { buildDocumentQualityReport } from "@/lib/documentClassification";
 import type {
   DocumentParserAdapter,
@@ -147,6 +148,82 @@ function lazyParsePymupdfHelperOutput(stdout: string): PymupdfHelperJson {
   }
 }
 
+/**
+ * Build a headingIndex (DocumentHeading[]) from structured PyMuPDF elements.
+ * Each heading element becomes a DocumentHeading with its associated paragraph
+ * elements as body text. This replaces the regex-on-raw-text path when
+ * structured elements are available.
+ */
+export function buildStructuredHeadingIndex(
+  elements: ParsedElement[],
+): DocumentHeading[] {
+  const headings: DocumentHeading[] = [];
+  const headingElements = elements.filter((e) => e.elementType === "heading");
+  if (headingElements.length === 0) return [];
+
+  for (let i = 0; i < headingElements.length; i++) {
+    const el = headingElements[i]!;
+    const sectionNumber = el.sectionNumber ?? String(i + 1);
+
+    // Collect paragraph elements between this heading and the next
+    const nextHeading = headingElements[i + 1];
+    const elIndex = elements.indexOf(el);
+    const nextIndex = nextHeading ? elements.indexOf(nextHeading) : elements.length;
+    const bodyElements = elements.slice(elIndex + 1, nextIndex)
+      .filter((e) => e.elementType !== "heading");
+
+    const originalTitle = el.text;
+    const originalBodyText = bodyElements.map((e) => e.text).join("\n").trim();
+    const bodyText = originalBodyText.slice(0, 100_000); // consistent with HEADING_BODY_MAX
+    const bodyPreview = bodyText.length > 280
+      ? bodyText.slice(0, 280).replace(/\s+\S*$/, "") + " […]"
+      : bodyText;
+
+    headings.push({
+      sectionNumber,
+      title: originalTitle,
+      originalTitle,
+      normalizedTitle: originalTitle.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim(),
+      bodyPreview,
+      bodyText,
+      originalBodyText,
+      normalizedBodyText: bodyText.toLowerCase().replace(/[^\w\s.-]/g, " ").replace(/\s+/g, " ").trim(),
+    });
+  }
+
+  return headings;
+}
+
+/**
+ * Build sectionsByNumber from structured PyMuPDF heading elements.
+ * Each heading's section number maps to the full text of that heading plus
+ * its body paragraphs — matching the contract of extractPddSections().
+ */
+function buildStructuredSectionsByNumber(
+  elements: ParsedElement[],
+): Record<string, string> {
+  const sections: Record<string, string> = {};
+  const headingElements = elements.filter((e) => e.elementType === "heading");
+  if (headingElements.length === 0) return {};
+
+  for (let i = 0; i < headingElements.length; i++) {
+    const el = headingElements[i]!;
+    const sectionNumber = el.sectionNumber ?? String(i + 1);
+
+    const nextHeading = headingElements[i + 1];
+    const elIndex = elements.indexOf(el);
+    const nextIndex = nextHeading ? elements.indexOf(nextHeading) : elements.length;
+    const bodyElements = elements.slice(elIndex + 1, nextIndex);
+
+    sections[sectionNumber] = [
+      el.text,
+      ...bodyElements.map((e) => e.text),
+    ].join("\n");
+  }
+
+  return sections;
+}
+
 function mapPymupdfHelperJsonToParsedDocument(
   helperJson: PymupdfHelperJson,
   input: ParseDocumentTextInput,
@@ -220,8 +297,17 @@ function mapPymupdfHelperJsonToParsedDocument(
     page.elements = elements.filter((e) => e.pageNumber === page.pageNumber);
   }
 
-  const sectionsByNumber = extractPddSections(rawText);
-  const headingIndex = buildPddHeadingIndex(rawText);
+  // Build sections/headings from structured elements first, regex fallback only
+  // when PyMuPDF produced no structured elements.
+  const structuredHeadings = buildStructuredHeadingIndex(elements);
+  const hasStructuredContent = structuredHeadings.length > 0;
+  const sectionsByNumber = hasStructuredContent
+    ? buildStructuredSectionsByNumber(elements)
+    : extractPddSections(rawText);
+  const headingIndex = hasStructuredContent
+    ? structuredHeadings
+    : buildPddHeadingIndex(rawText);
+  const parserSectionSource = hasStructuredContent ? "pymupdf_structured" : "regex_fallback";
   const blocks = elements.map((element) => ({
     id: element.id,
     type: element.elementType === "heading" ? "heading" as const : "paragraph" as const,
@@ -288,6 +374,7 @@ function mapPymupdfHelperJsonToParsedDocument(
         engine: helperJson.engine ?? "pymupdf",
         ...(versionMetadata ?? {}),
         helper_script: "scripts/pymupdf-parse.py",
+        parser_section_source: parserSectionSource,
       },
     },
   };
