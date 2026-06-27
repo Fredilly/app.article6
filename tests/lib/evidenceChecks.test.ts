@@ -633,6 +633,26 @@ describe("methodology final status", () => {
     expect(result.status).not.toBe("found");
     expect(["unclear", "missing"]).toContain(result.status);
   });
+
+  it("prefers fact:methodologyPrimary over module/tool boilerplate from router", () => {
+    // Regression: Phase 2 fallback must not accept router: or
+    // fact:methodology-fallback candidates with a methodology code in
+    // module/tool boilerplate.  When methodologyPrimary is present, it
+    // must win over module/tool boilerplate containing VM0007.
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: [
+        "Title and reference of methodology applied: VM0007 v1.4",
+        "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
+      ].join("\n\n"),
+    });
+    expect(result.status).toBe("found");
+    // Must use the fact contract value, not the module/tool boilerplate
+    expect(result.answerText).toContain("VM0007");
+    expect(result.answerText).toContain("v1.4");
+    expect(result.answerText).not.toMatch(/modules? and tools|VMD0001/i);
+  });
 });
 // ---------------------------------------------------------------------------
 // Kariba PDD regression tests

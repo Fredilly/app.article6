@@ -1114,13 +1114,16 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
     }
   }
 
-  // Phase 2: for methodology, prefer authoritative candidates that at least
-  // contain a primary methodology code — even if they fail word-count or
-  // other minor checks — over lower-ranked section matches.
+  // Phase 2: for methodology, prefer the authoritative fact:methodologyPrimary
+  // candidate over lower-ranked section matches, even if it fails word-count
+  // or other minor checks.  Only fact:methodologyPrimary is accepted here —
+  // router: candidates and fact:methodology-fallback are rejected because they
+  // may contain module/tool boilerplate with a methodology code that would
+  // bypass validateCandidate.
   if (contract.selector === "methodology") {
     const authWithCode = candidates.find(
       (c) => /\b(?:VM\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(c.text)
-        && ((c.source.startsWith("fact:") && c.source !== "fact:methodology-fallback") || c.source.startsWith("router:")),
+        && c.source === "fact:methodologyPrimary",
     );
     if (authWithCode) {
       const truncated = authWithCode.text.length > 500 ? authWithCode.text.slice(0, 500).replace(/\s+\S*$/, "") + "\u2026" : authWithCode.text;
