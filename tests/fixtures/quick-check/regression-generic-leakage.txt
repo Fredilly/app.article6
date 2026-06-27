@@ -1,0 +1,15 @@
+Project Design Document
+ACM0010 Version 02
+
+Project Title: Swine Manure Methane Capture Project
+Host Country: Thailand
+
+Applied Methodology: ACM0010 Version 02
+
+Section 4: Leakage
+
+According to ACM0010, leakage is considered negligible for manure management projects.
+The methodology states that no significant leakage emissions are expected from this project type.
+
+Additional Information
+The monitoring plan describes the parameters that shall be monitored for the project.

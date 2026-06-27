@@ -38,6 +38,7 @@ const METHODOLOGY_PREAMBLE = [
   "this methodology applies to",
   "the methodology is based on",
 ];
+const METHODOLOGY_CITATION = /according to\s+(?:the\s+)?(?:methodology|vcs|cdm|gs|verra|v\d{2}|acm\d+|vm\d+|ams[-.]|ar[-.])/i;
 
 // ── Individual validators ─────────────────────────────────────────────────
 
@@ -232,6 +233,17 @@ function validateLeakage(input: SufficiencyInput): EvidenceSufficiencyResult {
       reason: "Leakage evidence is TOC-only",
       warnings: ["toc_only_evidence"],
       downgradeTo: "no_evidence",
+    };
+  }
+
+  // Reject methodology citations — "According to ACM0010, leakage is
+  // considered negligible" is a methodology quote, not project evidence.
+  if (METHODOLOGY_CITATION.test(lower)) {
+    return {
+      sufficient: false,
+      reason: "Leakage evidence is a generic methodology citation, not project-specific analysis",
+      warnings: ["methodology_citation_evidence"],
+      downgradeTo: "unclear",
     };
   }
 
