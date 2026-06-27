@@ -30,7 +30,7 @@ There is **no S3/Blob step**. Bytes arrive inside the Vercel request body.
 
 ## 3. Whether large PDFs >4.5MB can reach the server
 
-**Yes, the app allows up to 20MB.**
+**No, not reliably. The app allows up to 20MB internally, but Vercel rejects PDFs above ~5MB before the handler runs.**
 
 - `MAX_QUICK_CHECK_PDF_BYTES = 20 * 1024 * 1024` (20MB)
 - Vercel's default body size limit is **5MB** for serverless functions (4.5MB is a common proxy limit, but Vercel's hard limit is ~5MB for hobby/pro plans)
