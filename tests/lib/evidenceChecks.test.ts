@@ -492,3 +492,105 @@ it("rejects methodology code in module/tool boilerplate without being proven as 
   // VM0007 appears in "modules" context — should have a downgrade reason
   expect(result.downgradeReason).not.toBe("");
 });
+
+// ---------------------------------------------------------------------------
+// Final user-facing status assertion tests (validateCheck directly)
+// ---------------------------------------------------------------------------
+
+function runValidateCheck(input: {
+  checkId: EvidenceCheckId;
+  claimText: string;
+  rawText: string;
+}) {
+  const sqc = getStructuredQueryContext(input.rawText);
+  const qr = buildReviewQuestionResult({
+    claimText: input.claimText,
+    methodologyId: "",
+    methodologyVersion: "",
+    rawPddText: input.rawText,
+    structuredQueryContext: sqc,
+  });
+  return validateCheck(getContract(input.checkId), {
+    evidenceDocument: sqc.evidenceDocument,
+    projectFactContract: sqc.projectFactContract,
+    sectionTableIndex: sqc.sectionTableIndex,
+    routerResult: qr.routerResult,
+    queryIntentAnalysis: qr.queryIntentAnalysis,
+    rawText: input.rawText,
+  });
+}
+
+describe("host country final status", () => {
+  it("profile?countryCode=GW cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "This validation report covers project PDD v1.5. profile?countryCode=GW is the reference.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("junk-only text with no real country returns unclear or missing", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "profile?countryCode=GW is just the registry profile. VVB: TÜV Rheinland. pid=12345.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("real host country found despite nearby registry junk", () => {
+    // When both junk and a real country are present, the real country wins
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "Project participant: https://registry.verra.org/profile?pid=12345. Host Country: Indonesia",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toMatch(/Indonesia/i);
+  });
+
+  it("real host country found despite nearby VVB text", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "VVB: TÜV Rheinland. Project developer: EcoProjects Ltd. Host country: Peru.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toMatch(/Peru/i);
+  });
+});
+
+describe("methodology final status", () => {
+  it("generic methodology prose cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The methodology provides modules and tools for quantifying emission reductions from reduced deforestation.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("module/tool boilerplate without applied context cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("explicit applied VM0007 can still return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Title and reference of methodology applied: VM0007 Methodology Framework for REDD+ Projects v1.0. The project applies VM0007 as the baseline and monitoring methodology.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+});

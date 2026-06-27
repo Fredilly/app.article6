@@ -10,6 +10,27 @@ import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
 import { findBestTopicMatch, type SectionTopic } from "@/lib/quickCheck/indexing";
 import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 
+/** Recognized country names used for registry-reference disambiguation.
+ *  A registry text must contain one of these to be accepted as host country.
+ *  This is intentionally conservative — countries only from real PDDs we process.
+ *  When a registry reference contains an unrecognized country name, the candidate
+ *  is rejected, but the country can still be found through other search paths
+ *  (fact contract, section body, etc.). */
+const REGISTRY_COUNTRY_NAMES = new Set([
+  "Guinea", "Guinea-Bissau", "Guinea Bissau", "Indonesia", "Cambodia",
+  "Peru", "Brazil", "Colombia", "Kenya", "Uganda", "Tanzania",
+  "Ethiopia", "Ghana", "Nigeria", "DRC", "Congo", "Nepal", "India",
+  "China", "Vietnam", "Myanmar", "Laos", "Thailand", "Philippines",
+  "Papua", "Fiji",
+]);
+
+function containsRegistryCountry(text: string): boolean {
+  const lower = text.toLowerCase();
+  return Array.from(REGISTRY_COUNTRY_NAMES).some((name) =>
+    new RegExp(`\\b${name.replace(/[- ]/g, "[- ]")}\\b`, "i").test(lower),
+  );
+}
+
 export type EvidenceCheckId =
   | "project_activity" | "host_country" | "project_location" | "methodology"
   | "crediting_period" | "monitoring_period" | "baseline_scenario"
@@ -944,7 +965,7 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
     if (/profile\?/i.test(candidate.text)) return { valid: false, reason: "Contains profile reference — not a country name" };
     if (/\b(?:VVB|validator|verifier|developer|project proponent|buyer)\b/i.test(candidate.text)) return { valid: false, reason: "References registry participant — not a country name" };
     // Reject generic registry/address text that doesn't name a country
-    if (/\b(?:registry|register)\b/i.test(candidate.text) && !/\b(?:Guinea|Guinea-Bissau|Guinea Bissau|Indonesia|Cambodia|Peru|Brazil|Colombia|Kenya|Uganda|Tanzania|Ethiopia|Ghana|Nigeria|DRC|Congo|Nepal|India|China|Vietnam|Myanmar|Laos|Thailand|Philippines|Papua|Fiji)\b/i.test(candidate.text)) return { valid: false, reason: "Registry reference without recognized country name" };
+    if (/\b(?:registry|register)\b/i.test(candidate.text) && !containsRegistryCountry(candidate.text)) return { valid: false, reason: "Registry reference without recognized country name" };
   }
   if (contract.expectedShape === "methodology_name_version") {
     // Must contain an explicit methodology code (VM####, VMD####, ACM####, etc.)
