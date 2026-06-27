@@ -175,16 +175,13 @@ const PDD_REGRESSION_CORPUS: PddRegressionCase[] = [
     fixture: "proj-desc-1382-extracted.txt",
     gold: {
       host_country: {
-        // BUG: hostCountry fact extraction fails — PDD uses "Acre, Brazil"
-        // in title header rather than "Host Country:" label.
-        // Expected correct answer: "Brazil"
-        status: "unclear",
-        answerText: "of",
-        downgradeReason: "Too short to be a country name",
-        goldQuotes: [],
-        pages: [],
-        sections: [],
-        evidenceSpanIds: [],
+        status: "found",
+        answerText: "Brazil",
+        downgradeReason: "",
+        goldQuotes: ["Brazil"],
+        pages: [1],
+        sections: ["section:1", "section:1.9"],
+        evidenceSpanIds: ["quick-check-review-question:element:paragraph:1.9"],
         noJunkPatterns: [],
       },
       methodology: {
@@ -201,12 +198,12 @@ const PDD_REGRESSION_CORPUS: PddRegressionCase[] = [
       },
       baseline_scenario: {
         status: "found",
-        answerText: "As the agent of deforestation has been identified, JR Agropecu\u00e1ria e Empreendimentos EIRELI, the intent to deforest can be demonstrated by documenting their history of similar planned deforestation within the five years previous to without-project deforestation.",
+        answerText: "The most likely baseline scenario in conversion of the non-legal reserve to pasture.",
         downgradeReason: "",
-        goldQuotes: ["As the agent of deforestation has been identified, JR Agropecu\u00e1ria e Empreendimentos EIRELI, the intent to deforest can be demonstrated"],
+        goldQuotes: ["The most likely baseline scenario in conversion of the non-legal reserve to pasture."],
         pages: [1],
-        sections: ["section:3", "section:3.1", "section:3.1.1", "section:3.1.1.4"],
-        evidenceSpanIds: ["quick-check-review-question:element:paragraph:3.1.1.4"],
+        sections: ["section:2", "section:2.4", "section:2.4.2"],
+        evidenceSpanIds: ["quick-check-review-question:element:paragraph:2.4.2"],
         noJunkPatterns: [],
       },
       additionality: {

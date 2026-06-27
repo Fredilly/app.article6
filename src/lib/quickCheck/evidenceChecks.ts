@@ -253,8 +253,13 @@ function scoreSentenceForLabel(label: string, sentence: string): number {
       if (/\boil palm plantation\b/i.test(sentence)) score += 160;
       if (/\btraditional agricultural practices\b/i.test(sentence)) score += 180;
       if (/\bslash-and-burn\b/i.test(sentence)) score += 140;
+      // Prefer explicit baseline-selection text over quantification evidence
+      if (/\bmost likely baseline scenario\b/i.test(sentence)) score += 280;
+      if (/\bconversion to pasture\b/i.test(sentence)) score += 260;
       // Penalize methodology-step descriptions when used as baseline answers
       if (/^the methodology \w+ determines the baseline/i.test(sentence)) score -= 300;
+      // Penalize "agent of deforestation" / "BL-PL module" quantification text
+      if (/\b(?:agent of deforestation|BL-PL module)\b/i.test(sentence)) score -= 200;
       break;
     case "Additionality":
       if (/\bVT0001\b/i.test(sentence)) score += 220;
@@ -1153,6 +1158,29 @@ function validateCheckInternal(contract: EvidenceCheckContract, ctx: CheckValida
           candidateText: countryCandidate.text, candidatePage: countryCandidate.page,
           candidateSectionPath: countryCandidate.sectionPath, candidateSpanId: countryCandidate.evidenceSpanId,
         };
+      }
+    }
+
+    // Fallback: scan projectLocation for a known country name if no candidate
+    // passed validation.  Some PDDs lack a "Host Country" label and only
+    // mention the country in the project location description (e.g. "Acre,
+    // Brazil" in the title header).
+    if (!countryCandidate || !validateCandidate(contract, countryCandidate).valid) {
+      const locationField = ctx.projectFactContract.projectLocation;
+      if (locationField?.value) {
+        const lower = locationField.value.toLowerCase();
+        for (const countryName of REGISTRY_COUNTRY_NAMES) {
+          const nameLower = countryName.toLowerCase();
+          if (lower.includes(nameLower)) {
+            return {
+              status: "found", answerText: countryName, downgradeReason: "",
+              candidateText: countryName,
+              candidatePage: locationField.pageNumbers[0] ?? null,
+              candidateSectionPath: locationField.sectionPath,
+              candidateSpanId: locationField.evidenceSpanIds[0] ?? undefined,
+            };
+          }
+        }
       }
     }
   }
