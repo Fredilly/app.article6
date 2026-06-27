@@ -12,7 +12,7 @@ initPymupdfAdapterRuntime();
 export { type StructuredQueryContext };
 
 export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?: string): Promise<StructuredQueryContext> {
-  const pdfFilePath = pdfRef ? resolvePdfRef(pdfRef) : undefined;
+  const pdfFilePath = pdfRef ? await resolvePdfRef(pdfRef) : undefined;
 
   // When we have a real PDF path, parse with it to get PyMuPDF structure.
   // Otherwise, fall through to rawText-only parsing.
