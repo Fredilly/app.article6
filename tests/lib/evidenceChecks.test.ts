@@ -668,3 +668,55 @@ describe("Kariba PDD regression", () => {
     expect(result.status).toBe("missing");
   });
 });
+
+describe("methodology module/tool rejection", () => {
+  it("VMD-only code (no primary) cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "VMD0001 module describes the carbon accounting approach for this project.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("module/tool text with VMD but no primary methodology cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Module VMD0001 is applied. The module describes quantification of emission reductions.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("VM0007 with VMD module mention still returns FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Title and reference of methodology applied: VM0007 v1.6. Module VMD0001 describes the carbon accounting approach under VM0007.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+
+  it("extraction preview primary method returns FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Primary methodology: AR-AMS0007. The project applies this methodology for afforestation activities.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0007");
+  });
+
+  it("generic module framework text without code cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The methodology framework provides modules and tools for quantifying emission reductions in the forestry sector.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+});
