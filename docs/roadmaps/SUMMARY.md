@@ -186,6 +186,15 @@ Status SSOT: `docs/roadmaps/quickcheck-parser-replacement/phase-status.json`
 Details: `docs/roadmaps/quickcheck-parser-replacement/PLAN.md`
 
 
+## quickcheck-v2
+
+Status SSOT: `docs/roadmaps/quickcheck-v2/phase-status.json`
+Details: `docs/roadmaps/quickcheck-v2/PLAN.md`
+
+Lane status: Planned
+Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.
+
+
 ## requirement-coverage
 
 Status SSOT: `docs/roadmaps/requirement-coverage/phase-status.json`

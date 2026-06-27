@@ -1,0 +1,127 @@
+{
+  "roadmapId": "quickcheck-v2",
+  "name": "Quick Check v2: Stable Ingestion First",
+  "status": "planned",
+  "currentGoalId": "qcv2-0-roadmap-boundary",
+  "goals": [
+    {
+      "id": "qcv2-0-roadmap-boundary",
+      "title": "Roadmap and PR boundary",
+      "status": "done",
+      "dependsOn": [],
+      "branch": "v2/roadmap-ssot",
+      "doneCriteria": [
+        "PLAN.md exists under docs/roadmaps/quickcheck-v2/",
+        "phase-status.json exists with all goals listed",
+        "no production code changed",
+        "roadmap validation passes"
+      ]
+    },
+    {
+      "id": "qcv2-1-ingestion",
+      "title": "Envira ingestion only — canonical extracted JSON",
+      "status": "planned",
+      "dependsOn": ["qcv2-0-roadmap-boundary"],
+      "branch": "",
+      "doneCriteria": [
+        "src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira",
+        "10 key strings found with correct page/span/section provenance",
+        "no scoring",
+        "no answers",
+        "no statuses",
+        "no LLM",
+        "no Blob dependency in tests",
+        "page 1 is not the default for every span"
+      ]
+    },
+    {
+      "id": "qcv2-2-section-tree",
+      "title": "Section tree and evidence spans",
+      "status": "planned",
+      "dependsOn": ["qcv2-1-ingestion"],
+      "branch": "",
+      "doneCriteria": [
+        "section tree built from canonical JSON",
+        "direct body under exact heading only — no descendant sweeping",
+        "each of six checks can return top evidence span"
+      ]
+    },
+    {
+      "id": "qcv2-3-evidence-retrieval",
+      "title": "Evidence retrieval for six structured checks",
+      "status": "planned",
+      "dependsOn": ["qcv2-2-section-tree"],
+      "branch": "",
+      "doneCriteria": [
+        "fixed source priority: fact contract → exact section → raw text fallback",
+        "no router candidates for structured checks",
+        "no scoring or term bonuses",
+        "Envira returns correct evidence with quote/page/section/span"
+      ]
+    },
+    {
+      "id": "qcv2-4-answer-extractors",
+      "title": "Tiny answer extractors",
+      "status": "planned",
+      "dependsOn": ["qcv2-3-evidence-retrieval"],
+      "branch": "",
+      "doneCriteria": [
+        "each of six checks has a small, check-specific extractor",
+        "answers come from selected evidence only",
+        "no LLM final answers",
+        "no generic summarizer"
+      ]
+    },
+    {
+      "id": "qcv2-5-status-validator",
+      "title": "Boring deterministic status validator",
+      "status": "planned",
+      "dependsOn": ["qcv2-4-answer-extractors"],
+      "branch": "",
+      "doneCriteria": [
+        "FOUND = answer + quote + page + section + span",
+        "UNCLEAR = related evidence but incomplete",
+        "MISSING = no usable evidence",
+        "validators do not search, rank, or invent answers"
+      ]
+    },
+    {
+      "id": "qcv2-6-gold-envira",
+      "title": "Gold Envira fixture",
+      "status": "planned",
+      "dependsOn": ["qcv2-5-status-validator"],
+      "branch": "",
+      "doneCriteria": [
+        "Envira gold fixture with expected answer, status, gold quote, page, section, span ID",
+        "known junk to reject included",
+        "gold is PDF truth, not current output",
+        "fails on known broken patterns (\"of\", boilerplate-only, wrong section, missing provenance)"
+      ]
+    },
+    {
+      "id": "qcv2-7-add-pdfs",
+      "title": "Add PDFs slowly by new failure mode only",
+      "status": "planned",
+      "dependsOn": ["qcv2-6-gold-envira"],
+      "branch": "",
+      "doneCriteria": [
+        "each new PDF introduces a structural/evidence failure mode Envira does not cover",
+        "one PDF per PR",
+        "each PR states new failure mode and why code change (if any) is generic"
+      ]
+    }
+  ],
+  "phase_meta": {
+    "status": "planned",
+    "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
+    "current_focus": "Goal 0 complete (roadmap boundary). Next: Goal 1 — Envira ingestion.",
+    "not_active_now": [],
+    "last_updated_at": "2026-06-27T00:00:00Z"
+  },
+  "pr_evidence": {
+    "840": { "title": "docs: Quick Check v2 roadmap — phased rebuild plan" }
+  },
+  "pr_notes": {
+    "840": "Goal 0 partial: roadmap document created but placed outside SSOT. This PR (v2/roadmap-ssot) completes the move into docs/roadmaps/quickcheck-v2/."
+  }
+}
