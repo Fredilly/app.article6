@@ -638,28 +638,6 @@ describe("methodology final status", () => {
 // Kariba PDD regression tests
 // ---------------------------------------------------------------------------
 
-function runValidateCheck(input: {
-  checkId: EvidenceCheckId;
-  claimText: string;
-  rawText: string;
-}) {
-  const sqc = getStructuredQueryContext(input.rawText);
-  const qr = buildReviewQuestionResult({
-    claimText: input.claimText,
-    methodologyId: "",
-    methodologyVersion: "",
-    rawPddText: input.rawText,
-    structuredQueryContext: sqc,
-  });
-  return validateCheck(getContract(input.checkId), {
-    evidenceDocument: sqc.evidenceDocument,
-    projectFactContract: sqc.projectFactContract,
-    sectionTableIndex: sqc.sectionTableIndex,
-    routerResult: qr.routerResult,
-    queryIntentAnalysis: qr.queryIntentAnalysis,
-    rawText: input.rawText,
-  });
-}
 
 describe("Kariba PDD regression", () => {
   it("host_country rejects URL path fragment information/zimbabwe/en/", () => {
