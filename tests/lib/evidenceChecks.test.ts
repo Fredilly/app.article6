@@ -593,4 +593,44 @@ describe("methodology final status", () => {
     expect(result.status).toBe("found");
     expect(result.answerText).toContain("VM0007");
   });
+
+  it("AR-AMS0007 accepted as applied methodology", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Name and reference of approved methodology applied: AR-AMS0007 Simplified Baseline and Monitoring Methodology for Small-scale CDM A/R Project Activities.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0007");
+  });
+
+  it("AR-AMS0003 accepted as applied methodology", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Name and reference of approved methodology applied: AR-AMS0003 Afforestation and Reforestation of Degraded Land.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0003");
+  });
+
+  it("VM0007 accepted when paragraph mentions modules/tools with applied context", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The project applies VCS Methodology VM0007 together with applicable modules and tools described in Appendix 1.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+
+  it("generic modules/tools boilerplate without applied context still rejected", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The modules and tools section lists the applicable components. This methodology provides modules and tools for quantifying emission reductions.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
 });

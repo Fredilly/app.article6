@@ -193,7 +193,7 @@ function normalizeInlineWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-const METHODOLOGY_CODE_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\d{4}|GS-VER\d+)\b/i;
+const METHODOLOGY_CODE_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+)\b/i;
 
 function stripCommonLeadIn(value: string): string {
   return normalizeInlineWhitespace(
@@ -969,10 +969,16 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   }
   if (contract.expectedShape === "methodology_name_version") {
     // Must contain an explicit methodology code (VM####, VMD####, ACM####, etc.)
-    const hasCode = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\d{4}|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
+    const hasCode = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
     if (!hasCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };
     // Reject if the code appears only in a "modules and tools" list or boilerplate
-    if (/\bmodules? and tools?\b/i.test(candidate.text) && !/\bapplied methodology\b/i.test(candidate.text)) {
+    // without any evidence the project actually applies it.
+    // Allow passages that explicitly say the project applies the methodology
+    // even when they also mention modules/tools (e.g. "applies VM0007 with
+    // applicable modules and tools").
+    const isModulesBoilerplate = /\bmodules? and tools?\b/i.test(candidate.text)
+      && !/\b(?:applied methodology|applied|name and reference|title and reference|project applies|project uses)\b/i.test(candidate.text);
+    if (isModulesBoilerplate) {
       return { valid: false, reason: "Methodology code appears in module/tool boilerplate — not proven as applied" };
     }
     // Reject methodology preamble/instructions that describe the methodology
