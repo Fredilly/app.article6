@@ -102,32 +102,42 @@ function buildSpanId(
 const VCS_PAGE_MARKER_RE = /^v\d+(?:\.\d+)+\s+(\d+)$/;
 
 /**
- * Regex that matches other common page marker formats:
+ * Regex that matches common page marker formats with strong prefix context:
  *   "Page 1", "Page 1 of 142", "1 of 142"
  *
- * These may appear as standalone lines in CDM or other PDD formats.
+ * These must NOT match bare standalone numbers like "0", "1", "25" which
+ * commonly appear in table cells. The regex requires "Page" prefix or "of N" suffix.
  */
-const GENERIC_PAGE_MARKER_RE = /^(?:page\s+)?(\d+)\s*(?:of\s+\d+)?$/i;
+const PAGE_MARKER_RE = /^(?:page\s+(\d+)(?:\s+of\s+\d+)?|(\d+)\s+of\s+\d+)$/i;
 
 /**
  * Check if a line is a standalone page marker (not body text).
+ *
+ * Only accepts page markers that have strong contextual prefixes:
+ * - VCS format:  v3.2 N
+ * - Standard:    Page N, Page N of M
+ * - CDM format:  N of M
+ *
+ * Bare numeric lines like "0", "1", "25" are NOT page markers.
  */
 function isPageMarkerLine(
   line: string,
 ): { isMarker: true; pageNumber: number } | { isMarker: false } {
   const trimmed = line.trim();
 
+  // VCS v3.2 format: "v3.2 1", "v3.2 142" — very specific prefix, low false-positive risk
   const vcsMatch = trimmed.match(VCS_PAGE_MARKER_RE);
   if (vcsMatch) {
     return { isMarker: true, pageNumber: parseInt(vcsMatch[1]!, 10) };
   }
 
-  // Only treat as generic marker if the line is short and exclusively
-  // contains the marker (not a sentence that happens to start with "Page")
-  if (trimmed.length <= 20) {
-    const genericMatch = trimmed.match(GENERIC_PAGE_MARKER_RE);
-    if (genericMatch) {
-      return { isMarker: true, pageNumber: parseInt(genericMatch[1]!, 10) };
+  // Standard page markers with strong prefix context
+  // Only accept if the line looks like a page marker, not a table cell
+  const pageMatch = trimmed.match(PAGE_MARKER_RE);
+  if (pageMatch) {
+    const pageNum = parseInt(pageMatch[1] ?? pageMatch[2]!, 10);
+    if (pageNum > 0) {
+      return { isMarker: true, pageNumber: pageNum };
     }
   }
 
@@ -146,6 +156,19 @@ function isPageMarkerLine(
  */
 const SECTION_HEADING_RE =
   /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\s+[.:]?\s*(.+?)\s*$/i;
+
+/**
+ * Matches top-level integer-only section headings like:
+ *   "1 PROJECT DETAILS"
+ *   "5 ENVIRONMENTAL IMPACT"
+ *   "6 STAKEHOLDER COMMENTS"
+ *
+ * These are single-digit or multi-digit numbers followed by an ALL-CAPS title.
+ * Must be at the start of a line and must have a non-numeric title after the number
+ * (to distinguish from page numbers and table cells).
+ */
+const TOP_LEVEL_HEADING_RE =
+  /^\s*(\d+)\s+([A-Z][A-Z\s\/&-]+)\s*$/;
 
 /**
  * Matches annex/appendix headings like:
@@ -175,6 +198,16 @@ function detectSectionHeading(
       isHeading: true,
       sectionNumber: headingMatch[1]!,
       title: headingMatch[2]!.trim(),
+    };
+  }
+
+  // Top-level integer headings: "5 ENVIRONMENTAL IMPACT"
+  const topLevelMatch = trimmed.match(TOP_LEVEL_HEADING_RE);
+  if (topLevelMatch) {
+    return {
+      isHeading: true,
+      sectionNumber: topLevelMatch[1]!,
+      title: topLevelMatch[2]!.trim(),
     };
   }
 
