@@ -159,16 +159,24 @@ const SECTION_HEADING_RE =
 
 /**
  * Matches top-level integer-only section headings like:
- *   "1 PROJECT DETAILS"
+ *   "1 PROJECT DETAILS"              — A.  (VCS PDDs, all-caps)
+ *   "1. Project Details"             — B.  (VCS PDDs, mixed case, optional dot)
+ *   "1 Project Details"              — C.  (clean numbering, no dot)
  *   "5 ENVIRONMENTAL IMPACT"
  *   "6 STAKEHOLDER COMMENTS"
+ *   "2. Baseline"
+ *   "3. Additionality"
  *
- * These are single-digit or multi-digit numbers followed by an ALL-CAPS title.
- * Must be at the start of a line and must have a non-numeric title after the number
- * (to distinguish from page numbers and table cells).
+ * These are single-digit or multi-digit numbers (with optional dot) followed
+ * by a non-numeric title.  The dot form "1." is accepted as part of the
+ * section number so that "1. Project Details" produces sectionNumber "1"
+ * (stripped), not "1.".
+ *
+ * Must have at least one non-digit, non-dot character after the number
+ * (to distinguish from page numbers, table cells, and bare numeric lines).
  */
 const TOP_LEVEL_HEADING_RE =
-  /^\s*(\d+)\s+([A-Z][A-Z\s\/&-]+)\s*$/;
+  /^\s*(\d+)\.?\s+([A-Za-z][\w\s\/&-]+)\s*$/;
 
 /**
  * Matches annex/appendix headings like:
@@ -204,10 +212,17 @@ function detectSectionHeading(
   // Top-level integer headings: "5 ENVIRONMENTAL IMPACT"
   const topLevelMatch = trimmed.match(TOP_LEVEL_HEADING_RE);
   if (topLevelMatch) {
+    const title = topLevelMatch[2]!.trim();
+    // Reject false positives where the "title" contains a 4-digit year
+    // (e.g. "09 April 2010 and the parcel opened up the LAR" is a
+    // sentence starting with a date, not a section heading).
+    if (/\b\d{4}\b/.test(title)) {
+      return { isHeading: false };
+    }
     return {
       isHeading: true,
       sectionNumber: topLevelMatch[1]!,
-      title: topLevelMatch[2]!.trim(),
+      title,
     };
   }
 

@@ -107,8 +107,83 @@ describe("canonical JSON invariants", () => {
     });
   });
 
-  describe("page adjacency — no gaps or resets", () => {
-    it("page numbers increase monotonically (not strictly but never jump backward)", () => {
+  describe('section heading detection', () => {
+    describe("top-level headings (e.g. '1 PROJECT DETAILS')", () => {
+      it('detects "1 PROJECT DETAILS" as heading with sectionPath ["1"]', () => {
+        const headingBlock = doc.blocks.find(
+          (b) => b.text === '1 PROJECT DETAILS' && b.blockType === 'heading',
+        );
+        expect(headingBlock).toBeDefined();
+        expect(headingBlock!.sectionPath).toEqual(['1']);
+      });
+
+      it('detects "2 APPLICATION OF METHODOLOGY" as heading with sectionPath ["2"]', () => {
+        const headingBlock = doc.blocks.find(
+          (b) => b.text === '2 APPLICATION OF METHODOLOGY' && b.blockType === 'heading',
+        );
+        expect(headingBlock).toBeDefined();
+        expect(headingBlock!.sectionPath).toEqual(['2']);
+      });
+
+      it('detects "3 QUANTIFICATION OF GHG EMISSION REDUCTIONS AND REMOVALS" as heading with sectionPath ["3"]', () => {
+        const headingBlock = doc.blocks.find(
+          (b) => b.text === '3 QUANTIFICATION OF GHG EMISSION REDUCTIONS AND REMOVALS' && b.blockType === 'heading',
+        );
+        expect(headingBlock).toBeDefined();
+        expect(headingBlock!.sectionPath).toEqual(['3']);
+      });
+
+      it("body blocks after '1 PROJECT DETAILS' inherit sectionPath ['1']", () => {
+        const projDetailsIndex = doc.blocks.findIndex(
+          (b) => b.text === '1 PROJECT DETAILS',
+        );
+        expect(projDetailsIndex).toBeGreaterThanOrEqual(0);
+        // Find the first body block after the heading, skipping subsections
+        const firstBodyAfter = doc.blocks
+          .slice(projDetailsIndex + 1)
+          .find((b) => b.blockType === 'body' && b.sectionPath.length === 1);
+        expect(firstBodyAfter).toBeDefined();
+        expect(firstBodyAfter!.sectionPath).toEqual(['1']);
+      });
+    });
+
+    describe('existing all-caps headings still detected', () => {
+      it('detects "5 ENVIRONMENTAL IMPACT" as heading', () => {
+        const headingBlock = doc.blocks.find(
+          (b) =>
+            b.text === '5 ENVIRONMENTAL IMPACT' && b.blockType === 'heading',
+        );
+        expect(headingBlock).toBeDefined();
+      });
+
+      it('detects "6 STAKEHOLDER COMMENTS" as heading', () => {
+        const headingBlock = doc.blocks.find(
+          (b) =>
+            b.text === '6 STAKEHOLDER COMMENTS' && b.blockType === 'heading',
+        );
+        expect(headingBlock).toBeDefined();
+      });
+    });
+
+    describe('bare numeric lines are not headings', () => {
+      it('bare "0" is not a heading', () => {
+        const zeroHeadings = doc.blocks.filter(
+          (b) => b.text === '0' && b.blockType === 'heading',
+        );
+        expect(zeroHeadings.length).toBe(0);
+      });
+
+      it('bare "1" is not a heading', () => {
+        const oneHeadings = doc.blocks.filter(
+          (b) => b.text === '1' && b.blockType === 'heading',
+        );
+        expect(oneHeadings.length).toBe(0);
+      });
+    });
+  });
+
+  describe('page adjacency — no gaps or resets', () => {
+    it('page numbers increase monotonically (not strictly but never jump backward)', () => {
       let lastPage = 0;
       let sawPageGt1 = false;
       for (const block of doc.blocks) {
