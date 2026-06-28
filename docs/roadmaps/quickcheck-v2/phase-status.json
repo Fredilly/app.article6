@@ -2,7 +2,8 @@
   "roadmapId": "quickcheck-v2",
   "name": "Quick Check v2: Stable Ingestion First",
   "pr_evidence": {
-    "847": { "title": "docs: Quick Check v2 roadmap SSOT — PLAN.md + phase-status.json in repo roadmaps" }
+    "847": { "title": "docs: Quick Check v2 roadmap SSOT — PLAN.md + phase-status.json in repo roadmaps" },
+    "846": { "title": "feat: Quick Check v2 RC1 — Envira ingestion only — ingestion pipeline + heading detection + tests" }
   },
   "pr_notes": {
     "840": "Historical — superseded by PR #847",
@@ -16,12 +17,12 @@
     },
     "phase_1_envira_ingestion": {
       "title": "Envira ingestion only — canonical extracted JSON",
-      "status": "next",
-      "summary": "src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira. 10 key strings with correct page/span/section provenance. No answers. No scoring. No Blob."
+      "status": "done",
+      "summary": "Ingestion pipeline at src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira (PR #846). 10 key strings with correct page/span/section provenance. Heading detection handles mixed-case + dotted patterns. No answers. No scoring. No Blob."
     },
     "phase_2_section_tree": {
       "title": "Section tree and evidence spans",
-      "status": "planned",
+      "status": "next",
       "summary": "Direct body under exact heading only. No descendant sweeping. Each of six checks can return top evidence span."
     },
     "phase_3_evidence_retrieval": {
@@ -53,7 +54,7 @@
   "phase_meta": {
     "status": "active",
     "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
-    "current_focus": ["Phase 0 done (PR #847). Next: Phase 1 — Envira ingestion (PR #846)."],
+    "current_focus": ["Phase 1 done (PR #846). Next: Phase 2 — Section tree and evidence spans."],
     "not_active_now": [],
     "last_updated_at": "2026-06-28T00:00:00Z",
     "goals": [
@@ -74,7 +75,7 @@
       {
         "id": "phase_1_envira_ingestion",
         "title": "Envira ingestion only — canonical extracted JSON",
-        "status": "next",
+        "status": "done",
         "dependsOn": ["phase_0_roadmap_boundary"],
         "branch": "v2/ingestion-envira",
         "pr": 846,

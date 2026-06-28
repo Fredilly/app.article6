@@ -2,7 +2,7 @@
 
 > Status is sourced from `docs/roadmaps/quickcheck-v2/phase-status.json`; docs must not drift.
 >
-> Status: Phase 0 done (PR #847). Next: Phase 1 — Envira ingestion (PR #846).
+> Status: Phase 1 done (PR #846). Next: Phase 2 — Section tree and evidence spans.
 > v1 is frozen for critical fixes only.
 > PR #839 is parked/superseded.
 
