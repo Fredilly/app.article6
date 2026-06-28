@@ -1,61 +1,12 @@
 {
-  "roadmapId": "quickcheck-v2",
+  "PR857": "done",
   "name": "Quick Check v2: Stable Ingestion First",
-  "pr_evidence": {
-    "847": { "title": "docs: Quick Check v2 roadmap SSOT — PLAN.md + phase-status.json in repo roadmaps" },
-    "846": { "title": "feat: Quick Check v2 RC1 — Envira ingestion only — ingestion pipeline + heading detection + tests" },
-    "852": { "title": "feat: Quick Check v2 Phase 2 — section tree and evidence span index" }
-  },
-  "pr_notes": {
-    "840": "Historical — superseded by PR #847",
-    "843": "Historical — superseded by PR #847"
-  },
-  "phases": {
-    "phase_0_roadmap_boundary": {
-      "title": "Roadmap and SSOT boundary",
-      "status": "done",
-      "summary": "PLAN.md + phase-status.json exist at correct SSOT path. Delivered by PR #847. No production code changed."
-    },
-    "phase_1_envira_ingestion": {
-      "title": "Envira ingestion only — canonical extracted JSON",
-      "status": "done",
-      "summary": "Ingestion pipeline at src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira (PR #846). 10 key strings with correct page/span/section provenance. Heading detection handles mixed-case + dotted patterns. No answers. No scoring. No Blob."
-    },
-    "phase_2_section_tree": {
-      "title": "Section tree and evidence spans",
-      "status": "done",
-      "summary": "Section tree from canonical JSON + evidence span index. Direct body under exact heading only. Each of six checks returns best evidence span with quote/page/section/spanId. Delivered by PR #852. No answers. No status. No scoring. No LLM."
-    },
-    "phase_3_evidence_retrieval": {
-      "title": "Evidence retrieval for six structured checks",
-      "status": "next",
-      "summary": "Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring."
-    },
-    "phase_4_answer_extractors": {
-      "title": "Tiny answer extractors",
-      "status": "planned",
-      "summary": "Check-specific extractors. Answers from selected evidence only. No LLM finals."
-    },
-    "phase_5_status_validator": {
-      "title": "Boring deterministic status validator",
-      "status": "planned",
-      "summary": "FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank."
-    },
-    "phase_6_gold_envira": {
-      "title": "Gold Envira fixture",
-      "status": "planned",
-      "summary": "Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject."
-    },
-    "phase_7_add_pdfs": {
-      "title": "Add PDFs slowly by new failure mode only",
-      "status": "planned",
-      "summary": "Each new PDF introduces a failure mode Envira does not cover. One PDF per PR."
-    }
-  },
   "phase_meta": {
     "status": "active",
     "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
-    "current_focus": ["Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority."],
+    "current_focus": [
+      "Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority."
+    ],
     "not_active_now": [],
     "last_updated_at": "2026-06-28T00:00:00Z",
     "goals": [
@@ -77,7 +28,9 @@
         "id": "phase_1_envira_ingestion",
         "title": "Envira ingestion only — canonical extracted JSON",
         "status": "done",
-        "dependsOn": ["phase_0_roadmap_boundary"],
+        "dependsOn": [
+          "phase_0_roadmap_boundary"
+        ],
         "branch": "v2/ingestion-envira",
         "pr": 846,
         "doneCriteria": [
@@ -95,7 +48,9 @@
         "id": "phase_2_section_tree",
         "title": "Section tree and evidence spans",
         "status": "done",
-        "dependsOn": ["phase_1_envira_ingestion"],
+        "dependsOn": [
+          "phase_1_envira_ingestion"
+        ],
         "branch": "v2/section-tree",
         "pr": 852,
         "doneCriteria": [
@@ -108,7 +63,9 @@
         "id": "phase_3_evidence_retrieval",
         "title": "Evidence retrieval for six structured checks",
         "status": "next",
-        "dependsOn": ["phase_2_section_tree"],
+        "dependsOn": [
+          "phase_2_section_tree"
+        ],
         "branch": "",
         "doneCriteria": [
           "fixed source priority: fact contract → exact section → raw text fallback",
@@ -121,7 +78,9 @@
         "id": "phase_4_answer_extractors",
         "title": "Tiny answer extractors",
         "status": "planned",
-        "dependsOn": ["phase_3_evidence_retrieval"],
+        "dependsOn": [
+          "phase_3_evidence_retrieval"
+        ],
         "branch": "",
         "doneCriteria": [
           "each of six checks has a small, check-specific extractor",
@@ -134,7 +93,9 @@
         "id": "phase_5_status_validator",
         "title": "Boring deterministic status validator",
         "status": "planned",
-        "dependsOn": ["phase_4_answer_extractors"],
+        "dependsOn": [
+          "phase_4_answer_extractors"
+        ],
         "branch": "",
         "doneCriteria": [
           "FOUND = answer + quote + page + section + span",
@@ -147,7 +108,9 @@
         "id": "phase_6_gold_envira",
         "title": "Gold Envira fixture",
         "status": "planned",
-        "dependsOn": ["phase_5_status_validator"],
+        "dependsOn": [
+          "phase_5_status_validator"
+        ],
         "branch": "",
         "doneCriteria": [
           "Envira gold fixture with expected answer, status, gold quote, page, section, span ID",
@@ -160,7 +123,9 @@
         "id": "phase_7_add_pdfs",
         "title": "Add PDFs slowly by new failure mode only",
         "status": "planned",
-        "dependsOn": ["phase_6_gold_envira"],
+        "dependsOn": [
+          "phase_6_gold_envira"
+        ],
         "branch": "",
         "doneCriteria": [
           "each new PDF introduces a structural/evidence failure mode Envira does not cover",
@@ -169,5 +134,63 @@
         ]
       }
     ]
-  }
+  },
+  "phases": {
+    "phase_0_roadmap_boundary": {
+      "title": "Roadmap and SSOT boundary",
+      "status": "done",
+      "summary": "PLAN.md + phase-status.json exist at correct SSOT path. Delivered by PR #847. No production code changed."
+    },
+    "phase_1_envira_ingestion": {
+      "title": "Envira ingestion only — canonical extracted JSON",
+      "status": "done",
+      "summary": "Ingestion pipeline at src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira (PR #846). 10 key strings with correct page/span/section provenance. Heading detection handles mixed-case + dotted patterns. No answers. No scoring. No Blob."
+    },
+    "phase_2_section_tree": {
+      "title": "Section tree and evidence spans",
+      "status": "done",
+      "summary": "Section tree from canonical JSON + evidence span index. Direct body under exact heading only. Each of six checks returns best evidence span with quote/page/section/spanId. Delivered by PR #852. No answers. No status. No scoring. No LLM."
+    },
+    "phase_3_evidence_retrieval": {
+      "title": "Evidence retrieval for six structured checks",
+      "status": "done",
+      "summary": "Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring."
+    },
+    "phase_4_answer_extractors": {
+      "title": "Tiny answer extractors",
+      "status": "done",
+      "summary": "Check-specific extractors. Answers from selected evidence only. No LLM finals."
+    },
+    "phase_5_status_validator": {
+      "title": "Boring deterministic status validator",
+      "status": "planned",
+      "summary": "FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank."
+    },
+    "phase_6_gold_envira": {
+      "title": "Gold Envira fixture",
+      "status": "planned",
+      "summary": "Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject."
+    },
+    "phase_7_add_pdfs": {
+      "title": "Add PDFs slowly by new failure mode only",
+      "status": "planned",
+      "summary": "Each new PDF introduces a failure mode Envira does not cover. One PDF per PR."
+    }
+  },
+  "pr_evidence": {
+    "846": {
+      "title": "feat: Quick Check v2 RC1 — Envira ingestion only — ingestion pipeline + heading detection + tests"
+    },
+    "847": {
+      "title": "docs: Quick Check v2 roadmap SSOT — PLAN.md + phase-status.json in repo roadmaps"
+    },
+    "852": {
+      "title": "feat: Quick Check v2 Phase 2 — section tree and evidence span index"
+    }
+  },
+  "pr_notes": {
+    "840": "Historical — superseded by PR #847",
+    "843": "Historical — superseded by PR #847"
+  },
+  "roadmapId": "quickcheck-v2"
 }
