@@ -195,12 +195,12 @@ Lane status: Active
 Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.
 
 Current focus:
-- Phase 1 done (PR #846). Next: Phase 2 — Section tree and evidence spans.
+- Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority.
 
 1) RC0 — Roadmap and SSOT boundary: Done — PLAN.md + phase-status.json exist at correct SSOT path. Delivered by PR #847. No production code changed.
 2) RC1 — Envira ingestion only — canonical extracted JSON: Done — Ingestion pipeline at src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira (PR #846). 10 key strings with correct page/span/section provenance. Heading detection handles mixed-case + dotted patterns. No answers. No scoring. No Blob.
-3) RC2 — Section tree and evidence spans: Next — Direct body under exact heading only. No descendant sweeping. Each of six checks can return top evidence span.
-4) RC3 — Evidence retrieval for six structured checks: Planned — Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring.
+3) RC2 — Section tree and evidence spans: Done — Section tree from canonical JSON + evidence span index. Direct body under exact heading only. Each of six checks returns best evidence span with quote/page/section/spanId. Delivered by PR #852. No answers. No status. No scoring. No LLM.
+4) RC3 — Evidence retrieval for six structured checks: Next — Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring.
 5) RC4 — Tiny answer extractors: Planned — Check-specific extractors. Answers from selected evidence only. No LLM finals.
 6) RC5 — Boring deterministic status validator: Planned — FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank.
 7) RC6 — Gold Envira fixture: Planned — Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject.
