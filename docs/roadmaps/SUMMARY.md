@@ -195,10 +195,10 @@ Lane status: Planned
 Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.
 
 Current focus:
-- Phase 0 complete. Next: Phase 1 — Envira ingestion.
+- Phase 1 done (Envira ingestion). Next: Phase 2 — Section tree and evidence spans.
 
 1) RC0 — Roadmap and PR boundary — SSOT location: Done — PLAN.md + phase-status.json exist at correct SSOT path. No production code changed.
-2) RC1 — Envira ingestion only — canonical extracted JSON: Planned — src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira. 10 key strings with correct page/span/section provenance. No answers. No scoring. No Blob.
+2) RC1 — Envira ingestion only — canonical extracted JSON: Done — src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira. 24 evidence-string tests + 12 invariant tests. VCS v3.2 page markers handled. No page 0 blocks. PR #845.
 3) RC2 — Section tree and evidence spans: Planned — Direct body under exact heading only. No descendant sweeping. Each of six checks can return top evidence span.
 4) RC3 — Evidence retrieval for six structured checks: Planned — Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring.
 5) RC4 — Tiny answer extractors: Planned — Check-specific extractors. Answers from selected evidence only. No LLM finals.

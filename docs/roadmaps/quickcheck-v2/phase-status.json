@@ -3,10 +3,12 @@
   "name": "Quick Check v2: Stable Ingestion First",
   "pr_evidence": {
     "840": { "title": "docs: Quick Check v2 roadmap — phased rebuild plan" },
-    "843": { "title": "docs: move Quick Check v2 roadmap into repo roadmaps SSOT" }
+    "843": { "title": "docs: move Quick Check v2 roadmap into repo roadmaps SSOT" },
+    "845": { "title": "feat: Quick Check v2 RC1 — Envira ingestion only" }
   },
   "pr_notes": {
-    "840": "Goal 0 partial: roadmap document created but placed outside SSOT. PR #843 completes the move into SSOT."
+    "840": "Goal 0 partial: roadmap document created but placed outside SSOT. PR #843 completes the move into SSOT.",
+    "845": "RC1 done: Envira canonical ingestion with fixed page provenance. 58 tests (24 evidence + 12 invariants + 22 v1 regression). No page 0 blocks."
   },
   "phases": {
     "phase_0_roadmap_boundary": {
@@ -16,8 +18,8 @@
     },
     "phase_1_envira_ingestion": {
       "title": "Envira ingestion only — canonical extracted JSON",
-      "status": "planned",
-      "summary": "src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira. 10 key strings with correct page/span/section provenance. No answers. No scoring. No Blob."
+      "status": "done",
+      "summary": "src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira. 24 evidence-string tests + 12 invariant tests. VCS v3.2 page markers handled. No page 0 blocks. PR #845."
     },
     "phase_2_section_tree": {
       "title": "Section tree and evidence spans",
@@ -53,7 +55,7 @@
   "phase_meta": {
     "status": "planned",
     "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
-    "current_focus": ["Phase 0 complete. Next: Phase 1 — Envira ingestion."],
+    "current_focus": ["Phase 1 done (Envira ingestion). Next: Phase 2 — Section tree and evidence spans."],
     "not_active_now": [],
     "last_updated_at": "2026-06-27T00:00:00Z",
     "goals": [
