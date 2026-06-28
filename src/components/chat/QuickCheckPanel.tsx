@@ -82,6 +82,10 @@ import {
   documentPurposeLabel,
   type DocumentPurpose,
 } from "@/lib/documentClassification/classifyDocumentPurpose";
+import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
+import type { FixtureContract } from "@/lib/dev/fixtureReplay";
+import { fetchLlmCandidate, isLlmUiEnabled } from "@/lib/quickCheck/llmUiClient";
+import type { LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
 
 type MethodInventoryRecord = {
   code: string;
@@ -93,6 +97,8 @@ type QuickCheckPanelProps = {
   initialMethod?: string | null;
   initialVersion?: string | null;
   onContinueToWorkspace?: (url: string) => void;
+  /** Optional fixture contract for dev-only Fixture Replay */
+  fixtureContract?: FixtureContract | null;
 };
 
 type MatchCandidate = {
@@ -590,13 +596,23 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
-export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace }: QuickCheckPanelProps) {
+export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace, fixtureContract }: QuickCheckPanelProps) {
   const showReviewRoutingDiagnostic = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const fileRef = useRef<HTMLInputElement | null>(null);
   const claimRef = useRef<HTMLTextAreaElement | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
   const reviewQuestionRunRef = useRef(0);
+
+  /**
+   * Guards against cross-document contamination: record the current document
+   * evidence IDs and filename when checks start. If the value changes before
+   * checks complete, results are discarded.
+   */
+  const documentSnapshotRef = useRef<{ evidenceIds: string[]; fileName: string }>({
+    evidenceIds: [],
+    fileName: "",
+  });
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -613,6 +629,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [documentPurpose, setDocumentPurpose] = useState<DocumentPurpose | null>(null);
   const [evidenceCheckResults, setEvidenceCheckResults] = useState<EvidenceCheckResult[]>([]);
+  const [llmSuggestions, setLlmSuggestions] = useState<Record<string, LlmFactCandidate[]>>({});
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -1063,6 +1080,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowMethodology(false);
     setShowExtractionDetails(false);
     setEvidenceCheckResults([]);
+    setLlmSuggestions({});
     setRunningEvidenceChecks(false);
     setDocumentPurpose(null);
   }
@@ -1357,11 +1375,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setFieldErrors({ evidence: attachmentResult.message });
         return;
       }
-      updateSession((current) => ({
-        ...current,
-        draft: (() => {
-          const nextMethodology = resetMethodologyForUserInput(current.draft);
-          return {
+      updateSession((current) => {
+        const nextMethodology = resetMethodologyForUserInput(current.draft);
+        return {
+          ...current,
+          draft: {
             ...current.draft,
             ...nextMethodology,
             sourceMode: "uploaded_file",
@@ -1371,19 +1389,53 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             result: null,
             resultId: undefined,
             updatedAt: nowIso(),
-          };
-        })(),
-        result: null,
-        stagedUploads: [
+          },
+          result: null,
+          stagedUploads: [
+            {
+              evidenceId,
+              filename: attachmentResult.attachment.filename,
+              mime: attachmentResult.attachment.mime,
+              createdAt: attachmentResult.attachment.created_at,
+              attachment: attachmentResult.attachment,
+            },
+          ],
+        };
+      });
+
+      // SNAPSHOT: built from LOCAL values inside the upload handler, NOT from
+      // React render-time state (selectedEvidenceSources, draft.*) which still
+      // reflects the previous document before the next render cycle.
+      // We reuse the same nextMethodology from the updateSession callback
+      // by re-computing it on the session state's draft (same computation).
+      const sessionDraft = session.draft;
+      const snapshotNextMethodology = resetMethodologyForUserInput(sessionDraft);
+      const snapshot = {
+        evidenceSources: [
           {
             evidenceId,
-            filename: attachmentResult.attachment.filename,
-            mime: attachmentResult.attachment.mime,
-            createdAt: attachmentResult.attachment.created_at,
-            attachment: attachmentResult.attachment,
+            sourceLabel: attachmentResult.attachment.filename,
+            attachments: [attachmentResult.attachment],
+            pddFragments: undefined,
           },
         ],
-      }));
+        resolvePdfText,
+        evidenceIds: [evidenceId],
+        fileName: attachmentResult.attachment.filename,
+        methodologyId: snapshotNextMethodology.methodologyId,
+        methodologyVersion: snapshotNextMethodology.methodologyVersion,
+        methods,
+      };
+
+      // Clear previous check results before auto-running
+      setEvidenceCheckResults([]);
+      setLlmSuggestions({});
+      setRunningEvidenceChecks(false);
+
+      // Fire after current render cycle so the evidence is visible
+      setTimeout(() => {
+        void runEvidenceChecksFromSnapshot(snapshot);
+      }, 0);
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -1791,9 +1843,46 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  async function runEvidenceChecks() {
-    const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+  /**
+   * Run evidence checks against an explicit immutable snapshot of document state.
+   *
+   * This function is the single source of truth for evidence checking. It accepts
+   * all inputs as arguments rather than reading React state, which eliminates
+   * cross-document contamination from stale closures.
+   *
+   * Callers are expected to provide a snapshot captured at the moment the checks
+   * were triggered (not read lazily from state).
+   */
+  async function runEvidenceChecksFromSnapshot(snapshot: {
+    evidenceSources: typeof selectedEvidenceSources;
+    resolvePdfText: typeof resolvePdfText;
+    evidenceIds: string[];
+    fileName: string;
+    methodologyId: string;
+    methodologyVersion: string;
+    methods: MethodInventoryRecord[];
+  }) {
+    const { evidenceSources, resolvePdfText: resolveFn, evidenceIds, fileName, methodologyId, methodologyVersion } = snapshot;
+
+    // Update the document snapshot guard so concurrent checks from a different
+    // document can detect the mismatch and discard stale results.
+    documentSnapshotRef.current = { evidenceIds, fileName };
+
+    const evidenceAnalysis = await analyzeQuickCheckEvidence(evidenceSources, { resolvePdfText: resolveFn });
     if (!evidenceAnalysis.rawPddText?.trim()) return;
+
+    // Guard: if the document changed while we were analyzing, discard results
+    const currentSnapshot = documentSnapshotRef.current;
+    if (
+      currentSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !currentSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      currentSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed while checks were running — discarding stale results.",
+      );
+      return;
+    }
 
     // Classify document purpose before running checks
     const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
@@ -1802,11 +1891,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
     const currentMethodologyResolution = resolveQuickCheckMethodology({
       mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-      methods,
+      methods: snapshot.methods,
     });
-    const resolvedMethodologyId = draft.methodologyId.trim()
+    const resolvedMethodologyId = methodologyId.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-    const resolvedMethodologyVersion = draft.methodologyVersion.trim()
+    const resolvedMethodologyVersion = methodologyVersion.trim()
       || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
     const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
 
@@ -1814,6 +1903,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
     const allChecks = getAllChecks(resolvedMethodologyId || undefined);
     const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
+
+    // Guard: re-check document identity before writing results
+    const midRunSnapshot = documentSnapshotRef.current;
+    if (
+      midRunSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !midRunSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      midRunSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed during evidence checks — discarding results.",
+      );
+      return;
+    }
 
     setRunningEvidenceChecks(true);
     const results: EvidenceCheckResult[] = [];
@@ -1844,7 +1946,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         answerText: validated.answerText,
         downgradeReason: validated.downgradeReason,
       });
-      // Provenance now comes from the validated candidate, not the router.
       results.push({
         checkId: check.id,
         status: validated.status,
@@ -1858,8 +1959,85 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       });
     }
 
+    // Final guard: only write results if we're still on the same document
+    const finalSnapshot = documentSnapshotRef.current;
+    if (
+      finalSnapshot.evidenceIds.length !== evidenceIds.length ||
+      !finalSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
+      finalSnapshot.fileName !== fileName
+    ) {
+      console.warn(
+        "[quick-check] Document changed before final write — discarding results.",
+      );
+      setRunningEvidenceChecks(false);
+      return;
+    }
+
     setEvidenceCheckResults(results);
     setRunningEvidenceChecks(false);
+
+    // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
+    if (isLlmUiEnabled()) {
+      const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
+        spanId: s.spanId,
+        text: s.text,
+        page: s.page,
+        blockType: s.blockType,
+      })) ?? [];
+
+      const missingOrUnclear = results.filter(
+        (r: EvidenceCheckResult) =>
+          r.status === "missing"
+          || r.status === "unclear"
+          || (r.status === "found" && r.answerText.trim().length < 3),
+      );
+
+      fetchLlmSuggestions(missingOrUnclear, evidenceSpans);
+    } else {
+      setLlmSuggestions({});
+    }
+  }
+
+  /**
+   * Run evidence checks using the current React state.
+   *
+   * This is the manual "Run Checks" button handler. It reads current state
+   * and delegates to runEvidenceChecksFromSnapshot with an immutable snapshot.
+   *
+   * For auto-run after upload, the upload handler captures its own snapshot
+   * before the setTimeout(0) to avoid stale closures.
+   */
+  async function runEvidenceChecks() {
+    // Delegate to the snapshot-based implementation with current React state
+    return runEvidenceChecksFromSnapshot({
+      evidenceSources: selectedEvidenceSources,
+      resolvePdfText,
+      evidenceIds: draft.evidenceIds,
+      fileName: draft.evidenceFileName || "",
+      methodologyId: draft.methodologyId,
+      methodologyVersion: draft.methodologyVersion,
+      methods,
+    });
+  }
+
+  /** Fetch LLM suggestions in the background after checks complete. */
+  async function fetchLlmSuggestions(
+    checkResults: EvidenceCheckResult[],
+    evidenceSpans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
+  ): Promise<void> {
+    const suggestionPromises = checkResults.map(async (r) => {
+      const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
+      return { checkId: r.checkId, candidates };
+    });
+
+    const suggestionResults = await Promise.all(suggestionPromises);
+    const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
+    for (const sr of suggestionResults) {
+      if (sr.candidates.length > 0) {
+        suggestionsMap[sr.checkId] = sr.candidates;
+      }
+    }
+    setLlmSuggestions(suggestionsMap);
   }
 
   async function handleTryDemoCheck() {
@@ -2285,6 +2463,15 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             {fieldErrors.evidence ? <div className="mt-3 text-sm text-rose-700">{fieldErrors.evidence}</div> : null}
           </div>
 
+          {/* ── Dev-only: Fixture Replay overlay ─────────────────────── */}
+          {process.env.NODE_ENV !== "production" && extractionPreviewView ? (
+            <FixtureReplayOverlay
+              contract={fixtureContract ?? null}
+              preview={extractionPreviewView}
+              fileName={selectedEvidenceLabel}
+            />
+          ) : null}
+
           {/* ── Evidence Checks ─────────────────────────────────────── */}
           {selectedEvidenceSources.length > 0 && !submitting ? (
             <div className="rounded-[1.6rem] border border-emerald-200 bg-emerald-50/60 p-5">
@@ -2394,6 +2581,32 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           >
                             Export correction
                           </button>
+                          {llmSuggestions[result.checkId]?.length > 0 ? (
+                            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3">
+                              <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-500">
+                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z" />
+                                </svg>
+                                LLM suggestion
+                              </div>
+                              {llmSuggestions[result.checkId]!.map((suggestion, si) => (
+                                <div key={si} className="mt-1 text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-indigo-900">{suggestion.value}</span>
+                                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
+                                      suggestion.confidence === "high"
+                                        ? "bg-emerald-100 text-emerald-600"
+                                        : suggestion.confidence === "medium"
+                                          ? "bg-amber-100 text-amber-600"
+                                          : "bg-slate-100 text-slate-500"
+                                    }`}>{suggestion.confidence}</span>
+                                  </div>
+                                  <div className="mt-0.5 italic text-indigo-600/70">&ldquo;{suggestion.quote.slice(0, 200)}{suggestion.quote.length > 200 ? "\u2026" : ""}&rdquo;</div>
+                                  {suggestion.page != null ? <div className="mt-0.5 text-[10px] text-indigo-400/70">p.{suggestion.page}</div> : null}
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
                       </details>
                     );

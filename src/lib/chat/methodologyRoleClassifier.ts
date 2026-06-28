@@ -56,6 +56,22 @@ const BACKGROUND_NEGATIVE_PATTERNS = [
   /\bannex\b/i,
 ];
 
+const JOINT_ASSESSMENT_PATTERNS = [
+  /\bjoint\s+assessment\b/i,
+  /\bauditor\s+qualifications?\b/i,
+  /\bwork\s+carried\s+out\s+by\b/i,
+  /\btechnical\s+expert\b/i,
+  /\btechnical\s+reviewer\b/i,
+];
+
+const CCB_FAMILY_PATTERNS = [
+  /\bccba\s+(?:project\s+)?validation\s+report\b/i,
+  /\bclimate,\s*community\s*and\s*biodiversity\s+(?:project\s+)?design\s+standards?\b/i,
+  /\bccb\s+(?:standards?\s+)?second\s+edition\b/i,
+  /\bccb[- ]?validation\s+conclusion\b/i,
+  /\bgold\s+level\b.*\bccb\b/i,
+];
+
 const CALCULATION_CONTEXT_PATTERNS = [
   /calculated using/i,
   /as per methodology/i,
@@ -266,6 +282,22 @@ function dedupeEntries(entries: MethodologyEntry[]): MethodologyEntry[] {
   return Array.from(seen.values());
 }
 
+function detectDocumentFamily(rawText: string): string | null {
+  if (!rawText?.trim()) return null;
+  const header = rawText.slice(0, 2000).toLowerCase();
+  let ccbScore = 0;
+  for (const pattern of CCB_FAMILY_PATTERNS) {
+    if (pattern.test(header)) ccbScore += 1;
+  }
+  return ccbScore > 0 ? "CCBA/CCB" : null;
+}
+
+function isJointAssessmentContext(lines: string[], lineIndex: number): boolean {
+  const windowLines = getLineWindow(lines, lineIndex, LINE_WINDOW);
+  const windowText = windowLines.join("\n");
+  return JOINT_ASSESSMENT_PATTERNS.some((p) => p.test(windowText));
+}
+
 export function classifyMethodologyRoles(rawText: string): MethodologyClassification {
   if (!rawText?.trim()) {
     return { primaryMethodology: null, monitoringMethodology: null, referencedMethods: [] };
@@ -293,6 +325,7 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
   const uniqueMatches = Array.from(seen.values());
 
   const entries: MethodologyEntry[] = [];
+  const documentFamily = detectDocumentFamily(rawText);
   for (const match of uniqueMatches) {
     const version = extractNearbyVersion(lines, match.lineIndex);
     const sectionTitles = extractSectionTitles(lines, match.lineIndex);
@@ -303,13 +336,23 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
       sectionTitles,
     );
 
+    // CCBA/CCB document family override: VM methods in joint-assessment context
+    // are supporting carbon-accounting references, not primary methodology
+    let effectiveRole = role;
+    let effectiveReason = reason;
+    const isVMMethod = /^VM\d{4}$/i.test(match.code);
+    if (documentFamily === "CCBA/CCB" && isVMMethod && isJointAssessmentContext(lines, match.lineIndex)) {
+      effectiveRole = "REFERENCED_CALCULATION_METHOD";
+      effectiveReason = "VM method in CCBA/CCB joint-assessment context — supporting reference, not primary";
+    }
+
     entries.push({
       id: match.code,
       version,
-      role,
+      role: effectiveRole,
       confidence,
       evidenceSection,
-      reason,
+      reason: effectiveReason,
     });
   }
 

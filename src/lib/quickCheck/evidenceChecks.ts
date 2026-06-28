@@ -10,6 +10,27 @@ import type { SectionTableIndex } from "@/lib/quickCheck/indexing";
 import { findBestTopicMatch, type SectionTopic } from "@/lib/quickCheck/indexing";
 import type { QueryIntentAnalysis } from "@/lib/quickCheck/queryIntent";
 
+/** Recognized country names used for registry-reference disambiguation.
+ *  A registry text must contain one of these to be accepted as host country.
+ *  This is intentionally conservative — countries only from real PDDs we process.
+ *  When a registry reference contains an unrecognized country name, the candidate
+ *  is rejected, but the country can still be found through other search paths
+ *  (fact contract, section body, etc.). */
+const REGISTRY_COUNTRY_NAMES = new Set([
+  "Guinea", "Guinea-Bissau", "Guinea Bissau", "Indonesia", "Cambodia",
+  "Peru", "Brazil", "Colombia", "Kenya", "Uganda", "Tanzania",
+  "Ethiopia", "Ghana", "Nigeria", "DRC", "Congo", "Nepal", "India",
+  "China", "Vietnam", "Myanmar", "Laos", "Thailand", "Philippines",
+  "Papua", "Fiji",
+]);
+
+function containsRegistryCountry(text: string): boolean {
+  const lower = text.toLowerCase();
+  return Array.from(REGISTRY_COUNTRY_NAMES).some((name) =>
+    new RegExp(`\\b${name.replace(/[- ]/g, "[- ]")}\\b`, "i").test(lower),
+  );
+}
+
 export type EvidenceCheckId =
   | "project_activity" | "host_country" | "project_location" | "methodology"
   | "crediting_period" | "monitoring_period" | "baseline_scenario"
@@ -172,7 +193,7 @@ function normalizeInlineWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-const METHODOLOGY_CODE_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\d{4}|GS-VER\d+)\b/i;
+const METHODOLOGY_CODE_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+)\b/i;
 
 function stripCommonLeadIn(value: string): string {
   return normalizeInlineWhitespace(
@@ -500,7 +521,6 @@ function buildMethodologyCandidates(contract: EvidenceCheckContract, ctx: CheckV
     .map((span, index, allSpans) => ({ span, index, previous: index > 0 ? allSpans[index - 1] : undefined }))
     .filter(({ span }) => span.reliability !== "excluded")
     .filter(({ span }) => ["paragraph", "field", "title", "formula"].includes(span.blockType))
-    .filter(({ span }) => (span.page ?? 1) <= 3)
     .filter(({ span }) => !span.layout?.repeatedHeaderFooter)
     .filter(({ span }) => !["toc", "header", "footer", "annex"].includes(span.blockType))
     .filter(({ span, previous }) => {
@@ -933,8 +953,61 @@ function validateCandidate(contract: EvidenceCheckContract, candidate: CheckCand
   }
   if (contract.expectedShape === "country") {
     if (wc > 5) return { valid: false, reason: "Too many words for a country name" };
-    if (/:|;|\(|\)/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
+    if (/[():;]/.test(candidate.text)) return { valid: false, reason: "Contains punctuation (not a country name)" };
     if (/\b(?:standard|methodology|version|requirements?|project)\b/i.test(candidate.text)) return { valid: false, reason: "Contains standard/methodology text, not a country name" };
+    // Reject obviously non-country values like "ha", "tCO2", "tCO2e", numbers, units
+    if (/^[a-z]{1,3}$/i.test(candidate.text.trim()) && !/^[A-Z][a-z]/.test(candidate.text.trim())) return { valid: false, reason: "Too short to be a country name" };
+    if (/^\d/.test(candidate.text.trim())) return { valid: false, reason: "Starts with a number — not a country name" };
+    if (/\b(?:tCO2|tCO2e|ha|hectare|tonne|kg|m[32]|km2)\b/i.test(candidate.text)) return { valid: false, reason: "Contains unit/measurement, not a country name" };
+    // Reject URLs, query strings, registry profile links, and VVB/buyer/developer addresses
+    if (/https?:\/\//i.test(candidate.text)) return { valid: false, reason: "Contains URL — not a country name" };
+    if (/\?[a-z]+=/i.test(candidate.text)) return { valid: false, reason: "Contains query string — not a country name" };
+    if (/profile\?/i.test(candidate.text)) return { valid: false, reason: "Contains profile reference — not a country name" };
+    if (/\b(?:VVB|validator|verifier|developer|project proponent|buyer)\b/i.test(candidate.text)) return { valid: false, reason: "References registry participant — not a country name" };
+    // Reject generic registry/address text that doesn't name a country
+    if (/\b(?:registry|register)\b/i.test(candidate.text) && !containsRegistryCountry(candidate.text)) return { valid: false, reason: "Registry reference without recognized country name" };
+    // Reject URL path fragments used as country references (e.g. "information/zimbabwe/en/")
+    if (/\/[a-z]+\/[a-z]+\//.test(candidate.text)) return { valid: false, reason: "Contains URL path fragment — not a country name" };
+  }
+  if (contract.expectedShape === "methodology_name_version") {
+    // Reject generic project-description header text (e.g. "PROJECT DESCRIPTION:
+    // VCS Version 3...") that should not return FOUND for methodology.
+    if (/^project description:\s*vcs\s+version/i.test(candidate.text.trim())) {
+      return { valid: false, reason: "Project description header — not evidence of applied methodology" };
+    }
+    // Must contain an explicit primary methodology code (VM####, ACM####, etc.)
+    // VMD/tool/module-only codes are NOT primary methodologies.
+    const hasPrimaryCode = /\b(?:VM\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM\w+|AR-AMS\w*|GS-VER\d+|VT\d{4})\b/i.test(candidate.text);
+    const hasVmdCode = /\bVMD\d{4}\b/i.test(candidate.text);
+    if (!hasPrimaryCode && !hasVmdCode) return { valid: false, reason: "No explicit methodology code found — generic methodology prose rejected" };
+    // Reject VMD/tool/module-only evidence: a VMD code without a primary
+    // methodology code nearby is not proof the project applies a methodology.
+    if (hasVmdCode && !hasPrimaryCode) {
+      return { valid: false, reason: "VMD/tool/module code only — not evidence of applied primary methodology" };
+    }
+    // Reject if the candidate is primarily about modules or tools rather than
+    // the methodology itself (e.g. "VMD0001 module describes..." without a
+    // higher-level methodology code).
+    if (/^(?:the\s+)?(?:module|vmd)\s+\d+|the\s+(?:module|tool)/i.test(candidate.text.trimStart()) && !hasPrimaryCode) {
+      return { valid: false, reason: "Module/tool description — not evidence of applied primary methodology" };
+    }
+    // Reject if the code appears only in a "modules and tools" list or boilerplate
+    // without any evidence the project actually applies it.
+    // Allow passages that explicitly say the project applies the methodology
+    // even when they also mention modules/tools (e.g. "applies VM0007 with
+    // applicable modules and tools").
+    const isModulesBoilerplate = /\bmodules? and tools?\b/i.test(candidate.text)
+      && !/\b(?:applied methodology|applied|name and reference|title and reference|project applies|project uses)\b/i.test(candidate.text);
+    if (isModulesBoilerplate) {
+      return { valid: false, reason: "Methodology code appears in module/tool boilerplate — not proven as applied" };
+    }
+    // Reject methodology preamble/instructions that describe the methodology
+    // rather than stating it was applied to this project.
+    if (/^(?:The |This )?methodology (?:provides|describes|is applicable|applies to|establishes|determines|sets out|contains)/i.test(candidate.text)) {
+      return { valid: false, reason: "Describes methodology instructions — not evidence of applied methodology" };
+    }
+    // Accept when the code appears in a title/reference section or fact contract
+    if (candidate.source.startsWith("fact:") && (hasPrimaryCode || hasVmdCode)) return { valid: true, reason: "" };
   }
   return { valid: true, reason: "" };
 }

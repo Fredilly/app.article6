@@ -113,14 +113,14 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
     "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf",
   );
 
-  it("storePdfRef + resolvePdfRef round-trips", () => {
+  it("storePdfRef + resolvePdfRef round-trips", async () => {
     if (!existsSync(FIXTURE)) return;
 
     const token = storePdfRef(FIXTURE);
     expect(typeof token).toBe("string");
     expect(token.startsWith("pdf:")).toBe(true);
 
-    const resolved = resolvePdfRef(token);
+    const resolved = await resolvePdfRef(token);
     expect(resolved).toBe(FIXTURE);
   });
 
@@ -160,7 +160,7 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
 
     // Store with a short-lived token, then manually delete it to simulate expiry
     const token = storePdfRef(FIXTURE);
-    expect(resolvePdfRef(token)).toBe(FIXTURE);
+    expect(await resolvePdfRef(token)).toBe(FIXTURE);
 
     // Use a non-existent token to simulate expiry
     const ctx = await resolveStructuredQueryContext(

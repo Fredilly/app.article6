@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
 Frozen lanes: agentic-verification.
 
 
@@ -185,6 +185,26 @@ Make Quick Check improve from real PDD/document failures through controlled gold
 Status SSOT: `docs/roadmaps/quickcheck-parser-replacement/phase-status.json`
 Details: `docs/roadmaps/quickcheck-parser-replacement/PLAN.md`
 
+
+## quickcheck-v2
+
+Status SSOT: `docs/roadmaps/quickcheck-v2/phase-status.json`
+Details: `docs/roadmaps/quickcheck-v2/PLAN.md`
+
+Lane status: Active
+Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.
+
+Current focus:
+- Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority.
+
+1) RC0 — Roadmap and SSOT boundary: Done — PLAN.md + phase-status.json exist at correct SSOT path. Delivered by PR #847. No production code changed.
+2) RC1 — Envira ingestion only — canonical extracted JSON: Done — Ingestion pipeline at src/lib/quickCheckV2/ingestion/ creates deterministic canonical JSON from Envira (PR #846). 10 key strings with correct page/span/section provenance. Heading detection handles mixed-case + dotted patterns. No answers. No scoring. No Blob.
+3) RC2 — Section tree and evidence spans: Done — Section tree from canonical JSON + evidence span index. Direct body under exact heading only. Each of six checks returns best evidence span with quote/page/section/spanId. Delivered by PR #852. No answers. No status. No scoring. No LLM.
+4) RC3 — Evidence retrieval for six structured checks: Next — Fixed source priority: fact contract → exact section → raw text fallback. No router candidates. No scoring.
+5) RC4 — Tiny answer extractors: Planned — Check-specific extractors. Answers from selected evidence only. No LLM finals.
+6) RC5 — Boring deterministic status validator: Planned — FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank.
+7) RC6 — Gold Envira fixture: Planned — Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject.
+8) RC7 — Add PDFs slowly by new failure mode only: Planned — Each new PDF introduces a failure mode Envira does not cover. One PDF per PR.
 
 ## requirement-coverage
 
