@@ -2,7 +2,7 @@
 
 > Status is sourced from `docs/roadmaps/quickcheck-v2/phase-status.json`; docs must not drift.
 >
-> Status: Planning — v2 path not yet started.
+> Status: Phase 0 done (PR #847). Next: Phase 1 — Envira ingestion (PR #846).
 > v1 is frozen for critical fixes only.
 > PR #839 is parked/superseded.
 
