@@ -143,9 +143,9 @@ Lane status: Active
 Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.
 
 Current focus:
-- Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority.
+- Phase 3 done + Phase 4 done (PR #857). Next: Phase 5 — Status validator.
 
-1) PR857: Done
+1) PR857: Done (Phase 3 evidence retrieval + Phase 4 answer extractors)
 
 ## project-verification
 

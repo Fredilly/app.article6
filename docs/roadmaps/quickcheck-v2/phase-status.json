@@ -1,11 +1,10 @@
 {
-  "PR857": "done",
   "name": "Quick Check v2: Stable Ingestion First",
   "phase_meta": {
     "status": "active",
     "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
     "current_focus": [
-      "Phase 2 done (PR #852). Next: Phase 3 — Evidence retrieval with source priority."
+      "Phase 3 done + Phase 4 done (PR #857). Next: Phase 5 — Status validator."
     ],
     "not_active_now": [],
     "last_updated_at": "2026-06-28T00:00:00Z",
@@ -62,11 +61,12 @@
       {
         "id": "phase_3_evidence_retrieval",
         "title": "Evidence retrieval for six structured checks",
-        "status": "next",
+        "status": "done",
         "dependsOn": [
           "phase_2_section_tree"
         ],
-        "branch": "",
+        "branch": "v2/answer-extractors",
+        "pr": 857,
         "doneCriteria": [
           "fixed source priority: fact contract → exact section → raw text fallback",
           "no router candidates for structured checks",
@@ -77,11 +77,12 @@
       {
         "id": "phase_4_answer_extractors",
         "title": "Tiny answer extractors",
-        "status": "planned",
+        "status": "done",
         "dependsOn": [
           "phase_3_evidence_retrieval"
         ],
-        "branch": "",
+        "branch": "v2/answer-extractors",
+        "pr": 857,
         "doneCriteria": [
           "each of six checks has a small, check-specific extractor",
           "answers come from selected evidence only",
@@ -92,7 +93,7 @@
       {
         "id": "phase_5_status_validator",
         "title": "Boring deterministic status validator",
-        "status": "planned",
+        "status": "next",
         "dependsOn": [
           "phase_4_answer_extractors"
         ],
@@ -163,7 +164,7 @@
     },
     "phase_5_status_validator": {
       "title": "Boring deterministic status validator",
-      "status": "planned",
+      "status": "next",
       "summary": "FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank."
     },
     "phase_6_gold_envira": {
@@ -186,6 +187,9 @@
     },
     "852": {
       "title": "feat: Quick Check v2 Phase 2 — section tree and evidence span index"
+    },
+    "857": {
+      "title": "fix: Quick Check v2 Phase 3 + Phase 4 only — evidence retrieval + answer extractors"
     }
   },
   "pr_notes": {
