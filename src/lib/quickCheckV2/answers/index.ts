@@ -19,13 +19,13 @@
 
 import {
   STRUCTURED_CHECK_IDS,
+  type QuickCheckV2ExtractedDocument,
   retrieveEvidenceForAllChecks,
   retrieveEvidenceForCheck,
   type RetrievedCheckEvidence,
   type RetrievedEvidence,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
-import type { QuickCheckV2ExtractedDocument } from "@/lib/quickCheckV2/ingestion";
 
 export type AnswerResult = {
   checkName: StructuredCheckId;

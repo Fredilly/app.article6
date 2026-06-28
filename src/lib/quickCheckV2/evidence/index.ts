@@ -1,6 +1,10 @@
 /**
  * Quick Check v2 — Phase 3 evidence retrieval with fixed source priority.
  *
+ * Scope note:
+ * This module is intentionally self-contained so Phase 3/4 can ship without
+ * pulling in wider Quick Check v2 ingestion or section-tree work.
+ *
  * Priority:
  * 1. fact contract
  * 2. exact section evidence
@@ -14,14 +18,48 @@
  * - No LLM
  */
 
-import type { QuickCheckV2Block, QuickCheckV2ExtractedDocument } from "@/lib/quickCheckV2/ingestion";
-import {
-  CHECK_SECTION_MAPPINGS,
-  buildSectionTree,
-  findSectionsByHeadingText,
-  type EvidenceSpan,
-  type SectionTreeNode,
-} from "@/lib/quickCheckV2/section-tree";
+import fs from "node:fs";
+import path from "node:path";
+
+export type QuickCheckV2Block = {
+  spanId: string;
+  page: number;
+  text: string;
+  blockType:
+    | "heading"
+    | "body"
+    | "table"
+    | "footer"
+    | "header"
+    | "unknown";
+  sectionHeading: string | null;
+  sectionPath: string[];
+  source: "primary" | "fallback";
+};
+
+export type QuickCheckV2ExtractedDocument = {
+  documentId: string;
+  parser: string;
+  blocks: QuickCheckV2Block[];
+  diagnostics: {
+    pageCount?: number;
+    warnings: string[];
+  };
+};
+
+export type EvidenceSpan = {
+  quote: string;
+  page: number;
+  sectionHeading: string | null;
+  sectionPath: string[];
+  spanId: string;
+};
+
+type SectionTreeNode = {
+  heading: QuickCheckV2Block;
+  directBodyBlocks: QuickCheckV2Block[];
+  children: SectionTreeNode[];
+};
 
 export const STRUCTURED_CHECK_IDS = [
   "host_country",
@@ -54,6 +92,38 @@ type FactContractDefinition = {
 
 type RawFallbackDefinition = {
   match(block: QuickCheckV2Block): boolean;
+};
+
+const CHECK_SECTION_MAPPINGS: Record<
+  StructuredCheckId,
+  {
+    searchTexts: string[];
+    fallbackSearchTexts?: string[];
+    excludeTexts?: string[];
+  }
+> = {
+  host_country: {
+    searchTexts: ["Project Location"],
+    fallbackSearchTexts: ["PROJECT DETAILS"],
+  },
+  methodology: {
+    searchTexts: ["Title and Reference of Methodology"],
+    fallbackSearchTexts: ["APPLICATION OF METHODOLOGY"],
+  },
+  baseline_scenario: {
+    searchTexts: ["Baseline Scenario"],
+  },
+  additionality: {
+    searchTexts: ["Additionality"],
+  },
+  leakage: {
+    searchTexts: ["Leakage"],
+    excludeTexts: ["Baseline, Project and Leakage"],
+  },
+  stakeholder_consultation: {
+    searchTexts: ["STAKEHOLDER COMMENTS", "Stakeholder Comments"],
+    fallbackSearchTexts: ["stakeholder"],
+  },
 };
 
 const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>> = {
@@ -154,6 +224,328 @@ function toEvidence(
     sectionPath: block.sectionPath,
     spanId: block.spanId,
   };
+}
+
+function fnv1a(value: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function buildSpanId(
+  documentId: string,
+  page: number,
+  blockIndex: number,
+  text: string,
+): string {
+  const normalized = text.toLowerCase().replace(/\s+/g, " ").trim();
+  const hash = fnv1a(`${documentId}:p${page}:b${blockIndex}:${normalized}`);
+  return `${documentId}:p${page}:b${blockIndex}:${hash}`;
+}
+
+const VCS_PAGE_MARKER_RE = /^v\d+(?:\.\d+)+\s+(\d+)$/;
+const PAGE_MARKER_RE = /^(?:page\s+(\d+)(?:\s+of\s+\d+)?|(\d+)\s+of\s+\d+)$/i;
+
+function isPageMarkerLine(
+  line: string,
+): { isMarker: true; pageNumber: number } | { isMarker: false } {
+  const trimmed = line.trim();
+
+  const vcsMatch = trimmed.match(VCS_PAGE_MARKER_RE);
+  if (vcsMatch) {
+    return { isMarker: true, pageNumber: parseInt(vcsMatch[1]!, 10) };
+  }
+
+  const pageMatch = trimmed.match(PAGE_MARKER_RE);
+  if (pageMatch) {
+    const pageNumber = parseInt(pageMatch[1] ?? pageMatch[2]!, 10);
+    if (pageNumber > 0) {
+      return { isMarker: true, pageNumber };
+    }
+  }
+
+  return { isMarker: false };
+}
+
+const SECTION_HEADING_RE =
+  /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\s+[.:]?\s*(.+?)\s*$/i;
+const TOP_LEVEL_HEADING_RE = /^\s*(\d+)\.?\s+([A-Za-z][\w\s/&-]+)\s*$/;
+const ANNEX_HEADING_RE = /^\s*(annex|appendix)\s+([A-Z0-9]+)\s*[.:]?\s*(.*)$/i;
+
+function detectSectionHeading(
+  line: string,
+): { isHeading: true; sectionNumber: string; title: string } | { isHeading: false } {
+  const trimmed = line.trim();
+
+  const annexMatch = trimmed.match(ANNEX_HEADING_RE);
+  if (annexMatch) {
+    const sectionNumber =
+      `${annexMatch[1]!.toLowerCase()}-${annexMatch[2]!.toLowerCase()}`;
+    const title = annexMatch[3]?.trim() || `${annexMatch[1]} ${annexMatch[2]}`;
+    return { isHeading: true, sectionNumber, title };
+  }
+
+  const headingMatch = trimmed.match(SECTION_HEADING_RE);
+  if (headingMatch) {
+    return {
+      isHeading: true,
+      sectionNumber: headingMatch[1]!,
+      title: headingMatch[2]!.trim(),
+    };
+  }
+
+  const topLevelMatch = trimmed.match(TOP_LEVEL_HEADING_RE);
+  if (topLevelMatch) {
+    const title = topLevelMatch[2]!.trim();
+    if (/\b\d{4}\b/.test(title)) {
+      return { isHeading: false };
+    }
+    return {
+      isHeading: true,
+      sectionNumber: topLevelMatch[1]!,
+      title,
+    };
+  }
+
+  return { isHeading: false };
+}
+
+function buildSectionPath(sectionNumber: string): string[] {
+  if (sectionNumber.startsWith("annex-") || sectionNumber.startsWith("appendix-")) {
+    return [sectionNumber];
+  }
+  const parts = sectionNumber.split(".");
+  return parts.map((_, index) => parts.slice(0, index + 1).join("."));
+}
+
+function isTableLine(line: string): boolean {
+  const trimmed = line.trim();
+  return /\|/.test(trimmed) || /\S(?:\s{3,}|\t)\S/.test(trimmed);
+}
+
+function detectBlockType(
+  line: string,
+  isFirstContentLine: boolean,
+  isRepeatedHeader: boolean,
+  isRepeatedFooter: boolean,
+): QuickCheckV2Block["blockType"] {
+  const trimmed = line.trim();
+  if (!trimmed) return "unknown";
+  if (isRepeatedHeader) return "header";
+  if (isRepeatedFooter) return "footer";
+  if (isTableLine(trimmed)) return "table";
+  if (detectSectionHeading(trimmed).isHeading) return "heading";
+  if (isFirstContentLine && trimmed.length <= 180) return "heading";
+  return "body";
+}
+
+type PageEdgeLines = {
+  headers: Set<string>;
+  footers: Set<string>;
+};
+
+function collectRepeatedPageEdges(pages: Array<{ lines: string[] }>): PageEdgeLines {
+  const headerCounts = new Map<string, number>();
+  const footerCounts = new Map<string, number>();
+
+  for (const page of pages) {
+    const nonEmptyLines = page.lines.map((line) => line.trim()).filter(Boolean);
+    const first = nonEmptyLines[0];
+    const last = nonEmptyLines[nonEmptyLines.length - 1];
+
+    if (first && !isPageMarkerLine(first).isMarker) {
+      headerCounts.set(first, (headerCounts.get(first) ?? 0) + 1);
+    }
+    if (last && !isPageMarkerLine(last).isMarker) {
+      footerCounts.set(last, (footerCounts.get(last) ?? 0) + 1);
+    }
+  }
+
+  return {
+    headers: new Set(
+      Array.from(headerCounts.entries())
+        .filter(([, count]) => count >= 2)
+        .map(([text]) => text),
+    ),
+    footers: new Set(
+      Array.from(footerCounts.entries())
+        .filter(([, count]) => count >= 2)
+        .map(([text]) => text),
+    ),
+  };
+}
+
+export function parseExtractedText(
+  rawText: string,
+  documentId: string,
+  parser: string,
+): QuickCheckV2ExtractedDocument {
+  const lines = rawText.split("\n");
+  const pageMarkers: Array<{ pageNumber: number; startLine: number; endLine: number }> = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const marker = isPageMarkerLine(lines[index]!);
+    if (marker.isMarker) {
+      pageMarkers.push({
+        pageNumber: marker.pageNumber,
+        startLine: index + 1,
+        endLine: lines.length,
+      });
+    }
+  }
+
+  for (let index = 0; index < pageMarkers.length; index += 1) {
+    const next = pageMarkers[index + 1];
+    pageMarkers[index]!.endLine = next ? next.startLine - 1 : lines.length;
+  }
+
+  if (pageMarkers.length === 0) {
+    pageMarkers.push({ pageNumber: 1, startLine: 0, endLine: lines.length });
+  }
+
+  const pageSlices = pageMarkers.map((marker) => ({
+    pageNumber: marker.pageNumber,
+    lines: lines.slice(marker.startLine, marker.endLine),
+  }));
+  const repeatedEdges = collectRepeatedPageEdges(pageSlices);
+
+  const blocks: QuickCheckV2Block[] = [];
+  const warnings: string[] = [];
+  let globalBlockIndex = 0;
+  let currentSectionTitle: string | null = null;
+  let currentSectionPath: string[] = [];
+  let hasSeenPrimaryContent = false;
+
+  for (const page of pageSlices) {
+    for (const line of page.lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (isPageMarkerLine(trimmed).isMarker) continue;
+
+      const blockType = detectBlockType(
+        trimmed,
+        !hasSeenPrimaryContent,
+        repeatedEdges.headers.has(trimmed),
+        repeatedEdges.footers.has(trimmed),
+      );
+      const heading = detectSectionHeading(trimmed);
+      if (heading.isHeading) {
+        currentSectionTitle = heading.title;
+        currentSectionPath = buildSectionPath(heading.sectionNumber);
+      }
+
+      if (blockType !== "header" && blockType !== "footer") {
+        hasSeenPrimaryContent = true;
+      }
+
+      blocks.push({
+        spanId: buildSpanId(documentId, page.pageNumber, globalBlockIndex, trimmed),
+        page: page.pageNumber,
+        text: trimmed,
+        blockType,
+        sectionHeading: currentSectionTitle,
+        sectionPath: [...currentSectionPath],
+        source: "primary",
+      });
+      globalBlockIndex += 1;
+    }
+  }
+
+  const pageCount = new Set(blocks.map((block) => block.page)).size;
+  if (pageCount <= 1 && pageMarkers.length > 1) {
+    warnings.push(
+      `Only ${pageCount} unique page(s) detected from ${pageMarkers.length} markers. Page provenance may be incomplete.`,
+    );
+  }
+
+  return {
+    documentId,
+    parser,
+    blocks,
+    diagnostics: {
+      pageCount,
+      warnings,
+    },
+  };
+}
+
+export function loadAndParseExtractedText(
+  filePath: string,
+  documentId?: string,
+  parser?: string,
+): QuickCheckV2ExtractedDocument {
+  const resolvedPath = path.resolve(filePath);
+  const rawText = fs.readFileSync(resolvedPath, "utf-8");
+  return parseExtractedText(
+    rawText,
+    documentId ?? path.basename(filePath, path.extname(filePath)),
+    parser ?? "extracted-text",
+  );
+}
+
+function buildSectionTree(document: QuickCheckV2ExtractedDocument): SectionTreeNode[] {
+  const rootNodes: SectionTreeNode[] = [];
+  const stack: SectionTreeNode[] = [];
+
+  for (const block of document.blocks) {
+    if (block.blockType === "heading") {
+      const node: SectionTreeNode = {
+        heading: block,
+        directBodyBlocks: [],
+        children: [],
+      };
+      const depth = block.sectionPath.length || 1;
+      while (stack.length >= depth) {
+        stack.pop();
+      }
+      if (stack.length > 0) {
+        stack[stack.length - 1]!.children.push(node);
+      } else {
+        rootNodes.push(node);
+      }
+      stack.push(node);
+      continue;
+    }
+
+    if ((block.blockType === "body" || block.blockType === "table") && stack.length > 0) {
+      stack[stack.length - 1]!.directBodyBlocks.push(block);
+    }
+  }
+
+  return rootNodes;
+}
+
+function findSectionsByHeadingText(
+  tree: SectionTreeNode[],
+  searchTexts: string[],
+  maxResults: number,
+  excludeTexts?: string[],
+): SectionTreeNode[] {
+  const results: SectionTreeNode[] = [];
+
+  function walk(nodes: SectionTreeNode[]): void {
+    for (const node of nodes) {
+      const headingText = node.heading.text.toLowerCase();
+      const matches = searchTexts.some((text) => headingText.includes(text.toLowerCase()));
+      const excluded =
+        excludeTexts?.some((text) => headingText.includes(text.toLowerCase())) ?? false;
+
+      if (matches && !excluded) {
+        results.push(node);
+        if (results.length >= maxResults) return;
+      }
+
+      if (results.length < maxResults) {
+        walk(node.children);
+      }
+    }
+  }
+
+  walk(tree);
+  return results;
 }
 
 function getBestExactSectionBlock(

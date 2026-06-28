@@ -1,9 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
-import type { QuickCheckV2ExtractedDocument } from "@/lib/quickCheckV2/ingestion";
-import { loadAndParseExtractedText } from "@/lib/quickCheckV2/ingestion";
 import {
+  loadAndParseExtractedText,
   retrieveEvidenceForAllChecks,
   retrieveEvidenceForCheck,
+  type QuickCheckV2ExtractedDocument,
   type RetrievedCheckEvidence,
 } from "@/lib/quickCheckV2/evidence";
 

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
 import { extractAnswerFromEvidence, extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
-import type { RetrievedCheckEvidence, RetrievedEvidence } from "@/lib/quickCheckV2/evidence";
-import { retrieveEvidenceForAllChecks } from "@/lib/quickCheckV2/evidence";
-import { loadAndParseExtractedText } from "@/lib/quickCheckV2/ingestion";
+import {
+  loadAndParseExtractedText,
+  retrieveEvidenceForAllChecks,
+  type RetrievedCheckEvidence,
+  type RetrievedEvidence,
+} from "@/lib/quickCheckV2/evidence";
 
 const ENVIRA_FIXTURE_PATH =
   "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
