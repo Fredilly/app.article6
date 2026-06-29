@@ -154,7 +154,6 @@ describe("RuleDetailModal", () => {
     expect(html).toContain("Section 10 · Monitoring");
     expect(html).toContain("p. 12");
     expect(html).toContain("Anchor S-10");
-    expect(html).toContain("operational");
     expect(html).toContain("Tools UNFCCC/TOOL-1");
     expect(html).toContain("Reconciliation");
     expect(html).toContain("Partial");

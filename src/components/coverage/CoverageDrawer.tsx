@@ -153,9 +153,6 @@ export default function CoverageDrawer({
                             {meta.humanTitle}
                           </span>
                         </div>
-                        {meta.sectionTitle ? (
-                          <div className="mt-0.5 text-xs text-slate-500 truncate">{meta.sectionTitle}</div>
-                        ) : null}
                         <div className="mt-0.5 font-mono text-[11px] text-slate-400 truncate">{meta.stableId}</div>
                       </div>
                       <div className="flex items-center gap-2">

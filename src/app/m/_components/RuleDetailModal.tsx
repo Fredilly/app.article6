@@ -364,7 +364,6 @@ export default function RuleDetailModal({
     row.provenance.sectionId ??
     row.provenance.citations.find((citation) => citation.sectionId)?.sectionId ??
     null;
-  const categoryLabel = row.ruleSummary.type?.trim() || null;
   const provenanceTools = row.provenance.tools ?? [];
   const renderedWhen = ruleWhen?.length ? ruleWhen : row.ruleSummary.when;
   const displayRuleId = shortRuleId(row.ruleId) ?? shortRuleId(canonicalRuleId) ?? row.ruleId;
@@ -435,9 +434,6 @@ export default function RuleDetailModal({
             <div className="mt-2 text-sm text-slate-600">
               {methodologyLabel?.trim() || sourcePath?.trim() || "Methodology rule detail"}
             </div>
-            {canonicalRuleId?.trim() && canonicalRuleId.trim() !== row.ruleId ? (
-              <div className="mt-2 font-mono text-[11px] text-slate-400">{canonicalRuleId.trim()}</div>
-            ) : null}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${reviewTone}`}>
                 {statusLabel(reviewStatus)}
@@ -445,11 +441,6 @@ export default function RuleDetailModal({
               <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${status.tone}`}>
                 {status.label}
               </span>
-              {categoryLabel ? (
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold capitalize text-slate-700">
-                  {categoryLabel}
-                </span>
-              ) : null}
             </div>
             <div className="mt-2 text-sm text-slate-600">{reviewSummary}</div>
           </div>
