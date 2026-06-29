@@ -389,4 +389,59 @@ describe('verification report composition', () => {
     expect(text).toContain('13 closed findings, 4 open findings, and 0 findings still marked in review');
     expect(text).toContain('CAR: 7. CL: 6. FAR: 4.');
   });
+
+  it('renders Quantification for VM0007 S-5 review findings (not Permanence)', () => {
+    const project = makeProject({
+      methodCode: 'VM0007',
+      registry: 'Verra',
+      methodCategory: 'AFOLU',
+      reviews: [{
+        ruleId: 'R-Q1',
+        ruleTitle: 'Apply VM0007 quantification methodology.',
+        sectionId: 'S-5',
+        status: 'verified',
+        evidenceIds: ['ev-1'],
+        note: 'Quantification approach documented.',
+      }],
+    });
+    const report = composeVerificationReport(project, makeCoverage({
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      percentComplete: 100,
+    }));
+
+    const s5Finding = report.findings.find((f) => f.sectionId === 'S-5');
+    expect(s5Finding).toBeDefined();
+    expect(s5Finding!.sectionTitle).toBe('Quantification');
+    expect(s5Finding!.sectionTitle).not.toBe('Permanence');
+  });
+
+  it('renders Permanence for non-VM S-5 review findings (default)', () => {
+    const project = makeProject({
+      methodCode: 'AR-ACM0003',
+      registry: 'UNFCCC',
+      reviews: [{
+        ruleId: 'R-BL',
+        ruleTitle: 'Establish baseline scenario.',
+        sectionId: 'S-5',
+        status: 'verified',
+        evidenceIds: ['ev-2'],
+        note: 'Baseline documented.',
+      }],
+    });
+    const report = composeVerificationReport(project, makeCoverage({
+      total: 1,
+      verified: 1,
+      gap: 0,
+      notStarted: 0,
+      percentComplete: 100,
+    }));
+
+    const s5Finding = report.findings.find((f) => f.sectionId === 'S-5');
+    expect(s5Finding).toBeDefined();
+    expect(s5Finding!.sectionTitle).toBe('Permanence');
+    expect(s5Finding!.sectionTitle).not.toBe('Quantification');
+  });
 });
