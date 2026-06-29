@@ -407,6 +407,7 @@ export default function MethodDetailPane({
       rules.map((rule) => ({
         id: rule.id,
         title: rule.title,
+        summary: rule.summary,
         tags: rule.tags ?? [],
         sectionTitle: sectionTitleById.get(rule.refs?.primarySection ?? rule.sectionId ?? "") ?? "",
       })),

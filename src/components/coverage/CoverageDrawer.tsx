@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { CoverageQueueRule } from "@/lib/coverage/queue";
+import { getRuleDisplayMetadata } from "@/lib/coverage/ruleDisplay";
 
 type CoverageDrawerProps = {
   open: boolean;
@@ -50,7 +51,8 @@ export default function CoverageDrawer({
     const q = query.trim().toLowerCase();
     if (!q) return activeRules;
     return activeRules.filter((rule) => {
-      const haystack = `${rule.id} ${rule.title} ${(rule.tags ?? []).join(" ")}`.toLowerCase();
+      const meta = getRuleDisplayMetadata(rule);
+      const haystack = `${meta.stableId} ${meta.humanTitle} ${meta.sectionTitle} ${(rule.tags ?? []).join(" ")}`.toLowerCase();
       return haystack.includes(q);
     });
   }, [activeRules, query]);
@@ -126,51 +128,56 @@ export default function CoverageDrawer({
             </div>
           ) : (
             <ul className="grid gap-2">
-              {filteredRules.map((rule) => (
-                <li
-                  key={rule.id}
-                  className={`rounded-xl border px-3 py-3 ${
-                    activeRuleId === rule.id ? "border-sky-200 bg-sky-50/40" : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-block h-2 w-2 shrink-0 rounded-full ${
-                            (rule.status ?? "uncovered") === "covered"
-                              ? "bg-emerald-500"
-                              : (rule.status ?? "uncovered") === "weak"
-                                ? "bg-amber-400"
-                                : "bg-slate-300"
-                          }`}
-                        />
-                        <span className="text-sm font-semibold text-slate-900 truncate">{rule.title}</span>
+              {filteredRules.map((rule) => {
+                const meta = getRuleDisplayMetadata(rule);
+                return (
+                  <li
+                    key={meta.stableId}
+                    className={`rounded-xl border px-3 py-3 ${
+                      activeRuleId === rule.id ? "border-sky-200 bg-sky-50/40" : "border-slate-200 bg-white"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-block h-2 w-2 shrink-0 rounded-full ${
+                              (rule.status ?? "uncovered") === "covered"
+                                ? "bg-emerald-500"
+                                : (rule.status ?? "uncovered") === "weak"
+                                  ? "bg-amber-400"
+                                  : "bg-slate-300"
+                            }`}
+                          />
+                          <span className="text-sm font-semibold text-slate-900 truncate">
+                            {meta.humanTitle}
+                          </span>
+                        </div>
+                        {meta.sectionTitle ? (
+                          <div className="mt-0.5 text-xs text-slate-500 truncate">{meta.sectionTitle}</div>
+                        ) : null}
+                        <div className="mt-0.5 font-mono text-[11px] text-slate-400 truncate">{meta.stableId}</div>
                       </div>
-                      {rule.sectionTitle ? (
-                        <div className="mt-0.5 text-xs text-slate-500 truncate">{rule.sectionTitle}</div>
-                      ) : null}
-                      <div className="mt-0.5 font-mono text-[11px] text-slate-400 truncate">{rule.id}</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
+                          onClick={() => onOpenRule(rule.id)}
+                        >
+                          Open
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
+                          onClick={() => handleAddTask(rule.id)}
+                        >
+                          Task
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-900"
-                        onClick={() => onOpenRule(rule.id)}
-                      >
-                        Open
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-full border border-slate-200 bg-slate-900 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-800"
-                        onClick={() => handleAddTask(rule.id)}
-                      >
-                        Task
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

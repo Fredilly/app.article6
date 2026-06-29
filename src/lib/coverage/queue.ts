@@ -3,6 +3,8 @@ export type CoverageQueueRule = {
   title: string;
   tags: string[];
   sectionTitle?: string;
+  /** Human-readable rule title (from summary in rich format) */
+  summary?: string;
   status?: "covered" | "uncovered" | "weak";
 };
 
