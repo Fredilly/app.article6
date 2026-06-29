@@ -160,4 +160,118 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.quote).toContain("baseline scenario");
     expect(result.evidence!.page).toBe(1);
   });
+
+  it("prefers a deeper subsection that explicitly carries the mapped section phrase", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p2:b1:heading",
+        page: 2,
+        text: "2.4 Baseline Scenario",
+        blockType: "heading",
+        sectionHeading: "Baseline Scenario",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b2:heading-fragment",
+        page: 2,
+        text: "2.4.1 Continuation of current land use",
+        blockType: "heading",
+        sectionHeading: "Continuation of current land use",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b3:body",
+        page: 2,
+        text: "This scenario remains legally possible but is not the selected outcome.",
+        blockType: "body",
+        sectionHeading: "Continuation of current land use",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b4:heading",
+        page: 2,
+        text: "2.4.2 Conversion to pasture",
+        blockType: "heading",
+        sectionHeading: "Conversion to pasture",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b5:body",
+        page: 2,
+        text: "The most likely baseline scenario is conversion to pasture.",
+        blockType: "body",
+        sectionHeading: "Conversion to pasture",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.sectionHeading).toBe("Conversion to pasture");
+    expect(result.evidence!.quote).toBe(
+      "The most likely baseline scenario is conversion to pasture.",
+    );
+  });
+
+  it("rejects boilerplate blocks and stitches a split sentence inside the chosen subsection", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "2.5 Additionality",
+        blockType: "heading",
+        sectionHeading: "Additionality",
+        sectionPath: ["2", "2.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:heading",
+        page: 3,
+        text: "2.5.1 Simple Cost Analysis",
+        blockType: "heading",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b3:boilerplate",
+        page: 3,
+        text: "PROJECT DESCRIPTION: VCS Version 3",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b4:body",
+        page: 3,
+        text: "As the project generates no financial benefit other than",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b5:body",
+        page: 3,
+        text: "carbon revenue, a simple cost analysis is justified.",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.spanId).toBe("synthetic-doc:p3:b4:body");
+    expect(result.evidence!.quote).toBe(
+      "As the project generates no financial benefit other than carbon revenue, a simple cost analysis is justified.",
+    );
+  });
 });

@@ -94,11 +94,6 @@ type RawFallbackDefinition = {
   match(block: QuickCheckV2Block): boolean;
 };
 
-type ExactSectionSelectionHeuristic = {
-  prefer?: RegExp[];
-  avoid?: RegExp[];
-};
-
 const CHECK_SECTION_MAPPINGS: Record<
   StructuredCheckId,
   {
@@ -128,30 +123,6 @@ const CHECK_SECTION_MAPPINGS: Record<
   stakeholder_consultation: {
     searchTexts: ["STAKEHOLDER COMMENTS", "Stakeholder Comments"],
     fallbackSearchTexts: ["stakeholder"],
-  },
-};
-
-const EXACT_SECTION_SELECTION_HEURISTICS: Partial<
-  Record<StructuredCheckId, ExactSectionSelectionHeuristic>
-> = {
-  baseline_scenario: {
-    prefer: [/\bmost likely baseline scenario\b/i, /\bconversion to pasture\b/i],
-    avoid: [/tool for the demonstration and assessment of additionality/i],
-  },
-  additionality: {
-    prefer: [
-      /\bfinancial barrier\b/i,
-      /\bimpractical in the absence of carbon finance\b/i,
-      /\bsimple cost analysis\b/i,
-      /\bdemonstrate additionality\b/i,
-    ],
-    avoid: [/tool for the demonstration and assessment of additionality/i],
-  },
-  leakage: {
-    prefer: [/\bleakage emissions\b/i, /\bactivity shifting leakage\b/i, /\bmarket leakage\b/i],
-  },
-  stakeholder_consultation: {
-    prefer: [/\bstakeholders were involved\b/i, /\bstakeholder comments\b/i],
   },
 };
 
@@ -244,10 +215,11 @@ function findFirstBlock(
 function toEvidence(
   block: QuickCheckV2Block,
   sourceType: EvidenceSourceType,
+  quoteOverride?: string,
 ): RetrievedEvidence {
   return {
     sourceType,
-    quote: block.text,
+    quote: quoteOverride ?? block.text,
     page: block.page,
     sectionHeading: block.sectionHeading,
     sectionPath: block.sectionPath,
@@ -611,56 +583,104 @@ function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
   return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
 }
 
-function scoreSectionBlock(
-  block: QuickCheckV2Block,
-  heuristic: ExactSectionSelectionHeuristic | undefined,
-): number {
-  let score = 0;
-  const text = block.text.trim();
-
-  if (!text) return Number.NEGATIVE_INFINITY;
-  if (isBoilerplateSectionBlock(block)) return Number.NEGATIVE_INFINITY;
-
-  if (heuristic?.prefer?.some((pattern) => pattern.test(text))) {
-    score += 100;
-  }
-
-  if (heuristic?.avoid?.some((pattern) => pattern.test(text))) {
-    score -= 100;
-  }
-
-  if (/[.?!]$/.test(text)) {
-    score += 10;
-  }
-
-  if (text.length >= 40) {
-    score += 5;
-  }
-
-  return score;
+function endsSentence(text: string): boolean {
+  return /[.?!]["')\]]*$/.test(text.trim());
 }
 
-function selectBestSectionBlock(
-  checkName: StructuredCheckId,
-  blocks: QuickCheckV2Block[],
-): QuickCheckV2Block | null {
-  const heuristic = EXACT_SECTION_SELECTION_HEURISTICS[checkName];
-  let bestBlock: QuickCheckV2Block | null = null;
-  let bestScore = Number.NEGATIVE_INFINITY;
+function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
+  return blocks.filter((block) => {
+    const text = block.text.trim();
+    return text.length > 0 && !isBoilerplateSectionBlock(block);
+  });
+}
+
+function normalizeSectionPhrase(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/^\s*(?:section\s+)?(?:[a-z]?\.\d+(?:\.\d+)*|\d+(?:\.\d+)*)\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function groupBlocksByExactSectionPath(blocks: QuickCheckV2Block[]): QuickCheckV2Block[][] {
+  const groups = new Map<string, QuickCheckV2Block[]>();
 
   for (const block of blocks) {
-    const score = scoreSectionBlock(block, heuristic);
-    if (score > bestScore) {
-      bestScore = score;
-      bestBlock = block;
+    const key = block.sectionPath.join(">");
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(block);
+  }
+
+  return Array.from(groups.values());
+}
+
+function chooseBestSectionGroup(
+  baseDepth: number,
+  searchTexts: string[],
+  blocks: QuickCheckV2Block[],
+): QuickCheckV2Block[] {
+  const usableBlocks = getUsableSectionBlocks(blocks);
+  if (usableBlocks.length === 0) {
+    return [];
+  }
+
+  const grouped = groupBlocksByExactSectionPath(usableBlocks);
+  const descendantGroups = grouped.filter(
+    (group) => group[0]!.sectionPath.length > baseDepth,
+  );
+
+  if (descendantGroups.length === 0) {
+    return usableBlocks;
+  }
+
+  const normalizedSearchPhrases = searchTexts
+    .map(normalizeSectionPhrase)
+    .filter((value) => value.length > 0);
+
+  if (normalizedSearchPhrases.length > 0) {
+    const tokenMatchedGroup = descendantGroups.find((group) =>
+      group.some((block) => {
+        const text = block.text.toLowerCase();
+        return normalizedSearchPhrases.some((phrase) => text.includes(phrase));
+      }),
+    );
+
+    if (tokenMatchedGroup) {
+      return tokenMatchedGroup;
     }
   }
 
-  if (bestBlock) {
-    return bestBlock;
+  return descendantGroups[0]!;
+}
+
+function buildQuoteFromBlock(
+  document: QuickCheckV2ExtractedDocument,
+  block: QuickCheckV2Block,
+): string {
+  const startIndex = document.blocks.findIndex((candidate) => candidate.spanId === block.spanId);
+  if (startIndex === -1) {
+    return block.text;
   }
 
-  return blocks.find((block) => !isBoilerplateSectionBlock(block)) ?? null;
+  const parts = [block.text.trim()];
+  for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
+    const candidate = document.blocks[index]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.page !== block.page) break;
+    if (candidate.sectionHeading !== block.sectionHeading) break;
+    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (isBoilerplateSectionBlock(candidate)) break;
+
+    if (endsSentence(parts.join(" "))) {
+      break;
+    }
+
+    parts.push(candidate.text.trim());
+  }
+
+  return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 
 function getBestExactSectionBlock(
@@ -705,7 +725,12 @@ function getBestExactSectionBlock(
   }
 
   const candidateBlocks = collectSectionBodyBlocks(document, bestSection);
-  return selectBestSectionBlock(checkName, candidateBlocks);
+  const selectedGroup = chooseBestSectionGroup(
+    bestSection.heading.sectionPath.length,
+    mapping.searchTexts,
+    candidateBlocks,
+  );
+  return selectedGroup[0] ?? null;
 }
 
 function getFactContractEvidence(
@@ -726,7 +751,7 @@ function getExactSectionEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
-  return block ? toEvidence(block, "exact_section") : null;
+  return block ? toEvidence(block, "exact_section", buildQuoteFromBlock(document, block)) : null;
 }
 
 function getRawTextFallbackEvidence(
