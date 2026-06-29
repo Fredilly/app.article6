@@ -57,14 +57,14 @@ import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
 import {
+  resolveStructuredQueryContext,
+} from "@/lib/chat/quickCheckStructuredQuery";
+import {
   buildReviewQuestionResult,
   detectRuntimeReviewPath,
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
-import {
-  resolveStructuredQueryContext,
-} from "@/lib/chat/quickCheckStructuredQuery";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";

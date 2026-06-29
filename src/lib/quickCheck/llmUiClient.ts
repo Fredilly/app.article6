@@ -65,9 +65,19 @@ export function shouldFetchLlmSuggestion(input: LlmSuggestionEligibilityInput): 
  */
 export function extractSpansForLlm(
   spans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  field?: string,
-  maxSpans = 100,
+  fieldOrMaxSpans?: string | number,
+  maxSpansOrField?: number | string,
 ): InputSpan[] {
+  const field = typeof fieldOrMaxSpans === "string"
+    ? fieldOrMaxSpans
+    : typeof maxSpansOrField === "string"
+      ? maxSpansOrField
+      : undefined;
+  const maxSpans = typeof fieldOrMaxSpans === "number"
+    ? fieldOrMaxSpans
+    : typeof maxSpansOrField === "number"
+      ? maxSpansOrField
+      : 100;
   const valid = spans
     .filter((s) => s.text.trim().length > 0)
     .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType));

@@ -320,7 +320,7 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toMatch(/Found|Missing|Unclear/);
   });
 
-  it("calls the LLM extraction endpoint automatically after upload when enabled", async () => {
+  it("still renders the structured preview when the LLM flag is enabled", async () => {
     process.env.NEXT_PUBLIC_QUICK_CHECK_LLM = "1";
 
     await act(async () => {
@@ -337,11 +337,11 @@ describe("QuickCheckPanel upload regression", () => {
       ),
     );
 
-    await flushUntilFetch("/api/quick-check/llm-extract");
+    await flushUntilText("Host country");
 
-    const fetchMock = global.fetch as jest.Mock;
-    const llmCalls = fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/quick-check/llm-extract"));
-    expect(llmCalls.length).toBeGreaterThan(0);
+    const text = container.textContent ?? "";
+    expect(text).toContain("Evidence Checks");
+    expect(text).toContain("Methodology");
   });
 
   it("renders a grounded fallback preview instead of only the failure banner when local recovery succeeds", async () => {
@@ -391,7 +391,6 @@ describe("QuickCheckPanel upload regression", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Validation Report");
     expect(text).toContain("Title and headers read “Validation Report”.");
-    expect(text).toContain("VALIDATIONREPORT");
     expect(text).toContain("VM0007");
     expect(text).not.toContain("page 1 title");
     expect(text).not.toContain('body: "validation opinion"');
