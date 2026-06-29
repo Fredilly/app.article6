@@ -1,0 +1,15 @@
+page 1 of 4
+Project Description
+Cordillera Azul National Park REDD Project
+Host Country: Peru
+Project Location: San Martin Region
+Parameter description with methodology references in context. Value applied: 376.3 t CO2-e ha-1. Justification of choice of data or description of measurement methods and procedures applied: Derived above in Section 3.3 of the Project Description.
+page 2 of 4
+Additional data parameters and justification text. Default values from IPCC guidelines were used where primary data was not available.
+page 3 of 4
+Monitoring plan description. Sampling design follows standard practices for forest carbon projects.
+page 4 of 4
+Section 3.1 Application of Methodology
+Title and Reference of Methodology Applied
+VM0007 REDD Methodology Modules Version 1.3
+This section describes the application of the REDD methodology framework (REDD-MF) under VM0007 to the project activity.
