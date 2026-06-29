@@ -54,6 +54,7 @@ export type EvidenceCheckResult = {
   checkId: EvidenceCheckId;
   status: EvidenceCheckStatus;
   answerText: string;
+  rawAnswerText?: string;
   downgradeReason: string;
   quotes: string[];
   pages: number[];

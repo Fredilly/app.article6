@@ -18,9 +18,6 @@
  * - No LLM
  */
 
-import fs from "node:fs";
-import path from "node:path";
-
 export type QuickCheckV2Block = {
   spanId: string;
   page: number;
@@ -478,6 +475,11 @@ export function loadAndParseExtractedText(
   documentId?: string,
   parser?: string,
 ): QuickCheckV2ExtractedDocument {
+  const fs = process.getBuiltinModule?.("fs") as typeof import("node:fs") | undefined;
+  const path = process.getBuiltinModule?.("path") as typeof import("node:path") | undefined;
+  if (!fs || !path) {
+    throw new Error("loadAndParseExtractedText is only available in Node environments.");
+  }
   const resolvedPath = path.resolve(filePath);
   const rawText = fs.readFileSync(resolvedPath, "utf-8");
   return parseExtractedText(

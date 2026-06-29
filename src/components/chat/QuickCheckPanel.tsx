@@ -52,31 +52,23 @@ import {
 } from "@/lib/chat/quickCheckUi";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
-import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
+import { createAndStoreEvidenceAttachment, getAttachmentBytes } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
+import {
+  resolveStructuredQueryContext,
+} from "@/lib/chat/quickCheckStructuredQuery";
 import {
   buildReviewQuestionResult,
   detectRuntimeReviewPath,
   reviewAreaLabel,
   type ReviewQuestionResult,
 } from "@/lib/chat/quickCheckReviewQuestion";
-import {
-  resolveStructuredQueryContext,
-} from "@/lib/chat/quickCheckStructuredQuery";
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
-import {
-  getAllChecks,
-  formatEvidenceCheckUiText,
-  getContract,
-  validateCheck,
-  type CheckValidationContext,
-  type EvidenceCheckResult,
-} from "@/lib/quickCheck/evidenceChecks";
-import { getEnabledCheckIds } from "@/lib/quickCheck/evidenceCheckGroups";
+import { getAllChecks } from "@/lib/quickCheck/evidenceChecks";
 import {
   classifyDocumentPurpose,
   documentPurposeLabel,
@@ -84,8 +76,9 @@ import {
 } from "@/lib/documentClassification/classifyDocumentPurpose";
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
-import { fetchLlmCandidate, isLlmUiEnabled } from "@/lib/quickCheck/llmUiClient";
-import type { LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
+import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
+import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
+import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 
 type MethodInventoryRecord = {
   code: string;
@@ -122,6 +115,17 @@ type ExtractionState = {
   loading: boolean;
   analysis: QuickCheckEvidenceAnalysis | null;
   error: string | null;
+};
+
+type StructuredEvidenceCheckResult = {
+  checkId: StructuredCheckId;
+  status: "found" | "missing" | "unclear";
+  answerText: string;
+  downgradeReason: string;
+  quotes: string[];
+  pages: number[];
+  sections: string[];
+  evidenceSpanIds: string[];
 };
 
 type FieldErrors = {
@@ -184,6 +188,55 @@ const GENERAL_REVIEW_QUESTION =
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function buildStructuredCheckDowngradeReason(reason: StatusReason): string {
+  switch (reason) {
+    case "answer_missing":
+      return "Quick Check found section evidence, but it did not yield a deterministic answer.";
+    case "fallback_evidence_only":
+      return "Quick Check found only raw-text fallback evidence, so the result stays unclear.";
+    case "provenance_incomplete":
+      return "Quick Check found a possible answer, but the quote/page/section/span provenance is incomplete.";
+    default:
+      return "";
+  }
+}
+
+function buildStructuredCheckAnswerText(input: {
+  status: "FOUND" | "UNCLEAR" | "MISSING";
+  answer: string | null;
+  reason: StatusReason;
+}): string {
+  if (input.status === "FOUND") return input.answer ?? "";
+  if (input.status === "MISSING") {
+    return "Quick Check did not find usable evidence in the uploaded document.";
+  }
+  if (input.answer) return input.answer;
+  return buildStructuredCheckDowngradeReason(input.reason) || "Quick Check found incomplete evidence for this check.";
+}
+
+async function loadPreferredStructuredCheckText(
+  evidenceSources: Array<{
+    sourceLabel: string;
+    attachments: Array<{ id: string; filename: string; mime: string }>;
+  }>,
+  resolveFn: (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => Promise<{ text?: string | null } | null>,
+): Promise<string | null> {
+  const primaryAttachment = evidenceSources[0]?.attachments[0];
+  if (!primaryAttachment?.id) return null;
+
+  const bytes = await getAttachmentBytes(primaryAttachment.id);
+  if (!bytes) return null;
+
+  const resolved = await resolveFn({
+    attachmentId: primaryAttachment.id,
+    filename: primaryAttachment.filename,
+    mime: primaryAttachment.mime,
+    bytes,
+  });
+
+  return resolved?.text?.trim() ? resolved.text : null;
 }
 
 function newPinId(): string {
@@ -603,16 +656,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
   const reviewQuestionRunRef = useRef(0);
-
-  /**
-   * Guards against cross-document contamination: record the current document
-   * evidence IDs and filename when checks start. If the value changes before
-   * checks complete, results are discarded.
-   */
-  const documentSnapshotRef = useRef<{ evidenceIds: string[]; fileName: string }>({
-    evidenceIds: [],
-    fileName: "",
-  });
+  const evidenceCheckRunRef = useRef(0);
+  const autoEvidenceCheckRunKeyRef = useRef<string | null>(null);
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -628,8 +673,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [documentPurpose, setDocumentPurpose] = useState<DocumentPurpose | null>(null);
-  const [evidenceCheckResults, setEvidenceCheckResults] = useState<EvidenceCheckResult[]>([]);
-  const [llmSuggestions, setLlmSuggestions] = useState<Record<string, LlmFactCandidate[]>>({});
+  const [evidenceCheckResults, setEvidenceCheckResults] = useState<StructuredEvidenceCheckResult[]>([]);
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -990,6 +1034,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       pddFragments: source.pddFragments,
     }));
   }, [draft.evidenceFileName, selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
+  const selectedEvidenceRunKey = useMemo(
+    () => selectedEvidenceSources
+      .map((source) => `${source.evidenceId}:${source.attachments.map((attachment) => attachment.id).join(",")}`)
+      .join("|"),
+    [selectedEvidenceSources],
+  );
 
   const resolvePdfText = useCallback(
     async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
@@ -1009,6 +1059,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   useEffect(() => {
     if (!selectedEvidenceSources.length) {
+      autoEvidenceCheckRunKeyRef.current = null;
       setExtractionState({ loading: false, analysis: null, error: null });
       return;
     }
@@ -1080,7 +1131,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowMethodology(false);
     setShowExtractionDetails(false);
     setEvidenceCheckResults([]);
-    setLlmSuggestions({});
     setRunningEvidenceChecks(false);
     setDocumentPurpose(null);
   }
@@ -1429,7 +1479,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       // Clear previous check results before auto-running
       setEvidenceCheckResults([]);
-      setLlmSuggestions({});
       setRunningEvidenceChecks(false);
 
       // Fire after current render cycle so the evidence is visible
@@ -1843,17 +1892,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  /**
-   * Run evidence checks against an explicit immutable snapshot of document state.
-   *
-   * This function is the single source of truth for evidence checking. It accepts
-   * all inputs as arguments rather than reading React state, which eliminates
-   * cross-document contamination from stale closures.
-   *
-   * Callers are expected to provide a snapshot captured at the moment the checks
-   * were triggered (not read lazily from state).
-   */
-  async function runEvidenceChecksFromSnapshot(snapshot: {
+  const runEvidenceChecksFromSnapshot = useCallback(async (snapshot: {
     evidenceSources: typeof selectedEvidenceSources;
     resolvePdfText: typeof resolvePdfText;
     evidenceIds: string[];
@@ -1861,154 +1900,164 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     methodologyId: string;
     methodologyVersion: string;
     methods: MethodInventoryRecord[];
-  }) {
-    const { evidenceSources, resolvePdfText: resolveFn, evidenceIds, fileName, methodologyId, methodologyVersion } = snapshot;
-
-    // Update the document snapshot guard so concurrent checks from a different
-    // document can detect the mismatch and discard stale results.
-    documentSnapshotRef.current = { evidenceIds, fileName };
-
-    const evidenceAnalysis = await analyzeQuickCheckEvidence(evidenceSources, { resolvePdfText: resolveFn });
-    if (!evidenceAnalysis.rawPddText?.trim()) return;
-
-    // Guard: if the document changed while we were analyzing, discard results
-    const currentSnapshot = documentSnapshotRef.current;
-    if (
-      currentSnapshot.evidenceIds.length !== evidenceIds.length ||
-      !currentSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
-      currentSnapshot.fileName !== fileName
-    ) {
-      console.warn(
-        "[quick-check] Document changed while checks were running — discarding stale results.",
-      );
-      return;
-    }
-
-    // Classify document purpose before running checks
-    const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
-    const purpose = purposeClassification.purpose;
-    setDocumentPurpose(purpose);
-
-    const currentMethodologyResolution = resolveQuickCheckMethodology({
-      mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-      methods: snapshot.methods,
-    });
-    const resolvedMethodologyId = methodologyId.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-    const resolvedMethodologyVersion = methodologyVersion.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
-    const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
-
-    // Only run checks appropriate for the detected document purpose
-    const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
-    const allChecks = getAllChecks(resolvedMethodologyId || undefined);
-    const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
-
-    // Guard: re-check document identity before writing results
-    const midRunSnapshot = documentSnapshotRef.current;
-    if (
-      midRunSnapshot.evidenceIds.length !== evidenceIds.length ||
-      !midRunSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
-      midRunSnapshot.fileName !== fileName
-    ) {
-      console.warn(
-        "[quick-check] Document changed during evidence checks — discarding results.",
-      );
-      return;
-    }
-
+  }) => {
+    const runId = evidenceCheckRunRef.current + 1;
+    evidenceCheckRunRef.current = runId;
     setRunningEvidenceChecks(true);
-    const results: EvidenceCheckResult[] = [];
 
-    for (const check of checksToRun) {
-      const contract = getContract(check.id);
-      const questionResult = buildReviewQuestionResult({
-        claimText: check.question,
-        methodologyId: resolvedMethodologyId || "VM0007",
-        methodologyVersion: resolvedMethodologyVersion || "4.2",
-        rawPddText: evidenceAnalysis.rawPddText,
-        structuredQueryContext,
+    try {
+      const evidenceAnalysis = await analyzeQuickCheckEvidence(snapshot.evidenceSources, {
+        resolvePdfText: snapshot.resolvePdfText,
       });
+      if (!evidenceAnalysis.rawPddText?.trim()) {
+        if (evidenceCheckRunRef.current !== runId) return;
+        setEvidenceCheckResults([]);
+        setDocumentPurpose(null);
+        return;
+      }
 
-      const ctx: CheckValidationContext = {
-        evidenceDocument: structuredQueryContext.evidenceDocument,
-        projectFactContract: structuredQueryContext.projectFactContract,
-        sectionTableIndex: structuredQueryContext.sectionTableIndex,
-        routerResult: questionResult.routerResult,
-        queryIntentAnalysis: questionResult.queryIntentAnalysis,
-        rawText: evidenceAnalysis.rawPddText,
-      };
+      const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
+      const purpose = purposeClassification.purpose;
 
-      const validated = validateCheck(contract, ctx);
-      const formatted = formatEvidenceCheckUiText({
-        label: check.label,
-        status: validated.status,
-        answerText: validated.answerText,
-        downgradeReason: validated.downgradeReason,
+      const currentMethodologyResolution = resolveQuickCheckMethodology({
+        mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+        methods: snapshot.methods,
       });
-      results.push({
-        checkId: check.id,
-        status: validated.status,
-        answerText: formatted.answerText,
-        downgradeReason: formatted.downgradeReason,
-        quotes: validated.quotes,
-        pages: validated.pages,
-        sections: validated.sections,
-        evidenceSpanIds: validated.evidenceSpanIds,
-        warnings: questionResult.routerResult.warnings,
-      });
-    }
+      const resolvedMethodologyId = snapshot.methodologyId.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+      if (evidenceCheckRunRef.current !== runId) return;
 
-    // Final guard: only write results if we're still on the same document
-    const finalSnapshot = documentSnapshotRef.current;
-    if (
-      finalSnapshot.evidenceIds.length !== evidenceIds.length ||
-      !finalSnapshot.evidenceIds.every((id, i) => id === evidenceIds[i]) ||
-      finalSnapshot.fileName !== fileName
-    ) {
-      console.warn(
-        "[quick-check] Document changed before final write — discarding results.",
+      const allChecks = getAllChecks(resolvedMethodologyId || undefined);
+      const documentId = snapshot.evidenceIds[0] || snapshot.fileName || "quick-check-v2";
+      const preferredRawText =
+        await loadPreferredStructuredCheckText(snapshot.evidenceSources, snapshot.resolvePdfText)
+        ?? evidenceAnalysis.rawPddText;
+      if (evidenceCheckRunRef.current !== runId) return;
+
+      const parsedDocument = parseExtractedText(
+        preferredRawText,
+        documentId,
+        evidenceAnalysis.parserAdapterId || "quick-check-panel",
       );
-      setRunningEvidenceChecks(false);
+      const statusResults = validateAnswerResults(extractAnswersForAllChecks(parsedDocument));
+      const results: StructuredEvidenceCheckResult[] = statusResults
+        .map((statusResult) => {
+          const evidence = statusResult.evidence;
+          const status: StructuredEvidenceCheckResult["status"] =
+            statusResult.status === "FOUND"
+              ? "found"
+              : statusResult.status === "MISSING"
+                ? "missing"
+                : "unclear";
+          return {
+            checkId: statusResult.checkName,
+            status,
+            answerText: buildStructuredCheckAnswerText(statusResult),
+            downgradeReason: buildStructuredCheckDowngradeReason(statusResult.reason),
+            quotes: evidence?.quote ? [evidence.quote] : [],
+            pages: typeof evidence?.page === "number" ? [evidence.page] : [],
+            sections:
+              evidence?.sectionHeading
+                ? [evidence.sectionHeading]
+                : evidence?.sectionPath?.length
+                  ? evidence.sectionPath
+                  : [],
+            evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+          };
+        })
+        .filter((result) => allChecks.some((check) => check.id === result.checkId));
+
+      setDocumentPurpose(purpose);
+      setEvidenceCheckResults(results);
+    } catch (error) {
+      if (evidenceCheckRunRef.current !== runId) return;
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+    } finally {
+      if (evidenceCheckRunRef.current === runId) {
+        setRunningEvidenceChecks(false);
+      }
+    }
+  }, []);
+
+  const runEvidenceChecks = useCallback(async (options?: { evidenceAnalysis?: QuickCheckEvidenceAnalysis }) => {
+    if (options?.evidenceAnalysis) {
+      const runId = evidenceCheckRunRef.current + 1;
+      evidenceCheckRunRef.current = runId;
+      setRunningEvidenceChecks(true);
+
+      try {
+        const evidenceAnalysis = options.evidenceAnalysis;
+        if (!evidenceAnalysis.rawPddText?.trim()) {
+          if (evidenceCheckRunRef.current !== runId) return;
+          setEvidenceCheckResults([]);
+          setDocumentPurpose(null);
+          return;
+        }
+
+        const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
+        const purpose = purposeClassification.purpose;
+
+        const currentMethodologyResolution = resolveQuickCheckMethodology({
+          mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+          methods,
+        });
+        const resolvedMethodologyId = draft.methodologyId.trim()
+          || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+        if (evidenceCheckRunRef.current !== runId) return;
+
+        const allChecks = getAllChecks(resolvedMethodologyId || undefined);
+        const documentId = draft.evidenceIds[0] || draft.evidenceFileName || "quick-check-v2";
+        const preferredRawText =
+          await loadPreferredStructuredCheckText(selectedEvidenceSources, resolvePdfText)
+          ?? evidenceAnalysis.rawPddText;
+        if (evidenceCheckRunRef.current !== runId) return;
+
+        const parsedDocument = parseExtractedText(
+          preferredRawText,
+          documentId,
+          evidenceAnalysis.parserAdapterId || "quick-check-panel",
+        );
+        const statusResults = validateAnswerResults(extractAnswersForAllChecks(parsedDocument));
+        const results: StructuredEvidenceCheckResult[] = statusResults
+          .map((statusResult) => {
+            const evidence = statusResult.evidence;
+            const status: StructuredEvidenceCheckResult["status"] =
+              statusResult.status === "FOUND"
+                ? "found"
+                : statusResult.status === "MISSING"
+                  ? "missing"
+                  : "unclear";
+            return {
+              checkId: statusResult.checkName,
+              status,
+              answerText: buildStructuredCheckAnswerText(statusResult),
+              downgradeReason: buildStructuredCheckDowngradeReason(statusResult.reason),
+              quotes: evidence?.quote ? [evidence.quote] : [],
+              pages: typeof evidence?.page === "number" ? [evidence.page] : [],
+              sections:
+                evidence?.sectionHeading
+                  ? [evidence.sectionHeading]
+                  : evidence?.sectionPath?.length
+                    ? evidence.sectionPath
+                    : [],
+              evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+            };
+          })
+          .filter((result) => allChecks.some((check) => check.id === result.checkId));
+
+        setDocumentPurpose(purpose);
+        setEvidenceCheckResults(results);
+      } catch (error) {
+        if (evidenceCheckRunRef.current !== runId) return;
+        setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      } finally {
+        if (evidenceCheckRunRef.current === runId) {
+          setRunningEvidenceChecks(false);
+        }
+      }
       return;
     }
 
-    setEvidenceCheckResults(results);
-    setRunningEvidenceChecks(false);
-
-    // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
-    if (isLlmUiEnabled()) {
-      const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
-        spanId: s.spanId,
-        text: s.text,
-        page: s.page,
-        blockType: s.blockType,
-      })) ?? [];
-
-      const missingOrUnclear = results.filter(
-        (r: EvidenceCheckResult) =>
-          r.status === "missing"
-          || r.status === "unclear"
-          || (r.status === "found" && r.answerText.trim().length < 3),
-      );
-
-      fetchLlmSuggestions(missingOrUnclear, evidenceSpans);
-    } else {
-      setLlmSuggestions({});
-    }
-  }
-
-  /**
-   * Run evidence checks using the current React state.
-   *
-   * This is the manual "Run Checks" button handler. It reads current state
-   * and delegates to runEvidenceChecksFromSnapshot with an immutable snapshot.
-   *
-   * For auto-run after upload, the upload handler captures its own snapshot
-   * before the setTimeout(0) to avoid stale closures.
-   */
-  async function runEvidenceChecks() {
-    // Delegate to the snapshot-based implementation with current React state
     return runEvidenceChecksFromSnapshot({
       evidenceSources: selectedEvidenceSources,
       resolvePdfText,
@@ -2018,27 +2067,35 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       methodologyVersion: draft.methodologyVersion,
       methods,
     });
-  }
+  }, [
+    draft.evidenceFileName,
+    draft.evidenceIds,
+    draft.methodologyId,
+    draft.methodologyVersion,
+    methods,
+    resolvePdfText,
+    runEvidenceChecksFromSnapshot,
+    selectedEvidenceSources,
+  ]);
 
-  /** Fetch LLM suggestions in the background after checks complete. */
-  async function fetchLlmSuggestions(
-    checkResults: EvidenceCheckResult[],
-    evidenceSpans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  ): Promise<void> {
-    const suggestionPromises = checkResults.map(async (r) => {
-      const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
-      return { checkId: r.checkId, candidates };
-    });
+  useEffect(() => {
+    if (activeSourceMode !== "uploaded_file") return;
+    if (loadingMethods || !methods.length) return;
+    if (extractionState.loading || !extractionState.analysis?.rawPddText?.trim()) return;
+    if (!selectedEvidenceRunKey) return;
+    if (autoEvidenceCheckRunKeyRef.current === selectedEvidenceRunKey) return;
 
-    const suggestionResults = await Promise.all(suggestionPromises);
-    const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
-    for (const sr of suggestionResults) {
-      if (sr.candidates.length > 0) {
-        suggestionsMap[sr.checkId] = sr.candidates;
-      }
-    }
-    setLlmSuggestions(suggestionsMap);
-  }
+    autoEvidenceCheckRunKeyRef.current = selectedEvidenceRunKey;
+    void runEvidenceChecks({ evidenceAnalysis: extractionState.analysis });
+  }, [
+    activeSourceMode,
+    extractionState.analysis,
+    extractionState.loading,
+    loadingMethods,
+    methods.length,
+    runEvidenceChecks,
+    selectedEvidenceRunKey,
+  ]);
 
   async function handleTryDemoCheck() {
     setSubmitting(true);
@@ -2508,14 +2565,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     const checkDef = getAllChecks(draft.methodologyId.trim() || undefined).find((c) => c.id === result.checkId);
                     const label = checkDef?.label ?? result.checkId;
                     const methodologyLabel = checkDef?.methodologySpecific;
-                    const statusColors = result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : result.status === "not_applicable" ? "bg-slate-300" : "bg-amber-400";
-                    const badgeColors = result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : result.status === "not_applicable" ? "bg-slate-100 text-slate-500" : "bg-amber-100 text-amber-700";
-                    const statusLabel = result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : result.status === "not_applicable" ? "N/A" : "Unclear";
+                    const statusColors = result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : "bg-amber-400";
+                    const badgeColors = result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
+                    const statusLabel = result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : "Unclear";
                     return (
                       <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
                         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
                           <span className={`inline-block h-2 w-2 rounded-full ${statusColors}`} />
-                          <span className={`font-medium ${result.status === "not_applicable" ? "text-slate-400" : "text-slate-800"}`}>{label}</span>
+                          <span className="font-medium text-slate-800">{label}</span>
                           {methodologyLabel ? <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{methodologyLabel}</span> : null}
                           <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${badgeColors}`}>{statusLabel}</span>
                         </summary>
@@ -2536,8 +2593,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             </>
                           ) : result.status === "missing" ? (
                             <div className="text-xs text-slate-500">{result.answerText}</div>
-                          ) : result.status === "not_applicable" ? (
-                            <div className="text-xs text-slate-400">Not applicable for this document type.</div>
                           ) : (
                             <div className="text-xs text-slate-500">
                               {result.answerText}
@@ -2581,32 +2636,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           >
                             Export correction
                           </button>
-                          {llmSuggestions[result.checkId]?.length > 0 ? (
-                            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3">
-                              <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-500">
-                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z" />
-                                </svg>
-                                LLM suggestion
-                              </div>
-                              {llmSuggestions[result.checkId]!.map((suggestion, si) => (
-                                <div key={si} className="mt-1 text-xs">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium text-indigo-900">{suggestion.value}</span>
-                                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
-                                      suggestion.confidence === "high"
-                                        ? "bg-emerald-100 text-emerald-600"
-                                        : suggestion.confidence === "medium"
-                                          ? "bg-amber-100 text-amber-600"
-                                          : "bg-slate-100 text-slate-500"
-                                    }`}>{suggestion.confidence}</span>
-                                  </div>
-                                  <div className="mt-0.5 italic text-indigo-600/70">&ldquo;{suggestion.quote.slice(0, 200)}{suggestion.quote.length > 200 ? "\u2026" : ""}&rdquo;</div>
-                                  {suggestion.page != null ? <div className="mt-0.5 text-[10px] text-indigo-400/70">p.{suggestion.page}</div> : null}
-                                </div>
-                              ))}
-                            </div>
-                          ) : null}
                         </div>
                       </details>
                     );

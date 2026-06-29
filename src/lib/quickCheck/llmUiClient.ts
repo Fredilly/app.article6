@@ -11,6 +11,7 @@
  * See: https://github.com/Fredilly/app.article6/pull/825
  */
 import type { InputSpan, LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
+import type { EvidenceCheckStatus } from "@/lib/quickCheck/evidenceChecks";
 
 const LLM_API_PATH = "/api/quick-check/llm-extract";
 
@@ -31,6 +32,12 @@ const CHECK_TO_FIELD: Record<string, { field: string; question: string }> = {
   applicability_conditions: { field: "applicabilityConditions", question: "What are the applicability conditions?" },
 };
 
+type LlmSuggestionEligibilityInput = {
+  status: EvidenceCheckStatus;
+  answerText: string;
+  rawAnswerText?: string;
+};
+
 /**
  * Check whether the client-side LLM feature flag is enabled.
  * Uses NEXT_PUBLIC_ so it's available in the browser at build time.
@@ -40,6 +47,17 @@ export function isLlmUiEnabled(): boolean {
   return process.env.NEXT_PUBLIC_QUICK_CHECK_LLM === "1";
 }
 
+function normalizedAnswerLength(value: string): number {
+  return value.replace(/\s+/g, " ").trim().length;
+}
+
+export function shouldFetchLlmSuggestion(input: LlmSuggestionEligibilityInput): boolean {
+  if (input.status === "missing" || input.status === "unclear") return true;
+  if (input.status !== "found") return false;
+  const rawAnswer = input.rawAnswerText ?? input.answerText;
+  return normalizedAnswerLength(rawAnswer) < 3;
+}
+
 /**
  * Extract candidate spans from the evidence document for LLM analysis.
  * Returns content spans relevant to the given field.
@@ -47,14 +65,23 @@ export function isLlmUiEnabled(): boolean {
  */
 export function extractSpansForLlm(
   spans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  field?: string,
-  maxSpans = 100,
+  fieldOrMaxSpans?: string | number,
+  maxSpansOrField?: number | string,
 ): InputSpan[] {
+  const field = typeof fieldOrMaxSpans === "string"
+    ? fieldOrMaxSpans
+    : typeof maxSpansOrField === "string"
+      ? maxSpansOrField
+      : undefined;
+  const maxSpans = typeof fieldOrMaxSpans === "number"
+    ? fieldOrMaxSpans
+    : typeof maxSpansOrField === "number"
+      ? maxSpansOrField
+      : 100;
   const valid = spans
     .filter((s) => s.text.trim().length > 0)
     .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType));
 
-  // For hostCountry, prioritize spans with location keywords
   if (field === "hostCountry") {
     const countryKeywords = [
       "country", "location", "papua", "new guinea", "peru", "ghana",
