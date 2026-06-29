@@ -1,4 +1,6 @@
 {
+  "PR860": "done",
+  "RC5": "done",
   "name": "Quick Check v2: Stable Ingestion First",
   "phase_meta": {
     "status": "active",
