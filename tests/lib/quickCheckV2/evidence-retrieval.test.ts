@@ -274,4 +274,63 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
       "As the project generates no financial benefit other than carbon revenue, a simple cost analysis is justified.",
     );
   });
+
+  it("does not choose a subsection just because it contains Envira-specific words", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p4:b1:heading",
+        page: 4,
+        text: "2.4 Baseline Scenario",
+        blockType: "heading",
+        sectionHeading: "Baseline Scenario",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b2:heading",
+        page: 4,
+        text: "2.4.1 Conversion to Pasture",
+        blockType: "heading",
+        sectionHeading: "Conversion to Pasture",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b3:body",
+        page: 4,
+        text: "Envira Acre VCS project materials discuss conversion to pasture in a regional example.",
+        blockType: "body",
+        sectionHeading: "Conversion to Pasture",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b4:heading",
+        page: 4,
+        text: "2.4.2 Alternative Land Use",
+        blockType: "heading",
+        sectionHeading: "Alternative Land Use",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b5:body",
+        page: 4,
+        text: "The most likely baseline scenario is continued cattle ranching.",
+        blockType: "body",
+        sectionHeading: "Alternative Land Use",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.quote).toContain("most likely baseline scenario");
+    expect(result.evidence!.quote).not.toContain("Envira");
+    expect(result.evidence!.quote).not.toContain("Acre");
+    expect(result.evidence!.quote).not.toContain("VCS");
+    expect(result.evidence!.sectionPath).toStrictEqual(["2", "2.4", "2.4.2"]);
+    expect(result.evidence!.sourceType).toBe("exact_section");
+  });
 });
