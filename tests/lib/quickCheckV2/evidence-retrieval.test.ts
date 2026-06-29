@@ -80,8 +80,8 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
       sectionText: string;
       page: number;
     }> = [
-      { checkName: "baseline_scenario", sectionText: "Baseline Scenario", page: 37 },
-      { checkName: "additionality", sectionText: "Additionality", page: 38 },
+      { checkName: "baseline_scenario", sectionText: "Conversion to Pasture", page: 38 },
+      { checkName: "additionality", sectionText: "Simple Cost Analysis", page: 38 },
       { checkName: "leakage", sectionText: "Leakage", page: 69 },
       { checkName: "stakeholder_consultation", sectionText: "STAKEHOLDER COMMENTS", page: 122 },
     ];

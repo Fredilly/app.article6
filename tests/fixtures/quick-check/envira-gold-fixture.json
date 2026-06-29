@@ -1,0 +1,68 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Brazil",
+    "goldQuote": "The Envira Amazonia Project is located near Feijó in Acre, Brazil. The property where the project area is",
+    "page": 3,
+    "sectionHeading": "Summary Description of the Project",
+    "sectionPath": ["1", "1.1"],
+    "spanId": "proj-desc-1382-extracted:p3:b68:69787023",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007",
+    "goldQuote": "entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this",
+    "page": 31,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": ["2", "2.1"],
+    "spanId": "proj-desc-1382-extracted:p31:b781:87b6e442",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "The most likely baseline scenario in conversion of the non-legal reserve to pasture",
+    "goldQuote": "The most likely baseline scenario in conversion of the non-legal reserve to pasture.",
+    "page": 38,
+    "sectionHeading": "Conversion to Pasture",
+    "sectionPath": ["2", "2.4", "2.4.2"],
+    "spanId": "proj-desc-1382-extracted:p38:b1100:9eb0e0a1",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VCS related income through the project activity, a simple cost analysis is justified",
+    "goldQuote": "VCS related income through the project activity, a simple cost analysis is justified.",
+    "page": 38,
+    "sectionHeading": "Simple Cost Analysis",
+    "sectionPath": ["2", "2.5", "2.5.1"],
+    "spanId": "proj-desc-1382-extracted:p38:b1120:21f5f792",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Leakage emissions from displacement of planned deforestation are estimated in conformance with the",
+    "goldQuote": "Leakage emissions from displacement of planned deforestation are estimated in conformance with the",
+    "page": 69,
+    "sectionHeading": "Leakage",
+    "sectionPath": ["3", "3.3"],
+    "spanId": "proj-desc-1382-extracted:p69:b2162:89495e2a",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "The following stakeholders were involved in project design to optimize climate, community and",
+    "goldQuote": "The following stakeholders were involved in project design to optimize climate, community and",
+    "page": 122,
+    "sectionHeading": "STAKEHOLDER COMMENTS",
+    "sectionPath": ["6"],
+    "spanId": "proj-desc-1382-extracted:p122:b4479:d4eb8215",
+    "sourceType": "exact_section"
+  }
+]

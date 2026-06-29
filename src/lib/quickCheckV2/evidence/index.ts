@@ -94,6 +94,11 @@ type RawFallbackDefinition = {
   match(block: QuickCheckV2Block): boolean;
 };
 
+type ExactSectionSelectionHeuristic = {
+  prefer?: RegExp[];
+  avoid?: RegExp[];
+};
+
 const CHECK_SECTION_MAPPINGS: Record<
   StructuredCheckId,
   {
@@ -123,6 +128,30 @@ const CHECK_SECTION_MAPPINGS: Record<
   stakeholder_consultation: {
     searchTexts: ["STAKEHOLDER COMMENTS", "Stakeholder Comments"],
     fallbackSearchTexts: ["stakeholder"],
+  },
+};
+
+const EXACT_SECTION_SELECTION_HEURISTICS: Partial<
+  Record<StructuredCheckId, ExactSectionSelectionHeuristic>
+> = {
+  baseline_scenario: {
+    prefer: [/\bmost likely baseline scenario\b/i, /\bconversion to pasture\b/i],
+    avoid: [/tool for the demonstration and assessment of additionality/i],
+  },
+  additionality: {
+    prefer: [
+      /\bfinancial barrier\b/i,
+      /\bimpractical in the absence of carbon finance\b/i,
+      /\bsimple cost analysis\b/i,
+      /\bdemonstrate additionality\b/i,
+    ],
+    avoid: [/tool for the demonstration and assessment of additionality/i],
+  },
+  leakage: {
+    prefer: [/\bleakage emissions\b/i, /\bactivity shifting leakage\b/i, /\bmarket leakage\b/i],
+  },
+  stakeholder_consultation: {
+    prefer: [/\bstakeholders were involved\b/i, /\bstakeholder comments\b/i],
   },
 };
 
@@ -548,7 +577,94 @@ function findSectionsByHeadingText(
   return results;
 }
 
+function sectionPathStartsWith(pathValue: string[], prefix: string[]): boolean {
+  if (prefix.length === 0 || pathValue.length < prefix.length) {
+    return false;
+  }
+
+  return prefix.every((segment, index) => pathValue[index] === segment);
+}
+
+function collectSectionBodyBlocks(
+  document: QuickCheckV2ExtractedDocument,
+  section: SectionTreeNode,
+): QuickCheckV2Block[] {
+  const prefix = section.heading.sectionPath;
+
+  return getEvidenceBlocks(document).filter((block) => {
+    if (block.page < section.heading.page) {
+      return false;
+    }
+
+    if (sectionPathStartsWith(block.sectionPath, prefix)) {
+      return true;
+    }
+
+    return (
+      block.sectionHeading === section.heading.sectionHeading &&
+      block.page === section.heading.page
+    );
+  });
+}
+
+function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
+  return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
+}
+
+function scoreSectionBlock(
+  block: QuickCheckV2Block,
+  heuristic: ExactSectionSelectionHeuristic | undefined,
+): number {
+  let score = 0;
+  const text = block.text.trim();
+
+  if (!text) return Number.NEGATIVE_INFINITY;
+  if (isBoilerplateSectionBlock(block)) return Number.NEGATIVE_INFINITY;
+
+  if (heuristic?.prefer?.some((pattern) => pattern.test(text))) {
+    score += 100;
+  }
+
+  if (heuristic?.avoid?.some((pattern) => pattern.test(text))) {
+    score -= 100;
+  }
+
+  if (/[.?!]$/.test(text)) {
+    score += 10;
+  }
+
+  if (text.length >= 40) {
+    score += 5;
+  }
+
+  return score;
+}
+
+function selectBestSectionBlock(
+  checkName: StructuredCheckId,
+  blocks: QuickCheckV2Block[],
+): QuickCheckV2Block | null {
+  const heuristic = EXACT_SECTION_SELECTION_HEURISTICS[checkName];
+  let bestBlock: QuickCheckV2Block | null = null;
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (const block of blocks) {
+    const score = scoreSectionBlock(block, heuristic);
+    if (score > bestScore) {
+      bestScore = score;
+      bestBlock = block;
+    }
+  }
+
+  if (bestBlock) {
+    return bestBlock;
+  }
+
+  return blocks.find((block) => !isBoilerplateSectionBlock(block)) ?? null;
+}
+
 function getBestExactSectionBlock(
+  document: QuickCheckV2ExtractedDocument,
   tree: SectionTreeNode[],
   checkName: StructuredCheckId,
 ): QuickCheckV2Block | null {
@@ -578,11 +694,18 @@ function getBestExactSectionBlock(
   }
 
   const bestSection =
-    sections.find((section) => section.directBodyBlocks.length > 0 && section.heading.page > 2) ??
-    sections.find((section) => section.directBodyBlocks.length > 0) ??
+    sections.find(
+      (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
+    ) ??
+    sections.find((section) => collectSectionBodyBlocks(document, section).length > 0) ??
     null;
 
-  return bestSection?.directBodyBlocks[0] ?? null;
+  if (!bestSection) {
+    return null;
+  }
+
+  const candidateBlocks = collectSectionBodyBlocks(document, bestSection);
+  return selectBestSectionBlock(checkName, candidateBlocks);
 }
 
 function getFactContractEvidence(
@@ -602,7 +725,7 @@ function getExactSectionEvidence(
   document: QuickCheckV2ExtractedDocument,
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
-  const block = getBestExactSectionBlock(buildSectionTree(document), checkName);
+  const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
   return block ? toEvidence(block, "exact_section") : null;
 }
 
