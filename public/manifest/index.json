@@ -2931,8 +2931,8 @@
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
-    "sectionId": "S-3",
-    "sha256": "be374dabbb0d77b6e76269e071933556389b36ab46bd9f3357085ee32e00d015"
+    "sectionId": "S-5",
+    "sha256": "769455ee2dd5e6c0df5d38c4c92478b59f195afb84bf3f0e3f6ef5fc7f982b49"
   },
   {
     "id": "R-3-0006",
@@ -2946,8 +2946,8 @@
     "provider": "Verra",
     "category": "AFOLU",
     "path": "methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
-    "sectionId": "S-3",
-    "sha256": "5e11bf2cffe7f1e37ad18b79ee8a81afd20c427507cbd91b266a8e321fb090ba"
+    "sectionId": "S-5",
+    "sha256": "ee140f3229de4caed1a418b6136d9f8b3ae201166ed94bc717f0b4e6701b483f"
   },
   {
     "id": "R-3-0007",
