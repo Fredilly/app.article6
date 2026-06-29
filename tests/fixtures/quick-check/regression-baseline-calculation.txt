@@ -1,0 +1,23 @@
+Project Design Document
+VM0007 Version 4.2
+
+Project Title: Upland Avoided Deforestation Project
+Host Country: Republic of Kivu
+
+Methodology: VM0007 Version 4.2
+
+Baseline Emissions Calculation
+
+Net GHG removals by sinks in the baseline scenario are calculated as follows:
+
+Baseline net removals = sum of ((carbon stock change) + (non-CO2 GHG emissions))
+
+Where:
+  carbon stock change = baseline carbon stock * (1 - disturbance factor)
+  baseline carbon stock = forest area * average carbon density
+  average carbon density = 245 tCO2/ha (from national forest inventory)
+  forest area = 12,450 ha
+
+Monitoring Plan
+
+Carbon stocks shall be monitored using permanent sample plots established at a sampling intensity of 1 plot per 100 ha. Monitoring is conducted annually.

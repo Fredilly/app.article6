@@ -1,0 +1,28 @@
+CDM Project Design Document
+Version 03.1
+
+Section A: Project Description
+
+A.1 Project title
+Community Reforestation and Carbon Sequestration Project
+
+A.2 Host Country
+Republic of Zambia
+
+A.3 Methodology
+AR-ACM0003 Version 01.0
+
+B.4 Baseline scenario
+The baseline scenario is the continuation of current land-use practices, which is the conversion of degraded agricultural land to subsistence farming without carbon stock enhancement. Without the project activity, the land would remain as low-carbon agricultural plots with annual burning practices covering approximately 4,200 hectares. The baseline scenario is identified through the additionality and baseline determination procedure described in AR-ACM0003.
+
+B.5 Demonstration of additionality
+The project is additional because it faces significant investment barriers. The upfront costs of establishing tree plantations including nursery establishment site preparation and planting exceed the returns from carbon credit sales alone. A barrier analysis demonstrates that no alternative land-use scenario would generate equivalent returns without carbon finance. The common practice test confirms that reforestation activities of this scale are not common practice in the region where smallholder agriculture dominates.
+
+B.6 Leakage
+Activity-shifting leakage is assessed through community agreements that restrict displacement of agricultural activities. Market leakage is considered negligible due to the small scale of the project relative to the regional timber market. Leakage monitoring shall be conducted through annual household surveys within the project boundary.
+
+D.1 Monitoring methodology and plan
+Monitoring will be conducted annually using permanent sample plots established at a density of 1 plot per 100 hectares. The monitoring plan defines the sampling design carbon pool measurements and quality assurance procedures. Biomass stocks shall be measured in accordance with AR-ACM0003 monitoring requirements using allometric equations developed for the region.
+
+E.1 Stakeholder Comments
+Stakeholder consultation was conducted through public meetings in three local communities with over 200 participants. Comments were recorded and addressed in the project design including adjustments to the planting schedule and community benefit-sharing plan.

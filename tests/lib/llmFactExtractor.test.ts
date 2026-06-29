@@ -37,6 +37,11 @@ describe("llmFactExtractor — feature flag", () => {
     expect(isLlmFactExtractorEnabled()).toBe(true);
   });
 
+  it("is enabled when QUICK_CHECK_LLM_FACT_EXTRACTOR=openrouter", () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
+    expect(isLlmFactExtractorEnabled()).toBe(true);
+  });
+
   it("returns empty when feature flag is off", async () => {
     delete process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR;
     const candidates = await extractFieldCandidates("hostCountry", SAMPLE_SPANS);
@@ -53,6 +58,53 @@ describe("llmFactExtractor — feature flag", () => {
     process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
     const candidates = await extractFieldCandidates("hostCountry", []);
     expect(candidates).toEqual([]);
+  });
+
+  it("returns empty for OpenRouter without an API key without starting a timeout", async () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
+    delete process.env.OPENROUTER_API_KEY;
+    const timeoutSpy = jest.spyOn(globalThis, "setTimeout");
+    const fetchSpy = jest.spyOn(globalThis, "fetch");
+
+    const candidates = await extractFieldCandidates("hostCountry", SAMPLE_SPANS);
+
+    expect(candidates).toEqual([]);
+    expect(timeoutSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    timeoutSpy.mockRestore();
+    fetchSpy.mockRestore();
+  });
+
+  it("uses the local Ollama request path for the legacy ollama flag", async () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
+    const fetchSpy = jest.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        response: JSON.stringify({
+          fields: [
+            {
+              field: "hostCountry",
+              value: "Peru",
+              quote: "Host Country: Peru",
+              confidence: "high",
+            },
+          ],
+        }),
+      }),
+    } as Response);
+
+    const candidates = await extractFieldCandidates("hostCountry", SAMPLE_SPANS);
+
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]!.value).toBe("Peru");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "http://127.0.0.1:11434/api/generate",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining("\"model\":\"llama3.2:3b\""),
+      }),
+    );
+    fetchSpy.mockRestore();
   });
 });
 
@@ -202,16 +254,16 @@ describe("llmFactExtractor — parseAndValidateCandidates (no network)", () => {
   });
 });
 
-describe("llmFactExtractor — Ollama integration", () => {
+describe("llmFactExtractor — LLM integration", () => {
   beforeAll(() => {
-    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
   });
 
   afterAll(() => {
     delete process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR;
   });
 
-  it("extracts host country using Ollama", async () => {
+  it("extracts host country using OpenRouter", async () => {
     const spans: InputSpan[] = [
       { id: "s1", text: "Project Title: Cordillera Azul National Park REDD Project", page: 1 },
       { id: "s2", text: "Host Country: Peru", page: 1 },
@@ -221,7 +273,7 @@ describe("llmFactExtractor — Ollama integration", () => {
     const candidates = await extractFieldCandidates("hostCountry", spans);
 
     if (candidates.length === 0) {
-      console.warn("Ollama not available — skipping host country extraction test");
+      console.warn("LLM not available — skipping host country extraction test");
       return;
     }
 
@@ -233,7 +285,7 @@ describe("llmFactExtractor — Ollama integration", () => {
     expect(hc!.page).toBe(1);
   }, 60_000);
 
-  it("extracts methodology using Ollama with correct span provenance", async () => {
+  it("extracts methodology using OpenRouter with correct span provenance", async () => {
     const spans: InputSpan[] = [
       { id: "s4", text: "VM0007 REDD Methodology Modules Version 1.3", page: 4 },
       { id: "s5", text: "The project applies REDD-MF under VM0007", page: 4 },
@@ -242,7 +294,7 @@ describe("llmFactExtractor — Ollama integration", () => {
     const candidates = await extractFieldCandidates("methodologyPrimary", spans);
 
     if (candidates.length === 0) {
-      console.warn("Ollama not available — skipping methodology extraction test");
+      console.warn("LLM not available — skipping methodology extraction test");
       return;
     }
 

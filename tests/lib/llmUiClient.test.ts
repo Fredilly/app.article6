@@ -41,6 +41,47 @@ describe("llmUiClient — feature flag", () => {
   });
 });
 
+describe("llmUiClient — flag sync with server flag", () => {
+  beforeEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  afterEach(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=1 when server flag is openrouter", () => {
+    // Simulates what next.config.ts does at build time
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "openrouter";
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("1");
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=1 when server flag is ollama (backward compat)", () => {
+    process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR = "ollama";
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("1");
+  });
+
+  it("NEXT_PUBLIC_QUICK_CHECK_LLM=0 when server flag is unset", () => {
+    delete process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR;
+    const publicFlag =
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "ollama" ||
+      process.env.QUICK_CHECK_LLM_FACT_EXTRACTOR === "openrouter"
+        ? "1"
+        : "0";
+    expect(publicFlag).toBe("0");
+  });
+});
+
 describe("llmUiClient — CHECK_TO_FIELD mapping", () => {
   it("maps all 11 check IDs to fields", () => {
     expect(Object.keys(CHECK_TO_FIELD)).toEqual([
@@ -83,19 +124,20 @@ describe("llmUiClient — extractSpansForLlm", () => {
     expect(result[1]!.id).toBe("s4");
   });
 
-  it("filters out short spans (< 15 chars)", () => {
+  it("includes short spans (no longer filtered by length)", () => {
     const spans = [
       { spanId: "s1", text: "Peru", page: 1, blockType: "paragraph" },
       { spanId: "s2", text: "Host Country: Papua New Guinea", page: 1, blockType: "paragraph" },
     ];
 
     const result = extractSpansForLlm(spans);
-    expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe("s2");
+    expect(result).toHaveLength(2);
+    expect(result[0]!.id).toBe("s1");
+    expect(result[1]!.id).toBe("s2");
   });
 
-  it("limits to 20 spans", () => {
-    const spans = Array.from({ length: 50 }, (_, i) => ({
+  it("limits to 100 spans", () => {
+    const spans = Array.from({ length: 150 }, (_, i) => ({
       spanId: `s${i}`,
       text: `Span ${i} with enough text to pass filter`,
       page: 1,
@@ -103,7 +145,7 @@ describe("llmUiClient — extractSpansForLlm", () => {
     }));
 
     const result = extractSpansForLlm(spans);
-    expect(result).toHaveLength(20);
+    expect(result).toHaveLength(100);
   });
 
   it("prioritizes field-relevant spans before applying the limit", () => {

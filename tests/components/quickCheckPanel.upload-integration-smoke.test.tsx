@@ -11,11 +11,29 @@ const PLUM_PDD_TEXT = fs.readFileSync(
   path.join(process.cwd(), "tests/fixtures/quick-check/plum-pdd-regression.txt"),
   "utf-8",
 );
+const ENVIRA_PDD_TEXT = fs.readFileSync(
+  path.join(process.cwd(), "tests/fixtures/quick-check/proj-desc-1382-extracted.txt"),
+  "utf-8",
+);
+const ENVIRA_GOLD_FIXTURE = JSON.parse(
+  fs.readFileSync(
+    path.join(process.cwd(), "tests/fixtures/quick-check/envira-gold-fixture.json"),
+    "utf-8",
+  ),
+) as Array<{
+  checkName: string;
+  expectedStatus: "FOUND" | "UNCLEAR" | "MISSING";
+  expectedAnswer: string | null;
+  goldQuote: string;
+  page: number;
+  sectionHeading: string | null;
+}>;
 
 const createAndStoreEvidenceAttachmentMock = jest.fn();
 
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "qc-smoke-upload.pdf": PLUM_PDD_TEXT,
+  "envira-gold.pdf": ENVIRA_PDD_TEXT,
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -144,7 +162,7 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
       },
     );
 
-    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+    global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.includes("/api/methods/inventory")) {
         return new Response(
@@ -152,6 +170,30 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
             methods: [
               { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
             ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/quick-check/pdf-extract")) {
+        let filename = "document.pdf";
+        if (init?.body instanceof FormData) {
+          const formFilename = init.body.get("filename");
+          if (typeof formFilename === "string" && formFilename.trim()) {
+            filename = formFilename;
+          }
+        } else if (typeof init?.body === "string") {
+          const payload = JSON.parse(init.body) as { filename?: string };
+          if (payload.filename?.trim()) {
+            filename = payload.filename;
+          }
+        }
+        return new Response(
+          JSON.stringify({
+            text: PDF_TEXT_BY_FILENAME[filename] ?? "",
+            engine: "pdf-parse",
+            metadata: {
+              parser: "pdf-parse",
+            },
           }),
           { status: 200 },
         );
@@ -233,6 +275,45 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     const text = container.textContent ?? "";
     expect(text).toContain("VM0007");
     expect(text).not.toContain("No valid analysis path");
+  });
+
+  it("shows the six Quick Check v2 structured results in the UI preview for Envira", async () => {
+    seedSession({
+      claimText: "What is the project title?",
+      filename: "envira-gold.pdf",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-0",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${ENVIRA_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await act(async () => {
+      clickButton("Run Checks");
+    });
+    await flushUi();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Host country");
+    expect(text).toContain("Methodology");
+    expect(text).toContain("Baseline scenario");
+    expect(text).toContain("Additionality");
+    expect(text).toContain("Leakage");
+    expect(text).toContain("Stakeholder consultation");
+
+    for (const record of ENVIRA_GOLD_FIXTURE) {
+      expect(record.expectedStatus).toBe("FOUND");
+      expect(record.expectedAnswer).toBeTruthy();
+      expect(text).toContain(record.expectedAnswer!);
+      expect(text).toContain(record.goldQuote.slice(0, 60));
+      expect(text).toContain(`p.${record.page}`);
+      if (record.sectionHeading) {
+        expect(text).toContain(record.sectionHeading);
+      }
+    }
   });
 
   it("shows rejection state for unsupported question from seeded upload/session state", async () => {

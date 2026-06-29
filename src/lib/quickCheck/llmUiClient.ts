@@ -5,6 +5,10 @@
  * this for each check that returned "missing" or "unclear".
  * Returns validated candidates with span provenance, or empty
  * array if LLM is unavailable or couldn't find the answer.
+ *
+ * LLM results are NEVER used to mutate EvidenceCheckResult.status.
+ * The router/validator remains the sole authority for visible status.
+ * See: https://github.com/Fredilly/app.article6/pull/825
  */
 import type { InputSpan, LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
 import type { EvidenceCheckStatus } from "@/lib/quickCheck/evidenceChecks";
@@ -56,39 +60,41 @@ export function shouldFetchLlmSuggestion(input: LlmSuggestionEligibilityInput): 
 
 /**
  * Extract candidate spans from the evidence document for LLM analysis.
- * Returns the first N content spans (not TOC, headers, footers, annexes).
+ * Returns content spans relevant to the given field.
+ * For hostCountry, prefers spans mentioning country/location keywords.
  */
 export function extractSpansForLlm(
   spans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  maxSpans = 20,
   field?: string,
+  maxSpans = 100,
 ): InputSpan[] {
-  return spans
-    .filter((s) => s.text.trim().length > 15)
-    .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType))
-    .map((s, index) => ({ ...s, index, score: scoreSpanForField(s.text, field) }))
-    .sort((a, b) => b.score - a.score || a.index - b.index)
+  const valid = spans
+    .filter((s) => s.text.trim().length > 0)
+    .filter((s) => !["toc", "header", "footer", "annex", "excluded"].includes(s.blockType));
+
+  if (field === "hostCountry") {
+    const countryKeywords = [
+      "country", "location", "papua", "new guinea", "peru", "ghana",
+      "indonesia", "brazil", "colombia", "nigeria", "kenya", "congo",
+      "tanzania", "myanmar", "laos", "cambodia", "vietnam", "chile",
+      "ecuador", "bolivia", "project area",
+    ];
+    const keywordSpans = valid.filter((s) =>
+      countryKeywords.some((kw) => s.text.toLowerCase().includes(kw)),
+    );
+    const otherSpans = valid.filter((s) =>
+      !countryKeywords.some((kw) => s.text.toLowerCase().includes(kw)),
+    );
+    // Prioritize keyword spans, fill rest with other spans up to maxSpans
+    const prioritized = [...keywordSpans, ...otherSpans]
+      .slice(0, maxSpans)
+      .map((s) => ({ id: s.spanId, text: s.text, page: s.page }));
+    return prioritized;
+  }
+
+  return valid
     .slice(0, maxSpans)
     .map((s) => ({ id: s.spanId, text: s.text, page: s.page }));
-}
-
-function scoreSpanForField(text: string, field?: string): number {
-  const normalized = text.toLowerCase();
-  const termsByField: Record<string, string[]> = {
-    hostCountry: ["host country", "country/area", "country", "project location"],
-    methodologyPrimary: ["methodology", "methodology applied", "title and reference", "vcs", "cdm", "gold standard"],
-    baselineScenario: ["baseline scenario", "without project", "without-project", "business as usual"],
-    additionality: ["additionality", "additional", "barrier", "investment analysis", "common practice"],
-    leakage: ["leakage", "activity shifting", "market leakage"],
-    stakeholderConsultation: ["stakeholder", "consultation", "community", "public comment"],
-    monitoringPlan: ["monitoring plan", "monitoring", "parameter monitored"],
-    projectBoundary: ["project boundary", "boundary", "project area"],
-    creditingPeriod: ["crediting period", "project crediting", "ghg accounting period"],
-    emissionReductionCalculation: ["emission reduction", "emission reductions", "calculation", "ex ante"],
-    applicabilityConditions: ["applicability", "applicability conditions", "eligible"],
-  };
-  const terms = field ? termsByField[field] ?? [] : [];
-  return terms.reduce((score, term) => score + (normalized.includes(term) ? 10 : 0), 0);
 }
 
 /**
@@ -97,6 +103,9 @@ function scoreSpanForField(text: string, field?: string): number {
  * @param checkId - The Quick Check check ID (e.g. "host_country")
  * @param documentSpans - All evidence spans from the extracted document
  * @returns Array of validated candidates (empty if none found or unavailable)
+ *
+ * LLM candidates do NOT mutate EvidenceCheckResult.status.
+ * They are suggestions only — the router controls final answer visibility.
  */
 export async function fetchLlmCandidate(
   checkId: string,
@@ -107,11 +116,8 @@ export async function fetchLlmCandidate(
   const mapping = CHECK_TO_FIELD[checkId];
   if (!mapping) return [];
 
-  const spans = extractSpansForLlm(documentSpans, 20, mapping.field);
+  const spans = extractSpansForLlm(documentSpans, mapping.field);
   if (spans.length === 0) return [];
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 35_000);
 
   try {
     const response = await fetch(LLM_API_PATH, {
@@ -122,7 +128,7 @@ export async function fetchLlmCandidate(
         question: mapping.question,
         spans,
       }),
-      signal: controller.signal,
+      signal: AbortSignal.timeout(65_000),
     });
 
     if (!response.ok) return [];
@@ -134,8 +140,6 @@ export async function fetchLlmCandidate(
     return data.candidates ?? [];
   } catch {
     return [];
-  } finally {
-    clearTimeout(timeout);
   }
 }
 

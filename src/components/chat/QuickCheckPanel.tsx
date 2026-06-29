@@ -52,7 +52,7 @@ import {
 } from "@/lib/chat/quickCheckUi";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
-import { createAndStoreEvidenceAttachment } from "@/lib/proofMap/attachments";
+import { createAndStoreEvidenceAttachment, getAttachmentBytes } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
 import { loadPins, savePins } from "@/lib/proofMap/storage";
 import type { EvidencePin, PddFragment } from "@/lib/proofMap/types";
@@ -68,15 +68,7 @@ import {
 import { getDocumentQaUiConfig } from "@/lib/quickCheck/documentQa";
 import type { DocumentHeading } from "@/lib/chat/quickCheckSectionExtractor";
 import { fetchSemanticEvidenceCandidates } from "@/lib/quickCheck/semanticEvidence/client";
-import {
-  getAllChecks,
-  formatEvidenceCheckUiText,
-  getContract,
-  validateCheck,
-  type CheckValidationContext,
-  type EvidenceCheckResult,
-} from "@/lib/quickCheck/evidenceChecks";
-import { getEnabledCheckIds } from "@/lib/quickCheck/evidenceCheckGroups";
+import { getAllChecks } from "@/lib/quickCheck/evidenceChecks";
 import {
   classifyDocumentPurpose,
   documentPurposeLabel,
@@ -84,8 +76,9 @@ import {
 } from "@/lib/documentClassification/classifyDocumentPurpose";
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
-import { fetchLlmCandidate, isLlmUiEnabled, shouldFetchLlmSuggestion } from "@/lib/quickCheck/llmUiClient";
-import type { LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
+import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
+import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
+import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 
 type MethodInventoryRecord = {
   code: string;
@@ -122,6 +115,17 @@ type ExtractionState = {
   loading: boolean;
   analysis: QuickCheckEvidenceAnalysis | null;
   error: string | null;
+};
+
+type StructuredEvidenceCheckResult = {
+  checkId: StructuredCheckId;
+  status: "found" | "missing" | "unclear";
+  answerText: string;
+  downgradeReason: string;
+  quotes: string[];
+  pages: number[];
+  sections: string[];
+  evidenceSpanIds: string[];
 };
 
 type FieldErrors = {
@@ -184,6 +188,55 @@ const GENERAL_REVIEW_QUESTION =
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function buildStructuredCheckDowngradeReason(reason: StatusReason): string {
+  switch (reason) {
+    case "answer_missing":
+      return "Quick Check found section evidence, but it did not yield a deterministic answer.";
+    case "fallback_evidence_only":
+      return "Quick Check found only raw-text fallback evidence, so the result stays unclear.";
+    case "provenance_incomplete":
+      return "Quick Check found a possible answer, but the quote/page/section/span provenance is incomplete.";
+    default:
+      return "";
+  }
+}
+
+function buildStructuredCheckAnswerText(input: {
+  status: "FOUND" | "UNCLEAR" | "MISSING";
+  answer: string | null;
+  reason: StatusReason;
+}): string {
+  if (input.status === "FOUND") return input.answer ?? "";
+  if (input.status === "MISSING") {
+    return "Quick Check did not find usable evidence in the uploaded document.";
+  }
+  if (input.answer) return input.answer;
+  return buildStructuredCheckDowngradeReason(input.reason) || "Quick Check found incomplete evidence for this check.";
+}
+
+async function loadPreferredStructuredCheckText(
+  evidenceSources: Array<{
+    sourceLabel: string;
+    attachments: Array<{ id: string; filename: string; mime: string }>;
+  }>,
+  resolveFn: (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => Promise<{ text?: string | null } | null>,
+): Promise<string | null> {
+  const primaryAttachment = evidenceSources[0]?.attachments[0];
+  if (!primaryAttachment?.id) return null;
+
+  const bytes = await getAttachmentBytes(primaryAttachment.id);
+  if (!bytes) return null;
+
+  const resolved = await resolveFn({
+    attachmentId: primaryAttachment.id,
+    filename: primaryAttachment.filename,
+    mime: primaryAttachment.mime,
+    bytes,
+  });
+
+  return resolved?.text?.trim() ? resolved.text : null;
 }
 
 function newPinId(): string {
@@ -620,8 +673,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [showExtractionDetails, setShowExtractionDetails] = useState(false);
   const [reviewQuestionResult, setReviewQuestionResult] = useState<ReviewQuestionResult | null>(null);
   const [documentPurpose, setDocumentPurpose] = useState<DocumentPurpose | null>(null);
-  const [evidenceCheckResults, setEvidenceCheckResults] = useState<EvidenceCheckResult[]>([]);
-  const [llmSuggestions, setLlmSuggestions] = useState<Record<string, LlmFactCandidate[]>>({});
+  const [evidenceCheckResults, setEvidenceCheckResults] = useState<StructuredEvidenceCheckResult[]>([]);
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -1079,7 +1131,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowMethodology(false);
     setShowExtractionDetails(false);
     setEvidenceCheckResults([]);
-    setLlmSuggestions({});
     setRunningEvidenceChecks(false);
     setDocumentPurpose(null);
   }
@@ -1374,11 +1425,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setFieldErrors({ evidence: attachmentResult.message });
         return;
       }
-      updateSession((current) => ({
-        ...current,
-        draft: (() => {
-          const nextMethodology = resetMethodologyForUserInput(current.draft);
-          return {
+      updateSession((current) => {
+        const nextMethodology = resetMethodologyForUserInput(current.draft);
+        return {
+          ...current,
+          draft: {
             ...current.draft,
             ...nextMethodology,
             sourceMode: "uploaded_file",
@@ -1388,19 +1439,52 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             result: null,
             resultId: undefined,
             updatedAt: nowIso(),
-          };
-        })(),
-        result: null,
-        stagedUploads: [
+          },
+          result: null,
+          stagedUploads: [
+            {
+              evidenceId,
+              filename: attachmentResult.attachment.filename,
+              mime: attachmentResult.attachment.mime,
+              createdAt: attachmentResult.attachment.created_at,
+              attachment: attachmentResult.attachment,
+            },
+          ],
+        };
+      });
+
+      // SNAPSHOT: built from LOCAL values inside the upload handler, NOT from
+      // React render-time state (selectedEvidenceSources, draft.*) which still
+      // reflects the previous document before the next render cycle.
+      // We reuse the same nextMethodology from the updateSession callback
+      // by re-computing it on the session state's draft (same computation).
+      const sessionDraft = session.draft;
+      const snapshotNextMethodology = resetMethodologyForUserInput(sessionDraft);
+      const snapshot = {
+        evidenceSources: [
           {
             evidenceId,
-            filename: attachmentResult.attachment.filename,
-            mime: attachmentResult.attachment.mime,
-            createdAt: attachmentResult.attachment.created_at,
-            attachment: attachmentResult.attachment,
+            sourceLabel: attachmentResult.attachment.filename,
+            attachments: [attachmentResult.attachment],
+            pddFragments: undefined,
           },
         ],
-      }));
+        resolvePdfText,
+        evidenceIds: [evidenceId],
+        fileName: attachmentResult.attachment.filename,
+        methodologyId: snapshotNextMethodology.methodologyId,
+        methodologyVersion: snapshotNextMethodology.methodologyVersion,
+        methods,
+      };
+
+      // Clear previous check results before auto-running
+      setEvidenceCheckResults([]);
+      setRunningEvidenceChecks(false);
+
+      // Fire after current render cycle so the evidence is visible
+      setTimeout(() => {
+        void runEvidenceChecksFromSnapshot(snapshot);
+      }, 0);
     } finally {
       setSubmitting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -1808,33 +1892,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  const fetchLlmSuggestions = useCallback(async (
-    checkResults: EvidenceCheckResult[],
-    evidenceSpans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-    runId: number,
-  ): Promise<void> => {
-    const suggestionPromises = checkResults.map(async (r) => {
-      const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
-      return { checkId: r.checkId, candidates };
-    });
-
-    const suggestionResults = await Promise.all(suggestionPromises);
-    if (evidenceCheckRunRef.current !== runId) return;
-
-    const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
-    for (const sr of suggestionResults) {
-      if (sr.candidates.length > 0) {
-        suggestionsMap[sr.checkId] = sr.candidates;
-      }
-    }
-    setLlmSuggestions(suggestionsMap);
-  }, []);
-
   const runEvidenceChecks = useCallback(async (options?: { evidenceAnalysis?: QuickCheckEvidenceAnalysis }) => {
     const runId = evidenceCheckRunRef.current + 1;
     evidenceCheckRunRef.current = runId;
     setRunningEvidenceChecks(true);
-    setLlmSuggestions({});
 
     try {
       const evidenceAnalysis = options?.evidenceAnalysis ?? await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
@@ -1854,73 +1915,50 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       });
       const resolvedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-      const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
-      const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
       if (evidenceCheckRunRef.current !== runId) return;
 
-      const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
       const allChecks = getAllChecks(resolvedMethodologyId || undefined);
-      const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
-      const results: EvidenceCheckResult[] = [];
+      const documentId = draft.evidenceIds[0] || draft.evidenceFileName || "quick-check-v2";
+      const preferredRawText =
+        await loadPreferredStructuredCheckText(selectedEvidenceSources, resolvePdfText)
+        ?? evidenceAnalysis.rawPddText;
+      if (evidenceCheckRunRef.current !== runId) return;
 
-      for (const check of checksToRun) {
-        const contract = getContract(check.id);
-        const questionResult = buildReviewQuestionResult({
-          claimText: check.question,
-          methodologyId: resolvedMethodologyId || "VM0007",
-          methodologyVersion: resolvedMethodologyVersion || "4.2",
-          rawPddText: evidenceAnalysis.rawPddText,
-          structuredQueryContext,
-        });
-
-        const ctx: CheckValidationContext = {
-          evidenceDocument: structuredQueryContext.evidenceDocument,
-          projectFactContract: structuredQueryContext.projectFactContract,
-          sectionTableIndex: structuredQueryContext.sectionTableIndex,
-          routerResult: questionResult.routerResult,
-          queryIntentAnalysis: questionResult.queryIntentAnalysis,
-          rawText: evidenceAnalysis.rawPddText,
-        };
-
-        const validated = validateCheck(contract, ctx);
-        const formatted = formatEvidenceCheckUiText({
-          label: check.label,
-          status: validated.status,
-          answerText: validated.answerText,
-          downgradeReason: validated.downgradeReason,
-        });
-        // Provenance now comes from the validated candidate, not the router.
-        results.push({
-          checkId: check.id,
-          status: validated.status,
-          answerText: formatted.answerText,
-          rawAnswerText: validated.answerText,
-          downgradeReason: formatted.downgradeReason,
-          quotes: validated.quotes,
-          pages: validated.pages,
-          sections: validated.sections,
-          evidenceSpanIds: validated.evidenceSpanIds,
-          warnings: questionResult.routerResult.warnings,
-        });
-      }
+      const parsedDocument = parseExtractedText(
+        preferredRawText,
+        documentId,
+        evidenceAnalysis.parserAdapterId || "quick-check-panel",
+      );
+      const statusResults = validateAnswerResults(extractAnswersForAllChecks(parsedDocument));
+      const results: StructuredEvidenceCheckResult[] = statusResults
+        .map((statusResult) => {
+          const evidence = statusResult.evidence;
+          const status: StructuredEvidenceCheckResult["status"] =
+            statusResult.status === "FOUND"
+              ? "found"
+              : statusResult.status === "MISSING"
+                ? "missing"
+                : "unclear";
+          return {
+            checkId: statusResult.checkName,
+            status,
+            answerText: buildStructuredCheckAnswerText(statusResult),
+            downgradeReason: buildStructuredCheckDowngradeReason(statusResult.reason),
+            quotes: evidence?.quote ? [evidence.quote] : [],
+            pages: typeof evidence?.page === "number" ? [evidence.page] : [],
+            sections:
+              evidence?.sectionHeading
+                ? [evidence.sectionHeading]
+                : evidence?.sectionPath?.length
+                  ? evidence.sectionPath
+                  : [],
+            evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+          };
+        })
+        .filter((result) => allChecks.some((check) => check.id === result.checkId));
 
       setDocumentPurpose(purpose);
       setEvidenceCheckResults(results);
-
-      // LLM-assisted suggestions are feature-flagged and non-blocking.
-      // They never override deterministic status or answer.
-      if (isLlmUiEnabled()) {
-        const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
-          spanId: s.spanId,
-          text: s.text,
-          page: s.page,
-          blockType: s.blockType,
-        })) ?? [];
-
-        const checksNeedingSuggestions = results.filter(shouldFetchLlmSuggestion);
-        void fetchLlmSuggestions(checksNeedingSuggestions, evidenceSpans, runId);
-      }
     } catch (error) {
       if (evidenceCheckRunRef.current !== runId) return;
       setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
@@ -1930,9 +1968,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
     }
   }, [
+    draft.evidenceFileName,
+    draft.evidenceIds,
     draft.methodologyId,
-    draft.methodologyVersion,
-    fetchLlmSuggestions,
     methods,
     resolvePdfText,
     selectedEvidenceSources,
@@ -2425,14 +2463,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     const checkDef = getAllChecks(draft.methodologyId.trim() || undefined).find((c) => c.id === result.checkId);
                     const label = checkDef?.label ?? result.checkId;
                     const methodologyLabel = checkDef?.methodologySpecific;
-                    const statusColors = result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : result.status === "not_applicable" ? "bg-slate-300" : "bg-amber-400";
-                    const badgeColors = result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : result.status === "not_applicable" ? "bg-slate-100 text-slate-500" : "bg-amber-100 text-amber-700";
-                    const statusLabel = result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : result.status === "not_applicable" ? "N/A" : "Unclear";
+                    const statusColors = result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : "bg-amber-400";
+                    const badgeColors = result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
+                    const statusLabel = result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : "Unclear";
                     return (
                       <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
                         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
                           <span className={`inline-block h-2 w-2 rounded-full ${statusColors}`} />
-                          <span className={`font-medium ${result.status === "not_applicable" ? "text-slate-400" : "text-slate-800"}`}>{label}</span>
+                          <span className="font-medium text-slate-800">{label}</span>
                           {methodologyLabel ? <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{methodologyLabel}</span> : null}
                           <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${badgeColors}`}>{statusLabel}</span>
                         </summary>
@@ -2453,8 +2491,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                             </>
                           ) : result.status === "missing" ? (
                             <div className="text-xs text-slate-500">{result.answerText}</div>
-                          ) : result.status === "not_applicable" ? (
-                            <div className="text-xs text-slate-400">Not applicable for this document type.</div>
                           ) : (
                             <div className="text-xs text-slate-500">
                               {result.answerText}
@@ -2498,32 +2534,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           >
                             Export correction
                           </button>
-                          {llmSuggestions[result.checkId]?.length > 0 ? (
-                            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3">
-                              <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-500">
-                                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z" />
-                                </svg>
-                                LLM suggestion
-                              </div>
-                              {llmSuggestions[result.checkId]!.map((suggestion, si) => (
-                                <div key={si} className="mt-1 text-xs">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium text-indigo-900">{suggestion.value}</span>
-                                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
-                                      suggestion.confidence === "high"
-                                        ? "bg-emerald-100 text-emerald-600"
-                                        : suggestion.confidence === "medium"
-                                          ? "bg-amber-100 text-amber-600"
-                                          : "bg-slate-100 text-slate-500"
-                                    }`}>{suggestion.confidence}</span>
-                                  </div>
-                                  <div className="mt-0.5 italic text-indigo-600/70">&ldquo;{suggestion.quote.slice(0, 200)}{suggestion.quote.length > 200 ? "\u2026" : ""}&rdquo;</div>
-                                  {suggestion.page != null ? <div className="mt-0.5 text-[10px] text-indigo-400/70">p.{suggestion.page}</div> : null}
-                                </div>
-                              ))}
-                            </div>
-                          ) : null}
                         </div>
                       </details>
                     );

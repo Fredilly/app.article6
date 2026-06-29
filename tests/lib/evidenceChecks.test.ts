@@ -405,3 +405,318 @@ describe("authoritative evidence check selectors", () => {
     expect(validated.downgradeReason).toBe("");
   });
 });
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Host country rejection tests (strict contract)
+// ---------------------------------------------------------------------------
+
+it("rejects profile?countryCode=GW as host country and returns unclear", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "The host country is profile?countryCode=GW. The project is located in Guinea-Bissau.",
+  });
+
+  // The validator rejects the URL-containing text. The full line is returned
+  // as unclear, but the downgrade reason shows it was rejected.
+  expect(result.downgradeReason).not.toBe("");
+});
+
+it("rejects URLs as host country", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "Project participant: https://registry.verra.org/profile?pid=12345. Host Country: Indonesia",
+  });
+
+  expect(result.answerText).not.toContain("https");
+  expect(result.answerText).not.toContain("registry");
+});
+
+it("rejects VVB/developer references as host country", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "VVB: TÜV Rheinland. Project developer: EcoProjects Ltd. Host country: Peru.",
+  });
+
+  expect(result.answerText).not.toContain("VVB");
+  expect(result.answerText).not.toContain("TÜV");
+  expect(result.answerText).toContain("Peru");
+});
+
+it("returns unclear for junk-only host country text", () => {
+  const result = runCheck({
+    checkId: "host_country",
+    claimText: "What is the host country?",
+    rawText: "This validation report covers project PDD v1.5. profile?countryCode=GW is the reference.",
+  });
+
+  // Should contain a downgrade reason about not being a specific country value
+  expect(result.downgradeReason).not.toBe("");
+});
+
+// ---------------------------------------------------------------------------
+// Methodology rejection tests (strict contract)
+// ---------------------------------------------------------------------------
+
+it("rejects generic methodology prose without an explicit methodology code", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "The methodology provides modules and tools for quantifying emission reductions from reduced deforestation. This section describes the methodology framework applied to the project.",
+  });
+
+  // No VM/ACM/AM code means the result should have a downgrade reason
+  expect(result.downgradeReason).not.toBe("");
+});
+
+it("accepts explicit VM0007 when tied to applied methodology", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "Title and reference of methodology applied: VM0007 Methodology Framework for REDD+ Projects v1.0. The project applies VM0007 as the baseline and monitoring methodology.",
+  });
+
+  expect(result.answerText).toContain("VM0007");
+});
+
+it("rejects methodology code in module/tool boilerplate without being proven as applied", () => {
+  const result = runCheck({
+    checkId: "methodology",
+    claimText: "What methodology was applied?",
+    rawText: "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
+  });
+
+  // VM0007 appears in "modules" context — should have a downgrade reason
+  expect(result.downgradeReason).not.toBe("");
+});
+
+// ---------------------------------------------------------------------------
+// Final user-facing status assertion tests (validateCheck directly)
+// ---------------------------------------------------------------------------
+
+function runValidateCheck(input: {
+  checkId: EvidenceCheckId;
+  claimText: string;
+  rawText: string;
+}) {
+  const sqc = getStructuredQueryContext(input.rawText);
+  const qr = buildReviewQuestionResult({
+    claimText: input.claimText,
+    methodologyId: "",
+    methodologyVersion: "",
+    rawPddText: input.rawText,
+    structuredQueryContext: sqc,
+  });
+  return validateCheck(getContract(input.checkId), {
+    evidenceDocument: sqc.evidenceDocument,
+    projectFactContract: sqc.projectFactContract,
+    sectionTableIndex: sqc.sectionTableIndex,
+    routerResult: qr.routerResult,
+    queryIntentAnalysis: qr.queryIntentAnalysis,
+    rawText: input.rawText,
+  });
+}
+
+describe("host country final status", () => {
+  it("profile?countryCode=GW cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "This validation report covers project PDD v1.5. profile?countryCode=GW is the reference.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("junk-only text with no real country returns unclear or missing", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "profile?countryCode=GW is just the registry profile. VVB: TÜV Rheinland. pid=12345.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("real host country found despite nearby registry junk", () => {
+    // When both junk and a real country are present, the real country wins
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "Project participant: https://registry.verra.org/profile?pid=12345. Host Country: Indonesia",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toMatch(/Indonesia/i);
+  });
+
+  it("real host country found despite nearby VVB text", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "VVB: TÜV Rheinland. Project developer: EcoProjects Ltd. Host country: Peru.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toMatch(/Peru/i);
+  });
+});
+
+describe("methodology final status", () => {
+  it("generic methodology prose cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The methodology provides modules and tools for quantifying emission reductions from reduced deforestation.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("module/tool boilerplate without applied context cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The modules and tools section describes the VM0007 components. Module VMD0001 describes the carbon accounting approach.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("explicit applied VM0007 can still return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Title and reference of methodology applied: VM0007 Methodology Framework for REDD+ Projects v1.0. The project applies VM0007 as the baseline and monitoring methodology.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+
+  it("AR-AMS0007 accepted as applied methodology", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Name and reference of approved methodology applied: AR-AMS0007 Simplified Baseline and Monitoring Methodology for Small-scale CDM A/R Project Activities.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0007");
+  });
+
+  it("AR-AMS0003 accepted as applied methodology", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Name and reference of approved methodology applied: AR-AMS0003 Afforestation and Reforestation of Degraded Land.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0003");
+  });
+
+  it("VM0007 accepted when paragraph mentions modules/tools with applied context", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The project applies VCS Methodology VM0007 together with applicable modules and tools described in Appendix 1.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+
+  it("generic modules/tools boilerplate without applied context still rejected", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The modules and tools section lists the applicable components. This methodology provides modules and tools for quantifying emission reductions.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+});
+// ---------------------------------------------------------------------------
+// Kariba PDD regression tests
+// ---------------------------------------------------------------------------
+
+
+describe("Kariba PDD regression", () => {
+  it("host_country rejects URL path fragment information/zimbabwe/en/", () => {
+    const result = runValidateCheck({
+      checkId: "host_country",
+      claimText: "What is the host country?",
+      rawText: "FAO country information Zimbabwe: http://www.fao.org/isfp/country-information/zimbabwe/en/",
+    });
+    expect(result.status).not.toBe("found");
+  });
+
+  it("methodology returns VM0009 from title and reference text", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "APPLICATION OF METHODOLOGY\n2.1 Title and Reference of Methodology\nVM0009 - Methodology for Avoided Mosaic Deforestation of Tropical Forests, v1.1",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0009");
+  });
+
+  it("methodology rejects PROJECT DESCRIPTION: VCS Version header as missing", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "PROJECT DESCRIPTION: VCS Version 3\nv3.1\nProject Title  Kariba REDD+ Project",
+    });
+    expect(result.status).toBe("missing");
+  });
+});
+
+describe("methodology module/tool rejection", () => {
+  it("VMD-only code (no primary) cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "VMD0001 module describes the carbon accounting approach for this project.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("module/tool text with VMD but no primary methodology cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Module VMD0001 is applied. The module describes quantification of emission reductions.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+
+  it("VM0007 with VMD module mention still returns FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Title and reference of methodology applied: VM0007 v1.6. Module VMD0001 describes the carbon accounting approach under VM0007.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("VM0007");
+  });
+
+  it("extraction preview primary method returns FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "Primary methodology: AR-AMS0007. The project applies this methodology for afforestation activities.",
+    });
+    expect(result.status).toBe("found");
+    expect(result.answerText).toContain("AR-AMS0007");
+  });
+
+  it("generic module framework text without code cannot return FOUND", () => {
+    const result = runValidateCheck({
+      checkId: "methodology",
+      claimText: "What methodology was applied?",
+      rawText: "The methodology framework provides modules and tools for quantifying emission reductions in the forestry sector.",
+    });
+    expect(result.status).not.toBe("found");
+    expect(["unclear", "missing"]).toContain(result.status);
+  });
+});

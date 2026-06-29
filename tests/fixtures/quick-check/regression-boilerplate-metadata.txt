@@ -1,0 +1,12 @@
+Clean Development Mechanism
+CDM-PDD-FORM-Version 03.1
+Executive Board
+
+Project Design Document Form
+Submitted on: 15 March 2023
+Document number: CDM-PDD-2023-0042
+
+This document is a template for project design documents under the Clean Development Mechanism.
+All sections must be completed in accordance with the latest version of the CDM rules and procedures.
+
+For more information, refer to the CDM Methodology Booklet and EB meeting reports.

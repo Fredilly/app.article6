@@ -456,7 +456,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "Community Based Avoided Deforestation Project in Guinea-Bissau"
               ]
@@ -468,7 +470,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "Republic of Guinea-Bissau"
               ]
@@ -480,7 +484,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "project_fact_contract",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "VM0007",
                 "REDD-MF"
@@ -498,10 +504,14 @@
               "baseline scenario"
             ],
             "forbiddenAnswerContains": [],
-            "forbiddenStatus": ["unclear"],
+            "forbiddenStatus": [
+              "unclear"
+            ],
             "maxVisibleAnswerLength": 500,
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "The baseline scenario describes the most plausible scenario in the absence of the Project Activity"
               ],
@@ -516,7 +526,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "Monitoring"
               ],
@@ -531,7 +543,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "Leakage"
               ],
@@ -546,7 +560,9 @@
             "expectedStatus": "answered",
             "expectedRoute": "section_index",
             "goldEvidence": {
-              "pages": [1],
+              "pages": [
+                1
+              ],
               "spanAnchors": [
                 "As per VT0001"
               ],
@@ -1050,7 +1066,610 @@
           }
         }
       },
-      "notes": "Table-heavy Verra REDD+ PDD with carbon pool, monitoring parameter, and leakage tables. Host country extracted from intro-area labelled field. Baseline, monitoring, and leakage sections are detected by the fact extractor but question routing returns no_evidence because pipe-delimited table content fragments text and breaks evidence validation — known extractor weakness (see follow-up: tables inside sections suppress evidence signal even when valid prose precedes them)."
+      "notes": "Table-heavy Verra REDD+ PDD with carbon pool, monitoring parameter, and leakage tables. Host country extracted from intro-area labelled field. Baseline, monitoring, and leakage sections are detected by the fact extractor but question routing returns no_evidence because pipe-delimited table content fragments text and breaks evidence validation \u2014 known extractor weakness (see follow-up: tables inside sections suppress evidence signal even when valid prose precedes them)."
+    },
+    {
+      "id": "regression-toc-only-pdd",
+      "fixturePath": "tests/fixtures/quick-check/regression-toc-only-pdd.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "ACM0010",
+        "methodologyVersion": "02"
+      },
+      "gold": {
+        "documentFamily": "CDM_PDD",
+        "projectTitle": "CDM Project Design Document",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": null,
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "CDM Project Design Document"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1,
+            "visibleAnswerEvidencePage": 1
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes"
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Table of contents only \u2014 no body text for any section. Project title, host country, and methodology all resolve from the TOC heading line. Tests that TOC-only content does not produce answered results for section-based questions.",
+      "notes": "Regression fixture: TOC-only PDD with section headings but no body text. Every section-based question must return unclear or no_evidence."
+    },
+    {
+      "id": "regression-boilerplate-metadata",
+      "fixturePath": "tests/fixtures/quick-check/regression-boilerplate-metadata.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "CDM_PDD",
+        "projectTitle": null,
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": null,
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes"
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Generic CDM form boilerplate \u2014 no project-specific content. All project facts and sections must remain unclear or no_evidence.",
+      "notes": "Regression fixture: CDM form template with metadata only. No project title, host country, or methodology in body text. No section content."
+    },
+    {
+      "id": "regression-methodology-preamble",
+      "fixturePath": "tests/fixtures/quick-check/regression-methodology-preamble.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "VERRA_PD",
+        "projectTitle": "A. Project Description",
+        "hostCountry": null,
+        "projectCountry": null,
+        "methodology": "VM0007 Version 4.2",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": null,
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "A. Project Description"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007 Version 4.2"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Methodology preamble only \u2014 mentions VM0007 additionality framework in the methodology description section, not as project-specific additionality analysis. Section-based baseline/additionality/leakage questions must return unclear.",
+      "notes": "Regression fixture: Methodology preamble describes VM0007 framework (baseline, additionality, monitoring, leakage) generically, not as project-specific content. The section heading 'B. Methodology Application' should not trigger answered for additionality or baseline."
+    },
+    {
+      "id": "regression-baseline-calculation",
+      "fixturePath": "tests/fixtures/quick-check/regression-baseline-calculation.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "VM0007",
+        "methodologyVersion": "4.2"
+      },
+      "gold": {
+        "documentFamily": "REDD_AFOLU",
+        "projectTitle": "Project Design Document",
+        "hostCountry": "Republic of Kivu",
+        "projectCountry": "Republic of Kivu",
+        "methodology": "VM0007 Version 4.2",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline Emissions Calculation",
+        "monitoringSection": null,
+        "leakageSection": null,
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Project Design Document"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Republic of Kivu"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "VM0007 Version 4.2"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Baseline section contains only emission calculation formulas \u2014 no baseline scenario description. Section-based baseline_scenario must return unclear despite heading match, because calculation-only evidence lacks scenario justification.",
+      "notes": "Regression fixture: Baseline heading found but content is formulas only, not a baseline scenario description. Tests that the router does not return answered for calculation-only baselines. Monitoring section exists but has insufficient detail for answered."
+    },
+    {
+      "id": "regression-generic-leakage",
+      "fixturePath": "tests/fixtures/quick-check/regression-generic-leakage.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "ACM0010",
+        "methodologyVersion": "02"
+      },
+      "gold": {
+        "documentFamily": "UNKNOWN",
+        "projectTitle": "Project Design Document",
+        "hostCountry": "Thailand",
+        "projectCountry": "Thailand",
+        "methodology": "ACM0010 Version 02",
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": null,
+        "monitoringSection": null,
+        "leakageSection": "Leakage",
+        "additionalitySection": null,
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Project Design Document"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Thailand"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "ACM0010 Version 02"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "baseline_scenario": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "monitoring": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "leakage": {
+            "expectedStatus": "unclear",
+            "visibleAnswerStatus": "unclear"
+          },
+          "additionality": {
+            "expectedStatus": "unclear",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "failureReason": "Leakage section contains only a generic methodology statement ('leakage is considered negligible for manure management projects'). No project-specific leakage management, mitigation measures, or activity-shifting analysis. The section heading exists but the content is a boilerplate methodology quote, not project evidence.",
+      "notes": "CRITICAL REGRESSION: Generic leakage mention. The leakage section heading 'Section 4: Leakage' is found by section_index, and the body quotes a methodology boilerplate statement. The router must NOT return answered for this \u2014 it should return unclear because the content is generic methodology text, not project-specific leakage evidence."
+    },
+    {
+      "id": "regression-strong-real-evidence",
+      "fixturePath": "tests/fixtures/quick-check/regression-strong-real-evidence.txt",
+      "kind": "text",
+      "methodologyContext": {
+        "methodologyId": "AR-ACM0003",
+        "methodologyVersion": "01.0"
+      },
+      "gold": {
+        "documentFamily": "CDM_PDD",
+        "projectTitle": "CDM Project Design Document",
+        "hostCountry": "Republic of Zambia",
+        "projectCountry": "Republic of Zambia",
+        "methodology": null,
+        "creditingPeriod": null,
+        "reportingPeriod": null,
+        "baselineSection": "Baseline scenario",
+        "monitoringSection": "Monitoring methodology and plan",
+        "leakageSection": "Leakage",
+        "additionalitySection": "Demonstration of additionality",
+        "unsupportedQuestionExpectation": {
+          "expectedStatus": "no_evidence",
+          "expectedRoute": "fallback",
+          "expectedEvidenceEmpty": true
+        },
+        "questionExpectations": {
+          "project_title": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "CDM Project Design Document"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "host_country": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Republic of Zambia"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "methodology": {
+            "expectedStatus": "answered",
+            "expectedRoute": "project_fact_contract",
+            "visibleAnswerStatus": "likely_yes"
+          },
+          "baseline_scenario": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "baseline scenario",
+                "continuation of current land-use practices"
+              ],
+              "sectionHints": [
+                "Baseline scenario"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "monitoring": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Monitoring methodology and plan"
+              ],
+              "sectionHints": [
+                "Monitoring methodology and plan"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "leakage": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Leakage",
+                "Activity-shifting leakage is assessed"
+              ],
+              "sectionHints": [
+                "Leakage"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "additionality": {
+            "expectedStatus": "answered",
+            "expectedRoute": "section_index",
+            "goldEvidence": {
+              "pages": [
+                1
+              ],
+              "spanAnchors": [
+                "Demonstration of additionality"
+              ],
+              "sectionHints": [
+                "Demonstration of additionality"
+              ]
+            },
+            "visibleAnswerStatus": "likely_yes",
+            "visibleAnswerEvidenceMin": 1
+          },
+          "marine_biodiversity_offsets": {
+            "expectedStatus": "no_evidence",
+            "expectedRoute": "fallback",
+            "expectedEvidenceEmpty": true,
+            "visibleAnswerStatus": "unclear"
+          }
+        }
+      },
+      "notes": "Strong positive fixture: CDM PDD with complete project title, host country, methodology, and full body sections for baseline, additionality, leakage, and monitoring. All core questions should return answered with evidence. Tests that real strong evidence still passes the strict eval."
     }
   ]
 }
