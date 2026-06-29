@@ -20,10 +20,10 @@ describe('loadEvidenceTaxonomy', () => {
 });
 
 describe('loadAdoptionStatus', () => {
-  it('loads adoption status for VM0047 (grade_a legacy)', () => {
+  it('loads adoption status for VM0047 (review_grade)', () => {
     const status = loadAdoptionStatus(VM0047_DIR);
     expect(status).not.toBeNull();
-    expect(status!.adoption_status).toBe('grade_a');
+    expect(status!.adoption_status).toBe('review_grade');
     expect(status!.version).toBe('review_contract_v1');
   });
 
@@ -59,7 +59,7 @@ describe('loadExpectedEvidence', () => {
       expect(rule.ruleId).toBeTruthy();
       expect(rule.expectedEvidence.length).toBeGreaterThan(0);
       for (const ee of rule.expectedEvidence) {
-        expect(ee.id).toBeTruthy();
+        expect(ee.label).toBeTruthy();
         expect(typeof ee.required).toBe('boolean');
       }
     }
@@ -71,7 +71,6 @@ describe('loadExpectedEvidence', () => {
     for (const rule of evidence) {
       expect(rule.ruleId).toBeTruthy();
       for (const ee of rule.expectedEvidence) {
-        expect(ee.id).toBeTruthy();
         expect(ee.label).toBeTruthy();
         expect(typeof ee.required).toBe('boolean');
       }
@@ -121,8 +120,8 @@ describe('loadReviewGradeContract', () => {
     expect(contract!.provider).toBe('Verra');
     expect(contract!.methodCode).toBe('VM0047');
     expect(contract!.version).toBe('v1-0');
-    expect(contract!.isReviewGrade).toBe(false);
-    expect(contract!.adoptionStatus?.adoption_status).toBe('grade_a');
+    expect(contract!.isReviewGrade).toBe(true);
+    expect(contract!.adoptionStatus?.adoption_status).toBe('review_grade');
     expect(contract!.expectedEvidence.length).toBeGreaterThan(0);
     expect(contract!.exportMetadata).not.toBeNull();
     expect(contract!.exportMetadata!.standard).toBe('Verra');

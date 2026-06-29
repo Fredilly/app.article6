@@ -40,7 +40,19 @@ const UNFCCC_SECTION_ORDER = [
   'PROVENANCE',
 ] as const;
 
-export function sectionTitle(sectionId: string): string {
+export function sectionTitle(sectionId: string, methodCode?: string): string {
+  // Verra AFOLU methodologies (VM0007, VM0047) use different S-5/S-6 mapping
+  if (methodCode && methodCode.startsWith('VM')) {
+    const verraTitles: Record<string, string> = {
+      'S-1': 'Scope and Boundary',
+      'S-2': 'Baseline',
+      'S-3': 'Monitoring',
+      'S-4': 'Leakage',
+      'S-5': 'Quantification',
+      'S-6': 'Permanence',
+    };
+    return verraTitles[sectionId] ?? sectionId;
+  }
   const titles: Record<string, string> = {
     'S-1': 'Scope and Boundary',
     'S-2': 'Baseline',

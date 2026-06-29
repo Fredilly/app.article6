@@ -50,6 +50,6 @@ export function isSourceAuditedMeta(meta: unknown): boolean {
   const quality = m.artifact_quality_standard as Record<string, unknown> | undefined;
   if (!quality || typeof quality !== "object") return false;
   const adoption = quality.adoption_status;
-  if (adoption !== "source_audited" && adoption !== "s_grade" && adoption !== "grade_a") return false;
+  if (adoption !== "source_audited" && adoption !== "s_grade" && adoption !== "grade_a" && adoption !== "grade_a_source_audited") return false;
   return true;
 }
