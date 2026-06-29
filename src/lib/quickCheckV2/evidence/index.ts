@@ -112,6 +112,7 @@ const CHECK_SECTION_MAPPINGS: Record<
   },
   additionality: {
     searchTexts: ["Additionality"],
+    fallbackSearchTexts: ["demonstration of additionality"],
   },
   leakage: {
     searchTexts: ["Leakage"],
@@ -126,7 +127,31 @@ const CHECK_SECTION_MAPPINGS: Record<
 const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>> = {
   host_country: {
     find(blocks) {
+      for (let index = 0; index < blocks.length - 1; index += 1) {
+        const current = blocks[index]!;
+        const next = blocks[index + 1]!;
+        if (
+          /\bprovince of\b/i.test(current.text) &&
+          current.sectionPath.join(">") === next.sectionPath.join(">") &&
+          /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(next.text)
+        ) {
+          return next;
+        }
+      }
+
       return (
+        findFirstBlock(
+          blocks,
+          (block) =>
+            /\bhost country\s+[A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*\b/.test(block.text) &&
+            block.text.length <= 80 &&
+            (block.sectionPath.length > 0 || block.sectionHeading !== null),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(block.text) &&
+          /\b(?:province|district|regency|location|located)\b/i.test(block.text) &&
+          block.sectionPath.length > 0,
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\blocated\b/i.test(block.text) && /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text),
         ) ??
@@ -141,6 +166,14 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   methodology: {
     find(blocks) {
       return (
+        findFirstBlock(blocks, (block) =>
+          /\btitle and reference of the vcs methodology\b/i.test(block.sectionHeading ?? "") &&
+          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bthe methodology for this project follows\b/i.test(block.text) &&
+          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
         ) ??
@@ -246,6 +279,7 @@ function buildSpanId(
 
 const VCS_PAGE_MARKER_RE = /^v\d+(?:\.\d+)+\s+(\d+)$/;
 const PAGE_MARKER_RE = /^(?:page\s+(\d+)(?:\s+of\s+\d+)?|(\d+)\s+of\s+\d+)$/i;
+const TOC_LEADER_RE = /\.{3,}\s*\d+\s*$/;
 
 function isPageMarkerLine(
   line: string,
@@ -269,14 +303,14 @@ function isPageMarkerLine(
 }
 
 const SECTION_HEADING_RE =
-  /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\s+[.:]?\s*(.+?)\s*$/i;
-const TOP_LEVEL_HEADING_RE = /^\s*(\d+)\.?\s+([A-Za-z][\w\s/&-]+)\s*$/;
+  /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\.?\s+[.:]?\s*(.+?)\s*$/i;
+const TOP_LEVEL_HEADING_RE = /^\s*(\d+)\.?\s+([A-Za-z][\w\s/&:,'’()‐-]+)\s*$/;
 const ANNEX_HEADING_RE = /^\s*(annex|appendix)\s+([A-Z0-9]+)\s*[.:]?\s*(.*)$/i;
 
 function detectSectionHeading(
   line: string,
 ): { isHeading: true; sectionNumber: string; title: string } | { isHeading: false } {
-  const trimmed = line.trim();
+  const trimmed = normalizePotentialHeadingText(line);
 
   const annexMatch = trimmed.match(ANNEX_HEADING_RE);
   if (annexMatch) {
@@ -288,22 +322,33 @@ function detectSectionHeading(
 
   const headingMatch = trimmed.match(SECTION_HEADING_RE);
   if (headingMatch) {
+    const title = headingMatch[2]!.trim();
+    if (/^[a-z]/.test(title)) {
+      return { isHeading: false };
+    }
     return {
       isHeading: true,
       sectionNumber: headingMatch[1]!,
-      title: headingMatch[2]!.trim(),
+      title,
     };
   }
 
   const topLevelMatch = trimmed.match(TOP_LEVEL_HEADING_RE);
   if (topLevelMatch) {
     const title = topLevelMatch[2]!.trim();
+    const sectionNumber = topLevelMatch[1]!;
     if (/\b\d{4}\b/.test(title)) {
+      return { isHeading: false };
+    }
+    if (title.length > 80) {
+      return { isHeading: false };
+    }
+    if (parseInt(sectionNumber, 10) > 12) {
       return { isHeading: false };
     }
     return {
       isHeading: true,
-      sectionNumber: topLevelMatch[1]!,
+      sectionNumber,
       title,
     };
   }
@@ -317,6 +362,29 @@ function buildSectionPath(sectionNumber: string): string[] {
   }
   const parts = sectionNumber.split(".");
   return parts.map((_, index) => parts.slice(0, index + 1).join("."));
+}
+
+function normalizePotentialHeadingText(line: string): string {
+  const trimmed = line.trim().replace(/\s+/g, " ");
+
+  const dottedPrefixMatch = trimmed.match(
+    /^((?:section\s+)?(?:[A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)*))\.?\s+(?:\d+\s+){1,4}B\s+(.+)$/i,
+  );
+  if (dottedPrefixMatch) {
+    return `${dottedPrefixMatch[1]!.replace(/\.$/, "")} ${dottedPrefixMatch[2]!.trim()}`;
+  }
+
+  const splitSectionMatch = trimmed.match(/^(\d+)\s+(\d+)\s+B\s+(.+)$/);
+  if (splitSectionMatch) {
+    return `${splitSectionMatch[1]}.${splitSectionMatch[2]} ${splitSectionMatch[3]!.trim()}`;
+  }
+
+  return trimmed;
+}
+
+function isLikelyTableOfContentsLine(line: string): boolean {
+  const normalized = line.trim().replace(/\s+/g, " ");
+  return TOC_LEADER_RE.test(normalized);
 }
 
 function isTableLine(line: string): boolean {
@@ -334,8 +402,9 @@ function detectBlockType(
   if (!trimmed) return "unknown";
   if (isRepeatedHeader) return "header";
   if (isRepeatedFooter) return "footer";
-  if (isTableLine(trimmed)) return "table";
+  if (isLikelyTableOfContentsLine(trimmed)) return "unknown";
   if (detectSectionHeading(trimmed).isHeading) return "heading";
+  if (isTableLine(trimmed)) return "table";
   if (isFirstContentLine && trimmed.length <= 180) return "heading";
   return "body";
 }
@@ -429,7 +498,7 @@ export function parseExtractedText(
         repeatedEdges.headers.has(trimmed),
         repeatedEdges.footers.has(trimmed),
       );
-      const heading = detectSectionHeading(trimmed);
+      const heading = blockType === "heading" ? detectSectionHeading(trimmed) : { isHeading: false as const };
       if (heading.isHeading) {
         currentSectionTitle = heading.title;
         currentSectionPath = buildSectionPath(heading.sectionNumber);
@@ -592,7 +661,11 @@ function endsSentence(text: string): boolean {
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
   return blocks.filter((block) => {
     const text = block.text.trim();
-    return text.length > 0 && !isBoilerplateSectionBlock(block);
+    return (
+      text.length > 0 &&
+      !isBoilerplateSectionBlock(block) &&
+      !isLikelyTableOfContentsLine(text)
+    );
   });
 }
 
@@ -715,6 +788,12 @@ function getBestExactSectionBlock(
     return null;
   }
 
+  const dedupedSections = new Map<string, SectionTreeNode>();
+  for (const section of sections) {
+    dedupedSections.set(section.heading.sectionPath.join(">"), section);
+  }
+  sections = Array.from(dedupedSections.values());
+
   const bestSection =
     sections.find(
       (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
@@ -761,7 +840,11 @@ function getRawTextFallbackEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const definition = RAW_TEXT_FALLBACKS[checkName];
-  const block = findFirstBlock(getEvidenceBlocks(document), definition.match);
+  const block = findFirstBlock(
+    getEvidenceBlocks(document),
+    (candidate) =>
+      !isLikelyTableOfContentsLine(candidate.text) && definition.match(candidate),
+  );
   return block ? toEvidence(block, "raw_text_fallback") : null;
 }
 

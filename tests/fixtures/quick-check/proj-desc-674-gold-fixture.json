@@ -1,0 +1,68 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Indonesia",
+    "goldQuote": "Central Kalimantan, Indonesia (Figure 1). The Carbon Accounting Area defines the boundary for COP",
+    "page": 9,
+    "sectionHeading": "Project location including geographic and physical information allowing the unique",
+    "sectionPath": ["1", "1.5"],
+    "spanId": "proj-desc-674:p9:b426:80ef2a56",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0004: Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1-0",
+    "goldQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for",
+    "page": 40,
+    "sectionHeading": "Title and Reference of the VCS Methodology applied to the Project Activity and explanation of",
+    "sectionPath": ["2", "2.1"],
+    "spanId": "proj-desc-674:p40:b1589:1fead303",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Complete conversion of the peat swamp forest to palm oil plantations.",
+    "goldQuote": "Sub‐step 3a. Show that the identified barriers would not prevent the implementation of at least one of the",
+    "page": 5,
+    "sectionHeading": "Description of how the emissions of GHG by source in baseline scenario are reduced below those that would",
+    "sectionPath": ["2", "2.5"],
+    "spanId": "proj-desc-674:p5:b186:a828c238",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "The project is additional because conserving peat swamp forest reduces GHG emissions relative to baseline conversion to palm oil.",
+    "goldQuote": "Demonstration‐and‐Assessment‐of‐Additionality‐in‐AFOLU‐Project‐Acitivities”13",
+    "page": 46,
+    "sectionHeading": "Description of how the baseline scenario is identified and description of the identified baseline",
+    "sectionPath": ["2", "2.4"],
+    "spanId": "proj-desc-674:p46:b1985:c3a2b97f",
+    "sourceType": "raw_text_fallback"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Leakage is defined under the methodology as measurable off-site emissions from displaced planned land-use conversion.",
+    "goldQuote": "Definition of Leakage Section 10 of the Methodology “Leakage (LK) represents the increase in GHG emissions by sources which occur outside the project boundary that are measurable and attributable to the project activity. Leakage is assumed to occur as a result of the displacement of economic activities (i.e., planned land use conversion) to areas outside the project that lead to deforestation and land use change, estimated in units of t CO2‐e. Thus, as a result of the project activity, the baseline activity of planned land use change may be temporarily or permanently displaced from within the project boundary to areas outside the project boundary.",
+    "page": 73,
+    "sectionHeading": "Additional description of displacement leakage monitoring and market leakage deduction",
+    "sectionPath": ["3", "3.5"],
+    "spanId": "proj-desc-674:p73:b3111:bff5cdb4",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Local communities and project partners were consulted, and their approvals and participation were treated as central to project success.",
+    "goldQuote": "Despite the absence of communities or families living within the boundaries of the Carbon Accounting Area, the Rimba Raya Reserve project has, through a series of formalized meetings, gained local approval of the project by including communities bordering the buffer zone of the Carbon Accounting Area as stakeholders in the project development process. These meetings and community approvals are summarized in Table 25 and documented in Annex 11. InfiniteEARTH views local stakeholder participation as the key to the project’s success in terms of preventing illegal logging and fires.",
+    "page": 128,
+    "sectionHeading": "Stakeholders’ Comments",
+    "sectionPath": ["6"],
+    "spanId": "proj-desc-674:p128:b5207:68f28fe4",
+    "sourceType": "exact_section"
+  }
+]

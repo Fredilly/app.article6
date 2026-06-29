@@ -69,6 +69,18 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const quote = normalizeWhitespace(evidence.quote);
 
+    const explicitField = quote.match(
+      /\bhost country\s+([A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*)(?=\s+(?:region|province|regency|forest type|project|redd standards)\b|$)/i,
+    );
+    if (explicitField) {
+      return explicitField[1]!;
+    }
+
+    const provinceTail = quote.match(/\bprovince of\s+([A-Z][A-Za-z -]+),\s*([A-Z][A-Za-z -]+)\b/);
+    if (provinceTail) {
+      return provinceTail[2]!;
+    }
+
     const countryAfterComma = quote.match(/\b[A-Z][a-z]+,\s*([A-Z][a-z]+)\b/);
     if (countryAfterComma) {
       return countryAfterComma[1]!;
