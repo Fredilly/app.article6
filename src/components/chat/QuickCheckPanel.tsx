@@ -1892,13 +1892,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  const runEvidenceChecks = useCallback(async (options?: { evidenceAnalysis?: QuickCheckEvidenceAnalysis }) => {
+  const runEvidenceChecksFromSnapshot = useCallback(async (snapshot: {
+    evidenceSources: typeof selectedEvidenceSources;
+    resolvePdfText: typeof resolvePdfText;
+    evidenceIds: string[];
+    fileName: string;
+    methodologyId: string;
+    methodologyVersion: string;
+    methods: MethodInventoryRecord[];
+  }) => {
     const runId = evidenceCheckRunRef.current + 1;
     evidenceCheckRunRef.current = runId;
     setRunningEvidenceChecks(true);
 
     try {
-      const evidenceAnalysis = options?.evidenceAnalysis ?? await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+      const evidenceAnalysis = await analyzeQuickCheckEvidence(snapshot.evidenceSources, {
+        resolvePdfText: snapshot.resolvePdfText,
+      });
       if (!evidenceAnalysis.rawPddText?.trim()) {
         if (evidenceCheckRunRef.current !== runId) return;
         setEvidenceCheckResults([]);
@@ -1911,16 +1921,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
       const currentMethodologyResolution = resolveQuickCheckMethodology({
         mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-        methods,
+        methods: snapshot.methods,
       });
-      const resolvedMethodologyId = draft.methodologyId.trim()
+      const resolvedMethodologyId = snapshot.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
       if (evidenceCheckRunRef.current !== runId) return;
 
       const allChecks = getAllChecks(resolvedMethodologyId || undefined);
-      const documentId = draft.evidenceIds[0] || draft.evidenceFileName || "quick-check-v2";
+      const documentId = snapshot.evidenceIds[0] || snapshot.fileName || "quick-check-v2";
       const preferredRawText =
-        await loadPreferredStructuredCheckText(selectedEvidenceSources, resolvePdfText)
+        await loadPreferredStructuredCheckText(snapshot.evidenceSources, snapshot.resolvePdfText)
         ?? evidenceAnalysis.rawPddText;
       if (evidenceCheckRunRef.current !== runId) return;
 
@@ -1967,12 +1977,104 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         setRunningEvidenceChecks(false);
       }
     }
+  }, []);
+
+  const runEvidenceChecks = useCallback(async (options?: { evidenceAnalysis?: QuickCheckEvidenceAnalysis }) => {
+    if (options?.evidenceAnalysis) {
+      const runId = evidenceCheckRunRef.current + 1;
+      evidenceCheckRunRef.current = runId;
+      setRunningEvidenceChecks(true);
+
+      try {
+        const evidenceAnalysis = options.evidenceAnalysis;
+        if (!evidenceAnalysis.rawPddText?.trim()) {
+          if (evidenceCheckRunRef.current !== runId) return;
+          setEvidenceCheckResults([]);
+          setDocumentPurpose(null);
+          return;
+        }
+
+        const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
+        const purpose = purposeClassification.purpose;
+
+        const currentMethodologyResolution = resolveQuickCheckMethodology({
+          mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+          methods,
+        });
+        const resolvedMethodologyId = draft.methodologyId.trim()
+          || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+        if (evidenceCheckRunRef.current !== runId) return;
+
+        const allChecks = getAllChecks(resolvedMethodologyId || undefined);
+        const documentId = draft.evidenceIds[0] || draft.evidenceFileName || "quick-check-v2";
+        const preferredRawText =
+          await loadPreferredStructuredCheckText(selectedEvidenceSources, resolvePdfText)
+          ?? evidenceAnalysis.rawPddText;
+        if (evidenceCheckRunRef.current !== runId) return;
+
+        const parsedDocument = parseExtractedText(
+          preferredRawText,
+          documentId,
+          evidenceAnalysis.parserAdapterId || "quick-check-panel",
+        );
+        const statusResults = validateAnswerResults(extractAnswersForAllChecks(parsedDocument));
+        const results: StructuredEvidenceCheckResult[] = statusResults
+          .map((statusResult) => {
+            const evidence = statusResult.evidence;
+            const status: StructuredEvidenceCheckResult["status"] =
+              statusResult.status === "FOUND"
+                ? "found"
+                : statusResult.status === "MISSING"
+                  ? "missing"
+                  : "unclear";
+            return {
+              checkId: statusResult.checkName,
+              status,
+              answerText: buildStructuredCheckAnswerText(statusResult),
+              downgradeReason: buildStructuredCheckDowngradeReason(statusResult.reason),
+              quotes: evidence?.quote ? [evidence.quote] : [],
+              pages: typeof evidence?.page === "number" ? [evidence.page] : [],
+              sections:
+                evidence?.sectionHeading
+                  ? [evidence.sectionHeading]
+                  : evidence?.sectionPath?.length
+                    ? evidence.sectionPath
+                    : [],
+              evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+            };
+          })
+          .filter((result) => allChecks.some((check) => check.id === result.checkId));
+
+        setDocumentPurpose(purpose);
+        setEvidenceCheckResults(results);
+      } catch (error) {
+        if (evidenceCheckRunRef.current !== runId) return;
+        setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+      } finally {
+        if (evidenceCheckRunRef.current === runId) {
+          setRunningEvidenceChecks(false);
+        }
+      }
+      return;
+    }
+
+    return runEvidenceChecksFromSnapshot({
+      evidenceSources: selectedEvidenceSources,
+      resolvePdfText,
+      evidenceIds: draft.evidenceIds,
+      fileName: draft.evidenceFileName || "",
+      methodologyId: draft.methodologyId,
+      methodologyVersion: draft.methodologyVersion,
+      methods,
+    });
   }, [
     draft.evidenceFileName,
     draft.evidenceIds,
     draft.methodologyId,
+    draft.methodologyVersion,
     methods,
     resolvePdfText,
+    runEvidenceChecksFromSnapshot,
     selectedEvidenceSources,
   ]);
 
