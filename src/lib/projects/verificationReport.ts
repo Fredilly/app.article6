@@ -188,7 +188,7 @@ export function buildFindings(project: Project): ReportFinding[] {
   return project.reviews.map((review, index) => buildReportFinding(
     review,
     index,
-    sectionTitle(review.sectionId || 'Requirements'),
+    sectionTitle(review.sectionId || 'Requirements', project.methodCode),
   ));
 }
 
