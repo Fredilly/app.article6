@@ -1,4 +1,5 @@
 {
+  "PR861": "done",
   "name": "Quick Check v2: Stable Ingestion First",
   "phase_meta": {
     "status": "active",
@@ -169,7 +170,7 @@
     },
     "phase_6_gold_envira": {
       "title": "Gold Envira fixture",
-      "status": "planned",
+      "status": "done",
       "summary": "Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject."
     },
     "phase_7_add_pdfs": {
