@@ -177,7 +177,7 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
   },
   additionality: {
     match(block) {
-      return /\badditionality\b|\badditional\b/i.test(block.text);
+      return /\badditionality\b/i.test(block.text);
     },
   },
   leakage: {

@@ -1,0 +1,68 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007",
+    "goldQuote": "VM0007 REDD Methodology Modules Version 1.3",
+    "page": 4,
+    "sectionHeading": "Application of Methodology",
+    "sectionPath": ["3", "3.1"],
+    "spanId": "deep-methodology-pdd-extracted:p4:b9:2e444fd5",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  }
+]
