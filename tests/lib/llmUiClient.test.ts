@@ -4,6 +4,7 @@ import {
   extractSpansForLlm,
   fetchLlmCandidate,
   CHECK_TO_FIELD,
+  shouldFetchLlmSuggestion,
 } from "@/lib/quickCheck/llmUiClient";
 
 const ORIGINAL_ENV = process.env;
@@ -105,6 +106,17 @@ describe("llmUiClient — extractSpansForLlm", () => {
     expect(result).toHaveLength(20);
   });
 
+  it("prioritizes field-relevant spans before applying the limit", () => {
+    const spans = [
+      { spanId: "s1", text: "Project description introduction with general context only", page: 1, blockType: "paragraph" },
+      { spanId: "s2", text: "Another early paragraph that does not answer the requested question", page: 1, blockType: "paragraph" },
+      { spanId: "s3", text: "Country/Area: Papua New Guinea", page: 2, blockType: "field" },
+    ];
+
+    const result = extractSpansForLlm(spans, 2, "hostCountry");
+    expect(result.map((span) => span.id)).toEqual(["s3", "s1"]);
+  });
+
   it("returns empty for unknown block types", () => {
     const spans = [
       { spanId: "s1", text: "Some text", page: 1, blockType: "toc" },
@@ -113,6 +125,28 @@ describe("llmUiClient — extractSpansForLlm", () => {
 
     const result = extractSpansForLlm(spans);
     expect(result).toHaveLength(0);
+  });
+});
+
+describe("llmUiClient — suggestion eligibility", () => {
+  it("requests suggestions for missing and unclear checks", () => {
+    expect(shouldFetchLlmSuggestion({ status: "missing", answerText: "" })).toBe(true);
+    expect(shouldFetchLlmSuggestion({ status: "unclear", answerText: "possible mention" })).toBe(true);
+  });
+
+  it("requests suggestions for found checks with suspiciously short raw answers", () => {
+    expect(
+      shouldFetchLlmSuggestion({
+        status: "found",
+        answerText: "Host country: ha",
+        rawAnswerText: "ha",
+      }),
+    ).toBe(true);
+  });
+
+  it("does not request suggestions for complete found answers or non-applicable checks", () => {
+    expect(shouldFetchLlmSuggestion({ status: "found", answerText: "Papua New Guinea" })).toBe(false);
+    expect(shouldFetchLlmSuggestion({ status: "not_applicable", answerText: "" })).toBe(false);
   });
 });
 

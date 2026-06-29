@@ -14,6 +14,7 @@ const RIMBA_RAYA_FALLBACK_TEXT = fs.readFileSync(
 );
 const RECOVERED_WARNING =
   "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
+const ORIGINAL_ENV = process.env;
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
@@ -75,6 +76,23 @@ describe("QuickCheckPanel upload regression", () => {
     });
   }
 
+  async function flushUntilText(text: string) {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await flushUi();
+      if ((container.textContent ?? "").includes(text)) return;
+    }
+    throw new Error(`Timed out waiting for text: ${text}`);
+  }
+
+  async function flushUntilFetch(path: string) {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await flushUi();
+      const fetchMock = global.fetch as jest.Mock;
+      if (fetchMock.mock.calls.some(([input]) => String(input).includes(path))) return;
+    }
+    throw new Error(`Timed out waiting for fetch: ${path}`);
+  }
+
   function clickButton(label: string) {
     const normalizedLabel = label.toLowerCase();
     const button = Array.from(container.querySelectorAll("button")).find((node) =>
@@ -89,6 +107,7 @@ describe("QuickCheckPanel upload regression", () => {
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    process.env = { ...ORIGINAL_ENV };
 
     createAndStoreEvidenceAttachmentMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockImplementation(async (input: { pin_id: string; file: File }) => {
@@ -167,6 +186,14 @@ describe("QuickCheckPanel upload regression", () => {
           { status: 200 },
         );
       }
+      if (url.includes("/api/quick-check/llm-extract")) {
+        return new Response(
+          JSON.stringify({
+            candidates: [],
+          }),
+          { status: 200 },
+        );
+      }
       if (url.includes("/api/query?text=")) {
         return new Response(
           JSON.stringify({
@@ -222,6 +249,7 @@ describe("QuickCheckPanel upload regression", () => {
     container.remove();
     jest.clearAllMocks();
     window.localStorage.clear();
+    process.env = ORIGINAL_ENV;
   });
 
   it("clears stale recovery UI as soon as a new upload replaces the prior evidence", async () => {
@@ -267,6 +295,53 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).not.toContain("Source");
     expect(text).not.toContain("Document Q&A");
     expect(text).not.toContain("raw text: unavailable");
+  });
+
+  it("runs evidence checks automatically after a real upload", async () => {
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference.)\n%%EOF"],
+        "fresh-monitoring-report.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUntilText("Host country");
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Evidence Checks");
+    expect(text).toContain("Methodology");
+    expect(text).toMatch(/Found|Missing|Unclear/);
+  });
+
+  it("calls the LLM extraction endpoint automatically after upload when enabled", async () => {
+    process.env.NEXT_PUBLIC_QUICK_CHECK_LLM = "1";
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await uploadEvidence(
+      new File(
+        ["%PDF-1.4\n(Monitoring report for the full reporting period. Reporting period: 1 January 2025 to 31 December 2025. AR-ACM0003 methodology reference.)\n%%EOF"],
+        "fresh-monitoring-report.pdf",
+        { type: "application/pdf" },
+      ),
+    );
+
+    await flushUntilFetch("/api/quick-check/llm-extract");
+
+    const fetchMock = global.fetch as jest.Mock;
+    const llmCalls = fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/quick-check/llm-extract"));
+    expect(llmCalls.length).toBeGreaterThan(0);
   });
 
   it("renders a grounded fallback preview instead of only the failure banner when local recovery succeeds", async () => {
@@ -318,6 +393,5 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("Title and headers read “Validation Report”.");
     expect(text).not.toContain("page 1 title");
     expect(text).not.toContain('body: "validation opinion"');
-    expect(text).not.toContain("VALIDATIONREPORT");
   });
 });

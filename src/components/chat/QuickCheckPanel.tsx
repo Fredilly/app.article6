@@ -84,7 +84,7 @@ import {
 } from "@/lib/documentClassification/classifyDocumentPurpose";
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
-import { fetchLlmCandidate, isLlmUiEnabled } from "@/lib/quickCheck/llmUiClient";
+import { fetchLlmCandidate, isLlmUiEnabled, shouldFetchLlmSuggestion } from "@/lib/quickCheck/llmUiClient";
 import type { LlmFactCandidate } from "@/lib/quickCheck/llmFactExtractor";
 
 type MethodInventoryRecord = {
@@ -603,6 +603,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const resultRef = useRef<HTMLDivElement | null>(null);
   const rulesCache = useRef(new Map<string, RuleSummary[]>());
   const reviewQuestionRunRef = useRef(0);
+  const evidenceCheckRunRef = useRef(0);
+  const autoEvidenceCheckRunKeyRef = useRef<string | null>(null);
 
   const [methods, setMethods] = useState<MethodInventoryRecord[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -980,6 +982,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       pddFragments: source.pddFragments,
     }));
   }, [draft.evidenceFileName, selectedInventoryEvidence, selectedPins, selectedUploadEvidence]);
+  const selectedEvidenceRunKey = useMemo(
+    () => selectedEvidenceSources
+      .map((source) => `${source.evidenceId}:${source.attachments.map((attachment) => attachment.id).join(",")}`)
+      .join("|"),
+    [selectedEvidenceSources],
+  );
 
   const resolvePdfText = useCallback(
     async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
@@ -999,6 +1007,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   useEffect(() => {
     if (!selectedEvidenceSources.length) {
+      autoEvidenceCheckRunKeyRef.current = null;
       setExtractionState({ loading: false, analysis: null, error: null });
       return;
     }
@@ -1799,113 +1808,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
   }
 
-  async function runEvidenceChecks() {
-    const evidenceAnalysis = await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
-    if (!evidenceAnalysis.rawPddText?.trim()) return;
-
-    // Classify document purpose before running checks
-    const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
-    const purpose = purposeClassification.purpose;
-    setDocumentPurpose(purpose);
-
-    const currentMethodologyResolution = resolveQuickCheckMethodology({
-      mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
-      methods,
-    });
-    const resolvedMethodologyId = draft.methodologyId.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
-    const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-      || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
-    const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
-
-    // Only run checks appropriate for the detected document purpose
-    const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
-    const allChecks = getAllChecks(resolvedMethodologyId || undefined);
-    const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
-
-    setRunningEvidenceChecks(true);
-    const results: EvidenceCheckResult[] = [];
-
-    for (const check of checksToRun) {
-      const contract = getContract(check.id);
-      const questionResult = buildReviewQuestionResult({
-        claimText: check.question,
-        methodologyId: resolvedMethodologyId || "VM0007",
-        methodologyVersion: resolvedMethodologyVersion || "4.2",
-        rawPddText: evidenceAnalysis.rawPddText,
-        structuredQueryContext,
-      });
-
-      const ctx: CheckValidationContext = {
-        evidenceDocument: structuredQueryContext.evidenceDocument,
-        projectFactContract: structuredQueryContext.projectFactContract,
-        sectionTableIndex: structuredQueryContext.sectionTableIndex,
-        routerResult: questionResult.routerResult,
-        queryIntentAnalysis: questionResult.queryIntentAnalysis,
-        rawText: evidenceAnalysis.rawPddText,
-      };
-
-      const validated = validateCheck(contract, ctx);
-      const formatted = formatEvidenceCheckUiText({
-        label: check.label,
-        status: validated.status,
-        answerText: validated.answerText,
-        downgradeReason: validated.downgradeReason,
-      });
-      // Provenance now comes from the validated candidate, not the router.
-      results.push({
-        checkId: check.id,
-        status: validated.status,
-        answerText: formatted.answerText,
-        downgradeReason: formatted.downgradeReason,
-        quotes: validated.quotes,
-        pages: validated.pages,
-        sections: validated.sections,
-        evidenceSpanIds: validated.evidenceSpanIds,
-        warnings: questionResult.routerResult.warnings,
-      });
-    }
-
-    setEvidenceCheckResults(results);
-    setRunningEvidenceChecks(false);
-
-    // LLM-assisted suggestions (feature-flagged, default off, non-blocking)
-    // Fetches candidate suggestions for missing, unclear, or suspiciously
-    // short found answers only. Never overrides deterministic status or answer.
-    // Runs after checks complete so it doesn't block the spinner.
-    if (isLlmUiEnabled()) {
-      const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
-        spanId: s.spanId,
-        text: s.text,
-        page: s.page,
-        blockType: s.blockType,
-      })) ?? [];
-
-      const missingOrUnclear = results.filter(
-        (r: EvidenceCheckResult) =>
-          r.status === "missing"
-          || r.status === "unclear"
-          || (r.status === "found" && r.answerText.trim().length < 3),
-      );
-
-      // Fire-and-forget: deterministic results are already visible
-      fetchLlmSuggestions(missingOrUnclear, evidenceSpans);
-    } else {
-      setLlmSuggestions({});
-    }
-  }
-
-  /** Fetch LLM suggestions in the background after checks complete. */
-  async function fetchLlmSuggestions(
+  const fetchLlmSuggestions = useCallback(async (
     checkResults: EvidenceCheckResult[],
     evidenceSpans: Array<{ spanId: string; text: string; page: number | null; blockType: string }>,
-  ): Promise<void> {
+    runId: number,
+  ): Promise<void> => {
     const suggestionPromises = checkResults.map(async (r) => {
       const candidates = await fetchLlmCandidate(r.checkId, evidenceSpans);
       return { checkId: r.checkId, candidates };
     });
 
     const suggestionResults = await Promise.all(suggestionPromises);
+    if (evidenceCheckRunRef.current !== runId) return;
+
     const suggestionsMap: Record<string, LlmFactCandidate[]> = {};
     for (const sr of suggestionResults) {
       if (sr.candidates.length > 0) {
@@ -1913,7 +1828,134 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
     }
     setLlmSuggestions(suggestionsMap);
-  }
+  }, []);
+
+  const runEvidenceChecks = useCallback(async (options?: { evidenceAnalysis?: QuickCheckEvidenceAnalysis }) => {
+    const runId = evidenceCheckRunRef.current + 1;
+    evidenceCheckRunRef.current = runId;
+    setRunningEvidenceChecks(true);
+    setLlmSuggestions({});
+
+    try {
+      const evidenceAnalysis = options?.evidenceAnalysis ?? await analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText });
+      if (!evidenceAnalysis.rawPddText?.trim()) {
+        if (evidenceCheckRunRef.current !== runId) return;
+        setEvidenceCheckResults([]);
+        setDocumentPurpose(null);
+        return;
+      }
+
+      const purposeClassification = classifyDocumentPurpose(evidenceAnalysis.rawPddText);
+      const purpose = purposeClassification.purpose;
+
+      const currentMethodologyResolution = resolveQuickCheckMethodology({
+        mentions: methodologyMentionsForDetection({ analysis: evidenceAnalysis, extraction: null }),
+        methods,
+      });
+      const resolvedMethodologyId = draft.methodologyId.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
+      const resolvedMethodologyVersion = draft.methodologyVersion.trim()
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+      const structuredQueryContext = await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef);
+      if (evidenceCheckRunRef.current !== runId) return;
+
+      const enabledCheckIds = getEnabledCheckIds(purpose, resolvedMethodologyId || undefined);
+      const allChecks = getAllChecks(resolvedMethodologyId || undefined);
+      const checksToRun = allChecks.filter((c) => enabledCheckIds.has(c.id));
+      const results: EvidenceCheckResult[] = [];
+
+      for (const check of checksToRun) {
+        const contract = getContract(check.id);
+        const questionResult = buildReviewQuestionResult({
+          claimText: check.question,
+          methodologyId: resolvedMethodologyId || "VM0007",
+          methodologyVersion: resolvedMethodologyVersion || "4.2",
+          rawPddText: evidenceAnalysis.rawPddText,
+          structuredQueryContext,
+        });
+
+        const ctx: CheckValidationContext = {
+          evidenceDocument: structuredQueryContext.evidenceDocument,
+          projectFactContract: structuredQueryContext.projectFactContract,
+          sectionTableIndex: structuredQueryContext.sectionTableIndex,
+          routerResult: questionResult.routerResult,
+          queryIntentAnalysis: questionResult.queryIntentAnalysis,
+          rawText: evidenceAnalysis.rawPddText,
+        };
+
+        const validated = validateCheck(contract, ctx);
+        const formatted = formatEvidenceCheckUiText({
+          label: check.label,
+          status: validated.status,
+          answerText: validated.answerText,
+          downgradeReason: validated.downgradeReason,
+        });
+        // Provenance now comes from the validated candidate, not the router.
+        results.push({
+          checkId: check.id,
+          status: validated.status,
+          answerText: formatted.answerText,
+          rawAnswerText: validated.answerText,
+          downgradeReason: formatted.downgradeReason,
+          quotes: validated.quotes,
+          pages: validated.pages,
+          sections: validated.sections,
+          evidenceSpanIds: validated.evidenceSpanIds,
+          warnings: questionResult.routerResult.warnings,
+        });
+      }
+
+      setDocumentPurpose(purpose);
+      setEvidenceCheckResults(results);
+
+      // LLM-assisted suggestions are feature-flagged and non-blocking.
+      // They never override deterministic status or answer.
+      if (isLlmUiEnabled()) {
+        const evidenceSpans = structuredQueryContext.evidenceDocument.spans?.map((s: { spanId: string; text: string; page: number | null; blockType: string }) => ({
+          spanId: s.spanId,
+          text: s.text,
+          page: s.page,
+          blockType: s.blockType,
+        })) ?? [];
+
+        const checksNeedingSuggestions = results.filter(shouldFetchLlmSuggestion);
+        void fetchLlmSuggestions(checksNeedingSuggestions, evidenceSpans, runId);
+      }
+    } catch (error) {
+      if (evidenceCheckRunRef.current !== runId) return;
+      setFieldErrors({ general: error instanceof Error ? error.message : String(error) });
+    } finally {
+      if (evidenceCheckRunRef.current === runId) {
+        setRunningEvidenceChecks(false);
+      }
+    }
+  }, [
+    draft.methodologyId,
+    draft.methodologyVersion,
+    fetchLlmSuggestions,
+    methods,
+    resolvePdfText,
+    selectedEvidenceSources,
+  ]);
+
+  useEffect(() => {
+    if (activeSourceMode !== "uploaded_file") return;
+    if (loadingMethods || !methods.length) return;
+    if (extractionState.loading || !extractionState.analysis?.rawPddText?.trim()) return;
+    if (!selectedEvidenceRunKey) return;
+    if (autoEvidenceCheckRunKeyRef.current === selectedEvidenceRunKey) return;
+
+    autoEvidenceCheckRunKeyRef.current = selectedEvidenceRunKey;
+    void runEvidenceChecks({ evidenceAnalysis: extractionState.analysis });
+  }, [
+    activeSourceMode,
+    extractionState.analysis,
+    extractionState.loading,
+    loadingMethods,
+    methods.length,
+    runEvidenceChecks,
+    selectedEvidenceRunKey,
+  ]);
 
   async function handleTryDemoCheck() {
     setSubmitting(true);
