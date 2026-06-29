@@ -1,4 +1,5 @@
 {
+  "PR866": "done",
   "name": "Quick Check v2: Stable Ingestion First",
   "phase_meta": {
     "status": "active",
@@ -174,7 +175,7 @@
     },
     "phase_7_add_pdfs": {
       "title": "Add PDFs slowly by new failure mode only",
-      "status": "planned",
+      "status": "done",
       "summary": "Each new PDF introduces a failure mode Envira does not cover. One PDF per PR."
     }
   },
