@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample Output — Quick Check v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f9f9f9; color: #1f2937; padding: 2rem 1rem; }
+  .container { max-width: 800px; margin: 0 auto; }
+  .header { margin-bottom: 2rem; }
+  .header .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header .meta { color: #6b7280; margin-top: 0.25rem; }
+  .badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.5rem 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #166534; }
+  .badge strong { font-weight: 600; }
+  .badge .sep { opacity: 0.6; }
+  .badge .methods { opacity: 0.75; }
+  .card { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 1rem; }
+  .card-header { background: #f9fafb; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+  .card-header .title { font-weight: 600; font-size: 0.95rem; }
+  .card-header .page-badge { font-size: 0.75rem; color: #6b7280; background: #f3f4f6; padding: 0.125rem 0.5rem; border-radius: 4px; }
+  .card-body { padding: 1rem; }
+  blockquote { margin: 0 0 0.75rem; padding: 0.75rem; background: #f9fafb; border-left: 3px solid #3b82f6; border-radius: 4px; font-style: italic; color: #374151; font-size: 0.875rem; line-height: 1.5; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.8rem; color: #6b7280; }
+  .meta-row span strong { color: #4b5563; }
+  .meta-row .mono { font-family: "SF Mono", "Monaco", "Inconsolata", monospace; font-size: 0.7rem; }
+  .footer-note { margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.8rem; color: #6b7280; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="label">Sample Output — Quick Check v2</div>
+    <h1>Envira Amazonia Project</h1>
+    <p class="meta">VCS PDD &bull; VM0007 &bull; 142 pages &bull; 6 checks</p>
+  </div>
+
+  <div class="badge">
+    <strong>16 methodologies ingested</strong>
+    <span class="sep">&middot;</span>
+    <span class="methods">ACM0010, AM0073, AMS-III.A, AMS-III.AU, AMS-III.BE, AMS-III.BF, AMS-III.BK, AMS-III.D, AMS-III.R, AR-ACM0003, AR-AM0014, AR-AMS0003, AR-AMS0007, GS-00XX, VM0007, VM0047</span>
+  </div>
+
+  <!-- Host Country -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Host Country</span>
+      <span class="page-badge">Page 10</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;The Envira Amazonia Project area is located in Acre, Brazil along the banks of the Jurupari River&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 1.9 Project Location</span>
+        <span><strong>Path:</strong> 1 &rarr; 1.9</span>
+        <span class="mono">proj-desc-1382:p10:b291:59ab3639</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Methodology -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Methodology</span>
+      <span class="page-badge">Page 31</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;The Envira Amazonia Project is utilizing the Avoided Deforestation Partners&rsquo; VCS REDD Methodology, entitled, &lsquo;VM0007: REDD Methodology Modules (REDD-MF).&rsquo;&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 2.1 Title and Reference of Methodology</span>
+        <span><strong>Path:</strong> 2 &rarr; 2.1</span>
+        <span class="mono">proj-desc-1382:p31:b780:fffdbdc1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Baseline Scenario -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Baseline Scenario</span>
+      <span class="page-badge">Page 37</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;The VCS &lsquo;Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities&rsquo; is applied to identify the baseline scenario of the project.&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 2.4 Baseline Scenario</span>
+        <span><strong>Path:</strong> 2 &rarr; 2.4</span>
+        <span class="mono">proj-desc-1382:p37:b1081:2863c2fa</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additionality -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Additionality</span>
+      <span class="page-badge">Page 38</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;The VCS &lsquo;Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities&rsquo; is applied to demonstrate additionality for the Envira Amazonia Project.&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 2.5 Additionality</span>
+        <span><strong>Path:</strong> 2 &rarr; 2.5</span>
+        <span class="mono">proj-desc-1382:p38:b1115:d7e117fb</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leakage -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Leakage</span>
+      <span class="page-badge">Page 69</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules.&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 3.3 Leakage</span>
+        <span><strong>Path:</strong> 3 &rarr; 3.3</span>
+        <span class="mono">proj-desc-1382:p69:b2162:89495e2a</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stakeholder Consultation -->
+  <div class="card">
+    <div class="card-header">
+      <span class="title">Stakeholder Consultation</span>
+      <span class="page-badge">Page 122</span>
+    </div>
+    <div class="card-body">
+      <blockquote>&ldquo;The following stakeholders were involved in project design to optimize climate, community and biodiversity benefits while ensuring the Envira Amazonia Project was best aligned with the State of Acre&rsquo;s climate mitigation, community, and biodiversity goals.&rdquo;</blockquote>
+      <div class="meta-row">
+        <span><strong>Section:</strong> 6 STAKEHOLDER COMMENTS</span>
+        <span><strong>Path:</strong> 6</span>
+        <span class="mono">proj-desc-1382:p122:b4479:d4eb8215</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <strong>What this is:</strong> Raw evidence from the PDD, extracted deterministically.
+    No LLM, no scoring, no answers &mdash; just the quote, page, and section for each check.
+    Answers and status (FOUND / UNCLEAR / MISSING) come in the next phase.
+  </div>
+
+</div>
+</body>
+</html>

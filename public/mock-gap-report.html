@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preverification Gap Report — Quick Check v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f9f9f9; color: #1f2937; padding: 2rem 1rem; }
+  .container { max-width: 900px; margin: 0 auto; }
+
+  /* Header */
+  .header { margin-bottom: 2rem; }
+  .header .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header .meta { color: #6b7280; margin-top: 0.25rem; font-size: 0.9rem; }
+
+  /* Summary bar */
+  .summary-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat-card { flex: 1; min-width: 120px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1rem; text-align: center; }
+  .stat-card .number { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+  .stat-card .label { font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem; }
+  .stat-card.found .number { color: #16a34a; }
+  .stat-card.unclear .number { color: #d97706; }
+  .stat-card.missing .number { color: #dc2626; }
+  .stat-card.total .number { color: #1f2937; }
+
+  /* Methodology badge */
+  .methodology-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.5rem 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #166534; }
+  .methodology-badge strong { font-weight: 600; }
+  .methodology-badge .sep { opacity: 0.4; }
+  .methodology-badge .code { font-family: monospace; }
+
+  /* Filter bar */
+  .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .filter-btn { padding: 0.4rem 0.85rem; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; font-size: 0.8rem; cursor: pointer; color: #374151; }
+  .filter-btn.active { background: #1f2937; color: #fff; border-color: #1f2937; }
+  .filter-btn.found.active { background: #16a34a; border-color: #16a34a; }
+  .filter-btn.unclear.active { background: #d97706; border-color: #d97706; }
+  .filter-btn.missing.active { background: #dc2626; border-color: #dc2626; }
+
+  /* Check card */
+  .check-card { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 1rem; }
+  .check-card-header { padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; }
+  .check-card-header .check-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; }
+  .check-card-header .status-badge { font-size: 0.75rem; padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .status-badge.found { background: #dcfce7; color: #166534; }
+  .status-badge.unclear { background: #fef3c7; color: #92400e; }
+  .status-badge.missing { background: #fee2e2; color: #991b1b; }
+  .check-card-body { padding: 1rem; }
+
+  /* Verdict detail */
+  .verdict-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .verdict-row span { font-size: 0.85rem; color: #6b7280; }
+  .verdict-row span strong { color: #374151; }
+  .verdict-row .mono { font-family: "SF Mono", Monaco, Inconsolata, monospace; font-size: 0.7rem; }
+
+  /* Gap explanation */
+  .gap-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.75rem; margin-top: 0.75rem; }
+  .gap-box .gap-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: #374151; }
+  .gap-box .gap-text { font-size: 0.85rem; color: #6b7280; line-height: 1.5; }
+  .gap-box.missing { border-left: 3px solid #dc2626; background: #fef2f2; }
+  .gap-box.unclear { border-left: 3px solid #d97706; background: #fffbeb; }
+  .gap-box.found { border-left: 3px solid #16a34a; background: #f0fdf4; }
+
+  /* Expected evidence list */
+  .expected-evidence { margin-top: 0.75rem; }
+  .expected-evidence h4 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
+  .expected-evidence ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .expected-evidence li { font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 4px; border: 1px solid #e5e7eb; background: #fff; }
+  .expected-evidence li.met { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+  .expected-evidence li.unmet { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+
+  /* Quote block */
+  blockquote { margin: 0 0 0.75rem; padding: 0.75rem; background: #f9fafb; border-left: 3px solid #3b82f6; border-radius: 4px; font-style: italic; color: #374151; font-size: 0.875rem; line-height: 1.5; }
+
+  /* Evidence provenance */
+  .provenance { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.8rem; color: #6b7280; }
+  .provenance span strong { color: #4b5563; }
+
+  /* Footer */
+  .footer-note { margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.8rem; color: #6b7280; }
+  .footer-note h3 { font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+  .footer-note ul { padding-left: 1.2rem; }
+  .footer-note li { margin-bottom: 0.3rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="label">Preverification Gap Report — Quick Check v2</div>
+    <h1>Envira Amazonia Project</h1>
+    <p class="meta">VCS PDD &bull; VM0007 &bull; 142 pages &bull; Generated 28 Jun 2026</p>
+  </div>
+
+  <!-- Methodology coverage -->
+  <div class="methodology-badge">
+    <strong>16 methodologies ingested</strong>
+    <span class="sep">&middot;</span>
+    <span class="code">ACM0010, AM0073, AMS-III.A, AMS-III.AU, AMS-III.BE, AMS-III.BF, AMS-III.BK, AMS-III.D, AMS-III.R, AR-ACM0003, AR-AM0014, AR-AMS0003, AR-AMS0007, GS-00XX, VM0007, VM0047</span>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="summary-bar">
+    <div class="stat-card found">
+      <div class="number">4</div>
+      <div class="label">FOUND</div>
+    </div>
+    <div class="stat-card unclear">
+      <div class="number">1</div>
+      <div class="label">UNCLEAR</div>
+    </div>
+    <div class="stat-card missing">
+      <div class="number">1</div>
+      <div class="label">MISSING</div>
+    </div>
+    <div class="stat-card total">
+      <div class="number">6</div>
+      <div class="label">Total Checks</div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <span class="filter-btn active">All</span>
+    <span class="filter-btn found active">FOUND (4)</span>
+    <span class="filter-btn unclear active">UNCLEAR (1)</span>
+    <span class="filter-btn missing active">MISSING (1)</span>
+  </div>
+
+  <!-- ===== CHECK 1: Host Country (FOUND) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #f0fdf4;">
+      <span class="check-title">
+        Host Country
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VM0007 § 1.1</span>
+      </span>
+      <span class="status-badge found">FOUND</span>
+    </div>
+    <div class="check-card-body">
+      <blockquote>&ldquo;The Envira Amazonia Project area is located in Acre, Brazil along the banks of the Jurupari River&rdquo;</blockquote>
+      <div class="provenance">
+        <span><strong>Section:</strong> 1.9 Project Location</span>
+        <span><strong>Path:</strong> 1 → 1.9</span>
+        <span><strong>Page:</strong> 10</span>
+        <span class="mono">proj-desc-1382:p10:b291:59ab3639</span>
+      </div>
+      <div class="gap-box found">
+        <div class="gap-title">✓ Evidence meets requirement</div>
+        <div class="gap-text">The PDD unambiguously identifies Brazil as the host country. This satisfies VM0007 §1.1 (Project Location) which requires the host country to be stated in the PDD.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECK 2: Methodology (FOUND) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #f0fdf4;">
+      <span class="check-title">
+        Methodology
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VM0007 § 2.1</span>
+      </span>
+      <span class="status-badge found">FOUND</span>
+    </div>
+    <div class="check-card-body">
+      <blockquote>&ldquo;The Envira Amazonia Project is utilizing the Avoided Deforestation Partners&rsquo; VCS REDD Methodology, entitled, &lsquo;VM0007: REDD Methodology Modules (REDD-MF).&rsquo;&rdquo;</blockquote>
+      <div class="provenance">
+        <span><strong>Section:</strong> 2.1 Title and Reference of Methodology</span>
+        <span><strong>Path:</strong> 2 → 2.1</span>
+        <span><strong>Page:</strong> 31</span>
+        <span class="mono">proj-desc-1382:p31:b780:fffdbdc1</span>
+      </div>
+      <div class="gap-box found">
+        <div class="gap-title">✓ Evidence meets requirement</div>
+        <div class="gap-text">VM0007 is explicitly named as the methodology. The citation includes the full title and reference — this satisfies the methodology identification requirement.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECK 3: Baseline Scenario (FOUND) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #f0fdf4;">
+      <span class="check-title">
+        Baseline Scenario
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VM0007 § 2.4</span>
+      </span>
+      <span class="status-badge found">FOUND</span>
+    </div>
+    <div class="check-card-body">
+      <blockquote>&ldquo;The VCS &lsquo;Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities&rsquo; is applied to identify the baseline scenario of the project.&rdquo;</blockquote>
+      <div class="provenance">
+        <span><strong>Section:</strong> 2.4 Baseline Scenario</span>
+        <span><strong>Path:</strong> 2 → 2.4</span>
+        <span><strong>Page:</strong> 37</span>
+        <span class="mono">proj-desc-1382:p37:b1081:2863c2fa</span>
+      </div>
+      <div class="gap-box found">
+        <div class="gap-title">✓ Evidence meets requirement</div>
+        <div class="gap-text">The baseline scenario methodology is identified (VCS AFOLU Tool). The PDD section is dedicated to baseline determination — sufficient evidence for this check.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECK 4: Additionality (UNCLEAR) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #fffbeb;">
+      <span class="check-title">
+        Additionality
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VM0007 § 2.5</span>
+      </span>
+      <span class="status-badge unclear">UNCLEAR</span>
+    </div>
+    <div class="check-card-body">
+      <blockquote>&ldquo;The VCS &lsquo;Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities&rsquo; is applied to demonstrate additionality for the Envira Amazonia Project.&rdquo;</blockquote>
+      <div class="provenance">
+        <span><strong>Section:</strong> 2.5 Additionality</span>
+        <span><strong>Path:</strong> 2 → 2.5</span>
+        <span><strong>Page:</strong> 38</span>
+        <span class="mono">proj-desc-1382:p38:b1115:d7e117fb</span>
+      </div>
+
+      <!-- Expected evidence types -->
+      <div class="expected-evidence">
+        <h4>Expected evidence types</h4>
+        <ul>
+          <li class="met">✓ PDD</li>
+          <li class="unmet">✗ Additionality assessment (investment analysis or barrier analysis)</li>
+        </ul>
+      </div>
+
+      <div class="gap-box unclear">
+        <div class="gap-title">? Evidence found but incomplete — needs reviewer judgment</div>
+        <div class="gap-text">
+          The PDD states <em>which tool</em> is applied but does not include the actual additionality analysis in the extracted body block. The section heading exists and evidence is present in this section, but the extracted text references the tool rather than presenting the analysis itself. A reviewer should check:
+          <ul style="margin-top: 0.4rem; padding-left: 1.2rem;">
+            <li>Whether the additionality analysis appears in a sub-section not caught by the direct body block extraction</li>
+            <li>Whether the tool reference alone is sufficient for this methodology version</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECK 5: Leakage (FOUND) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #f0fdf4;">
+      <span class="check-title">
+        Leakage
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VM0007 § 3.3</span>
+      </span>
+      <span class="status-badge found">FOUND</span>
+    </div>
+    <div class="check-card-body">
+      <blockquote>&ldquo;Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules.&rdquo;</blockquote>
+      <div class="provenance">
+        <span><strong>Section:</strong> 3.3 Leakage</span>
+        <span><strong>Path:</strong> 3 → 3.3</span>
+        <span><strong>Page:</strong> 69</span>
+        <span class="mono">proj-desc-1382:p69:b2162:89495e2a</span>
+      </div>
+      <div class="gap-box found">
+        <div class="gap-title">✓ Evidence meets requirement</div>
+        <div class="gap-text">Leakage is addressed using the methodology-specific modules (LK-ASP and LK-ME). This satisfies the VM0007 leakage documentation requirement.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECK 6: Stakeholder Consultation (MISSING) ===== -->
+  <div class="check-card">
+    <div class="check-card-header" style="background: #fef2f2;">
+      <span class="check-title">
+        Stakeholder Consultation
+        <span style="font-size: 0.75rem; color: #6b7280; font-weight: 400;">VCS Standard § 3.7</span>
+      </span>
+      <span class="status-badge missing">MISSING</span>
+    </div>
+    <div class="check-card-body">
+      <p style="color: #9ca3af; font-style: italic; margin-bottom: 0.75rem;">No direct body evidence extracted from expected section.</p>
+
+      <!-- Expected evidence types -->
+      <div class="expected-evidence">
+        <h4>Expected evidence types</h4>
+        <ul>
+          <li class="unmet">✗ Stakeholder consultation records</li>
+          <li class="unmet">✗ Summary of comments received</li>
+          <li class="unmet">✗ How comments were addressed</li>
+        </ul>
+      </div>
+
+      <div class="gap-box missing">
+        <div class="gap-title">✗ Evidence not found — possible gap</div>
+        <div class="gap-text">
+          The section "6 STAKEHOLDER COMMENTS" exists in the PDD (page 122), but the extracted text from this section does not contain direct body evidence that can be automatically confirmed. Possible causes:
+          <ul style="margin-top: 0.4rem; padding-left: 1.2rem;">
+            <li>Consultation evidence may be in a table or appendix format that the ingestion pipeline classified as a different block type</li>
+            <li>The text may be embedded in sub-sections not captured by the section heading match</li>
+            <li>This PDD may genuinely lack stakeholder consultation records</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <h3>About this report</h3>
+    <ul>
+      <li><strong>Deterministic evidence:</strong> All quotes are extracted from the PDF by the ingestion pipeline — no LLM was used to fabricate or paraphrase evidence.</li>
+      <li><strong>Status assignments:</strong> <strong>FOUND</strong> = direct body text under the expected section heading meets the requirement. <strong>UNCLEAR</strong> = evidence exists but is ambiguous or incomplete. <strong>MISSING</strong> = no deterministically matched evidence found.</li>
+      <li><strong>Gap analysis:</strong> The "UNCLEAR" and "MISSING" items represent preverification gaps that need human reviewer judgment before the PDD can be said to meet methodology requirements.</li>
+      <li><strong>Not a final verification:</strong> This is a preverification screening tool — it flags likely gaps but does not replace a full audit.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
