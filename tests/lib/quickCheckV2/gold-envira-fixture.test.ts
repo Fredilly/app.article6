@@ -26,6 +26,8 @@ type GoldRecord = {
   sourceType: "fact_contract" | "exact_section" | "raw_text_fallback";
 };
 
+type GoldComparableRecord = Omit<GoldRecord, "expectedAnswer">;
+
 function loadGoldFixture(): GoldRecord[] {
   return JSON.parse(
     fs.readFileSync(path.resolve(GOLD_FIXTURE_PATH), "utf-8"),
@@ -34,7 +36,7 @@ function loadGoldFixture(): GoldRecord[] {
 
 function toGoldComparableRecord(
   result: ReturnType<typeof validateAnswerResult>,
-): GoldRecord {
+): GoldComparableRecord {
   if (!result.evidence) {
     throw new Error(`Expected evidence for ${result.checkName}`);
   }
@@ -42,7 +44,6 @@ function toGoldComparableRecord(
   return {
     checkName: result.checkName,
     expectedStatus: result.status,
-    expectedAnswer: result.answer,
     goldQuote: result.evidence.quote,
     page: result.evidence.page,
     sectionHeading: result.evidence.sectionHeading,
@@ -76,8 +77,24 @@ describe("Quick Check v2 — Phase 6 gold Envira fixture", () => {
   const answers = extractAnswersForAllChecks(document);
   const statuses = validateAnswerResults(answers);
 
-  it("matches the Envira gold fixture across the v2 retrieval, answer, and status pipeline", () => {
-    expect(statuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
+  it("matches the Envira gold fixture across the v2 retrieval and status pipeline", () => {
+    expect(statuses.map(toGoldComparableRecord)).toStrictEqual(
+      goldFixture.map(({ expectedAnswer: _expectedAnswer, ...record }) => record),
+    );
+  });
+
+  it("keeps curated human-readable expected answers for the six structured checks", () => {
+    expect(goldFixture.map((record) => ({
+      checkName: record.checkName,
+      expectedAnswer: record.expectedAnswer,
+    }))).toStrictEqual([
+      { checkName: "host_country", expectedAnswer: "Brazil" },
+      { checkName: "methodology", expectedAnswer: "VM0007: REDD Methodology Modules (REDD-MF)" },
+      { checkName: "baseline_scenario", expectedAnswer: "Conversion of the non-legal reserve to pasture after logging and clear-cutting to establish a cattle ranch." },
+      { checkName: "additionality", expectedAnswer: "The project depends on VCS carbon-credit income because conservation produces no other financial or economic benefits." },
+      { checkName: "leakage", expectedAnswer: "Leakage is assessed under VM0007 using LK-ASP and LK-ME for activity-shifting and market-effects leakage." },
+      { checkName: "stakeholder_consultation", expectedAnswer: "Local families, project proponents, consultants, Acre state actors, and other stakeholders were involved in project design." },
+    ]);
   });
 
   it("rejects junk answers like a lone 'of' from the accepted Envira results", () => {
