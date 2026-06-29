@@ -153,7 +153,7 @@ export default function CoverageDrawer({
                             {meta.stableId}
                           </span>
                         </div>
-                        <div className="mt-0.5 text-sm text-slate-600 truncate">{meta.humanTitle}</div>
+                        <div className="mt-0.5 text-sm text-slate-500 truncate">{meta.sectionTitle}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button

@@ -314,6 +314,9 @@ export default function RequirementCoverageWorkspace({
                       Selected requirement
                     </div>
                     <div className="mt-1 font-mono text-xs font-semibold text-slate-700">{selectedRow.ruleId}</div>
+                    {selectedRow.provenance.sectionTitle ? (
+                      <div className="mt-1 text-sm text-slate-500">{selectedRow.provenance.sectionTitle}</div>
+                    ) : null}
                   </div>
                   <span
                     className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${REQUIREMENT_COVERAGE_STATUS_META[selectedRow.status].tone}`}
