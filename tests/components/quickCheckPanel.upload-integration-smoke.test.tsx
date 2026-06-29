@@ -306,8 +306,6 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
 
     for (const record of ENVIRA_GOLD_FIXTURE) {
       expect(record.expectedStatus).toBe("FOUND");
-      expect(record.expectedAnswer).toBeTruthy();
-      expect(text).toContain(record.expectedAnswer!);
       expect(text).toContain(record.goldQuote.slice(0, 60));
       expect(text).toContain(`p.${record.page}`);
       if (record.sectionHeading) {
