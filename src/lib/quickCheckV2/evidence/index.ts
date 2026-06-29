@@ -215,10 +215,11 @@ function findFirstBlock(
 function toEvidence(
   block: QuickCheckV2Block,
   sourceType: EvidenceSourceType,
+  quoteOverride?: string,
 ): RetrievedEvidence {
   return {
     sourceType,
-    quote: block.text,
+    quote: quoteOverride ?? block.text,
     page: block.page,
     sectionHeading: block.sectionHeading,
     sectionPath: block.sectionPath,
@@ -548,7 +549,142 @@ function findSectionsByHeadingText(
   return results;
 }
 
+function sectionPathStartsWith(pathValue: string[], prefix: string[]): boolean {
+  if (prefix.length === 0 || pathValue.length < prefix.length) {
+    return false;
+  }
+
+  return prefix.every((segment, index) => pathValue[index] === segment);
+}
+
+function collectSectionBodyBlocks(
+  document: QuickCheckV2ExtractedDocument,
+  section: SectionTreeNode,
+): QuickCheckV2Block[] {
+  const prefix = section.heading.sectionPath;
+
+  return getEvidenceBlocks(document).filter((block) => {
+    if (block.page < section.heading.page) {
+      return false;
+    }
+
+    if (sectionPathStartsWith(block.sectionPath, prefix)) {
+      return true;
+    }
+
+    return (
+      block.sectionHeading === section.heading.sectionHeading &&
+      block.page === section.heading.page
+    );
+  });
+}
+
+function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
+  return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
+}
+
+function endsSentence(text: string): boolean {
+  return /[.?!]["')\]]*$/.test(text.trim());
+}
+
+function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
+  return blocks.filter((block) => {
+    const text = block.text.trim();
+    return text.length > 0 && !isBoilerplateSectionBlock(block);
+  });
+}
+
+function normalizeSectionPhrase(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/^\s*(?:section\s+)?(?:[a-z]?\.\d+(?:\.\d+)*|\d+(?:\.\d+)*)\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function groupBlocksByExactSectionPath(blocks: QuickCheckV2Block[]): QuickCheckV2Block[][] {
+  const groups = new Map<string, QuickCheckV2Block[]>();
+
+  for (const block of blocks) {
+    const key = block.sectionPath.join(">");
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(block);
+  }
+
+  return Array.from(groups.values());
+}
+
+function chooseBestSectionGroup(
+  baseDepth: number,
+  searchTexts: string[],
+  blocks: QuickCheckV2Block[],
+): QuickCheckV2Block[] {
+  const usableBlocks = getUsableSectionBlocks(blocks);
+  if (usableBlocks.length === 0) {
+    return [];
+  }
+
+  const grouped = groupBlocksByExactSectionPath(usableBlocks);
+  const descendantGroups = grouped.filter(
+    (group) => group[0]!.sectionPath.length > baseDepth,
+  );
+
+  if (descendantGroups.length === 0) {
+    return usableBlocks;
+  }
+
+  const normalizedSearchPhrases = searchTexts
+    .map(normalizeSectionPhrase)
+    .filter((value) => value.length > 0);
+
+  if (normalizedSearchPhrases.length > 0) {
+    const tokenMatchedGroup = descendantGroups.find((group) =>
+      group.some((block) => {
+        const text = block.text.toLowerCase();
+        return normalizedSearchPhrases.some((phrase) => text.includes(phrase));
+      }),
+    );
+
+    if (tokenMatchedGroup) {
+      return tokenMatchedGroup;
+    }
+  }
+
+  return descendantGroups[0]!;
+}
+
+function buildQuoteFromBlock(
+  document: QuickCheckV2ExtractedDocument,
+  block: QuickCheckV2Block,
+): string {
+  const startIndex = document.blocks.findIndex((candidate) => candidate.spanId === block.spanId);
+  if (startIndex === -1) {
+    return block.text;
+  }
+
+  const parts = [block.text.trim()];
+  for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
+    const candidate = document.blocks[index]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.page !== block.page) break;
+    if (candidate.sectionHeading !== block.sectionHeading) break;
+    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (isBoilerplateSectionBlock(candidate)) break;
+
+    if (endsSentence(parts.join(" "))) {
+      break;
+    }
+
+    parts.push(candidate.text.trim());
+  }
+
+  return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
 function getBestExactSectionBlock(
+  document: QuickCheckV2ExtractedDocument,
   tree: SectionTreeNode[],
   checkName: StructuredCheckId,
 ): QuickCheckV2Block | null {
@@ -578,11 +714,23 @@ function getBestExactSectionBlock(
   }
 
   const bestSection =
-    sections.find((section) => section.directBodyBlocks.length > 0 && section.heading.page > 2) ??
-    sections.find((section) => section.directBodyBlocks.length > 0) ??
+    sections.find(
+      (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
+    ) ??
+    sections.find((section) => collectSectionBodyBlocks(document, section).length > 0) ??
     null;
 
-  return bestSection?.directBodyBlocks[0] ?? null;
+  if (!bestSection) {
+    return null;
+  }
+
+  const candidateBlocks = collectSectionBodyBlocks(document, bestSection);
+  const selectedGroup = chooseBestSectionGroup(
+    bestSection.heading.sectionPath.length,
+    mapping.searchTexts,
+    candidateBlocks,
+  );
+  return selectedGroup[0] ?? null;
 }
 
 function getFactContractEvidence(
@@ -602,8 +750,8 @@ function getExactSectionEvidence(
   document: QuickCheckV2ExtractedDocument,
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
-  const block = getBestExactSectionBlock(buildSectionTree(document), checkName);
-  return block ? toEvidence(block, "exact_section") : null;
+  const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
+  return block ? toEvidence(block, "exact_section", buildQuoteFromBlock(document, block)) : null;
 }
 
 function getRawTextFallbackEvidence(

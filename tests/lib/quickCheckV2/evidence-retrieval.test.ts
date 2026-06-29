@@ -80,8 +80,8 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
       sectionText: string;
       page: number;
     }> = [
-      { checkName: "baseline_scenario", sectionText: "Baseline Scenario", page: 37 },
-      { checkName: "additionality", sectionText: "Additionality", page: 38 },
+      { checkName: "baseline_scenario", sectionText: "Conversion to Pasture", page: 38 },
+      { checkName: "additionality", sectionText: "Simple Cost Analysis", page: 38 },
       { checkName: "leakage", sectionText: "Leakage", page: 69 },
       { checkName: "stakeholder_consultation", sectionText: "STAKEHOLDER COMMENTS", page: 122 },
     ];
@@ -159,5 +159,178 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.sourceType).toBe("raw_text_fallback");
     expect(result.evidence!.quote).toContain("baseline scenario");
     expect(result.evidence!.page).toBe(1);
+  });
+
+  it("prefers a deeper subsection that explicitly carries the mapped section phrase", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p2:b1:heading",
+        page: 2,
+        text: "2.4 Baseline Scenario",
+        blockType: "heading",
+        sectionHeading: "Baseline Scenario",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b2:heading-fragment",
+        page: 2,
+        text: "2.4.1 Continuation of current land use",
+        blockType: "heading",
+        sectionHeading: "Continuation of current land use",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b3:body",
+        page: 2,
+        text: "This scenario remains legally possible but is not the selected outcome.",
+        blockType: "body",
+        sectionHeading: "Continuation of current land use",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b4:heading",
+        page: 2,
+        text: "2.4.2 Conversion to pasture",
+        blockType: "heading",
+        sectionHeading: "Conversion to pasture",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b5:body",
+        page: 2,
+        text: "The most likely baseline scenario is conversion to pasture.",
+        blockType: "body",
+        sectionHeading: "Conversion to pasture",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.sectionHeading).toBe("Conversion to pasture");
+    expect(result.evidence!.quote).toBe(
+      "The most likely baseline scenario is conversion to pasture.",
+    );
+  });
+
+  it("rejects boilerplate blocks and stitches a split sentence inside the chosen subsection", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "2.5 Additionality",
+        blockType: "heading",
+        sectionHeading: "Additionality",
+        sectionPath: ["2", "2.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:heading",
+        page: 3,
+        text: "2.5.1 Simple Cost Analysis",
+        blockType: "heading",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b3:boilerplate",
+        page: 3,
+        text: "PROJECT DESCRIPTION: VCS Version 3",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b4:body",
+        page: 3,
+        text: "As the project generates no financial benefit other than",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b5:body",
+        page: 3,
+        text: "carbon revenue, a simple cost analysis is justified.",
+        blockType: "body",
+        sectionHeading: "Simple Cost Analysis",
+        sectionPath: ["2", "2.5", "2.5.1"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.spanId).toBe("synthetic-doc:p3:b4:body");
+    expect(result.evidence!.quote).toBe(
+      "As the project generates no financial benefit other than carbon revenue, a simple cost analysis is justified.",
+    );
+  });
+
+  it("does not choose a subsection just because it contains Envira-specific words", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p4:b1:heading",
+        page: 4,
+        text: "2.4 Baseline Scenario",
+        blockType: "heading",
+        sectionHeading: "Baseline Scenario",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b2:heading",
+        page: 4,
+        text: "2.4.1 Conversion to Pasture",
+        blockType: "heading",
+        sectionHeading: "Conversion to Pasture",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b3:body",
+        page: 4,
+        text: "Envira Acre VCS project materials discuss conversion to pasture in a regional example.",
+        blockType: "body",
+        sectionHeading: "Conversion to Pasture",
+        sectionPath: ["2", "2.4", "2.4.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b4:heading",
+        page: 4,
+        text: "2.4.2 Alternative Land Use",
+        blockType: "heading",
+        sectionHeading: "Alternative Land Use",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b5:body",
+        page: 4,
+        text: "The most likely baseline scenario is continued cattle ranching.",
+        blockType: "body",
+        sectionHeading: "Alternative Land Use",
+        sectionPath: ["2", "2.4", "2.4.2"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.quote).toContain("most likely baseline scenario");
+    expect(result.evidence!.quote).not.toContain("Envira");
+    expect(result.evidence!.quote).not.toContain("Acre");
+    expect(result.evidence!.quote).not.toContain("VCS");
+    expect(result.evidence!.sectionPath).toStrictEqual(["2", "2.4", "2.4.2"]);
+    expect(result.evidence!.sourceType).toBe("exact_section");
   });
 });
