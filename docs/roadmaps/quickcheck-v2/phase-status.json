@@ -4,10 +4,10 @@
     "status": "active",
     "summary": "Rebuild Quick Check from clean ingestion up. PDF → canonical JSON → section tree → evidence spans → answer → status. One layer per PR. No scoring. No LLM finals. No Blob test dependency.",
     "current_focus": [
-      "Phase 3 done + Phase 4 done (PR #857). Next: Phase 5 — Status validator."
+      "Phase 5 done + Phase 6 done."
     ],
     "not_active_now": [],
-    "last_updated_at": "2026-06-28T00:00:00Z",
+    "last_updated_at": "2026-06-29T00:00:00Z",
     "goals": [
       {
         "id": "phase_0_roadmap_boundary",
@@ -93,7 +93,7 @@
       {
         "id": "phase_5_status_validator",
         "title": "Boring deterministic status validator",
-        "status": "next",
+        "status": "done",
         "dependsOn": [
           "phase_4_answer_extractors"
         ],
@@ -108,7 +108,7 @@
       {
         "id": "phase_6_gold_envira",
         "title": "Gold Envira fixture",
-        "status": "planned",
+        "status": "done",
         "dependsOn": [
           "phase_5_status_validator"
         ],
@@ -164,12 +164,12 @@
     },
     "phase_5_status_validator": {
       "title": "Boring deterministic status validator",
-      "status": "next",
+      "status": "done",
       "summary": "FOUND = answer + quote + page + section + span. Validators judge only, do not search/rank."
     },
     "phase_6_gold_envira": {
       "title": "Gold Envira fixture",
-      "status": "planned",
+      "status": "done",
       "summary": "Gold is PDF truth, not current output. Includes expected answer, quote, page, section, span ID, known junk to reject."
     },
     "phase_7_add_pdfs": {
