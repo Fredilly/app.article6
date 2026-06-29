@@ -397,9 +397,20 @@ export default function MethodDetailPane({
   const tabActive = "bg-slate-900 text-white";
   const tabIdle = "bg-slate-100 text-slate-700 hover:bg-slate-200";
 
+  const sectionTitleById = useMemo(
+    () => new Map(sections.map((section) => [section.id, section.title])),
+    [sections],
+  );
+
   const coverageRules = useMemo(
-    () => rules.map((rule) => ({ id: rule.id, title: rule.title, tags: rule.tags ?? [] })),
-    [rules],
+    () =>
+      rules.map((rule) => ({
+        id: rule.id,
+        title: rule.title,
+        tags: rule.tags ?? [],
+        sectionTitle: sectionTitleById.get(rule.refs?.primarySection ?? rule.sectionId ?? "") ?? "",
+      })),
+    [rules, sectionTitleById],
   );
   const coverageLinkedRuleIds = useMemo(() => linkedRuleIdsFromPins(evidencePins), [evidencePins]);
   const coverageRulesWithStatus = useMemo(() => {
@@ -416,10 +427,6 @@ export default function MethodDetailPane({
       limit: 10,
     });
   }, [coverageLinkedRuleIds, coverageRules]);
-  const sectionTitleById = useMemo(
-    () => new Map(sections.map((section) => [section.id, section.title])),
-    [sections],
-  );
   const evidenceInventory = useMemo(() => buildEvidenceInventory(evidencePins), [evidencePins]);
   const requirementStatusesByRuleId = useMemo(() => {
     const next = new Map<string, RequirementCoverageStatus>();

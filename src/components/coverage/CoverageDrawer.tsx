@@ -134,12 +134,23 @@ export default function CoverageDrawer({
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <div className="text-xs text-slate-500">
-                        {rule.tags.length ? rule.tags.slice(0, 3).join(", ") : "—"}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-block h-2 w-2 shrink-0 rounded-full ${
+                            (rule.status ?? "uncovered") === "covered"
+                              ? "bg-emerald-500"
+                              : (rule.status ?? "uncovered") === "weak"
+                                ? "bg-amber-400"
+                                : "bg-slate-300"
+                          }`}
+                        />
+                        <span className="text-sm font-semibold text-slate-900 truncate">{rule.title}</span>
                       </div>
-                      <div className="text-sm font-semibold text-slate-900">{rule.title}</div>
-                      <div className="font-mono text-xs text-slate-500">{rule.id}</div>
+                      {rule.sectionTitle ? (
+                        <div className="mt-0.5 text-xs text-slate-500 truncate">{rule.sectionTitle}</div>
+                      ) : null}
+                      <div className="mt-0.5 font-mono text-[11px] text-slate-400 truncate">{rule.id}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button

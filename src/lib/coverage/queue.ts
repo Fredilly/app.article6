@@ -2,6 +2,7 @@ export type CoverageQueueRule = {
   id: string;
   title: string;
   tags: string[];
+  sectionTitle?: string;
   status?: "covered" | "uncovered" | "weak";
 };
 
