@@ -149,11 +149,11 @@ export default function CoverageDrawer({
                                   : "bg-slate-300"
                             }`}
                           />
-                          <span className="text-sm font-semibold text-slate-900 truncate">
-                            {meta.humanTitle}
+                          <span className="font-mono text-[13px] font-bold text-slate-900 truncate">
+                            {meta.stableId}
                           </span>
                         </div>
-                        <div className="mt-0.5 font-mono text-[11px] text-slate-400 truncate">{meta.stableId}</div>
+                        <div className="mt-0.5 text-sm text-slate-600 truncate">{meta.humanTitle}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
