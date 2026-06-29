@@ -265,21 +265,27 @@ export default function RequirementCoverageWorkspace({
                   id={`r-${row.ruleId}`}
                   type="button"
                   onClick={() => onSelectRule(row.ruleId)}
-                  className={`grid gap-3 rounded-2xl border p-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
+                  className={`grid gap-2 rounded-2xl border p-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${
                     selected ? "border-sky-300 bg-sky-50/40 ring-2 ring-sky-100" : "border-slate-200 bg-white"
                   }`}
                   aria-pressed={selected}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs font-semibold text-slate-700">{row.ruleId}</span>
-                      <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${status.tone}`}>
-                        {status.label}
-                      </span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-mono text-xs font-semibold text-slate-700">{row.ruleId}</div>
+                      {row.provenance.sectionTitle ? (
+                        <div className="mt-0.5 text-sm text-slate-500">{row.provenance.sectionTitle}</div>
+                      ) : null}
+                      <div className="mt-0.5 text-sm font-semibold text-slate-900">
+                        {row.ruleSummary.summary || row.ruleSummary.snippet}
+                      </div>
                     </div>
-                    <span className="text-xs text-slate-500">{requirementProvenanceHint(row)}</span>
+                    <span
+                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${status.tone}`}
+                    >
+                      {status.label}
+                    </span>
                   </div>
-                  <div className="text-sm font-semibold leading-snug text-slate-900">{row.ruleSummary.snippet}</div>
                   <div className="grid gap-2 text-xs text-slate-600 md:grid-cols-3">
                     <div>
                       <div className="font-semibold uppercase tracking-wide text-slate-400">Provenance</div>
