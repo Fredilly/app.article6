@@ -89,6 +89,51 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
     expect(result.reason).toBe("provenance_incomplete");
   });
 
+  it("returns UNCLEAR when only raw-text fallback evidence supports the answer", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        evidence: {
+          sourceType: "raw_text_fallback",
+          quote: "Additionality is demonstrated.",
+          page: 38,
+          sectionHeading: "Additionality",
+          sectionPath: ["3", "3.2"],
+          spanId: "synthetic-doc:p38:b0:add",
+        },
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("fallback_evidence_only");
+  });
+
+  it("returns FOUND for fact-contract evidence with complete answer and provenance", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "methodology",
+        answer: "VM0007",
+        evidence: {
+          sourceType: "fact_contract",
+          quote: "The project applies methodology VM0007.",
+          page: 31,
+          sectionHeading: "Title and Reference of Methodology",
+          sectionPath: ["3", "3.1"],
+          spanId: "synthetic-doc:p31:b0:methodology",
+        },
+      }),
+    );
+
+    expect(result.status).toBe("FOUND");
+    expect(result.reason).toBe("answer_and_provenance_complete");
+  });
+
+  it("returns FOUND for exact-section evidence with complete answer and provenance", () => {
+    const result = validateAnswerResult(makeAnswerResult({}));
+
+    expect(result.status).toBe("FOUND");
+    expect(result.reason).toBe("answer_and_provenance_complete");
+  });
+
   it("returns only checkName, status, answer, evidence, and reason", () => {
     for (const result of statuses) {
       expect(Object.keys(result)).toStrictEqual([

@@ -27,6 +27,7 @@ export type QuickCheckStatus = "FOUND" | "UNCLEAR" | "MISSING";
 export type StatusReason =
   | "evidence_missing"
   | "answer_missing"
+  | "fallback_evidence_only"
   | "provenance_incomplete"
   | "answer_and_provenance_complete";
 
@@ -89,6 +90,16 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: result.answer,
       evidence: result.evidence,
       reason: "provenance_incomplete",
+    };
+  }
+
+  if (result.evidence.sourceType === "raw_text_fallback") {
+    return {
+      checkName: result.checkName,
+      status: "UNCLEAR",
+      answer: result.answer,
+      evidence: result.evidence,
+      reason: "fallback_evidence_only",
     };
   }
 
