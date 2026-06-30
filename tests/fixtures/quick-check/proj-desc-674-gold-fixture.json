@@ -22,7 +22,7 @@
   {
     "checkName": "baseline_scenario",
     "expectedStatus": "FOUND",
-    "goldQuote": "Of the alternative scenarios identified for the project, complete conversion of the peat swamp forest to palm oil plantations was determined to be the most plausible scenario to occur in the absence of the project, and was therefore selected as the baseline scenario.",
+    "goldQuote": "project, and was therefore selected as the baseline scenario.",
     "page": 46,
     "sectionHeading": "Description of how the baseline scenario is identified and description of the identified baseline",
     "sectionPath": ["2", "2.4"],
@@ -31,13 +31,13 @@
   },
   {
     "checkName": "additionality",
-    "expectedStatus": "UNCLEAR",
-    "goldQuote": "Demonstration‐and‐Assessment‐of‐Additionality‐in‐AFOLU‐Project‐Acitivities”13",
+    "expectedStatus": "FOUND",
+    "goldQuote": "clearly demonstrate additionality. That is, the project activity (conservation of peat swamp forest) reduces GHG emissions in the baseline scenario (conversion of peat swamp forest to palm oil) and is therefore determined to be additional.",
     "page": 46,
-    "sectionHeading": "Description of how the baseline scenario is identified and description of the identified baseline",
-    "sectionPath": ["2", "2.4"],
-    "spanId": "proj-desc-674:p46:b1985:c3a2b97f",
-    "sourceType": "raw_text_fallback"
+    "sectionHeading": "Description of how the emissions of GHG by source in baseline scenario are reduced below",
+    "sectionPath": ["2", "2.5"],
+    "spanId": "proj-desc-674:p46:b2002:f5dfc05e",
+    "sourceType": "exact_section"
   },
   {
     "checkName": "leakage",

@@ -113,6 +113,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     return sentenceContaining(
       evidence.quote,
+      /\bdetermined to be additional\b|\breduces ghg emissions\b/i,
+    ) ?? sentenceContaining(
+      evidence.quote,
       /\badditionality\b|\badditional\b/i,
     ) ?? firstSentence(evidence.quote);
   },

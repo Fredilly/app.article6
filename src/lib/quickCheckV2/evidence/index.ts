@@ -637,9 +637,36 @@ function findSectionsByHeadingText(
 ): SectionTreeNode[] {
   const results: SectionTreeNode[] = [];
 
+  function getHeadingSearchPreview(
+    node: SectionTreeNode,
+    searchTexts: string[],
+  ): string {
+    const previewParts = [node.heading.text];
+    const headingText = node.heading.text.toLowerCase();
+
+    if (searchTexts.some((text) => headingText.includes(text.toLowerCase()))) {
+      return headingText;
+    }
+
+    if (/[.?!:]$/.test(node.heading.text.trim())) {
+      return headingText;
+    }
+
+    for (const block of node.directBodyBlocks.slice(0, 2)) {
+      const text = block.text.trim();
+      if (!text) continue;
+      if (text.length > 140) break;
+      if (!/^[a-z,(]/.test(text)) break;
+      previewParts.push(text);
+      if (/[):.]$/.test(text)) break;
+    }
+
+    return previewParts.join(" ").toLowerCase();
+  }
+
   function walk(nodes: SectionTreeNode[]): void {
     for (const node of nodes) {
-      const headingText = node.heading.text.toLowerCase();
+      const headingText = getHeadingSearchPreview(node, searchTexts);
       const matches = searchTexts.some((text) => headingText.includes(text.toLowerCase()));
       const excluded =
         excludeTexts?.some((text) => headingText.includes(text.toLowerCase())) ?? false;
@@ -737,6 +764,15 @@ function normalizeSectionPhrase(value: string): string {
     .trim();
 }
 
+function isReferenceOnlyBlock(text: string): boolean {
+  const normalized = text.trim().toLowerCase();
+  return (
+    /^https?:\/\//.test(normalized) ||
+    /\.pdf\b/.test(normalized) ||
+    /\blast accessed\b/.test(normalized)
+  );
+}
+
 function groupBlocksByExactSectionPath(blocks: QuickCheckV2Block[]): QuickCheckV2Block[][] {
   const groups = new Map<string, QuickCheckV2Block[]>();
 
@@ -800,10 +836,12 @@ function chooseBestSectionBlock(
   }
 
   const matchedBlocks = usableBlocks.filter((block) =>
-    RAW_TEXT_FALLBACKS[checkName].match(block),
+    RAW_TEXT_FALLBACKS[checkName].match(block) && !isReferenceOnlyBlock(block.text),
   );
-  if (checkName === "baseline_scenario") {
-    return matchedBlocks[matchedBlocks.length - 1] ?? usableBlocks[0] ?? null;
+  if (checkName === "baseline_scenario" || checkName === "additionality") {
+    const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
+    const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
+    return earliestPageMatches[earliestPageMatches.length - 1] ?? usableBlocks[0] ?? null;
   }
 
   return usableBlocks[0] ?? null;
@@ -821,7 +859,11 @@ function buildQuoteFromBlock(
   const parts = [block.text.trim()];
   let prependIndex = startIndex - 1;
 
-  while (prependIndex >= 0 && /^[a-z,(]/.test(parts[0]!)) {
+  while (
+    prependIndex >= 0 &&
+    /^[a-z,(]/.test(parts[0]!) &&
+    !/[.?!]/.test(parts[0]!)
+  ) {
     const candidate = document.blocks[prependIndex]!;
     if (!isEvidenceBlock(candidate)) break;
     if (candidate.page !== block.page) break;
