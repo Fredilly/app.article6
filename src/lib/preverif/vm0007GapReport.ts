@@ -163,7 +163,7 @@ function sortGapFindings(left: Vm0007GapReportFinding, right: Vm0007GapReportFin
 
 function makeHeadline(input: Vm0007GapReport["executiveSummary"]["totals"]): string {
   if (input.supported === 58) {
-    return "The current PDD shows broad rule-level support, with no remaining client evidence actions.";
+    return "The current audit output identifies supported evidence across the VM0007 rule set, with no weak or missing evidence items listed.";
   }
   if (input.needsClientAction === 0) {
     return "The current PDD supports most VM0007 rules, with remaining items limited to scope-based not-applicable decisions.";
