@@ -1,0 +1,10 @@
+{
+  "id": "la-higuera-cdm-pdd",
+  "title": "Quick Check v2 Phase 7 La Higuera CDM PDD fixture",
+  "documentId": "la-higuera-revised-pdd",
+  "runtimeMode": "runtime-smoke",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "CDM",
+  "documentType": "Project Design Document"
+}

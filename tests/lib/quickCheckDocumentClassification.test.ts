@@ -36,7 +36,7 @@ const FIXTURES: ClassificationFixture[] = [
   },
   {
     fileName: "PROJ_DESC_1382_04APR2015.pdf",
-    fixturePath: "tests/fixtures/quick-check/proj-desc-1382-extracted.txt",
+    fixturePath: "tests/fixtures/quick-check/v2/envira/extracted.txt",
     expectedClass: "project_description_pdd",
   },
 ];

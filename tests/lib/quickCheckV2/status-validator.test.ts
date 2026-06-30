@@ -9,7 +9,8 @@ import {
 import { validateAnswerResult, validateAnswerResults } from "@/lib/quickCheckV2/status";
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 const STATUS_SOURCE_PATH = path.resolve("src/lib/quickCheckV2/status/index.ts");
 
@@ -32,7 +33,10 @@ function makeAnswerResult(
 }
 
 describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
-  const document = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+  const document = loadAndParseExtractedText(
+    ENVIRA_FIXTURE_PATH,
+    ENVIRA_DOCUMENT_ID,
+  );
   const answers = extractAnswersForAllChecks(document);
   const statuses = validateAnswerResults(answers);
 

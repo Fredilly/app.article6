@@ -5,7 +5,8 @@ import {
 } from "@/lib/quickCheckV2/ingestion";
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 // ---------------------------------------------------------------------------
 // Invariant tests — these must hold for the entire document, not just
@@ -16,7 +17,7 @@ describe("canonical JSON invariants", () => {
   let doc: QuickCheckV2ExtractedDocument;
 
   beforeAll(() => {
-    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH, ENVIRA_DOCUMENT_ID);
   });
 
   describe("page provenance invariants", () => {

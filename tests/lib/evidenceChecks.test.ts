@@ -349,7 +349,10 @@ describe("authoritative evidence check selectors", () => {
     // pages 1-3 only, find nothing, fall back to raw-text search, and
     // return the parameter text instead of VM0007.
     initPymupdfAdapterRuntime();
-    const pdfPath = path.join(FIXTURE_DIR, "deep-methodology-pdd.pdf");
+    const pdfPath = path.join(
+      FIXTURE_DIR,
+      "v2/deep-methodology/source.pdf",
+    );
     expect(fs.existsSync(pdfPath)).toBe(true);
 
     const parsed = pymupdfAdapter.parseText({

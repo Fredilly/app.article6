@@ -12,12 +12,12 @@ const PLUM_PDD_TEXT = fs.readFileSync(
   "utf-8",
 );
 const ENVIRA_PDD_TEXT = fs.readFileSync(
-  path.join(process.cwd(), "tests/fixtures/quick-check/proj-desc-1382-extracted.txt"),
+  path.join(process.cwd(), "tests/fixtures/quick-check/v2/envira/extracted.txt"),
   "utf-8",
 );
 const ENVIRA_GOLD_FIXTURE = JSON.parse(
   fs.readFileSync(
-    path.join(process.cwd(), "tests/fixtures/quick-check/envira-gold-fixture.json"),
+    path.join(process.cwd(), "tests/fixtures/quick-check/v2/envira/gold.json"),
     "utf-8",
   ),
 ) as Array<{

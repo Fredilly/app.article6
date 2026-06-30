@@ -9,7 +9,8 @@ import {
 // ---------------------------------------------------------------------------
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 // ---------------------------------------------------------------------------
 // Required Envira evidence strings with their expected page ranges
@@ -116,7 +117,10 @@ describe("Quick Check v2 — Envira ingestion", () => {
   let document: QuickCheckV2ExtractedDocument;
 
   beforeAll(() => {
-    document = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+    document = loadAndParseExtractedText(
+      ENVIRA_FIXTURE_PATH,
+      ENVIRA_DOCUMENT_ID,
+    );
   });
 
   describe("document structure", () => {
@@ -277,7 +281,10 @@ describe("Quick Check v2 — Envira ingestion", () => {
 
   describe("reproducibility", () => {
     it("produces identical output on second parse", () => {
-      const doc2 = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+      const doc2 = loadAndParseExtractedText(
+        ENVIRA_FIXTURE_PATH,
+        ENVIRA_DOCUMENT_ID,
+      );
       expect(doc2.blocks.length).toBe(document.blocks.length);
 
       // First and last span IDs should match (deterministic)
