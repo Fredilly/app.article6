@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "envira",
+      "directory": "envira"
+    },
+    {
+      "id": "deep-methodology",
+      "directory": "deep-methodology"
+    },
+    {
+      "id": "proj-desc-674",
+      "directory": "proj-desc-674"
+    },
+    {
+      "id": "la-higuera-cdm-pdd",
+      "directory": "la-higuera-cdm-pdd"
+    }
+  ]
+}

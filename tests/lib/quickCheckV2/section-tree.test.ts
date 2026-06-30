@@ -11,7 +11,8 @@ import {
 } from "@/lib/quickCheckV2/section-tree";
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -49,7 +50,7 @@ describe("Quick Check v2 — section tree", () => {
   let tree: SectionTreeNode[];
 
   beforeAll(() => {
-    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH, ENVIRA_DOCUMENT_ID);
     tree = buildSectionTree(doc);
   });
 
@@ -143,7 +144,7 @@ describe("Quick Check v2 — evidence span index", () => {
   let evidence: CheckEvidenceResult[];
 
   beforeAll(() => {
-    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+    doc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH, ENVIRA_DOCUMENT_ID);
     evidence = buildEvidenceIndex(doc);
   });
 

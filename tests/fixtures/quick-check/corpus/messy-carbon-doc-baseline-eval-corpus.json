@@ -4,7 +4,7 @@
   "fixtures": [
     {
       "id": "real-envira-full-vcs-pd",
-      "fixturePath": "tests/fixtures/quick-check/proj-desc-1382-extracted.txt",
+      "fixturePath": "tests/fixtures/quick-check/v2/envira/extracted.txt",
       "kind": "text",
       "methodologyContext": {
         "methodologyId": "VM0007",

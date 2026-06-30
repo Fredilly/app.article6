@@ -1,0 +1,10 @@
+{
+  "id": "deep-methodology",
+  "title": "Quick Check v2 Phase 7 deep methodology failure fixture",
+  "documentId": "deep-methodology-pdd-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "VCS",
+  "documentType": "Project Description / PD"
+}

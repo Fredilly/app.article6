@@ -8,7 +8,8 @@ import {
 } from "@/lib/quickCheckV2/evidence";
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 function makeSyntheticDocument(
   blocks: QuickCheckV2ExtractedDocument["blocks"],
@@ -22,7 +23,10 @@ function makeSyntheticDocument(
 }
 
 describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
-  const enviraDoc = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+  const enviraDoc = loadAndParseExtractedText(
+    ENVIRA_FIXTURE_PATH,
+    ENVIRA_DOCUMENT_ID,
+  );
   const allEvidence = retrieveEvidenceForAllChecks(enviraDoc);
 
   it("returns all six structured checks", () => {

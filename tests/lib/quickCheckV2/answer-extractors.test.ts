@@ -8,7 +8,8 @@ import {
 } from "@/lib/quickCheckV2/evidence";
 
 const ENVIRA_FIXTURE_PATH =
-  "tests/fixtures/quick-check/proj-desc-1382-extracted.txt";
+  "tests/fixtures/quick-check/v2/envira/extracted.txt";
+const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 
 function answerIsGroundedInEvidence(
   answer: string | null,
@@ -28,7 +29,10 @@ function answerIsGroundedInEvidence(
 }
 
 describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
-  const document = loadAndParseExtractedText(ENVIRA_FIXTURE_PATH);
+  const document = loadAndParseExtractedText(
+    ENVIRA_FIXTURE_PATH,
+    ENVIRA_DOCUMENT_ID,
+  );
   const selectedEvidence = retrieveEvidenceForAllChecks(document);
   const answers = extractAnswersForAllChecks(document);
 
