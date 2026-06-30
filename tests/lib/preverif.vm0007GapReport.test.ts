@@ -1,0 +1,161 @@
+import { describe, expect, it } from "@jest/globals";
+import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import {
+  auditEvidence,
+  type MethodologyEvidenceAuditResult,
+  type MethodologyEvidenceAuditSummary,
+} from "@/lib/preverif/evidenceAudit";
+import {
+  NO_PDD_EVIDENCE_TEXT,
+  buildVm0007GapReport,
+} from "@/lib/preverif/vm0007GapReport";
+import {
+  getVm0007EvidenceContract,
+  normalizeVm0007RuleId,
+} from "@/lib/preverif/vm0007EvidenceContracts";
+import {
+  readQuickCheckFixtureText,
+  VM0007_SYNCED_RULES,
+} from "./preverifVm0007Fixtures";
+
+const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+
+function auditText(rawText: string): MethodologyEvidenceAuditSummary {
+  const context = getStructuredQueryContext(rawText);
+  return auditEvidence({
+    rules: VM0007_SYNCED_RULES,
+    evidenceDocument: context.evidenceDocument,
+    getContract: getVm0007EvidenceContract,
+    normalizeRuleId: normalizeVm0007RuleId,
+    sections: context.documentStructure.sections,
+    rawText,
+  });
+}
+
+function withStatus(
+  result: MethodologyEvidenceAuditResult,
+  overrides: Partial<MethodologyEvidenceAuditResult>,
+): MethodologyEvidenceAuditResult {
+  return { ...result, ...overrides };
+}
+
+function retotal(results: MethodologyEvidenceAuditResult[]): MethodologyEvidenceAuditSummary["totals"] {
+  return {
+    supported_by_pdd: results.filter((result) => result.status === "supported_by_pdd").length,
+    partially_supported: results.filter((result) => result.status === "partially_supported").length,
+    missing_evidence: results.filter((result) => result.status === "missing_evidence").length,
+    not_applicable: results.filter((result) => result.status === "not_applicable").length,
+    manual_review_needed: results.filter((result) => result.status === "manual_review_needed").length,
+  };
+}
+
+function buildMixedAudit(): MethodologyEvidenceAuditSummary {
+  const base = auditText(ENVIRA_TEXT);
+  const results = base.results.map((result) => {
+    if (result.ruleId === "R-1-0002") {
+      return withStatus(result, {
+        status: "partially_supported",
+        gap: "The current PDD names the baseline category but does not explain why that category fits the project area.",
+        clientAction: "Add the project-specific baseline deforestation category rationale and the supporting land-use evidence.",
+      });
+    }
+    if (result.ruleId === "R-1-0003") {
+      return withStatus(result, {
+        status: "missing_evidence",
+        bestEvidenceQuote: null,
+        section: null,
+        page: null,
+        gap: "The current PDD does not show the AUDef agent evidence required for this rule.",
+        clientAction: "Add the project-specific evidence for the relevant deforestation agents and explain how they drive baseline pressure.",
+        assessmentReason: "The current PDD does not yet show project-specific evidence for this rule.",
+        reasonSelected: "No reliable project-specific span was selected for this rule.",
+      });
+    }
+    if (result.ruleId === "R-1-0005") {
+      return withStatus(result, {
+        status: "not_applicable",
+        bestEvidenceQuote: "This is a REDD/APD project in upland forest landscapes. No peat soils or tidal wetland activity occur in the project area.",
+        section: "Project Activity Description",
+        page: 2,
+        gap: "",
+        assessmentReason: "The current PDD scope statement shows this wetland-specific rule does not apply to the project.",
+      });
+    }
+    return result;
+  });
+
+  return {
+    results,
+    totals: retotal(results),
+    totalRules: results.length,
+  };
+}
+
+function buildReport(audit: MethodologyEvidenceAuditSummary) {
+  return buildVm0007GapReport({
+    reportId: "VRGR-VM0007-001",
+    generatedAt: "2026-07-01T10:00:00Z",
+    project: {
+      name: "Envira Amazonia",
+      projectId: "VM0007-ENV-001",
+      proponent: "Envira Project Dev",
+      region: "Brazil",
+      description: "Avoided deforestation project with community-focused leakage controls and monitoring procedures.",
+    },
+    methodology: {
+      code: "VM0007",
+      version: "4.2",
+      name: "REDD+ Methodology Framework",
+      scope: "Audit output rendered for client-facing validation readiness follow-up.",
+    },
+    audit,
+  });
+}
+
+describe("buildVm0007GapReport", () => {
+  it("builds a 58-rule report from existing VM0007 audit output", () => {
+    const report = buildReport(auditText(ENVIRA_TEXT));
+
+    expect(report.statementOfCoverage).toBe("58 VM0007 rules assessed for validation readiness.");
+    expect(report.fullRuleAuditTable).toHaveLength(58);
+    expect(report.evidenceAppendix).toHaveLength(58);
+  });
+
+  it("keeps client action guidance on every weak or missing rule", () => {
+    const report = buildReport(buildMixedAudit());
+    const weakOrMissing = report.fullRuleAuditTable.filter((row) =>
+      row.status === "weak" || row.status === "missing",
+    );
+
+    expect(report.clientActionList).toHaveLength(weakOrMissing.length);
+    for (const row of weakOrMissing) {
+      expect(row.gapGuidance.trim().length).toBeGreaterThan(0);
+      expect(row.clientAction.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("uses selected evidence quotes where available and the fallback text where they are not", () => {
+    const report = buildReport(buildMixedAudit());
+    const supported = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0001");
+    const missing = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0003");
+
+    expect(supported?.quote).toContain("Leakage Management procedures");
+    expect(missing?.quote).toBe(NO_PDD_EVIDENCE_TEXT);
+  });
+
+  it("keeps banned wording out of the report data", () => {
+    const reportJson = JSON.stringify(buildReport(buildMixedAudit())).toLowerCase();
+    const banned = [
+      ["VVB", "-grade"].join(""),
+      ["veri", "fied"].join(""),
+      ["validation", " opinion"].join(""),
+      ["assurance", " opinion"].join(""),
+      ["all", " clear"].join(""),
+    ];
+
+    expect(reportJson).not.toContain("58 vm0007 rules passed.");
+    for (const item of banned) {
+      expect(reportJson).not.toContain(item.toLowerCase());
+    }
+  });
+});
