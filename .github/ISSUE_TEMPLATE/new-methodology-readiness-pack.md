@@ -1,57 +1,78 @@
 ---
-name: New Methodology Readiness Pack
-about: Track the repeatable PR sequence for adding a new methodology readiness pack
-title: "New methodology readiness pack: [METHODOLOGY_CODE]"
+name: New Methodology Evidence Contract Pack
+about: Track the repeatable work for adding evidence contracts and report support for a new methodology
+title: "New methodology evidence contract pack: [METHODOLOGY_CODE]"
 labels: enhancement
 assignees: ''
 ---
 
-## Methodology
+## Methodology target
 
-- Code:
+- Methodology code:
 - Version:
 - Registry/source:
-- Target PDD fixture:
+- Methodology PDF/source link:
+- Rule count expected:
+- Test PDD fixture:
 
 ## Goal
 
-Add a new methodology readiness pack using the existing contracts → audit engine → report renderer pattern.
+Add evidence-contract support for this methodology so the existing audit engine and report renderer can assess a real PDD without rebuilding core logic.
 
-## Checklist
+## PR 1: Evidence contracts
 
-- [ ] Add evidence contracts
-- [ ] Add or normalize rule IDs
-- [ ] Add real PDD fixture
-- [ ] Run audit engine against fixture
-- [ ] Confirm all methodology rules are represented
-- [ ] Add reliable not-applicable reasons
-- [ ] Add client-facing gap guidance
-- [ ] Render report
-- [ ] Check banned wording
-- [ ] Generate internal preview or manual PDF output
+- [ ] Add contract registry entry for this methodology
+- [ ] Add stable rule IDs / normalization
+- [ ] Map each rule to required evidence
+- [ ] Add evidence type expectations, such as map, table, quote, calculation, eligibility statement, monitoring parameter, baseline rationale, leakage explanation
+- [ ] Add section hints / likely PDD locations
+- [ ] Add not-applicable conditions where the methodology allows them
+- [ ] Add tests that confirm all expected rules have contracts
 
-## PR sequence
+## PR 2: Evidence audit engine coverage
 
-1. Evidence contracts
-2. Evidence audit output
-3. Professional report output
-4. Internal preview/manual delivery path, if not already generic
+- [ ] Reuse the existing audit engine
+- [ ] Run the methodology contracts against a real PDD fixture
+- [ ] Confirm every rule appears in audit output
+- [ ] Confirm statuses are client-safe: supported, weak, missing, not applicable
+- [ ] Confirm weak/missing rules include gap and clientAction text
+- [ ] Confirm not-applicable rules include a clear reason
+- [ ] Confirm evidence quotes come only from selected PDD spans
 
-## Carry-over rules
+## PR 3: Report support
 
-- Reuse the existing audit engine where possible.
-- Reuse the report renderer pattern where possible.
-- Do not rebuild methodology sync unless the methodology pack itself is missing or invalid.
-- Do not add client self-service unless explicitly scoped.
+- [ ] Reuse the existing professional report renderer pattern
+- [ ] Show methodology code, version, project snapshot, rule count, summary, gaps, action list, full audit table, evidence appendix
+- [ ] Confirm evidence appendix includes quotes where available
+- [ ] Confirm missing evidence uses a safe fallback instead of invented quotes
+- [ ] Confirm banned wording is not present
 
-## Acceptance criteria
+## Optional PR 4: Internal delivery
 
-- Every methodology rule appears in the audit output.
-- Weak and missing items have client guidance.
-- Not-applicable items have clear reasons.
-- Evidence appendix includes quotes where available.
-- Report uses client-safe readiness language only.
-- Tests cover rule count, gap guidance, evidence appendix, and banned wording.
+- [ ] Add internal preview route or report entry point, if not already generic
+- [ ] Add print-friendly layout / manual PDF export path
+- [ ] Do not build client self-service unless separately scoped
+
+## Speedrun checklist
+
+- [ ] Contracts complete
+- [ ] Rule IDs normalized
+- [ ] Real PDD fixture added
+- [ ] Audit output covers all rules
+- [ ] Weak/missing guidance present
+- [ ] N/A reasons present
+- [ ] Report renders all rules
+- [ ] Evidence appendix works
+- [ ] Banned wording test passes
+- [ ] Internal preview/export path exists or is tracked separately
+
+## Do not do
+
+- Do not rebuild methodology sync unless the pack itself is missing or invalid
+- Do not change core audit engine unless a reusable bug is found
+- Do not invent evidence
+- Do not mark weak/missing rules as passed
+- Do not add client self-service unless explicitly scoped
 
 ## Banned wording
 
@@ -64,3 +85,10 @@ Do not use:
 - all clear
 - 100% pass
 - rules passed
+
+## Acceptance criteria
+
+- A future developer can follow this issue and know exactly what to build for a new methodology
+- Evidence contracts are separated from audit engine work
+- Report support is separated from core evidence extraction
+- The methodology can be added using the same pattern proven by VM0007
