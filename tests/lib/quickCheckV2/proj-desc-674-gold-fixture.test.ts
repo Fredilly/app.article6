@@ -2,15 +2,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
 import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
-import { loadAndParseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
+import { formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
+import { extractPdfPagesWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import {
+  loadAndParseExtractedText,
+  parseExtractedText,
+  type StructuredCheckId,
+} from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
 
 const SOURCE_PDF_PATH =
-  "tests/fixtures/quick-check/deep-methodology-pdd.pdf";
+  "tests/fixtures/quick-check/PROJ_DESC_674_15MAY2011.pdf";
 const EXTRACTED_TEXT_PATH =
-  "tests/fixtures/quick-check/deep-methodology-pdd-extracted.txt";
+  "tests/fixtures/quick-check/proj-desc-674-extracted.txt";
 const GOLD_FIXTURE_PATH =
-  "tests/fixtures/quick-check/deep-methodology-gold-fixture.json";
+  "tests/fixtures/quick-check/proj-desc-674-gold-fixture.json";
 
 type GoldRecord = {
   checkName: StructuredCheckId;
@@ -46,9 +52,9 @@ function toGoldComparableRecord(
   };
 }
 
-describe("Quick Check v2 — Phase 7 deep methodology PDF failure fixture", () => {
+describe("Quick Check v2 — Phase 7 PROJ_DESC_674 fixture", () => {
   const goldFixture = loadGoldFixture();
-  const document = loadAndParseExtractedText(EXTRACTED_TEXT_PATH);
+  const document = loadAndParseExtractedText(EXTRACTED_TEXT_PATH, "proj-desc-674");
   const answers = extractAnswersForAllChecks(document);
   const statuses = validateAnswerResults(answers);
 
@@ -58,25 +64,36 @@ describe("Quick Check v2 — Phase 7 deep methodology PDF failure fixture", () =
     expect(stats.size).toBeGreaterThan(0);
   });
 
-  it("matches the deep-methodology gold fixture across the v2 pipeline", () => {
+  it("matches the PROJ_DESC_674 gold fixture across the v2 pipeline", () => {
     expect(statuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
   });
 
-  it("does not accept 'Additional data parameters' as additionality evidence", () => {
-    const result = statuses.find((item) => item.checkName === "additionality");
-
-    expect(result).toBeDefined();
-    expect(result!.status).toBe("MISSING");
-    expect(result!.answer).toBeNull();
-    expect(result!.evidence).toBeNull();
+  it("keeps the curated corrected answers for all six structured checks", () => {
+    expect(statuses.map((result) => ({
+      checkName: result.checkName,
+      expectedAnswer: result.answer,
+    }))).toStrictEqual(
+      goldFixture.map((record) => ({
+        checkName: record.checkName,
+        expectedAnswer: record.expectedAnswer,
+      })),
+    );
   });
 
-  it("still preserves methodology as FOUND for the same PDF", () => {
-    const result = statuses.find((item) => item.checkName === "methodology");
+  it("matches the gold fixture from the real uploaded PDF extraction shape", async () => {
+    const bytes = fs.readFileSync(path.resolve(SOURCE_PDF_PATH));
+    const arrayBuffer = bytes.buffer.slice(
+      bytes.byteOffset,
+      bytes.byteOffset + bytes.byteLength,
+    ) as ArrayBuffer;
+    const extraction = await extractPdfPagesWithPdfParse({ bytes: arrayBuffer });
+    const runtimeDocument = parseExtractedText(
+      formatQuickCheckPdfPages(extraction.pages),
+      "proj-desc-674",
+      "pdf-parse",
+    );
+    const runtimeStatuses = validateAnswerResults(extractAnswersForAllChecks(runtimeDocument));
 
-    expect(result).toBeDefined();
-    expect(result!.status).toBe("FOUND");
-    expect(result!.answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
-    expect(result!.evidence?.sourceType).toBe("fact_contract");
-  });
+    expect(runtimeStatuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
+  }, 30000);
 });

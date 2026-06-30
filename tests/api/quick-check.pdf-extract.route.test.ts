@@ -22,9 +22,17 @@ describe("POST /api/quick-check/pdf-extract", () => {
     );
 
     expect(response.status).toBe(200);
-    const payload = (await response.json()) as { text?: string; engine?: string };
+    const payload = (await response.json()) as {
+      text?: string;
+      engine?: string;
+      pages?: Array<{ pageNumber: number; text: string }>;
+    };
     expect(payload.engine === "pdf-parse" || payload.engine === "heuristic").toBe(true);
     expect((payload.text ?? "").trim().length).toBeGreaterThan(0);
+    if (payload.engine === "pdf-parse") {
+      expect(payload.pages?.length).toBeGreaterThan(0);
+      expect(payload.text).toMatch(/^Page 1\b/m);
+    }
   }, 15000);
 
   it("returns heuristic parser failure metadata when pdf parsing fails but fallback still runs", async () => {
@@ -43,7 +51,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
       metadata: {
         parser: "heuristic",
         diagnostics: {
-          failureKind: "no-selectable-text",
+          failureKind: "parser-failed",
         },
       },
     });
@@ -129,8 +137,16 @@ describe("POST /api/quick-check/pdf-extract", () => {
     );
 
     expect(response.status).toBe(200);
-    const payload = (await response.json()) as { text?: string; engine?: string };
+    const payload = (await response.json()) as {
+      text?: string;
+      engine?: string;
+      pages?: Array<{ pageNumber: number; text: string }>;
+    };
     expect((payload.text ?? "").trim().length).toBeGreaterThan(0);
     expect(payload.engine === "pdf-parse" || payload.engine === "heuristic").toBe(true);
+    if (payload.engine === "pdf-parse") {
+      expect(payload.pages?.length).toBeGreaterThan(0);
+      expect(payload.text).toMatch(/^Page 1\b/m);
+    }
   }, 15000);
 });

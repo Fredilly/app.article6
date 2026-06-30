@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import { type QuickCheckPdfPage, formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
 
 export type QuickCheckPdfExtractionResult = {
   text: string;
@@ -14,10 +15,7 @@ export type QuickCheckPdfExtractionResult = {
 };
 
 export type QuickCheckPdfPageExtractionResult = QuickCheckPdfExtractionResult & {
-  pages: Array<{
-    pageNumber: number;
-    text: string;
-  }>;
+  pages: QuickCheckPdfPage[];
 };
 
 type HelperTextPayload = {
@@ -174,7 +172,7 @@ function buildPageExtractionResult(
     : [];
   const pages = parsedPages.length > 0 ? parsedPages : buildSyntheticPages(rawText);
   const combinedText = parsedPages.length > 0
-    ? pages.map((page) => page.text).join("\n\n")
+    ? formatQuickCheckPdfPages(pages)
     : rawText;
 
   if (!combinedText) {

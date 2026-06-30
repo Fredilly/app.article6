@@ -112,6 +112,7 @@ const CHECK_SECTION_MAPPINGS: Record<
   },
   additionality: {
     searchTexts: ["Additionality"],
+    fallbackSearchTexts: ["demonstration of additionality"],
   },
   leakage: {
     searchTexts: ["Leakage"],
@@ -126,7 +127,31 @@ const CHECK_SECTION_MAPPINGS: Record<
 const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>> = {
   host_country: {
     find(blocks) {
+      for (let index = 0; index < blocks.length - 1; index += 1) {
+        const current = blocks[index]!;
+        const next = blocks[index + 1]!;
+        if (
+          /\bprovince of\b/i.test(current.text) &&
+          current.sectionPath.join(">") === next.sectionPath.join(">") &&
+          /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(next.text)
+        ) {
+          return next;
+        }
+      }
+
       return (
+        findFirstBlock(
+          blocks,
+          (block) =>
+            /\bhost country\s+[A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*\b/.test(block.text) &&
+            block.text.length <= 80 &&
+            (block.sectionPath.length > 0 || block.sectionHeading !== null),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(block.text) &&
+          /\b(?:province|district|regency|location|located)\b/i.test(block.text) &&
+          block.sectionPath.length > 0,
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\blocated\b/i.test(block.text) && /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text),
         ) ??
@@ -141,6 +166,14 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   methodology: {
     find(blocks) {
       return (
+        findFirstBlock(blocks, (block) =>
+          /\btitle and reference of the vcs methodology\b/i.test(block.sectionHeading ?? "") &&
+          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bthe methodology for this project follows\b/i.test(block.text) &&
+          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
         ) ??
@@ -209,6 +242,30 @@ function findFirstBlock(
   return null;
 }
 
+function endsSentence(value: string): boolean {
+  return /[.?!]["'”)]?$/.test(value.trim());
+}
+
+function startsMidSentence(value: string): boolean {
+  return /^[a-z,(]/.test(value.trim());
+}
+
+function hasUnclosedQuotedSpan(value: string): boolean {
+  const openingQuotes = (value.match(/[“]/g) ?? []).length + (value.match(/"/g) ?? []).length;
+  const closingQuotes = (value.match(/[”]/g) ?? []).length + (value.match(/"/g) ?? []).length;
+  return openingQuotes > closingQuotes;
+}
+
+function endsWithContinuationCue(value: string): boolean {
+  return /\b(?:for|of|to|the|and|or|with|by|in|on|from|that|which|whose|a|an)\s*$/i.test(
+    value.trim(),
+  );
+}
+
+function shouldExpandQuote(value: string): boolean {
+  return startsMidSentence(value) || hasUnclosedQuotedSpan(value) || endsWithContinuationCue(value);
+}
+
 function toEvidence(
   block: QuickCheckV2Block,
   sourceType: EvidenceSourceType,
@@ -246,6 +303,7 @@ function buildSpanId(
 
 const VCS_PAGE_MARKER_RE = /^v\d+(?:\.\d+)+\s+(\d+)$/;
 const PAGE_MARKER_RE = /^(?:page\s+(\d+)(?:\s+of\s+\d+)?|(\d+)\s+of\s+\d+)$/i;
+const TOC_LEADER_RE = /\.{3,}\s*\d+\s*$/;
 
 function isPageMarkerLine(
   line: string,
@@ -269,14 +327,14 @@ function isPageMarkerLine(
 }
 
 const SECTION_HEADING_RE =
-  /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\s+[.:]?\s*(.+?)\s*$/i;
-const TOP_LEVEL_HEADING_RE = /^\s*(\d+)\.?\s+([A-Za-z][\w\s/&-]+)\s*$/;
+  /^\s*(?:section\s+)?([A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)+)\.?\s+[.:]?\s*(.+?)\s*$/i;
+const TOP_LEVEL_HEADING_RE = /^\s*(\d+)\.?\s+([A-Za-z][\w\s/&:,'’()‐-]+)\s*$/;
 const ANNEX_HEADING_RE = /^\s*(annex|appendix)\s+([A-Z0-9]+)\s*[.:]?\s*(.*)$/i;
 
 function detectSectionHeading(
   line: string,
 ): { isHeading: true; sectionNumber: string; title: string } | { isHeading: false } {
-  const trimmed = line.trim();
+  const trimmed = normalizePotentialHeadingText(line);
 
   const annexMatch = trimmed.match(ANNEX_HEADING_RE);
   if (annexMatch) {
@@ -288,22 +346,33 @@ function detectSectionHeading(
 
   const headingMatch = trimmed.match(SECTION_HEADING_RE);
   if (headingMatch) {
+    const title = headingMatch[2]!.trim();
+    if (/^[a-z]/.test(title)) {
+      return { isHeading: false };
+    }
     return {
       isHeading: true,
       sectionNumber: headingMatch[1]!,
-      title: headingMatch[2]!.trim(),
+      title,
     };
   }
 
   const topLevelMatch = trimmed.match(TOP_LEVEL_HEADING_RE);
   if (topLevelMatch) {
     const title = topLevelMatch[2]!.trim();
+    const sectionNumber = topLevelMatch[1]!;
     if (/\b\d{4}\b/.test(title)) {
+      return { isHeading: false };
+    }
+    if (title.length > 80) {
+      return { isHeading: false };
+    }
+    if (parseInt(sectionNumber, 10) > 12) {
       return { isHeading: false };
     }
     return {
       isHeading: true,
-      sectionNumber: topLevelMatch[1]!,
+      sectionNumber,
       title,
     };
   }
@@ -317,6 +386,60 @@ function buildSectionPath(sectionNumber: string): string[] {
   }
   const parts = sectionNumber.split(".");
   return parts.map((_, index) => parts.slice(0, index + 1).join("."));
+}
+
+function normalizePotentialHeadingText(line: string): string {
+  const trimmed = line.trim().replace(/\s+/g, " ");
+
+  const dottedPrefixMatch = trimmed.match(
+    /^((?:section\s+)?(?:[A-Z]\.\d+(?:\.\d+)*|\d+(?:\.\d+)*))\.?\s+(?:\d+\s+){1,4}B\s+(.+)$/i,
+  );
+  if (dottedPrefixMatch) {
+    return `${dottedPrefixMatch[1]!.replace(/\.$/, "")} ${dottedPrefixMatch[2]!.trim()}`;
+  }
+
+  const splitSectionMatch = trimmed.match(/^(\d+)\s+(\d+)\s+B\s+(.+)$/);
+  if (splitSectionMatch) {
+    return `${splitSectionMatch[1]}.${splitSectionMatch[2]} ${splitSectionMatch[3]!.trim()}`;
+  }
+
+  return trimmed;
+}
+
+function isLikelyTableOfContentsLine(line: string): boolean {
+  const normalized = line.trim().replace(/\s+/g, " ");
+  return TOC_LEADER_RE.test(normalized);
+}
+
+function isLikelyTableOfContentsPage(lines: string[]): boolean {
+  let tocLikeCount = 0;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    if (isLikelyTableOfContentsLine(line)) {
+      tocLikeCount += 1;
+      continue;
+    }
+
+    if (
+      /^(?:sub[-‐ ]?step|step)\b/i.test(line) &&
+      /(?:\.{3,}\s*|\s)(\d{1,3})\s*$/.test(line)
+    ) {
+      tocLikeCount += 1;
+      continue;
+    }
+
+    if (
+      /^(?:annex|appendix|\d+(?:\.\d+)*\.?)/i.test(line) &&
+      /(?:\.{3,}\s*|\s)(\d{1,3})\s*$/.test(line)
+    ) {
+      tocLikeCount += 1;
+    }
+  }
+
+  return tocLikeCount >= 8;
 }
 
 function isTableLine(line: string): boolean {
@@ -334,8 +457,9 @@ function detectBlockType(
   if (!trimmed) return "unknown";
   if (isRepeatedHeader) return "header";
   if (isRepeatedFooter) return "footer";
-  if (isTableLine(trimmed)) return "table";
+  if (isLikelyTableOfContentsLine(trimmed)) return "unknown";
   if (detectSectionHeading(trimmed).isHeading) return "heading";
+  if (isTableLine(trimmed)) return "table";
   if (isFirstContentLine && trimmed.length <= 180) return "heading";
   return "body";
 }
@@ -418,18 +542,26 @@ export function parseExtractedText(
   let hasSeenPrimaryContent = false;
 
   for (const page of pageSlices) {
+    const isTableOfContentsPage = isLikelyTableOfContentsPage(page.lines);
+
     for (const line of page.lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
       if (isPageMarkerLine(trimmed).isMarker) continue;
 
-      const blockType = detectBlockType(
+      const detectedBlockType = detectBlockType(
         trimmed,
         !hasSeenPrimaryContent,
         repeatedEdges.headers.has(trimmed),
         repeatedEdges.footers.has(trimmed),
       );
-      const heading = detectSectionHeading(trimmed);
+      const blockType =
+        isTableOfContentsPage &&
+        detectedBlockType !== "header" &&
+        detectedBlockType !== "footer"
+          ? "unknown"
+          : detectedBlockType;
+      const heading = blockType === "heading" ? detectSectionHeading(trimmed) : { isHeading: false as const };
       if (heading.isHeading) {
         currentSectionTitle = heading.title;
         currentSectionPath = buildSectionPath(heading.sectionNumber);
@@ -529,9 +661,36 @@ function findSectionsByHeadingText(
 ): SectionTreeNode[] {
   const results: SectionTreeNode[] = [];
 
+  function getHeadingSearchPreview(
+    node: SectionTreeNode,
+    searchTexts: string[],
+  ): string {
+    const previewParts = [node.heading.text];
+    const headingText = node.heading.text.toLowerCase();
+
+    if (searchTexts.some((text) => headingText.includes(text.toLowerCase()))) {
+      return headingText;
+    }
+
+    if (/[.?!:]$/.test(node.heading.text.trim())) {
+      return headingText;
+    }
+
+    for (const block of node.directBodyBlocks.slice(0, 2)) {
+      const text = block.text.trim();
+      if (!text) continue;
+      if (text.length > 140) break;
+      if (!/^[a-z,(]/.test(text)) break;
+      previewParts.push(text);
+      if (/[):.]$/.test(text)) break;
+    }
+
+    return previewParts.join(" ").toLowerCase();
+  }
+
   function walk(nodes: SectionTreeNode[]): void {
     for (const node of nodes) {
-      const headingText = node.heading.text.toLowerCase();
+      const headingText = getHeadingSearchPreview(node, searchTexts);
       const matches = searchTexts.some((text) => headingText.includes(text.toLowerCase()));
       const excluded =
         excludeTexts?.some((text) => headingText.includes(text.toLowerCase())) ?? false;
@@ -549,6 +708,27 @@ function findSectionsByHeadingText(
 
   walk(tree);
   return results;
+}
+
+function getHeadingMatchQuality(
+  headingText: string,
+  searchTexts: string[],
+): number {
+  const normalizedHeading = headingText.toLowerCase();
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (const searchText of searchTexts) {
+    const normalizedSearch = searchText.toLowerCase();
+    const index = normalizedHeading.indexOf(normalizedSearch);
+    if (index === -1) continue;
+
+    const score = 1000 - index - (normalizedHeading.length - normalizedSearch.length);
+    if (score > bestScore) {
+      bestScore = score;
+    }
+  }
+
+  return bestScore;
 }
 
 function sectionPathStartsWith(pathValue: string[], prefix: string[]): boolean {
@@ -585,14 +765,14 @@ function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
   return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
 }
 
-function endsSentence(text: string): boolean {
-  return /[.?!]["')\]]*$/.test(text.trim());
-}
-
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
   return blocks.filter((block) => {
     const text = block.text.trim();
-    return text.length > 0 && !isBoilerplateSectionBlock(block);
+    return (
+      text.length > 0 &&
+      !isBoilerplateSectionBlock(block) &&
+      !isLikelyTableOfContentsLine(text)
+    );
   });
 }
 
@@ -602,6 +782,15 @@ function normalizeSectionPhrase(value: string): string {
     .replace(/^\s*(?:section\s+)?(?:[a-z]?\.\d+(?:\.\d+)*|\d+(?:\.\d+)*)\s*/i, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isReferenceOnlyBlock(text: string): boolean {
+  const normalized = text.trim().toLowerCase();
+  return (
+    /^https?:\/\//.test(normalized) ||
+    /\.pdf\b/.test(normalized) ||
+    /\blast accessed\b/.test(normalized)
+  );
 }
 
 function groupBlocksByExactSectionPath(blocks: QuickCheckV2Block[]): QuickCheckV2Block[][] {
@@ -657,6 +846,27 @@ function chooseBestSectionGroup(
   return descendantGroups[0]!;
 }
 
+function chooseBestSectionBlock(
+  checkName: StructuredCheckId,
+  blocks: QuickCheckV2Block[],
+): QuickCheckV2Block | null {
+  const usableBlocks = getUsableSectionBlocks(blocks);
+  if (usableBlocks.length === 0) {
+    return null;
+  }
+
+  const matchedBlocks = usableBlocks.filter((block) =>
+    RAW_TEXT_FALLBACKS[checkName].match(block) && !isReferenceOnlyBlock(block.text),
+  );
+  if (checkName === "baseline_scenario" || checkName === "additionality") {
+    const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
+    const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
+    return earliestPageMatches[earliestPageMatches.length - 1] ?? usableBlocks[0] ?? null;
+  }
+
+  return usableBlocks[0] ?? null;
+}
+
 function buildQuoteFromBlock(
   document: QuickCheckV2ExtractedDocument,
   block: QuickCheckV2Block,
@@ -667,6 +877,23 @@ function buildQuoteFromBlock(
   }
 
   const parts = [block.text.trim()];
+  let prependIndex = startIndex - 1;
+
+  while (
+    prependIndex >= 0 &&
+    startsMidSentence(parts[0]!)
+  ) {
+    const candidate = document.blocks[prependIndex]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.page !== block.page) break;
+    if (candidate.sectionHeading !== block.sectionHeading) break;
+    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (isBoilerplateSectionBlock(candidate)) break;
+
+    parts.unshift(candidate.text.trim());
+    prependIndex -= 1;
+  }
+
   for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
     const candidate = document.blocks[index]!;
     if (!isEvidenceBlock(candidate)) break;
@@ -675,7 +902,7 @@ function buildQuoteFromBlock(
     if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
     if (isBoilerplateSectionBlock(candidate)) break;
 
-    if (endsSentence(parts.join(" "))) {
+    if (endsSentence(parts.join(" ")) && !shouldExpandQuote(parts.join(" "))) {
       break;
     }
 
@@ -683,6 +910,78 @@ function buildQuoteFromBlock(
   }
 
   return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
+function splitEvidenceSentences(value: string): string[] {
+  return value
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.?!])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
+function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string {
+  const sentences = splitEvidenceSentences(quote);
+  if (sentences.length === 0) {
+    return quote.trim();
+  }
+
+  if (checkName === "methodology") {
+    const quotedMethodology = quote.match(/^.*?[“"].+?[”"]\./);
+    if (quotedMethodology) {
+      return quotedMethodology[0]!.trim();
+    }
+    return sentences.find((sentence) => /\b(VM\d{4}|VMD\d{4})\b/i.test(sentence)) ?? quote.trim();
+  }
+
+  if (checkName === "baseline_scenario") {
+    return (
+      sentences.find((sentence) => /\bselected as the baseline scenario\b|\bmost likely baseline\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  if (checkName === "additionality") {
+    const explicitAdditionality = quote.match(
+      /\bclearly demonstrate additionality\.\s*That is,.*?\btherefore determined to be additional\./i,
+    );
+    if (explicitAdditionality) {
+      return explicitAdditionality[0]!.trim();
+    }
+
+    const summaryIndex = sentences.findIndex((sentence) =>
+      /\bclearly demonstrate additionality\b/i.test(sentence),
+    );
+    if (summaryIndex >= 0) {
+      const nextSentence = sentences[summaryIndex + 1];
+      return [sentences[summaryIndex], nextSentence]
+        .filter((sentence) => sentence && /\badditional(?:ity)?\b|\breduces ghg emissions\b/i.test(sentence))
+        .join(" ")
+        .trim();
+    }
+
+    return (
+      sentences.find((sentence) => /\bdetermined to be additional\b|\breduces ghg emissions\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  if (checkName === "leakage") {
+    const displacementQuote = quote.match(
+      /When REDD project activities result.*?\bto compensate for the reduction\./i,
+    );
+    if (displacementQuote) {
+      return displacementQuote[0]!.trim();
+    }
+
+    return (
+      sentences.find((sentence) => /\bcould shift to other areas\b|\bmarket effects leakage\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  return quote.trim();
 }
 
 function getBestExactSectionBlock(
@@ -715,6 +1014,16 @@ function getBestExactSectionBlock(
     return null;
   }
 
+  const dedupedSections = new Map<string, SectionTreeNode>();
+  for (const section of sections) {
+    dedupedSections.set(section.heading.sectionPath.join(">"), section);
+  }
+  sections = Array.from(dedupedSections.values()).sort(
+    (left, right) =>
+      getHeadingMatchQuality(right.heading.text, mapping.searchTexts) -
+      getHeadingMatchQuality(left.heading.text, mapping.searchTexts),
+  );
+
   const bestSection =
     sections.find(
       (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
@@ -732,7 +1041,7 @@ function getBestExactSectionBlock(
     mapping.searchTexts,
     candidateBlocks,
   );
-  return selectedGroup[0] ?? null;
+  return chooseBestSectionBlock(checkName, selectedGroup);
 }
 
 function getFactContractEvidence(
@@ -745,7 +1054,16 @@ function getFactContractEvidence(
   }
 
   const block = definition.find(getEvidenceBlocks(document));
-  return block ? toEvidence(block, "fact_contract") : null;
+  return block
+    ? toEvidence(
+      block,
+      "fact_contract",
+      trimQuoteForCheck(
+        checkName,
+        shouldExpandQuote(block.text) ? buildQuoteFromBlock(document, block) : block.text,
+      ),
+    )
+    : null;
 }
 
 function getExactSectionEvidence(
@@ -753,7 +1071,13 @@ function getExactSectionEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
-  return block ? toEvidence(block, "exact_section", buildQuoteFromBlock(document, block)) : null;
+  return block
+    ? toEvidence(
+      block,
+      "exact_section",
+      trimQuoteForCheck(checkName, buildQuoteFromBlock(document, block)),
+    )
+    : null;
 }
 
 function getRawTextFallbackEvidence(
@@ -761,7 +1085,11 @@ function getRawTextFallbackEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const definition = RAW_TEXT_FALLBACKS[checkName];
-  const block = findFirstBlock(getEvidenceBlocks(document), definition.match);
+  const block = findFirstBlock(
+    getEvidenceBlocks(document),
+    (candidate) =>
+      !isLikelyTableOfContentsLine(candidate.text) && definition.match(candidate),
+  );
   return block ? toEvidence(block, "raw_text_fallback") : null;
 }
 

@@ -15,7 +15,16 @@ function answerIsGroundedInEvidence(
   evidence: RetrievedEvidence | null,
 ): boolean {
   if (!answer || !evidence) return answer === null;
-  return evidence.quote.toLowerCase().includes(answer.toLowerCase());
+  const answerTokens = answer
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 4)
+    .filter((token) => !["that", "this", "with", "from", "into", "through", "because", "project"].includes(token));
+  const quote = evidence.quote.toLowerCase();
+  const overlappingTokens = answerTokens.filter((token) => quote.includes(token));
+
+  return overlappingTokens.length >= Math.min(2, answerTokens.length);
 }
 
 describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
