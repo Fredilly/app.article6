@@ -1,13 +1,7 @@
 import type { DocumentStructure } from "@/lib/documentModel";
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
-import {
-  getVm0007EvidenceContract,
-  normalizeVm0007RuleId,
-  type Vm0007EvidenceContract,
-  type Vm0007RuleLike,
-} from "@/lib/preverif/vm0007EvidenceContracts";
 
-export const VM0007_AUDIT_STATUSES = [
+export const EVIDENCE_AUDIT_STATUSES = [
   "supported_by_pdd",
   "partially_supported",
   "missing_evidence",
@@ -15,21 +9,43 @@ export const VM0007_AUDIT_STATUSES = [
   "manual_review_needed",
 ] as const;
 
-export type Vm0007EvidenceAuditStatus = (typeof VM0007_AUDIT_STATUSES)[number];
-export type Vm0007EvidenceAuditConfidence = "high" | "medium" | "low";
+export type EvidenceAuditStatus = (typeof EVIDENCE_AUDIT_STATUSES)[number];
+export type EvidenceAuditConfidence = "high" | "medium" | "low";
 
-export type Vm0007EvidenceAuditRule = Vm0007RuleLike & {
+export type MethodologyEvidenceContract = Readonly<{
+  id: string;
+  label: string;
+  appliesToFamily?: string;
+  appliesToRuleIds?: readonly string[];
+  pddSectionsToSearch: readonly string[];
+  strongEvidenceSignals: readonly string[];
+  weakEvidenceSignals: readonly string[];
+  rejectSignals: readonly string[];
+  notApplicableSignals: readonly string[];
+  defaultGapMessage: string;
+  clientAction: string;
+  supportsNotApplicable: boolean;
+}>;
+
+export type MethodologyRuleLike = {
+  id: string;
+  title?: string;
+  summary?: string;
+  type?: string;
+};
+
+export type MethodologyEvidenceAuditRule = MethodologyRuleLike & {
   stableId?: string;
   logic?: string;
   text?: string;
 };
 
-export type Vm0007EvidenceAuditResult = {
+export type MethodologyEvidenceAuditResult = {
   ruleId: string;
   stableId: string;
   title: string;
   ruleLogic: string;
-  status: Vm0007EvidenceAuditStatus;
+  status: EvidenceAuditStatus;
   bestEvidenceQuote: string | null;
   page: number | null;
   section: string | null;
@@ -38,18 +54,20 @@ export type Vm0007EvidenceAuditResult = {
   assessmentReason: string;
   gap: string;
   clientAction: string;
-  confidence: Vm0007EvidenceAuditConfidence;
+  confidence: EvidenceAuditConfidence;
 };
 
-export type Vm0007EvidenceAuditSummary = {
-  results: Vm0007EvidenceAuditResult[];
-  totals: Record<Vm0007EvidenceAuditStatus, number>;
+export type MethodologyEvidenceAuditSummary = {
+  results: MethodologyEvidenceAuditResult[];
+  totals: Record<EvidenceAuditStatus, number>;
   totalRules: number;
 };
 
-export type Vm0007EvidenceAuditInput = {
-  rules: readonly Vm0007EvidenceAuditRule[];
+export type MethodologyEvidenceAuditInput = {
+  rules: readonly MethodologyEvidenceAuditRule[];
   evidenceDocument: EvidenceDocument;
+  getContract: (rule: MethodologyRuleLike | string) => MethodologyEvidenceContract;
+  normalizeRuleId?: (ruleId: string) => string;
   sections?: readonly Pick<
     DocumentStructure["sections"][number],
     "id" | "sectionNumber" | "titleRaw" | "titleClean" | "bodyRaw" | "bodyClean"
@@ -57,7 +75,7 @@ export type Vm0007EvidenceAuditInput = {
   rawText?: string;
 };
 
-type SectionLike = NonNullable<Vm0007EvidenceAuditInput["sections"]>[number];
+type SectionLike = NonNullable<MethodologyEvidenceAuditInput["sections"]>[number];
 
 type CandidateScore = {
   span: EvidenceSpan;
@@ -139,43 +157,6 @@ const TEXT_STOPWORDS = new Set([
   "into",
 ]);
 
-const GLOBAL_NOT_APPLICABLE_PHRASES = [
-  "redd-only",
-  "redd only",
-  "apd project",
-  "not tidal wetland",
-  "not a tidal wetland",
-  "no tidal wetland",
-  "no tidal wetlands",
-  "no peatland",
-  "no peatlands",
-  "not peatland",
-  "no peat soil",
-  "no peat soils",
-  "no organic soil",
-  "no organic soils",
-  "not arr",
-  "not ifm",
-  "not wrc",
-  "no wetland restoration activity",
-  "soil carbon excluded",
-  "red d project",
-];
-
-const WRC_FAMILY_IDS = new Set([
-  "R-1-0005",
-  "R-1-0006",
-  "R-1-0007",
-  "R-1-0008",
-  "R-1-0009",
-  "R-1-0010",
-  "R-1-0011",
-  "R-1-0012",
-  "R-2-0009",
-  "R-5-0002",
-  "R-6-0006",
-]);
-
 function normalizeText(value: string | null | undefined): string {
   return (value ?? "").toLowerCase().replace(/[^\w\s/-]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -212,15 +193,19 @@ function compactQuote(text: string, maxLength = 240): string {
   return `${compact.slice(0, maxLength).trimEnd()}…`;
 }
 
-function resolveRuleTitle(rule: Vm0007EvidenceAuditRule): string {
-  return rule.title?.trim() || rule.summary?.trim() || normalizeVm0007RuleId(rule.id);
+function normalizeRuleId(ruleId: string, normalize?: (ruleId: string) => string): string {
+  return normalize ? normalize(ruleId) : ruleId.trim();
 }
 
-function resolveRuleLogic(rule: Vm0007EvidenceAuditRule): string {
+function resolveRuleTitle(rule: MethodologyEvidenceAuditRule): string {
+  return rule.title?.trim() || rule.summary?.trim() || rule.id.trim();
+}
+
+function resolveRuleLogic(rule: MethodologyEvidenceAuditRule): string {
   return rule.logic?.trim() || rule.text?.trim() || rule.summary?.trim() || resolveRuleTitle(rule);
 }
 
-function resolveStableId(rule: Vm0007EvidenceAuditRule): string {
+function resolveStableId(rule: MethodologyEvidenceAuditRule): string {
   return rule.stableId?.trim() || rule.id.trim();
 }
 
@@ -230,52 +215,30 @@ function buildSectionLookup(sections: readonly SectionLike[] | undefined): Map<s
   return lookup;
 }
 
-function isNotApplicableEligible(rule: Vm0007EvidenceAuditRule, contract: Vm0007EvidenceContract): boolean {
+function isNotApplicableEligible(rule: MethodologyEvidenceAuditRule, contract: MethodologyEvidenceContract): boolean {
   if (contract.supportsNotApplicable) return true;
   const text = normalizeText(`${resolveRuleTitle(rule)} ${resolveRuleLogic(rule)}`);
-  return /\b(wrc|peatland|tidal|wetland|arr|ifm|rwe)\b/.test(text);
+  return /\b(peatland|tidal|wetland|organic soil|soil carbon|arr|ifm|wrc|scope|excluded|not applicable)\b/.test(text);
 }
 
-function requiresWetlandScopeEvidence(rule: Vm0007EvidenceAuditRule): boolean {
-  const shortId = normalizeVm0007RuleId(rule.id);
-  if (WRC_FAMILY_IDS.has(shortId)) return true;
-  const text = normalizeText(`${resolveRuleTitle(rule)} ${resolveRuleLogic(rule)}`);
-  return /\b(wrc|peatland|tidal|wetland|rwe)\b/.test(text);
-}
-
-function hasWetlandScopeEvidence(candidate: CandidateScore | null): boolean {
-  if (!candidate) return false;
-  const text = normalizeText(candidate.span.text);
-  return /\b(wrc|peatland|peat|tidal|wetland|organic soil|organic soils|soil carbon|hydrolog)\b/.test(text);
-}
-
-function hasAmbiguousScopeLanguage(candidate: CandidateScore | null): boolean {
-  if (!candidate) return false;
-  const text = normalizeText(candidate.span.text);
-  return includesPhrase(text, "does not say whether")
-    || includesPhrase(text, "not clear whether")
-    || includesPhrase(text, "unclear whether")
-    || includesPhrase(text, "not specified whether");
-}
-
-function deriveSectionSignals(contract: Vm0007EvidenceContract): string[] {
+function deriveSectionSignals(contract: MethodologyEvidenceContract): string[] {
   return contract.pddSectionsToSearch.map((entry) =>
     entry.replace(/^S-\d(?:-\d+)?\s*/i, "").trim(),
   );
 }
 
-function deriveRuleTokens(rule: Vm0007EvidenceAuditRule): string[] {
+function deriveRuleTokens(rule: MethodologyEvidenceAuditRule): string[] {
   return tokenize(`${resolveRuleTitle(rule)} ${resolveRuleLogic(rule)}`, TEXT_STOPWORDS);
 }
 
-function deriveSectionTokens(contract: Vm0007EvidenceContract, rule: Vm0007EvidenceAuditRule): string[] {
+function deriveSectionTokens(contract: MethodologyEvidenceContract, rule: MethodologyEvidenceAuditRule): string[] {
   return tokenize(
     `${deriveSectionSignals(contract).join(" ")} ${resolveRuleTitle(rule)}`,
     SECTION_STOPWORDS,
   );
 }
 
-function deriveContractSignalPhrases(contract: Vm0007EvidenceContract): string[] {
+function deriveContractSignalPhrases(contract: MethodologyEvidenceContract): string[] {
   return [
     ...contract.strongEvidenceSignals,
     ...contract.weakEvidenceSignals,
@@ -299,8 +262,8 @@ function hasProjectSpecificMarkers(text: string): boolean {
 }
 
 function candidateLooksLikeBoilerplate(input: {
-  rule: Vm0007EvidenceAuditRule;
-  contract: Vm0007EvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
   candidate: CandidateScore | null;
 }): boolean {
   if (!input.candidate) return false;
@@ -313,15 +276,47 @@ function candidateLooksLikeBoilerplate(input: {
   const overlapWithSignals = intersectionCount(candidateTokens, signalTokens);
   const overlapRatio = ruleTokens.length > 0 ? overlapWithRule / ruleTokens.length : 0;
   const methodologyVoice =
-    /\b(must|shall|mandatory|required|is determined via|is additional because|three leakage components|four mandatory monitoring tasks|in the absence of the project activity)\b/.test(candidateText);
+    /\b(must|shall|mandatory|required|is determined via|is additional because|in the absence of the project activity)\b/.test(candidateText);
 
   return !hasProjectSpecificMarkers(candidateText)
     && (overlapRatio >= 0.45 || (overlapWithRule >= 4 && overlapWithSignals >= 2) || methodologyVoice);
 }
 
+function deriveScopeKeywords(rule: MethodologyEvidenceAuditRule, contract: MethodologyEvidenceContract): string[] {
+  const seed = [
+    resolveRuleTitle(rule),
+    resolveRuleLogic(rule),
+    contract.label,
+    contract.appliesToFamily ?? "",
+    ...contract.notApplicableSignals,
+  ].join(" ");
+  return tokenize(seed, TEXT_STOPWORDS);
+}
+
+function requiresScopeSpecificEvidence(rule: MethodologyEvidenceAuditRule, contract: MethodologyEvidenceContract): boolean {
+  if (!contract.supportsNotApplicable) return false;
+  const scopeKeywords = deriveScopeKeywords(rule, contract);
+  return scopeKeywords.length > 0;
+}
+
+function hasScopeEvidence(candidate: CandidateScore | null, scopeKeywords: readonly string[]): boolean {
+  if (!candidate) return false;
+  const text = normalizeText(candidate.span.text);
+  return scopeKeywords.some((keyword) => text.includes(keyword));
+}
+
+function hasAmbiguousScopeLanguage(candidate: CandidateScore | null): boolean {
+  if (!candidate) return false;
+  const text = normalizeText(candidate.span.text);
+  return includesPhrase(text, "does not say whether")
+    || includesPhrase(text, "not clear whether")
+    || includesPhrase(text, "unclear whether")
+    || includesPhrase(text, "not specified whether");
+}
+
 function buildRelevantSectionIds(input: {
-  contract: Vm0007EvidenceContract;
-  rule: Vm0007EvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
   sections: readonly SectionLike[] | undefined;
 }): Set<string> {
   const relevant = new Set<string>();
@@ -345,8 +340,8 @@ function buildRelevantSectionIds(input: {
 function candidateScore(input: {
   span: EvidenceSpan;
   sectionTitle: string | null;
-  contract: Vm0007EvidenceContract;
-  rule: Vm0007EvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
   preferredSectionIds: Set<string>;
 }): CandidateScore | null {
   if (input.span.reliability === "excluded") return null;
@@ -400,8 +395,8 @@ function candidateScore(input: {
 }
 
 function selectBestCandidate(input: {
-  rule: Vm0007EvidenceAuditRule;
-  contract: Vm0007EvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
   evidenceDocument: EvidenceDocument;
   sections: readonly SectionLike[] | undefined;
 }): CandidateScore | null {
@@ -440,37 +435,29 @@ function selectBestCandidate(input: {
 }
 
 function selectNotApplicableCandidate(input: {
-  rule: Vm0007EvidenceAuditRule;
-  contract: Vm0007EvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
   evidenceDocument: EvidenceDocument;
   sections: readonly SectionLike[] | undefined;
 }): CandidateScore | null {
   if (!isNotApplicableEligible(input.rule, input.contract)) return null;
 
   const sectionLookup = buildSectionLookup(input.sections);
-  const naPhrases = Array.from(new Set([
-    ...input.contract.notApplicableSignals,
-    ...GLOBAL_NOT_APPLICABLE_PHRASES,
-  ]));
-  const ruleText = normalizeText(`${resolveRuleTitle(input.rule)} ${resolveRuleLogic(input.rule)}`);
-  const wantsWetlandFamily = WRC_FAMILY_IDS.has(normalizeVm0007RuleId(input.rule.id))
-    || /\b(wrc|peatland|tidal|wetland|rwe)\b/.test(ruleText);
+  const naPhrases = Array.from(new Set(input.contract.notApplicableSignals));
+  if (!naPhrases.length) return null;
 
   let best: CandidateScore | null = null;
   for (const span of input.evidenceDocument.spans) {
     const text = normalizeText(span.text);
     if (!text || span.reliability === "excluded") continue;
     const phraseHits = countPhraseHits(text, naPhrases);
-    const domainHits = wantsWetlandFamily
-      ? countTokenHits(text, ["redd", "apd", "peat", "peatland", "tidal", "wetland", "organic", "soil", "arr", "ifm"])
-      : 0;
-    if (phraseHits === 0 && domainHits < 2) continue;
+    if (phraseHits === 0) continue;
 
     const sectionTitle = span.sectionId
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
       : null;
 
-    const score = phraseHits * 14 + domainHits * 4 + (span.reliability === "primary" ? 6 : 0);
+    const score = phraseHits * 14 + (span.reliability === "primary" ? 6 : 0);
     const candidate: CandidateScore = {
       span,
       sectionTitle,
@@ -478,7 +465,7 @@ function selectNotApplicableCandidate(input: {
       strongHits: phraseHits,
       weakHits: 0,
       rejectHits: 0,
-      ruleHits: domainHits,
+      ruleHits: 0,
       sectionHits: 0,
     };
     if (!best || candidate.score > best.score) best = candidate;
@@ -486,30 +473,17 @@ function selectNotApplicableCandidate(input: {
 
   if (!best) return null;
 
-  const bestText = normalizeText(best.span.text);
-  const ambiguousScopeLanguage = hasAmbiguousScopeLanguage(best);
-  const hasClearNegativeScope =
-    includesPhrase(bestText, "no peat")
-    || includesPhrase(bestText, "no organic soil")
-    || includesPhrase(bestText, "not tidal")
-    || includesPhrase(bestText, "not arr")
-    || includesPhrase(bestText, "not ifm")
-    || includesPhrase(bestText, "soil carbon excluded")
-    || includesPhrase(bestText, "redd-only")
-    || includesPhrase(bestText, "redd only")
-    || includesPhrase(bestText, "apd project");
-
-  return hasClearNegativeScope && !ambiguousScopeLanguage ? best : null;
+  return hasAmbiguousScopeLanguage(best) ? null : best;
 }
 
 function classifyStatus(input: {
-  rule: Vm0007EvidenceAuditRule;
-  contract: Vm0007EvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
   bestCandidate: CandidateScore | null;
   notApplicableCandidate: CandidateScore | null;
 }): {
-  status: Vm0007EvidenceAuditStatus;
-  confidence: Vm0007EvidenceAuditConfidence;
+  status: EvidenceAuditStatus;
+  confidence: EvidenceAuditConfidence;
   assessmentReason: string;
   gap: string;
 } {
@@ -517,16 +491,20 @@ function classifyStatus(input: {
     return {
       status: "not_applicable",
       confidence: input.notApplicableCandidate.score >= 24 ? "high" : "medium",
-      assessmentReason: "The PDD contains project-specific scope language showing this wetland or alternate-activity rule does not apply.",
+      assessmentReason: "The PDD contains project-specific scope language showing this rule does not apply to the project.",
       gap: "",
     };
   }
 
-  if (requiresWetlandScopeEvidence(input.rule) && (!hasWetlandScopeEvidence(input.bestCandidate) || hasAmbiguousScopeLanguage(input.bestCandidate))) {
+  const scopeKeywords = deriveScopeKeywords(input.rule, input.contract);
+  if (
+    requiresScopeSpecificEvidence(input.rule, input.contract)
+    && (!hasScopeEvidence(input.bestCandidate, scopeKeywords) || hasAmbiguousScopeLanguage(input.bestCandidate))
+  ) {
     return {
       status: "manual_review_needed",
       confidence: "low",
-      assessmentReason: "This wetland-family rule needs project-specific peatland, tidal, hydrology, or soil-scope evidence, and the PDD does not show that clearly.",
+      assessmentReason: "This scope-sensitive rule needs project-specific evidence showing why it applies or does not apply, and the PDD does not show that clearly.",
       gap: input.contract.defaultGapMessage,
     };
   }
@@ -599,7 +577,7 @@ function classifyStatus(input: {
 
 function reasonSelected(input: {
   candidate: CandidateScore | null;
-  status: Vm0007EvidenceAuditStatus;
+  status: EvidenceAuditStatus;
 }): string {
   if (!input.candidate) {
     return input.status === "missing_evidence"
@@ -611,21 +589,22 @@ function reasonSelected(input: {
 }
 
 function resultFromCandidate(input: {
-  rule: Vm0007EvidenceAuditRule;
-  contract: Vm0007EvidenceContract;
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
   candidate: CandidateScore | null;
-  status: Vm0007EvidenceAuditStatus;
-  confidence: Vm0007EvidenceAuditConfidence;
+  status: EvidenceAuditStatus;
+  confidence: EvidenceAuditConfidence;
   assessmentReason: string;
   gap: string;
-}): Vm0007EvidenceAuditResult {
+  normalizeRuleId?: (ruleId: string) => string;
+}): MethodologyEvidenceAuditResult {
   const sectionLabel = input.candidate?.sectionTitle
     || input.candidate?.span.heading
     || input.candidate?.span.sectionId
     || null;
 
   return {
-    ruleId: normalizeVm0007RuleId(input.rule.id),
+    ruleId: normalizeRuleId(input.rule.id, input.normalizeRuleId),
     stableId: resolveStableId(input.rule),
     title: resolveRuleTitle(input.rule),
     ruleLogic: resolveRuleLogic(input.rule),
@@ -642,9 +621,9 @@ function resultFromCandidate(input: {
   };
 }
 
-export function auditVm0007Evidence(input: Vm0007EvidenceAuditInput): Vm0007EvidenceAuditSummary {
+export function auditEvidence(input: MethodologyEvidenceAuditInput): MethodologyEvidenceAuditSummary {
   const results = input.rules.map((rule) => {
-    const contract = getVm0007EvidenceContract(rule);
+    const contract = input.getContract(rule);
     const bestCandidate = selectBestCandidate({
       rule,
       contract,
@@ -673,10 +652,11 @@ export function auditVm0007Evidence(input: Vm0007EvidenceAuditInput): Vm0007Evid
       confidence: classified.confidence,
       assessmentReason: classified.assessmentReason,
       gap: classified.gap,
+      normalizeRuleId: input.normalizeRuleId,
     });
   });
 
-  const totals = VM0007_AUDIT_STATUSES.reduce<Record<Vm0007EvidenceAuditStatus, number>>((acc, status) => {
+  const totals = EVIDENCE_AUDIT_STATUSES.reduce<Record<EvidenceAuditStatus, number>>((acc, status) => {
     acc[status] = results.filter((result) => result.status === status).length;
     return acc;
   }, {

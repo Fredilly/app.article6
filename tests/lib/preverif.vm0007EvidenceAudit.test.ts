@@ -1,10 +1,14 @@
 import { describe, expect, it } from "@jest/globals";
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import {
-  auditVm0007Evidence,
-  VM0007_AUDIT_STATUSES,
-  type Vm0007EvidenceAuditResult,
-} from "@/lib/preverif/vm0007EvidenceAudit";
+  auditEvidence,
+  EVIDENCE_AUDIT_STATUSES,
+  type MethodologyEvidenceAuditResult,
+} from "@/lib/preverif/evidenceAudit";
+import {
+  getVm0007EvidenceContract,
+  normalizeVm0007RuleId,
+} from "@/lib/preverif/vm0007EvidenceContracts";
 import {
   readQuickCheckFixtureText,
   VM0007_SYNCED_RULES,
@@ -14,21 +18,23 @@ const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.
 
 function auditText(rawText: string) {
   const context = getStructuredQueryContext(rawText);
-  return auditVm0007Evidence({
+  return auditEvidence({
     rules: VM0007_SYNCED_RULES,
     evidenceDocument: context.evidenceDocument,
+    getContract: getVm0007EvidenceContract,
+    normalizeRuleId: normalizeVm0007RuleId,
     sections: context.documentStructure.sections,
     rawText,
   });
 }
 
-function byRuleId(results: Vm0007EvidenceAuditResult[], ruleId: string): Vm0007EvidenceAuditResult {
+function byRuleId(results: MethodologyEvidenceAuditResult[], ruleId: string): MethodologyEvidenceAuditResult {
   const result = results.find((entry) => entry.ruleId === ruleId);
   if (!result) throw new Error(`Missing audit result for ${ruleId}`);
   return result;
 }
 
-describe("auditVm0007Evidence", () => {
+describe("auditEvidence with VM0007 contracts", () => {
   it("produces audit results for all 58 synced VM0007 rules and totals add up", () => {
     const audit = auditText(ENVIRA_TEXT);
     const totalFromBuckets = Object.values(audit.totals).reduce((sum, count) => sum + count, 0);
@@ -42,7 +48,7 @@ describe("auditVm0007Evidence", () => {
     const audit = auditText(ENVIRA_TEXT);
 
     for (const result of audit.results) {
-      expect(VM0007_AUDIT_STATUSES).toContain(result.status);
+      expect(EVIDENCE_AUDIT_STATUSES).toContain(result.status);
     }
   });
 
