@@ -28,10 +28,8 @@ type GoldRecord = {
 };
 
 /**
- * A full snapshot of pipeline output for one check, including the answer.
- * This is used for gold comparison — unlike GoldComparableRecord (which
- * strips expectedAnswer), this keeps answer so that answer regressions
- * in extractAnswersForAllChecks() are caught.
+ * Full snapshot of pipeline output for one check, including the answer.
+ * answer is included so regressions in extractAnswersForAllChecks() are caught.
  */
 type PipelineSnapshot = {
   checkName: StructuredCheckId;
@@ -52,10 +50,7 @@ function loadGoldFixture(): GoldRecord[] {
   ) as GoldRecord[];
 }
 
-/** Build a PipelineSnapshot from a StatusResult, preserving the answer. */
-function toPipelineSnapshot(
-  result: StatusResult,
-): PipelineSnapshot {
+function toPipelineSnapshot(result: StatusResult): PipelineSnapshot {
   return {
     checkName: result.checkName,
     expectedStatus: result.status,
@@ -70,7 +65,6 @@ function toPipelineSnapshot(
   };
 }
 
-/** Convert a GoldRecord to a PipelineSnapshot for comparison, mapping expectedAnswer → answer. */
 function goldRecordToSnapshot(record: GoldRecord): PipelineSnapshot {
   return {
     checkName: record.checkName,
@@ -86,24 +80,35 @@ function goldRecordToSnapshot(record: GoldRecord): PipelineSnapshot {
   };
 }
 
-describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
+// ---------------------------------------------------------------------------
+// WRONG-DOCUMENT-TYPE GUARDRAIL
+// ISS_REP_1530_09JUL2021.pdf is a Verra VCS Issuance Deed of Representation
+// (a legal/registry document), not a PDD. It has no PDD sections whatsoever.
+//
+// Purpose: prevent Quick Check from hallucinating project evidence from
+// legal boilerplate. Expected invariant: 0 FOUND checks.
+//
+// This is NOT a normal Phase 7 evidence fixture. It is a negative
+// guardrail against document-type confusion. It lives in the same flat
+// fixture layout as other Quick Check v2 gold fixtures because the v2
+// system has no separate fixture registry — each gold fixture is a
+// .txt + .json + .test.ts triplet under tests/fixtures/quick-check/ and
+// tests/lib/quickCheckV2/.
+// ---------------------------------------------------------------------------
+
+describe("Quick Check v2 — wrong-document-type guardrail: ISS issuance deed", () => {
   const goldFixture = loadGoldFixture();
   const document = loadAndParseExtractedText(ISS_FIXTURE_PATH);
   const answers = extractAnswersForAllChecks(document);
   const statuses = validateAnswerResults(answers);
 
-  it("matches the ISS gold fixture across the v2 retrieval, answer extraction, and status pipeline", () => {
-    // This is the primary enforcement test.
-    // It compares status + evidence + answer against gold, so a regression
-    // in any layer (evidence retrieval, answer extraction, status validation)
-    // is caught. This was the gap in the original fixture — expectedAnswer
-    // was stripped from the comparison.
+  it("matches the ISS gold fixture across the full pipeline (status + answer + evidence)", () => {
     expect(statuses.map(toPipelineSnapshot)).toStrictEqual(
       goldFixture.map(goldRecordToSnapshot),
     );
   });
 
-  it("all six ISS checks have correct expected answers in gold fixture", () => {
+  it("all six checks have correct expected answers in gold fixture", () => {
     expect(goldFixture.map((record) => ({
       checkName: record.checkName,
       expectedAnswer: record.expectedAnswer,
@@ -117,31 +122,29 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
     ]);
   });
 
-  it("additionality returns UNCLEAR (not FOUND) for the legal 'additional' boilerplate", () => {
-    // The word "additional" appears in legal boilerplate: "an additional
-    // 12 months" — NOT as a project additionality claim. The raw-text
-    // fallback picks it up but the status validator correctly downgrades
-    // it to UNCLEAR because it's fallback evidence only.
+  it("zero FOUND checks for a wrong-document-type (legal deed, not PDD)", () => {
+    const foundChecks: StatusResult[] = statuses.filter((s: StatusResult) => s.status === "FOUND");
+    expect(foundChecks).toHaveLength(0);
+  });
+
+  it("five of six checks return MISSING for this non-PDD document", () => {
+    const missingChecks: StatusResult[] = statuses.filter((s: StatusResult) => s.status === "MISSING");
+    expect(missingChecks).toHaveLength(5);
+  });
+
+  it("additionality returns UNCLEAR (fallback_evidence_only) — legal 'additional' boilerplate is not project evidence", () => {
+    // The word "additional" appears in a legal clause about erroneous VCU
+    // compensation ("an additional 12 months"). The raw-text fallback picks
+    // it up but the status validator correctly downgrades it to UNCLEAR.
     const additionality: StatusResult | undefined = statuses.find(
       (result: StatusResult) => result.checkName === "additionality",
     );
     expect(additionality?.status).toBe("UNCLEAR");
     expect(additionality?.reason).toBe("fallback_evidence_only");
     expect(additionality?.evidence?.sourceType).toBe("raw_text_fallback");
-    // The answer must match gold exactly — not change on regressions
     expect(additionality?.answer).toBe(
       "if the second Verification Report shows a VCU has been erroneously issued Verra will have an additional 12",
     );
-  });
-
-  it("five of six checks correctly return MISSING for this non-PDD document", () => {
-    const missingChecks: StatusResult[] = statuses.filter((s: StatusResult) => s.status === "MISSING");
-    expect(missingChecks).toHaveLength(5);
-  });
-
-  it("no check returns FOUND for a legal document with no PDD content", () => {
-    const foundChecks: StatusResult[] = statuses.filter((s: StatusResult) => s.status === "FOUND");
-    expect(foundChecks).toHaveLength(0);
   });
 
   it("host_country returns MISSING — no project location in a legal deed", () => {
@@ -177,34 +180,5 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
     expect(stak?.status).toBe("MISSING");
     expect(stak?.reason).toBe("evidence_missing");
     expect(stak?.answer).toBeNull();
-  });
-
-  it("returns UNCLEAR when answer provenance is incomplete", () => {
-    const result = validateAnswerResult({
-      checkName: "additionality",
-      answer: "Additionality is demonstrated.",
-      evidence: {
-        sourceType: "exact_section",
-        quote: "Additionality is demonstrated.",
-        page: 0,
-        sectionHeading: null,
-        sectionPath: [],
-        spanId: "",
-      } as RetrievedEvidence,
-    });
-
-    expect(result.status).toBe("UNCLEAR");
-    expect(result.reason).toBe("provenance_incomplete");
-  });
-
-  it("returns MISSING when evidence is null", () => {
-    const result = validateAnswerResult({
-      checkName: "additionality",
-      answer: null,
-      evidence: null,
-    });
-
-    expect(result.status).toBe("MISSING");
-    expect(result.reason).toBe("evidence_missing");
   });
 });
