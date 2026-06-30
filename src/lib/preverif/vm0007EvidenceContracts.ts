@@ -1,24 +1,10 @@
-export type Vm0007EvidenceContract = Readonly<{
-  id: string;
-  label: string;
-  appliesToFamily?: string;
-  appliesToRuleIds?: readonly string[];
-  pddSectionsToSearch: readonly string[];
-  strongEvidenceSignals: readonly string[];
-  weakEvidenceSignals: readonly string[];
-  rejectSignals: readonly string[];
-  notApplicableSignals: readonly string[];
-  defaultGapMessage: string;
-  clientAction: string;
-  supportsNotApplicable: boolean;
-}>;
+import type {
+  MethodologyEvidenceContract,
+  MethodologyRuleLike,
+} from "@/lib/preverif/evidenceAudit";
 
-export type Vm0007RuleLike = {
-  id: string;
-  title?: string;
-  summary?: string;
-  type?: string;
-};
+export type Vm0007EvidenceContract = MethodologyEvidenceContract;
+export type Vm0007RuleLike = MethodologyRuleLike;
 
 type ContractMatcher = {
   contract: Vm0007EvidenceContract;
@@ -123,7 +109,11 @@ const WRC_NA_CONTRACT = defineContract({
   ],
   notApplicableSignals: [
     "Project is REDD-only or upland forest only",
+    "This is a REDD/APD project",
     "PDD states no peat soils, no tidal influence, or no wetland restoration activity",
+    "Project is not ARR",
+    "Project is not IFM",
+    "Soil carbon is excluded",
     "Modules tied to WRC, peatland, or tidal scope are not selected for the project",
   ],
   defaultGapMessage: "PDD does not yet show whether this wetland-specific rule applies to the project scope.",
