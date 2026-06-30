@@ -15,7 +15,6 @@ const GOLD_FIXTURE_PATH =
 type GoldRecord = {
   checkName: StructuredCheckId;
   expectedStatus: "FOUND" | "UNCLEAR" | "MISSING";
-  expectedAnswer: string | null;
   goldQuote: string | null;
   page: number | null;
   sectionHeading: string | null;
@@ -36,7 +35,6 @@ function toGoldComparableRecord(
   return {
     checkName: result.checkName,
     expectedStatus: result.status,
-    expectedAnswer: null,
     goldQuote: result.evidence?.quote ?? null,
     page: result.evidence?.page ?? null,
     sectionHeading: result.evidence?.sectionHeading ?? null,
@@ -59,11 +57,6 @@ describe("Quick Check v2 — Phase 7 PROJ_DESC_674 fixture", () => {
   });
 
   it("matches the PROJ_DESC_674 gold fixture across the v2 pipeline", () => {
-    expect(statuses.map(toGoldComparableRecord)).toStrictEqual(
-      goldFixture.map(({ expectedAnswer: _expectedAnswer, ...record }) => ({
-        ...record,
-        expectedAnswer: null,
-      })),
-    );
+    expect(statuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
   });
 });

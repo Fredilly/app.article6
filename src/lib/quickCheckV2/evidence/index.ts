@@ -387,6 +387,37 @@ function isLikelyTableOfContentsLine(line: string): boolean {
   return TOC_LEADER_RE.test(normalized);
 }
 
+function isLikelyTableOfContentsPage(lines: string[]): boolean {
+  let tocLikeCount = 0;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    if (isLikelyTableOfContentsLine(line)) {
+      tocLikeCount += 1;
+      continue;
+    }
+
+    if (
+      /^(?:sub[-‐ ]?step|step)\b/i.test(line) &&
+      /(?:\.{3,}\s*|\s)(\d{1,3})\s*$/.test(line)
+    ) {
+      tocLikeCount += 1;
+      continue;
+    }
+
+    if (
+      /^(?:annex|appendix|\d+(?:\.\d+)*\.?)/i.test(line) &&
+      /(?:\.{3,}\s*|\s)(\d{1,3})\s*$/.test(line)
+    ) {
+      tocLikeCount += 1;
+    }
+  }
+
+  return tocLikeCount >= 8;
+}
+
 function isTableLine(line: string): boolean {
   const trimmed = line.trim();
   return /\|/.test(trimmed) || /\S(?:\s{3,}|\t)\S/.test(trimmed);
@@ -487,17 +518,25 @@ export function parseExtractedText(
   let hasSeenPrimaryContent = false;
 
   for (const page of pageSlices) {
+    const isTableOfContentsPage = isLikelyTableOfContentsPage(page.lines);
+
     for (const line of page.lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
       if (isPageMarkerLine(trimmed).isMarker) continue;
 
-      const blockType = detectBlockType(
+      const detectedBlockType = detectBlockType(
         trimmed,
         !hasSeenPrimaryContent,
         repeatedEdges.headers.has(trimmed),
         repeatedEdges.footers.has(trimmed),
       );
+      const blockType =
+        isTableOfContentsPage &&
+        detectedBlockType !== "header" &&
+        detectedBlockType !== "footer"
+          ? "unknown"
+          : detectedBlockType;
       const heading = blockType === "heading" ? detectSectionHeading(trimmed) : { isHeading: false as const };
       if (heading.isHeading) {
         currentSectionTitle = heading.title;
@@ -620,6 +659,27 @@ function findSectionsByHeadingText(
   return results;
 }
 
+function getHeadingMatchQuality(
+  headingText: string,
+  searchTexts: string[],
+): number {
+  const normalizedHeading = headingText.toLowerCase();
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (const searchText of searchTexts) {
+    const normalizedSearch = searchText.toLowerCase();
+    const index = normalizedHeading.indexOf(normalizedSearch);
+    if (index === -1) continue;
+
+    const score = 1000 - index - (normalizedHeading.length - normalizedSearch.length);
+    if (score > bestScore) {
+      bestScore = score;
+    }
+  }
+
+  return bestScore;
+}
+
 function sectionPathStartsWith(pathValue: string[], prefix: string[]): boolean {
   if (prefix.length === 0 || pathValue.length < prefix.length) {
     return false;
@@ -730,6 +790,25 @@ function chooseBestSectionGroup(
   return descendantGroups[0]!;
 }
 
+function chooseBestSectionBlock(
+  checkName: StructuredCheckId,
+  blocks: QuickCheckV2Block[],
+): QuickCheckV2Block | null {
+  const usableBlocks = getUsableSectionBlocks(blocks);
+  if (usableBlocks.length === 0) {
+    return null;
+  }
+
+  const matchedBlocks = usableBlocks.filter((block) =>
+    RAW_TEXT_FALLBACKS[checkName].match(block),
+  );
+  if (checkName === "baseline_scenario") {
+    return matchedBlocks[matchedBlocks.length - 1] ?? usableBlocks[0] ?? null;
+  }
+
+  return usableBlocks[0] ?? null;
+}
+
 function buildQuoteFromBlock(
   document: QuickCheckV2ExtractedDocument,
   block: QuickCheckV2Block,
@@ -740,6 +819,20 @@ function buildQuoteFromBlock(
   }
 
   const parts = [block.text.trim()];
+  let prependIndex = startIndex - 1;
+
+  while (prependIndex >= 0 && /^[a-z,(]/.test(parts[0]!)) {
+    const candidate = document.blocks[prependIndex]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.page !== block.page) break;
+    if (candidate.sectionHeading !== block.sectionHeading) break;
+    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (isBoilerplateSectionBlock(candidate)) break;
+
+    parts.unshift(candidate.text.trim());
+    prependIndex -= 1;
+  }
+
   for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
     const candidate = document.blocks[index]!;
     if (!isEvidenceBlock(candidate)) break;
@@ -792,7 +885,11 @@ function getBestExactSectionBlock(
   for (const section of sections) {
     dedupedSections.set(section.heading.sectionPath.join(">"), section);
   }
-  sections = Array.from(dedupedSections.values());
+  sections = Array.from(dedupedSections.values()).sort(
+    (left, right) =>
+      getHeadingMatchQuality(right.heading.text, mapping.searchTexts) -
+      getHeadingMatchQuality(left.heading.text, mapping.searchTexts),
+  );
 
   const bestSection =
     sections.find(
@@ -811,7 +908,7 @@ function getBestExactSectionBlock(
     mapping.searchTexts,
     candidateBlocks,
   );
-  return selectedGroup[0] ?? null;
+  return chooseBestSectionBlock(checkName, selectedGroup);
 }
 
 function getFactContractEvidence(
