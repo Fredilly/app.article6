@@ -1,0 +1,2042 @@
+Page 1
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 1
+CLEAN DEVELOPMENT MECHANISM
+PROJECT DESIGN DOCUMENT FORM (CDM-PDD)
+VERSION 02 - IN EFFECT AS OF: 1 JULY 2004)
+CONTENTS
+A. General description of project activity
+B. Application of a baseline methodology
+C. Duration of the project activity / Crediting period
+D. Application of a monitoring methodology and plan
+E. Estimation of GHG emissions by sources
+F. Environmental impacts
+G. Stakeholders’ comments
+Annexes
+Annex 1: Contact information on participants in the project activity
+Annex 2: Information regarding public funding
+Annex 3: Baseline information
+Annex 4: Monitoring plan
+
+Page 2
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 2
+SECTION A. General description of project activity
+A.1 Title of the project activity::
+>>
+La Higuera Hydroelectric Project, Chile
+Version number: Version 8
+Date: 6 January 2012
+A.2. Description of the project activity:
+>>
+Purpose of project activity
+The La Higuera Project (hereafter, the Project) is being developed by Hidroeléctrica La Higuera S.A.
+(HLH), a joint venture between Pacific Hydro Limited (PHL), through its subsidiary Pacific Hydro Chile
+S.A (PHC), and Statkraft Norfund Power Invest (SNPI). The purpose of the project is to utilise the
+hydrological resources of the Tinguiririca and Azufre Rivers in a run of river scheme to generate zero
+emission energy to the Chilean Central electricity grid (SIC). The Project will generate certified emission
+reductions (CERs) by displacing electricity generation from grid connected fossil fuel-fired power plants
+that would otherwise be generating electricity.
+In May 2001 PHC secured an option to purchase the water rights. It has taken 2 years of intense
+negotiation to finalise a Power Purchase Agreement, which was only executed in June 2005. In May 2004
+a power purchase agreement (PPA) was signed in principle with SAESA, the forth-largest distributor in
+Chile with concessions in the southern portions of SIC. However, negotiations on this contract could not
+be finalised, mainly due to the financing requirements of the Projects’ potential Lenders not being
+acceptable to SAESA. In May 2004 PHL sold down part of its ownership of the project by 50% to SNPI.
+In August 2004 the Project was granted Environmental Approval (EIA) by the Chilean Government. In
+February 2005 Host Country Approval was granted by the Chilean DNA. Based on annual estimated
+generation of 811 GWh the project will reduce CO2 emissions by an estimated 405,446 tonnes per
+annum.
+The Project will contribute to the social welfare of the 6th region, Chile, where local employment
+opportunities and infrastructure are poor. Construction of the Project will last 30 months, with the
+Contractor required to source at least 30% of its workforce locally. Road access to the valley and its upper
+reaches is limited to a few months in summer due to the treacherous nature of the road. Road access will
+be improved to year-round access, opening up the area to income generating activities including tourism,
+to fully utilise the natural resources such as thermal springs, climbing and other recreational activities.
+Contribution to sustainable development
+As mentioned above, host country approval for the project issued by the Chilean DNA has already been
+received. The Designated National Authority checked the project against the sustainable development
+criteria of the country, finding that La Higuera project contributes towards meeting those.
+The Project is also particularly relevant to the sustainable development of the Chilean electricity sector,
+which is currently undergoing a fuel supply crisis. Following the introduction of imported Argentinean
+natural gas in 1996, most additional capacity needs have been met by combined cycle natural gas plants.
+However, in 2004 Argentina restricted the exports of natural gas into Chile and subsequent gas
+restrictions have forced many of these plants to reduce generation and use diesel where environmental
+permissions exist. As a result of this the Chilean Government is actively seeking alternative forms of
+energy to supply a system with an internal growth demand of 350-400 MW per annum. Unfortunately,
+renewable energies are not a priority, favouring again more thermal energy like coal fired plants. The role
+of the project in contributing to the sustainable development of Chile and its additionality in such a
+scenario is a clear demonstration of the value of the Project.
+
+Page 3
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 3
+A.3. Project participants:
+>>
+Name of Party involved ((host)
+indicates a host Party)
+Private and/or public
+entity(ies) project participants
+(as applicable)
+Kindly indicate if the Party
+involved wishes to be
+considered as project
+participant (Yes/No)
+Chile (host) Hidroeléctrica La Higuera S.A NO
+Table 1 - Project participants
+Contact details information on project participants are provided in Annex 1.
+A.4. Technical description of the project activity:
+A.4.1. Location of the project activity:
+>>
+The Project will be located in the valley of the Tinguiririca River. This river rises in the Andes Mountains
+about 120km south of Santiago and flows westward to the Pacific Ocean. The nearest major city to the
+project area is San Fernando. The area of the Project activity is shown in Figure 1 below.
+Figure 1 - Location of Project Activity
+A.4.1.1. Host Party(ies):
+>>
+Chile
+A.4.1.2. Region/State/Province etc:
+>>
+6th Administrative Region, Chile
+
+Page 4
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 4
+A.4.1.3. City/Town/Community etc:
+>>
+The nearest community to the Project is Puente Negro, approximately 15kms downstream from the
+powerhouse. The nearest city is San Fernando, which is on the PanAmerican Highway, 120 km south of
+the capital city, Santiago.
+A.4.1.4. Detail of physical location, including information allowing the
+unique identification of this project activity (maximum one page):
+>>
+The Project is located in the Tinguiririca Valley, specifically between the elevations of 1100 m.a.s.l. to
+728 m.a.s.l as shown in Figure 2.
+Figure 2 - Location of Project Activity
+A.4.2. Category(ies) of project activity:
+>>
+Sectoral Category 1, Energy Industries (renewable/non renewable)
+A.4.3. Technology to be employed by the project activity:
+>>
+The project considers an intake on Los Helados River that discharge its water into the Azufre River,
+immediately upstream of the Azufre intake, at 1104 m.a.s.l, diverting partial flows via a canal and tunnel
+to the Tinguiririca intake. Water from the Tinguiririca River, including the water from the Azufre intake
+and Los Helados intake, is diverted via a weir at 1100 m.a.s.l. into desanding bays on the north bank of
+the Tinguiririca. This water is then conveyed some 18km in a 5.8m diameter tunnel with a design flow of
+50 m3/s into an off channel reservoir of 150,000m3 capacity. Water is conveyed through a tunnel and
+
+Page 5
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 5
+steel pipe from this off channel head pond to a surge shaft and valve chamber, where it enters a surface
+steel penstock of 600m length. The La Higuera powerhouse is located on the south bank of the
+Tinguiririca at around 715 m.a.s.l.
+The tailrace returns the diverted flows to the river approximately 100m downstream of the powerhouse.
+Electricity is transmitted approximately 38km along a 154kv high tension transmission line to a
+substation near the town of San Fernando, where it joins the SIC grid.
+The Project will use state of the art but known technology in electricity generation and transmission. In
+particular the vertical axis Francis turbines will be provided by Power Machines (Russian company),
+generators by Electrosila and transformers to be appointed. Both companies have been utilising these
+forms of technology for a number of decades, while control and safety systems are state of the art.
+Specifically this is the first application of Francis turbines in a high head project in Chile.
+La Higuera Project
+Gross head 385m
+Machine type 2 x 77.5MW Francis
+Design Flow 50m³/s
+Installed Capacity 155 MW
+Annual average Generation 811 GWh
+Storage facilities Surface area Capacity
+Off channel 22,500 m² 150,000 m³
+A.4.4 Brief explanation of how the anthropogenic emissions of anthropogenic greenhouse
+gas (GHGs) by sources are to be reduced by the proposed CDM project activity, including why the
+emission reductions would not occur in the absence of the proposed project activity, taking into
+account national and/or sectoral policies and circumstances
+>>
+How the emissions are reduced
+La Higuera hydro plant will reduce emissions by displacing electricity generated from fuel-based power
+plants. La Higuera hydro plant is a run-of-river with no project emissions associated with its operations.
+The current structure of the SIC is such that the generation mix capacity comprises of 60% hydroelectric
+generation, 30% natural gas, and the remainder from coal, diesel, petcoke and cogeneration. The coal,
+petcoke, petroleum and diesel plants have the highest marginal costs, and as the SIC uses least cost order
+of merit dispatch these plants are typically the marginal operating plants in the system. Any run of river
+plant, with zero marginal cost, as such displaces these plants to the extent of its generation when these
+plants would have otherwise been dispatched. As such there is a clearly demonstrable reduction in GHG
+emissions from the introduction of La Higuera into the SIC system.
+Why the emission reductions would not occur otherwise
+La Higuera will be the second biggest run of river project ever built by installed capacity in Chile1. In
+1991 the 160 MW Alfalfal plant was built on the Colorado River, some 80km north of the La Higuera
+project. This project is similar in many ways to La Higuera project, however, the economics of the
+Alfalfal project were significantly better for two main reasons. Firstly, in 1991 there was no gas available,
+and as such node prices for energy were significantly higher than current prices. The second factor is that
+the owners, GENER, also have coal fired thermal plants, allowing them to mitigate the high seasonal
+generation of low winter generation and high summer snow melt generation.
+1 This does not include run of river plants associated with large reservoirs, which provide annual regulation, and as
+such should not be considered as run of river projects.
+
+Page 6
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 6
+Following the introduction of imported natural gas from Argentina in 1996 there was significant change
+in the electricity sector’s structure, with high growth in the lower capital cost and shorter payback period
+combined cycle natural gas plants as shown in Figure 3. This resulted in a significant reduction in node
+prices. This has increased the barriers to hydroelectricity and other renewable energy technologies, which
+are typically much higher capital cost investments.
+Figure 3 - Historical Capacity Addition By type SIC 1995 – 2004
+Total emissions reductions:
+In total, the project is estimated to reduce emissions of greenhouse gases by 2,838,122 tCO2e over a
+period of 7 years.
+A.4.4.1 Estimated amount of emission reductions over the chosen crediting period:
+>>
+The project will displace electricity from a more carbon-intensive grid with an estimated combined
+margin emission factor of 0.501 tCO2/MWh. The project is expected to displace 811 GWh of electricity
+per year, thus reducing GHG emissions by 405,446 tCO2e per year in the baseline scenario.
+Years Annual estimation of emission reductions in tonnes
+CO2e
+1 405,446
+2 405,446
+3 405,446
+4 405,446
+5 405,446
+6 405,446
+7 405,446
+Total estimated reductions (tonnes of CO2e) 2,838,122
+
+Page 7
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 7
+Total number of crediting years 7
+Annual average over the crediting period of
+estimated reductions (tonnes of CO2e) 405,446
+Table 2 - Estimation of emission reductions in tonnes of CO2e for the crediting period
+Refer to section E for further details on the quantification of GHG emission reductions associated with
+this project.
+A.4.5. Public funding of the project activity:
+>>
+There is no public funding being provided to the project.
+
+Page 8
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 8
+SECTION B. Application of a baseline methodology
+B.1. Title and reference of the approved baseline methodology applied to the project activity:
+>>
+ACM0002: “Consolidated baseline methodology for grid-connected electricity generation from renewable
+sources”.
+B.1.1. Justification of the choice of the methodology and why it is applicable to the project
+activity:
+>>
+The project activity is a grid connected run-of-river hydropower project, where the grid’s geography and
+system boundaries are explicit and characteristics are readily available through CNE and CDEC-SIC. As
+a renewable energy project it is appropriate to follow Paragraph 48 of Marrakech Accords and use
+existing actual or historical emissions, since the project activity will serve to reduce actual emissions. On
+this basis the conditions for applying ACM0002 are met.
+B.2 Description of how the methodology is applied in the context of the project activity:
+>>
+Applying the methodology ACM0002 “Consolidated baseline methodology for grid-connected electricity
+generation from renewable sources”, the implementation of the La Higuera project will reduce on average
+405,446 tCO2 per annum.
+As per methodology, the baseline scenario is the “Electricity delivered to the grid by the project would
+have otherwise been generated by the operation of grid-connected power plants and by the addition of
+new generation sources, as reflected in the combined margin (CM) calculations described below.
+Emission factors for each grid-connected power plant are calculated by using the corresponding
+electricity generation on an hourly basis data provided by the CDEC-SIC and the fuel consumption per
+year provided on a yearly publication by the same entity (CDEC-SIC) . This information allows the
+determination of an ex post baseline Emission Factor for the project activity.
+The baseline emission factor (EFy) is calculated as a combined margin (CM), consisting of the
+combination of operating margin (OM) and build margin (BM) factors according to the following three
+steps. Calculations for this combined margin are based on data from an official source and IPCC.
+The calculation of the Operating Margin emission factor(s) (EFOM,y) has to be based on one of the
+four following methods:
+(a) Simple OM, or
+(b) Simple adjusted OM, or
+(c) Dispatch Data Analysis OM, or
+(d) Average OM.
+Dispatch Data Analysis should be the first methodological choice. Since the fuel consumption - Parameter
+5 Fi,y as per methodology ACM0002 version 4 - is not available measured on an hourly basis, but only the
+yearly specific fuel consumption per plant is reported2, the Dispatch Data Analysis is not applicable and
+2 The information provided by the official source CNE is the specific fuel consumption on an annual basis only;
+hourly fuel consumption is not reported and monitored.
+
+Page 9
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page 9
+alternatively Simple Adjusted OM may be used. In absence of the Dispatch Data Analysis option the
+Simple Adjusted OM is deemed the most accurate method to calculate the OM.
+In Chile low-cost resources constitute more than 50% of the total generation of the national grid, which
+prevents from using option (a) Simple OM. Option (d) Average OM can only be used where low-
+cost/must run resources constitute more than 50% of total grid generation and data to apply Option (b)
+Simple adjusted OM and detailed data to apply Option (c) is not available. As a result, Option (b) Simple
+adjusted OM is the preferred method.The data used for the calculation of build margin is shown in Annex
+3 of this document. The main source of data is CDEC-SIC.
+Emission Reductions are calculated with the following equation:
+ERy = BEyí PEyí Ly
+Where:
+ER: Emission reductions in the year y (t CO2e)
+BE: Baseline emissions in the year y (t CO2e)
+PE: Project Emissions in the year y (t CO2e)
+L: Leakage emissions in the year y (t CO2e)
+y: a given year
+ACM0002 does not require calculation of project emissions in case of hydro power projects. However,
+for reasons of conservativeness, project emissions from gen-sets that will be operated in case of grid
+failures are taken into consideration as follows:
+During the construction and the start of the operation of the plant 4 gen-sets have been installed. During
+operations these gen-sets will be used only to a limited extent as back-up and for emergencies:
+x One gen-set in the Power House with 0.599 MW of installed capacity, which will only be used
+for that specific purpose and will not supply power to the grid.
+x One gen-set at the Los Helados intake, with 0.022 MW of installed capacity,
+x One gen-set at the Azufre intake with 0.080 MW of installed capacity; and
+x One gen-set at the Tinguiririca intake with 0.100 MW of installed capacity, which is used to
+move the gates, in the event that connection to the grid is lost
+It is estimated that emissions from the gen-sets are well below 1% of the average emission reduction of
+the project activity.
+Nevertheless, La Higuera will use hourmeters of the gen-sets in order to be able to monitor the use of the
+engines in case of a complete grid failure. Related emissions would be considered in the monitoring
+report in specific verification period.
+The emissions of the 4 gen-set correspond to 460 tCO2. Since the project activity is a renewable energy
+project consists in hydroelectricity generation,there are no other project emissions.
+According to the ACM0002 v.4 methodology project participants do not need to consider leakage for this
+project activity, then LEy = 0.
+
+Page 10
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page10
+Baseline Emissions:
+The baseline emission factor calculations will be based on the combined margin using the “Simple
+Adjusted Operating Margin”, option (b) of the ACM0002, according to the following formulae:
+BEy = EGy * EFy
+Where:
+BE: Baseline emissions (t CO2e)
+EGy: Electricity supplied by the project to the grid in the year y (MWh)
+EF: baseline emission factor (tCO2e / MWh)
+y: a given year
+Where:
+EFy ȦOM*EF _ OMy ȦBM *EF _ BMy
+Where:
+EF: baseline emission factor (tCO2e / MWh)
+ȦOM: Operation Margin weight, which is 0.5 by default
+EF_OM: Operational Margin emission factor (tCO2e / MWh)
+ȦBM: Build Margin weight, which is 0.5 by default
+EF_BM: Build Margin emission factor (tCO2e / MWh)
+y: a given year
+The Simple Adjusted OM has been chosen and is applied for the project activity ex-post as follows.
+(b) Simple Adjusted OM. This emission factor (EFOM,simple adjusted,y) is a variation on the Simple OM
+method, where the power sources (including imports) are separated in low-cost/must-run power sources
+(k) and other power sources (j):
+Where Fi,j,y, COEFi,j and GENj are analogous to the variables described for the Simple OM method for
+plants j:
+The CO2 emission coefficient COEFi is obtained as:
+COEFi = NCVi × EFCO2i × OXIDi
+Where
+NCVi is the net calorific value per mass or volume of fuel type i
+OXIDi is the oxidation factor of the fuel i; and
+EFCO2 is the CO2 emission factor per unit of energy of fuel i.
+The Build Margin is determined ex-ante as follows:
+
+Page 11
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page11
+Where:
+EF_BM: Build Margin emission factor (tCO2e / MWh) and
+m: refers to last additions power sources delivering electricity to the grid.
+Project Emission:
+Emissions of each gen-set is obtained based on metering of the operating hours through the calculation of
+diesel consumption, the calorific value and the emission factor of the diesel. The default values of NCV
+and emission factor of the diesel will be derived from the IPCC, higher value at 95% confidence level.
+PE = FCi *NCV * EF
+Where:
+FCi: Diesel consumption of gen-set i
+NCV: Net Calorific Value of diesel (default value of 0.0433 TJ/t IPCC, higher value at 95% confidence
+level)
+EF: Diesel emission factor, (default value of 74.8 tCO2/TJ of IPCC, i.e. higher value at 95%
+confidence level)
+Where the fuel consumption is calculated as
+FCi = Hours of operation of gen-set * specific diesel consumption at full load
+Further details are provided in Section D.
+The following table provides the key information and data used to determine the baseline scenario:
+Variable Unit Data Source
+Estimated Simple Adjusted
+Operating Margin
+Emissions Factor as per 2010
+(EF_OMy in
+tCO2/MWh)
+0.640
+Calculated ex-post using data
+from
+CDEC-SIC, CNE and IPCC.
+Build Margin Emissions Factor
+(EF_BMy in tCO2/MWh) 0.361
+Calculated ex-ante using data
+from
+CDEC-SIC, CNE and IPCC.
+Baseline Emissions Factor (EFy
+in tCO2/MWh) 0.501 Calculated using data from
+CDEC-SIC, CNE and IPCC.
+Electricity generated by Project
+(EGy MWh) 811,000 Hidroeléctrica La Higuera S.A
+Baseline Emissions (BE tCO2) 405,906 Calculated
+Table 3 - Data used to determine the baseline scenario
+B.3. Description of how the anthropogenic emissions of GHG by sources are reduced below
+those that would have occurred in the absence of the registered CDM project activity:
+>>
+The determination of project scenario additionality is done using the CDM consolidated tool for
+demonstration of additionality, which follows the following steps
+
+Page 12
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page12
+Step 0. Preliminary screening based on the starting date of the project activity
+The project is only expected to start construction in the first quarter of 2006, which is after November 18
+2004 (date of registration of first CDM project), thus crediting period will start at the point of registration
+of the project. In any case, as it will be demonstrated in the following steps, CDM revenue has been
+considered from the early stages of development of the project, and it is an integral part of the financial
+package of the project.
+Step 1. Identification of alternatives to the project activity consistent with current laws and
+Regulations
+Sub-step 1a. Alternatives to the project activity
+Alternative options to the project activity include:
+• run of river project without CDM assistance;
+• natural gas combined; and
+• open cycle plants (coal and diesel plants).
+Sub-step 1b. Enforcement of applicable laws and regulations
+Under the Chilean Electricity Law all the alternatives to the project activity are in compliance with
+applicable legal and regulatory requirements. No special benefits are established under Chilean laws for
+renewable energies
+Step 3. Barrier Analysis
+Following the guidelines for determining additionality there are two analytical options available:
+investment analysis and barrier analysis. Due to the nature of the project and the important barriers it
+faces barrier analysis is used. The following barriers have been identified as the crucial barriers affecting
+the owners in undertaking the project activity.
+Sub-step 3a. Identify barriers that would prevent the implementation of type of the proposed
+project activity:
+Hydrological risk:
+Hydrology risk is perhaps the greatest risk facing the project as a run of river project with only 5 hours of
+storage capacity. This capacity allows for storage of 5 hours of design flows discharge during the period
+of lowest inflows. On this basis during the winter months of April to August the storage would only be
+sufficient to ensure that the plant could operate for 5 hours each day via discharging the storage and
+replenishing it for the following day’s generation. As a result there is no way the project can mitigate
+against drought and low inflow periods. If large dams were built on both the Tinguiririca and Azufre
+Rivers then high summer inflows, where available water in the rivers is generally in excess of capacity of
+the project, could provide for monthly storage and discharge of the reservoir when the system has less
+water. Due to almost 100% exposure to meteorological and hydrological risk project returns are highly
+variable. Figure 4 shows the annual generation the project would have generated based on historical
+hydrology.
+
+Page 13
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page13
+Fig 4 Source: EPS Ingienera
+Tunnelling risk:
+The project has 17km of tunnels to convey water from the intake to the surge shaft and penstock facility,
+where it is taken to the powerhouse. Because of the very steep alpine terrain, it is not possible to convey
+the water through canals, which are much cheaper than tunnels. As a result, the rock conditions for
+tunnelling are critical to final project cost. The construction company can only rely on surface mapping to
+base their cost estimates on, and hence there are considerable unknowns. It is not practical to drill sections
+of the tunnel from the surface, as this information is insufficient for 17km of section. As such risks such
+as underground water, geotechnical quality and presence of gases have to be taken by the Owner, and not
+the contractor.
+The Owner’s Engineer, SwedPower/Golder Associates, have projected an expected worst case overrun of
+$3.8m on tunnelling costs. However, the Lender’s Independent Engineer, Montgomery Watson Harza,
+have estimated a more pessimistic scenario of $6m in possible tunnelling overruns. On this basis the
+Project has had to increase the contingency for the project. This amount formed part of the initial
+expected contingency of $12m. However, in light of this increase and other increases the Project has had
+to increase the Project Contingency to $20m to satisfy the Lenders. Delays in tunnelling also expose the
+Project to completion risk, since the contractor is allowed extensions of time for force majeure events,
+such as encountering underground gases, high water inflows and other natural events. This is industry
+standard and cannot be avoided. The failure to complete the project on time could make the Project liable
+under the power supply agreement they have had to sign to obtain financing for the project (see below).
+
+Page 14
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page14
+Land Risk:
+the project area is sparsely populated during summer time grazing periods, there are 11 landowners in the
+immediate project area, and another 60 along the route of the transmission line. These landowners have
+considerable power in extracting payments from the project above market rates to avoid delays. The
+project developer could try and enforce sale under the Chilean Electricity Law code, but this is a drawn
+out procedure and does not foster the relationship with stakeholders the company is seeking. In particular
+the project construction timetable of 30 months assumes that access is to be completed to 2 intermediate
+adits along the route of the tunnel that would provide additional faces critical for completing the drill and
+blasting of the tunnels. To settle this issue the Project had to pay over market rates for the land and
+provide services such as telephones and power to the land owner, which is a significant cost item.
+The project is also being forced into an unfavourable position by one part owner of an estate where the
+powerhouse is to be situated. The partner of one of the heirs to this estate has refused to enter into an
+agreement that the other 6 heirs entered into. Instead, he demanded an exorbitant payment 10 times higher
+than the fair value accepted by the other owners. This is an untenable situation and the Project has
+investigated relocating the powerhouse to avoid this estate. However, following additional engineering
+studies, the only other possible location is not feasible as it is not located on bedrock. The new site for the
+powerhouse would require at least 35m of additional excavation to reach bedrock. While this would
+slightly increase the generation of the Project, the cost is in the order of $10m additional investment. This
+is not an economical alternative. Of even more importance to the Project is the delay in receiving a new
+Environmental Permit (at least 6 months) and a new Hydraulic Works Permit (4 months) if forced to
+relocate the powerhouse. To ensure the project is not delayed the Owners may have to pay well over
+market rates to secure access.
+Similar barriers are not faced by natural gas fired plants, for example, where total project area is a lot
+smaller and there is much more flexibility to optimally locate based on land issues.
+Financing Risk:
+The Project company, Hidroeléctrica La Higuera, is a 50% JV between PHL and SNPI. PHL has
+AU$271m in net assets, and this project as a whole would represent 113% of the company’s net assets.
+As such it is not possible to secure the project investment via corporate financing and the company’s
+balance sheet. On this basis the company sold 50% of the project to SNPI in May 2004, to reduce its
+funding commitment. As SNPI has only been in operation for 3 years as a development fund it is not able
+to fund projects via balance sheet financing. As a result the project has had to seek non recourse project
+finance, where only the assets of the project secure the loan. Banks require 50-100% of revenue to be
+subject to sales contract to PPAs to guarantee funds for debt payments. Typically Debt Service Cover
+Ratios of 2 or higher are required where the lenders have some exposure to spot market risk (merchant
+risk). The blackouts in California highlighted this exposure of the power sector, and as result banks are
+very risk averse to any spot market exposure. In the first half of 2003, the Sponsors approached the
+commercial market for non recourse project financing. Given the Californian situation, the power and
+corporate crisis triggered by Argentinean devaluation, and Brazilian energy crisis, no commercial banks
+would make non recourse project financing available for longer than 6 years. They also included a
+requirement for contracting the sale of 100% of plant generation. As discussed above the project could
+not support supply risk of 100% contractual obligations, and hence had to seek alternative sources. In
+June 2003 the Project entered into a Mandate Letter with IFC to raise financing of the project. IFC is the
+World Bank’s private investment bank, with a mandate to finance private companies and projects in
+under developed and developing countries. They typically only enter into projects and countries that
+Commercial Banks will not do on their own right,or at very unfavourable terms to the borrowers. On this
+
+Page 15
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page15
+basis they are known in the market as ‘lenders of last resort’.3 As such the requirements they place on
+borrowers are much more onerous and not what is obtainable under commercial financing. They also do
+not underwrite the deal, so if enough banks cannot be enticed to join the syndication, the project remains
+unfinanced. They are similarly limited to 25% of the project costs, so that commercial banks at the end of
+the day take up the largest part of the financing.
+The Project has recently received provisional financing commitments from Syndicate banks through an
+IFC syndication process. The following is the probable financing composition for the Project:
+Table 4 Financing Plan
+Spot Market Risk:
+Any generation activity has an element of spot market risk, since prices are a result of market forces, in
+this case fuel costs and hydrology are the main price factors. As the SIC has a 60% hydroelectricity base
+variability of spot prices is exaggerated. During a normal or wet hydrological year spot prices are very
+low, severely impacting project revenues. As mentioned above the project activity does not have any
+storage allowing for flow regulation so project will also suffer periods of very high spot prices when there
+is a drought, and it has no ability to regulate flows. As discussed below there is contracting risk as a result
+of being required to have a power purchase agreement (PPA) in place for lenders. HLH were recently
+able to obtain a PPA from Chilectra, Chile’s largest distributor, by providing energy at a discount to the
+regulated node prices. While this is confidential information this discount is in the order of $US600,000-
+1,000,000 p.a. in foregone revenue to the project. This type of discount is not market practice with
+incumbent generators. This discount was the lowest that Chilectra would accept for a new company
+entering the system, and is related to their perceived uncertainty of project completion and the lack of
+other assets the company, HLH, has to supply under this PPA. Under non-recourse project financing the
+banks’ only security on receiving principal and interest (PI) payments is contracted energy sales. The high
+levels of revenues from contracted sales required to meet the PI (generally 1.3 to 1.75 times greater than
+PI) increases the project exposure to spot market to supply the client. This exposes the project to spot
+market risk in the months of April-August when contract commitments can be higher than plant
+generation. If there is a drought in these periods the project would have to purchase off the spot market to
+fulfil its contract with the offtaker.
+3 A. Hawser. A Matter of Principles. GLOBAL FINANCE MAGAZINE, January 2005
+
+Page 16
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page16
+Market and Regulatory risk:
+Despite being a highly developed, deregulated and transparent system, the Chilean Electricity sector is
+still subject to changes that provide considerable barriers to the project. The first example of this is the
+introduction of Article 99bis, following a severe drought in 1999. Generators were unable to supply under
+their contracts to distributors and claimed force majeure. To try and reduce the likelihood of blackouts in
+the future, the authorities removed drought as an allowable force majeure event, thus making the
+generators responsible for finding other ways of securing delivery. The result has been that generators
+without a diverse portfolio of hydro and thermal generation assets have not been able to sign PPAs with
+distributors, who fall under Article 99bis jurisdiction. Since distributors are 80% of the market for sales, it
+severely limits the project to find financially attractive PPA to ensure financing.
+The second example is current changes being made by CNE with respect to the period for which Firm
+Capacity is calculated. In October 2004, they changed the 5 hour period between 6 and 11 pm between
+the months of May and September to 8 hours. As the project has very limited ability for storage, currently
+only 5 hours due to geographical and environmental constraints, CDEC would downgrade the assigned
+firm capacity of the Plant. Firm capacity revenues for 5 hours represent 30% of project revenues, and
+changing to an 8 hour period would reduce firm capacity revenues by 37%.
+Sub-step 3b. Show that the identified barriers would not prevent the implementation of at least one
+of the alternatives
+Natural gas combined or open cycle plants are considered the least cost investment by CNE, the
+governmental Electricity Authority. On this basis CNE uses combined cycle gas plants as the default
+investment in planning system expansion, “Plan de Obras”. They can easily be shown to not suffer the
+barriers identified above.
+Hydrology Risk:
+Natural gas plants are not constrained by hydrological conditions. While there may be some fuel supply
+risk for these plants they typically can run on either natural gas or diesel, the latter of which is readily
+available.
+Tunnelling Risk:
+Technological risk, in particular tunnelling is not relevant to gas fired plants. Construction techniques and
+technology are well established, resulting in a lower investment cost.
+Land Risk:
+The physical requirements for land for a combined cycle natural gas plant are considerably less than the
+proposed project activity. Indeed these plants can typically be built almost anywhere provided there is the
+ability to transport and access natural gas. This project activity is specifically tied to the unique
+characteristics of the topography, utilising available water and optimising construction cost with gross
+head. As such the project is dependent on the willingness and reasonableness of landowners in the project
+area. The Owner has experienced lengthy and negative sentiment by some of the landowners in the area,
+actually being forced to change the layout of the project once already.
+
+Page 17
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page17
+Financing Risk:
+In Chile the electricity generation sector is entirely open to investment by any company. The type of
+financing used is obviously dependent on size and the corporate strategies each investor has. However,
+due to hydrology risk, large scale run of river hydroelectric projects would require the investor to have
+their own alternate thermal generation, or upstream regulation. As such, large scale projects in general
+would be restricted to companies with an installed base of thermal assets, or if not the latter, the ability to
+raise financing without high contracted power sale levels. A natural gas plant does not face the same
+funding hurdles.
+A 350MW combined cycle plant will typically have an investment cost of $US208m, compared with the
+155 MW La Higuera plant of $US225m. The project activity is also not the most cost effective
+investment when annualised costs of production are considered. Table 4 shows that the annualised cost of
+investment and generation of a natural gas plant over the net present generation during the life of the plant
+is lower for a natural gas plant than for the project activity4.
+Table 5 - Average annualised cost of generation comparison
+Spot Market Risk:
+As discussed above natural gas plants are also able to use diesel, thus mitigating supply risks that run of
+river projects, like the project activity, face. On this basis this barrier is not as extreme for a natural gas
+plant as the project activity.
+Market and Regulatory risk:
+As mentioned the project is particularly susceptible to changes in regulation governing the authority’s
+recognition of the plants firm power. Water, environmental and geographical restraints restrict the ability
+for the project to adapt. A natural gas plant does not face the same restrictions, and generally such
+flexibility has a lower capital cost for these types of projects.
+On the basis of the above analysis it is obvious that the project activity faces unique, identifiable and
+significant barriers, not faced by its most likely alternative, a gas fired plant.
+Step 4. Common Practice analysis
+Sub-step 4a. Analyse other activities similar to the proposed project activity
+Large Run of River hydroelectric projects that are not connected to reservoir facilities are not common
+4 11% discount rate is used for both technologies. Given the longer construction period, high risk geographical
+location and hydrological exposure for the Project Activity it would be appropriate to consider a higher discount
+rate for the Project Activity. For conservatism the same rate for both options has been used for this analysis.
+
+Page 18
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page18
+within SIC. The following table lists the hydropower plants connected to the Chilean electricity grid
+constructed over the last 25 years. From the table below, the only plants of similar size are Rucúe and
+Alfalfal. Rucue is downstream of the Laja reservoir, and is able to directly benefit from the storage
+facility of this very large dam. As such it has a very different hydrological risk to a run of river project
+that has no storage facility upstream.. The other similar plant is Alfalfal. This plant was built in 1991 (16
+years ago) when the energy and financing situation where completely different and cannot be compared
+with the current situation. This will be discussed in the next section.
+Table 6 - List of run of river plants constructed over the last 25 years. Source: SIC
+Sub-step 4b. Discuss any similar options that are occurring:
+Large Run of River hydroelectric projects that are not connected to reservoir facilities are rare within the
+project boundary, SIC. La Higuera will be the second biggest run of river project ever built by installed
+capacity in Chile5. In 1991 the 160 MW Alfalfal plant was built on the Colorado River, some 80km north
+of the La Higuera project. This project is similar in many ways to La Higuera project, however, the
+economics of the Alfalfal project were significantly better for two main reasons. Firstly, in 1991 there
+was no gas available, and as such node prices for energy were significantly higher than current prices.
+The second factor is that the owners, GENER, also have coal fired thermal plants, allowing them to
+mitigate the high seasonal generation of low winter generation and high summer snow melt generation.
+Following the introduction of imported natural gas from Argentina in 1996 there was significant change
+in the electricity sector’s structure, with high growth in the lower capital cost and shorter payback period
+combined cycle natural gas plants as shown in Figure 3. This resulted in a significant reduction in node
+prices. This has increased the barriers to hydroelectricity and other renewable energy technologies, which
+are typically much higher capital cost investments.
+Step 5. Impact of CDM registration
+This section clearly explains how the approval and registration of the project as a CDM activity, and the
+attendant benefits and incentives derived from the project activity, will alleviate the barriers showed in
+Step 3 and thus enable the project to be undertaken. The benefits and incentives brought about by the
+CDM to the shareholders of the proposed project activity are as follows:
+x The financial benefit from the revenue obtained by selling the CO2 emissions reductions has been
+one of the key issues that encourage shareholders in the Project company to invest in the
+5 This does not include run of river plants associated with large reservoirs, which provide annual regulation, and as
+such should not be considered as run of river projects.
+
+Page 19
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page19
+proposed project activity. The CDM has been considered from an early stage and it is an integral
+part of the financial package of the proposed project activity.
+x Attracting new players who bring the capacity to implement a new technology. In this case,
+Pacific Hydro Ltd., an Australian company, and SNPI, a Norwegian company, are both entering a
+new market. The value of the CDM registration of investments is an important factor in attracting
+such world leading companies to Chile, bringing capacity and technology.
+Therefore, it has been clearly demonstrated how the approval and registration of the project as a CDM
+activity, and the attendant benefits and incentives derived from the project activity, will alleviate the
+barriers showed in Step 3 and thus enable the project to be undertaken.
+So following all steps of the additionality test, it can be clearly demonstrated that the proposed CDM
+project activity is not the baseline scenario.
+B.4. Description of how the definition of the project boundary related to the baseline
+methodology selected is applied to the project activity:
+>>
+Chile has four different grids and there are no interconnections between them. Therefore each grid
+definesthe geographical and system boundaries for proposed projects located within it (see map below).
+The Central Interconnected Grid (SIC), to which La Higuera project is connected, compromises the
+regions 3 to 10 and accounts 64 percent of the total capacity. The project boundary of La Higuera project
+is the hydroelectric plant and all power plants connected physically to the SIC grid. The SIC grid
+electricity system’s boundary is limited to the spatial extent of the power plants connected to the SIC grid,
+that can be dispatched without significant constraints. The following diagrams illustrate the location and
+spatial extent of the SIC grid
+Figure 5 - Chilean Grid Systems
+
+Page 20
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page20
+Figure 6 - The SIC System.
+B.5. Detailed baseline information, including the date of completion of the baseline study and the
+name of person (s)/entity(ies) determining the baseline:
+>>
+The baseline study was completed on 15/06/2005. The entity determining the baseline as the Carbon
+Advisor is EcoSecurities Ltd., UK. The baseline information (baseline emission factor for the SIC
+electricity system) was revised on June 2011 with Poch Ambiental support.
+Contact information for EcoSecurities:
+Pedro Moura Costa
+EcoSecurities Ltd.
+21 Beaumont Street
+Oxford OX1 2NH
+Telephone (44) 1865 202635
+Fax: (44) 1865 251438
+www.ecosecurities.com
+Contact information for Poch Ambiental S.A:
+Renato Sánchez 3838 – Las Condes
+Santiago, Chile.
+Telephone: (56)-(2) 2070154
+Fax: (56)-(2) 2634766
+Consultants:
+María Luz Farah Gonzales (marialuz.farah@poch.cl)
+Mariela Ramos Marín (mariela.ramos@poch.cl).
+La Higuera
+Project
+
+Page 21
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page21
+SECTION C. Duration of the project activity / Crediting period
+C.1 Duration of the project activity:
+C.1.1. Starting date of the project activity:
+>>
+Project development commenced in January 2002 when Pacific Hydro purchased on Option to Purchase
+the Water rights for the Tinguiririca Valley. Project Construction is expected to commence in the first
+quarter of 2006 and the project is to be connected to the grid and generating by January 2008.
+C.1.2. Expected operational lifetime of the project activity:
+>>
+25 years, 0 Months
+C.2 Choice of the crediting period and related information:
+>>
+The project will use a renewable crediting period
+C.2.1. Renewable crediting period
+C.2.1.1. Starting date of the first crediting period:
+>>
+Expected 01/01/2008 (if registration has been completed)
+C.2.1.2. Length of the first crediting period:
+>>
+7 years
+C.2.2. Fixed crediting period:
+C.2.2.1. Starting date:
+>>
+Not applicable
+C.2.2.2. Length:
+>>
+Not applicable
+
+Page 22
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page22
+SECTION D. Application of a monitoring methodology and plan
+D.1. Name and reference of approved monitoring methodology applied to the project activity:
+>>
+Approved consolidated monitoring methodology ACM0002: “Consolidated monitoring methodology for
+grid-connected electricity generation from renewable sources.” (Version 4)
+D.2. Justification of the choice of the methodology and why it is applicable to the Project
+activity:
+>>
+The project activity is a grid-connected run of river hydropower project, where the grid’s geography and
+system boundaries are explicit and characteristics are available through CNE and CDEC-SIC. On this
+basis the conditions for applying ACM0002 are met.
+
+Page 23
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page23
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+D.2.1. Option 1: Monitoring of the emissions in the project scenario and the baseline scenario:
+D.2.1.1. Data to be collected in order to monitor emissions from the project activity, and how this data will be archived:
+ID number
+(Please use
+numbers to
+ease cross
+referencing
+to D.3)
+Data variable Source of data Data unit
+Measured
+(m),
+calculated
+(c) or
+estimated
+(e)
+Recording
+frequency
+Proportion
+of data to be
+monitored
+How will the
+data be
+archived?
+(electronic/pa
+per)
+Comment
+15. Hours of
+operation
+Hours of
+operation of each
+generator i
+Obtained from Hour-
+meter of each gen-set Hr m monthly 100% electronic
+16. Fuel
+Consumption
+(FCi)
+Fuel
+consumption of
+each generator i
+Calculated based on
+hours of opration and
+default diesel
+consumption at full
+load (according to the
+manufacturer)
+tons c monthly 100% electronic
+This value is obtained by
+multiplying the hours of operation
+with the diesel consumption at full
+load (manufacturer information)
+17. Net
+calorific value
+(NCVgen-set)
+Net calorific
+value of diesel
+IPCC, higher value at
+95% confidence level TJ/Gg e yearly 100% electronic IPCC, higher value at 95%
+confidence level: 43.3 TJ/Gg
+18. Emission
+factor of fuel
+(EFgen-set)
+CO2 emission
+factor per unit of
+energy
+IPCC, higher value at
+95% confidence level tCO2/TJ e yearly 100% electronic IPCC, higher value at 95%
+confidence level: 74.8 tCO2/TJ
+19. Spefic
+diesel
+consumption at
+full load
+Diesel
+consumption at
+full load of each
+generator i
+Manufacturer
+information t diesel/hr e yearly 100% electronic
+The specific fuel consumption for
+the gen-sets are:
+Location i ton/hr
+La Higuera
+Power House
+1 0.1139
+Azufre Intake
+Center
+2 0.0140
+Tinguiririca
+Intake
+3 0.0119
+Los Helados
+Intake
+4 0.0119
+
+Page 24
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page24
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+D.2.1.2. Description of formulae used to estimate project emissions (for each gas, source, formulae/algorithm, emissions units of CO2 equ.):
+>>
+ACM0002 does not require calculation of project emissions in case of hydro power projects. However, for reasons of conservativeness, project emissions
+from gen-sets that will be operated in case of grid failures are taken into consideration as follows:
+Emissions of each gen-set is obtained based on metering of the operating hours through the calculation of diesel consumption , the calorific value and the
+emission factor of the diesel. The default values of NCV and emission factor of the diesel will be derived from the IPCC, higher value at 95% confidence
+level.
+PE = FCi *NCV * EF
+Where:
+FCi: Diesel consumption of gen-set i
+NCV: Net Calorific Value of diesel (default value of 0.0433 TJ/t IPCC, higher value at 95% confidence level)
+EF: Diesel emission factor, (default value of 74.8 tCO2/TJ of IPCC, i.e. higher value at 95% confidence level)
+Where the fuel consumption is calculated as
+FCi = Hours of operation of gen-set i * specific diesel consumption at full load of gen-set i
+D.2.1.3. Relevant data necessary for determining the baseline of anthropogenic emissions by sources of GHGs within the project
+boundary and how such data will be collected and archived6:
+ID number Data variable Source of data Data
+unit
+Measured (m),
+calculated (c) or
+estimated (e)
+Recording
+frequency
+Proportion
+of data to be
+monitored
+How will
+the data be
+archived?
+(electronic/
+paper)
+Comment
+1. EGy
+Electricity
+supplied to the grid
+by the project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m) used to
+determine EGy
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+Electricity supplied to the SIC grid by
+the project activity determined based on
+equation 7 as explained under D.2.4
+(Measurement of EGy). Meters involved
+in obtaining the parameter are described
+below (1.1 to 1.6).
+6 Archived data will be kept during the crediting period and two years after.
+
+Page 25
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page25
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+1.1 M5
+Electricity
+supplied to the grid
+by the project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m) used to
+determine EGy
+Hourly
+measurement
+and monthly
+recording
+100% electronic M5, meter that records energy supplied
+to the grid from Tinguiririca substation
+1.2 M6
+Electricity
+supplied to the grid
+by the project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m) used to
+determine EGy
+Hourly
+measurement
+and monthly
+recording
+100% electronic M6, meter that records energy supplied
+to the grid from Tinguiririca substation
+1.3 M3
+Electricity
+supplied by the La
+Higuera project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M3, meter that records energy from La
+Higuera hydropower in La Higuera
+substation
+1.4 M4
+Electricity
+supplied by the La
+Higuera project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M4, meter that records energy from La
+Higuera hydropower in La Higuera
+substation
+1.5 M7
+Electricity
+supplied from the La
+Confluencia
+substation
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M7, meter that records energy from La
+Confluencia substation in La Higuera
+substation
+1.6 M8
+Electricity
+supplied from the La
+Confluencia
+substation
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M8, meter that records energy from La
+Confluencia substation in La Higuera
+substation
+1.7 M1
+Electricity generated
+at the La Higueara
+project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M1, meter that records energy
+generated at the La Higuera
+powerhouse
+1.8 M2
+Electricity generated
+at the La Higueara
+project
+Metering system
+readings MWh
+Directly
+measured meter
+results (m)
+Hourly
+measurement
+and monthly
+recording
+100% electronic
+M2, meter that records energy
+generated at the La Higuera
+powerhouse
+2. EFy
+CO2 emission
+factor of the grid
+Calculated ex-
+post using
+CDEC-SIC
+operation
+statistics, data
+published by
+CNE and IPCC
+tCO2/
+MWh c yearly 100% electronic Calculated as a weighted sum of the
+OM and the BM emission factor
+
+Page 26
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page26
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+default values
+3. EFOM,y
+CO2 Operating
+Margin emission
+factor of the
+grid (Simple
+Adjusted OM)
+Calculated ex-
+post using
+CDEC-SIC
+operation
+statistics, data
+published by
+CNE and IPCC
+default values.
+tCO2/
+MWh c yearly 100% electronic
+Simple Adjusted OM updated based on
+ex post monitoring for the year in
+which project generation occurs
+4. EFBM,y
+CO2 Build Margin
+Emission factor of
+the
+grid
+Calculated ex-
+ante using
+CDEC-SIC data,
+published by
+CNE and IPCC
+default values.
+tCO2/
+MWh c yearly 100% electronic
+Calculated as [Ȉi Fi,y*COEFi] / [Ȉm
+GENm,y] over recently built power
+plants defined in the baseline
+methodology at the beginning of each
+crediting period. The calculation of the
+ex-ante value will be performed at the
+beginning of each period.
+5. Fi, j/k, y
+Amount of each
+fossil fuel
+consumed by each
+power source /
+plant j or k
+CDEC-SIC
+operation
+statistics
+Mass
+or
+volume
+m yearly 100% electronic
+The annual fuel consumption Fi, j/k, y of
+each power unit is sourced from the
+yearbook of the CDEC, available both
+per power plant and per type of fuel
+6. COEFi
+CO2 emission
+coefficient of each
+fuel type i
+COEFi is
+obtained as per
+equation (2) of
+section D.2.1.4
+tCO2 /
+mass or
+volume
+unit
+c yearly 100% electronic
+Plant or country specific values to
+calculate COEF are preferred to IPCC
+default values.
+7. GENj/k,y
+Electricity
+generation of each
+power source /
+plant j or k
+CDEC-SIC
+operation
+statistics
+MWh/a m yearly 100% electronic Obtained from the
+dispatch center
+8. Plant
+name OM
+Identification of
+power source / plant
+for the OM
+CDEC-SIC
+operation
+statistics
+Text e yearly 100% of set
+of plants electronic
+Identification of plants (j, k) to calculate
+Simple Adjusted Operating Margin
+emission factors
+9. Plant
+name BM
+Identification of
+power source / plant
+for the BM
+CDEC-SIC
+operation
+statistics
+Text e yearly 100% of set
+of plants electronic Identification of plants (m) to calculate
+Build Margin emission factors
+10. Ȝy
+Fraction of time
+during
+which low-cost/
+must-run sources
+CDEC-SIC
+operation
+statistics
+Number c yearly 100% electronic
+Factor accounting for number of hours
+per year during which low-cost/ must-
+run sources are on the margin
+
+Page 27
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page27
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+are on the margin
+11a.
+GENj/k/ll,y
+IMPORTS
+Electricity imports
+to the project
+electricity system
+CNE7 kWh c yearly 100% electronic
+Obtained from the latest local statistics
+(CNE). If local statistics are not
+available, IEA statistics are used to
+determine imports.
+11b.
+COEFi,j y
+IMPORTS
+CO2 emission
+coefficient of fuels
+used in connected
+electricity systems
+(if
+imports occur it will
+be calculated as per
+equation (2) of
+section D.2.1.4))
+Obtained from
+the latest local
+statistics (CNE).
+tCO2 /
+mass or
+volume
+unit
+c yearly 100% electronic
+Obtained from the latest local statistics
+(CNE). If local statistics are not
+available, IPCC default values are used
+to calculate.
+12. NCVi
+Net calorific value
+of fuel i
+CNE Node Price
+Report and/or
+CNE National
+Energy Balance
+Energy
+content
+per mass
+or volume
+unit of a
+fuel i
+Calculated (c)
+from the gross
+calorific value
+(GCV) of each fuel
+type obtained from
+National Energy
+Balance and then
+converted into
+NCV
+yearly 100% electronic
+Conversion from GCV reported to NCV
+for each type of fuel i is made by
+applying guidance from 2006 IPCC
+Guidelines for National Greenhouse
+Inventories, as follows:
+NCVi = GCVi · CFi
+where GCVi represents gross calorific
+value for fuel i and CFi the Conversion
+Factor from gross to net calorific value.
+(CF for oils and solids = 0.95 and for
+gas = 0.90).
+13. OXIDi
+Oxidation factor of
+the fuel
+2006 IPCC
+Guidelines for
+National
+Greenhouse Gas
+Inventories,
+Table 1.4,
+Chapter 1, Vol.
+2
+% e yearly 100% electronic
+1996 Revised IPCC Guidelines for
+default values applied for ex-ante BM
+calculation. For ex-post calculation
+default carbon oxidation factor as per
+2006 IPCC Guidelines for National
+Greenhouse Gas Inventories, Table 1.4,
+Chapter 1, Vol. 2 will be used
+14. EFCO2,i
+CO2 emission
+factor per unit
+ofenergy of the
+2006 IPCC
+Guidelines for
+National
+tCO2 /
+unit of
+energy
+e yearly 100% electronic
+Where available, local values should be
+used. If no such values are available,
+country-specific values (see e.g. IPCC
+7 Comision Nacional de Energia, Chile
+
+Page 28
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page28
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+fuel i Greenhouse Gas
+Inventories,
+Table 1.4,
+Chapter 1, Vol.
+2
+Good Practice Guidance) are preferable
+to IPCC world-wide default values.
+D.2.1.4. Description of formulae used to estimate baseline emissions (for each gas, source, formulae/algorithm, emissions units of CO2 equ.):
+>>
+For project activities that do not modify or retrofit an existing electricity generation facility, the baseline scenario is the following:
+Electricity delivered to the grid by the project would have otherwise been generated by the operation of grid-connected power plants and by the
+addition of new generation sources, as reflected in the combined margin (CM) calculations described below.
+The baseline emission factor (EFy) is calculated as a combined margin (CM), consisting of the combination of operating margin (OM) and build margin (BM)
+factors according to the following three steps. Calculations for this combined margin must be based on data from an official source (where available) and
+made publicly available.
+STEP 1. Calculate the Operating Margin emission factor(s) (EFOM,y) based on one of the four following methods:
+(a) Simple OM, or
+(b) Simple adjusted OM, or
+(c) Dispatch Data Analysis OM, or
+(d) Average OM.
+Dispatch Data Analysis should be the first methodological choice. Since the fuel consumption - Parameter 5 Fi,y as per methodology ACM0002 version 4 -
+not available measured on an hourly basis, but only the yearly specific fuel consumption per plant is reported8, the Dispatch Data Analysis is not applicable
+and alternatively Simple Adjusted OM may be used. In absence of the Dispatch Data Analysis the option Simply Adjusted OM is deemed the most accurate
+method to calculate the OM. . In this case, yearly fuel consumption per each grid connected plant is available in a CDEC-SIC operational statistics yearbook.
+The Simple Adjusted OM has been chosen and is applied for the project activity as follows.
+(b) Simple Adjusted OM. This emission factor (EFOM,simple adjusted,y) is a variation on the Simple OM method, where the power sources (including imports) are
+separated in low-cost/must-run power sources (k) and other power sources (j):
+8 The information provided by the official source CNE is the specific fuel consumption on an annual basis only; hourly fuel consumption is not reported and monitored.
+
+Page 29
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page29
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+(1)
+where Fi,j,y, COEFi,j and GENj are analogous to the variables described for the Simple OM method for plants j:
+Fi ,j, y is the amount of fuel i (in a mass or volume unit) consumed by relevant power sources j in year(s) y,
+j refers to the power sources delivering electricity to the grid, not including low-operating cost and must-run power plants, and including
+imports9 to the grid
+COEFi,j y is the CO2 emission coefficient of fuel i (tCO2 / mass or volume unit of the fuel), taking into account the carbon content of the fuels used by
+relevant power sources j and the per cent oxidation of the fuel in year(s) y
+GENj,y is the electricity (MWh) delivered to the grid by source j.
+The variables Fi,k,y, COEFi,k and GENk are accordingly to be used for plants k.
+The CO2 emission coefficient COEFi is obtained as
+(2)
+where:
+NCVi is the net calorific value (energy content) per mass or volume unit of a fuel i
+OXIDi is the oxidation factor of the fuel EFCO2,i is the CO2 emission factor per unit of energy of the fuel i.
+Where available, local values of NCVi and EFCO2,i should be used. If no such values are available, country-specific values (see e.g. IPCC Good Practice
+Guidance) are preferable to IPCC world-wide default values.
+The years(s) y can reflect either of the two vintages noted for Simple OM10, of which the ex-post data vintage has been chosen, and Ȝy is defined as follows
+9 As described in ACM0002 version 4, an import from a connected electricity system should be considered as one power source j.
+10 The Simple OM emission factor can be calculated using either of the two following data vintages for years(s) y: A 3-year average, based on the most recent statistics
+available at the time of PDD submission, or the year in which project generation occurs, if EFOM,y is updated based on ex post monitoring.
+
+Page 30
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page30
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+(3)
+where lambda (Ȝy) should be calculated as follows (see figure below):
+Step i) Plot a Load Duration Curve. Collect chronological load data (typically in MW) for each hour of a year, and sort load data from highest to lowest MW
+level. Plot MW against 8760 hours in the year, in descending order.
+Step ii) Organize Data by Generating Sources. Collect data for, and calculate total annual generation (in MWh) from low-cost/must-run resources (i.e.
+ȈkGENk,y).
+Step iii) Fill Load Duration Curve. Plot a horizontal line across load duration curve such that the area under the curve (MW times hours) equals the total
+generation (in MWh) from low-cost/must-run resources (i.e. ȈkGENk,y).
+Step iv) Determine the "Number of hours per year for which low-cost/must-run sources are on the margin". First, locate the intersection of the horizontal line
+plotted in step (iii) and the load duration curve plotted in step (i). The number of hours (out of the total of 8760 hours) to the right of the intersection
+is the number of hours for which low-cost/must-run sources are on the margin. If the lines do not intersect, then one may conclude that lowcost/must
+run sources do not appear on the margin and Ȝy is equal to zero. Lambda (Ȝy) is the calculated number of hours divided by 8760.
+
+Page 31
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page31
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+Figure 7: Illustration of Lambda Calculation for Simple Adjusted OM Method
+Note: Step (ii) is not shown in the figure; it deals with organizing data by source.
+STEP 2. Calculate the Build Margin emission factor (EFBM,y)
+The calculation of the Build Margin emission factor is provided in Annex 3; this value is fixed ex-ante for the first crediting period.
+STEP 3. Calculate the baseline emission factor EFy
+The baseline emission factor EFy is calculated as the weighted average of the Operating Margin emission factor (EFOM,y) and the Build Margin emission
+factor (EFBM,y) as outlined in the registered PDD:
+(4)
+
+Page 32
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page32
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+where the weights wOM and wBM, by default, are 50% (i.e., wOM = wBM = 0.5), and EFOM,y and EFBM,y are calculated as described in Steps 1 and 2 above and are
+expressed in tCO2/MWh.
+D. 2.2. Option 2: Direct monitoring of emission reductions from the project activity (values should be consistent with those in section E).
+>>
+Not applicable
+D.2.2.1. Data to be collected in order to monitor emissions from the project activity, and how this data will be archived:
+ID number
+(Please use numbers to
+ease cross referencing
+to D.3)
+Data variable Source of data Data unit
+Measured (m),
+calculated (c) or
+estimated (e)
+Recording
+frequency
+Proportion
+of data to be
+monitored
+How will the data
+be archived?
+(electronic/paper)
+Comment
+>>
+Not applicable
+D.2.2.2. Description of formulae used to calculate project emissions (for each gas, source, formulae/algorithm, emissions units of CO2 equ.):
+>>
+Not applicable
+D.2.3. Treatment of leakage in the monitoring plan
+D.2.3.1. If applicable, please describe the data and information that will be collected in order to monitor leakage effects of the project activity
+ID number
+(Please use numbers to
+ease cross referencing
+to D.3)
+Data
+variable
+Source of
+data Data unit
+Measured (m),
+calculated (c) or
+estimated (e)
+Recording
+frequency
+Proportion of
+data to be
+monitored
+How will the data
+be archived?
+(electronic/paper)
+Comment
+>>
+Not applicable
+
+Page 33
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page33
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+D.2.3.2. Description of formulae used to estimate leakage (for each gas, source, formulae/algorithm, emissions units of CO2 equ.):
+>>
+Not applicable
+D.2.4. Description of formulae used to estimate emission reductions for the project activity (for each gas, source, formulae/algorithm, emissions units
+of CO2 equ.)
+>>
+Emission reduction estimation
+The project activity mainly reduces carbon dioxide through substitution of grid electricity generation with fossil fuel fired power plants by renewable
+electricity. The emission reduction ERy by the project activity during a given year y is the difference between baseline emissions (BEy), project emissions
+(PEy = 0) and emissions due to leakage (Ly = 0), as follows:
+ERy = BEy (5)
+where the baseline emissions (BEy in tCO2) are the product of the baseline emissions factor (EFy in tCO2/MWh) calculated in Step 3 under D.2.1.4, times the
+electricity supplied by the project activity to the grid (EGy in MWh), as follows:
+BEy = EGy ڄ EFy (6)
+For the project activity alike most renewable energy project activities, PEy = 0.
+Measurement of EGy
+The electricity produced by La Higuera hydro power project is transmitted to La Higuera Substation, which is located next to the power plant. This substation
+also receives electricity from La Confluencia hydro power project. La Higuera Substation is connected to the grid through the Tinguiririca Substation located
+near San Fernando. There is a double circuit transmission line (of approximately 38 km in length) between La Higuera substation and the Tinguiririca
+substation (SIC’s injection substation).
+As shown in Figure 8, the system has eight electricity meters relevant for the CDM monitoring, located at different stages. First, an electricity meter is placed
+at the terminals of each generator of La Higuera hydro power plant (meters M1 and M2). Second, two electricity meters (M3 and M4) are located in La
+Higuera Substation measuring electricity generated by La Higuera hydro power project, and another two electricity meters (M7 and M8) measure electricity
+from La Confluencia power plant. Finally, a set of two meters are placed in the Tinguiririca Substation (M5 and M6) in order to measure the energy generated
+
+Page 34
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page34
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+by La Higuera hydro power project plus La Confluencia hydro power project. As the electricity produced by La Higuera hydro power project is injected to the
+grid through the Tinguiririca Substation, main meters are considered to be M5 and M6. In addition to these eight meters, two meters situated at La
+Confluencia hydro power plant (meters M1HLC and M2HLC in Figure 2) are relevant to the Emergency Procedures.
+A diagram of the location of these meters is presented in the following figure:
+Figure 8: Diagram of monitoring points
+
+Page 35
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page35
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+The amount of electricity supplied to the grid by La Higuera hydro power project is measured along with the electricity supplied by La Confluencia hydro
+power project at the injection point located at the Tinguiririca substation owned by Transelec11 (meters M5 and M6). In order to determine the amount of
+electricity supplied to the grid by La Higuera hydro power project at the injection point, the electricity injected by La Confluencia hydro power project is
+deducted from the measurements of meters M5 and M6.
+The meters located at Tinguiririca substation (M5 and M6) and the meters located at La Higuera substation (M3, M4, M7 and M8) are bi-directional meters.
+This means that for every pulse the raw data from each meter contains a value associated to electricity injected and electricity retired. The net electricity value
+for each meter is the difference between the raw data of electricity injected and electricity retired. Then, using the net electricity values from each meter, the
+net electricity injected by La Higuera hydro power project at Tinguiririca substation is calculated by the Commercial Analyst using the following equation:
+Energy for invoicing HLH = EGy )	8	7	(	)	4	3	(
+)	4	3	(
+)	6	5	( M	M	M	M
+M	M
+M	M 		
+
+	 (7)
+Where,
+Mi Amount of electricity generation measured at electricity meter number i (according to Figure 1).
+EGy Amount of net electricity generated by La Higuera hydro power project.
+This calculation assumes the proportional distribution of transmission losses in the Transmission line from La Higuera substation to Tinguiririca substation in
+function of the hourly energy injected by each power plant to La Higuera substation.
+Data collection, recording, calculation
+Electricity generated by La Higuera hydro power project and supplied to the grid is measured in the injection point at Tinguiririca Substation (meters M5 and
+M6). As mentioned above, meters located at this point are owned by Transelec.
+A Field Technician from La Higuera hydro power project collects the data (electricity measurements every 15 minutes recorded in the memory of the meter)
+from the meters located in the Tinguiririca substation once a month, and delivers the data to the Operator of the power plant. The Operator is responsible for
+verifying the data collected is accurate and complete for every day of the month, in order to detect and inform any failure in the meters that needs to be
+repaired. Afterwards, the processed data is sent by the Operator to the Controller to cross check it with the meters of La Higuera substation. After his approval
+the data is uploaded in the server.
+11
+
+Page 36
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page36
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+The Controller sends the processed data to the Commercial Analyst. Equation 7 above and Equation 9 below are applied by the Commercial Analyst in order
+to calculate the electricity generated by La Higuera hydro power project by deducting electricity from La Confluencia hydro power project.
+Once the data is ready, the Commercial Analyst sends the information on a monthly basis to the CDEC-SIC (Economic Load Dispatch Centre of the SIC) for
+invoicing purposes and to the CDM Coordinator for emissions reduction calculations.
+In all meters (M1 to M8) the measurements every 15 minutes are registered in an hourly basis with a daily recording frequency. Accuracy class of all meters
+(M1 to M8) is 0.2. The same measurement and recoding frequency as well as the accuracy apply for the meters at La Confluencia hydro power plant (M1HLC
+and M2HLC).
+Data Quality Control
+The procedure “Validation of meters’ data and monthly energy assignment for invoicing to the La Higuera hydro power project and La Confluencia hydro
+power project” ensures quality of the data measured at the grid injection point.
+As a quality control procedure of the monitored data in the meters of Tinguiririca Substation (M5 and M6 in the Figure 2, which represents the electricity
+injection point to the grid where electricity from La Higuera hydro power project and La Confluencia hydro power project are provided), the monitored data
+is cross checked against the total of the data measured at the meters installed at the La Higuera Substation (M3+M4+M7+M8). In case of any inconsistency
+detected in the monitored data, wrong data or missing data will be completed as described in the same procedure.
+Emergency Procedures
+Failures of electricity metering at Tinguiririca substation:
+In case of any failure on the data recording of Tinguiririca substation electricity meters (owned by Transelec) the generation data of the project at the injection
+point should be obtained by using the electricity measured at La Higuera substation with meters M3 + M4 (as in Figure 2) and deducting the typical average
+value of transmission losses in the La Higuera substation - Tinguiririca substation. This typical average value for transmission losses will be obtained based
+on previous records of the measurements at Tinguiririca substation and La Higuera substation, as is described in the procedure “Validation of meters’ data
+and monthly energy assignment for invoicing to the La Higuera hydro power project and La Confluencia hydro power project”.
+Failures of electricity metering at La Higuera substation:
+In case of metering failures of all the meters at La Higuera substation (M3, M4, M7 and M8)from Figure 2, while La Confluencia hydro power plant is
+operating, the following formula should be used in order to estimate electricity produced by La Higuera hydro power project:
+EGy = (M1+M2) - [(M1 +M2) + (M1HLC+M2HLC) – (M5 + M6)] / 2 (8)
+Where,
+
+Page 37
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page37
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+M5 + M6 = Represents the total amount of electricity measured in the electricity meter located at Tinguiririca substation that has been
+supplied by La Higuera and La Confluencia hydro power projects.
+M1 + M2 = Represents the total amount of electricity measured at the generator terminals of La Higuera hydro power plant.
+M1HLC + M2HLC = Represents the total amount of electricity measured at the generator terminals of La Confluencia hydro power plant.
+In case of metering failures at one of the meters M3, M4, M7 or M8, or one of the pairs of meters M3 and M4 or M7 and M8, from Figure 2 located at La
+Higuera substation, the following formula should be used in order to estimate missing data from failed meters:
+> @ 					 1	(	)	8	7	(	)	4	3	(	)	6	5	( M	M	M	M	M	M TL from HLH to TinSS) (9)
+Where,
+M5 + M6 = Represents the total amount of electricity measured in the electricity meter located at Tinguiririca substation that has been
+supplied by La Higuera and La Confluencia hydro power projects.
+M3 + M4 = Represents the electricity provided by La Higuera hydro power project and measured in the electricity meters located at La
+Higuera substation.
+M7 + M8 = Represents the electricity provided by La Confluencia hydro power project and measured in the electricity meters located at
+La Higuera substation.
+TL from HLH to TinSS = Transmission losses from La Higuera substation to Tinguiririca substation.
+The losses are calculated as the total generation at the La Higuera substation less the total injection at Tinguiririca substation, as follows.
+TL = ((M7 + M8) + (M3 + M4)) – (M5 + M6) (10)
+Metering failures in all the main electricity meters outside the ownership control of the project participant (M3-M8):
+Under this scenario, data should be calculated by using data from the electricity meters M1 and M2, located at the terminals of each unit of La Higuera hydro
+power project as needed. One meter is located at the terminals of each generation unit of the power plant connected to the La Higuera substation.
+Transmission and other losses related to each unit should be deducted in order to reconstruct missing data due to the failure of electricity meters located at
+Tinguiririca or La Higuera substation according to the calculation methodology described in the procedure “Validation of meters’ data and monthly Energy
+assignment for invoicing to the La Higuera hydro power project and La Confluencia hydro power project”.
+Any issues related to the Emergency Procedures such as meters failure will be included in the Monitoring Report of the corresponding monitoring period.
+
+Page 38
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page38
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+In case of any difference between the energy generation data obtained from the meters and the one used for billing purposes by the CDEC, the most
+conservative will be used.
+Verification procedures
+The accuracy of all the electricity meters involved in the project activity (as shown in Figure 2: meters from Tinguiririca substation, from La Higuera
+substation and meters connected to the generation units terminals at the powerhouse), are verified every 2 years. The accuracy class of all meters is 0.2.
+The verification and maintenance of the equipment is carried out by a reputed external entity (like Cam, Tecnet, or other companies) according to national
+standards. The verification of the meters which is performed with a 2 years frequency by an external entity consist in comparing the electricity measurements
+by the meter against a standard meter and if the meter presents an error on measurements results, then it is repaired or replaced if necessary. The external
+entity issues a certificate of the meter verification. These meters do not need to be calibrated periodically, they were calibrated by the manufacturer and are
+periodically verified, thus if the equipment has any measurement problem, it will be repaired or replaced.
+Any failure of the monitoring equipment will be reported to the Lead of Generation, to coordinate the repair of the equipment.
+D.3. Quality control (QC) and quality assurance (QA) procedures are being undertaken for data monitored
+Data
+(Indicate table and
+ID number e.g. 3.-1.;
+3.2.)
+Uncertainty level of data
+(High/Medium/Low)
+Explain QA/QC procedures planned for these data, or why such procedures are not necessary
+1. EGy Low
+These data will be directly used for calculation of emission reductions. Sales record to the grid and
+other records are used to ensure the consistency. EGy will be obtained from equation 7 and will be
+crosschecked with the measurements from M1 and M2, to ensure the conservative criteria. The
+resulting value of equation 7, supposed to be always less than the measurements of the meters M1
+and M2. Please, also refer to procedures explained under D.2.4
+1.1 M5 Low The meter M5 have a 0.2 accuracy class and verification frequency every 2 years.
+1.2 M6 Low The meter M6 have a 0.2 accuracy class and verification frequency every 2 years.
+1.3 M3 Low The meter M3 have a 0.2 accuracy class and verification frequency every 2 years.
+1.4 M4 Low The meter M4 have a 0.2 accuracy class and verification frequency every 2 years.
+1.5 M7 Low The meter M7 have a 0.2 accuracy class and verification frequency every 2 years.
+1.6 M8 Low The meter M8 have a 0.2 accuracy class and verification frequency every 2 years.
+1.7 M1 Low The meter M1 have a 0.2 accuracy class and verification frequency every 2 years.
+1.8 M2 Low The meter M2 have a 0.2 accuracy class and verification frequency every 2 years.
+2. EFy Low N/A since this parameter is calculated with data inputs obtained from official and reliable sources.
+3. EFOM,y Low N/A since this parameter is calculated with data inputs obtained from official and reliable sources.
+
+Page 39
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page39
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+4. EFBM,y Low N/A since this parameter is calculated with data inputs obtained from official and reliable sources.
+5. Fi, y Low Data is obtained from official and reliable source reported by CDEC-SIC. Therefore QA/QC
+procedure is not considered to be necessary.
+6. COEFi Low N/A since this parameter is calculated with data inputs obtained from official and reliable sources.
+7. GENj/k,y Low Data is obtained from official CDEC-SIC and CNE databases.
+8. Plant name OM Low N/A since this parameter is obtained from official and reliable sources.
+9. Plant name BM Low N/A since this parameter is obtained from official and reliable sources.
+10.Ȝy Low N/A since this parameter is calculated with data inputs obtained from official and reliable sources.
+11a. GENj/k/ll,y IMPORTS Low N/A, in case that imports occurs, data will be obtained directly from reliable and official local
+source.
+11b. COEFi,j y IMPORTS Low N/A, in case that imports occurs, data will be obtained directly from reliable and official local
+source.
+12. NCVi Low
+Data is calculated from the Gross Calorific Value obtained from a local reliable source: The
+National Energy Balance published by CNE each year. The Gross Calorific Value is then converted
+into NCV with an approach proposed by the IPCC 2006 guidelines as specified in section D.2.1.1 of
+the PDD. If such local data (CNE source) are not available or if CNE local data is find to be not
+reliable (i.e. important variations for a specific year reported NCV value respect the historical
+average of NCV values published by the same source) for certain monitoring periods during the
+crediting period, the IPCC default values at the lower limit of the uncertainty at a 95% confidence
+interval as provided in Table 1.2 of Chapter 1 of Vol. 2 (Energy) of the 2006 IPCC Guidelines on
+National GHG Inventories would be applied instead. It will be considered as a not reliable data
+when data values obtained from the CNE (local source) represents more than a 20% of variation
+respect the average values of historical data published by the same source (data values to be used
+will be compared against data published from previous years by the National Energy Balance),
+13. OXIDi Low
+Data is obtained from Chapter1 of Vol. 2 (Energy) of the 2006 IPCC Guidelines on National GHG
+Inventories (these are the most conservative values). Any future revision of the IPCC Guidelines
+should be taken into account.
+14. EFCO2,i Low
+Data consist in the IPCC default values at the lower limit of the uncertainty at a 95% confidence
+interval as provided in Chapter1 of Vol. 2 (Energy) of the 2006 IPCC Guidelines on National GHG
+Inventories (these are the most conservative values). Any future revision of the IPCC Guidelines
+should be taken into account.
+15. Hours of operation Low This data is obtained directly from the meters at each gen-set and are can be deemed to be very
+accurate.
+16. Fuel Consumption
+(FCi) Low Based on parameters 15 and 19 which can be deemed to be very accurate.
+
+Page 40
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page40
+This template shall not be altered. It shall be completed without modifying/adding headings or logo, format or font.
+17. Net calorific value
+(NCVgen-set) Low
+Data is obtained from Chapter1 of Vol. 2 (Energy) of the 2006 IPCC Guidelines on National GHG
+Inventories (these are the most conservative values). Any future revision of the IPCC Guidelines
+should be taken into account.
+18. Emission factor of
+fuel (EFgen-set) Low
+Data is obtained from Chapter1 of Vol. 2 (Energy) of the 2006 IPCC Guidelines on National GHG
+Inventories (these are the most conservative values). Any future revision of the IPCC Guidelines
+should be taken into account.
+19. Spefic diesel
+consumption at full
+load
+Low This data is obtained from manufacturer information and can be deemed to be very accurate.
+Others Low Default data (for emission factors) and IEA statistics (for energy data) are used to check the local
+data.
+D.4. Please describe the operational and management structure that the project operator will implement in order to monitor emission reductions
+and any leakage effects, generated by the project activity.
+>>
+No leakage was identified for this Project activity.
+D.5. Name of person/entity determining the monitoring methodology:
+>>
+The monitoring study was originally concluded in March 2005. The entity determining the baseline as the Carbon Advisor is EcoSecurities Ltd., UK. . The
+monitoring plan was revised in June 2011 by the project proponent with the help of Perspectives GmbH, Germany12.
+Transmission company.
+
+Page 41
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page41
+SECTION E. Estimation of GHG emissions by sources
+E.1. Estimate of GHG emissions by sources:
+>>
+Four diesel gen-sets with a combined installed capacity of 0,801 MW are installed at the power house and
+the intakes. After commissioning, the gen sets have limited operation time, giving estimated emissions of
+460 tCO2 per year.
+Steps to calculate the CO2 emissions from the operating hours as metered through the hourmeter (steps
+refer to the table below):
+1 This value is obtained by multiplying the hours of operation with the Specific fuel consumption
+2 This value is obtained by multiplying the diesel consumption in liters with the conversion factor
+from liters to tonnes of diesel, 0.00085 t/Lt, ref. D.S N°66, Chilean Ministry of the Economy)
+3 This value is obtained by multiplying the Diesel consumption with Diesel NCV (0.0433 TJ/t, ref
+IPCC, higher value at 95% confidence level).
+4 This value is obtained by multiplying Net calorific value of the Diesel consumed with the
+emission factor for diesel (74.8 tCO2/TJ, ref. IPCC, higher value at 95% confidence level)
+Step No.: 1 2 3 4
+Hour-
+meter
+reading
+Specific
+fuel
+consum-
+ption
+Diesel
+consum-
+ption
+Diesel
+consum-
+ption
+Calorific value
+of diesel
+consumed
+Emissions
+from fuel
+i Location MW Hours Lt/hr Lt diesel t diesel TJ tCO2
+1 La Higuera
+Power House 0.599 99 134.0 13,266 11.3 0,5 36.52
+2 Azufre Intake
+Center 0.1 6,215 16.5 102,548 87.2 3,7 282.31
+3 Tinguiririca
+Intake Center 0.08 3,576 14.0 50,064 42.6 1,8 137.83
+4 Los Helados
+Intake Center 0.022 74 14.0 1,036 0.9 0,04 2.85
+460
+E.2. Estimated leakage:
+>>
+No leakage was identified
+E.3. The sum of E.1 and E.2 representing the project activity emissions:
+>>
+460 tCO2 per year
+E.4. Estimated anthropogenic emissions by sources of greenhouse gases of the baseline:
+>>
+
+Page 42
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page42
+Electricity generated emission reduction Per year Crediting Period (7
+years)
+Estimated Simple Adjusted Operating Margin
+Emissions Factor (EF_OMy in tCO2/MWh) 0.640 -
+Build Margin Emissions Factor (EF_BMy in
+tCO2/MWh) 0.361 -
+Baseline Emissions Factor (EFy in tCO2/MWh) 0.501 -
+Electricity generated by Project (EG MWh) 811,000 5,677,000
+Baseline Emissions (BE tCO2) 405,906 2,841,342
+E.5. Difference between E.4 and E.3 representing the emission reductions of the project activity:
+>>
+Given that E.3 is equal to 460 tCO2, the emission reductions of project activity are equal to 405,446 tCO2
+per year.
+E.6. Table providing values obtained when applying formulae above:
+Year
+Estimation project
+activity emissions
+(tonnes of CO2e)
+Estimation of
+baseline emissions
+(tonnes of CO2e)
+Estimation of
+leakage (tonnes
+of CO2e)
+Estimation of emission
+reduction (tonnes of
+CO2e)
+2008 460 405,906 0 405,446
+2009 460 405,906 0 405,446
+2010 460 405,906 0 405,446
+2011 460 405,906 0 405,446.
+2012 460 405,906 0 405,446
+2013 460 405,906 0 405,446
+2014 460 405,906 0 405,446.
+Total (tonnes
+of CO2e) 3,220 2,841,342 0 2,838,122
+Table 6 - Estimation of emissions during the project activity
+
+Page 43
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page43
+SECTION F. Environmental impacts
+F.1. Documentation on the analysis of the environmental impacts, including transboundary
+impacts:
+>>
+The project complies with the specific applicable regulations of the host country in regard to Environment
+Impact Assessment (EIA). The EIA follows the regulations for EIA System set in Chile by the Supreme
+Decree N 30/97 of the Ministry General Secretariat of the Presidency, Regulation for the Environmental
+Impact Assessment System and its modifications set in Supreme Decree N 95/2001, and the Act N 19300
+on the Environmental Framework. The EIA has also passed the IFC regulations for EIA, one of the
+highest standards in the world. La Higuera has received the environmental permit issued by the Chilean
+government and the approval on environmental matter from the IFC.
+The EIA discusses a wide range of environmental impacts related to physical, biotic, human, cultural,
+patrimonial and landscapes impacts during the plant’s construction and operation stages. It identifies the
+risk or contingency zones and the type of risk associated to them. It also discusses a number of corrective
+measures and establishes an environmental management plan to deal with the impacts identified. This
+plan addresses the significant and medium impacts providing measures for their mitigation, restoration or
+compensation.
+There are twelve positive impacts identified with effects on the human environment and the
+socialeconomic development of the District of San Fernando, where the project is located. The project
+will allow the generation of clean energy for the region displacing electricity generated from fuel-based
+power plants. Furthermore, it is going to generate benefits in the form of climate change mitigation.
+F.2. If environmental impacts are considered significant by the project participants or the hosts
+Party, please provide conclusions and all references to support documentation of an environmental
+impact assessment undertaken in accordance with the procedures as required by the host Party:
+>>
+During the construction and operation stage, the only significant impact it is related to the loss of habitat
+for the aquatic fauna and flora. The environmental management plan establishes the measures undertaken
+to mitigate or compensate the impact. Furthermore, four medium impacts were identified and mitigation
+measures will be implemented in order to avoid any erosive process and alteration of the landscape after
+the construction stage.
+
+Page 44
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page44
+SECTION G. Stakeholders’ comments
+G.1. Brief description how comments by local stakeholders have been invited and compiled:
+>>
+According to the Chilean Environmental Law, a project of the size and characteristics of La Higuera is
+required to develop an Environmental Impact Study (EIS). La Higuera carried out the EIS between
+December 2001 and December 2003, with the obligation to carry public community consultations through
+publications in local newspapers and public hearings at a community level.
+The public hearings were done with the local authorities and the local community. More than 100 people
+attended the presentation. Many of them were representatives of local interested groups. Both events took
+place in San Fernando, VI Region, in March 16, 2004.
+1. Local authorities: More than 15 different authorities were present, including all relevant services
+dealing with the environmental and sectoral authorizations of the project. The presentation was done in 2
+steps. One related to the technical and environmental aspect of the project and the second one related to
+the CDM characteristics of the project.
+2. Local community: in accordance with the EIS procedure, the community was invited by the
+environmental authorities at a gathering, in which the project developer would present the major
+characteristics of the project.
+G.2. Summary of the comments received:
+>>
+Local authorities: Questions were raised related to the road conditions and how the project would benefit
+the community. With respect to more work places and environmental conditions, all comments were
+positive, recognizing the benefits for the community of the project and the low impact on the
+environment.
+With respect to the CDM aspect of the presentation, the authorities present showed a lot of interest,
+asking for more details related to this topic, especially with respect to the procedures and applicability
+conditions.
+Local community: With respect to the technical and environmental aspects of the presentation, similar
+questions and comments were raised, as in the previous presentation. In relation to the CDM aspects, not
+big interested was shown by the audience, except for one question that questioned the emission reduction
+of the project by emphasizing that regardless of this project, no future thermal plants are going to be
+displaced due to the constant increase in energy needs.
+G.3. Report on how due account was taken of any comments received:
+>>
+Although no major issues were raised that could be related to the environmental or CDM aspect of the
+project, all comments and questions were duly taken into account by the project developer. The main
+concern of the community was related to the improvements of roads, concern that the project developer
+resolved by a private agreement with the local authorities. All other technical and environmental aspects
+were resolved at the EIS and approved by the environmental authorities.
+
+Page 45
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page45
+Annex 1
+CONTACT INFORMATION ON PARTICIPANTS IN THE PROJECT ACTIVITY
+
+Page 46
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page46
+Annex 2
+INFORMATION REGARDING PUBLIC FUNDING
+There is no public funding used in this project.
+
+Page 47
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page47
+Annex 3
+BASELINE INFORMATION
+EX-ANTE SIMPLE ADJUSTED OM EMISSION FACTOR
+The following tables summarize the input data values used for the Simple adjusted OM Calculation for
+2010:
+Table 1. Factors of Oxidation, CO2 emission and Net Calorific Value used for COEFi estimation:
+Fuel type i OXIDi EFCO2,i tCO2/GJ
+NCVi
+(GJ/kg;GJ/m3 for
+Natural Gas)
+COEFi
+(tonnesCO2/kg or
+tonnesCO2/m3 for
+gas fuels)
+Coal 1 0.08950 0.02784 0.002491879
+Diesel 1 0.07260 0.04335 0.003147523
+Natural Gas 1 0.05430 0.03520 0.001911252
+Liquified Natural
+Gas
+1
+0.05430 0.03520 0.001911252
+IFO 180 1 0.07550 0.04176 0.003153131
+Table 2. Fossil fuel consumption
+Fuel Type i Unit Fuel consumption
+Coal Kg/year 3,250,840,000
+Diesel Kg/year 845,090,000
+IFO 180 Kg/year 620,000
+Liquified Natural Gas m3/year 1,144,250,000
+Natural Gas m3/year 266,330,000
+Table 3. Electricity generation per source
+Source Generation
+(MWh/year)
+Coal 8,768,895
+Biomass 765,421
+Biogas 7,649
+Diesel 4,624,949
+Hydro (reservoir) 13,207,626
+Hydro (run off river) 7,982,898
+IFO 180 1,069
+Liquified Natural Gas 5,867,171
+Natural Gas 495,378
+Wind 318,519
+no data about the source* 1,153,500
+Total (including CDM power units) 43,193,074
+Electricity Generated by CDM power units 1,919,407
+TOTAL electricity considered in OM
+calculation (excluding CDM power units) 41,273,667
+
+Page 48
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page48
+*If for a power plant there is no data about the energy source then as a conservative approach it is
+considered as a “j” (fossil fuel) source with an emission factor equal to 0. Electricity produced by
+power units from registered CDM project activities were excluded from the OM calculation.
+Table 4. EFOM,simple-adjusted,y calculation
+Parameter Unit Value
+Low-cost/must-run sources electricity generation MWh/year 20,369,505
+Lamda (Ȝ2010) % 0.005594
+Hours of the year when low cost mus trun are on the margin Hours 49
+¦ Fi,j,y * COEFi,j /¦ GENj,y tCO2/MWh 0.643821
+¦ Fi,k,y * COEFi,k /¦ GENk,y tCO2/MWh 0.000000
+EFOM,simple-adjusted,y tCO2/MWh 0.640220
+Table 1 Lamda curve
+BUILD MARGIN CALCULATIONS FOR LA HIGUERA HYDRO
+From the ACM0002 the build margin calculation is defined as:
+Option 1. Calculate the Build Margin emission factor EFBM,y ex ante based on the most recent
+information available on plants already built for sample group m at the time of PDD submission.
+The sample group m consists of either:
+• the five power plants that have been built most recently, or
+• the power plants capacity additions in the electricity system that comprise 20% of the system
+generation (in MWh) and that have been built most recently.
+Project participants should use from these two options that sample group that comprises the larger
+annual generation.
+0.00
+1,000.00
+2,000.00
+3,000.00
+4,000.00
+5,000.00
+6,000.00
+7,000.00
+1
+400
+799
+1198
+1597
+1996
+2395
+2794
+3193
+3592
+3991
+4390
+4789
+5188
+5587
+5986
+6385
+6784
+7183
+7582
+7981
+8380
+MWh
+Hours of the year
+Load Duration Curve 2010
+LC/MR Generation
+Series1
+
+Page 49
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page49
+In the SIC network, 20% of annual generation is approximately 7,000,000MWh. Using the above
+methodology the build margin will be calculated using the most recent available data for the past 12
+months (Dec 2003 to November 2004) and estimation of annual energy generation where complete data is
+not yet available. The results for this calculation are shown in the table below
+Table 5 - Data used to calculate the build margin
+
+Page 50
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page50
+Annex 4
+MONITORING PLAN
+Backup gen-sets
+There are four diesel gen-sets as a backup system which will provide electricity to the essential
+consumption and auxiliary services. The largest gen-set is located in the Power House fuelled by an
+external tank of 3000 liter diesel. The other gen-set are located in the intakes centre and they are mainly
+used for the management of the gates of the intakes.
+The gen-sets will operate in case of emergencies, when power system maintenance (lines and substations)
+is on-going and in case energy from the SIC (grid) is not available.
+The gen-set in Power House can provide enough energy for a black start of one unit allowing the start-up
+of the other one and then recover the sub-system. This capability is called autonomous start-up.
+It is expected that the operational cases are going to be very specific and sporadic, since, maintenance are
+scheduled carefully in advance and the external grid is very stable; hence this black start (after a black
+out) are uncommon.
+It is a common practice of the O&M team to have records of maintenance and operation of all plant
+equipment including the gen-sets.
+The gen-sets will serve as back up. These gen-sets will run in case of emergencies and if there is a total
+power outage in the plant.
+The features of each gen-sets are:
+The gen-sets with 0.599 MW, 0.080 MW, 0.100 MW and 0.022 MW of installed capacity, will only be
+used for that specific purpose and will not supply power to the grid. The gen-sets have been used in the
+past for the construction of the plant and it is expect that during plant operation, these will be used only in
+emergencies. It is estimated that their emissions in normal operation of the power plant will be well below
+1% of the average emission reduction of the project activity Nevertheless, La Higuera will use the
+hourmeters of the gen-sets to monitor the use of the engines . Related emissions will be considered in the
+monitoring reports.
+Emissions of each gen-set is obtained through the calculation of excise duties and the calorific value of
+the diesel that deals with each one. The default values of NCV and Emission factor of the diesel will be
+derived from the IPCC, higher value at 95% confidence level.
+Mark Model Serial number Place Power
+Stand-by i Voltage
+Fre-
+quenc
+y
+Speed
+Battistella MAQ51P
+27A 1464001 Power House 599kVA 1 380/220V 50 Hz 1500
+rpm
+Lureye J110K J110K09013646 Azufre Intake
+Center 100kVA 2 400V 50 Hz 1500
+rpm
+Lureye J88K J88K09000807 Tinguiririca
+Intake Center 80kVA 3 380/220V 50 Hz 1500
+rpm
+Olympian GEP22-4 OLY00000KD4J
+04648
+Los Helados
+Intake Center 22kVA 4 380/220V 50 Hz 1500
+rpm
+
+Page 51
+PROJECT DESIGN DOCUMENT FORM (CDM PDD) - Version 02
+CDM – Executive Board page51
+In case of a failure of the hour meters and/or in the absence of sufficient data recording it is assumed for
+such periods that the gen-sets have been operated continuously at full load as a conservative approach but
+capped to the maximum possible operating hours according to available and proper meter readings.

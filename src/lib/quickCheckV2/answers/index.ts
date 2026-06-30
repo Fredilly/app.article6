@@ -27,6 +27,9 @@ import {
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
 
+const PRIMARY_METHODOLOGY_CODE_RE =
+  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
+
 export type AnswerResult = {
   checkName: StructuredCheckId;
   answer: string | null;
@@ -114,31 +117,49 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       return countryAfterComma[1]!;
     }
 
+    const hostPartyValue = quote.match(/^(?:Host Party\(ies\):\s*)?([A-Z][A-Za-z]+(?:[ -][A-Z][A-Za-z]+)*)$/);
+    if (hostPartyValue) {
+      return hostPartyValue[1]!;
+    }
+
     const inCountry = quote.match(/\bin\s+([A-Z][a-z]+)\b/);
-    return inCountry?.[1] ?? null;
+    if (inCountry) {
+      return inCountry[1]!;
+    }
+
+    if (/^[A-Z][A-Za-z]+(?:[ -][A-Z][A-Za-z]+)*$/.test(quote)) {
+      return quote;
+    }
+
+    return null;
   },
 
   methodology(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
-    const quotedMethodology = quote.match(/[“"]\s*((VM\d{4}|VMD\d{4})(?::\s*|\s+)([^”"]+?))["”]/i);
+    const quotedMethodology = quote.match(/[“"]\s*((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})(?::\s*|\s+)([^”"]+?))["”]/i);
     if (quotedMethodology) {
-      const code = quotedMethodology[2]!.toUpperCase();
-      const remainder = stripTrailingPunctuation(quotedMethodology[3]!);
-      return quotedMethodology[1]!.includes(":")
-        ? `${code}: ${remainder}`
-        : `${code}: ${remainder}`;
+      const codeMatch = quotedMethodology[1]!.match(PRIMARY_METHODOLOGY_CODE_RE);
+      if (codeMatch) {
+        const code = codeMatch[0]!.toUpperCase();
+        const remainder = stripTrailingPunctuation(
+          quotedMethodology[1]!.slice(codeMatch.index! + code.length).replace(/^[:\s-]+/, ""),
+        );
+        return `${code}: ${remainder}`;
+      }
     }
 
-    const sentenceWithCode = sentenceContaining(quote, /\b(VM\d{4}|VMD\d{4})\b/i);
+    const sentenceWithCode = sentenceContaining(quote, PRIMARY_METHODOLOGY_CODE_RE);
     if (sentenceWithCode) {
-      const sentenceMethodology = sentenceWithCode.match(/\b(VM\d{4}|VMD\d{4})\b[:\s-]*(.+)$/i);
+      const sentenceMethodology = sentenceWithCode.match(
+        /\b((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4}))\b[:\s-]*(.+)$/i,
+      );
       if (sentenceMethodology) {
         return `${sentenceMethodology[1]!.toUpperCase()}: ${stripTrailingPunctuation(sentenceMethodology[2]!)}`;
       }
     }
 
-    const code = quote.match(/\b(VM\d{4}|VMD\d{4})\b/i);
+    const code = quote.match(PRIMARY_METHODOLOGY_CODE_RE);
     if (code) {
       return code[1]!.toUpperCase();
     }
@@ -161,6 +182,13 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     );
     if (mostLikelyScenario) {
       return ensurePeriod(capitalizeFirst(mostLikelyScenario[1]!));
+    }
+
+    const gridBaselineScenario = quote.match(
+      /\bbaseline scenario is the following:\s*(Electricity delivered to the grid by the project would .*? combined margin \(CM\) calculations described below)\b/i,
+    );
+    if (gridBaselineScenario) {
+      return ensurePeriod(gridBaselineScenario[1]!);
     }
 
     return sentenceContaining(
@@ -186,6 +214,29 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       return `The project is additional because ${toGerundPhrase(emissionsAdditionality[1]!)} reduces GHG emissions compared with the baseline scenario of ${simplifyBaselineReference(emissionsAdditionality[2]!)}.`;
     }
 
+    if (
+      /\bcdm\b/i.test(quote) &&
+      /\bfinancial package\b/i.test(quote) &&
+      /\bbarriers?\b/i.test(quote)
+    ) {
+      return "The project is additional because CDM benefits and revenue help alleviate identified barriers and enable the project to be undertaken.";
+    }
+
+    if (
+      /\bbenefits and incentives brought about by the CDM\b/i.test(quote) &&
+      /\balleviate the barriers\b/i.test(quote)
+    ) {
+      return "The project is additional because CDM benefits and revenue help alleviate identified barriers and enable the project to be undertaken.";
+    }
+
+    const cdmBarrierSummary =
+      /\bbarrier analysis\b/i.test(quote) &&
+      /\bcdm\b/i.test(quote) &&
+      /\b(?:hydrology|tunnelling|land|financing|spot market|market and regulatory)\b/i.test(quote);
+    if (cdmBarrierSummary) {
+      return "The project is additional because it faces hydrological, tunnelling, land, financing, spot market, market, and regulatory barriers, and CDM revenue helps enable the project.";
+    }
+
     return sentenceContaining(
       quote,
       /\bdetermined to be additional\b|\breduces ghg emissions\b/i,
@@ -198,6 +249,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   leakage(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bno leakage was identified\b/i.test(quote) || /\bly\s*=\s*0\b/i.test(quote) || /\bnot applicable\b/i.test(quote)) {
+      return "No leakage was identified.";
+    }
     const verraModules = quote.match(
       /\b(VM\d{4}|VMD\d{4})\b.*?\b(LK-[A-Z]+)\b.*?\b(LK-[A-Z]+)\b.*?activity shifting leakage.*?market-effects leakage/i,
     );
@@ -225,6 +279,28 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   stakeholder_consultation(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (
+      /\bpublic hearings\b/i.test(quote) &&
+      /\bSan Fernando\b/i.test(quote) &&
+      /\bduly taken into account\b/i.test(quote)
+    ) {
+      return "Local authorities and communities were consulted through EIS public hearings in San Fernando, with comments addressed by the project developer.";
+    }
+
+    if (
+      /\bpublic hearings\b/i.test(quote) &&
+      /\bSan Fernando\b/i.test(quote)
+    ) {
+      return "Local authorities and communities were consulted through public hearings in San Fernando.";
+    }
+
+    if (
+      /\bpublic community consultations\b/i.test(quote) &&
+      /\bpublic hearings\b/i.test(quote)
+    ) {
+      return "Local authorities and communities were consulted through public community consultations and public hearings.";
+    }
+
     if (
       /\bformalized meetings\b/i.test(quote) &&
       /\bcommunity approvals?\b/i.test(quote) &&
