@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
-import { extractAnswersForAllChecks, type AnswerResult } from "@/lib/quickCheckV2/answers";
+import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
 import {
   loadAndParseExtractedText,
   type RetrievedEvidence,
@@ -27,7 +27,24 @@ type GoldRecord = {
   reason: string | null;
 };
 
-type GoldComparableRecord = Omit<GoldRecord, "expectedAnswer">;
+/**
+ * A full snapshot of pipeline output for one check, including the answer.
+ * This is used for gold comparison — unlike GoldComparableRecord (which
+ * strips expectedAnswer), this keeps answer so that answer regressions
+ * in extractAnswersForAllChecks() are caught.
+ */
+type PipelineSnapshot = {
+  checkName: StructuredCheckId;
+  expectedStatus: "FOUND" | "UNCLEAR" | "MISSING";
+  answer: string | null;
+  goldQuote: string | null;
+  page: number;
+  sectionHeading: string | null;
+  sectionPath: string[];
+  spanId: string;
+  sourceType: "fact_contract" | "exact_section" | "raw_text_fallback";
+  reason: string | null;
+};
 
 function loadGoldFixture(): GoldRecord[] {
   return JSON.parse(
@@ -35,12 +52,14 @@ function loadGoldFixture(): GoldRecord[] {
   ) as GoldRecord[];
 }
 
-function toGoldComparableRecord(
-  result: ReturnType<typeof validateAnswerResult>,
-): GoldComparableRecord {
+/** Build a PipelineSnapshot from a StatusResult, preserving the answer. */
+function toPipelineSnapshot(
+  result: StatusResult,
+): PipelineSnapshot {
   return {
     checkName: result.checkName,
     expectedStatus: result.status,
+    answer: result.answer,
     goldQuote: result.evidence?.quote ?? null,
     page: result.evidence?.page ?? 0,
     sectionHeading: result.evidence?.sectionHeading ?? null,
@@ -51,21 +70,19 @@ function toGoldComparableRecord(
   };
 }
 
-function makeAnswerResult(
-  overrides: Partial<AnswerResult>,
-): AnswerResult {
+/** Convert a GoldRecord to a PipelineSnapshot for comparison, mapping expectedAnswer → answer. */
+function goldRecordToSnapshot(record: GoldRecord): PipelineSnapshot {
   return {
-    checkName: "additionality",
-    answer: "Additionality is demonstrated.",
-    evidence: {
-      sourceType: "exact_section",
-      quote: "Additionality is demonstrated.",
-      page: 38,
-      sectionHeading: "Additionality",
-      sectionPath: ["2", "2.5"],
-      spanId: "synthetic-doc:p38:b0:add",
-    },
-    ...overrides,
+    checkName: record.checkName,
+    expectedStatus: record.expectedStatus,
+    answer: record.expectedAnswer,
+    goldQuote: record.goldQuote,
+    page: record.page,
+    sectionHeading: record.sectionHeading,
+    sectionPath: record.sectionPath,
+    spanId: record.spanId,
+    sourceType: record.sourceType,
+    reason: record.reason,
   };
 }
 
@@ -75,13 +92,18 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
   const answers = extractAnswersForAllChecks(document);
   const statuses = validateAnswerResults(answers);
 
-  it("matches the ISS gold fixture across the v2 retrieval and status pipeline", () => {
-    expect(statuses.map(toGoldComparableRecord)).toStrictEqual(
-      goldFixture.map(({ expectedAnswer: _expectedAnswer, ...record }) => record),
+  it("matches the ISS gold fixture across the v2 retrieval, answer extraction, and status pipeline", () => {
+    // This is the primary enforcement test.
+    // It compares status + evidence + answer against gold, so a regression
+    // in any layer (evidence retrieval, answer extraction, status validation)
+    // is caught. This was the gap in the original fixture — expectedAnswer
+    // was stripped from the comparison.
+    expect(statuses.map(toPipelineSnapshot)).toStrictEqual(
+      goldFixture.map(goldRecordToSnapshot),
     );
   });
 
-  it("keeps curated null expected answers for most ISS checks, one UNCLEAR for additionality", () => {
+  it("all six ISS checks have correct expected answers in gold fixture", () => {
     expect(goldFixture.map((record) => ({
       checkName: record.checkName,
       expectedAnswer: record.expectedAnswer,
@@ -96,9 +118,9 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
   });
 
   it("additionality returns UNCLEAR (not FOUND) for the legal 'additional' boilerplate", () => {
-    // This is the key failure mode: the word "additional" appears in legal boilerplate
-    // ("an additional 12 months"), NOT as a project additionality claim.
-    // The raw-text fallback picks it up but the status validator correctly downgrades
+    // The word "additional" appears in legal boilerplate: "an additional
+    // 12 months" — NOT as a project additionality claim. The raw-text
+    // fallback picks it up but the status validator correctly downgrades
     // it to UNCLEAR because it's fallback evidence only.
     const additionality: StatusResult | undefined = statuses.find(
       (result: StatusResult) => result.checkName === "additionality",
@@ -106,6 +128,10 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
     expect(additionality?.status).toBe("UNCLEAR");
     expect(additionality?.reason).toBe("fallback_evidence_only");
     expect(additionality?.evidence?.sourceType).toBe("raw_text_fallback");
+    // The answer must match gold exactly — not change on regressions
+    expect(additionality?.answer).toBe(
+      "if the second Verification Report shows a VCU has been erroneously issued Verra will have an additional 12",
+    );
   });
 
   it("five of six checks correctly return MISSING for this non-PDD document", () => {
@@ -122,79 +148,63 @@ describe("Quick Check v2 — ISS issuance deed gold fixture", () => {
     const host: StatusResult | undefined = statuses.find((s: StatusResult) => s.checkName === "host_country");
     expect(host?.status).toBe("MISSING");
     expect(host?.reason).toBe("evidence_missing");
+    expect(host?.answer).toBeNull();
   });
 
   it("methodology returns MISSING — no methodology named in the deed", () => {
     const meth: StatusResult | undefined = statuses.find((s: StatusResult) => s.checkName === "methodology");
     expect(meth?.status).toBe("MISSING");
     expect(meth?.reason).toBe("evidence_missing");
+    expect(meth?.answer).toBeNull();
   });
 
   it("baseline_scenario returns MISSING — no baseline determination in legal confirmation", () => {
     const base: StatusResult | undefined = statuses.find((s: StatusResult) => s.checkName === "baseline_scenario");
     expect(base?.status).toBe("MISSING");
     expect(base?.reason).toBe("evidence_missing");
+    expect(base?.answer).toBeNull();
   });
 
   it("leakage returns MISSING — no leakage section in the deed", () => {
     const leak: StatusResult | undefined = statuses.find((s: StatusResult) => s.checkName === "leakage");
     expect(leak?.status).toBe("MISSING");
     expect(leak?.reason).toBe("evidence_missing");
+    expect(leak?.answer).toBeNull();
   });
 
   it("stakeholder_consultation returns MISSING — no stakeholder section in the deed", () => {
     const stak: StatusResult | undefined = statuses.find((s: StatusResult) => s.checkName === "stakeholder_consultation");
     expect(stak?.status).toBe("MISSING");
     expect(stak?.reason).toBe("evidence_missing");
+    expect(stak?.answer).toBeNull();
   });
 
   it("returns UNCLEAR when answer provenance is incomplete", () => {
-    const result = validateAnswerResult(
-      makeAnswerResult({
-        evidence: {
-          sourceType: "exact_section",
-          quote: "Additionality is demonstrated.",
-          page: 0,
-          sectionHeading: null,
-          sectionPath: [],
-          spanId: "",
-        } as RetrievedEvidence,
-      }),
-    );
+    const result = validateAnswerResult({
+      checkName: "additionality",
+      answer: "Additionality is demonstrated.",
+      evidence: {
+        sourceType: "exact_section",
+        quote: "Additionality is demonstrated.",
+        page: 0,
+        sectionHeading: null,
+        sectionPath: [],
+        spanId: "",
+      } as RetrievedEvidence,
+    });
 
     expect(result.status).toBe("UNCLEAR");
     expect(result.reason).toBe("provenance_incomplete");
   });
 
   it("returns MISSING when evidence is null", () => {
-    const result = validateAnswerResult(
-      makeAnswerResult({
-        answer: null,
-        evidence: null,
-      }),
-    );
+    const result = validateAnswerResult({
+      checkName: "additionality",
+      answer: null,
+      evidence: null,
+    });
 
     expect(result.status).toBe("MISSING");
     expect(result.reason).toBe("evidence_missing");
-  });
-
-  it("does not allow raw-text fallback evidence to become FOUND for ISS documents", () => {
-    const result = validateAnswerResult(
-      makeAnswerResult({
-        evidence: {
-          sourceType: "raw_text_fallback",
-          quote: "Verra will have an additional 12 months",
-          page: 1,
-          sectionHeading: null,
-          sectionPath: [],
-          spanId: "iss-rep:p1:b193:2de6cc71",
-        },
-      }),
-    );
-
-    expect(result.status).toBe("UNCLEAR");
-    // The status validator downgrades raw-text fallback answers
-    // but the specific reason depends on whether section/path is empty
-    // The important invariant: it should NEVER be FOUND
   });
 });
