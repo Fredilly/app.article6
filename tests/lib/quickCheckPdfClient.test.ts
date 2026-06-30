@@ -203,4 +203,38 @@ describe("quick check pdf client", () => {
     expect(result.text).toBe("Small file text");
     expect(result.pdfRef).toBe("legacy-token");
   });
+
+  it("reconstructs page-marked text from the runtime extraction response shape", async () => {
+    global.fetch = jest.fn(async () =>
+      new Response(
+        JSON.stringify({
+          text: "Flattened text that should not be trusted over pages",
+          pages: [
+            { pageNumber: 1, text: "Project Description / PD" },
+            { pageNumber: 2, text: "2.5 Additionality\nThe project activity is additional." },
+          ],
+          engine: "pdf-parse",
+          metadata: {
+            parser: "pdf-parse",
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await resolveQuickCheckPdfText({
+      bytes: makePdfBytes(5120),
+      filename: "runtime-shape.pdf",
+    });
+
+    expect(result.engine).toBe("pdf-parse");
+    expect(result.text).toBe([
+      "Page 1",
+      "Project Description / PD",
+      "",
+      "Page 2",
+      "2.5 Additionality",
+      "The project activity is additional.",
+    ].join("\n"));
+    expect(result.text).not.toContain("Flattened text that should not be trusted over pages");
+  });
 });

@@ -1,4 +1,5 @@
 import { extractMethodologyMentions, extractPdfText, type QuickCheckPdfParserDebug, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/quickCheckPdfPages";
 import { formatQuickCheckPdfLimitLabel, type QuickCheckPdfRouteErrorCode } from "@/lib/chat/quickCheckPdfUpload";
 
 /**
@@ -137,6 +138,7 @@ async function handleExtractResponse(
     text?: string;
     engine?: "pdf-parse" | "heuristic";
     pdfRef?: string;
+    pages?: QuickCheckPdfPage[];
     parserAdapterId?: string;
     parserFallbackFrom?: string;
     parserDebug?: QuickCheckPdfParserDebug;
@@ -162,7 +164,11 @@ async function handleExtractResponse(
         ? "No selectable text found in this PDF."
         : RECOVERED_TEXT_WARNING
       : undefined;
-  const serverText = payload.text ?? "";
+  const pageStructuredText =
+    Array.isArray(payload.pages) && payload.pages.length > 0
+      ? formatQuickCheckPdfPages(payload.pages)
+      : "";
+  const serverText = pageStructuredText || (payload.text ?? "");
   const serverMentions = extractMethodologyMentions(serverText);
   const shouldRecoverTextLocally =
     !serverText.trim() &&

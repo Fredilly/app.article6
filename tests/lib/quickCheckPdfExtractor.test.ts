@@ -98,7 +98,13 @@ describe("quick check pdf-parse extractor", () => {
       { pageNumber: 1, text: "Page one text" },
       { pageNumber: 2, text: "Page two text" },
     ]);
-    expect(result.text).toBe("Page one text\n\nPage two text");
+    expect(result.text).toBe([
+      "Page 1",
+      "Page one text",
+      "",
+      "Page 2",
+      "Page two text",
+    ].join("\n"));
     expect(result.metadata.diagnostics).toEqual(expect.objectContaining({
       parserPath: "provided-parser",
       pageExtractionAttempted: true,
@@ -201,9 +207,11 @@ describe("quick check pdf-parse extractor", () => {
     });
 
     expect(result.text).toBe([
+      "Page 1",
       "2.1 Project Goals, Design and Long-Term Viability",
       "Project goals body.",
       "",
+      "Page 2",
       "2.2 Without-project Land Use Scenario and Additionality",
       "Additionality body.",
     ].join("\n"));

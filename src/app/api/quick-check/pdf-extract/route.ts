@@ -6,7 +6,11 @@ import os from "os";
 import { execFileSync } from "child_process";
 import { NextResponse } from "next/server";
 import { extractPdfText } from "@/lib/chat/quickCheckEvidence";
-import { extractPdfTextWithPdfParse, type PdfExtractionDiagnostics } from "@/lib/chat/quickCheckPdfExtractor";
+import {
+  extractPdfPagesWithPdfParse,
+  type PdfExtractionDiagnostics,
+} from "@/lib/chat/quickCheckPdfExtractor";
+import { formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { uploadPdfToBlob, isBlobUrl, downloadBlobToTemp } from "@/lib/chat/quickCheckPdfBlob";
@@ -127,12 +131,14 @@ async function extractAndRespond(
   let diagnostics: PdfExtractionDiagnostics | undefined;
 
   try {
-    const extraction = await extractPdfTextWithPdfParse({ bytes });
+    const extraction = await extractPdfPagesWithPdfParse({ bytes });
     diagnostics = extraction.metadata.diagnostics;
-    if (extraction.text.trim().length > 0) {
+    const structuredText = formatQuickCheckPdfPages(extraction.pages);
+    if (structuredText.trim().length > 0) {
       const parserDebug = buildParserDebug();
       return qcJson({
-        text: extraction.text,
+        text: structuredText,
+        pages: extraction.pages,
         engine: extraction.engine,
         metadata: extraction.metadata,
         pdfRef,
