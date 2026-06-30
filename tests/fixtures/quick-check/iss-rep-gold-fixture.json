@@ -1,0 +1,74 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": 0,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": "",
+    "sourceType": "fact_contract",
+    "reason": "evidence_missing"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": 0,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": "",
+    "sourceType": "fact_contract",
+    "reason": "evidence_missing"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": 0,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": "",
+    "sourceType": "fact_contract",
+    "reason": "evidence_missing"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "if the second Verification Report shows a VCU has been erroneously issued Verra will have an additional 12",
+    "goldQuote": "if the second Verification Report shows a VCU has been erroneously issued Verra will have an additional 12",
+    "page": 1,
+    "sectionHeading": "months after the date upon which any second Verification Report with respect to",
+    "sectionPath": ["12"],
+    "spanId": "iss-rep-1530-extracted:p1:b193:31795e3e",
+    "sourceType": "raw_text_fallback",
+    "reason": "fallback_evidence_only"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": 0,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": "",
+    "sourceType": "fact_contract",
+    "reason": "evidence_missing"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": 0,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": "",
+    "sourceType": "fact_contract",
+    "reason": "evidence_missing"
+  }
+]
