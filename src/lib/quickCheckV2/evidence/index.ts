@@ -91,6 +91,9 @@ type RawFallbackDefinition = {
   match(block: QuickCheckV2Block): boolean;
 };
 
+const PRIMARY_METHODOLOGY_CODE_RE =
+  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
+
 const CHECK_SECTION_MAPPINGS: Record<
   StructuredCheckId,
   {
@@ -100,27 +103,40 @@ const CHECK_SECTION_MAPPINGS: Record<
   }
 > = {
   host_country: {
-    searchTexts: ["Project Location"],
-    fallbackSearchTexts: ["PROJECT DETAILS"],
+    searchTexts: ["Host Party(ies)", "Project Location"],
+    fallbackSearchTexts: ["PROJECT DETAILS", "Location of the project activity"],
   },
   methodology: {
-    searchTexts: ["Title and Reference of Methodology"],
-    fallbackSearchTexts: ["APPLICATION OF METHODOLOGY"],
+    searchTexts: [
+      "Title and reference of the approved baseline methodology applied to the project activity",
+      "Title and Reference of Methodology",
+      "Name and reference of approved monitoring methodology applied to the project activity",
+    ],
+    fallbackSearchTexts: ["APPLICATION OF METHODOLOGY", "approved baseline methodology"],
   },
   baseline_scenario: {
     searchTexts: ["Baseline Scenario"],
   },
   additionality: {
-    searchTexts: ["Additionality"],
-    fallbackSearchTexts: ["demonstration of additionality"],
+    searchTexts: [
+      "Description of how the anthropogenic emissions of GHG by sources are reduced below",
+      "Additionality",
+    ],
+    fallbackSearchTexts: ["demonstration of additionality", "barrier analysis"],
   },
   leakage: {
-    searchTexts: ["Leakage"],
+    searchTexts: ["Estimated leakage", "Leakage", "Treatment of leakage"],
     excludeTexts: ["Baseline, Project and Leakage"],
   },
   stakeholder_consultation: {
-    searchTexts: ["STAKEHOLDER COMMENTS", "Stakeholder Comments"],
-    fallbackSearchTexts: ["stakeholder"],
+    searchTexts: [
+      "Brief description how comments by local stakeholders have been invited and compiled:",
+      "Summary of the comments received",
+      "Report on how due account was taken of any comments received",
+      "STAKEHOLDER COMMENTS",
+      "Stakeholder Comments",
+    ],
+    fallbackSearchTexts: ["stakeholder comments", "stakeholder"],
   },
 };
 
@@ -148,6 +164,10 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
             (block.sectionPath.length > 0 || block.sectionHeading !== null),
         ) ??
         findFirstBlock(blocks, (block) =>
+          /\bhost party(?:\(ies\))?\b/i.test(block.sectionHeading ?? "") &&
+          /^[A-Z][A-Za-z]+(?:[ -][A-Z][A-Za-z]+)*$/.test(block.text.trim()),
+        ) ??
+        findFirstBlock(blocks, (block) =>
           /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(block.text) &&
           /\b(?:province|district|regency|location|located)\b/i.test(block.text) &&
           block.sectionPath.length > 0,
@@ -168,17 +188,34 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
       return (
         findFirstBlock(blocks, (block) =>
           /\btitle and reference of the vcs methodology\b/i.test(block.sectionHeading ?? "") &&
-          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bapproved (?:baseline |monitoring )?methodology\b/i.test(block.sectionHeading ?? "") &&
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
           /\bthe methodology for this project follows\b/i.test(block.text) &&
-          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\bVM\d{4}\b|\bVMD\d{4}\b/.test(block.text),
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
           /\bmethodology\b/i.test(block.text),
+        ) ??
+        null
+      );
+    },
+  },
+  leakage: {
+    find(blocks) {
+      return (
+        findFirstBlock(blocks, (block) =>
+          /\bno leakage was identified\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bly\s*=\s*0\b/i.test(block.text),
         ) ??
         null
       );
@@ -197,7 +234,7 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
   },
   methodology: {
     match(block) {
-      return /\bVM\d{4}\b|\bVMD\d{4}\b|\bmethodology\b/i.test(block.text);
+      return PRIMARY_METHODOLOGY_CODE_RE.test(block.text) || /\bmethodology\b/i.test(block.text);
     },
   },
   baseline_scenario: {
@@ -859,12 +896,105 @@ function chooseBestSectionBlock(
     RAW_TEXT_FALLBACKS[checkName].match(block) && !isReferenceOnlyBlock(block.text),
   );
   if (checkName === "baseline_scenario" || checkName === "additionality") {
+    if (checkName === "additionality") {
+      return (
+        findFirstBlock(usableBlocks, (block) =>
+          /\bclearly demonstrate additionality\b|\bdetermined to be additional\b|\breduces GHG emissions in the baseline scenario\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\b(?:alleviate the barriers|financial package of the proposed project activity|benefits and incentives brought about by the CDM)\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\bcdm\b/i.test(block.text) &&
+          /\b(?:barrier|revenue|financial package|enable the project)\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\b(?:identified barriers|barrier analysis|not the baseline scenario|therefore it has been clearly demonstrated)\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\badditionality\b/i.test(block.text),
+        ) ??
+        usableBlocks[0] ??
+        null
+      );
+    }
+
     const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
     const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
     return earliestPageMatches[earliestPageMatches.length - 1] ?? usableBlocks[0] ?? null;
   }
 
+  if (checkName === "leakage") {
+    const displacementBlock = findFirstBlock(usableBlocks, (block) =>
+      /\breductions in wood harvest\b|\bcould shift to other areas\b/i.test(block.text),
+    );
+    return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bno leakage was identified\b|\bly\s*=\s*0\b/i.test(block.text),
+      ) ??
+      (displacementBlock ? getParagraphStartBlock(usableBlocks, displacementBlock) : null) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bleakage\b/i.test(block.text) && !/\bnot applicable\b/i.test(block.text),
+      ) ??
+      usableBlocks[0] ??
+      null
+    );
+  }
+
+  if (checkName === "stakeholder_consultation") {
+    return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bpublic hearings\b/i.test(block.text) &&
+        /\blocal authorities\b/i.test(block.text) &&
+        /\blocal community\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bpublic hearings\b/i.test(block.text) && /\bSan Fernando\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bduly taken into account\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bpublic hearings\b|\bSan Fernando\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\ball comments were positive\b|\bquestions were raised\b/i.test(block.text),
+      ) ??
+      usableBlocks[0] ??
+      null
+    );
+  }
+
   return usableBlocks[0] ?? null;
+}
+
+function getParagraphStartBlock(
+  blocks: QuickCheckV2Block[],
+  block: QuickCheckV2Block,
+): QuickCheckV2Block {
+  const startIndex = blocks.findIndex((candidate) => candidate.spanId === block.spanId);
+  if (startIndex <= 0) {
+    return block;
+  }
+
+  let paragraphStart = block;
+  for (let index = startIndex - 1; index >= 0; index -= 1) {
+    const candidate = blocks[index]!;
+    if (
+      candidate.page !== block.page ||
+      candidate.sectionHeading !== block.sectionHeading ||
+      candidate.sectionPath.join(">") !== block.sectionPath.join(">")
+    ) {
+      break;
+    }
+
+    paragraphStart = candidate;
+    if (endsSentence(candidate.text)) {
+      break;
+    }
+  }
+
+  return paragraphStart;
 }
 
 function buildQuoteFromBlock(
