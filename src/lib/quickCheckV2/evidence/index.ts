@@ -242,6 +242,30 @@ function findFirstBlock(
   return null;
 }
 
+function endsSentence(value: string): boolean {
+  return /[.?!]["'”)]?$/.test(value.trim());
+}
+
+function startsMidSentence(value: string): boolean {
+  return /^[a-z,(]/.test(value.trim());
+}
+
+function hasUnclosedQuotedSpan(value: string): boolean {
+  const openingQuotes = (value.match(/[“]/g) ?? []).length + (value.match(/"/g) ?? []).length;
+  const closingQuotes = (value.match(/[”]/g) ?? []).length + (value.match(/"/g) ?? []).length;
+  return openingQuotes > closingQuotes;
+}
+
+function endsWithContinuationCue(value: string): boolean {
+  return /\b(?:for|of|to|the|and|or|with|by|in|on|from|that|which|whose|a|an)\s*$/i.test(
+    value.trim(),
+  );
+}
+
+function shouldExpandQuote(value: string): boolean {
+  return startsMidSentence(value) || hasUnclosedQuotedSpan(value) || endsWithContinuationCue(value);
+}
+
 function toEvidence(
   block: QuickCheckV2Block,
   sourceType: EvidenceSourceType,
@@ -741,10 +765,6 @@ function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
   return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
 }
 
-function endsSentence(text: string): boolean {
-  return /[.?!]["')\]]*$/.test(text.trim());
-}
-
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
   return blocks.filter((block) => {
     const text = block.text.trim();
@@ -861,8 +881,7 @@ function buildQuoteFromBlock(
 
   while (
     prependIndex >= 0 &&
-    /^[a-z,(]/.test(parts[0]!) &&
-    !/[.?!]/.test(parts[0]!)
+    startsMidSentence(parts[0]!)
   ) {
     const candidate = document.blocks[prependIndex]!;
     if (!isEvidenceBlock(candidate)) break;
@@ -883,7 +902,7 @@ function buildQuoteFromBlock(
     if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
     if (isBoilerplateSectionBlock(candidate)) break;
 
-    if (endsSentence(parts.join(" "))) {
+    if (endsSentence(parts.join(" ")) && !shouldExpandQuote(parts.join(" "))) {
       break;
     }
 
@@ -891,6 +910,78 @@ function buildQuoteFromBlock(
   }
 
   return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
+function splitEvidenceSentences(value: string): string[] {
+  return value
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.?!])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
+function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string {
+  const sentences = splitEvidenceSentences(quote);
+  if (sentences.length === 0) {
+    return quote.trim();
+  }
+
+  if (checkName === "methodology") {
+    const quotedMethodology = quote.match(/^.*?[“"].+?[”"]\./);
+    if (quotedMethodology) {
+      return quotedMethodology[0]!.trim();
+    }
+    return sentences.find((sentence) => /\b(VM\d{4}|VMD\d{4})\b/i.test(sentence)) ?? quote.trim();
+  }
+
+  if (checkName === "baseline_scenario") {
+    return (
+      sentences.find((sentence) => /\bselected as the baseline scenario\b|\bmost likely baseline\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  if (checkName === "additionality") {
+    const explicitAdditionality = quote.match(
+      /\bclearly demonstrate additionality\.\s*That is,.*?\btherefore determined to be additional\./i,
+    );
+    if (explicitAdditionality) {
+      return explicitAdditionality[0]!.trim();
+    }
+
+    const summaryIndex = sentences.findIndex((sentence) =>
+      /\bclearly demonstrate additionality\b/i.test(sentence),
+    );
+    if (summaryIndex >= 0) {
+      const nextSentence = sentences[summaryIndex + 1];
+      return [sentences[summaryIndex], nextSentence]
+        .filter((sentence) => sentence && /\badditional(?:ity)?\b|\breduces ghg emissions\b/i.test(sentence))
+        .join(" ")
+        .trim();
+    }
+
+    return (
+      sentences.find((sentence) => /\bdetermined to be additional\b|\breduces ghg emissions\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  if (checkName === "leakage") {
+    const displacementQuote = quote.match(
+      /When REDD project activities result.*?\bto compensate for the reduction\./i,
+    );
+    if (displacementQuote) {
+      return displacementQuote[0]!.trim();
+    }
+
+    return (
+      sentences.find((sentence) => /\bcould shift to other areas\b|\bmarket effects leakage\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  return quote.trim();
 }
 
 function getBestExactSectionBlock(
@@ -963,7 +1054,16 @@ function getFactContractEvidence(
   }
 
   const block = definition.find(getEvidenceBlocks(document));
-  return block ? toEvidence(block, "fact_contract") : null;
+  return block
+    ? toEvidence(
+      block,
+      "fact_contract",
+      trimQuoteForCheck(
+        checkName,
+        shouldExpandQuote(block.text) ? buildQuoteFromBlock(document, block) : block.text,
+      ),
+    )
+    : null;
 }
 
 function getExactSectionEvidence(
@@ -971,7 +1071,13 @@ function getExactSectionEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
-  return block ? toEvidence(block, "exact_section", buildQuoteFromBlock(document, block)) : null;
+  return block
+    ? toEvidence(
+      block,
+      "exact_section",
+      trimQuoteForCheck(checkName, buildQuoteFromBlock(document, block)),
+    )
+    : null;
 }
 
 function getRawTextFallbackEvidence(

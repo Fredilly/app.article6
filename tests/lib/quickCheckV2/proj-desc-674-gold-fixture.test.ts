@@ -2,7 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
 import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
-import { loadAndParseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
+import { formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
+import { extractPdfPagesWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
+import {
+  loadAndParseExtractedText,
+  parseExtractedText,
+  type StructuredCheckId,
+} from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
 
 const SOURCE_PDF_PATH =
@@ -15,6 +21,7 @@ const GOLD_FIXTURE_PATH =
 type GoldRecord = {
   checkName: StructuredCheckId;
   expectedStatus: "FOUND" | "UNCLEAR" | "MISSING";
+  expectedAnswer: string | null;
   goldQuote: string | null;
   page: number | null;
   sectionHeading: string | null;
@@ -35,6 +42,7 @@ function toGoldComparableRecord(
   return {
     checkName: result.checkName,
     expectedStatus: result.status,
+    expectedAnswer: result.answer,
     goldQuote: result.evidence?.quote ?? null,
     page: result.evidence?.page ?? null,
     sectionHeading: result.evidence?.sectionHeading ?? null,
@@ -59,4 +67,33 @@ describe("Quick Check v2 — Phase 7 PROJ_DESC_674 fixture", () => {
   it("matches the PROJ_DESC_674 gold fixture across the v2 pipeline", () => {
     expect(statuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
   });
+
+  it("keeps the curated corrected answers for all six structured checks", () => {
+    expect(statuses.map((result) => ({
+      checkName: result.checkName,
+      expectedAnswer: result.answer,
+    }))).toStrictEqual(
+      goldFixture.map((record) => ({
+        checkName: record.checkName,
+        expectedAnswer: record.expectedAnswer,
+      })),
+    );
+  });
+
+  it("matches the gold fixture from the real uploaded PDF extraction shape", async () => {
+    const bytes = fs.readFileSync(path.resolve(SOURCE_PDF_PATH));
+    const arrayBuffer = bytes.buffer.slice(
+      bytes.byteOffset,
+      bytes.byteOffset + bytes.byteLength,
+    ) as ArrayBuffer;
+    const extraction = await extractPdfPagesWithPdfParse({ bytes: arrayBuffer });
+    const runtimeDocument = parseExtractedText(
+      formatQuickCheckPdfPages(extraction.pages),
+      "proj-desc-674",
+      "pdf-parse",
+    );
+    const runtimeStatuses = validateAnswerResults(extractAnswersForAllChecks(runtimeDocument));
+
+    expect(runtimeStatuses.map(toGoldComparableRecord)).toStrictEqual(goldFixture);
+  }, 30000);
 });

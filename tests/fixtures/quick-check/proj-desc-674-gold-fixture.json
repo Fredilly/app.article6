@@ -2,6 +2,7 @@
   {
     "checkName": "host_country",
     "expectedStatus": "FOUND",
+    "expectedAnswer": "Indonesia",
     "goldQuote": "Central Kalimantan, Indonesia (Figure 1). The Carbon Accounting Area defines the boundary for COP",
     "page": 9,
     "sectionHeading": "Project location including geographic and physical information allowing the unique",
@@ -12,7 +13,8 @@
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "goldQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for",
+    "expectedAnswer": "VM0004: Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1-0",
+    "goldQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1‐0”.",
     "page": 40,
     "sectionHeading": "Title and Reference of the VCS Methodology applied to the Project Activity and explanation of",
     "sectionPath": ["2", "2.1"],
@@ -22,7 +24,8 @@
   {
     "checkName": "baseline_scenario",
     "expectedStatus": "FOUND",
-    "goldQuote": "project, and was therefore selected as the baseline scenario.",
+    "expectedAnswer": "Complete conversion of the peat swamp forest to palm oil plantations.",
+    "goldQuote": "Of the alternative scenarios identified for the project, complete conversion of the peat swamp forest to palm oil plantations was determined to be the most plausible scenario to occur in the absence of the project, and was therefore selected as the baseline scenario.",
     "page": 46,
     "sectionHeading": "Description of how the baseline scenario is identified and description of the identified baseline",
     "sectionPath": ["2", "2.4"],
@@ -32,6 +35,7 @@
   {
     "checkName": "additionality",
     "expectedStatus": "FOUND",
+    "expectedAnswer": "The project is additional because conserving peat swamp forest reduces GHG emissions compared with the baseline scenario of conversion to palm oil.",
     "goldQuote": "clearly demonstrate additionality. That is, the project activity (conservation of peat swamp forest) reduces GHG emissions in the baseline scenario (conversion of peat swamp forest to palm oil) and is therefore determined to be additional.",
     "page": 46,
     "sectionHeading": "Description of how the emissions of GHG by source in baseline scenario are reduced below",
@@ -42,7 +46,8 @@
   {
     "checkName": "leakage",
     "expectedStatus": "FOUND",
-    "goldQuote": "A deduction against the biomass of timber extracted under the baseline scenario must be estimated for Market Leakage by implementing steps outlined in Section 10.1 in the methodology: U Section 10.1 of the Methodology When REDD project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction. Therefore, in cases where the project area would be harvested for commercial timber before clearing the site for a new land use, market effects leakage must be estimated as the baseline emissions from logging multiplied by a leakage factor: The amount of leakage is determined by where harvesting would likely be displaced to. If in the forests to which displacement would occur a lower proportion of biomass in commercial species is in merchantable material than in the project area, then more trees will need to be cut to supply the same volume and thus higher emissions should be expected. In contrast, if a higher proportion of biomass of commercial species is merchantable in the displacement forest than in the project forest, then a smaller area would need to be harvested and lower emissions would result.",
+    "expectedAnswer": "Market leakage is assessed because reduced timber harvest in the project area may shift production to other areas.",
+    "goldQuote": "When REDD project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction.",
     "page": 106,
     "sectionHeading": "Market Leakage",
     "sectionPath": ["4", "4.3", "4.3.2"],
@@ -52,6 +57,7 @@
   {
     "checkName": "stakeholder_consultation",
     "expectedStatus": "FOUND",
+    "expectedAnswer": "Local communities and government stakeholders were consulted through formal meetings, surveys, approvals, and project development activities.",
     "goldQuote": "Despite the absence of communities or families living within the boundaries of the Carbon Accounting Area, the Rimba Raya Reserve project has, through a series of formalized meetings, gained local approval of the project by including communities bordering the buffer zone of the Carbon Accounting Area as stakeholders in the project development process. These meetings and community approvals are summarized in Table 25 and documented in Annex 11. InfiniteEARTH views local stakeholder participation as the key to the project’s success in terms of preventing illegal logging and fires.",
     "page": 128,
     "sectionHeading": "Stakeholders’ Comments",

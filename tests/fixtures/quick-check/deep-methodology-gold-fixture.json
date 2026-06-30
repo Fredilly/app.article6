@@ -13,7 +13,7 @@
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VM0007",
+    "expectedAnswer": "VM0007: REDD Methodology Modules Version 1.3",
     "goldQuote": "VM0007 REDD Methodology Modules Version 1.3",
     "page": 4,
     "sectionHeading": "Application of Methodology",

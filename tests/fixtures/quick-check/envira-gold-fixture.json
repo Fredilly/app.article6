@@ -14,7 +14,7 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0007: REDD Methodology Modules (REDD-MF)",
-    "goldQuote": "entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this",
+    "goldQuote": "The Envira Amazonia Project is utilizing the Avoided Deforestation Partners’ VCS REDD Methodology, entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this project is avoiding planned deforestation, hence only modules related to planned deforestation are required.",
     "page": 31,
     "sectionHeading": "Title and Reference of Methodology",
     "sectionPath": ["2", "2.1"],

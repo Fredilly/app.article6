@@ -76,7 +76,7 @@ describe("Quick Check v2 — Phase 7 deep methodology PDF failure fixture", () =
 
     expect(result).toBeDefined();
     expect(result!.status).toBe("FOUND");
-    expect(result!.answer).toBe("VM0007");
+    expect(result!.answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
     expect(result!.evidence?.sourceType).toBe("fact_contract");
   });
 });
