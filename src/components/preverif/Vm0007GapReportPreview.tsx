@@ -60,11 +60,17 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
   }
 
   return (
-    <main className="vm0007-gap-report-preview min-h-screen bg-slate-50 px-4 py-8">
+    <main className="vm0007-gap-report-preview vm0007-gap-report-preview-page min-h-screen bg-slate-50 px-4 py-8">
       <style jsx global>{`
         @media print {
           body {
             background: #fff !important;
+          }
+          .vm0007-gap-report-preview-page header,
+          .vm0007-gap-report-preview-page footer,
+          .vm0007-gap-report-preview-page nav,
+          .vm0007-gap-report-preview-page aside {
+            display: none !important;
           }
           .vm0007-gap-report-preview {
             background: #fff !important;
@@ -85,7 +91,7 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
           <div>
             <div className="text-sm font-semibold text-slate-950">Internal VM0007 Gap Report Preview</div>
             <div className="mt-1 text-xs text-slate-500">
-              Manual browser print is intended for PDF delivery. This page uses saved audit output only.
+              Manual browser print is intended for internal PDF save or review. This page uses saved audit output only.
             </div>
           </div>
           <button

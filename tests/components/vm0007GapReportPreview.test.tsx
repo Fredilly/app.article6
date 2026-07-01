@@ -136,9 +136,49 @@ describe("Vm0007GapReportPreview", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Internal VM0007 Gap Report Preview");
     expect(text).toContain("Print / Save PDF");
-    expect(text).toContain("Validation Readiness Gap Report");
+    expect(text).toContain("Internal preview only. This report shows current audit output and has not been manually reviewed.");
     expect(text).toContain("58 VM0007 rules assessed for validation readiness.");
-    expect(text).toContain("Client Action List");
+    expect(text).toContain("Follow-up Action List");
+  });
+
+  test("shows the all-supported caution when every rule is marked supported", async () => {
+    const supportedOnlyResults: MethodologyEvidenceAuditResult[] = Array.from({ length: 58 }, (_, index) =>
+      makeResult({
+        ruleId: `R-6-${String(index + 1).padStart(4, "0")}`,
+        stableId: `R-6-${String(index + 1).padStart(4, "0")}`,
+        title: `Rule ${index + 1}`,
+        status: "supported_by_pdd",
+        bestEvidenceQuote: `Evidence quote ${index + 1}.`,
+      }),
+    );
+
+    saveVm0007GapReportAudit({
+      auditId: "audit-preview-supported",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-8",
+      generatedAt: "2026-07-01T00:00:00Z",
+      evidenceFileName: "envira-amazonia-vm0007.pdf",
+      audit: {
+        results: supportedOnlyResults,
+        totals: {
+          supported_by_pdd: 58,
+          partially_supported: 0,
+          missing_evidence: 0,
+          not_applicable: 0,
+          manual_review_needed: 0,
+        },
+        totalRules: 58,
+      },
+    });
+
+    await act(async () => {
+      root.render(<Vm0007GapReportPreview auditId="audit-preview-supported" />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.textContent ?? "").toContain("All rules are currently marked supported. Review evidence quality before relying on this result.");
   });
 
   test("keeps banned wording out of the rendered internal preview", async () => {
@@ -166,6 +206,8 @@ describe("Vm0007GapReportPreview", () => {
       ["guaran", "tee"].join(""),
       ["compl", "iance"].join(""),
       ["VVB", "-grade"].join(""),
+      ["client", "-facing"].join(""),
+      ["external", " use"].join(""),
     ];
 
     for (const item of banned) {

@@ -92,6 +92,26 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
   };
 }
 
+function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
+  const base = auditText(ENVIRA_TEXT);
+  const results = Array.from({ length: 58 }, (_, index) =>
+    withStatus(base.results[index]!, {
+      ruleId: `R-6-${String(index + 1).padStart(4, "0")}`,
+      stableId: `R-6-${String(index + 1).padStart(4, "0")}`,
+      title: `Supported rule ${index + 1}`,
+      status: "supported_by_pdd",
+      gap: "",
+      clientAction: "",
+    }),
+  );
+
+  return {
+    results,
+    totals: retotal(results),
+    totalRules: results.length,
+  };
+}
+
 function buildReport(audit: MethodologyEvidenceAuditSummary) {
   return buildVm0007GapReport({
     reportId: "VRGR-VM0007-001",
@@ -107,7 +127,7 @@ function buildReport(audit: MethodologyEvidenceAuditSummary) {
       code: "VM0007",
       version: "4.2",
       name: "REDD+ Methodology Framework",
-      scope: "Audit output rendered for client-facing validation readiness follow-up.",
+      scope: "Audit output rendered for internal preview follow-up.",
     },
     audit,
   });
@@ -117,9 +137,17 @@ describe("buildVm0007GapReport", () => {
   it("builds a 58-rule report from existing VM0007 audit output", () => {
     const report = buildReport(auditText(ENVIRA_TEXT));
 
+    expect(report.reportName).toBe("Internal VM0007 Gap Report Preview");
     expect(report.statementOfCoverage).toBe("58 VM0007 rules assessed for validation readiness.");
     expect(report.fullRuleAuditTable).toHaveLength(58);
     expect(report.evidenceAppendix).toHaveLength(58);
+  });
+
+  it("adds the internal preview limitation banner and all-supported warning when every rule is supported", () => {
+    const report = buildReport(buildSupportedOnlyAudit());
+
+    expect(report.limitationBanner).toBe("Internal preview only. This report shows current audit output and has not been manually reviewed.");
+    expect(report.executiveSummary.allSupportedWarning).toBe("All rules are currently marked supported. Review evidence quality before relying on this result.");
   });
 
   it("keeps client action guidance on every weak or missing rule", () => {
@@ -169,6 +197,8 @@ describe("buildVm0007GapReport", () => {
       ["validation", " opinion"].join(""),
       ["assurance", " opinion"].join(""),
       ["all", " clear"].join(""),
+      ["client", "-facing"].join(""),
+      ["external", " use"].join(""),
     ];
 
     expect(reportJson).not.toContain("58 vm0007 rules passed.");
