@@ -16,6 +16,16 @@ function statusTone(status: Vm0007GapReportDisplayStatus): string {
 }
 
 function renderFindingCard(finding: Vm0007GapReportFinding) {
+  const isSupported = finding.status === "supported";
+  const isNotApplicable = finding.status === "not applicable";
+  const explanationLabel = isSupported
+    ? "Why this was marked supported:"
+    : isNotApplicable
+      ? "Why this was marked not applicable:"
+      : "Why it is weak or missing:";
+  const actionLabel = isNotApplicable ? "Scope note:" : "What to add:";
+  const showAction = !isSupported && finding.whatToAdd.trim().length > 0;
+
   return (
     <article key={finding.ruleId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -30,11 +40,13 @@ function renderFindingCard(finding: Vm0007GapReportFinding) {
         <span className="font-semibold text-slate-900">Current PDD evidence:</span> {finding.currentPddEvidence}
       </div>
       <div className="mt-2 text-sm text-slate-700">
-        <span className="font-semibold text-slate-900">Why it is weak or missing:</span> {finding.whyItMatters}
+        <span className="font-semibold text-slate-900">{explanationLabel}</span> {finding.whyItMatters}
       </div>
-      <div className="mt-2 text-sm text-slate-700">
-        <span className="font-semibold text-slate-900">What to add:</span> {finding.whatToAdd}
-      </div>
+      {showAction ? (
+        <div className="mt-2 text-sm text-slate-700">
+          <span className="font-semibold text-slate-900">{actionLabel}</span> {finding.whatToAdd}
+        </div>
+      ) : null}
       <div className="mt-2 text-xs text-slate-500">
         {finding.section ? `Section: ${finding.section}` : "Section not identified"}
         {finding.page ? ` · Page ${finding.page}` : ""}
@@ -63,7 +75,15 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-slate-950">{report.reportName}</h1>
             <div className="mt-2 text-base text-slate-700">{report.projectSnapshot.name}</div>
+            <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+              {report.limitationBanner}
+            </div>
             <div className="mt-3 text-sm text-slate-700">{report.executiveSummary.headline}</div>
+            {report.executiveSummary.allSupportedWarning ? (
+              <div className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900">
+                {report.executiveSummary.allSupportedWarning}
+              </div>
+            ) : null}
             <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">
               {report.statementOfCoverage}
             </div>
@@ -153,7 +173,7 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
         {sectionCard(
           <>
             <h2 className="text-lg font-semibold text-slate-950">Key Supported Findings</h2>
-            <div className="mt-1 text-sm text-slate-600">These rules currently have the strongest project-linked support in the audit results.</div>
+            <div className="mt-1 text-sm text-slate-600">These rules currently have the strongest support signals in the audit output and still require human review.</div>
             <div className="mt-3 grid gap-3">
               {report.keySupportedFindings.length ? report.keySupportedFindings.map(renderFindingCard) : emptyState("No supported findings are available yet.")}
             </div>
@@ -185,8 +205,8 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
 
       {sectionCard(
         <>
-          <h2 className="text-lg font-semibold text-slate-950">Client Action List</h2>
-          <div className="mt-1 text-sm text-slate-600">Each weak or missing rule includes the issue, the current PDD evidence, why it is weak or missing, and what to add.</div>
+          <h2 className="text-lg font-semibold text-slate-950">Follow-up Action List</h2>
+          <div className="mt-1 text-sm text-slate-600">Each weak or missing rule includes the issue, the current PDD evidence, why it is weak or missing, and the suggested follow-up.</div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
               <thead>
@@ -209,7 +229,7 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
                   </tr>
                 )) : (
                   <tr>
-                    <td className="px-3 py-3 text-slate-600" colSpan={5}>No client action items are currently listed.</td>
+                    <td className="px-3 py-3 text-slate-600" colSpan={5}>No follow-up action items are currently listed.</td>
                   </tr>
                 )}
               </tbody>
@@ -221,7 +241,7 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
       {sectionCard(
         <>
           <h2 className="text-lg font-semibold text-slate-950">Full VM0007 Rule Audit Table</h2>
-          <div className="mt-1 text-sm text-slate-600">All 58 VM0007 rules are listed below using client-safe readiness language only.</div>
+          <div className="mt-1 text-sm text-slate-600">All 58 VM0007 rules are listed below using internal preview language only.</div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
               <thead>

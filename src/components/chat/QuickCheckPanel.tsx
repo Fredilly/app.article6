@@ -79,6 +79,10 @@ import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
 import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
+import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
+import {
+  buildAndSaveVm0007GapReportAudit,
+} from "@/lib/preverif/vm0007GapReportStore";
 
 type MethodInventoryRecord = {
   code: string;
@@ -116,6 +120,13 @@ type ExtractionState = {
   analysis: QuickCheckEvidenceAnalysis | null;
   error: string | null;
 };
+
+export function resolveGapReportSourceAnalysis(
+  analysisFromOptions: QuickCheckEvidenceAnalysis | null | undefined,
+  analysisFromState: QuickCheckEvidenceAnalysis | null | undefined,
+): QuickCheckEvidenceAnalysis | null {
+  return analysisFromOptions ?? analysisFromState ?? null;
+}
 
 type StructuredEvidenceCheckResult = {
   checkId: StructuredCheckId;
@@ -675,6 +686,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [documentPurpose, setDocumentPurpose] = useState<DocumentPurpose | null>(null);
   const [evidenceCheckResults, setEvidenceCheckResults] = useState<StructuredEvidenceCheckResult[]>([]);
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
+  const [uploadVm0007GapReportAuditId, setUploadVm0007GapReportAuditId] = useState<string | null>(null);
+  const [generatingUploadVm0007GapReport, setGeneratingUploadVm0007GapReport] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
@@ -856,6 +869,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       : null;
   const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
   const renderedResult = canRenderResult ? result : null;
+  const isVm0007RenderedResult = Boolean(renderedResult && draft.methodologyId.trim().toUpperCase() === "VM0007");
   const extractionPreview = useMemo(
     () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: effectiveClaimText, analysis: extractionState.analysis }) : null),
     [effectiveClaimText, extractionState.analysis],
@@ -871,6 +885,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const methodologyResolution = useMemo<QuickCheckMethodologyResolution>(
     () => resolveQuickCheckMethodology({ mentions: detectedMethodologyMentions, methods, rawText: extractionState.analysis?.rawPddText }),
     [detectedMethodologyMentions, extractionState.analysis?.rawPddText, methods],
+  );
+  const detectedVm0007Method = useMemo(
+    () => methodologyResolution.matchedMethods.find((method) => method.methodologyId.trim().toUpperCase() === "VM0007") ?? null,
+    [methodologyResolution],
   );
   const resolvedWorkspaceMethod = useMemo(
     () => (methodologyResolution.status === "single" ? methodologyResolution.matchedMethods[0] ?? null : null),
@@ -973,6 +991,19 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
     return null;
   }, [extractionPreview, methodologyMismatch, methodologyResolution]);
+  const showUploadVm0007ReportCard = useMemo(
+    () =>
+      activeSourceMode === "uploaded_file"
+      && Boolean(extractionState.analysis?.rawPddText?.trim())
+      && evidenceMentionsMethodologyCode(extractionState.analysis, "VM0007"),
+    [activeSourceMode, extractionState.analysis],
+  );
+  const uploadVm0007ReportAuditId = uploadVm0007GapReportAuditId ?? renderedResult?.vm0007GapReportAuditId ?? null;
+  const canGenerateUploadVm0007Report = Boolean(
+    showUploadVm0007ReportCard
+    && detectedVm0007Method?.methodologyVersion
+    && extractionState.analysis?.rawPddText?.trim(),
+  );
   const showAdvancedOptions = showAdvanced || showSavedEvidence || showMethodology;
   const extractionPreviewView = useMemo(
     () =>
@@ -1132,7 +1163,38 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setShowExtractionDetails(false);
     setEvidenceCheckResults([]);
     setRunningEvidenceChecks(false);
+    setUploadVm0007GapReportAuditId(null);
+    setGeneratingUploadVm0007GapReport(false);
     setDocumentPurpose(null);
+  }
+
+  async function handleGenerateUploadVm0007GapReport() {
+    if (!detectedVm0007Method?.methodologyVersion) return;
+    const rawPddText = extractionState.analysis?.rawPddText?.trim();
+    if (!rawPddText) return;
+
+    setGeneratingUploadVm0007GapReport(true);
+    setFieldErrors({});
+    try {
+      const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.methodologyVersion);
+      const savedAudit = buildAndSaveVm0007GapReportAudit({
+        methodologyId: detectedVm0007Method.methodologyId,
+        methodologyVersion: detectedVm0007Method.methodologyVersion,
+        evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel,
+        rawPddText,
+        rules,
+      });
+      if (!savedAudit?.auditId) {
+        throw new Error("Quick Check could not generate the VM0007 gap report preview.");
+      }
+      setUploadVm0007GapReportAuditId(savedAudit.auditId);
+    } catch (error) {
+      setFieldErrors({
+        general: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setGeneratingUploadVm0007GapReport(false);
+    }
   }
 
   function openFullReviewFromRecovery() {
@@ -1351,12 +1413,31 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
 
       const inventory = loadQuickCheckInventory(candidate.methodologyId, candidate.methodologyVersion);
-      const extraction = options?.analysis
+      const sourceAnalysis = resolveGapReportSourceAnalysis(options?.analysis, extractionState.analysis);
+      const extraction = sourceAnalysis
         ? buildQuickCheckExtractionSnapshot({
             claimText: resolveEffectiveClaimText(activeDraft.claimText),
-            analysis: options.analysis,
+            analysis: sourceAnalysis,
           })
         : null;
+      let vm0007GapReportAuditId: string | undefined;
+      if (candidate.methodologyId.trim().toUpperCase() === "VM0007" && sourceAnalysis?.rawPddText?.trim()) {
+        try {
+          const auditRules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
+          const savedAudit = buildAndSaveVm0007GapReportAudit({
+            methodologyId: candidate.methodologyId,
+            methodologyVersion: candidate.methodologyVersion,
+            evidenceFileName: activeDraft.evidenceFileName,
+            rawPddText: sourceAnalysis.rawPddText,
+            rules: auditRules,
+          });
+          vm0007GapReportAuditId = savedAudit?.auditId;
+        } catch (error) {
+          if (process.env.NODE_ENV !== "production") {
+            console.error("Failed to save VM0007 gap report audit output.", error);
+          }
+        }
+      }
       const nextResult = buildQuickCheckResult({
         draft: nextDraft,
         rule: {
@@ -1385,6 +1466,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           : ["Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context."],
         extraction,
       });
+      nextResult.vm0007GapReportAuditId = vm0007GapReportAuditId;
 
       const checkedDraft: QuickCheckDraft = {
         ...nextDraft,
@@ -2097,6 +2179,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     selectedEvidenceRunKey,
   ]);
 
+  useEffect(() => {
+    setUploadVm0007GapReportAuditId(null);
+    setGeneratingUploadVm0007GapReport(false);
+  }, [selectedEvidenceRunKey]);
+
   async function handleTryDemoCheck() {
     setSubmitting(true);
     resetQuickCheckUi();
@@ -2643,6 +2730,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </div>
               ) : null}
             </div>
+          ) : null}
+
+          {showUploadVm0007ReportCard && !submitting ? (
+            <Vm0007GapReportLaunchButton
+              isVm0007Result
+              auditId={uploadVm0007ReportAuditId}
+              title="Internal VM0007 report"
+              onGenerate={handleGenerateUploadVm0007GapReport}
+              generating={generatingUploadVm0007GapReport}
+              generateDisabled={!canGenerateUploadVm0007Report}
+              testId="vm0007-upload-report-section"
+            />
           ) : null}
 
           <div className={`rounded-[1.6rem] border px-4 py-4 ${showMethodology ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white"}`}>
@@ -3356,7 +3455,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   {normalizedResult.extractionState.label} evidence signal
                 </span>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={handleContinueToWorkspace}
@@ -3366,6 +3465,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   Open full review
                 </button>
               </div>
+              <Vm0007GapReportLaunchButton
+                isVm0007Result={isVm0007RenderedResult}
+                auditId={renderedResult?.vm0007GapReportAuditId}
+              />
             </div>
           ) : null}
 

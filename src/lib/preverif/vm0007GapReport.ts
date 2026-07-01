@@ -45,10 +45,12 @@ export type Vm0007GapReportFinding = {
 export type Vm0007GapReport = {
   reportId: string;
   generatedAt: string;
-  reportName: "Validation Readiness Gap Report";
+  reportName: "Internal VM0007 Gap Report Preview";
   statementOfCoverage: string;
+  limitationBanner: string;
   executiveSummary: {
     headline: string;
+    allSupportedWarning: string | null;
     totals: {
       supported: number;
       weak: number;
@@ -131,9 +133,22 @@ function issueLabel(result: MethodologyEvidenceAuditResult): string {
 }
 
 function gapGuidance(result: MethodologyEvidenceAuditResult): string {
+  if (result.status === "supported_by_pdd") return "";
+  if (result.status === "not_applicable") {
+    const clientAction = result.clientAction.trim();
+    return /^(no client action required|keep scope basis clear\.?)$/i.test(clientAction) ? clientAction : "";
+  }
   return result.gap.trim() || result.clientAction.trim();
 }
 
+function clientActionText(result: MethodologyEvidenceAuditResult): string {
+  if (result.status === "supported_by_pdd") return "";
+  if (result.status === "not_applicable") {
+    const clientAction = result.clientAction.trim();
+    return /^(no client action required|keep scope basis clear\.?)$/i.test(clientAction) ? clientAction : "";
+  }
+  return result.clientAction;
+}
 function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFinding {
   return {
     ruleId: result.ruleId,
@@ -142,7 +157,7 @@ function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFindi
     issue: issueLabel(result),
     currentPddEvidence: evidenceText(result),
     whyItMatters: result.assessmentReason,
-    whatToAdd: result.clientAction,
+    whatToAdd: clientActionText(result),
     section: result.section,
     page: result.page,
     confidence: result.confidence,
@@ -163,15 +178,15 @@ function sortGapFindings(left: Vm0007GapReportFinding, right: Vm0007GapReportFin
 
 function makeHeadline(input: Vm0007GapReport["executiveSummary"]["totals"]): string {
   if (input.supported === 58) {
-    return "The current audit output identifies supported evidence across the VM0007 rule set, with no weak or missing evidence items listed.";
+    return "The current audit output marks every VM0007 rule as supported, but evidence quality still requires manual review.";
   }
   if (input.needsClientAction === 0) {
-    return "The current PDD supports most VM0007 rules, with remaining items limited to scope-based not-applicable decisions.";
+    return "The current audit output supports most VM0007 rules, with remaining items limited to scope-based not-applicable decisions.";
   }
   if (input.supported >= input.needsClientAction) {
-    return "The current PDD shows a usable base of support, but several VM0007 rules still need clearer client evidence before validation readiness improves.";
+    return "The current audit output shows a usable base of support, but several VM0007 rules still need clearer project-specific evidence before review confidence improves.";
   }
-  return "The current PDD still has material evidence gaps across VM0007 and needs targeted client follow-up before validation readiness improves.";
+  return "The current audit output still shows material evidence gaps across VM0007 and needs targeted project-team follow-up before review confidence improves.";
 }
 
 export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapReport {
@@ -208,10 +223,15 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
   return {
     reportId: input.reportId,
     generatedAt: input.generatedAt,
-    reportName: "Validation Readiness Gap Report",
+    reportName: "Internal VM0007 Gap Report Preview",
     statementOfCoverage: `${input.audit.totalRules} VM0007 rules assessed for validation readiness.`,
+    limitationBanner: "Internal preview only. This report shows current audit output and has not been manually reviewed.",
     executiveSummary: {
       headline: makeHeadline(totals),
+      allSupportedWarning:
+        totals.supported === input.audit.totalRules
+          ? "All rules are currently marked supported. Review evidence quality before relying on this result."
+          : null,
       totals,
       highlights: [
         `${totals.supported} rules currently show supported PDD evidence.`,
@@ -220,9 +240,9 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
         `${totals.notApplicable} rules are treated as not applicable only where the PDD itself supports that conclusion.`,
       ],
       limitations: [
-        "This report summarizes current PDD support and evidence gaps for project-team follow-up.",
+        "This preview summarizes current PDD support and evidence gaps for internal project-team follow-up.",
         "Evidence quotes are limited to the audit results already selected by the existing VM0007 evidence audit.",
-        "Weak and missing items should be resolved with clearer project-specific PDD content before relying on this draft for external use.",
+        "Supported outcomes may still rely on broad methodology or project-description text and should be reviewed before reuse.",
       ],
     },
     projectSnapshot: input.project,
@@ -231,11 +251,11 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
       version: input.methodology.version,
       name: input.methodology.name,
       scope: input.methodology.scope,
-      summary: `${input.methodology.code}@${input.methodology.version} audit output rendered into a client-facing readiness gap report.`,
+      summary: `${input.methodology.code}@${input.methodology.version} audit output rendered into an internal preview from the existing evidence audit.`,
       notes: [
         "The renderer uses existing VM0007 audit results only and does not rerun methodology logic.",
         "Status language is limited to supported, weak, missing, and not applicable.",
-        "Every weak or missing rule is paired with client action guidance from the audit output.",
+        "Weak and missing rules keep follow-up guidance from the audit output without changing the underlying audit logic.",
       ],
     },
     keySupportedFindings,
@@ -252,7 +272,7 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
         section: result.section ?? "Section not identified",
         evidenceSummary: evidenceText(result),
         gapGuidance: gapGuidance(result),
-        clientAction: result.clientAction,
+        clientAction: clientActionText(result),
       })),
     evidenceAppendix: input.audit.results
       .slice()
