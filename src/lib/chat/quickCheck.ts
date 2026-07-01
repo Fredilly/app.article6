@@ -72,6 +72,7 @@ export type QuickCheckResult = {
   extraction?: QuickCheckExtractionSnapshot | null;
   sourceMode?: QuickCheckSourceMode;
   evidenceFileName?: string;
+  vm0007GapReportAuditId?: string;
 };
 
 export type QuickCheckStagedUpload = {
@@ -247,6 +248,7 @@ function normalizeResult(raw: unknown): QuickCheckResult | null {
     extraction,
     sourceMode: normalizeSourceMode(record.sourceMode),
     evidenceFileName: typeof record.evidenceFileName === "string" ? record.evidenceFileName : undefined,
+    vm0007GapReportAuditId: typeof record.vm0007GapReportAuditId === "string" ? record.vm0007GapReportAuditId : undefined,
   };
 }
 

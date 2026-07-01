@@ -79,6 +79,10 @@ import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
 import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
+import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
+import {
+  buildAndSaveVm0007GapReportAudit,
+} from "@/lib/preverif/vm0007GapReportStore";
 
 type MethodInventoryRecord = {
   code: string;
@@ -1357,6 +1361,24 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             analysis: options.analysis,
           })
         : null;
+      let vm0007GapReportAuditId: string | undefined;
+      if (candidate.methodologyId.trim().toUpperCase() === "VM0007" && options?.analysis?.rawPddText?.trim()) {
+        try {
+          const auditRules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
+          const savedAudit = buildAndSaveVm0007GapReportAudit({
+            methodologyId: candidate.methodologyId,
+            methodologyVersion: candidate.methodologyVersion,
+            evidenceFileName: activeDraft.evidenceFileName,
+            rawPddText: options.analysis.rawPddText,
+            rules: auditRules,
+          });
+          vm0007GapReportAuditId = savedAudit?.auditId;
+        } catch (error) {
+          if (process.env.NODE_ENV !== "production") {
+            console.error("Failed to save VM0007 gap report audit output.", error);
+          }
+        }
+      }
       const nextResult = buildQuickCheckResult({
         draft: nextDraft,
         rule: {
@@ -1385,6 +1407,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           : ["Quick Check is preliminary. Open full review to confirm the requirement against the full methodology context."],
         extraction,
       });
+      nextResult.vm0007GapReportAuditId = vm0007GapReportAuditId;
 
       const checkedDraft: QuickCheckDraft = {
         ...nextDraft,
@@ -3357,14 +3380,17 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 </span>
               </div>
               <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={handleContinueToWorkspace}
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
-                >
-                  <FolderOpen className="h-4 w-4" />
-                  Open full review
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleContinueToWorkspace}
+                    className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                    Open full review
+                  </button>
+                  <Vm0007GapReportLaunchButton auditId={renderedResult?.vm0007GapReportAuditId} />
+                </div>
               </div>
             </div>
           ) : null}
