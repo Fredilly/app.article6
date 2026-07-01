@@ -1,0 +1,981 @@
+Page 1
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 1
+CLEAN DEVELOPMENT MECHANISM
+SIMPLIFIED PROJECT DESIGN DOCUMENT
+FOR SMALL-SCALE PROJECT ACTIVITIES (SSC-CDM-PDD)
+Version 02
+CONTENTS
+A. General description of the small-scale project activity
+B. Baseline methodology
+C. Duration of the project activity / Crediting period
+D. Monitoring methodology and plan
+E. Calculation of GHG emission reductions by sources
+F. Environmental impacts
+G. Stakeholders comments
+Annexes
+Annex 1: Information on participants in the project activity
+Annex 2: Information regarding public funding
+
+Page 2
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 2
+SECTION A. General description of the small-scale project activity
+A.1. Title of the small-scale project activity:
+“Pão de Açúcar – Demand side electricity management – PDD 3”
+Document version: 6
+Document date: 15 March 2007
+A.2. Description of the small-scale project activity:
+The purpose of the project activity is to reduce electricity consumption at the stores of Companhia
+Brasileira de Distribuição (CBD) resulting in greenhouse gases emissions reductions. The reduction in
+electricity consumption has been achieved through the implementation of different independent electricity
+efficiency measures at the stores of CBD, starting in the year 2001.
+The CDM-SSC-PDD comprises measures and programs to increase energy efficiency in the use of
+electricity in thirteen stores.
+CBD is the largest food retailer in Brazil, stating in 2004 R$ 15.3 billion in gross revenues and around
+15% market share. In December 2004, CBD had 551 stores, distributed into 12 states, totaling sales area
+of 1,144,749 square meters and 63.4 thousand employees. CBD actuates in the market with 5 brands: Pão
+de Açúcar (PA), Extra (EXTRA), ExtraEletro (ELETRO), CompreBem Barateiro (CPRBEM) and
+Sendas-Sé (SENDAS). Stores are concentrated mainly in the state of São Paulo, in the Southeast region
+of the country.
+CBD believes that the improvement of electricity efficiency is the surest and most direct way of
+increasing the sustainability of the energy system. Energy efficiency accentuates the positive attributes of
+energy (the services it provides) and diminishes the negative aspects (the pollution and financial costs)
+associated with producing and delivering energy.
+Additionally, improving energy efficiency offers a powerful tool for achieving sustainable development
+by reducing the need for investment in new infrastructure, by cutting fuel costs, and by increasing
+competitiveness for businesses and welfare for consumers. It creates environmental benefits through
+reduced emissions of greenhouse gases and local air pollutants. It can offer social benefits in the form of
+increased energy security (through reduced reliance on fossil fuels, particularly when imported) and better
+energy services.
+A.3. Project participants:
+Name of Party involved (*)
+((host) indicates host Party)
+Private and/or public entity(ies)
+project participants (*) (as
+applicable)
+Kindly indicate if the Party
+involved wishes to be considered
+as project participant (Yes/No)
+Brazil (host) Companhia Brasileira de
+Distribuição – Grupo Pão de
+NO
+
+Page 3
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 3
+Açúcar
+(private entity)
+Ecoinvest Carbon Brasil.
+(private entity)
+(*) In accordance with the CDM modalities and procedures, at the time of making the CDM-PDD public
+at the stage of validation, a Party involved may or may not have provided its approval. At the time of
+requesting registration, the approval by the Party(ies) involved is required.
+Note: When the PDD is filled in support of a proposed new methodology (forms CDM-NBM and CDM-
+NMM), at least the host Party(ies) and any known project participant (e.g. those proposing a new
+methodology) shall be identified.
+A.4. Technical description of the small-scale project activity:
+A.4.1. Location of the small-scale project activity:
+A.4.1.1. Host Party(ies):
+Brazil
+A.4.1.2. Region/State/Province etc.:
+CBD Headquarter is located at:
+Street: Av. Brigadeiro Luís Antônio, 3172.
+Postal code: 01402-901
+City: São Paulo
+State: SP
+Country: Brazil
+This SSC-CDM-PDD comprises the following stores:
+Store Name Location
+EXTRA 1314 Rua Garcia Lorca, 301 - São Bernardo do Campo - SP
+EXTRA 1308 Av. Guarapiranga, 752 - São Paulo - SP
+EXTRA 1321 Av. Senador Teotônio Vilela, 2926 - São Paulo - SP
+PA-SP 1215 Rua Vereador João de Lucca, 1.005 - São Paulo - SP
+PA-REG 1210 Av. Bezerra de Menezes, 571 - Fortaleza - CE
+PA-REG 2359 Av. João de Barros, 1497 - Recife - PE
+PA-REG 0143 Rua Dr. Sattamini, 164 - Rio de Janeiro - RJ
+PA-REG 1220 Av. Santos Dumont, 1169 - Fortaleza - CE
+SENDAS 1656 Estr. Francisco da Cruz Nunes, 6501 - Niterói - RJ
+COMPREBEM 1707 Rua Domingos de Moraes, 316 - São Paulo - SP
+SENDAS 1825 Praça Luiz Furtado da Rosa, 32 - Petrópolis - RJ
+PA-SP 2409 Av. Washington Luiz, 3919 - São Paulo - SP
+
+Page 4
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 4
+COMPREBEM 1715 Av. Santa Catarina, 1672 - São Paulo - SP
+A.4.1.3. City/Town/Community etc:
+Please, refer to table in Section A.4.1.2.
+A.4.1.4. Detail of physical location, including information allowing the unique identification of this
+small-scale project activity(ies):
+Please, refer to table in Section A.4.1.2.
+A.4.2. Type and category(ies) and technology of the small-scale project activity:
+Each component project activity is a “Type II – Energy efficiency improvement project” and “Category
+II.E – Energy efficiency and fuel switching measures for buildings”. The methodology used is AMS-II.E.
+A group of different environmentally safe and sound actions and technologies has been employed in each
+store, including:
+- Identification of the main opportunities for electricity consumption reduction.
+- Contracting specialized services to develop management system in order to monitor and control
+electricity consumption.
+- Revision of operational procedures aiming at creating a more efficient standard of operation of
+the stores with the establishment of daily electricity consumption targets focusing specially the
+peak hour demands.
+- Identification of energy demands benchmarks from the comparison of several stores of the group,
+taking into consideration the specificities of each one of the brands that have different
+consumption patterns.
+- Best practices in the operation and maintenance of air conditioning and refrigerating systems.
+This type of load represents the major consumption element within stores electricity consumption
+patterns. Therefore, very stringent operational and maintenance procedures and investments to
+improve installations performance were implemented in order to reduce electricity demand.
+- Substitution of light bulbs for more efficient devices and changes in the operational procedures,
+operating at more suitable and efficient illumination levels according to each area.
+For further information please refer to Section B.2.
+A.4.3. Brief explanation of how the anthropogenic emissions of anthropogenic greenhouse gas
+(GHGs) by sources are to be reduced by the proposed small-scale project activity, including why
+the emission reductions would not occur in the absence of the proposed small-scale project activity,
+taking into account national and/or sectoral policies and circumstances:
+In each component project activity greenhouse gases emissions reductions are achieved by reducing the
+consumption of grid electricity, when compared to the baseline scenario. Electricity generation is
+
+Page 5
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 5
+renowned as an important greenhouse gas emissions source. In Brazil, despite the large participation of
+hydro based electricity generation, considered zero-emission source, fossil generation represents a
+significant portion of the generation, especially in the margin of the system.
+For each component project activity, the electricity baseline consists in the electricity consumption of the
+store before the implementation of the project activity.
+Electricity is multiplied by an emission coefficient, which is calculated in accordance with provisions of
+paragraph 9 for category I.D projects. The basis for calculating grid electricity emission coefficient is the
+concept of “approximate operating margin” and “build margin”. The emissions from grid electricity are
+calculated considering two effects, the influence of the project activity in the operation of existing power
+plants (Operating Margin) and in the construction of new power plants (Build Margin). The weighted
+average of operating and build margin generates the combined margin that characterizes grid emissions.
+Since the influence of fossil based thermo power plants is higher in the margin of the system, then
+emissions tend to be greater than the average emissions for the grid, considering all the generation.
+Possible emissions derived from the use of fossil fuels due to the project activity (after 1/1/2001), for
+instance because of the substitution of electric ovens by gas ovens or because of the use of diesel
+generators during the peak hours, will be accounted in project emissions.
+In the absence of the project activity, emissions would be greater than that of the project scenario, because
+the electricity consumption trend would be kept flat during the crediting period. The additionality
+assessment conducted in Section B.3 states with further details the additionality of the project.
+The most important and comprehensive program developed with regard to electricity efficiency in Brazil
+is the PROCEL – National Program for Electrical Energy Conservation. PROCEL was launched in 1985
+by the Ministry of Mines and Energy and aims at promoting the conservation and efficiency in electricity
+production and consumption. It encompasses several actions involving different sectors of the country.
+The program does not impose any obligation on electricity consumption nor tax or financial incentives for
+electricity efficiency. There is no other legislation that imposes restrictions in electricity consumption.
+A.4.3.1 Estimated amount of emission reductions over the chosen crediting period:
+Table below accounts for the estimated amount of emissions reduction for the fixed crediting period of 10
+years, starting in 2001.
+Years Annual estimation of emission reductions
+(tonnes of CO 2 eq)
+2001 1,992
+2002 2,015
+2003 2,582
+2004 3,039
+2005 3,195
+2006 3,195
+2007 3,195
+2008 3,195
+2009 3,195
+2010 3,195
+Total estimated reductions (tonnes of 28,797
+
+Page 6
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 6
+CO2 eq)
+Total number of crediting years 10
+Annual average over the crediting period
+of estimated reductions (tonnes of CO2 eq) 2,880
+A.4.4. Public funding of the small-scale project activity:
+The project is being developed on equity basis. CBD has implemented the project without any public
+funding or other source of debt.
+A.4.5. Confirmation that the small-scale project activity is not a debundled component of a larger
+project activity:
+A proposed small-scale project activity shall be deemed to be a debundled component of a large project
+activity if there is a registered small-scale CDM project activity or an application to register another
+small-scale CDM project activity:
+(1) With the same project participants;
+(2) In the same project category and technology/measure;
+(3) Registered within the previous 2 years; and
+(4) Whose project boundary is within 1 km of the project boundary of the proposed small-scale
+activity at the closest point.
+The group of stores in the present project activity cannot be deemed to be a debundled component of a
+large project activity because the boundaries of each component of the present project activity, i.e., the
+physical boundary of each store (see physical location of each store in item A.4.1.2), is not within 1 km of
+the project boundary of any store included the other 7 CBD CDM project activities developed
+concomitantly. If there are stores whose boundaries are closer than 1 km at the closest point, they will be
+considered as one project activity.
+Therefore, the present small-scale project activity is not a debundled component of a larger project
+activity.
+
+Page 7
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 7
+SECTION B. Application of a baseline methodology:
+B.1. Title and reference of the approved baseline methodology applied to the small-scale project
+activity:
+“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).
+For the calculation of the baseline emission coefficient of the electricity displaced “AMS-II.E” remits to
+“AMS-I.D – Grid connected renewable electricity generation” (version 10), which ultimately remits to
+“ACM0002 – Consolidated baseline methodology for grid connected electricity generation from
+renewable sources” (version 6).
+B.2 Project category applicable to the small-scale project activity:
+Each component project activity is “Type II – Energy efficiency improvement projects” and “Category
+II.E – Energy efficiency and fuel switching measures for buildings”. The methodology used is AMS-II.E
+– Version 8.
+Justification of how the proposed project activity conforms with the project type and category selected
+Methodology AMS-II.E applies to:
+“…any energy efficiency and fuel switching measure implemented at a single building, such as a
+commercial, institutional or residential building, or group of similar buildings, such as a school, district or
+university. This category covers project activities aimed primarily at energy efficiency; a project activity that
+involves primarily fuel switching falls into category III.B. Examples include technical energy efficiency
+measures (such as efficient appliances, better insulation and optimal arrangement of equipment) and fuel
+switching measures (such as switching from oil to gas). The technologies may replace existing equipment or
+be installed in new facilities. The aggregate energy savings of a single project may not exceed the equivalent
+of 60 GWh per year.”
+Each component project activity is the implementation of different independent electricity efficiency
+measures in the stores of CBD (similar commercial buildings) with the objective of reducing the
+consumption of electricity. The primary aim of the project activity is energy efficiency and not fuel
+switching. A group of different environmentally safe and sound actions and technologies has been
+employed in each store, including:
+- Identification of the main opportunities for electricity consumption reduction.
+- Contracting specialized services to develop management system in order to monitor and control
+electricity consumption.
+- Revision of operational procedures aiming at creating a more efficient standard of operation of
+the stores with the establishment of daily electricity consumption targets focusing specially the
+peak hour demands.
+- Identification of energy demands benchmarks from the comparison of several stores of the group,
+taking into consideration the specificities of each one of the brands that have different
+consumption patterns.
+
+Page 8
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 8
+- Best practices in the operation and maintenance of air conditioning and refrigerating systems.
+This type of load represents the major consumption element within stores electricity consumption
+patterns. Therefore, very stringent operational and maintenance procedures and investments to
+improve installations performance were implemented in order to reduce electricity demand.
+- Substitution of light bulbs for more efficient devices and changes in the operational procedures,
+operating at more suitable and efficient illumination levels according to each area.
+As one can see, part of the actions can be generally classified as management change, involving changes
+in operational and maintenance procedures and the implementation of energy management system. Other
+part involved capital investments and increase in maintenance costs such as substitution of light bulbs,
+retrofitting of air conditioning, retrofitting of refrigerators and chillers, substitution of freezers and
+improvement of cold ambient insulation.
+Demonstration that the project is eligible as small-scale and that it will remain under the SSC limits
+It is provided below the efficiency improvements in each component project activity.
+Monitored/estimated reduction in electricity consumption [MWh]
+Store
+2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+EXTRA 1314 2,478 2,388 3,740 3,861 4,039 4,039 4,039 4,039 4,039 4,039
+EXTRA 1308 1,169 1,717 1,906 2,233 2,601 2,601 2,601 2,601 2,601 2,601
+EXTRA 1321 812 697 1,033 1,273 1,547 1,547 1,547 1,547 1,547 1,547
+PA-SP 1215 702 614 792 831 930 930 930 930 930 930
+PA-REG 1210 483 567 686 849 830 830 830 830 830 830
+PA-REG 2359 348 321 288 504 496 496 496 496 496 496
+PA-REG 0143 314 358 316 367 385 385 385 385 385 385
+PA-REG 1220 403 177 165 209 223 223 223 223 223 223
+SENDAS 1656 344 253 536 819 145 145 145 145 145 145
+COMPREBEM 1707 95 94 10 80 103 103 103 103 103 103
+SENDAS 1825 165 198 8 27 53 53 53 53 53 53
+PA-SP 2409 913 955 770 1,117 1,259 1,259 1,259 1,259 1,259 1,259
+COMPREBEM 1715 276 272 445 573 718 718 718 718 718 718
+TOTAL 8,502 8,611 10,695 12,743 13,329 13,329 13,329 13,329 13,329 13,329
+As demonstrated above, the efficiency improvements in each store and the total efficiency improvements
+in all stores remain below 60 GWh/year, every year throughout the crediting period.
+B.3. Description of how the anthropogenic emissions of GHG by sources are reduced below those
+that would have occurred in the absence of the registered small-scale CDM project activity:
+The additionality of each component project activity is demonstrated together, as they are similar project
+activities and face similar barriers to happen, through “Attachment A to Appendix B of the Simplified
+Modalities and Procedures for small-scale CDM project activities”.
+
+Page 9
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 9
+In the absence of the project activity, the most likely scenario would be the continuation of the same
+levels of electricity consumption existing before the implementation of the project activity in the
+equipment and facilities of each component of the project activity. Despite the barriers associated with the
+project, CBD decided to implement it. The fact that the project may benefit from carbon credits has been
+important in the decision process.
+Prompt-start projects conditions
+Project participants wish to have the crediting period starting prior to the registration of the project
+activity. Therefore, in accordance with the “Tool for the demonstration and assessment of additionality”
+and the “Decision -/CMP.1 - Further guidance relating to the clean development mechanism” it is
+provided below:
+(1) Evidence that the project activity started in the period between 1 January 2000 and 18 November
+2004: the implementation of the project activity started in January year 2001 (a contract signed with a
+third company, Eletropaulo Metropolitana – Eletricidade de São Paulo S. A., to use an specific store
+as a pilot to the energy efficiency program at CBD is supplied as evidence) and continued in the
+following years, thus, after January 1st 2000, and before November 18th 2004. Evidence is available
+with project proponents at the project site. Another evidence is the operation start of the monitoring
+tool Sigescon, a software implemented to monitor and manage the implementation of the project
+activity. Printscreen of the software with one of the entries inserted in January 1 st 2001 and an entry
+example can be seen in Figure 1.
+
+Page 10
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 10
+Figure 1 – Printscreen of the Sigescon software tool
+(2) Evidence that the project activity has either submitted a new methodology or have requested
+validation by a designated operational entity by 31 December 2005: project activity has submitted a
+new methodology proposal in Round 11 (June 2005) under number NM0120. The proposal was
+graded C in the CDM-EB 21st meeting (September 2005).
+(3) Evidence that the incentive from the CDM was seriously considered in the decision to proceed
+with the project activity: project proponent has seriously considered the incentives of the CDM as it
+can be demonstrated by the contract signed between CBD and Sinerconsult, which was the company
+that implemented the electricity efficiency program. Evidence is available with project proponents at
+the project site.
+Barriers analysis
+While energy efficiency is widely viewed as an important element of energy and environmental policy,
+there is still much to develop in energy efficiency in Brazil. One problem for this development on a
+public policy level is that it is often difficult to estimate the real impacts of energy efficiency
+improvements in the economy because the assumptions about technical factors, equipment costs, expected
+rates of market penetration, consumer behavior and policy measures can be difficult to determine.
+On a private level, frequently, investment decisions are not taken exclusively with direct reference to
+discount rates and discounted cash flows. Decision makers consistently purchase products that are less
+economical and less efficient (compared with others on the market) than is in their financial best interest.
+Cost-effectiveness and economic potential are concepts that are usually based on an ideal world where
+decision makers act in an economically rational way and adopt energy-efficient technology as soon as it
+becomes “cost-effective” and this is not often true.
+It is likely that decision makers undervalue energy efficiency when compared with other investments,
+with energy savings balanced against higher purchase costs, if energy efficiency is viewed as an
+investment. Sometimes, even when investment decisions are more likely to be evaluated in terms of
+
+Page 11
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 11
+economic rationale, like in business or industry, decision makers may apply less stringent investment
+criteria to productive investments and those that increase market share than to energy efficiency
+investments. Consequently, equipment and appliance manufacturers tend to produce less-efficient
+products.
+Investments in energy efficiency are often more difficult to finance even when the apparent costs of
+energy efficiency are much less than those of new energy supply. This is because suppliers and users of
+energy are two different groups with vastly different investment priorities and access to capital. As energy
+efficiency is often a minor consideration in the choice of equipment, its costs have to be paid back at a
+rapid rate. Product characteristics other than energy efficiency are usually more important for individual
+consumers. In addition, the value of investments in energy efficiency is subject to fluctuations of energy
+prices. Information on the performance of energy efficiency investments is often difficult to acquire.
+Market forces tend to improve energy efficiency, but usually at a slow rate. There are numerous market
+failures and barriers that explain why energy-efficient technologies, which appear cost-effective, are not
+chosen. Barriers can occur all along the product manufacture, distribution and purchase stream, but most
+attention is directed towards consumers and their purchase decisions. Among the most important barriers
+are the following:
+(1) Investment barrier
+One of the main barriers to the establishment of energy efficiency programs is the difficulty to obtain
+funding to the projects. Due to lack of understanding of this market and the contracting characteristics
+the financial agents consider it a risky business. Also, these same agents have a high opportunity cost
+associated with other well-known products, such as revolving credits and consumer financing.
+Therefore, the risk perception involved in the development of the efficiency program and installation
+of equipment was high, incurring in very unfavorable interest rates and funding conditions for the
+project activity. In other words, if the company can choose between various investment options,
+frequently due to limited managerial and absorption capacity not all alternatives are realized, even if
+all are profitable. The companies select the most rewarding ones combined with low risk measures.
+Energy efficiency measures are sometimes considered as risky as they involve change of behaviour
+and attitudes (e.g. maintenance practices) and their potential benefits are thus perceived as unsure. On
+the other hand other investments are perhaps even more profitable or absorb management less. When
+comparing different investment possibilities it is very likely that a company will prefer to invest
+mainly in their core business and not e.g. in improved energy efficiency. The project involved a
+significant investment into a business not related to the core business of CBD, around R$11 millions,
+and it was developed on equity basis, without any public or private funding.
+Additionally, capital markets are very attractive in Brazil, especially considering the high interest
+rates in the country, what makes the investment in the capital markets much more attractive than
+funding efficiency programs, especially considering the risks in the return of an efficiency program.
+Real interest rates have been extraordinarily high since the Real plan stabilized inflation in 1994. As a
+consequence of the long period of inflation, the Brazilian currency experienced a strong devaluation,
+effectively precluding commercial banks from providing any long-term debt financing. The lack of a
+long-term debt market has had a severely negative direct impact on the financing of projects in Brazil.
+The transaction costs involved in investing in the project were substantial and, even though they may
+not be explicitly calculated, CBD decision makers had a sense of their magnitude and they
+
+Page 12
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 12
+represented an important barrier to investment. Transaction costs are the administrative costs of
+making and implementing a purchase decision.
+(2) Technological barrier
+The maintenance of the situation existing previously to project implementation represented a less
+technologically advanced alternative which involved lower risks due to the performance uncertainty
+and so it would have led to higher emissions.
+The risk involved in the implementation of the project activity and the lack of CBD confidence in the
+results of the project represented barriers to its implementation. CBD was affected by the risks (actual
+and perceived) of using a new or unfamiliar technology. At the earliest stage of a project
+development, it is not yet proven and the costs and benefits of using it are not well known. It may not
+work as expected, it may break down, operating and maintenance costs may be higher than promised,
+or it may be made obsolete by some newer technology. There can also be a certain distrust of new
+technologies, because of a bad reputation from unsubstantiated claims of early product introductions.
+(3) Barrier due to prevailing practice
+Prevailing practice, existing regulatory requirements and existing policies would not push the
+implementation of the project activity to the point of its implementation. Uncertain economic
+scenario, little economic incentive for energy efficiency programs and capital restrictions appears as
+important barriers to investment in energy efficiency, so that efficiency programs are not a common
+practice in the sector and rely on self promoted initiatives. Here the problem is the related lack of
+awareness regarding their energy losses and what can be done, as well as the limitations of in-house
+capacity.
+(4) Other barriers
+Limited information is also a barrier to project implementation. Energy-use is a “secondary” and
+“invisible” characteristic of CBD activities, and so supplementary information is needed to bring it to
+the attention of the company’s decision makers. Energy is a small part of the cost of doing business
+and often treated as a fixed cost. Markets fail to disseminate information about products’ energy
+characteristics to the extent that is economically efficient. There are two aspects of this under-supply
+of information. First, information dissemination is in part a “public good”, meaning that providers
+cannot collect a price from all who use it. Second, there must be enough easily-obtainable
+information disseminated to surmount the “threshold” required to start consumers’ information
+gathering efforts.
+Also, as electricity is not a major cost in CBD operations, there used to be limited awareness and
+interest in energy costs and reducing energy expense. Energy is also a “delayed” attribute. A
+product’s energy costs, to the extent they can be distinguished in an overall bill, are only perceived
+some weeks or months after the purchase and are not an immediate concern at the time of purchase.
+Thus consumers often ignore them in the face of more pressing concerns about products’
+performance, features and sales price.
+As showed above, the project activity faced several barriers to happen, while the alternative to the project
+activity was not prevented by them. Since the beginning of the project implementation, CDM incentives
+have been considered because they will alleviate the identified barriers, in the following manner:
+
+Page 13
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 13
+ The certification of the anthropogenic greenhouse gas emission reductions will add value to
+corporate image, resulting in intangible benefits in favor of project activity.
+ The financial benefit of the revenue obtained with the CERs will alleviate the total costs of
+project activity.
+Therefore, the project activity is additional and the baseline scenario is the continuation of the situation
+previous to the project activity, with electricity consumption levels remaining the same as that existing
+before the project implementation.
+National policies and circumstances
+The most important and comprehensive program developed with regard to energy efficiency in Brazil is
+the PROCEL – National Program for Electrical Energy Conservation. PROCEL was launched in 1985 by
+the Ministry of Mines and Energy and aims at promoting the conservation and efficiency in electricity
+production and consumption. It encompasses several actions involving different sectors of the country.
+The program does not consider any obligation on electricity consumption nor tax or financial incentives
+for electricity efficiency. There is no other legislation that imposes restrictions in electricity consumption.
+In the years 2001 and 2002, Brazil faced a severe crisis in the electricity sector. Electricity supply and
+demand had a serious unbalance and the Federal Government had to launch an emergency plan to deal
+with electricity shortage. Among other measures, a compulsory consumption reduction of 20% in relation
+to the average electricity consumption in the period of May to July 2000 was imposed to consumers from
+June 1, 2001 to February 28, 2002. The electricity consumption in the country is showed in Figure 2. The
+rationing plan lasted for ten months and caused a GDP growth reduction of 1.0 to 1.5% (Pinto Júnior,
+2003) 1 .
+Three major factors contributed to the electricity rationing:
+- Absence of investments in electricity generation capacity in the years previous to 2001.
+- Unexpected electricity demand increase, due to economic growth.
+- Severe dry season, with reservoirs of hydro power plants falling down under historical levels.
+In spite of the rationing being a severe negative event that impacted the country economy, it showed
+everyone that there are very good opportunities to implement efficiency programs all over the economic
+activities. After the rationing period the consumption restrictions were eliminated and electricity supply
+moved quickly to the situation of surplus supply. Electricity prices fell down in consequence of high
+availability caused by reduction of consumption, situation that remains until today.
+1 Pinto Júnior, H. (2003). Les problèmes des réformes structurelles et institutionnelles inachevées: le cas de
+l’industrie éléctrique au Brésil. Révue de l’Energie 544, 103-111.
+
+Page 14
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 14
+17,000
+18,000
+19,000
+20,000
+21,000
+22,000
+23,000
+24,000
+25,000
+26,000
+27,000
+Jan
+-96 Apr-
+96
+Jul-
+96 Oct-
+96
+Jan
+-97
+Apr-
+97
+Jul-
+97 Oct-
+97
+Jan
+-98 Apr-
+98
+Jul-
+98
+Oct-
+98
+Jan
+-99
+Apr-
+99
+Jul-
+99
+Oct-
+99
+Jan
+-00
+Apr-
+00
+Jul-
+00
+Oct-
+00
+Jan
+-01
+Apr-
+01
+Jul-
+01
+Oct-
+01
+Jan
+-02 Apr-
+02
+Jul-
+02 Oct-
+02
+Jan
+-03 Apr-
+03
+Jul-
+03
+Oct-
+03
+month
+MW
+me
+d
+Figure 2 - Monthly load average in the Brazilian S-SE-CO interconnected electricity
+system from 1996 to 2003 (ONS, 2004)
+CBD not only anticipated 2 but also learned from this fact and, even after the rationing, it strengthened the
+efforts towards electricity demand consumption reduction. With this project activity CBD has been able
+to maintain and strengthen the electricity efficiency program that started during the rationing.
+B.4. Description of how the definition of the project boundary related to the baseline methodology
+selected is applied to the small-scale project activity:
+The project boundary is the physical, geographical site of each store.
+The only gas included in the emissions calculations is CO 2 because this is the main emissions source.
+Other greenhouse gases are excluded for simplification.
+Emission sources included are: emissions due to fossil fuel consumption for the generation of electricity
+in the grid power plants.
+B.5. Details of the baseline and its development:
+2 The CBD program was elaborated in the second semester of 2000 and initiated officially in January 1, 2001. In
+April 2001 the Brazilian energy authorities decided that a rationing would be necessary. The decision concerning
+the rationing program and its rules was released in May 2001.
+
+Page 15
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 15
+As defined in AMS-II.E, the energy baseline consists of the energy use of the existing equipment that is
+replaced in the case of retrofit measures and of the facility that would otherwise be built in the case of a
+new facility. This project activity consists of retrofit measures and management improvement such as
+efficient appliances, better insulation, optimal arrangement of equipment and operational changes.
+Therefore, the baseline is chosen as the energy use of the existing equipment that is replaced. As
+demonstrated in the additionality section, the baseline scenario is the continuation of the situation existing
+previously to project implementation. The baseline is defined independently for each component project
+activity (each store) as the electricity consumption in the year previous to project implementation.
+Store 1308 (MWh)
+EXTRA: Av. Guarapiranga, 752 - São Paulo - SP
+1999 2000 2001
+Estimated from the balance sheet 4,426.44 4,437.60 3,579.06
+Monitored 5,157.00 3,988.00
+Store 1210 (MWh)
+PA-REG: Av. Bezerra de Menezes, nº 571 - Fortaleza - CE
+1999 2000 2001
+Estimated from the balance sheet 2,277.60 2,944.29 2,376.64
+Store 1220 (MWh)
+PA-REG: Av. Santos Dumont, nº 1169 - Fortaleza - CE
+1999 2000 2001
+Estimated from the balance sheet 2,843.79 3,114.35 2,747.09
+Table 1 – Electricity consumption trend at individual CBD stores
+Possible emissions derived from the use of fossil fuels due to the project activity (after 1/1/2001), for
+instance because of the substitution of electric ovens by gas ovens or because of the use of diesel
+generators during the peak hours, will be accounted in project emissions.
+Electricity is multiplied by an emission coefficient calculated in accordance with provisions of
+methodology “AMS-I.D – Version 10”:
+“9. For all other systems, the baseline is the kWh produced by the renewable generating unit multiplied by an
+emission coefficient (measured in kgCO2eq/kWh) calculated in a transparent and conservative manner as:
+(a) A combined margin (CM), consisting of the combination of operating margin (OM) and build margin
+(BM) according to the procedures prescribed in the approved methodology ACM0002. Any of the four
+procedures to calculate the operating margin can be chosen, but the restrictions to use the Simple OM and the
+Average OM calculations must be considered …”
+Date of baseline completion: 13/02/2007.
+
+Page 16
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 16
+SECTION C. Duration of the project activity / Crediting period:
+C.1. Duration of the small-scale project activity:
+C.1.1. Starting date of the small-scale project activity:
+01/01/2001
+C.1.2. Expected operational lifetime of the small-scale project activity:
+30 years, 0 months.
+C.2. Choice of crediting period and related information:
+C.2.1. Renewable crediting period:
+C.2.1.1. Starting date of the first crediting period:
+Not applicable.
+C.2.1.2. Length of the first crediting period:
+Not applicable.
+C.2.2. Fixed crediting period:
+C.2.2.1. Starting date:
+01/01/2001
+C.2.2.2. Length:
+10 years, 0 months.
+
+Page 17
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 17
+SECTION D. Application of a monitoring methodology and plan:
+D.1. Name and reference of approved monitoring methodology applied to the small-scale project
+activity:
+The monitoring methodology used is “AMS II.E– Energy efficiency and fuel switching measures for
+buildings” – Version 8.
+D.2. Justification of the choice of the methodology and why it is applicable to the small-scale
+project activity:
+Justification on the choice of the methodology is presented in Section B.2.
+D.3 Data to be monitored:
+Monitoring consists of:
+(a) Documenting the measures, programs and specification of equipments replaced;
+(b) Monitoring the electricity consumption with the centralized management tool Sigescon (electricity
+invoices from each individual store can be used to cross-check the information);
+(c) Monitoring of additional fossil fuel consumption due to the project activity;
+(d) Calculating the energy savings due to the measures implemented (by using the consumption of the
+year immediately before the implementation of the project as baseline).
+D.4. Qualitative explanation of how quality control (QC) and quality assurance (QA) procedures
+are undertaken:
+1. The electricity consumption of each store is measured each month by the electricity company.
+The measurement is based on calibrated meters installed in each one of the stores. The measure is
+informed to the project through the electricity bill that needs to be paid monthly.
+2. The electrical efficiency program includes different actions in each one of the stores. When the
+action is the installation of new equipment (such as light bulbs, freezers, chillers, better
+insulation, etc.), the monitoring can be performed verifying the purchase receipts of the
+equipment. When the actions include operational and behavioral changes, they can be monitored
+through meeting minutes, folders, interviews with employees, etc.
+3. The consumption of fossil fuels is monitored through fossil fuels purchase invoices.
+D.5. Please describe briefly the operational and management structure that the project
+participant(s) will implement in order to monitor emission reductions and any leakage effects
+generated by the project activity:
+Project operator and manager is Companhia Brasileira de Distribuição – Grupo Pão-de-Açúcar. The
+company has maintenance and operations procedures, which include the monitoring of electricity
+consumption. Part of the project activity was the implementation of an electricity management program
+and software to control the results of the electricity efficiency program. The electricity consumption in
+
+Page 18
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 18
+each store is controlled and monitored from the company headquarters with the software SIGESCON,
+where all the information is available electronically and with historic back up. Data is obtained from local
+monitoring in each store and consolidated electronically in SIGESCON. Data is kept electronically in the
+system, with back-up available. Monthly reports are produced from these data.
+The calculation of emissions reductions is made through a Microsoft Excel spreadsheet, which contains
+formulae in accordance with the methodology. The data obtained from the consolidated reports shall be
+introduced in the spreadsheet and emissions reductions will be calculated automatically.
+All monitored data related with the project activity will be stored until two years after the end of the
+crediting period.
+D.6. Name of person/entity determining the monitoring methodology:
+Name: A. R. J. Esparta
+Company: Ecoinvest Carbon Brasil
+Street: Rua Padre João Manoel, 222
+City: São Paulo
+State: SP
+Postal code: 01411-000
+Country: Brazil
+
+Page 19
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 19
+SECTION E.: Estimation of GHG emissions by sources:
+E.1. Formulae used:
+E.1.1 Selected formulae as provided in appendix B:
+Not applicable.
+E.1.2 Description of formulae when not provided in appendix B:
+E.1.2.1 Describe the formulae used to estimate anthropogenic emissions by sources of GHGs due to
+the project activity within the project boundary:
+Project activity emissions are calculated as the electricity consumption of each component project activity
+(ECproj) multiplied by the grid electricity emission factor (EFgrid ):
+PE = ECproj · EF grid + FF proj · EF fossil
+Where,
+- EF grid is the grid electricity emission factor, in tCO2 /MWh.
+- ECproj is the monitored electricity consumption of the project activity, in MWh.
+- FF proj is the consumption of fossil fuels in the project activity, if any, in TJ.
+- EF fossil is the emission factor of the fossil fuel used, if any, in tCO2 /TJ.
+The electricity emissions factor is calculated as per methodology “AMS-I.D-Version 10, Paragraph 9,
+Option (a)”:
+Baseline (including imports) LCMR [MWh] Imports [MWh]
+2003 75,994,843 7,632,626
+2004 78,248,786 3,826,422
+2005 83,269,838 4,790,635
+237,513,467 16,249,684
+w OM = 0.75 w OM = 0.5
+w BM = 0.25 w BM = 0.5
+Load [MWh]
+76,935,819
+λ 2004
+0.3289 81,199,780
+0.0767	0.0906
+0.5330
+Default weights
+Alternative EF CM [tCO2/MWh]
+0.7192
+Default EF CM [tCO2/MWh]
+EF OM, simple-adjusted [tCO2/MWh]
+0.1044 0.0491
+Alternative weights
+λ 2005
+Lambda
+λ 2003
+EF OM [tCO2/MWh]
+0.1264
+243,954,076
+EF BM,2005
+Total (2003-2005) =
+Emission Factor for the Brazilian North-Northeast Interconnected grid
+0.2702 85,818,478
+0.5572
+EF grid = 0.0767 tCO2 /MWh for the Brazilian North-Northeast interconnected grid
+
+Page 20
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 20
+Baseline (including imports) LCMR [MWh] Imports [MWh]
+2003 274,670,644 459,586
+2004 284,748,295 1,468,275
+2005 296,690,687 3,535,252
+856,109,626 5,463,113
+w OM = 0.75 w OM = 0.5
+w BM = 0.25 w BM = 0.5
+0.8086 314,533,592
+0.5130
+Lambda
+λ 2003
+EF OM [tCO2/MWh]
+0.9823
+906,373,081
+EF BM,2005
+Total (2003-2005) =
+Emission factors for the Brazilian South-Southeast-Midwest interconnected grid
+Alternative EF y [tCO2/MWh]
+0.5312
+Default EF y [tCO2/MWh]
+EF OM, simple-adjusted [tCO2/MWh]
+0.4349 0.0872
+Alternative weights
+λ 2005
+Load [MWh]
+288,933,290
+λ 2004
+0.9163 302,906,198
+0.2611	0.3480
+0.5055
+Default weights
+EF grid = 0.2611 tCO2 /MWh for the Brazilian South-Southeast-Midwest interconnected grid
+In two stores (1215 and 1308) backup/peak-hour diesel generators were used for 3 months in 2002. The
+diesel consumptions was monitored (an average of roughly 4,451 liters per month) and the appropriate
+project emissions is included in the calculation (around 36.5 tCO2 in 2002). Therefore:
+FF proj (2002) = 36.5 tCO2
+Monitored/estimated electricity consumption from 2001 until 2010 are presented below for each small-
+scale component project activity:
+ECproj [MWh]
+Store
+2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+EXTRA 1314 12,101 12,191 10,839 10,718 10,540 10,540 10,540 10,540 10,540 10,540
+EXTRA 1308 3,988 3,440 3,251 2,924 2,556 2,556 2,556 2,556 2,556 2,556
+EXTRA 1321 4,239 4,354 4,018 3,778 3,504 3,504 3,504 3,504 3,504 3,504
+PA-SP 1215 1,814 1,902 1,724 1,685 1,586 1,586 1,586 1,586 1,586 1,586
+PA-REG 1210 2,235 2,151 2,032 1,869 1,888 1,888 1,888 1,888 1,888 1,888
+PA-REG 2359 1,365 1,392 1,425 1,209 1,217 1,217 1,217 1,217 1,217 1,217
+PA-REG 0143 1,172 1,128 1,170 1,119 1,101 1,101 1,101 1,101 1,101 1,101
+PA-REG 1220 2,700 2,926 2,938 2,894 2,880 2,880 2,880 2,880 2,880 2,880
+SENDAS 1656 2,269 2,360 2,077 1,794 2,468 2,468 2,468 2,468 2,468 2,468
+COMPREBEM 1707 587 588 672 602 579 579 579 579 579 579
+SENDAS 1825 469 436 626 607 581 581 581 581 581 581
+PA-SP 2409 3,758 3,716 3,901 3,554 3,412 3,412 3,412 3,412 3,412 3,412
+COMPREBEM 1715 1,708 1,712 1,539 1,411 1,266 1,266 1,266 1,266 1,266 1,266
+TOTAL 38,405 38,296 36,212 34,164 33,578 33,578 33,578 33,578 33,578 33,578
+Monitored/estimated project emissions from 2001 until 2010 are presented below for each small-scale
+component project activity:
+PE [tCO 2]
+Store
+2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+
+Page 21
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 21
+EXTRA 1314 3,160 3,183 2,830 2,798 2,752 2,752 2,752 2,752 2,752 2,752
+EXTRA 1308 1,041 924 849 763 667 667 667 667 667 667
+EXTRA 1321 1,107 1,137 1,049 986 915 915 915 915 915 915
+PA-SP 1215 474 507 450 440 414 414 414 414 414 414
+PA-REG 1210 171 165 156 143 145 145 145 145 145 145
+PA-REG 2359 105 107 109 93 93 93 93 93 93 93
+PA-REG 0143 306 295 305 292 287 287 287 287 287 287
+PA-REG 1220 207 224 225 222 221 221 221 221 221 221
+SENDAS 1656 592 616 542 468 644 644 644 644 644 644
+COMPREBEM 1707 153 154 175 157 151 151 151 151 151 151
+SENDAS 1825 122 114 163 158 152 152 152 152 152 152
+PA-SP 2409 981 970 1,019 928 891 891 891 891 891 891
+COMPREBEM 1715 446 447 402 368 331 331 331 331 331 331
+TOTAL 8,866 8,843 8,276 7,819 7,664 7,664 7,664 7,664 7,664 7,664
+E.1.2.2 Describe the formulae used to estimate leakage due to the project activity, where required,
+for the applicable project category in appendix B of the simplified modalities and procedures for
+small-scale CDM project activities
+There is no leakage to be considered. Hence,
+LE = 0
+E.1.2.3 The sum of E.1.2.1 and E.1.2.2 represents the small-scale project activity emissions:
+The small-scale project activity emissions are defined in E.1.2.1.
+E.1.2.4 Describe the formulae used to estimate the anthropogenic emissions by sources of GHGs in
+the baseline using the baseline methodology for the applicable project category in appendix B of the
+simplified modalities and procedures for small-scale CDM project activities:
+Baseline emissions are calculated as the electricity consumption of each component project activity in the
+year before project implementation, i.e. in the year 2000, (ECbase) multiplied by the electricity emission
+factor (EF grid ) plus the electricity:
+BE = ECbase · EF grid
+Where,
+- EF grid is the grid electricity emission factor, in tCO2 /MWh.
+- ECbase is the monitored electricity consumption of the baseline, in MWh.
+The baseline is defined as the year before project implementation, therefore year 2000. The electricity
+consumption in the year 2000 is presented below, for each small-scale component project activity:
+
+Page 22
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 22
+ECbase, in
+[MWh]Store
+2000
+BE, in [tCO2 ]
+EXTRA 1314 14,579 3,807
+EXTRA 1308 5,157 1,346
+EXTRA 1321 5,051 1,319
+PA-SP 1215 2,516 657
+PA-REG 1210 2,718 208
+PA-REG 2359 1,713 131
+PA-REG 0143 1,486 388
+PA-REG 1220 3,103 238
+SENDAS 1656 2,613 682
+COMPREBEM 1707 682 178
+SENDAS 1825 634 166
+PA-SP 2409 4,671 1,220
+COMPREBEM 1715 1,984 518
+TOTAL 46,907 10,858
+E.1.2.5 Difference between E.1.2.4 and E.1.2.3 represents the emission reductions due to the project
+activity during a given period:
+ER = BE – PE – LE
+ER [tCO 2]
+Store
+2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+EXTRA 1314 647 624 977 1,008 1,055 1,055 1,055 1,055 1,055 1,055
+EXTRA 1308 305 422 498 583 679 679 679 679 679 679
+EXTRA 1321 212 182 270 332 404 404 404 404 404 404
+PA-SP 1215 183 150 207 217 243 243 243 243 243 243
+PA-REG 1210 37 43 53 65 64 64 64 64 64 64
+PA-REG 2359 27 25 22 39 38 38 38 38 38 38
+PA-REG 0143 82 93 83 96 101 101 101 101 101 101
+PA-REG 1220 31 14 13 16 17 17 17 17 17 17
+SENDAS 1656 90 66 140 214 38 38 38 38 38 38
+COMPREBEM 1707 25 25 3 21 27 27 27 27 27 27
+SENDAS 1825 43 52 2 7 14 14 14 14 14 14
+PA-SP 2409 238 249 201 292 329 329 329 329 329 329
+COMPREBEM 1715 72 71 116 150 187 187 187 187 187 187
+TOTAL 1,992 2,015 2,582 3,039 3,195 3,195 3,195 3,195 3,195 3,195
+E.2 Table providing values obtained when applying formulae above:
+
+Page 23
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 23
+Table below provides total values when applying formulae above to the project activity:
+Year
+Estimation of
+project activity
+emissions [tCO2 ]
+Estimation of
+baseline
+emissions [tCO2 ]
+Estimation of
+leakage emissions
+[tCO2 ]
+Estimation of
+emissions
+reductions [tCO2 ]
+2001 8,866 10,858 0 1,992
+2002 8,843 10,858 0 2,015
+2003 8,276 10,858 0 2,582
+2004 7,819 10,858 0 3,039
+2005 7,664 10,858 0 3,195
+2006 7,664 10,858 0 3,195
+2007 7,664 10,858 0 3,195
+2008 7,664 10,858 0 3,195
+2009 7,664 10,858 0 3,195
+2010 7,664 10,858 0 3,195
+Total 79,785 108,581 36 28,797
+
+Page 24
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 24
+SECTION F.: Environmental impacts:
+F.1. If required by the host Party, documentation on the analysis of the environmental impacts of
+the project activity:
+The project activity has been implemented in accordance with all the applicable environmental legislation
+in the Municipal, State and Federal levels. No significant environmental impacts are due to the project
+activity.
+
+Page 25
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 25
+SECTION G. Stakeholders’ comments:
+G.1. Brief description of how comments by local stakeholders have been invited and compiled:
+The Brazilian Designated National Authority for the CDM requires the compulsory invitation of selected
+stakeholders to comment the PDD sent to validation in order to provide the letter of approval. CBD and
+Ecoinvest invited comments from local stakeholders when validation starts. The local stakeholders invited
+are listed below:
+- City Hall
+- City Council
+- State Environmental Agency
+- Local Environmental Agency
+- Local NGO
+- State Public Attorney
+- FBOMS (Representative of Brazilian Environmental ONGs)
+Copies of the invitation letters and receipts (AR – Avisos de Recebimento) will be available with project
+proponents.
+G.2. Summary of the comments received:
+So far, no comments have been received from local stakeholders.
+G.3. Report on how due account was taken of any comments received:
+So far, no comments have been received from local stakeholders.
+
+Page 26
+CDM-SSC-PDD (version 02)
+CDM – Executive Board page 26
+Annex 1
+CONTACT INFORMATION ON PARTICIPANTS IN THE PROJECT ACTIVITY
+Organization: Companhia Brasileira de Distribuição – Grupo Pão de Açúcar
+Street/P.O.Box: Av. Brigadeiro Luís Antonio, 3172
+City: São Paulo
+State/Region: SP
+Postfix/ZIP: 01402-901
+Country: Brazil
+Telephone: +55 11 3886-0421
+FAX: +55 11 3884 2677
+URL: www.paodeacucar.com.br
+Represented by:
+Salutation: Mr.
+Last Name: Furlan
+Middle Name:
+First Name: Sidney
+Personal E-Mail: sidney.furlan@paodeacucar.com.br
+Organization: Ecoinvest Carbon Brasil Ltda.
+Street/P.O.Box: Rua Padre João Manoel, 222
+City: São Paulo
+State/Region: SP
+Postfix/ZIP: 01411-000
+Country: Brazil
+Telephone: +55 11 3063-9068
+FAX: +55 11 3063-9069
+URL: www.ecoinvestcarbon.com
+Represented by:
+Salutation: Mr.
+Last Name: Martins Jr
+Middle Name: de Mathias
+First Name: Carlos
+Personal E-Mail: cmm@ecoinvestcarbon.com
+Annex 2
+INFORMATION REGARDING PUBLIC FUNDING
+The project is being developed on equity basis. CBD has implemented the project without public funding
+or other source of debt.
+- - - - -
