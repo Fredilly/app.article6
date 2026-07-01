@@ -1,0 +1,10 @@
+{
+  "id": "iss-rep-deed",
+  "title": "Quick Check v2 Phase 7 ISS_REP deed negative fixture",
+  "documentId": "iss-rep-1530-deed",
+  "runtimeMode": "runtime-smoke",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "VCS",
+  "documentType": "VCS Issuance Deed of Representation"
+}

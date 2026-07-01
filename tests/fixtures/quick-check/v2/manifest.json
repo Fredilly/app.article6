@@ -16,6 +16,10 @@
     {
       "id": "la-higuera-cdm-pdd",
       "directory": "la-higuera-cdm-pdd"
+    },
+    {
+      "id": "iss-rep-deed",
+      "directory": "iss-rep-deed"
     }
   ]
 }
