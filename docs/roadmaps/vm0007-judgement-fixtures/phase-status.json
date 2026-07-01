@@ -25,9 +25,15 @@
       "status": "active",
       "dependsOn": [],
       "doneCriteria": [
-        "Roadmap scope is clearly separated from production logic",
+        "Roadmap scope is explicitly limited to VM0007 judgment fixtures",
+        "PDF truth is required instead of current app output",
+        "Fixture contract requires accepted evidence and rejected weak/generic evidence",
+        "Weak evidence is explicitly kept UNCLEAR, not FOUND",
+        "Missing evidence is explicitly kept MISSING",
         "Quick Check v2 Phase 7 is explicitly out of scope",
-        "Fixture expectations are defined for judgment and summary layers"
+        "No production audit logic, report UI, or client-facing behavior changes are allowed in Phase 0",
+        "Future fixture PR acceptance criteria are documented",
+        "Tests and CI are not weakened"
       ]
     },
     {
@@ -102,7 +108,7 @@
     "phase_0_roadmap_boundary": {
       "title": "Roadmap Boundary",
       "status": "active",
-      "summary": "Define the scope of VM0007 judgment fixtures and keep the lane separate from production logic and Quick Check v2 Phase 7."
+      "summary": "Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs."
     },
     "phase_1_envira_vm0007_judgment_fixtures": {
       "title": "Envira VM0007 Judgment Fixtures",
