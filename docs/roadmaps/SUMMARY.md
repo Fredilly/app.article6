@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures.
 Frozen lanes: agentic-verification.
 
 
@@ -323,3 +323,30 @@ Not active now:
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
 
+
+## vm0007-judgement-fixtures
+
+Status SSOT: `docs/roadmaps/vm0007-judgement-fixtures/phase-status.json`
+Details: `docs/roadmaps/vm0007-judgement-fixtures/PLAN.md`
+
+Lane status: Active
+Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.
+
+Current focus:
+- Phase 0 is the immediate boundary: define the scope and keep this lane separate from Quick Check v2 Phase 7
+- Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows
+- Keep audit-summary and report-summary expectations fixture-driven
+
+Not active now:
+- Production audit logic changes
+- Report UI redesign
+- Client-facing report changes
+- LLM final judgment
+- Quick Check v2 Phase 7 work
+
+1) RC0 — Roadmap Boundary: Active — Define the scope of VM0007 judgment fixtures and keep the lane separate from production logic and Quick Check v2 Phase 7.
+2) RC1 — Envira VM0007 Judgment Fixtures: Planned — Add 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing.
+3) RC2 — PD_REDD VM0007 Judgment Fixtures: Planned — Add fixture coverage for PD_REDD VM0007 cases using the same judgment contract discipline.
+4) RC3 — Full 58-Rule Audit Fixture Shape: Planned — Stabilize the complete VM0007 audit fixture shape across all 58 rules.
+5) RC4 — Report Fixture Layer: Planned — Add internal preview report expectations for summary sections and row grouping.
+6) RC5 — Client-Readiness Gate: Planned — Keep internal preview output separate from any later client-ready reporting work.
