@@ -39,6 +39,11 @@ const FIXTURES: ClassificationFixture[] = [
     fixturePath: "tests/fixtures/quick-check/v2/envira/extracted.txt",
     expectedClass: "project_description_pdd",
   },
+  {
+    fileName: "ISS_REP_1530_09JUL2021.pdf",
+    fixturePath: "tests/fixtures/quick-check/v2/iss-rep-deed/extracted.txt",
+    expectedClass: "registry_or_public_record",
+  },
 ];
 
 describe("quick check document classification", () => {
@@ -117,5 +122,21 @@ describe("quick check document classification", () => {
     expect(result.documentClass).toBe("registry_or_public_record");
     expect(result.evidence.some((item) => /deed/i.test(item))).toBe(true);
     expect(result.evidence.every((item) => !/VerificationReport/i.test(item))).toBe(true);
+  });
+
+  it("does not classify the ISS_REP deed fixture as a report or PDD from glossary text alone", () => {
+    const rawText = fs.readFileSync(
+      path.join(process.cwd(), "tests/fixtures/quick-check/v2/iss-rep-deed/extracted.txt"),
+      "utf-8",
+    );
+    const result = classifyQuickCheckDocument({
+      fileName: "ISS_REP_1530_09JUL2021.pdf",
+      mime: "application/pdf",
+      rawText,
+    });
+
+    expect(result.documentClass).toBe("registry_or_public_record");
+    expect(result.evidence.some((item) => /deed/i.test(item))).toBe(true);
+    expect(result.evidence.every((item) => !/Verification Report|Project Description/i.test(item))).toBe(true);
   });
 });

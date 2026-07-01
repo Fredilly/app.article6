@@ -1,0 +1,48 @@
+{
+  "fixtureSetId": "envira-vm0007-report-fixture",
+  "title": "Envira VM0007 Report Fixture Expectations",
+  "expectedReportTitle": "Internal VM0007 Gap Report Preview",
+  "expectedSectionOrdering": [
+    "Executive Summary",
+    "Project Snapshot",
+    "Methodology Scope",
+    "Key Supported Findings",
+    "Not Applicable Rules",
+    "Main Evidence Gaps",
+    "Follow-up Action List",
+    "Full VM0007 Rule Audit Table",
+    "Evidence Appendix"
+  ],
+  "expectedStatusCounts": {
+    "supported": 6,
+    "weak": 2,
+    "missing": 1,
+    "notApplicable": 0
+  },
+  "expectedVisibleWording": [
+    "Internal preview only. This report shows current audit output and has not been manually reviewed.",
+    "Current PDD support is too unclear to classify confidently.",
+    "Current PDD support is missing for this rule.",
+    "What to add",
+    "Follow-up Action List"
+  ],
+  "bannedWording": [
+    "all clear",
+    "passed",
+    "confirmed"
+  ],
+  "expectedEvidenceRendering": [
+    "Baseline deforestation in the project area falls within the planned deforestation category, as the agents of deforestation is the project proponent.",
+    "The Envira Amazonia Project has not been registered, nor is seeking registration, under any other GHG programs.",
+    "Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules."
+  ],
+  "expectedWeakOrMissingExplanation": [
+    "The quote is related evidence, but it is still an inference and does not cite the actual conversion authorization document, issuing authority, scope, or dates.",
+    "No direct PDF-backed quote in the Envira PDD documents expert-judgment inputs, rationale, or retained evidence for this rule."
+  ],
+  "expectedClientActionWording": [
+    "Add the project-specific baseline-module rationale, the reason BL-PL applies here, and the citations tying that module choice to the Envira project facts.",
+    "Add the conversion authorization document, the issuing authority, the area and dates it covers, and the citation tying it to APDef.",
+    "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references that support that judgment."
+  ]
+}

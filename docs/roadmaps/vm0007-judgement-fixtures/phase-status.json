@@ -5,8 +5,9 @@
     "status": "active",
     "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
     "current_focus": [
-      "Phase 0 done: boundary-only fixture contract is documented and ready to guide Phase 1",
-      "Phase 1 is next: add 5-10 Envira VM0007 judgment fixtures",
+      "Phase 0 done: boundary-only fixture contract is documented",
+      "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
+      "Phase 2 is next: add PD_REDD VM0007 judgment fixtures using the same accepted/rejected evidence contract",
       "Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows",
       "Keep audit-summary and report-summary expectations fixture-driven"
     ],
@@ -17,7 +18,7 @@
       "LLM final judgment",
       "Quick Check v2 Phase 7 work"
     ],
-    "last_updated_at": "2026-07-01T00:00:00Z"
+    "last_updated_at": "2026-07-01T13:31:04Z"
   },
   "goals": [
     {
@@ -42,10 +43,12 @@
     {
       "id": "phase_1_envira_vm0007_judgment_fixtures",
       "title": "Envira VM0007 Judgment Fixtures",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "phase_0_roadmap_boundary"
       ],
+      "branch": "test/envira-vm0007-judgment-fixtures",
+      "pr": 897,
       "doneCriteria": [
         "5-10 rule-level judgment fixtures exist for Envira",
         "Accepted evidence requirements are explicitly fixture-encoded",
@@ -53,7 +56,8 @@
         "At least one false-supported case is covered",
         "At least one case rejects generic methodology/module-table evidence as supported",
         "Expected status is explicit for each fixture",
-        "Expected client action is explicit where status is weak or missing"
+        "Expected client action is explicit where status is weak or missing",
+        "GitHub pr-gate and Next.js build passed on the merged PR"
       ]
     },
     {
@@ -115,8 +119,8 @@
     },
     "phase_1_envira_vm0007_judgment_fixtures": {
       "title": "Envira VM0007 Judgment Fixtures",
-      "status": "planned",
-      "summary": "Add 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing."
+      "status": "done",
+      "summary": "Add Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897."
     },
     "phase_2_pd_redd_vm0007_judgment_fixtures": {
       "title": "PD_REDD VM0007 Judgment Fixtures",

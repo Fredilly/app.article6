@@ -1,0 +1,68 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  }
+]
