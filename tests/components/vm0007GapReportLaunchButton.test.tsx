@@ -89,6 +89,28 @@ describe("Vm0007GapReportLaunchButton", () => {
     expect(container.querySelector("button")?.hasAttribute("disabled")).toBe(true);
   });
 
+  test("shows a generate action when upload-flow generation is available", async () => {
+    const onGenerate = jest.fn();
+
+    await act(async () => {
+      root.render(
+        <Vm0007GapReportLaunchButton
+          isVm0007Result
+          auditId={null}
+          title="Internal VM0007 report"
+          onGenerate={onGenerate}
+        />,
+      );
+    });
+
+    const button = container.querySelector("button");
+    expect(container.textContent).toContain("Internal VM0007 report");
+    expect(button?.textContent).toContain("Generate Gap Report Preview");
+
+    button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(onGenerate).toHaveBeenCalledTimes(1);
+  });
+
   test("does not render anything for non-VM0007 results", async () => {
     await act(async () => {
       root.render(<Vm0007GapReportLaunchButton isVm0007Result={false} auditId="audit-1" />);
