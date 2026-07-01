@@ -38,9 +38,13 @@
         "phase_0_roadmap_boundary"
       ],
       "doneCriteria": [
-        "Accepted evidence is explicitly fixture-encoded",
-        "Rejected evidence is explicitly fixture-encoded",
-        "Expected statuses are fixture-encoded for Envira cases"
+        "5-10 rule-level judgment fixtures exist for Envira",
+        "Accepted evidence requirements are explicitly fixture-encoded",
+        "Rejected generic evidence examples are explicitly fixture-encoded",
+        "At least one false-supported case is covered",
+        "At least one case rejects generic methodology/module-table evidence as supported",
+        "Expected status is explicit for each fixture",
+        "Expected client action is explicit where status is weak or missing"
       ]
     },
     {
@@ -103,7 +107,7 @@
     "phase_1_envira_vm0007_judgment_fixtures": {
       "title": "Envira VM0007 Judgment Fixtures",
       "status": "planned",
-      "summary": "Add fixture coverage for Envira VM0007 cases with explicit accepted evidence, rejected evidence, and expected statuses."
+      "summary": "Add 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing."
     },
     "phase_2_pd_redd_vm0007_judgment_fixtures": {
       "title": "PD_REDD VM0007 Judgment Fixtures",

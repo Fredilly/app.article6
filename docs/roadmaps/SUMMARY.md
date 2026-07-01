@@ -345,7 +345,7 @@ Not active now:
 - Quick Check v2 Phase 7 work
 
 1) RC0 — Roadmap Boundary: Active — Define the scope of VM0007 judgment fixtures and keep the lane separate from production logic and Quick Check v2 Phase 7.
-2) RC1 — Envira VM0007 Judgment Fixtures: Planned — Add fixture coverage for Envira VM0007 cases with explicit accepted evidence, rejected evidence, and expected statuses.
+2) RC1 — Envira VM0007 Judgment Fixtures: Planned — Add 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing.
 3) RC2 — PD_REDD VM0007 Judgment Fixtures: Planned — Add fixture coverage for PD_REDD VM0007 cases using the same judgment contract discipline.
 4) RC3 — Full 58-Rule Audit Fixture Shape: Planned — Stabilize the complete VM0007 audit fixture shape across all 58 rules.
 5) RC4 — Report Fixture Layer: Planned — Add internal preview report expectations for summary sections and row grouping.

@@ -31,7 +31,15 @@ Define the scope of VM0007 judgment fixtures and lock the separation from produc
 
 ### Phase 1 — Envira VM0007 Judgment Fixtures
 
-Add and harden fixtures that capture Envira-specific VM0007 judgments, including accepted and rejected evidence with expected statuses.
+Add and harden fixtures that capture Envira-specific VM0007 judgments, including:
+
+- 5-10 rule-level judgment fixtures
+- accepted evidence requirements
+- rejected generic evidence examples
+- at least one false-supported case
+- at least one case where generic methodology/module-table evidence must not count as supported
+- expected status for each fixture
+- expected client action where status is weak or missing
 
 ### Phase 2 — PD_REDD VM0007 Judgment Fixtures
 
@@ -56,4 +64,3 @@ Define the gate that keeps internal preview output distinct from any later clien
 - No client-facing report changes
 - No LLM final judgment
 - No mixing into Quick Check v2 Phase 7
-
