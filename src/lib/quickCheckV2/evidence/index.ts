@@ -925,11 +925,10 @@ function chooseBestSectionBlock(
 
     return (
       findFirstBlock(usableBlocks, (block) =>
-        /\bbaseline is defined independently\b/i.test(block.text),
+        /\bbaseline is defined(?:[^.?!]*?)\s+as\b/i.test(block.text),
       ) ??
       findFirstBlock(usableBlocks, (block) =>
-        /\bbaseline is chosen as\b/i.test(block.text) &&
-        /\bexisting equipment\b/i.test(block.text),
+        /\bbaseline is chosen as\b/i.test(block.text),
       ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bselected as the baseline scenario\b/i.test(block.text),
