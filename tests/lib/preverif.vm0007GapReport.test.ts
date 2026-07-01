@@ -78,6 +78,7 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
         section: "Project Activity Description",
         page: 2,
         gap: "",
+        clientAction: "Keep scope basis clear.",
         assessmentReason: "The current PDD scope statement shows this wetland-specific rule does not apply to the project.",
       });
     }
@@ -132,6 +133,24 @@ describe("buildVm0007GapReport", () => {
       expect(row.gapGuidance.trim().length).toBeGreaterThan(0);
       expect(row.clientAction.trim().length).toBeGreaterThan(0);
     }
+  });
+
+  it("does not show remediation guidance on supported rows", () => {
+    const report = buildReport(buildMixedAudit());
+    const supported = report.fullRuleAuditTable.find((row) => row.ruleId === "R-1-0001");
+
+    expect(supported?.status).toBe("supported");
+    expect(supported?.gapGuidance).toBe("");
+    expect(supported?.clientAction).toBe("");
+  });
+
+  it("does not show remediation guidance on not-applicable rows unless explicitly scope-keeping", () => {
+    const report = buildReport(buildMixedAudit());
+    const notApplicable = report.fullRuleAuditTable.find((row) => row.ruleId === "R-1-0005");
+
+    expect(notApplicable?.status).toBe("not applicable");
+    expect(notApplicable?.gapGuidance).toBe("Keep scope basis clear.");
+    expect(notApplicable?.clientAction).toBe("Keep scope basis clear.");
   });
 
   it("uses selected evidence quotes where available and the fallback text where they are not", () => {

@@ -121,6 +121,13 @@ type ExtractionState = {
   error: string | null;
 };
 
+export function resolveGapReportSourceAnalysis(
+  analysisFromOptions: QuickCheckEvidenceAnalysis | null | undefined,
+  analysisFromState: QuickCheckEvidenceAnalysis | null | undefined,
+): QuickCheckEvidenceAnalysis | null {
+  return analysisFromOptions ?? analysisFromState ?? null;
+}
+
 type StructuredEvidenceCheckResult = {
   checkId: StructuredCheckId;
   status: "found" | "missing" | "unclear";
@@ -1356,21 +1363,22 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       };
 
       const inventory = loadQuickCheckInventory(candidate.methodologyId, candidate.methodologyVersion);
-      const extraction = options?.analysis
+      const sourceAnalysis = resolveGapReportSourceAnalysis(options?.analysis, extractionState.analysis);
+      const extraction = sourceAnalysis
         ? buildQuickCheckExtractionSnapshot({
             claimText: resolveEffectiveClaimText(activeDraft.claimText),
-            analysis: options.analysis,
+            analysis: sourceAnalysis,
           })
         : null;
       let vm0007GapReportAuditId: string | undefined;
-      if (candidate.methodologyId.trim().toUpperCase() === "VM0007" && options?.analysis?.rawPddText?.trim()) {
+      if (candidate.methodologyId.trim().toUpperCase() === "VM0007" && sourceAnalysis?.rawPddText?.trim()) {
         try {
           const auditRules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
           const savedAudit = buildAndSaveVm0007GapReportAudit({
             methodologyId: candidate.methodologyId,
             methodologyVersion: candidate.methodologyVersion,
             evidenceFileName: activeDraft.evidenceFileName,
-            rawPddText: options.analysis.rawPddText,
+            rawPddText: sourceAnalysis.rawPddText,
             rules: auditRules,
           });
           vm0007GapReportAuditId = savedAudit?.auditId;

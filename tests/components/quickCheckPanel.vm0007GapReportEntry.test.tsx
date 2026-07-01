@@ -3,7 +3,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+import QuickCheckPanel, { resolveGapReportSourceAnalysis } from "@/components/chat/QuickCheckPanel";
+import type { QuickCheckEvidenceAnalysis } from "@/lib/chat/quickCheckEvidence";
 
 function seedVm0007Session(auditId?: string) {
   window.localStorage.setItem(
@@ -55,10 +56,10 @@ function seedVm0007Session(auditId?: string) {
   );
 }
 
-describe("QuickCheckPanel VM0007 gap report entry point", () => {
-  let container: HTMLDivElement;
-  let root: ReturnType<typeof createRoot>;
+let container: HTMLDivElement;
+let root: ReturnType<typeof createRoot>;
 
+describe("QuickCheckPanel VM0007 gap report entry point", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -141,5 +142,22 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
     expect(text).toContain("Gap report not available yet");
     expect(text).toContain("Run a VM0007 evidence audit to generate the internal report preview.");
     expect(text).not.toContain("View Gap Report");
+  });
+
+  test("manual match fallback reuses extracted PDD analysis when direct analysis is missing", async () => {
+    const analysisFromState: QuickCheckEvidenceAnalysis = {
+      rawPddText: "VM0007 PDD extracted text.",
+      facts: [],
+      parsedEvidenceLabels: [],
+      documentTypes: ["pdd"],
+      methodologyMentions: ["VM0007"],
+      extractionConfidence: 1,
+      warnings: [],
+      parserAdapterId: "test-parser",
+    };
+
+    expect(resolveGapReportSourceAnalysis(null, analysisFromState)).toBe(analysisFromState);
+    expect(resolveGapReportSourceAnalysis(undefined, analysisFromState)).toBe(analysisFromState);
+    expect(resolveGapReportSourceAnalysis(analysisFromState, null)).toBe(analysisFromState);
   });
 });

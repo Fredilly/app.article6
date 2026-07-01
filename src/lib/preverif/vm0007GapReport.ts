@@ -131,7 +131,21 @@ function issueLabel(result: MethodologyEvidenceAuditResult): string {
 }
 
 function gapGuidance(result: MethodologyEvidenceAuditResult): string {
+  if (result.status === "supported_by_pdd") return "";
+  if (result.status === "not_applicable") {
+    const clientAction = result.clientAction.trim();
+    return /^(no client action required|keep scope basis clear\.?)$/i.test(clientAction) ? clientAction : "";
+  }
   return result.gap.trim() || result.clientAction.trim();
+}
+
+function clientActionText(result: MethodologyEvidenceAuditResult): string {
+  if (result.status === "supported_by_pdd") return "";
+  if (result.status === "not_applicable") {
+    const clientAction = result.clientAction.trim();
+    return /^(no client action required|keep scope basis clear\.?)$/i.test(clientAction) ? clientAction : "";
+  }
+  return result.clientAction;
 }
 
 function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFinding {
@@ -142,7 +156,7 @@ function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFindi
     issue: issueLabel(result),
     currentPddEvidence: evidenceText(result),
     whyItMatters: result.assessmentReason,
-    whatToAdd: result.clientAction,
+    whatToAdd: clientActionText(result),
     section: result.section,
     page: result.page,
     confidence: result.confidence,
@@ -252,7 +266,7 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
         section: result.section ?? "Section not identified",
         evidenceSummary: evidenceText(result),
         gapGuidance: gapGuidance(result),
-        clientAction: result.clientAction,
+        clientAction: clientActionText(result),
       })),
     evidenceAppendix: input.audit.results
       .slice()
