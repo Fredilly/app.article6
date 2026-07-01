@@ -5,6 +5,7 @@ import {
   retrieveEvidenceForAllChecks,
   type RetrievedCheckEvidence,
   type RetrievedEvidence,
+  type QuickCheckV2ExtractedDocument,
 } from "@/lib/quickCheckV2/evidence";
 
 const ENVIRA_FIXTURE_PATH =
@@ -26,6 +27,17 @@ function answerIsGroundedInEvidence(
   const overlappingTokens = answerTokens.filter((token) => quote.includes(token));
 
   return overlappingTokens.length >= Math.min(2, answerTokens.length);
+}
+
+function makeSyntheticDocument(
+  blocks: QuickCheckV2ExtractedDocument["blocks"],
+): QuickCheckV2ExtractedDocument {
+  return {
+    documentId: "synthetic-doc",
+    parser: "test",
+    blocks,
+    diagnostics: { warnings: [], pageCount: 20 },
+  };
 }
 
 describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
@@ -101,5 +113,59 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
         expect(Object.keys(result.evidence)).not.toContain("router");
       }
     }
+  });
+
+  it("prefers an explicit baseline-development section over an earlier generic baseline mention", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p4:b1:heading",
+        page: 4,
+        text: "A.4.3 Brief explanation of how emissions are reduced",
+        blockType: "heading",
+        sectionHeading: "Brief explanation of how emissions are reduced",
+        sectionPath: ["A", "A.4", "A.4.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b2:body",
+        page: 4,
+        text: "The project reduces consumption of grid electricity when compared to the baseline scenario.",
+        blockType: "body",
+        sectionHeading: "Brief explanation of how emissions are reduced",
+        sectionPath: ["A", "A.4", "A.4.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p15:b1:heading",
+        page: 15,
+        text: "B.5. Details of the baseline and its development:",
+        blockType: "heading",
+        sectionHeading: "Details of the baseline and its development:",
+        sectionPath: ["B", "B.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p15:b2:body",
+        page: 15,
+        text: "The baseline is defined independently for each component project activity as the electricity consumption in the year previous to project implementation.",
+        blockType: "body",
+        sectionHeading: "Details of the baseline and its development:",
+        sectionPath: ["B", "B.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = extractAnswersForAllChecks(synthetic).find(
+      (item) => item.checkName === "baseline_scenario",
+    );
+
+    expect(result?.evidence?.page).toBe(15);
+    expect(result?.evidence?.sectionPath).toStrictEqual(["B", "B.5"]);
+    expect(result?.evidence?.quote).toBe(
+      "The baseline is defined independently for each component project activity as the electricity consumption in the year previous to project implementation.",
+    );
+    expect(result?.answer).toBe(
+      "The electricity consumption in the year previous to project implementation.",
+    );
   });
 });

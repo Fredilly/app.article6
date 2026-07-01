@@ -170,6 +170,20 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   baseline_scenario(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    const definedBaseline = quote.match(
+      /\bbaseline is defined(?: independently[^.?!]*)?\s+as\s+(.+?)(?:[.?!]|$)/i,
+    );
+    if (definedBaseline) {
+      return ensurePeriod(capitalizeFirst(definedBaseline[1]!));
+    }
+
+    const chosenBaseline = quote.match(
+      /\bbaseline is chosen as\s+(.+?)(?:[.?!]|$)/i,
+    );
+    if (chosenBaseline) {
+      return ensurePeriod(capitalizeFirst(chosenBaseline[1]!));
+    }
+
     const selectedScenario = quote.match(
       /(?:of the alternative scenarios identified for the project,\s*)?(.+?) was determined to be the most plausible scenario to occur in the absence of the project, and was therefore selected as the baseline scenario/i,
     );
