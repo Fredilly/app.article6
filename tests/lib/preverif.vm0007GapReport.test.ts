@@ -152,7 +152,6 @@ describe("buildVm0007GapReport", () => {
     expect(notApplicable?.gapGuidance).toBe("Keep scope basis clear.");
     expect(notApplicable?.clientAction).toBe("Keep scope basis clear.");
   });
-
   it("uses selected evidence quotes where available and the fallback text where they are not", () => {
     const report = buildReport(buildMixedAudit());
     const supported = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0001");

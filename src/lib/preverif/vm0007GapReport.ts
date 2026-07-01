@@ -147,7 +147,6 @@ function clientActionText(result: MethodologyEvidenceAuditResult): string {
   }
   return result.clientAction;
 }
-
 function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFinding {
   return {
     ruleId: result.ruleId,
