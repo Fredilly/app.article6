@@ -115,7 +115,11 @@ const CHECK_SECTION_MAPPINGS: Record<
     fallbackSearchTexts: ["APPLICATION OF METHODOLOGY", "approved baseline methodology"],
   },
   baseline_scenario: {
-    searchTexts: ["Baseline Scenario"],
+    searchTexts: [
+      "Baseline Scenario",
+      "Description of how the baseline scenario is identified",
+      "Details of the baseline and its development",
+    ],
   },
   additionality: {
     searchTexts: [
@@ -919,9 +923,31 @@ function chooseBestSectionBlock(
       );
     }
 
-    const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
-    const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
-    return earliestPageMatches[earliestPageMatches.length - 1] ?? usableBlocks[0] ?? null;
+    return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bbaseline is defined(?:[^.?!]*?)\s+as\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bbaseline is chosen as\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bselected as the baseline scenario\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bmost likely baseline scenario\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bcontinuation of the situation existing previously\b|\bcontinuation of the pre-?project situation\b/i.test(block.text),
+      ) ??
+      (() => {
+        if (matchedBlocks.length === 0) {
+          return usableBlocks[0] ?? null;
+        }
+        const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
+        const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
+        return earliestPageMatches[earliestPageMatches.length - 1] ?? usableBlocks[0] ?? null;
+      })()
+    );
   }
 
   if (checkName === "leakage") {
@@ -1067,7 +1093,12 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
 
   if (checkName === "baseline_scenario") {
     return (
-      sentences.find((sentence) => /\bselected as the baseline scenario\b|\bmost likely baseline\b/i.test(sentence))
+      sentences.find((sentence) =>
+        /\bbaseline is defined(?: independently[^.?!]*)?\s+as\b/i.test(sentence),
+      )
+      ?? sentences.find((sentence) =>
+        /\bselected as the baseline scenario\b|\bmost likely baseline\b|\bbaseline is chosen\b/i.test(sentence),
+      )
       ?? quote.trim()
     );
   }
