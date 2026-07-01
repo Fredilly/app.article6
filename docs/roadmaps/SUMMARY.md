@@ -333,7 +333,8 @@ Lane status: Active
 Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.
 
 Current focus:
-- Phase 0 is the immediate boundary: define the scope and keep this lane separate from Quick Check v2 Phase 7
+- Phase 0 done: boundary-only fixture contract is documented and ready to guide Phase 1
+- Phase 1 is next: add 5-10 Envira VM0007 judgment fixtures
 - Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows
 - Keep audit-summary and report-summary expectations fixture-driven
 
@@ -344,7 +345,7 @@ Not active now:
 - LLM final judgment
 - Quick Check v2 Phase 7 work
 
-1) RC0 — Roadmap Boundary: Active — Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs.
+1) RC0 — Roadmap Boundary: Done — Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895.
 2) RC1 — Envira VM0007 Judgment Fixtures: Planned — Add 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing.
 3) RC2 — PD_REDD VM0007 Judgment Fixtures: Planned — Add fixture coverage for PD_REDD VM0007 cases using the same judgment contract discipline.
 4) RC3 — Full 58-Rule Audit Fixture Shape: Planned — Stabilize the complete VM0007 audit fixture shape across all 58 rules.
