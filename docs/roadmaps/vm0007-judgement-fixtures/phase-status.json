@@ -5,7 +5,8 @@
     "status": "active",
     "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
     "current_focus": [
-      "Phase 0 is the immediate boundary: define the scope and keep this lane separate from Quick Check v2 Phase 7",
+      "Phase 0 done: boundary-only fixture contract is documented and ready to guide Phase 1",
+      "Phase 1 is next: add 5-10 Envira VM0007 judgment fixtures",
       "Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows",
       "Keep audit-summary and report-summary expectations fixture-driven"
     ],
@@ -22,12 +23,20 @@
     {
       "id": "phase_0_roadmap_boundary",
       "title": "Roadmap Boundary",
-      "status": "active",
+      "status": "done",
       "dependsOn": [],
+      "branch": "docs/vm0007-judgement-fixtures-phase0-boundary",
+      "pr": 895,
       "doneCriteria": [
-        "Roadmap scope is clearly separated from production logic",
+        "Roadmap scope is explicitly limited to VM0007 judgment fixtures",
+        "PDF truth is required instead of current app output",
+        "Fixture contract requires accepted evidence and rejected weak/generic evidence",
+        "Weak evidence is explicitly kept UNCLEAR, not FOUND",
+        "Missing evidence is explicitly kept MISSING",
         "Quick Check v2 Phase 7 is explicitly out of scope",
-        "Fixture expectations are defined for judgment and summary layers"
+        "No production audit logic, report UI, or client-facing behavior changes are allowed in Phase 0",
+        "Future fixture PR acceptance criteria are documented",
+        "Tests and CI are not weakened"
       ]
     },
     {
@@ -101,8 +110,8 @@
   "phases": {
     "phase_0_roadmap_boundary": {
       "title": "Roadmap Boundary",
-      "status": "active",
-      "summary": "Define the scope of VM0007 judgment fixtures and keep the lane separate from production logic and Quick Check v2 Phase 7."
+      "status": "done",
+      "summary": "Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895."
     },
     "phase_1_envira_vm0007_judgment_fixtures": {
       "title": "Envira VM0007 Judgment Fixtures",
