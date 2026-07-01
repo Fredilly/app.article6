@@ -68,20 +68,33 @@ describe("Vm0007GapReportLaunchButton", () => {
     });
 
     await act(async () => {
-      root.render(<Vm0007GapReportLaunchButton auditId="audit-1" />);
+      root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit-1" />);
     });
 
     const link = container.querySelector("a");
+    expect(container.textContent).toContain("Internal report");
     expect(link?.textContent).toContain("View Gap Report");
     expect(link?.getAttribute("href")).toBe("/internal/reports/vm0007-gap/audit-1");
   });
 
-  test("does not appear when no saved VM0007 audit output exists", async () => {
+  test("shows a disabled helper state when VM0007 result has no audit id yet", async () => {
     await act(async () => {
-      root.render(<Vm0007GapReportLaunchButton auditId="missing-audit" />);
+      root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId={null} />);
     });
 
     expect(container.querySelector("a")).toBeNull();
-    expect(container.textContent).not.toContain("View Gap Report");
+    expect(container.textContent).toContain("Internal report");
+    expect(container.textContent).toContain("Gap report not available yet");
+    expect(container.textContent).toContain("Run a VM0007 evidence audit to generate the internal report preview.");
+    expect(container.querySelector("button")?.hasAttribute("disabled")).toBe(true);
+  });
+
+  test("does not render anything for non-VM0007 results", async () => {
+    await act(async () => {
+      root.render(<Vm0007GapReportLaunchButton isVm0007Result={false} auditId="audit-1" />);
+    });
+
+    expect(container.textContent).not.toContain("Internal report");
+    expect(container.querySelector("a")).toBeNull();
   });
 });

@@ -860,6 +860,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       : null;
   const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
   const renderedResult = canRenderResult ? result : null;
+  const isVm0007RenderedResult = Boolean(renderedResult && draft.methodologyId.trim().toUpperCase() === "VM0007");
   const extractionPreview = useMemo(
     () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: effectiveClaimText, analysis: extractionState.analysis }) : null),
     [effectiveClaimText, extractionState.analysis],
@@ -3379,19 +3380,20 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   {normalizedResult.extractionState.label} evidence signal
                 </span>
               </div>
-              <div className="mt-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleContinueToWorkspace}
-                    className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    <FolderOpen className="h-4 w-4" />
-                    Open full review
-                  </button>
-                  <Vm0007GapReportLaunchButton auditId={renderedResult?.vm0007GapReportAuditId} />
-                </div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleContinueToWorkspace}
+                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+                >
+                  <FolderOpen className="h-4 w-4" />
+                  Open full review
+                </button>
               </div>
+              <Vm0007GapReportLaunchButton
+                isVm0007Result={isVm0007RenderedResult}
+                auditId={renderedResult?.vm0007GapReportAuditId}
+              />
             </div>
           ) : null}
 
