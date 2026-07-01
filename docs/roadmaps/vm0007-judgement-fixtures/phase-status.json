@@ -1,0 +1,129 @@
+{
+  "name": "VM0007 Judgement Fixtures",
+  "roadmapId": "vm0007-judgement-fixtures",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
+    "current_focus": [
+      "Phase 0 is the immediate boundary: define the scope and keep this lane separate from Quick Check v2 Phase 7",
+      "Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows",
+      "Keep audit-summary and report-summary expectations fixture-driven"
+    ],
+    "not_active_now": [
+      "Production audit logic changes",
+      "Report UI redesign",
+      "Client-facing report changes",
+      "LLM final judgment",
+      "Quick Check v2 Phase 7 work"
+    ],
+    "last_updated_at": "2026-07-01T00:00:00Z"
+  },
+  "goals": [
+    {
+      "id": "phase_0_roadmap_boundary",
+      "title": "Roadmap Boundary",
+      "status": "active",
+      "dependsOn": [],
+      "doneCriteria": [
+        "Roadmap scope is clearly separated from production logic",
+        "Quick Check v2 Phase 7 is explicitly out of scope",
+        "Fixture expectations are defined for judgment and summary layers"
+      ]
+    },
+    {
+      "id": "phase_1_envira_vm0007_judgment_fixtures",
+      "title": "Envira VM0007 Judgment Fixtures",
+      "status": "planned",
+      "dependsOn": [
+        "phase_0_roadmap_boundary"
+      ],
+      "doneCriteria": [
+        "Accepted evidence is explicitly fixture-encoded",
+        "Rejected evidence is explicitly fixture-encoded",
+        "Expected statuses are fixture-encoded for Envira cases"
+      ]
+    },
+    {
+      "id": "phase_2_pd_redd_vm0007_judgment_fixtures",
+      "title": "PD_REDD VM0007 Judgment Fixtures",
+      "status": "planned",
+      "dependsOn": [
+        "phase_1_envira_vm0007_judgment_fixtures"
+      ],
+      "doneCriteria": [
+        "PD_REDD judgments follow the same accepted/rejected evidence contract",
+        "Weak / missing / not-applicable logic is exercised with fixture coverage"
+      ]
+    },
+    {
+      "id": "phase_3_full_58_rule_audit_fixture_shape",
+      "title": "Full 58-Rule Audit Fixture Shape",
+      "status": "planned",
+      "dependsOn": [
+        "phase_2_pd_redd_vm0007_judgment_fixtures"
+      ],
+      "doneCriteria": [
+        "All 58 VM0007 rules are represented in the fixture shape",
+        "Audit-level expected status is stable and reviewable",
+        "Fixture shape supports summary verification"
+      ]
+    },
+    {
+      "id": "phase_4_report_fixture_layer",
+      "title": "Report Fixture Layer",
+      "status": "planned",
+      "dependsOn": [
+        "phase_3_full_58_rule_audit_fixture_shape"
+      ],
+      "doneCriteria": [
+        "Report summary expectations are fixture-driven",
+        "Row grouping and summary sections are testable from fixtures",
+        "Internal preview output is clearly distinguished from client-ready output"
+      ]
+    },
+    {
+      "id": "phase_5_client_readiness_gate",
+      "title": "Client-Readiness Gate",
+      "status": "planned",
+      "dependsOn": [
+        "phase_4_report_fixture_layer"
+      ],
+      "doneCriteria": [
+        "A gate exists to prevent fixture drift from being mistaken for client-ready output",
+        "Client-readiness remains explicitly separate from internal preview work"
+      ]
+    }
+  ],
+  "phases": {
+    "phase_0_roadmap_boundary": {
+      "title": "Roadmap Boundary",
+      "status": "active",
+      "summary": "Define the scope of VM0007 judgment fixtures and keep the lane separate from production logic and Quick Check v2 Phase 7."
+    },
+    "phase_1_envira_vm0007_judgment_fixtures": {
+      "title": "Envira VM0007 Judgment Fixtures",
+      "status": "planned",
+      "summary": "Add fixture coverage for Envira VM0007 cases with explicit accepted evidence, rejected evidence, and expected statuses."
+    },
+    "phase_2_pd_redd_vm0007_judgment_fixtures": {
+      "title": "PD_REDD VM0007 Judgment Fixtures",
+      "status": "planned",
+      "summary": "Add fixture coverage for PD_REDD VM0007 cases using the same judgment contract discipline."
+    },
+    "phase_3_full_58_rule_audit_fixture_shape": {
+      "title": "Full 58-Rule Audit Fixture Shape",
+      "status": "planned",
+      "summary": "Stabilize the complete VM0007 audit fixture shape across all 58 rules."
+    },
+    "phase_4_report_fixture_layer": {
+      "title": "Report Fixture Layer",
+      "status": "planned",
+      "summary": "Add internal preview report expectations for summary sections and row grouping."
+    },
+    "phase_5_client_readiness_gate": {
+      "title": "Client-Readiness Gate",
+      "status": "planned",
+      "summary": "Keep internal preview output separate from any later client-ready reporting work."
+    }
+  }
+}
