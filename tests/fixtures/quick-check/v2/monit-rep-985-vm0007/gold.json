@@ -1,0 +1,84 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Peru",
+    "goldQuote": "75°20’52.3” – 76°24’17.4” West. The park has an area of 1,353,190.85 hectares (ha) and an approximate perimeter of 974 km. within four Departments: San Martín, Ucayali, Huánuco and Loreto. A small amount of land within the park is privately owned, so the project area is 1,351,963.85 ha. The PNCAZ is managed by CIMA under a Total Management Contract with the Peru’s Natural Protected Areas Service (SERNANP).",
+    "page": 13,
+    "sectionHeading": "Project Location (G3.3)",
+    "sectionPath": [
+      "2",
+      "2.1",
+      "2.1.7"
+    ],
+    "spanId": "monit-rep-985:p13:b756:62d548aa",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007: REDD Methodology Modules Version 1.3",
+    "goldQuote": "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012.",
+    "page": 15,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "2",
+      "2.1",
+      "2.1.8"
+    ],
+    "spanId": "monit-rep-985:p15:b788:ece2fffe",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Leakage monitored in the project case is related to activity shifting of local and immigrant agents",
+    "goldQuote": "Leakage monitored in the project case is related to activity shifting of local and immigrant agents.",
+    "page": 81,
+    "sectionHeading": "Leakage",
+    "sectionPath": [
+      "3",
+      "3.2",
+      "3.2.3"
+    ],
+    "spanId": "monit-rep-985:p81:b3707:b85e43df",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "For the population in the PNCAZ´s buffer zone, monthly visits of CIMA’s technical field staff to communities provide an opportunity to present information and receive comments",
+    "goldQuote": "For the population in the PNCAZ´s buffer zone, monthly visits of CIMA’s technical field staff to communities provide an opportunity to present information and receive comments. CIMA works extensively with these communities to determine how the project can have the most positive impact on their lives. The desire for a participatory approach to park management is included as one of the three primary goals of the project and supporting activities have been defined. The strategies and specific tools used by CIMA for park and project management are publicly available on CIMA’s web page (http://cima.org.pe); those have been explained to local populations during training and consciousness-raising sessions as well as distributed in print to local leaders, institutions, authorities and other stakeholders 26 https://www.iucn.org/es/news/américa-del-sur/201807/se-implementa-la-lista-verde-de-áreas-protegidas-en- perú 27 http://www.sernanp.gob.pe/noticias-leer-mas/-/publicaciones/c/areas-naturales-protegidas-de-peru-en-camino- a-integrar-443703 28 https://www.iucn.org/theme/protected-areas/our-work/iucn-green-list",
+    "page": 22,
+    "sectionHeading": "Community Consultation (G3.8)",
+    "sectionPath": [
+      "2",
+      "2.3",
+      "2.3.1"
+    ],
+    "spanId": "monit-rep-985:p22:b1155:9c1c6115",
+    "sourceType": "exact_section"
+  }
+]

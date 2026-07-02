@@ -1,0 +1,10 @@
+{
+  "id": "monit-rep-985-vm0007",
+  "title": "Quick Check v2 Phase 7 MONIT_REP 985 VM0007 fixture",
+  "documentId": "monit-rep-985",
+  "runtimeMode": "runtime-smoke",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "CCB/VCS",
+  "documentType": "Monitoring Report"
+}

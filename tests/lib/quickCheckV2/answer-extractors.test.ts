@@ -70,6 +70,38 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     expect(result?.answer).toContain("VM0007");
   });
 
+  it("extracts host country from a possessive country reference", () => {
+    const evidence = {
+      sourceType: "fact_contract" as const,
+      quote: "The PNCAZ is managed by CIMA under a Total Management Contract with the Peru’s Natural Protected Areas Service (SERNANP).",
+      page: 13,
+      sectionHeading: "Project Location (G3.3)",
+      sectionPath: ["2", "2.1", "2.1.7"],
+      spanId: "synthetic-doc:p13:b1:host",
+    };
+
+    expect(extractAnswerFromEvidence({
+      checkName: "host_country",
+      evidence,
+    }).answer).toBe("Peru");
+  });
+
+  it("extracts a clean methodology answer with the version number", () => {
+    const evidence = {
+      sourceType: "exact_section" as const,
+      quote: "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012.",
+      page: 15,
+      sectionHeading: "Title and Reference of Methodology",
+      sectionPath: ["2", "2.1", "2.1.8"],
+      spanId: "synthetic-doc:p15:b1:methodology",
+    };
+
+    expect(extractAnswerFromEvidence({
+      checkName: "methodology",
+      evidence,
+    }).answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
+  });
+
   it("keeps answers grounded in the selected Phase 3 evidence", () => {
     for (const result of answers) {
       expect(answerIsGroundedInEvidence(result.answer, result.evidence)).toBe(true);

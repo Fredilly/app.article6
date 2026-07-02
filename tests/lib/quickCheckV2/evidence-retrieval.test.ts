@@ -210,6 +210,32 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     }
   });
 
+  it("does not accept a monitoring-report style baseline reference without an explicit baseline scenario definition", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:heading",
+        page: 1,
+        text: "2 General",
+        blockType: "heading",
+        sectionHeading: "General",
+        sectionPath: ["2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2:body",
+        page: 1,
+        text: "The Peruvian government proposes that the protected areas with REDD projects should harmonize their project baselines with national forest emission reference levels.",
+        blockType: "body",
+        sectionHeading: "General",
+        sectionPath: ["2"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+    expect(result.evidence).toBeNull();
+  });
+
   it("prefers a deeper subsection that explicitly carries the mapped section phrase", () => {
     const synthetic = makeSyntheticDocument([
       {
@@ -381,5 +407,50 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.quote).not.toContain("VCS");
     expect(result.evidence!.sectionPath).toStrictEqual(["2", "2.4", "2.4.2"]);
     expect(result.evidence!.sourceType).toBe("exact_section");
+  });
+
+  it("prefers actual stakeholder consultation details over an unchanged-from-PDD placeholder", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p22:b1:heading",
+        page: 22,
+        text: "2.3 Stakeholder Engagement",
+        blockType: "heading",
+        sectionHeading: "Stakeholder Engagement",
+        sectionPath: ["2", "2.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p22:b2:heading",
+        page: 22,
+        text: "2.3.1 Community Consultation (G3.8)",
+        blockType: "heading",
+        sectionHeading: "Community Consultation (G3.8)",
+        sectionPath: ["2", "2.3", "2.3.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p22:b3:body",
+        page: 22,
+        text: "Unchanged from the description in the validated PDD.",
+        blockType: "body",
+        sectionHeading: "Community Consultation (G3.8)",
+        sectionPath: ["2", "2.3", "2.3.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p22:b4:body",
+        page: 22,
+        text: "For the population in the buffer zone, monthly visits of CIMA's technical field staff to communities provide an opportunity to present information and receive comments.",
+        blockType: "body",
+        sectionHeading: "Community Consultation (G3.8)",
+        sectionPath: ["2", "2.3", "2.3.1"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "stakeholder_consultation");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.spanId).toBe("synthetic-doc:p22:b4:body");
   });
 });
