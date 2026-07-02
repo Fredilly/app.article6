@@ -394,6 +394,25 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence).toBeNull();
   });
 
+  it("accepts explicit not-applicable leakage statements in raw text", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p4:b1:body",
+        page: 4,
+        text: "Leakage: Not applicable",
+        blockType: "body",
+        sectionHeading: null,
+        sectionPath: [],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "leakage");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.sourceType).toBe("raw_text_fallback");
+    expect(result.evidence!.quote).toBe("Leakage: Not applicable");
+  });
+
   it("recognizes stakeholder consultation with a trailing colon in the heading", () => {
     const synthetic = makeSyntheticDocument([
       {

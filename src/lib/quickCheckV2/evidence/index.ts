@@ -94,6 +94,9 @@ type RawFallbackDefinition = {
 const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
 
+const LEAKAGE_NOT_APPLICABLE_RE =
+  /\bleakage\s*:\s*(?:not applicable|n\/a|none)\b|\bno leakage\b/i;
+
 const CHECK_SECTION_MAPPINGS: Record<
   StructuredCheckId,
   {
@@ -275,6 +278,7 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
       return (
         /\bno leakage was identified\b/i.test(block.text) ||
         /\bly\s*=\s*0\b/i.test(block.text) ||
+        LEAKAGE_NOT_APPLICABLE_RE.test(block.text) ||
         /\bmarket leakage\b/i.test(block.text) ||
         /\bactivity shifting leakage\b/i.test(block.text) ||
         /\breductions in wood harvest\b/i.test(block.text) ||
@@ -988,7 +992,8 @@ function chooseBestSectionBlock(
     );
     return (
       findFirstBlock(usableBlocks, (block) =>
-        /\bno leakage was identified\b|\bly\s*=\s*0\b/i.test(block.text),
+        /\bno leakage was identified\b|\bly\s*=\s*0\b/i.test(block.text) ||
+        LEAKAGE_NOT_APPLICABLE_RE.test(block.text),
       ) ??
       (displacementBlock ? getParagraphStartBlock(usableBlocks, displacementBlock) : null) ??
       findFirstBlock(usableBlocks, (block) =>

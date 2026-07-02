@@ -7,6 +7,7 @@ import {
   type RetrievedEvidence,
   type QuickCheckV2ExtractedDocument,
 } from "@/lib/quickCheckV2/evidence";
+import { validateAnswerResult } from "@/lib/quickCheckV2/status";
 
 const ENVIRA_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/envira/extracted.txt";
@@ -128,6 +129,28 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     for (const result of answers) {
       expect(result.answer).not.toBeNull();
     }
+  });
+
+  it("extracts a no-leakage answer from an explicit not-applicable leakage statement", () => {
+    const evidence = {
+      sourceType: "exact_section" as const,
+      quote: "Leakage: Not applicable",
+      page: 4,
+      sectionHeading: "Leakage",
+      sectionPath: ["3", "3.1"],
+      spanId: "synthetic-doc:p4:b1:leakage",
+    };
+
+    const result = extractAnswerFromEvidence({
+      checkName: "leakage",
+      evidence,
+    });
+
+    expect(result.answer).toBe("No leakage was identified.");
+    expect(validateAnswerResult(result)).toMatchObject({
+      status: "FOUND",
+      reason: "answer_and_provenance_complete",
+    });
   });
 
   it("returns null when evidence is missing", () => {
