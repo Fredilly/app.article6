@@ -111,6 +111,7 @@ export function assertVm0007JudgmentFixtureSet(
       expect(quoteExcerpt).toBeTruthy();
 
       const sectionHeadingPage = check.sectionHeadingPage ?? check.page;
+      expect([check.page, (check.page ?? 0) - 1]).toContain(sectionHeadingPage);
       const headingExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
       expect(headingExcerpt).toBeTruthy();
 

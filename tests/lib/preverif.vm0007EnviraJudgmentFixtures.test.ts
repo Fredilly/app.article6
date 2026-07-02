@@ -158,6 +158,17 @@ describe("Envira VM0007 judgment fixtures", () => {
     assertVm0007JudgmentFixtureSet(AUDIT_FIXTURE, SOURCE_EXCERPTS);
   });
 
+  it("fails when a continuation-page section heading points to an unrelated page", () => {
+    const wrongHeadingPage = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    wrongHeadingPage.checks = wrongHeadingPage.checks.map((check) =>
+      check.checkId === "R-1-0004"
+        ? { ...check, sectionHeadingPage: 37 }
+        : check,
+    );
+
+    expect(() => assertVm0007JudgmentFixtureSet(wrongHeadingPage, SOURCE_EXCERPTS)).toThrow();
+  });
+
   it("keeps Envira quotes out of the PD_REDD source excerpts", () => {
     const enviraQuote = AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0002")?.goldQuote;
     expect(enviraQuote).toBeTruthy();
