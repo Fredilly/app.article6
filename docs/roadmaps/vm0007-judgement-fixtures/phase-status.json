@@ -1,25 +1,4 @@
 {
-  "name": "VM0007 Judgement Fixtures",
-  "roadmapId": "vm0007-judgement-fixtures",
-  "phase_meta": {
-    "status": "active",
-    "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
-    "current_focus": [
-      "Phase 0 done: boundary-only fixture contract is documented and enforced.",
-      "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
-      "Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.",
-      "Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.",
-      "Keep audit-summary and report-summary expectations fixture-driven"
-    ],
-    "not_active_now": [
-      "Production audit logic changes",
-      "Report UI redesign",
-      "Client-facing report changes",
-      "LLM final judgment",
-      "Quick Check v2 Phase 7 work"
-    ],
-    "last_updated_at": "2026-07-01T13:31:04Z"
-  },
   "goals": [
     {
       "id": "phase_0_roadmap_boundary",
@@ -111,6 +90,26 @@
       ]
     }
   ],
+  "name": "VM0007 Judgement Fixtures",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
+    "current_focus": [
+      "Phase 0 done: boundary-only fixture contract is documented and enforced.",
+      "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
+      "Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.",
+      "Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.",
+      "Keep audit-summary and report-summary expectations fixture-driven"
+    ],
+    "not_active_now": [
+      "Production audit logic changes",
+      "Report UI redesign",
+      "Client-facing report changes",
+      "LLM final judgment",
+      "Quick Check v2 Phase 7 work"
+    ],
+    "last_updated_at": "2026-07-01T13:31:04Z"
+  },
   "phases": {
     "phase_0_roadmap_boundary": {
       "title": "Roadmap Boundary",
@@ -129,7 +128,7 @@
     },
     "phase_3_full_58_rule_audit_fixture_shape": {
       "title": "Full 58-Rule Audit Fixture Shape",
-      "status": "planned",
+      "status": "done",
       "summary": "Stabilize the complete VM0007 audit fixture shape across all 58 rules."
     },
     "phase_4_report_fixture_layer": {
@@ -142,5 +141,6 @@
       "status": "planned",
       "summary": "Keep internal preview output separate from any later client-ready reporting work."
     }
-  }
+  },
+  "roadmapId": "vm0007-judgement-fixtures"
 }
