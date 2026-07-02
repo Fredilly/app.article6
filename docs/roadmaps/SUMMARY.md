@@ -336,7 +336,7 @@ Current focus:
 - Phase 0 done: boundary-only fixture contract is documented and enforced.
 - Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897
 - Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.
-- Phase 3 done: Full 58-rule audit fixture shape was reviewed and finalized in PR #911.
+- Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.
 - Keep audit-summary and report-summary expectations fixture-driven
 
 Not active now:
