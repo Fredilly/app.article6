@@ -5,41 +5,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 import Vm0007GapReportView from "@/components/preverif/Vm0007GapReportView";
 import { buildVm0007GapReport } from "@/lib/preverif/vm0007GapReport";
 import type { EvidenceAuditStatus, MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
-
-type FixtureStatus = "FOUND" | "UNCLEAR" | "MISSING" | "N/A";
-
-type RejectedQuote = {
-  quote: string;
-  rejectionReason: string;
-};
-
-type JudgmentFixture = {
-  checkId: string;
-  checkName: string;
-  expectedStatus: FixtureStatus;
-  expectedAnswer: string;
-  goldQuote: string | null;
-  page: number | null;
-  sectionHeading: string | null;
-  spanId: string | null;
-  whyQuoteIsSufficientOrInsufficient: string;
-  knownBadQuotesToReject: RejectedQuote[];
-  expectedClientAction: string | null;
-  coverageTags: string[];
-};
-
-type JudgmentFixtureSet = {
-  fixtureSetId: string;
-  title: string;
-  inputPdfName: string;
-  inputPdfPath: string;
-  sourcePdfTitle: string;
-  documentFamily: string;
-  methodology: string;
-  fixtureTruthPolicy: string;
-  expectedWarnings: string[];
-  checks: JudgmentFixture[];
-};
+import {
+  assertQuoteDoesNotAppearInSourceExcerpts,
+  assertVm0007JudgmentFixtureSet,
+  type FixtureStatus,
+  type JudgmentFixture,
+  type JudgmentFixtureSet,
+  type SourceExcerpts,
+} from "./preverifJudgmentFixtureGate";
 
 type ReportFixture = {
   fixtureSetId: string;
@@ -59,21 +32,12 @@ type ReportFixture = {
   expectedClientActionWording: string[];
 };
 
-type SourceExcerpts = {
-  inputPdfName: string;
-  inputPdfPath: string;
-  sourcePdfTitle: string;
-  documentFamily: string;
-  sourceTypeConfirmation: {
-    page: number;
-    sectionHeading: string;
-    quote: string;
-  };
-  pageExcerpts: Record<string, string>;
-};
-
 const AUDIT_FIXTURE = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/envira-vm0007-judgment-fixtures.json", "utf8"),
+) as JudgmentFixtureSet;
+
+const PD_REDD_FIXTURE = JSON.parse(
+  fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-judgment-fixtures.json", "utf8"),
 ) as JudgmentFixtureSet;
 
 const REPORT_FIXTURE = JSON.parse(
@@ -84,9 +48,9 @@ const SOURCE_EXCERPTS = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/envira-vm0007-source-excerpts.json", "utf8"),
 ) as SourceExcerpts;
 
-function normalizeText(value: string | null | undefined): string {
-  return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
-}
+const PD_REDD_SOURCE_EXCERPTS = JSON.parse(
+  fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-source-excerpts.json", "utf8"),
+) as SourceExcerpts;
 
 function toAuditStatus(status: FixtureStatus): EvidenceAuditStatus {
   switch (status) {
@@ -190,27 +154,67 @@ describe("Envira VM0007 judgment fixtures", () => {
   });
 
   it("anchors every gold quote and section heading to exact excerpts from the specified PDF", () => {
-    expect(SOURCE_EXCERPTS.inputPdfName).toBe(AUDIT_FIXTURE.inputPdfName);
-    expect(SOURCE_EXCERPTS.inputPdfPath).toBe(AUDIT_FIXTURE.inputPdfPath);
-    expect(SOURCE_EXCERPTS.sourcePdfTitle).toBe(AUDIT_FIXTURE.sourcePdfTitle);
-    expect(SOURCE_EXCERPTS.documentFamily).toBe(AUDIT_FIXTURE.documentFamily);
+    assertVm0007JudgmentFixtureSet(AUDIT_FIXTURE, SOURCE_EXCERPTS);
+  });
 
-    for (const check of AUDIT_FIXTURE.checks) {
-      if (check.page == null) {
-        expect(check.goldQuote).toBeNull();
-        expect(check.sectionHeading).toBeNull();
-        continue;
-      }
+  it("keeps Envira quotes out of the PD_REDD source excerpts", () => {
+    const enviraQuote = AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0002")?.goldQuote;
+    expect(enviraQuote).toBeTruthy();
+    assertQuoteDoesNotAppearInSourceExcerpts(enviraQuote!, PD_REDD_SOURCE_EXCERPTS);
+  });
 
-      const excerpt = SOURCE_EXCERPTS.pageExcerpts[String(check.page)];
-      expect(excerpt).toBeTruthy();
-      expect(normalizeText(excerpt)).toContain(normalizeText(check.sectionHeading));
-      expect(normalizeText(excerpt)).toContain(normalizeText(check.goldQuote));
+  it("fails when a gold quote is stitched, paraphrased, on the wrong page, or on the wrong section", () => {
+    const stitched = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    stitched.checks = stitched.checks.map((check) =>
+      check.checkId === "R-5-0003"
+        ? {
+            ...check,
+            goldQuote: "Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules. The initial PRA indicated that the agents of deforestation comprise in majority the local population",
+          }
+        : check,
+    );
 
-      for (const rejected of check.knownBadQuotesToReject) {
-        expect(rejected.rejectionReason.trim().length).toBeGreaterThan(0);
-      }
-    }
+    const paraphrased = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    paraphrased.checks = paraphrased.checks.map((check) =>
+      check.checkId === "R-2-0014"
+        ? { ...check, goldQuote: "The crediting period lasts 30 years from August 2, 2012 until August 1, 2042." }
+        : check,
+    );
+
+    const wrongPage = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    wrongPage.checks = wrongPage.checks.map((check) =>
+      check.checkId === "R-3-0001"
+        ? { ...check, page: 29 }
+        : check,
+    );
+
+    const wrongSection = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    wrongSection.checks = wrongSection.checks.map((check) =>
+      check.checkId === "R-6-0002"
+        ? { ...check, sectionHeading: "3.3 Leakage" }
+        : check,
+    );
+
+    expect(() => assertVm0007JudgmentFixtureSet(stitched, SOURCE_EXCERPTS)).toThrow();
+    expect(() => assertVm0007JudgmentFixtureSet(paraphrased, SOURCE_EXCERPTS)).toThrow();
+    expect(() => assertVm0007JudgmentFixtureSet(wrongPage, SOURCE_EXCERPTS)).toThrow();
+    expect(() => assertVm0007JudgmentFixtureSet(wrongSection, SOURCE_EXCERPTS)).toThrow();
+  });
+
+  it("fails when Envira evidence is injected into PD_REDD fixtures", () => {
+    const mutated = JSON.parse(JSON.stringify(PD_REDD_FIXTURE)) as JudgmentFixtureSet;
+    mutated.checks = mutated.checks.map((check) =>
+      check.checkId === "R-3-0001"
+        ? {
+            ...check,
+            goldQuote: "Baseline deforestation in the project area falls within the planned deforestation category, as the agents of deforestation is the project proponent.",
+            page: 32,
+            sectionHeading: "2.2 Applicability of Methodology",
+          }
+        : check,
+    );
+
+    expect(() => assertVm0007JudgmentFixtureSet(mutated, PD_REDD_SOURCE_EXCERPTS)).toThrow();
   });
 
   it("renders the fixture-backed report contract without misleading wording", () => {
