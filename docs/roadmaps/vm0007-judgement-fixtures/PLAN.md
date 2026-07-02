@@ -86,7 +86,7 @@ Add and harden fixtures for PD_REDD-style VM0007 judgments with the same evidenc
 
 ### Phase 3 — Full 58-Rule Audit Fixture Shape
 
-Stabilize the full audit fixture structure for all 58 VM0007 rules so the report can be tested against a complete rule set.
+Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, `pr:gate`, and blind rebuild validation.
 
 ### Phase 4 — Report Fixture Layer
 
