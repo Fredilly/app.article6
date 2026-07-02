@@ -14,24 +14,30 @@
   ],
   "expectedTotalRules": 58,
   "expectedStatusCounts": {
-    "FOUND": 6,
-    "UNCLEAR": 2,
-    "MISSING": 50,
-    "N/A": 0
+    "FOUND": 30,
+    "UNCLEAR": 8,
+    "MISSING": 3,
+    "N/A": 17
   },
   "checks": [
     {
       "checkId": "R-1-0001",
       "checkName": "REDD forest land definition",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+    "expectedAnswer": "The project area qualified as forest for at least 10 years before project start.",
+    "evidence": {
+      "quote": "The project area complies with this condition as mentioned in Section 1.10, with complete forest cover demonstrated for the years 2002 and 2012.",
+        "page": 32,
+        "sectionHeading": "2.2 Applicability of Methodology",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 32,
+      "sectionHeading": "2.2 Applicability of Methodology",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the governing forest definition, the numeric thresholds, and the evidence showing the project land met that definition for the 10 years before project start.",
-      "reason": "PDD does not yet show the forest-definition thresholds and the 10-year land-history evidence for the project area."
+      "clientAction": null,
+      "reason": "The quote gives the project-specific justification: complete forest cover was demonstrated for 2002 and 2012."
     },
     {
       "checkId": "R-1-0002",
@@ -55,16 +61,22 @@
     {
       "checkId": "R-1-0003",
       "checkName": "AUDef agent criteria",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+    "expectedAnswer": "The project proponents control the project area and own the carbon rights at verification.",
+    "evidence": {
+      "quote": "The Project Proponents have clear, uncontested title to both property rights and the carbon rights.",
+      "page": 28,
+      "sectionHeading": "1.12.1 Right of Use",
       "sectionHeadingPage": null,
-      "spanId": null,
-      "clientAction": "Add the controlling legal documents, the named rightsholders, and the citations tying those rights to the project area and timeframe.",
-      "reason": "PDD does not yet show the legal-rights evidence needed for this rule."
+      "spanId": null
     },
+    "page": 28,
+    "sectionHeading": "1.12.1 Right of Use",
+    "sectionHeadingPage": null,
+    "spanId": null,
+    "clientAction": null,
+    "reason": "The quote gives project-specific proof of title to property rights and carbon rights."
+  },
     {
       "checkId": "R-1-0004",
       "checkName": "APDef legal authorization",
@@ -87,106 +99,106 @@
     {
       "checkId": "R-1-0005",
       "checkName": "WRC water table prohibition",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0006",
       "checkName": "WRC organic soil burning prohibition",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0007",
       "checkName": "WRC nitrogen fertilizer prohibition",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether this wetland rule applies, and if it does, add the no-fertilizer commitment and the land-management evidence supporting it.",
-      "reason": "PDD does not yet show whether nitrogen fertilizer is prohibited for the relevant wetland project area during the crediting period."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0008",
       "checkName": "WRC hydrological connectivity check",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0009",
       "checkName": "RWE prior land use requirement",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0010",
       "checkName": "Peatland VCS definition",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0011",
       "checkName": "Tidal wetland restoration activities",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0012",
       "checkName": "CIW tidal wetland conservation activities",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-1-0013",
@@ -217,41 +229,53 @@
     {
       "checkId": "R-1-0015",
       "checkName": "Leakage prevention activity restrictions",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
-      "sectionHeadingPage": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Leakage prevention does not include flooding farmland or intensifying livestock with feed-lots or manure lagoons.",
+      "evidence": {
+        "quote": "Leakage avoidance activities do not include flooding agricultural land or creating feed-lots or manure lagoons.",
+        "page": 33,
+        "sectionHeading": "2.2 Applicability of Methodology",
+        "sectionHeadingPage": 32,
+        "spanId": null
+      },
+      "page": 33,
+      "sectionHeading": "2.2 Applicability of Methodology",
+      "sectionHeadingPage": 32,
       "spanId": null,
-      "clientAction": "Add the leakage prevention measures used by the project and show explicitly that the prohibited agricultural and livestock responses are not part of that plan.",
-      "reason": "PDD does not yet show that leakage prevention measures were screened against the prohibited activity list."
+      "clientAction": null,
+      "reason": "The quote directly screens the prohibited leakage-prevention activities."
     },
     {
       "checkId": "R-2-0001",
       "checkName": "Geographic boundary definition",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The 200,000-hectare parcel boundaries were approved by INCRA and opened through the CAR/LAR process.",
+      "evidence": {
+        "quote": "The geo-referenced boundaries of the 200,000 hectare parcel have been approved by INCRA on 09 April 2010 and the parcel opened up the LAR process on 15 April 2011.",
+        "page": 47,
+        "sectionHeading": "3.1.1.3 Government Approval",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 47,
+      "sectionHeading": "3.1.1.3 Government Approval",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the project boundary approval and registry path."
     },
     {
       "checkId": "R-2-0002",
       "checkName": "No spatial overlap between baselines",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": "Add a direct no-overlap statement or a map/table that explicitly compares the baseline areas.",
+      "reason": "The PDF shows the project and proxy areas as distinct, but it does not directly state the no-spatial-overlap rule between baselines."
     },
     {
       "checkId": "R-2-0003",
@@ -275,132 +299,174 @@
     {
       "checkId": "R-2-0004",
       "checkName": "REDD reference region definition",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Ten Acre proxy sites were identified to estimate the baseline planned-deforestation rate.",
+      "evidence": {
+        "quote": "Ten areas were identified within Acre State that proved suitable to use as proxy sites from which to estimate rate of planned deforestation in the baseline (see Figure 3.4).",
+        "page": 48,
+        "sectionHeading": "3.1.2. Identifying proxy areas",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 48,
+      "sectionHeading": "3.1.2. Identifying proxy areas",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly identifies the proxy-region selection used for the baseline."
     },
     {
       "checkId": "R-2-0005",
       "checkName": "REDD proxy area definition",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The proxy sites were selected to match the baseline agent's land conversion practices, post-deforestation land use, and land use rights.",
+      "evidence": {
+        "quote": "1. Land conversion practices are the same as those used by the baseline agent, and are similar on large authorized clearings throughout Acre, typically involving recovery of commercial timber followed by mechanized clearing and burning; 2. The post-deforestation land use is ranching/pasture, the same as the baseline scenario, confirmed via inspection of satellite imagery44; 3. It has similar management and land use rights as the project area under the business as usual scenario, which are similar on large (>1,000 ha) private holdings throughout Acre (the areas are confirmed to be private lands by process of elimination – i.e. no overlap with GIS layers of state lands, indigenous lands and INCRA settlements;",
+        "page": 48,
+        "sectionHeading": "3.1.2. Identifying proxy areas",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 48,
+      "sectionHeading": "3.1.2. Identifying proxy areas",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the proxy-site criteria that match the baseline agent and project area."
     },
     {
       "checkId": "R-2-0006",
       "checkName": "Stratification requirement",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The forest inventory uses stratified random sampling.",
+      "evidence": {
+        "quote": "The inventory employs stratified random sampling with clusters of five 23m radius circular plots ≈ 0.83 ha (configuration of the cluster is detailed below).",
+        "page": 134,
+        "sectionHeading": "B1.0 Forest Inventory Design",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 134,
+      "sectionHeading": "B1.0 Forest Inventory Design",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the stratified sampling design used by the inventory."
     },
     {
       "checkId": "R-2-0007",
       "checkName": "Carbon pool selection per activity type",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project includes aboveground, belowground, dead wood, and harvested wood product pools.",
+      "evidence": {
+        "quote": "Aboveground Included Belowground Included Dead Wood Included Harvested Wood Products Included",
+        "page": 36,
+        "sectionHeading": "2.3.2 Carbon Stock Associated with the Baseline, Project and Leakage",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 36,
+      "sectionHeading": "2.3.2 Carbon Stock Associated with the Baseline, Project and Leakage",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "List each relevant carbon pool, state whether it is included or excluded, and add the project-specific reason and citation for that decision.",
-      "reason": "PDD does not yet show the include or exclude decision and justification for the carbon pools used in this project."
+      "clientAction": null,
+      "reason": "The quote directly states the carbon-pool rows in the project-boundary table."
     },
     {
       "checkId": "R-2-0008",
       "checkName": "REDD mandatory carbon pools",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+    "expectedAnswer": "The project includes the mandatory carbon pools and excludes litter and soil organic carbon.",
+    "evidence": {
+      "quote": "Aboveground Included Belowground Included Dead Wood Included Harvested Wood Products Included Mandatory to include. Tree biomass only is included, which is the most significant pool. Non-tree woody biomass (e.g. shrubs) is less in the baseline (pasture and cropland) than the project case (forest) and is conservatively excluded. Included and treated together with aboveground biomass for completeness to include whole tree (aboveground and belowground) biomass. This pool was included as it can represent a significant component of forest biomass. Included as commercial harvesting for wood products takes place in the baseline as part of the forest conversion process. Conservatively omitted, as allowed by methodology. Excluded Excluded Litter Soil Organic Carbon",
+        "page": 36,
+        "sectionHeading": "2.3.2 Carbon Stock Associated with the Baseline, Project and Leakage",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 36,
+      "sectionHeading": "2.3.2 Carbon Stock Associated with the Baseline, Project and Leakage",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
-      "reason": "PDD does not yet show the pool or GHG source selection evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the included and excluded carbon pools, including litter and soil organic carbon."
     },
     {
       "checkId": "R-2-0009",
       "checkName": "WRC carbon pools",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-2-0010",
       "checkName": "REDD GHG source identification",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project boundary includes biomass burning and excludes fossil-fuel combustion.",
+    "evidence": {
+      "quote": "Biomass burning CO2 CH4 N2O Fossil Fuel Combustion CO2 No Yes Yes No CO2 emissions are already considered in carbon stock changes. CH4 and N2O emissions are included in both the baseline and with-project case where fires occur. Emissions from fossil fuel combustion in the baseline and project case are minimal. As per methodology module E-FCC “Fossil fuel combustion in all situations is an optional emission source.”",
+        "page": 35,
+        "sectionHeading": "2.3.1 Sources of GHG Emissions Associated with the Baseline, Project and Leakage",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 35,
+      "sectionHeading": "2.3.1 Sources of GHG Emissions Associated with the Baseline, Project and Leakage",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
-      "reason": "PDD does not yet show the pool or GHG source selection evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the biomass-burning inclusion and fossil-fuel exclusion in Table 2.4."
     },
     {
       "checkId": "R-2-0011",
       "checkName": "WRC GHG source identification",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-2-0012",
       "checkName": "Consistency rule: baseline-project source matching",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
-      "reason": "PDD does not yet show the pool or GHG source selection evidence needed for this rule."
+      "clientAction": "Add a direct statement that the baseline, project, and leakage source treatment is consistent, or keep this as a weak consistency row.",
+      "reason": "The PDF says justifications are provided when exclusions occur, but it does not directly state the baseline/project source consistency rule."
     },
     {
       "checkId": "R-2-0013",
       "checkName": "Historical reference period",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
-      "sectionHeadingPage": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The proxy areas include deforestation that occurred within the 10 years before the baseline period.",
+      "evidence": {
+        "quote": "It has deforestation which has occurred within 10 years prior to the baseline period.",
+        "page": 49,
+        "sectionHeading": "3.1.2. Identifying proxy areas",
+        "sectionHeadingPage": 48,
+        "spanId": null
+      },
+      "page": 49,
+      "sectionHeading": "3.1.2. Identifying proxy areas",
+      "sectionHeadingPage": 48,
       "spanId": null,
-      "clientAction": "Add the mapped boundary, time-boundary details, and the project-specific justification for the geography or period used in this rule.",
-      "reason": "PDD does not yet show the boundary evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the historical reference period for proxy-area selection."
     },
     {
       "checkId": "R-2-0014",
@@ -424,28 +490,28 @@
     {
       "checkId": "R-2-0015",
       "checkName": "WRC 100-year SOC difference requirement",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-2-0016",
       "checkName": "Tidal wetland sea-level rise boundary",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-3-0001",
@@ -469,41 +535,47 @@
     {
       "checkId": "R-3-0002",
       "checkName": "Minimum alternative scenario list",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The baseline scenario list contains continuation without the VCS project and conversion to pasture.",
+      "evidence": {
+        "quote": "1.  Continuation of pre-project land use / Project activity on the land within the project boundary performed without being registered as a VCS AFOLU project. 2.  Conversion to Pasture.",
+        "page": 37,
+        "sectionHeading": "2.4 Baseline Scenario",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 37,
+      "sectionHeading": "2.4 Baseline Scenario",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the alternative scenarios considered, the VT0001 decision path used, and the citations supporting the selected baseline scenario.",
-      "reason": "PDD does not yet show the baseline scenario judgment needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly lists the baseline alternatives used in the VT0001 decision path."
     },
     {
       "checkId": "R-3-0003",
       "checkName": "Barrier analysis baseline selection",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the alternative scenarios considered, the VT0001 decision path used, and the citations supporting the selected baseline scenario.",
-      "reason": "PDD does not yet show the baseline scenario judgment needed for this rule."
+      "clientAction": "Add the barrier-analysis conclusion or keep this as a weakly supported baseline-selection row.",
+      "reason": "The PDF contains barrier-related discussion and common-practice evidence, but it does not directly present a barrier-analysis baseline-selection finding."
     },
     {
       "checkId": "R-3-0004",
       "checkName": "Investment analysis baseline selection",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the alternative scenarios considered, the VT0001 decision path used, and the citations supporting the selected baseline scenario.",
-      "reason": "PDD does not yet show the baseline scenario judgment needed for this rule."
+      "clientAction": "Add the investment-analysis conclusion or keep this as a weakly supported baseline-selection row.",
+      "reason": "The PDF contains a simple-cost and financial-barrier discussion, but it does not directly present an investment-analysis baseline-selection finding."
     },
     {
       "checkId": "R-3-0005",
@@ -527,28 +599,34 @@
     {
       "checkId": "R-3-0006",
       "checkName": "WRC baseline modules",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-3-0007",
       "checkName": "Baseline reassessment frequency",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The baseline will be revised every 10 years from the project start date.",
+      "evidence": {
+        "quote": "The baseline will be revised every 10 years from the project start date.",
+        "page": 115,
+        "sectionHeading": "Table 4.6 Data and Parameters for Monitoring Carbon Stocks Changes and GHG Emissions.",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 115,
+      "sectionHeading": "Table 4.6 Data and Parameters for Monitoring Carbon Stocks Changes and GHG Emissions.",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the alternative scenarios considered, the VT0001 decision path used, and the citations supporting the selected baseline scenario.",
-      "reason": "PDD does not yet show the baseline scenario judgment needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the reassessment interval for the baseline."
     },
     {
       "checkId": "R-3-0008",
@@ -566,54 +644,66 @@
     {
       "checkId": "R-4-0001",
       "checkName": "VT0001 additionality requirement",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project is additional because it is unlikely without carbon-credit revenue and is not common practice.",
+      "evidence": {
+        "quote": "The project activity, without revenue from carbon credits, is unlikely to occur and is not a common practice in the region. The project is therefore additional.",
+        "page": 40,
+        "sectionHeading": "2.5 Additionality",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 40,
+      "sectionHeading": "2.5 Additionality",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the project-specific additionality tests, the decisive findings, and the citations supporting the additionality conclusion.",
-      "reason": "PDD does not yet show the VT0001-based additionality case for the project."
+      "clientAction": null,
+      "reason": "The quote directly states the additionality conclusion and the basis for it."
     },
     {
       "checkId": "R-4-0002",
       "checkName": "Tidal wetland additionality method",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-5-0001",
       "checkName": "REDD net emission reduction equation",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "VCUs are calculated as baseline emissions minus project emissions minus leakage minus buffer withholding.",
+      "evidence": {
+        "quote": "Estimated GHG emission reduction credits =  Baseline emissions, fixed for 10 years at validation minus  Project emissions minus  Leakage minus  Non-permanence Risk Buffer withholding (calculated as a percent of net change in carbon stocks prior to deduction of leakage, see Appendix A).",
+        "page": 76,
+        "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 76,
+      "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the calculation pathway, the key variables and assumptions, and the citations that let a reviewer trace the stated result.",
-      "reason": "PDD does not yet show the quantification evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the emission-reduction calculation equation."
     },
     {
       "checkId": "R-5-0002",
       "checkName": "WRC net emission reduction equation",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-5-0003",
@@ -637,93 +727,129 @@
     {
       "checkId": "R-5-0004",
       "checkName": "WRC leakage components",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-5-0005",
       "checkName": "Buffer pool contribution calculation",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project uses a 23% non-permanence risk deduction.",
+      "evidence": {
+        "quote": "The Envira Amazonia Project will employ a non-permanence risk deduction of 23%.",
+        "page": 133,
+        "sectionHeading": "A2.0. OVERALL NON-PERMANENCE RISK RATING AND BUFFER DETERMINATION",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 133,
+      "sectionHeading": "A2.0. OVERALL NON-PERMANENCE RISK RATING AND BUFFER DETERMINATION",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the calculation pathway, the key variables and assumptions, and the citations that let a reviewer trace the stated result.",
-      "reason": "PDD does not yet show the quantification evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the buffer deduction applied to the project."
     },
     {
       "checkId": "R-5-0006",
       "checkName": "Uncertainty adjustment",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project applies X-UNC and quantifies baseline uncertainty at 1.96%.",
+      "evidence": {
+        "quote": "Uncertainty will be assessed applying module X-UNC. Uncertainty in the baseline rate, parameter UncertaintyBSL,RATE, is equal to 1.96%. Per the X-UNC module, UncertaintyBSL,RATE has been calculated as “the 95% confidence interval as a percentage of the mean of the area deforested in each proxy (D%pn) divided by the number of years over which deforestation occurred in each proxy (Yrspn).”",
+        "page": 75,
+        "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 75,
+      "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the uncertainty method, the reduction steps or deductions used, and the citations linking those choices to the project data.",
-      "reason": "PDD does not yet show the uncertainty evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the X-UNC method and the baseline uncertainty value."
     },
     {
       "checkId": "R-5-0007",
       "checkName": "VCU calculation",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Eligible VCUs are calculated in Table 3.37.",
+      "evidence": {
+        "quote": "Estimates of GHG credits eligible for issuance as VCUs were calculated in Table 3.37, below;",
+        "page": 76,
+        "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 76,
+      "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the calculation pathway, the key variables and assumptions, and the citations that let a reviewer trace the stated result.",
-      "reason": "PDD does not yet show the quantification evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states where the VCU issuance calculation is presented."
     },
     {
       "checkId": "R-5-0008",
       "checkName": "Carbon pool modules for REDD",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project selects the REDD carbon-pool modules CP-AB, CP-W, and CP-D.",
+      "evidence": {
+        "quote": "Carbon pool modules:   CP-AB “VMD0001 Estimation of carbon stocks in the above- and belowground biomass in live tree and non-tree pools”, version 1.1    CP-W “VMD0005 Estimation of carbon stocks in the long-term wood products pool”, version 1.1   CP-D, “VMD0002 Estimation of carbon stock changes in the dead wood pool”",
+        "page": 31,
+        "sectionHeading": "2.1 Title and Reference of Methodology",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 31,
+      "sectionHeading": "2.1 Title and Reference of Methodology",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the selected modules or tools, the project-specific reason each one applies, and the citations supporting those choices.",
-      "reason": "PDD does not yet show the module-selection rationale needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly lists the carbon-pool modules used by the project."
     },
     {
       "checkId": "R-5-0009",
       "checkName": "Project emissions modules",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project selects the monitoring module M-MON.",
+      "evidence": {
+        "quote": "Monitoring module:    M-MON “VMD0015 Methods for monitoring of greenhouse gas emissions and removals”, version 2.1.",
+        "page": 31,
+        "sectionHeading": "2.1 Title and Reference of Methodology",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 31,
+      "sectionHeading": "2.1 Title and Reference of Methodology",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the selected modules or tools, the project-specific reason each one applies, and the citations supporting those choices.",
-      "reason": "PDD does not yet show the module-selection rationale needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly lists the monitoring module selected for the project."
     },
     {
       "checkId": "R-6-0001",
       "checkName": "Monitoring plan four tasks",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The monitoring plan assigns the project monitoring tasks and responsible parties in Table 4.8.",
+      "evidence": {
+        "quote": "Table 4.8. Type of Monitoring and Party Responsible for Monitoring. Variables to be monitored Monitoring deforestation and natural disturbance Responsible JR Agropecuária e Empreendimentos EIRELI Frequency Prior to each verification Monitoring illegal degradation Monitoring project emissions JR Agropecuária e Empreendimentos EIRELI Every two years CarbonCo Prior to each verification Activity shifting leakage assessment JR Agropecuária e Empreendimentos EIRELI Prior to each verification Updating forest carbon stocks estimates CarbonCo At least every 10 years. Revision of the baseline CarbonCo At least every 10 years.",
+        "page": 118,
+        "sectionHeading": "Organization, Responsibilities, and Monitoring Frequency",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 118,
+      "sectionHeading": "Organization, Responsibilities, and Monitoring Frequency",
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Enumerate the four monitoring tasks and add the procedures, data, responsibilities, and recordkeeping details for each one.",
-      "reason": "PDD does not yet show all four required monitoring-plan tasks with project-specific detail."
+      "clientAction": null,
+      "reason": "The quote directly lists the monitoring tasks and responsible-party rows in Table 4.8."
     },
     {
       "checkId": "R-6-0002",
@@ -747,80 +873,98 @@
     {
       "checkId": "R-6-0003",
       "checkName": "Geographic position recording",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
-      "sectionHeadingPage": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Ground-truth data are recorded with GPS coordinates and archived.",
+      "evidence": {
+        "quote": "Any data collected from ground-truth points will be recorded (including GPS coordinates, identified land-use class, and supporting photographic evidence) and archived.",
+        "page": 117,
+        "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
+        "sectionHeadingPage": 116,
+        "spanId": null
+      },
+      "page": 117,
+      "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
+      "sectionHeadingPage": 116,
       "spanId": null,
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "reason": "PDD does not yet show the monitoring-plan evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states how geographic-position data are recorded and retained."
     },
     {
       "checkId": "R-6-0004",
       "checkName": "SOP and QA/QC requirements",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "reason": "PDD does not yet show the monitoring-plan evidence needed for this rule."
+      "clientAction": "Add a direct quote that states the monitoring plan applies QA/QC and data archiving procedures, not just the section heading.",
+      "reason": "The PDF identifies the QA/QC and archiving section, but the current evidence is only a section heading and does not directly state the contract requirement."
     },
     {
       "checkId": "R-6-0005",
       "checkName": "REDD forest cover monitoring",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": null,
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
-      "sectionHeadingPage": null,
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Deforestation monitoring uses classification accuracy checks and a long-term archive of monitoring data.",
+    "evidence": {
+      "quote": "All data sources and processing, classification and change detection procedures will be documented and stored in a dedicated long-term electronic archive. Information related to monitoring deforestation maintained in the archive will include: • Forest / non-forest maps; • Documentation of software type and procedures applied (including all pre-processing steps and corrections, spectral bands used in final classifications, and classification methodologies and algorithms applied), if applicable; and • Data used in accuracy assessment - ground-truth points (including GPS coordinates, identified land-use class, and supporting photographic evidence) and/or sample points of high resolution imagery.",
+        "page": 117,
+        "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
+        "sectionHeadingPage": 116,
+        "spanId": null
+      },
+      "page": 117,
+      "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
+      "sectionHeadingPage": 116,
       "spanId": null,
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "reason": "PDD does not yet show the monitoring-plan evidence needed for this rule."
+      "clientAction": null,
+      "reason": "The quote directly states the long-term archive and accuracy-assessment requirements for deforestation monitoring."
     },
     {
       "checkId": "R-6-0006",
       "checkName": "WRC compliance monitoring",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "N/A",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "reason": "PDD does not yet show whether this wetland-specific rule applies to the project scope."
+      "clientAction": null,
+      "reason": "This rule does not apply because the Envira Amazonia Project is a REDD forest-conservation project and does not include the wetland scope that triggers it."
     },
     {
       "checkId": "R-6-0007",
       "checkName": "Expert judgment documentation",
-      "expectedStatus": "MISSING",
-      "expectedAnswer": "No usable expert-judgment documentation is shown in the Envira PDD for this rule.",
-      "evidence": null,
-      "page": null,
-      "sectionHeading": null,
-      "sectionHeadingPage": null,
-      "spanId": null,
-      "clientAction": "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references that support that judgment.",
-      "reason": "No direct PDF-backed quote in the Envira PDD documents expert-judgment inputs, rationale, or retained evidence for this rule."
-    },
-    {
-      "checkId": "R-6-0008",
-      "checkName": "Uncertainty reduction requirements",
-      "expectedStatus": "MISSING",
+      "expectedStatus": "UNCLEAR",
       "expectedAnswer": null,
       "evidence": null,
       "page": null,
       "sectionHeading": null,
       "sectionHeadingPage": null,
       "spanId": null,
-      "clientAction": "Add the uncertainty method, the reduction steps or deductions used, and the citations linking those choices to the project data.",
-      "reason": "PDD does not yet show the uncertainty evidence needed for this rule."
+      "clientAction": "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references.",
+      "reason": "The PDF mentions expert help and consultation, but not the specific judgment inputs or retained evidence required for FOUND."
+    },
+    {
+      "checkId": "R-6-0008",
+      "checkName": "Uncertainty reduction requirements",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project calculates uncertainty using X-UNC, with stock uncertainty at 4.17% and uncertainty-adjusted VCUs in Table 3.37.",
+    "evidence": {
+      "quote": "Total uncertainty in carbon stocks in forest (parameter UncertaintyBSL,SS) is equal to combined uncertainty of forest carbon pool stock estimates, calculated using propagation of errors (equation 4 of VM0007 module X-UNC). Parameter UncertaintyBSL,SS is thus calculated to be 4.17% at the 95% confidence level (calculations detailed in Forest Biomass Carbon Inventory Report) for the initial forest inventory. Results of overall uncertainty calculations are presented below in Table 3.36. Table 3.36. Summary of uncertainty calculations. X-UNC Equation Number 5 6 10 11 Parameter UncertaintyBSL,SS UncertaintyBSL,RATE, UncertaintyBSL,t* CREDD_ERROR,t* Value 4.17% 1.96% 4.61% 4.61% Adjustment factor applied to CREDD, t * 100% Estimates of GHG credits eligible for issuance as VCUs were calculated in Table 3.37, below;",
+        "page": 76,
+        "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
+        "sectionHeadingPage": null,
+        "spanId": null
+      },
+      "page": 76,
+      "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
+      "sectionHeadingPage": null,
+      "spanId": null,
+      "clientAction": null,
+      "reason": "The quote directly states the stock uncertainty value and the VCU calculation table."
     }
   ]
 }

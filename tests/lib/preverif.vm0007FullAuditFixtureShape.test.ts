@@ -28,11 +28,16 @@ describe("VM0007 full 58-rule audit fixture shape", () => {
   it("represents all 58 canonical rules with stable summary counts", () => {
     assertVm0007FullAuditFixtureSet(FULL_AUDIT_FIXTURE, VM0007_SYNCED_RULES, SOURCE_EXCERPTS);
     expect(FULL_AUDIT_FIXTURE.expectedStatusCounts).toEqual({
-      FOUND: 6,
-      UNCLEAR: 2,
-      MISSING: 50,
-      "N/A": 0,
+      FOUND: 30,
+      UNCLEAR: 8,
+      MISSING: 3,
+      "N/A": 17,
     });
+
+    const r6004 = FULL_AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-6-0004");
+    expect(r6004?.expectedStatus).toBe("UNCLEAR");
+    const r20012 = FULL_AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-2-0012");
+    expect(r20012?.expectedStatus).toBe("UNCLEAR");
   });
 
   it("fails if a canonical rule is missing, a non-canonical rule is added, or a duplicate checkId exists", () => {
@@ -88,7 +93,7 @@ describe("VM0007 full 58-rule audit fixture shape", () => {
 
     const missingWithoutGuidance = cloneFixture();
     missingWithoutGuidance.checks = missingWithoutGuidance.checks.map((check) =>
-      check.checkId === "R-1-0001"
+      check.checkId === "R-1-0013"
         ? {
             ...check,
             clientAction: null,
