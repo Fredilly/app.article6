@@ -1,0 +1,10 @@
+{
+  "id": "mk-pdd-pda3",
+  "title": "Quick Check v2 Phase 7 MK PDD PDA3 gold fixture",
+  "documentId": "mk-pdd-pda3",
+  "runtimeMode": "runtime-smoke",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "CDM",
+  "documentType": "Project Design Document"
+}

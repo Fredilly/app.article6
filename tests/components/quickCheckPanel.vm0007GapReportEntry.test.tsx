@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 import QuickCheckPanel, { resolveGapReportSourceAnalysis } from "@/components/chat/QuickCheckPanel";
 import type { QuickCheckEvidenceAnalysis } from "@/lib/chat/quickCheckEvidence";
 
-function seedVm0007Session(auditId?: string) {
+function seedVm0007Session(auditId?: string, documentType = "Project Description Document") {
   window.localStorage.setItem(
     "a6:quick-check:claim-first:v1",
     JSON.stringify({
@@ -35,7 +35,7 @@ function seedVm0007Session(auditId?: string) {
         citations: ["S-1"],
         nextStepHint: "Open full review to preserve this check.",
         extraction: {
-          documentType: "Project Description Document",
+          documentType,
           extractedFacts: ["Project area remained forest land before project start."],
           methodologyMentions: ["VM0007"],
           warnings: [],
@@ -144,6 +144,24 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
     expect(text).not.toContain("View Gap Report");
   });
 
+  test("does not render the internal report card for validation-report extraction results", async () => {
+    seedVm0007Session("audit-quickcheck-validation", "Validation Report");
+
+    await act(async () => {
+      root.render(<QuickCheckPanel initialMethod="VM0007" initialVersion="v1-8" />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Internal report");
+    expect(text).not.toContain("View Gap Report");
+    expect(text).not.toContain("Gap report not available yet");
+  });
   test("manual match fallback reuses extracted PDD analysis when direct analysis is missing", async () => {
     const analysisFromState: QuickCheckEvidenceAnalysis = {
       rawPddText: "VM0007 PDD extracted text.",

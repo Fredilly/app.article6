@@ -117,7 +117,11 @@ export const CHECK_SECTION_MAPPINGS: Record<
   },
   baseline_scenario: {
     label: "Baseline scenario",
-    searchTexts: ["Baseline Scenario"],
+    searchTexts: [
+      "Baseline Scenario",
+      "Description of how the baseline scenario is identified",
+      "Details of the baseline and its development",
+    ],
   },
   additionality: {
     label: "Additionality",

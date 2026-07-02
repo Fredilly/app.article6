@@ -199,10 +199,14 @@ function detectSectionHeading(
 
   const headingMatch = trimmed.match(SECTION_HEADING_RE);
   if (headingMatch) {
+    const title = headingMatch[2]!.trim();
+    if (/^[a-z]/.test(title)) {
+      return { isHeading: false };
+    }
     return {
       isHeading: true,
       sectionNumber: headingMatch[1]!,
-      title: headingMatch[2]!.trim(),
+      title,
     };
   }
 
