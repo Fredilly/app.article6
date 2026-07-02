@@ -24,9 +24,9 @@
       "checkId": "R-1-0001",
       "checkName": "REDD forest land definition",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project area qualified as forest for at least 10 years before project start.",
-      "evidence": {
-        "quote": "Land in the project area has qualified as forest at least 10 years before the project start date.",
+    "expectedAnswer": "The project area qualified as forest for at least 10 years before project start.",
+    "evidence": {
+      "quote": "The project area complies with this condition as mentioned in Section 1.10, with complete forest cover demonstrated for the years 2002 and 2012.",
         "page": 32,
         "sectionHeading": "2.2 Applicability of Methodology",
         "sectionHeadingPage": null,
@@ -37,7 +37,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the 10-year forest qualification condition and ties it to the project area."
+      "reason": "The quote gives the project-specific justification: complete forest cover was demonstrated for 2002 and 2012."
     },
     {
       "checkId": "R-1-0002",
@@ -62,9 +62,9 @@
       "checkId": "R-1-0003",
       "checkName": "AUDef agent criteria",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project proponents control the project area and own the carbon rights at verification.",
-      "evidence": {
-        "quote": "Project proponents must be able to show control over the project area and ownership of carbon rights for the project area at the time of verification.",
+    "expectedAnswer": "The project proponents control the project area and own the carbon rights at verification.",
+    "evidence": {
+      "quote": "As demonstrated in Section 1.12, the project proponents have the control of the project area and the ownership of the carbon credits.",
         "page": 32,
         "sectionHeading": "2.2 Applicability of Methodology",
         "sectionHeadingPage": null,
@@ -75,7 +75,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the project-control and carbon-rights condition for the project area."
+      "reason": "The quote gives project-specific proof of control over the project area and ownership of the carbon credits."
     },
     {
       "checkId": "R-1-0004",
@@ -319,9 +319,9 @@
       "checkId": "R-2-0005",
       "checkName": "REDD proxy area definition",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The proxy sites were selected against criteria that match the project area and baseline agent pattern.",
+      "expectedAnswer": "The proxy sites were selected to match the baseline agent's land conversion practices, post-deforestation land use, and land use rights.",
       "evidence": {
-        "quote": "Each proxy site was selected to meet the following criteria:",
+        "quote": "1. Land conversion practices are the same as those used by the baseline agent, and are similar on large authorized clearings throughout Acre, typically involving recovery of commercial timber followed by mechanized clearing and burning; 2. The post-deforestation land use is ranching/pasture, the same as the baseline scenario, confirmed via inspection of satellite imagery44; 3. It has similar management and land use rights as the project area under the business as usual scenario, which are similar on large (>1,000 ha) private holdings throughout Acre (the areas are confirmed to be private lands by process of elimination – i.e. no overlap with GIS layers of state lands, indigenous lands and INCRA settlements;",
         "page": 48,
         "sectionHeading": "3.1.2. Identifying proxy areas",
         "sectionHeadingPage": null,
@@ -332,7 +332,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly introduces the proxy-site selection criteria used in the PDD."
+      "reason": "The quote directly states the proxy-site criteria that match the baseline agent and project area."
     },
     {
       "checkId": "R-2-0006",
@@ -376,9 +376,9 @@
       "checkId": "R-2-0008",
       "checkName": "REDD mandatory carbon pools",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project includes the mandatory carbon pools and excludes litter and soil organic carbon.",
-      "evidence": {
-        "quote": "Aboveground Included Belowground Included Dead Wood Included Harvested Wood Products Included",
+    "expectedAnswer": "The project includes the mandatory carbon pools and excludes litter and soil organic carbon.",
+    "evidence": {
+      "quote": "Aboveground Included Belowground Included Dead Wood Included Harvested Wood Products Included Mandatory to include. Tree biomass only is included, which is the most significant pool. Non-tree woody biomass (e.g. shrubs) is less in the baseline (pasture and cropland) than the project case (forest) and is conservatively excluded. Included and treated together with aboveground biomass for completeness to include whole tree (aboveground and belowground) biomass. This pool was included as it can represent a significant component of forest biomass. Included as commercial harvesting for wood products takes place in the baseline as part of the forest conversion process. Conservatively omitted, as allowed by methodology. Excluded Excluded Litter Soil Organic Carbon",
         "page": 36,
         "sectionHeading": "2.3.2 Carbon Stock Associated with the Baseline, Project and Leakage",
         "sectionHeadingPage": null,
@@ -389,7 +389,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the included carbon pools in the project boundary table."
+      "reason": "The quote directly states the included and excluded carbon pools, including litter and soil organic carbon."
     },
     {
       "checkId": "R-2-0009",
@@ -408,9 +408,9 @@
       "checkId": "R-2-0010",
       "checkName": "REDD GHG source identification",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project boundary includes biomass burning and excludes fossil-fuel and fertilizer emissions as described in Table 2.4.",
-      "evidence": {
-        "quote": "GHG emission sources included in the project boundary are listed in Table 2.4. Justifications are provided when excluded from the project boundaries.",
+      "expectedAnswer": "The project boundary includes biomass burning and excludes fossil-fuel combustion.",
+    "evidence": {
+      "quote": "Biomass burning CO2 CH4 N2O Fossil Fuel Combustion CO2 No Yes Yes No CO2 emissions are already considered in carbon stock changes. CH4 and N2O emissions are included in both the baseline and with-project case where fires occur. Emissions from fossil fuel combustion in the baseline and project case are minimal. As per methodology module E-FCC “Fossil fuel combustion in all situations is an optional emission source.”",
         "page": 35,
         "sectionHeading": "2.3.1 Sources of GHG Emissions Associated with the Baseline, Project and Leakage",
         "sectionHeadingPage": null,
@@ -421,7 +421,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the source-selection table for the project boundary."
+      "reason": "The quote directly states the biomass-burning inclusion and fossil-fuel exclusion in Table 2.4."
     },
     {
       "checkId": "R-2-0011",
@@ -760,9 +760,9 @@
       "checkId": "R-5-0006",
       "checkName": "Uncertainty adjustment",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project applies X-UNC and quantifies baseline uncertainty at 1.96% and stock uncertainty at 4.17%.",
+      "expectedAnswer": "The project applies X-UNC and quantifies baseline uncertainty at 1.96%.",
       "evidence": {
-        "quote": "Uncertainty will be assessed applying module X-UNC.  Uncertainty in the baseline rate, parameter UncertaintyBSL,RATE, is equal to 1.96%.",
+        "quote": "Uncertainty will be assessed applying module X-UNC. Uncertainty in the baseline rate, parameter UncertaintyBSL,RATE, is equal to 1.96%. Per the X-UNC module, UncertaintyBSL,RATE has been calculated as “the 95% confidence interval as a percentage of the mean of the area deforested in each proxy (D%pn) divided by the number of years over which deforestation occurred in each proxy (Yrspn).”",
         "page": 75,
         "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
         "sectionHeadingPage": null,
@@ -773,7 +773,7 @@
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the uncertainty method and the project-specific quantified baseline uncertainty."
+      "reason": "The quote directly states the X-UNC method and the baseline uncertainty value."
     },
     {
       "checkId": "R-5-0007",
@@ -906,20 +906,20 @@
       "checkId": "R-6-0005",
       "checkName": "REDD forest cover monitoring",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "Deforestation monitoring uses QA/QC, classification accuracy checks, and a long-term archive of forest/non-forest maps.",
-      "evidence": {
-        "quote": "To ensure consistency and quality results, spatial analysts carrying out the imagery processing, interpretation, and change detection procedures will strictly adhere to best practices and good practice guidelines, when using the alternative method for quantifying deforestation. All data sources and analytical procedures will be documented and archived (detailed under data archiving below).",
-        "page": 116,
+      "expectedAnswer": "Deforestation monitoring uses classification accuracy checks and a long-term archive of monitoring data.",
+    "evidence": {
+      "quote": "All data sources and processing, classification and change detection procedures will be documented and stored in a dedicated long-term electronic archive. Information related to monitoring deforestation maintained in the archive will include: • Forest / non-forest maps; • Documentation of software type and procedures applied (including all pre-processing steps and corrections, spectral bands used in final classifications, and classification methodologies and algorithms applied), if applicable; and • Data used in accuracy assessment - ground-truth points (including GPS coordinates, identified land-use class, and supporting photographic evidence) and/or sample points of high resolution imagery.",
+        "page": 117,
         "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
-        "sectionHeadingPage": null,
+        "sectionHeadingPage": 116,
         "spanId": null
       },
-      "page": 116,
+      "page": 117,
       "sectionHeading": "Quality Assurance/Quality Control and Data Archiving Procedures",
-      "sectionHeadingPage": null,
+      "sectionHeadingPage": 116,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the QA/QC and archiving procedures used for deforestation monitoring."
+      "reason": "The quote directly states the long-term archive and accuracy-assessment requirements for deforestation monitoring."
     },
     {
       "checkId": "R-6-0006",
@@ -951,20 +951,20 @@
       "checkId": "R-6-0008",
       "checkName": "Uncertainty reduction requirements",
       "expectedStatus": "FOUND",
-      "expectedAnswer": "The project calculates uncertainty using X-UNC and uncertainty-adjusted VCUs.",
-      "evidence": {
-        "quote": "Uncertainty will be assessed applying module X-UNC.",
-        "page": 75,
+      "expectedAnswer": "The project calculates uncertainty using X-UNC, with stock uncertainty at 4.17% and uncertainty-adjusted VCUs in Table 3.37.",
+    "evidence": {
+      "quote": "Total uncertainty in carbon stocks in forest (parameter UncertaintyBSL,SS) is equal to combined uncertainty of forest carbon pool stock estimates, calculated using propagation of errors (equation 4 of VM0007 module X-UNC). Parameter UncertaintyBSL,SS is thus calculated to be 4.17% at the 95% confidence level (calculations detailed in Forest Biomass Carbon Inventory Report) for the initial forest inventory. Results of overall uncertainty calculations are presented below in Table 3.36. Table 3.36. Summary of uncertainty calculations. X-UNC Equation Number 5 6 10 11 Parameter UncertaintyBSL,SS UncertaintyBSL,RATE, UncertaintyBSL,t* CREDD_ERROR,t* Value 4.17% 1.96% 4.61% 4.61% Adjustment factor applied to CREDD, t * 100% Estimates of GHG credits eligible for issuance as VCUs were calculated in Table 3.37, below;",
+        "page": 76,
         "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
         "sectionHeadingPage": null,
         "spanId": null
       },
-      "page": 75,
+      "page": 76,
       "sectionHeading": "3.4 Net GHG Emission Reductions and Removals",
       "sectionHeadingPage": null,
       "spanId": null,
       "clientAction": null,
-      "reason": "The quote directly states the uncertainty method used for the project."
+      "reason": "The quote directly states the stock uncertainty value and the VCU calculation table."
     }
   ]
 }
