@@ -173,7 +173,7 @@ const SECTION_HEADING_RE =
  * (to distinguish from page numbers, table cells, and bare numeric lines).
  */
 const TOP_LEVEL_HEADING_RE =
-  /^\s*(\d+)\.?\s+([A-Za-z][\w\s\/&-]+)\s*$/;
+  /^\s*(\d+)\.?\s+([A-Za-z][\w\s\/&-]+)\s*:?\s*$/;
 
 /**
  * Matches annex/appendix headings like:

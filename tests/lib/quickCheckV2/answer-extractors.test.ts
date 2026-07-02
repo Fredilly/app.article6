@@ -102,6 +102,22 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     }).answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
   });
 
+  it("extracts a concise VM0009 methodology answer from a wrapped sentence", () => {
+    const evidence = {
+      sourceType: "fact_contract" as const,
+      quote: "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.",
+      page: 9,
+      sectionHeading: "Title and reference of the VCS methodology applied to the project activity and explanation of methodology choices:",
+      sectionPath: ["2", "2.1"],
+      spanId: "synthetic-doc:p9:b1:methodology",
+    };
+
+    expect(extractAnswerFromEvidence({
+      checkName: "methodology",
+      evidence,
+    }).answer).toBe("VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests");
+  });
+
   it("keeps answers grounded in the selected Phase 3 evidence", () => {
     for (const result of answers) {
       expect(answerIsGroundedInEvidence(result.answer, result.evidence)).toBe(true);

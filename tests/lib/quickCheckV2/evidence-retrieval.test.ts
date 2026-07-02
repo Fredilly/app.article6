@@ -236,6 +236,192 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence).toBeNull();
   });
 
+  it("ignores delegated supporting-document references and uses earlier baseline evidence instead", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p4:b1:heading",
+        page: 4,
+        text: "1.7 Conditions prior to project initiation:",
+        blockType: "heading",
+        sectionHeading: "Conditions prior to project initiation:",
+        sectionPath: ["1", "1.7"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b2:body",
+        page: 4,
+        text: "It was not difficult to identify the baseline scenario for this project: rapid deforestation due to unplanned slash and burn agricultural expansion by subsistence farmers.",
+        blockType: "body",
+        sectionHeading: "Conditions prior to project initiation:",
+        sectionPath: ["1", "1.7"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b1:heading",
+        page: 9,
+        text: "2.4 Description of how the baseline scenario is identified and description of the identified baseline scenario:",
+        blockType: "heading",
+        sectionHeading: "Description of how the baseline scenario is identified and description of the identified baseline scenario:",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b2:body",
+        page: 9,
+        text: "Please refer to Supporting Document - VCS Methodology PD Requirements Section 6.1.",
+        blockType: "body",
+        sectionHeading: "Description of how the baseline scenario is identified and description of the identified baseline scenario:",
+        sectionPath: ["2", "2.4"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "baseline_scenario");
+
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(4);
+    expect(result.evidence!.quote).toContain("rapid deforestation due to unplanned slash and burn agricultural expansion by subsistence farmers");
+  });
+
+  it("expands wrapped methodology fact-contract evidence across the sentence boundary", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p9:b1:heading",
+        page: 9,
+        text: "2.1 Title and reference of the VCS methodology applied to the project activity and explanation of methodology choices:",
+        blockType: "heading",
+        sectionHeading: "Title and reference of the VCS methodology applied to the project activity and explanation of methodology choices:",
+        sectionPath: ["2", "2.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b2:body",
+        page: 9,
+        text: "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical",
+        blockType: "body",
+        sectionHeading: "Title and reference of the VCS methodology applied to the project activity and explanation of methodology choices:",
+        sectionPath: ["2", "2.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b3:body",
+        page: 9,
+        text: "Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.",
+        blockType: "body",
+        sectionHeading: "Title and reference of the VCS methodology applied to the project activity and explanation of methodology choices:",
+        sectionPath: ["2", "2.1"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "methodology");
+
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(9);
+    expect(result.evidence!.quote).toContain("VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests");
+  });
+
+  it("prefers a real additionality statement over a delegated supporting-document reference", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "1.4 A brief description of the project:",
+        blockType: "heading",
+        sectionHeading: "A brief description of the project:",
+        sectionPath: ["1", "1.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:body",
+        page: 3,
+        text: "The project is shown to be clearly additional (under the project financial additionality tool) and the baseline, far hypothetical, is an intelligent extrapolation of empirically measured deforestation.",
+        blockType: "body",
+        sectionHeading: "A brief description of the project:",
+        sectionPath: ["1", "1.4"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b4:heading",
+        page: 9,
+        text: "2.5 Description of how the emissions of GHG by source in baseline scenario are reduced below those that would have occurred in the absence of the project activity (assessment and demonstration of additionality):",
+        blockType: "heading",
+        sectionHeading: "Description of how the emissions of GHG by source in baseline scenario are reduced below those that would have occurred in the absence of the project activity (assessment and demonstration of additionality):",
+        sectionPath: ["2", "2.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p9:b5:body",
+        page: 9,
+        text: "Please refer to Supporting Document - VCS Methodology PD Requirements Sections 6.1 and 7.",
+        blockType: "body",
+        sectionHeading: "Description of how the emissions of GHG by source in baseline scenario are reduced below those that would have occurred in the absence of the project activity (assessment and demonstration of additionality):",
+        sectionPath: ["2", "2.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(3);
+    expect(result.evidence!.quote).toContain("clearly additional");
+  });
+
+  it("rejects weak leakage mentions that do not explain leakage", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "1.3 Estimated amount of emission reductions over the crediting period including project size:",
+        blockType: "heading",
+        sectionHeading: "Estimated amount of emission reductions over the crediting period including project size:",
+        sectionPath: ["1", "1.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:body",
+        page: 3,
+        text: "Additional tonnes may be deducted for leakage.",
+        blockType: "body",
+        sectionHeading: "Estimated amount of emission reductions over the crediting period including project size:",
+        sectionPath: ["1", "1.3"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "leakage");
+    expect(result.evidence).toBeNull();
+  });
+
+  it("recognizes stakeholder consultation with a trailing colon in the heading", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p10:b1:heading",
+        page: 10,
+        text: "6 Stakeholders comments:",
+        blockType: "heading",
+        sectionHeading: "Stakeholders comments:",
+        sectionPath: ["6"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p10:b2:body",
+        page: 10,
+        text: "Stakeholder comments were solicited via a public comment period on the internet, and by postings on local area notice boards.",
+        blockType: "body",
+        sectionHeading: "Stakeholders comments:",
+        sectionPath: ["6"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "stakeholder_consultation");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(10);
+    expect(result.evidence!.sectionHeading).toBe("Stakeholders comments:");
+  });
+
   it("prefers a deeper subsection that explicitly carries the mapped section phrase", () => {
     const synthetic = makeSyntheticDocument([
       {

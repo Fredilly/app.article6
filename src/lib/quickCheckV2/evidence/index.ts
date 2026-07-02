@@ -249,7 +249,8 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
         /\bbaseline scenario is the following\b/i.test(block.text) ||
         /\bbaseline scenario is\b/i.test(block.text) ||
         /\bbaseline is defined\b/i.test(block.text) ||
-        /\bbaseline is chosen\b/i.test(block.text)
+        /\bbaseline is chosen\b/i.test(block.text) ||
+        /\bidentify the baseline scenario\b/i.test(block.text)
       );
     },
   },
@@ -257,6 +258,8 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
     match(block) {
       return (
         /\bclearly demonstrate additionality\b/i.test(block.text) ||
+        /\bshown to be clearly additional\b/i.test(block.text) ||
+        /\bclearly additional\b/i.test(block.text) ||
         /\bdetermined to be additional\b/i.test(block.text) ||
         /\breduces ghg emissions in the baseline scenario\b/i.test(block.text) ||
         /\badditionality analysis\b/i.test(block.text) ||
@@ -269,7 +272,15 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
   },
   leakage: {
     match(block) {
-      return /\bleakage\b/i.test(block.text);
+      return (
+        /\bno leakage was identified\b/i.test(block.text) ||
+        /\bly\s*=\s*0\b/i.test(block.text) ||
+        /\bmarket leakage\b/i.test(block.text) ||
+        /\bactivity shifting leakage\b/i.test(block.text) ||
+        /\breductions in wood harvest\b/i.test(block.text) ||
+        /\bcould shift to other areas\b/i.test(block.text) ||
+        /\bdisplaced to\b/i.test(block.text)
+      );
     },
   },
   stakeholder_consultation: {
@@ -822,13 +833,18 @@ function isBoilerplateSectionBlock(block: QuickCheckV2Block): boolean {
   return /^PROJECT DESCRIPTION:\s+/i.test(block.text.trim());
 }
 
+function isDelegatedSupportingDocumentReference(text: string): boolean {
+  return /please refer to supporting documen(?:t|ts)/i.test(text);
+}
+
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
   return blocks.filter((block) => {
     const text = block.text.trim();
     return (
       text.length > 0 &&
       !isBoilerplateSectionBlock(block) &&
-      !isLikelyTableOfContentsLine(text)
+      !isLikelyTableOfContentsLine(text) &&
+      !isDelegatedSupportingDocumentReference(text)
     );
   });
 }
@@ -1243,13 +1259,20 @@ function getFactContractEvidence(
   }
 
   const block = definition.find(getEvidenceBlocks(document));
+  const blockText = block?.text ?? "";
+  const needsMethodologyExpansion =
+    checkName === "methodology" &&
+    /\bMethodology\s+for\b/i.test(blockText) &&
+    !endsSentence(blockText);
   return block
     ? toEvidence(
       block,
       "fact_contract",
       trimQuoteForCheck(
         checkName,
-        shouldExpandQuote(block.text) ? buildQuoteFromBlock(document, block) : block.text,
+        needsMethodologyExpansion || shouldExpandQuote(blockText)
+          ? buildQuoteFromBlock(document, block)
+          : block.text,
       ),
     )
     : null;
@@ -1260,13 +1283,14 @@ function getExactSectionEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
-  return block
-    ? toEvidence(
-      block,
-      "exact_section",
-      trimQuoteForCheck(checkName, buildQuoteFromBlock(document, block)),
-    )
-    : null;
+  if (!block) return null;
+
+  const quote = trimQuoteForCheck(checkName, buildQuoteFromBlock(document, block));
+  if (isDelegatedSupportingDocumentReference(quote)) {
+    return null;
+  }
+
+  return toEvidence(block, "exact_section", quote);
 }
 
 function getRawTextFallbackEvidence(
@@ -1274,12 +1298,18 @@ function getRawTextFallbackEvidence(
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
   const definition = RAW_TEXT_FALLBACKS[checkName];
+  const candidateBlocks = getEvidenceBlocks(document).filter(
+    (candidate) => !isDelegatedSupportingDocumentReference(candidate.text),
+  );
   const block = findFirstBlock(
-    getEvidenceBlocks(document),
+    candidateBlocks,
     (candidate) =>
       !isLikelyTableOfContentsLine(candidate.text) && definition.match(candidate),
   );
-  return block ? toEvidence(block, "raw_text_fallback") : null;
+  if (!block) return null;
+
+  const quote = shouldExpandQuote(block.text) ? buildQuoteFromBlock(document, block) : block.text;
+  return toEvidence(block, "raw_text_fallback", quote);
 }
 
 export function retrieveEvidenceForCheck(

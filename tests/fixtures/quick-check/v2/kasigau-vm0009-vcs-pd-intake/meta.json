@@ -1,0 +1,10 @@
+{
+  "id": "kasigau-vm0009-vcs-pd-intake",
+  "title": "Quick Check v2 Phase 7 Kasigau VM0009 VCS PD intake fixture",
+  "documentId": "kasigau-proj-desc-612",
+  "runtimeMode": "runtime-smoke",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "VCS",
+  "documentType": "Project Description / PD"
+}
