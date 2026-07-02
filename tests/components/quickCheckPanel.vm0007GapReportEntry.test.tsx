@@ -162,7 +162,6 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
     expect(text).not.toContain("View Gap Report");
     expect(text).not.toContain("Gap report not available yet");
   });
-
   test("manual match fallback reuses extracted PDD analysis when direct analysis is missing", async () => {
     const analysisFromState: QuickCheckEvidenceAnalysis = {
       rawPddText: "VM0007 PDD extracted text.",

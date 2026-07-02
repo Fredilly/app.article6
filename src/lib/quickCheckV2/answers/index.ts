@@ -107,6 +107,11 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       return explicitField[1]!;
     }
 
+    const possessiveCountry = quote.match(/\b([A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*)[’']s\b/);
+    if (possessiveCountry) {
+      return possessiveCountry[1]!;
+    }
+
     const provinceTail = quote.match(/\bprovince of\s+([A-Z][A-Za-z -]+),\s*([A-Z][A-Za-z -]+)\b/);
     if (provinceTail) {
       return provinceTail[2]!;
@@ -137,6 +142,22 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   methodology(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+
+    const methodologyVersion = quote.match(
+      /\b((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+REDD Methodology Modules?\s+Version\s+\d+(?:\.\d+)?)/i,
+    );
+    if (methodologyVersion) {
+      const codeMatch = methodologyVersion[1]!.match(PRIMARY_METHODOLOGY_CODE_RE);
+      if (codeMatch) {
+        const code = codeMatch[0]!.toUpperCase();
+        const remainder = stripTrailingPunctuation(
+          methodologyVersion[1]!.slice(codeMatch.index! + code.length).replace(/^[:\s-]+/, ""),
+        );
+        return `${code}: ${remainder}`;
+      }
+      return methodologyVersion[1]!.replace(/\s+/g, " ").trim();
+    }
+
     const quotedMethodology = quote.match(/[“"]\s*((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})(?::\s*|\s+)([^”"]+?))["”]/i);
     if (quotedMethodology) {
       const codeMatch = quotedMethodology[1]!.match(PRIMARY_METHODOLOGY_CODE_RE);
@@ -170,6 +191,20 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   baseline_scenario(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    const definedBaseline = quote.match(
+      /\bbaseline is defined(?: independently[^.?!]*)?\s+as\s+(.+?)(?:[.?!]|$)/i,
+    );
+    if (definedBaseline) {
+      return ensurePeriod(capitalizeFirst(definedBaseline[1]!));
+    }
+
+    const chosenBaseline = quote.match(
+      /\bbaseline is chosen as\s+(.+?)(?:[.?!]|$)/i,
+    );
+    if (chosenBaseline) {
+      return ensurePeriod(capitalizeFirst(chosenBaseline[1]!));
+    }
+
     const selectedScenario = quote.match(
       /(?:of the alternative scenarios identified for the project,\s*)?(.+?) was determined to be the most plausible scenario to occur in the absence of the project, and was therefore selected as the baseline scenario/i,
     );

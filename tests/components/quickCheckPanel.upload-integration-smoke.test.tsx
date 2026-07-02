@@ -59,6 +59,7 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
 });
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
+import { loadVm0007GapReportAudit } from "@/lib/preverif/vm0007GapReportStore";
 
 describe("QuickCheckPanel upload/session boundary smoke test — proves the panel can consume seeded upload/session state; does not test real PDF extraction or parser reliability", () => {
   let container: HTMLDivElement;
@@ -137,12 +138,14 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     root = createRoot(container);
     window.localStorage.clear();
 
-    delete (window as any).location;
-    (window as any).location = {
-      assign: jest.fn(),
-      replace: jest.fn(),
-      href: "http://localhost/",
-    };
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: {
+        assign: jest.fn(),
+        replace: jest.fn(),
+        href: "http://localhost/",
+      },
+    });
 
     createAndStoreEvidenceAttachmentMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockImplementation(
@@ -204,6 +207,23 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
             status: "disabled",
             candidates: [],
             warning: "semantic evidence suggestions disabled in test",
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/api/methods/VM0007/v/v1-0/rules")) {
+        return new Response(
+          JSON.stringify({
+            rules: [
+              {
+                id: "R-1-0001",
+                title: "Forest definition",
+                snippet: "Forest definition evidence.",
+                summary: "Forest definition evidence.",
+                logic: "Confirm the project remains within the forest definition.",
+                tags: ["vm0007", "eligibility"],
+              },
+            ],
           }),
           { status: 200 },
         );
@@ -312,6 +332,43 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
         expect(text).toContain(record.sectionHeading);
       }
     }
+  });
+
+  it("shows the VM0007 internal report card in the upload evidence-check flow and generates a preview", async () => {
+    seedSession({
+      claimText: "What is the project title?",
+      filename: "qc-smoke-upload.pdf",
+    });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+    await flushUi();
+
+    const beforeGenerateText = container.textContent ?? "";
+    expect(beforeGenerateText).toContain("Evidence Checks");
+    expect(beforeGenerateText).toContain("Internal VM0007 report");
+    expect(beforeGenerateText).toContain("Generate Gap Report Preview");
+    expect(beforeGenerateText).toContain("Methodology");
+
+    await act(async () => {
+      clickButton("Generate Gap Report Preview");
+    });
+    await flushUi();
+    await flushUi();
+
+    const link = Array.from(container.querySelectorAll("a")).find((node) =>
+      node.textContent?.includes("View Gap Report"),
+    );
+    expect(link).toBeTruthy();
+    const href = link?.getAttribute("href") ?? "";
+    expect(href).toMatch(/^\/internal\/reports\/vm0007-gap\/vm0007-gap-/);
+
+    const auditId = href.split("/").pop() ?? "";
+    expect(loadVm0007GapReportAudit(auditId)).not.toBeNull();
   });
 
   it("shows rejection state for unsupported question from seeded upload/session state", async () => {

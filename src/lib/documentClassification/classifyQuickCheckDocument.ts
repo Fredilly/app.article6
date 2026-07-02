@@ -241,14 +241,15 @@ function isSectionContext(text: string, index: number): boolean {
 }
 
 function isDefinitionContext(text: string, index: number, matchedText: string): boolean {
-  const start = Math.max(0, index - 40);
-  const end = Math.min(text.length, index + matchedText.length + 80);
+  const start = Math.max(0, index - 160);
+  const end = Math.min(text.length, index + matchedText.length + 120);
   const window = text.slice(start, end);
   const lowerWindow = window.toLowerCase();
   const matchedLower = matchedText.toLowerCase();
   const localIndex = lowerWindow.indexOf(matchedLower);
   if (localIndex < 0) return false;
 
+  const beforeWindow = lowerWindow.slice(Math.max(0, localIndex - 120), localIndex);
   const before = lowerWindow.slice(Math.max(0, localIndex - 6), localIndex);
   const after = lowerWindow.slice(localIndex + matchedLower.length, localIndex + matchedLower.length + 36);
 
@@ -256,6 +257,8 @@ function isDefinitionContext(text: string, index: number, matchedText: string): 
   if (before.includes('"') || before.includes("“") || before.includes("'")) {
     if (/\bmeans\b/.test(after) || /\bdefinition\b/.test(after)) return true;
   }
+  if (/(["“'][^"'”]{2,120}["”']\s+means\b)/.test(beforeWindow)) return true;
+  if (/\bmeans\b[\s\S]{0,100}$/.test(beforeWindow) && /["“']/.test(beforeWindow)) return true;
   if (/\bmeans\b/.test(lowerWindow) && /["“']/.test(window)) return true;
   if (/\bdefinitions?\b|\binterpretation\b|\bthis deed\b|\bwitnesses as follows\b/.test(lowerWindow) && /\bmeans\b/.test(lowerWindow)) {
     return true;
@@ -328,6 +331,8 @@ function addCompactedTitleSignals(entries: Map<RuleClass, ScoreEntry>, rawText: 
     { documentClass: "methodology_document", token: "methodologydocument" },
     { documentClass: "risk_report", token: "non-permanenceriskreport" },
     { documentClass: "risk_report", token: "nonpermanenceriskreport" },
+    { documentClass: "registry_or_public_record", token: "issuancedeedofrepresentation" },
+    { documentClass: "registry_or_public_record", token: "deedofrepresentation" },
   ];
 
   for (const definition of compactDefinitions) {
@@ -434,6 +439,7 @@ const FILENAME_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPatter
     documentClass: "registry_or_public_record",
     patterns: [
       { pattern: /\bregistry\b|\bpublic[-_ ]record\b|\bgazette\b|\bcadastral\b/i, weight: 1.4, source: "filename" },
+      { pattern: /\bissuance[-_ ]?rep\b|\bdeed\b/i, weight: 1.25, source: "filename" },
     ],
   },
   {
@@ -510,6 +516,8 @@ const HEADER_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPattern[
     patterns: [
       { pattern: /\bnational registry\b|\bpublic registry\b|\bland registry\b|\bcertificate of title\b/i, weight: 1.95, source: "header" },
       { pattern: /\bgazette\b|\bcadastral\b|\bdeed\b|\bproperty register\b/i, weight: 1.5, source: "header" },
+      { pattern: /\bissuance deed of representation\b|\bdeed of representation\b/i, weight: 2.6, source: "header" },
+      { pattern: /\bthis deed of representation\b|\bthis deed witnesses as follows\b/i, weight: 2.2, source: "header" },
     ],
   },
   {
@@ -567,6 +575,8 @@ const BODY_RULES: Array<{ documentClass: RuleClass; patterns: WeightedPattern[] 
     documentClass: "registry_or_public_record",
     patterns: [
       { pattern: /\bregistry entry\b|\bofficial notice\b|\bcertificate number\b|\bregistry number\b/i, weight: 0.95, source: "body" },
+      { pattern: /\bthis deed witnesses as follows\b|\bgoverning law and jurisdiction\b|\bjointly and severally liable\b/i, weight: 1.2, source: "body" },
+      { pattern: /\bdocusign envelope id\b|\bexecuted by\b.+\bas a deed\b/i, weight: 0.95, source: "body" },
     ],
   },
   {
@@ -622,6 +632,12 @@ const CLASS_PHRASE_DEFINITIONS: ClassPhraseDefinition[] = [
     documentClass: "risk_report",
     pattern: /\bnon[- ]?permanence\s*risk\s*report\b/i,
     repeatedPattern: /\bnon[- ]?permanence\s*risk\s*report\b/gi,
+  },
+  {
+    documentClass: "registry_or_public_record",
+    pattern: /\bissuance\s+deed\s+of\s+representation\b|\bdeed\s+of\s+representation\b/i,
+    repeatedPattern: /\bissuance\s+deed\s+of\s+representation\b|\bdeed\s+of\s+representation\b/gi,
+    allowSectionContext: true,
   },
 ];
 

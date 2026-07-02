@@ -2305,6 +2305,40 @@ describe.skip("QuickCheckPanel claim-first flow (phase-3 UI drift - see note abo
     expect(text).not.toContain("No valid analysis path in VM0007");
   });
 
+  it("attaches a VM0007 gap report audit id after manual match selection when extracted PDD text exists", async () => {
+    seedSession({
+      claimText: "The monitoring report covers the full reporting period.",
+      filename: "plum-verra-demo-excerpt.pdf",
+    });
+
+    await act(async () => {
+      root.render(<QuickCheckPanel />);
+    });
+
+    await flushUi();
+
+    await act(async () => {
+      clickButton("Run quick check");
+    });
+
+    await flushUi();
+    expect(container.textContent).toContain("Likely requirement matches");
+
+    await act(async () => {
+      clickButton("Monitoring procedure");
+    });
+
+    await flushUi();
+
+    const sessionRaw = window.localStorage.getItem("a6:quick-check:claim-first:v1") ?? "";
+    const session = JSON.parse(sessionRaw) as {
+      result?: { vm0007GapReportAuditId?: string };
+    };
+
+    expect(session.result?.vm0007GapReportAuditId?.trim().length).toBeGreaterThan(0);
+    expect(container.textContent).toContain("View Gap Report");
+  });
+
   it("opens full review in the detected VM0007 workspace from recovery", async () => {
     seedSession({
       claimText: "The leakage deduction is justified by the evidence.",
