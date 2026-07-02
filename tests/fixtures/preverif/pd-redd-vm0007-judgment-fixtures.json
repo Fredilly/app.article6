@@ -1,0 +1,221 @@
+{
+  "fixtureSetId": "pd-redd-vm0007-judgment-fixtures",
+  "title": "PD_REDD VM0007 Judgment Fixtures",
+  "inputPdfName": "PD_REDD_v1_130.pdf",
+  "inputPdfPath": "/Users/stphen/Desktop/PD_REDD_v1_130.pdf",
+  "sourcePdfTitle": "Community Based Avoided Deforestation Project in Guinea-Bissau",
+  "documentFamily": "Project Description / PD",
+  "methodology": "VM0007",
+  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PD_REDD_v1_130 only. Do not use current app output as gold.",
+  "expectedWarnings": [
+    "Generic methodology or module-table text must not count as project evidence.",
+    "Weak evidence must stay UNCLEAR and missing evidence must stay MISSING.",
+    "Peatland-specific or tidal-wetland-specific rules must remain not applicable when the PD_REDD project text does not support them."
+  ],
+  "checks": [
+    {
+      "checkId": "R-2-0014",
+      "checkName": "Crediting period duration",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project crediting period is 20 years, from March 31, 2011 through March 30, 2031.",
+      "goldQuote": "The Project Crediting Period is 20 years and can be renewed at most four times. Start Date: 31/March/2011 – End Date: 30/March/2031",
+      "page": 6,
+      "sectionHeading": "1.6 Project Crediting Period",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote explicitly states the project crediting period length and dates.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Page 1 of 85",
+          "rejectionReason": "A page marker does not prove the crediting period."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found"
+      ]
+    },
+    {
+      "checkId": "R-2-0003",
+      "checkName": "Exclusion of land in other GHG programs",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project area is not registered and is not seeking registration under any CDM or other carbon-trading scheme.",
+      "goldQuote": "Areas within the project boundary are not registered or seeking registration under the CDM or other carbon-trading scheme.",
+      "page": 25,
+      "sectionHeading": "2.2 Applicability of Methodology",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly states the project's status under other carbon-trading schemes.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The following Modules and Tools are also applied:",
+          "rejectionReason": "A module list heading is not the same as exclusion from other GHG programs."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "reject_module_table_text"
+      ]
+    },
+    {
+      "checkId": "R-3-0001",
+      "checkName": "Baseline scenario determination",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The most plausible baseline scenario is continued traditional agricultural land use with accelerating deforestation.",
+      "goldQuote": "The baseline scenario describes the most plausible scenario in the absence of the Project Activity. Land use in Guinea-Bissau is characterized by traditional agricultural practices performed by the local communities that have customary land use rights.",
+      "page": 33,
+      "sectionHeading": "2.4 Baseline Scenario",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote anchors the baseline scenario to the project's local land-use context.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The monitoring of leakage emissions will be performed through the evaluation of forest cover changes due to the displacement of deforestation activities from the project area to the leakage belt.",
+          "rejectionReason": "Leakage text does not establish the baseline scenario."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found"
+      ]
+    },
+    {
+      "checkId": "R-4-0001",
+      "checkName": "VT0001 additionality requirement",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project uses VT0001 to structure the additionality assessment and presents project-specific alternative scenarios.",
+      "goldQuote": "Under this scenario, funding for IBAP would be drastically reduced and deforestation rates would accelerate. Observed historical deforestation rates would continue similar to pre-project trends. Currently, FIAL already lacks the resources to support micro-projects in Cacheu and Cantanhez.",
+      "page": 34,
+      "sectionHeading": "2.5 Additionality",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote explains the project-specific alternative scenario used to justify additionality.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "As per VT0001 (Tool for Demonstration and Assessment of Additionality in VCS AFOLU Project Activities), version 3.0, project proponent(s) shall apply the following four steps:",
+          "rejectionReason": "A methodology instruction is not the project-specific additionality judgment."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found"
+      ]
+    },
+    {
+      "checkId": "R-5-0003",
+      "checkName": "REDD leakage components",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Leakage emissions are entirely from displacement of unplanned deforestation and are estimated using LK-ASU.",
+      "goldQuote": "Leakage emissions accounted for are entirely from displacement of unplanned deforestation and were estimated applying the LK-ASU (v1.0) module. Leakage due to market effects is considered zero because the project is not anticipated to impact any commercial harvesting activity.",
+      "page": 78,
+      "sectionHeading": "3.3 Leakage",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly identifies the leakage source and the module used to estimate it.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Leakage",
+          "rejectionReason": "The heading alone does not show the leakage judgment."
+        },
+        {
+          "quote": "The leakage belt extends 5 km from the project boundary.",
+          "rejectionReason": "A boundary description is not the leakage calculation or judgment."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "reject_generic_methodology_text"
+      ]
+    },
+    {
+      "checkId": "R-6-0002",
+      "checkName": "Monitoring plan content requirements",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The monitoring plan covers land conversion, degradation, natural disturbance, and project implementation emissions.",
+      "goldQuote": "This Monitoring Plan covers the parameters described in section 4.2 and monitors the area of forest land converted to non-forest land and associates changes in carbon stocks, the area of forest land undergoing loss in carbon from degradation activities and associated changes in carbon stocks, the area of forest land undergoing loss in carbon stocks resulting from natural disturbances and associated changes in carbon stocks and the greenhouse gas emissions associated with project implementation.",
+      "page": 128,
+      "sectionHeading": "4.3 Monitoring Plan",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly states the monitoring content areas that the rule expects.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The project monitoring and reporting process is IBAP's Monitoring Unit responsibility.",
+          "rejectionReason": "Responsibility text is not the monitoring-plan content requirement."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found"
+      ]
+    },
+    {
+      "checkId": "R-3-0005",
+      "checkName": "REDD baseline modules",
+      "expectedStatus": "UNCLEAR",
+      "expectedAnswer": "The PDD lists the VM0007 methodology and module table, but the fixture must not treat the generic module list as sufficient proof of the project-specific baseline-module judgment.",
+      "goldQuote": "VM0007 – REDD Methodology Framework (REDD-MF). Version 1.4",
+      "page": 25,
+      "sectionHeading": "2.1 Title and Reference of Methodology",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "This quote is related methodology text, but it is still generic and does not establish the project-specific baseline-module judgment needed for a FOUND outcome.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The following Modules and Tools are also applied:",
+          "rejectionReason": "A module-table lead-in is not a project-specific baseline-module judgment."
+        },
+        {
+          "quote": "Module ID Version Choice",
+          "rejectionReason": "Table metadata is not evidence of the baseline-module judgment."
+        }
+      ],
+      "expectedClientAction": "Add the project-specific baseline-module rationale and the citations tying that module choice to the PD_REDD project facts.",
+      "coverageTags": [
+        "unclear",
+        "reject_module_table_text"
+      ]
+    },
+    {
+      "checkId": "R-1-0010",
+      "checkName": "Peatland VCS definition",
+      "expectedStatus": "N/A",
+      "expectedAnswer": "Peatland-specific VM0007 wetland rules do not apply because the project text says the forested wetlands in the project area do not grow on peat.",
+      "goldQuote": "The project area includes forested wetlands (Mangrove Forest) and terrestrial forest. Based on Teixeira (1962) soils map, it was estimated the proportion of the soil types in Cacheu: Fluvisols/Gleysols (75%) and Ferralsols (25%), and Cantanhez: Fluvisols/Gleysols (41%), Ferralsols (58%) and Arenasols (2%). Mangrove areas are mainly composed of Fluvisols/Gleysols whist the terrestrial forest is found at Ferralsols area. Therefore, forested wetlands in the project area do not grow on peat (Histosol).",
+      "page": 25,
+      "sectionHeading": "2.2 Applicability of Methodology",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote supports a not-applicable wetland scope determination because the project is not a peatland activity.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Areas within the project boundary are not registered or seeking registration under the CDM or other carbon-trading scheme.",
+          "rejectionReason": "Other-program status does not establish peatland scope."
+        }
+      ],
+      "expectedClientAction": "No client action is needed for this peatland-specific rule unless the project scope changes.",
+      "coverageTags": [
+        "not_applicable"
+      ]
+    },
+    {
+      "checkId": "R-6-0007",
+      "checkName": "Expert judgment documentation",
+      "expectedStatus": "MISSING",
+      "expectedAnswer": "No usable expert-judgment documentation is shown in the PD_REDD PDD for this rule.",
+      "goldQuote": null,
+      "page": null,
+      "sectionHeading": null,
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "No direct PDF-backed quote in the PD_REDD PDD documents expert-judgment inputs, rationale, or retained evidence for this rule.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The monitor reports will be developed by the head of monitoring and discussed amongst all parts of the monitoring unit.",
+          "rejectionReason": "Monitoring-plan process text does not document expert judgment."
+        },
+        {
+          "quote": "The project monitoring and reporting process is IBAP's Monitoring Unit responsibility.",
+          "rejectionReason": "Responsibility text does not document expert judgment."
+        }
+      ],
+      "expectedClientAction": "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references that support that judgment.",
+      "coverageTags": [
+        "missing"
+      ]
+    }
+  ]
+}
