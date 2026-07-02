@@ -15,6 +15,7 @@ export type JudgmentFixture = {
   goldQuote: string | null;
   page: number | null;
   sectionHeading: string | null;
+  sectionHeadingPage?: number | null;
   spanId: string | null;
   whyQuoteIsSufficientOrInsufficient: string;
   knownBadQuotesToReject: RejectedQuote[];
@@ -56,11 +57,11 @@ function requireNonEmpty(value: string | null | undefined, label: string): void 
   expect(value?.trim().length ?? 0).toBeGreaterThan(0);
 }
 
-function assertQuoteAnchored(check: JudgmentFixture, excerpt: string): void {
+function assertQuoteAnchored(check: JudgmentFixture, quoteExcerpt: string, headingExcerpt: string): void {
   requireNonEmpty(check.goldQuote, `${check.checkId} goldQuote`);
   requireNonEmpty(check.sectionHeading, `${check.checkId} sectionHeading`);
-  expect(normalizeText(excerpt)).toContain(normalizeText(check.sectionHeading));
-  expect(normalizeText(excerpt)).toContain(normalizeText(check.goldQuote));
+  expect(normalizeText(headingExcerpt)).toContain(normalizeText(check.sectionHeading));
+  expect(normalizeText(quoteExcerpt)).toContain(normalizeText(check.goldQuote));
 }
 
 export function assertVm0007JudgmentFixtureSet(
@@ -106,9 +107,15 @@ export function assertVm0007JudgmentFixtureSet(
     }
 
     if (check.goldQuote != null) {
-      const excerpt = sourceExcerpts.pageExcerpts[String(check.page)];
-      expect(excerpt).toBeTruthy();
-      assertQuoteAnchored(check, excerpt);
+      const quoteExcerpt = sourceExcerpts.pageExcerpts[String(check.page)];
+      expect(quoteExcerpt).toBeTruthy();
+
+      const sectionHeadingPage = check.sectionHeadingPage ?? check.page;
+      expect([check.page, (check.page ?? 0) - 1]).toContain(sectionHeadingPage);
+      const headingExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
+      expect(headingExcerpt).toBeTruthy();
+
+      assertQuoteAnchored(check, quoteExcerpt, headingExcerpt);
     }
   }
 }

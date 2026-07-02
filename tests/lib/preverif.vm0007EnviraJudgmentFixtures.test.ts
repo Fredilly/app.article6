@@ -132,6 +132,7 @@ describe("Envira VM0007 judgment fixtures", () => {
         check.coverageTags.includes("reject_registry_url") || check.coverageTags.includes("reject_generic_country_reference"),
       ),
     ).toBe(true);
+    expect(AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0004")?.sectionHeadingPage).toBe(48);
 
     for (const check of AUDIT_FIXTURE.checks) {
       expect(check.checkId).toMatch(/^R-\d-\d{4}$/);
@@ -155,6 +156,17 @@ describe("Envira VM0007 judgment fixtures", () => {
 
   it("anchors every gold quote and section heading to exact excerpts from the specified PDF", () => {
     assertVm0007JudgmentFixtureSet(AUDIT_FIXTURE, SOURCE_EXCERPTS);
+  });
+
+  it("fails when a continuation-page section heading points to an unrelated page", () => {
+    const wrongHeadingPage = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    wrongHeadingPage.checks = wrongHeadingPage.checks.map((check) =>
+      check.checkId === "R-1-0004"
+        ? { ...check, sectionHeadingPage: 37 }
+        : check,
+    );
+
+    expect(() => assertVm0007JudgmentFixtureSet(wrongHeadingPage, SOURCE_EXCERPTS)).toThrow();
   });
 
   it("keeps Envira quotes out of the PD_REDD source excerpts", () => {
