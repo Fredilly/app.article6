@@ -132,6 +132,7 @@ describe("Envira VM0007 judgment fixtures", () => {
         check.coverageTags.includes("reject_registry_url") || check.coverageTags.includes("reject_generic_country_reference"),
       ),
     ).toBe(true);
+    expect(AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0004")?.sectionHeadingPage).toBe(48);
 
     for (const check of AUDIT_FIXTURE.checks) {
       expect(check.checkId).toMatch(/^R-\d-\d{4}$/);
