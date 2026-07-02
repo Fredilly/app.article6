@@ -117,6 +117,13 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       return provinceTail[2]!;
     }
 
+    const countryBeforeApproximation = quote.match(
+      /\b([A-Z][a-z]+)\s*,\s*(?:approximately|about|roughly)\b/,
+    );
+    if (countryBeforeApproximation) {
+      return countryBeforeApproximation[1]!;
+    }
+
     const countryAfterComma = quote.match(/\b[A-Z][a-z]+,\s*([A-Z][a-z]+)\b/);
     if (countryAfterComma) {
       return countryAfterComma[1]!;
@@ -142,6 +149,13 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   methodology(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+
+    const conciseMethodology = quote.match(
+      /\b((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s*[:\s-]+\s*Methodology\s+for\s+[^,.;]+?)(?=,\s*approved\b|\s+approved\b|$)/i,
+    );
+    if (conciseMethodology) {
+      return conciseMethodology[1]!.replace(/\s+/g, " ").trim();
+    }
 
     const methodologyVersion = quote.match(
       /\b((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+REDD Methodology Modules?\s+Version\s+\d+(?:\.\d+)?)/i,

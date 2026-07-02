@@ -1,0 +1,464 @@
+Page 1
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+1
+This Project Description is Dated May 10 th , 2011, and conforms
+to the VCS PD Template dated 19 th November 2007.
+
+Page 2
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+2
+1. 	Description 	of 	Project:
+1.1 Project title
+The Kasigau Corridor REDD Project Phase II - The Community Ranches
+1.2 Type/Category of the project
+The Kasigau Corridor REDD Project Phase II - The Community Ranches (hereafter referred to as "the
+project" or "Phase II") falls under VCS sectoral scope 14 - Agriculture, Forestry and Other Land Uses,
+under project activities Reduced Emissions from Deforestation and Degradation (REDD) and most
+specifically under Avoiding Unplanned Mosaic Deforestation and Degradation (AUMDD). The project
+falls into this category by the definition provided in the VCS Program Update of May 24th 2010, by
+virtue of the fact that > 25% of the boundary of the Project Area is within 50m of land that was
+anthropogenically deforested in the ten years prior to the project start date, as illustrated in the table
+and map below.
+
+Page 3
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+3
+Phase II Landscape Configuration Analysis
+Imagery date: 02-06-2003
+Imagery source: Landsat 7 (ETM+)
+Total Ranch Perimeter (km) 	403.21
+Project perimeter coincident with reference region (km) 	211
+coincident ratio 	52.33%
+Coincident forest pixels 	6575
+Coincident non-forest pixels 	8798
+% deforested coincident with reference region 	57.23%
+Total % deforested within 50m of project perimeter 	29.95%
+The project is not grouped.
+1.3 Estimated amount of emission reductions over the crediting
+period including project size:
+The Phase II Project Area is 169,741.4 ha. The project is classified as a mega project, as the
+estimated gross emissions reductions over the 30 year crediting period are 48,448,769 m.t. GHG or
+on average, 1,614,959 m.t. GHG per year. When accounting for a conservative risk-of-reversal buffer
+discount from the annual emissions reduction, Wildlife Works aims to reduce 38,759,015 m.t. GHG or
+on average, 1,291,967 metric tonnes per year. Additional tonnes may be deducted for leakage.
+1.4 A brief description of the project:
+Through a combination of dryland forest protection and extraordinary community sustainable
+development activities, this project is estimated to avoid the gross emissions of over 48 million metric
+tonnes of CO2e which would have been emitted due to slash and burn deforestation over the 30 year
+project life, or on average approximately 1,614,959 m.t. per year across the carbon pools of above
+and belowground forest biomass (forest carbon), and soil carbon.
+The Project Area is home to a fantastic diversity of mammals (over 50 species of large mammal,
+more than 20 species of bats), birds (over 300 species) and important populations of IUCN Red List
+species such as Grevy’s zebra (Equus grevyi), Cheetah (Acinonyx jubatus), Lion (Panthera leo) as
+well as over 500 African elephants (Loxidonta africana) seasonally.
+The project is shown to be clearly additional (under the project financial additionality tool) and the
+baseline, far hypothetical, is an intelligent extrapolation of empirically measured deforestation that
+was occurring aggressively in the reference region immediately adjacent to the project area at the
+time Wildlife Works arrived in the area. This has been demonstrated clearly from historic satellite
+imagery analysis and the fitting of a logistical Cumulative Deforestation Model (CDM) which accounts
+for resource constraints typical in mosaic deforestation locales.
+Wildlife Works also plans to implement, and has in fact has begun many leakage mitigation activities,
+including an organic greenhouse, reforestation projects, an EcoCharcoal alternative to "bush"
+charcoal, an organic clothing factory and many other forms of alternative livelihoods.
+1.5 Project location including geographic and physical
+information allowing the unique identification and delineation
+of the specific extent of the project:
+
+Page 4
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+4
+The Kasigau Corridor REDD Project - Phase II is located in south-eastern Kenya, in the Marungu Sub
+location, Voi Division, Taita Taveta District, Coast Province, Kenya, approximately 150 kms northwest
+of Mombasa.
+This Phase II PD covers all the land of 13 private, group-owned ranches as well as the Marungu Hills
+community conservation area and a wildlife corridor link, totalling 419 440 acres (169,741.4 ha) of
+land.
+Phase II forms a corridor of land (the Kasigau Wildlife Corridor) between the Tsavo East National
+Park and the Tsavo West National Parks to the East of the Marungu range. The project area and
+reference area are clearly delineated in Section 5.1 ("Project Boundaries") in the accompanying PD
+document, and an ArcGIS geodatabase representing the boundaries have been made available to
+the project validator. The land within the project boundary has been tropical dryland forest1 for at least
+20 years and has been a primary forest since recorded times2 .
+1.6 Duration of the project activity/crediting period:
+The project start date and the project crediting period start date are both January 1st
+, 2010.
+VCS project crediting period: The VCS project crediting period is January 1
+st 2010 thru December 31
+st
+2039.
+1.7 Conditions prior to project initiation:
+It was not difficult to identify the baseline scenario for this project: rapid deforestation due to
+unplanned slash and burn agricultural expansion by subsistence farmers. All the conditions for the
+project baseline were in place before the arrival of the project developer, Wildlife Works, and in fact
+even the project area itself was beginning to be cleared before project implementation. There is little
+need for speculation as to what would occur in the absence of the project if it ceased protection and
+the provision of alternative livelihoods for the community. The mosaic pattern of deforestation would
+continue where it left off, but most likely accelerated by a much larger population base than was
+present upon our arrival.
+The project area had previously been used for grazing of cattle and in some cases ecotourism. Both
+activities have systematically failed, as cattle ranching is very difficult due to a fragile ecosystem and
+lack of water. Most of the cattle grazing on the Phase II lands, prior to project implementation, was
+being conducted out of desperation, as it was literally the only service the ecosystem could provide.
+Aforestation of plantation species and agricultural activities cannot profitably be carried out in this
+ecosystem, due to a lack of water and a fragile ecosystem. The forest in the project area has never
+been, and never will be commercially viable. We therefore believe that through the land owners’
+attempts at different economic activities that there are no credible alternative economic uses for this
+land that could compete with the project financially, or provide financial sustainability that would
+protect it from slash and burn use by the community. All 13 ranch directors corroborate this believe,
+and in fact will provide a clear explanation of their trials and tribulations in the project area to the
+validators upon the site visit in Kenya.
+1.8 A description of how the project will achieve GHG emission
+reductions and/or removal enhancements:
+Please refer to supporting document - VCS Methodology PD Requirements Section 6.1.
+1 UN IPCC, Good Practice Guidance for LULUCF, Table 3A.1.8;
+2 Earliest record that has been located is dated 1895 which identifies the area as forested [Hobley 1895 – Upon a
+Visit to Tsavo and the Taita Highlands – The Geographical Journal 1895 Vol 5 No 6 pp 545-561]
+
+Page 5
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+5
+1.9 Project technologies, products, services and the expected
+level of activity:
+Please refer to supporting document - VCS Methodology PD Requirements Section 6.1.
+1.10 Compliance with relevant local laws and regulations
+related to the project:
+It is our belief that Wildlife Works meets all local, National and International laws related to this
+project.
+The laws that are relevant to this project are:
+EMPLOYMENT LAWS.
+ 	Export Processing Zone’s Act (Cap. 547)
+As an Export Processing Zone Company we are exempted from the standard Labour Laws of Kenya,
+and instead must conform to those laws that that have been deemed applicable to (General
+Provisions of the Employment Act (Cap 226-229) or amended for EPZs as covered by the Export
+Processing Zone’s Act (Cap. 547).
+ 	National Health Insurance Fund.
+N.H.I.F was established on 12th July 1966 by an act of parliament Cap 255 of the Laws of Kenya, and
+become a state corporation on 15th February 1999 through an act of Parliament no.9 of 1998. The
+objective of its establishment is to enable majority of Kenyans to access healthcare services at
+supplemented costs. Contribution to the fund are compulsory for all persons whose income is
+Ksh.1000/= and above. We physically go to the NHIF offices in Voi monthly to submit our monthly
+payroll and have the NHIF amount calculated by them, we pay and they give us a receipt. We are
+also subject to random checks with the NHIF inspector visiting our facility without notice and
+inspecting our books. We have never been found in violation of this act.
+ 	The National Social Security Fund act ,Cap 258,
+is a government fund established by the National Social Security Fund Act,1965 ,For the benefit of
+the Members. It is a compulsory savings scheme into which the employer pays a statutory
+contribution for every employee who is a member. We physically go to the NSSF offices in Voi
+monthly to submit our monthly payroll on a NSSF form, and we pay the monthly dues. We are subject
+to strict audit checks by the NSSF inspector who visits our facility every two months and on passing
+the audit provides us with an official letter indicating we are in compliance. We have never been
+found in violation of this act.
+ 	Pay As you Earn (P.A.Y.E) Section 37 of the Income Tax act.
+The “Pay As You EARN” method of deducting income tax from salaries and wages applies to weekly
+wages, Monthly salaries, annual salaries, bonuses, commissions, Directors fees (Whether the
+director is resident or non-resident). Monthly we are required to go to the bank (Kenya Commercial
+Bank = KCB) to pay the tax withheld from our employees wages and salaries, the bank takes one
+folio from our KRA receipt book, and stamps the other two folios, one of which we then take to the
+KRA office in Voi and give it to them.
+ 	The Factories and Other Places of Work Act
+The Factories Act (Cap. 514) deals with the health, safety and welfare of an employee who works in a
+factory or other place of work. We have never been audited by this department in the Government as
+it is very small and covers the whole country, however we have good reason to believe we are in full
+compliance with this act as a result of a third party audit of our factory and operations performed by
+the independent NGO Verite, from the USA.
+ 	The Work Injury Benefits Act (Cap. 236)
+provides for ways through which an employee who is injured when on duty may be compensated by
+the employer. We are required to maintain private insurance to cover our responsibility under this act.
+
+Page 6
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+6
+ 	Regulation of Wages and Conditions of Employment Act (Cap. 229)
+This act sets the conditions of work and the minimum wage guidelines. The EPZ Act supersedes this
+act with regard to minimum wage and in fact the EPZ minimum wage guidelines are slightly higher
+than the National Employment Act guidelines.
+ 	Labour Relations Act, 2007 (Acts No. 14)
+This is the new version of the old Trade Unions Act and the Trade Disputes Act, revised to harmonize
+the old Trade Acts with Kenya’s recent ratification of many of the elements of the ILO Freedom of
+Association and Protection of the Right to Organize Convention, 1948 (No. 87). We are required to
+provide our workers with the freedom of association. We are required to honor a dispute process as
+laid out in the act. We currently have no collective bargaining agreement in place nor are we required
+to do so. To the best of our knowledge none of our employees belong to any Trade Unions, and it is
+our belief that our employees do not at this time feel that the benefits of membership outweigh the
+costs of dues which are born solely by them under the Act. We have never had a dispute with any
+employee that resulted in any collective action, lock out etc. and we have no disputes at all at this
+time, and we believe that we are in full compliance with this Act. To ensure that employees are aware
+of their rights under the Act, we have added the following language to all employment contracts
+issued by Wildlife Works;
+“Wildlife Works, EPZ Ltd. acknowledges the importance of the recently enacted Labour Relations Act
+2007, and therefore we wish to inform you that you are entitled to Freedom of Association, and
+specifically to join the Kenya Textile Workers Union (KTWU) should you so choose. Should you
+choose to join the KTWU, all membership dues and agency fees for the Union will be payable directly
+by you.”
+CORPORATE LAWS.
+ 	Companies Act, (Law of Kenya Cap. 486);
+We must remain a company in good standing, and are required to maintain our Corporate records
+with The Registrar of Companies in Nairobi annually.
+ 	Bankruptcy Act (Cap. 53);
+Lets hope this never applies to us.
+LAND and ENVIRONMENT LAWS.
+ 	Environmental Management and Coordination Act (Act 8, 1999)
+We were required to undergo an environmental audit by the National Environmental Management
+Authority. We passed.
+ 	Registration of Titles Act:
+The terms of the Title Deed by which Rukinga Ranching Company Ltd is the owner of Rukinga Ranch
+are governed by this Act.
+LOCAL DISTRICT LAWS.
+County Council of Taita Taveta Rates are paid at the rate determined under the local By-Laws of our
+District.
+It is confirmed that:
+ 	The project is in compliance with all national laws and license requirements relating to
+conservation projects in Kenya; and
+ 	Tthere is no law mandating that the Land is a conservation area. It is noted that no category of
+land use relating to conservation exists under Kenyan law. The current land use category for the
+Rukinga Sanctuary project and other privately owned conservation projects is classified as
+agriculture.
+
+Page 7
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+7
+1.11 Identification of risks that may substantially affect the
+project’s GHG emission reductions or removal enhancements:
+Major risks that could have impact project are:
+ 	Change in legislation – government expropriating the land through compulsory purchase for
+development scheme; as the Government of Kenya is very supportive of our project, and has no
+recent history of expropriation of private conservation lands, this risk is very low. We will continue
+to seek international press for our project, as keeping it in the spotlight promotes awareness, and
+reminds the Government of the value it is adding to the country of Kenya.
+ 	Income - risk carbon market revenues do not eventuate - or are less than adequate to -sustain
+the project financially; financial sustainability was modeled at extremely conservative carbon
+offset sale values, and we have a very popular project with high potential value in the
+marketplace. The likelihood of financial insolvency is therefore deemed to be very low.
+ 	Crop failure - substantial and repeated crop failure in surrounding communities could lead to
+increased poaching and use of forests for financial benefit; this is quite likely, and virtually all of
+our alternative economic development efforts are aimed at mitigating this risk.
+ 	Invasion of cattle grazers due to famine in adjacent communities, or lack of grazing elsewhere -
+Any influx of cattle only affects the quantity of grass in the project area and leads to no significant
+change in carbon stock. Again, this is possible especially as Somalis have used land in this area
+to feed and water their cattle over the years, sometimes with permission and sometimes without.
+However, given increasing aridity in the area, we believe Somali cattle herders will be forced to
+look elsewhere for rangelands. We will be using carbon funding to increase ranger patrolling to
+better protect the project area from illegal incursion.
+ 	Drought – drought is an increasing reality in this area of Kenya. We anticipate that climate change
+will worsen this problem throughout the project crediting period. Drought inherently introduces two
+additional risks:
+o 	Wildlife – drought places severe stress on wildlife in the project area. However,
+many of the species living in this ecosystem are extraordinarily drought-adapted,
+and have little problem surviving in extended periods without rain. For those that
+aren’t, we plan to continue to provide emergency water sources at all the ranches
+in the project area, just as we have done in the past on Rukinga for Phase I. This
+issue is dealt with in much more detail in Section GL1.2 below.
+o 	Cash crops – drought will render the survival of cash crops, such as Jojoba and
+citrus trees more difficult. However, these high value cash crops will be planted
+sparingly and actually require much less water than a comparable maize field, and
+are able to survive higher temperatures, provided they receive some water.
+Farmers will be in a position to provide this to preserve the financial value of the
+crop under project funding.
+ 	Fire – grass fires are common in the region due to intense heat and dry conditions. Naturally
+occurring fires are actually extremely rare; Our strategy is to continue educating the local
+population, especially the youth, about the dangers of burning fallows to improve grazing for their
+animals. Fires tend to burn the grasses and shrubs, but move very quickly, and typically don’t kill
+the trees which have become grass-fire tolerant over the years.
+1.12 Demonstration to confirm that the project was not
+implemented to create GHG emissions primarily for the purpose
+of its subsequent removal or destruction.
+The Baseline emissions case has no connection with the project developer, Wildlife Works, who
+entered the area expressly to prevent the deforestation of the Kasigau Corridor. Protecting forests
+
+Page 8
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+8
+and biodiversity through the creation of alternative livelihoods for the surrounding communities is
+Wildlife Works' chief goal, as is evidenced by the longevity of our presence and sustainability of our
+plan to utilize carbon funding in the future in this community.
+1.13 	Demonstration that the project has not created another
+form of environmental credit (for example renewable energy
+certificates).
+The project has not created another form of environmental credit, and as far as we know, is not
+eligible for any other form of environment credit. This project is a REDD project only.
+1.14 Project rejected under other GHG programs (if applicable) :
+Not applicable.
+1.15 Project proponents roles and responsibilities, including
+contact information of the project proponent, other project
+participants
+The Project Proponent for the Kasigau Corridor REDD Project Phase II - The Community Ranches is
+being implemented by Wildlife Works Carbon LLC, on behalf of the indigenous Community Group of
+landowners, who are the owners of the carbon credits derived from a Reduced Emissions from
+Deforestation and Degradation (REDD) project in SE Kenya in an area of wilderness known as the
+Kasigau Corridor. The carbon project is managed in the field in Kenya by Wildlife Works Carbon LLC.
+A Carbon Rights Agreement/Easement was approved by a full vote at an AGM of the shareholders
+for each of the individual group ranches and the Marungu Hills Conservancy. During these AGMs, the
+shareholders present were given an explanation of the potential of the carbon project, a copy of which
+has been provided to the validator, and following which the shareholders majority approved the
+pursuit of this opportunity.
+Wildlife Works Carbon, LLC.:
+President – Mike Korchinsky
+Tel: +1-415-332-8081
+Fax: +1-415-332-8057
+Email: mike@wildlifeworks.com
+1.16 Any information relevant for the eligibility of the
+project and quantification of emission reductions or removal
+enhancements, including legislative, technical, economic,
+sectoral, social, environmental, geographic, site-specific and
+temporal information.):
+Wildlife Works is working closely with the REDD Focal Point within the Government of Kenya to
+ensure that any future REDD legislation considers Projects such as this in the design of sub-national
+nesting rules. We do not believe there are any issues that could affect the eligibility of the project. All
+information related to the quantification of emission reductions has been detailed in the appropriate
+sections of the supporting document - VCS Methodology PD Requirements.
+1.17 List of commercially sensitive information (if
+applicable):
+The Carbon Rights Agreement between Wildlife Works Carbon LLC and the ranching companies and
+conservancy contains commercially sensitive information and has been excluded from the public
+version of the PD. It was provided to the validator during validation.
+
+Page 9
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+9
+2 	VCS Methodology:
+2.1 Title and reference of the VCS methodology applied to the
+project activity and explanation of methodology choices:
+This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical
+Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.
+2.2 Justification of the choice of the methodology and why it
+is applicable to the project activity:
+VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests was developed by the
+project proponent based on their experience on this project, and was specifically designed to suit the
+mosaic slash and burn agricultural conditions found in this dryland area, and the mitigation activities
+conducted by the project proponent for this project. This project therefore meets all of the applicability
+conditions of the methodology.
+2.3 Identifying GHG sources, sinks and reservoirs for the
+baseline scenario and for the project:
+Please refer to Supporting Document - VCS Methodology PD Requirements Sections 5.3 and 5.4.
+2.4 Description of how the baseline scenario is identified and
+description of the identified baseline scenario:
+Please refer to Supporting Document - VCS Methodology PD Requirements Section 6.1.
+2.5 Description of how the emissions of GHG by source in
+baseline scenario are reduced below those that would have
+occurred in the absence of the project activity (assessment
+and demonstration of additionality):
+Please refer to Supporting Document - VCS Methodology PD Requirements Sections 6.1 and 7.
+3 	Monitoring:
+3.1 	Title and reference of the VCS methodology (which
+includes the monitoring requirements) applied to the project
+activity and explanation of methodology choices:
+This project used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests,
+approved by the VCS for sectoral scope 14 on January 11th, 2011.
+VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests was developed by the
+project proponent based on their experience on this project, and was specifically designed to suit the
+mosaic slash and burn agricultural conditions found in this dryland area, and the mitigation activities
+conducted by the project proponent for this project. This project therefore meets all of the applicability
+conditions of the methodology.
+3.2 Monitoring, including estimation, modelling, measurement
+or calculation approaches:
+Please refer to supporting document, Monitoring Report - Section 13 Monitoring
+
+Page 10
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+10
+3.3 Data and parameters monitored / Selecting relevant GHG
+sources, sinks and reservoirs for monitoring or estimating GHG
+emissions and removals:
+Please refer to supporting document, Monitoring Report - Section 13 Monitoring
+3.4 Description of the monitoring plan
+Please refer to supporting document, Monitoring Report - Section 13 Monitoring
+4 	GHG 	Emission 	Reductions:
+4.1 Explanation of methodological choice:
+This project used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests,
+approved by the VCS for sectoral scope 14 on January 11th, 2011.
+VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests was developed by the
+project proponent based on their experience on this project, and was specifically designed to suit the
+mosaic slash and burn agricultural conditions found in this dryland area, and the mitigation activities
+conducted by the project proponent for this project. This project therefore meets all of the applicability
+conditions of the methodology.
+4.2 Quantifying GHG emissions and/or removals for the baseline
+scenario:
+Please refer to supporting document - VCS Methodology PD Requirements Section 8.
+4.3 Quantifying GHG emissions and/or removals for the project:
+Please refer to supporting document - VCS Methodology PD Requirements Section 11.
+4.4 Quantifying GHG emission reductions and removal
+enhancements for the GHG project:
+Please refer to supporting document - VCS Methodology PD Requirements Section 11.
+5 	Environmental Impact:
+Wildlife Works was required to undergo an environmental audit by the National Environmental
+Management Authority. We passed. Results provided for review by the validator.
+6 	Stakeholders 	comments:
+Stakeholder comments were solicited via a public comment period on the internet, and by postings on
+local area notice boards. Copies of the public comments received were provided to the validator.
+7 	Schedule:
+A complete timeline of project activities was provided to the validator. The overall schedule for the
+project is shown below. Project Start Date and Crediting Period Start Date are both January 1st 2010,
+and Project end Date is December 31 st 2039. Project Activities began at the latest January 1st 2010,
+and in some cases well before, with costs prior to 2010 being born solely by the Project Proponent.
+
+Page 11
+The Kasigau Corridor REDD Project, Phase II - VCS Project Description
+11
+1987
+	1988
+1989
+1990
+1991
+1992
+1993
+1994
+1995
+1996
+1997
+1998
+1999
+2000
+2001
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+2027
+2028
+2029
+2030
+2031
+2032
+2033
+2034
+Ve
+	Ve
+Ve	
+Ve
+Ve	
+Ve
+Ve	
+Ve
+Ve
+BR	
+Br	
+BR	
+Br
+project timeline (Ve = external verification year, BR = baseline re-evaluation year)
+8 	Ownership :
+8.1 Proof of Title
+Proof of title for all project area lands have been reviewed with, and made available to the validator.
+8.2 Projects that reduce GHG emissions from activities that
+participate in an emissions trading program (if applicable) :
+Not Applicable

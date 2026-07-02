@@ -54,16 +54,16 @@
   {
     "checkName": "leakage",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Leakage monitored in the project case is related to activity shifting of local and immigrant agents",
-    "goldQuote": "Leakage monitored in the project case is related to activity shifting of local and immigrant agents.",
-    "page": 81,
+    "expectedAnswer": "Emissions from deforestation in the leakage belt were less than the projected emissions from deforestation in the leakage belt, and thus no leakage from activity shifting within the leakage belt is accounted",
+    "goldQuote": "Emissions from deforestation in the leakage belt were less than the projected emissions from deforestation in the leakage belt, and thus no leakage from activity shifting within the leakage belt is accounted.",
+    "page": 82,
     "sectionHeading": "Leakage",
     "sectionPath": [
       "3",
       "3.2",
       "3.2.3"
     ],
-    "spanId": "monit-rep-985:p81:b3707:b85e43df",
+    "spanId": "monit-rep-985:p82:b3763:d4a9bd4",
     "sourceType": "exact_section"
   },
   {
