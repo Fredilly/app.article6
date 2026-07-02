@@ -336,7 +336,7 @@ Current focus:
 - Phase 0 done: boundary-only fixture contract is documented and enforced.
 - Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897
 - Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.
-- Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.
+- Phase 3 done: Full 58-rule audit fixture shape was reviewed and finalized in PR #911.
 - Keep audit-summary and report-summary expectations fixture-driven
 
 Not active now:
@@ -349,6 +349,6 @@ Not active now:
 1) RC0 — Roadmap Boundary: Done — Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895.
 2) RC1 — Envira VM0007 Judgment Fixtures: Done — Added 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897.
 3) RC2 — PD_REDD VM0007 Judgment Fixtures: Done — Added PD_REDD VM0007 fixture coverage using the same judgment contract discipline, including accepted evidence, rejected weak or generic evidence, and explicit FOUND / UNCLEAR / MISSING / N/A expectations.
-4) RC3 — Full 58-Rule Audit Fixture Shape: Planned — Stabilize the complete VM0007 audit fixture shape across all 58 rules.
+4) RC3 — Full 58-Rule Audit Fixture Shape: Done — Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.
 5) RC4 — Report Fixture Layer: Planned — Add internal preview report expectations for summary sections and row grouping.
 6) RC5 — Client-Readiness Gate: Planned — Keep internal preview output separate from any later client-ready reporting work.
