@@ -1,0 +1,277 @@
+{
+  "fixtureSetId": "pd-redd-vm0007-judgment-fixtures",
+  "title": "PD_REDD VM0007 Judgment Fixtures",
+  "inputPdfName": "PD_REDD_v1_130.pdf",
+  "inputPdfPath": "/Users/stphen/Desktop/test folder/VCS:2324/PD_REDD_v1_130.pdf",
+  "sourcePdfTitle": "PROJECT DESCRIPTION: VCS Version 3 — Community Based Avoided Deforestation Project in Guinea-Bissau",
+  "documentFamily": "Project Description / PD",
+  "methodology": "VM0007",
+  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PD_REDD_v1_130.pdf only. Do not use current app output or Envira evidence as gold.",
+  "expectedWarnings": [
+    "Generic methodology or module-table text must not count as project evidence.",
+    "Weak evidence must stay UNCLEAR, missing evidence must stay MISSING, and non-applicable APDef rules must stay N/A.",
+    "Envira-specific quotes or other-project facts must not leak into PD_REDD judgments."
+  ],
+  "checks": [
+    {
+      "checkId": "R-1-0002",
+      "checkName": "REDD baseline deforestation category",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Baseline deforestation is unplanned deforestation (AUDD), not planned deforestation.",
+      "goldQuote": "Baseline deforestation in the project area fall within the category unplanned deforestation (VCS category AUDD). Deforestation in Cacheu and Cantanhez is not allowed as demonstrated in the Legal Section (1.11) of this PD;",
+      "page": 25,
+      "sectionHeading": "2.2 Applicability of Methodology",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly classifies baseline deforestation for this project as unplanned deforestation and ties that classification to project-specific legal conditions.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Alternative I. Under this scenario, funding for IBAP would be drastically reduced and deforestation rates would accelerate.",
+          "rejectionReason": "Baseline-scenario text does not itself classify the project as planned or unplanned deforestation."
+        },
+        {
+          "quote": "Baseline deforestation in the project area falls within the planned deforestation category, as the agents of deforestation is the project proponent.",
+          "rejectionReason": "That is Envira-specific planned-deforestation evidence from a different project and must not leak into PD_REDD."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "same_rule_different_pdf_different_answer",
+        "reject_envira_specific_evidence"
+      ]
+    },
+    {
+      "checkId": "R-1-0004",
+      "checkName": "APDef legal authorization",
+      "expectedStatus": "N/A",
+      "expectedAnswer": "This rule is not applicable because PD_REDD is an avoided unplanned deforestation project, not an avoided planned deforestation project.",
+      "goldQuote": "Project Category: Activities that reduce emissions from unplanned deforestation (AUDD)",
+      "page": 5,
+      "sectionHeading": "1.2 Sectoral Scope and Project Type",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote establishes that the project category is AUDD, so the APDef legal-authorization rule does not apply to this PD_REDD project.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Is the land legally authorized and documented to be converted to non-forest?",
+          "rejectionReason": "This is a generic eligibility decision-tree prompt, not evidence that the project is APDef."
+        },
+        {
+          "quote": "Deforestation is inferred to be legally permitted as the property is fully georeferenced and registered with INCRA and the CAR and under the oversight of the state of Acre;",
+          "rejectionReason": "That is Envira-specific APDef-related evidence from another PDF and must not be reused for PD_REDD."
+        }
+      ],
+      "expectedClientAction": "No APDef authorization evidence is needed unless project scope changes from AUDD to planned deforestation.",
+      "coverageTags": [
+        "not_applicable",
+        "same_rule_different_pdf_different_judgment",
+        "reject_envira_specific_evidence"
+      ]
+    },
+    {
+      "checkId": "R-2-0003",
+      "checkName": "Exclusion of land in other GHG programs",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project is not registered or seeking registration under any other GHG program.",
+      "goldQuote": "The project is not registered or seeking registration under any other GHG Program.",
+      "page": 22,
+      "sectionHeading": "1.12.4 Participation under Other GHG Programs",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly states the project's status under other GHG programs.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The project may seek co-benefits assurance by a third party validator in the Climate, Community and Biodiversity (CCBA) or the SocialCarbon Standard in the future.",
+          "rejectionReason": "Co-benefits certification text is not evidence that the project participates in another GHG program."
+        },
+        {
+          "quote": "The Envira Amazonia Project has not been registered, nor is seeking registration, under any other GHG programs.",
+          "rejectionReason": "Envira's registration status is not evidence for the PD_REDD project."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "reject_envira_specific_evidence",
+        "reject_other_program_confusion"
+      ]
+    },
+    {
+      "checkId": "R-2-0014",
+      "checkName": "Crediting period duration",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project crediting period is 20 years, from March 31, 2011 through March 30, 2031, with baseline revision every 10 years.",
+      "goldQuote": "The Project Crediting Period is 20 years and can be renewed at most four times. Start Date: 31/March/2011 – End Date: 30/March/2031 Baseline must be revised every 10 years.",
+      "page": 6,
+      "sectionHeading": "1.6 Project Crediting Period",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote explicitly states the duration, start date, end date, and the baseline-revision interval.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The baseline will be updated every 10 years from the project start date",
+          "rejectionReason": "Baseline-revision timing alone does not establish the full project crediting period."
+        },
+        {
+          "quote": "The Envira Amazonia Project has an initial project crediting period of 30 years, starting on August 2, 2012.",
+          "rejectionReason": "Envira's crediting period is from a different PDF and contradicts PD_REDD."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "false_supported_risk",
+        "reject_envira_specific_evidence"
+      ]
+    },
+    {
+      "checkId": "R-3-0001",
+      "checkName": "Baseline scenario determination via VT0001",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "VT0001 is applied to compare two credible alternatives, and Alternative I is selected as the most plausible baseline scenario.",
+      "goldQuote": "As per VT0001 (Tool for Demonstration and Assessment of Additionality in VCS AFOLU Project Activities), version 3.0, project proponent(s) shall apply the following four steps: STEP 1. Identification of alternative land use scenarios to the AFOLU project activity; This step serves to identify alternative land use scenarios to the proposed VCS REDD project activity that could be the baseline scenario, through the following sub-steps: Sub-step 1a. Identify credible alternative land use scenarios to the proposed VCS REDD project activity: Two realistic and credible land-use scenarios are identified and could occur on the land within the project boundary in the absence of the REDD project activity under the VCS. The scenarios are feasible based on relevant national policies and circumstances, such as historical land uses, practices and economic trends. The alternative land use scenarios are: Alternative I. Under this scenario, funding for IBAP would be drastically reduced and deforestation rates would accelerate. Observed historical deforestation rates would continue similar to pre-project trends. Currently, FIAL already lacks the resources to support micro-projects in Cacheu and Cantanhez. Alternative II. Under this scenario, the Government of Guinea Bissau has both successfully secured sufficient financial means and has the political will to dedicate these resources to sustaining and supporting the conservation efforts in Cacheu Mangrove Forest National Park and in Cantanhez Forest National Park over the long term. Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory applicable laws and regulations. All land use scenarios are compliant with mandatory applicable laws and regulations. Customary land use right are respected; therefore, traditional land use practices would continue to be performed by the population living in Cantanhez and Cacheu National Parks. Sub-step 1c. Selection of the baseline scenario The most plausible baseline scenario is Alternative Scenario I as defined in Step 3 (Barrier Analysis).",
+      "page": 34,
+      "sectionHeading": "2.5 Additionality",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote ties VT0001 to the project's actual alternatives and states the selected baseline scenario.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The baseline scenario describes the most plausible scenario in the absence of the Project Activity.",
+          "rejectionReason": "That sentence is introductory baseline text and does not show the VT0001 decision path."
+        },
+        {
+          "quote": "No methodology deviations from VM0007 were applied in the project scenario.",
+          "rejectionReason": "Methodology-deviation text does not establish baseline-scenario determination."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "false_supported_risk"
+      ]
+    },
+    {
+      "checkId": "R-3-0005",
+      "checkName": "REDD baseline modules",
+      "expectedStatus": "UNCLEAR",
+      "expectedAnswer": "The PDD names BL-UP as the unplanned-deforestation baseline module, but the generic methodology list is not sufficient by itself to prove the rule is fully satisfied.",
+      "goldQuote": "VM0007 – REDD Methodology Framework (REDD-MF). Version 1.4 The following Modules and Tools are also applied:",
+      "page": 24,
+      "sectionHeading": "2.1 Title and Reference of Methodology",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "This quote is related methodology text, but it remains generic and does not by itself document the project-specific baseline-module judgment needed for FOUND.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "BL-UP (VMD0007) Version 3.2 Mandatory for Unplanned Deforestation",
+          "rejectionReason": "A module-table row alone is not enough to prove the project-specific baseline-module judgment."
+        },
+        {
+          "quote": "LK-ASU (VMD0010) Version 1.0 Mandatory for Unplanned Deforestation",
+          "rejectionReason": "A leakage-module row does not prove the baseline-module rule."
+        }
+      ],
+      "expectedClientAction": "Add the project-specific BL-UP rationale, the reason unplanned-deforestation baseline treatment applies here, and the citations tying that module choice to PD_REDD project facts.",
+      "coverageTags": [
+        "unclear",
+        "reject_generic_methodology_text",
+        "reject_module_table_text"
+      ]
+    },
+    {
+      "checkId": "R-4-0001",
+      "checkName": "VT0001 additionality requirement",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The project applies VT0001 and supports additionality with financial, institutional, and first-of-its-kind barriers.",
+      "goldQuote": "This step will demonstrate that Alternative II is neither a credible nor a realistic scenario due to three main barriers: A Financial Barrier exists because IBAP is not able to secure the necessary long-term financing commitments. The government has historically suffered from chronic public budget shortages and donor funding is both unpredictable and of limited duration. An Institutional Barrier exists due to the history of political and institutional instability affecting the country. Tensions between the civilian government and the military lead to regular changes in government and ministers, undermining the implementation of national policies and strategies. The proposed REDD project is the First of Its Kind in the country. Consequently, the most likely scenario in the absence of the proposed REDD project is Alternative I, namely that deforestation rates would accelerate. The barriers are further discussed and substantiated below.",
+      "page": 35,
+      "sectionHeading": "2.5 Additionality",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote provides project-specific VT0001 barrier analysis rather than generic methodology boilerplate.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Not Applicable.",
+          "rejectionReason": "The investment-analysis sub-step being not applicable does not establish overall additionality."
+        },
+        {
+          "quote": "The project is additional because it faces significant barriers to implementation.",
+          "rejectionReason": "Generic barrier wording without the named project barriers would be too weak."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "clean_found"
+      ]
+    },
+    {
+      "checkId": "R-5-0003",
+      "checkName": "REDD leakage components",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "Leakage is accounted for as displacement of unplanned deforestation under LK-ASU, while market-effects leakage is considered zero.",
+      "goldQuote": "Leakage emissions accounted for are entirely from displacement of unplanned deforestation and were estimated applying the LK-ASU (v1.0) module. Leakage due to market effects is considered zero because the project is not anticipated to impact any commercial harvesting activity.",
+      "page": 77,
+      "sectionHeading": "3.3 Leakage",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly states the leakage component used for this project and explicitly addresses market-effects leakage.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The project boundaries are drawn according to methodological requirements so it captures any displacement to the Leakage Belt.",
+          "rejectionReason": "Boundary design text is related, but it does not identify the leakage component accounting approach."
+        },
+        {
+          "quote": "Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules.",
+          "rejectionReason": "That is Envira-specific planned-deforestation leakage evidence and must not override PD_REDD's unplanned-deforestation leakage facts."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found",
+        "same_rule_different_pdf_different_answer",
+        "reject_envira_specific_evidence"
+      ]
+    },
+    {
+      "checkId": "R-6-0002",
+      "checkName": "Monitoring plan content requirements",
+      "expectedStatus": "FOUND",
+      "expectedAnswer": "The monitoring plan covers land-cover change, degradation, natural disturbance, and project implementation emissions, with baseline revision every 10 years.",
+      "goldQuote": "This Monitoring Plan covers the parameters described in section 4.2 and monitors the area of forest land converted to non-forest land and associates changes in carbon stocks, the area of forest land undergoing loss in carbon from degradation activities and associated changes in carbon stocks, the area of forest land undergoing loss in carbon stocks resulting from natural disturbances and associated changes in carbon stocks and the greenhouse gas emissions associated with project implementation.",
+      "page": 128,
+      "sectionHeading": "4.3.1 Revision of the Baseline",
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "The quote directly lists the monitoring-plan content areas the rule expects.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "The project monitoring and reporting process is IBAP's Monitoring Unit responsibility.",
+          "rejectionReason": "Governance text alone does not establish the full set of monitoring-plan content requirements."
+        }
+      ],
+      "expectedClientAction": null,
+      "coverageTags": [
+        "found"
+      ]
+    },
+    {
+      "checkId": "R-6-0007",
+      "checkName": "Expert judgment documentation",
+      "expectedStatus": "MISSING",
+      "expectedAnswer": "No usable expert-judgment documentation is shown in the PD_REDD PDD for this rule.",
+      "goldQuote": null,
+      "page": null,
+      "sectionHeading": null,
+      "spanId": null,
+      "whyQuoteIsSufficientOrInsufficient": "No direct PDF-backed quote in the PD_REDD PDD documents expert-judgment inputs, rationale, or retained evidence for this rule.",
+      "knownBadQuotesToReject": [
+        {
+          "quote": "Technical review or pre-verification of the data, and monitoring report will be conducted by the advisory board and IBAP's Director / Program coordinator",
+          "rejectionReason": "Technical review and pre-verification are not the same as documented expert judgment for a rule decision."
+        },
+        {
+          "quote": "the justifcation report fails to prove the conservativeness of the new method, equipment or strategy",
+          "rejectionReason": "A generic non-conformance process reference does not document the expert judgment basis, decision, or retained support."
+        }
+      ],
+      "expectedClientAction": "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references that support that judgment.",
+      "coverageTags": [
+        "missing",
+        "false_supported_risk"
+      ]
+    }
+  ]
+}
