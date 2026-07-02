@@ -64,19 +64,19 @@
       "expectedStatus": "FOUND",
     "expectedAnswer": "The project proponents control the project area and own the carbon rights at verification.",
     "evidence": {
-      "quote": "As demonstrated in Section 1.12, the project proponents have the control of the project area and the ownership of the carbon credits.",
-        "page": 32,
-        "sectionHeading": "2.2 Applicability of Methodology",
-        "sectionHeadingPage": null,
-        "spanId": null
-      },
-      "page": 32,
-      "sectionHeading": "2.2 Applicability of Methodology",
+      "quote": "The Project Proponents have clear, uncontested title to both property rights and the carbon rights.",
+      "page": 28,
+      "sectionHeading": "1.12.1 Right of Use",
       "sectionHeadingPage": null,
-      "spanId": null,
-      "clientAction": null,
-      "reason": "The quote gives project-specific proof of control over the project area and ownership of the carbon credits."
+      "spanId": null
     },
+    "page": 28,
+    "sectionHeading": "1.12.1 Right of Use",
+    "sectionHeadingPage": null,
+    "spanId": null,
+    "clientAction": null,
+    "reason": "The quote gives project-specific proof of title to property rights and carbon rights."
+  },
     {
       "checkId": "R-1-0004",
       "checkName": "APDef legal authorization",
