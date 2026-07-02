@@ -97,6 +97,22 @@ describe("Quick Check v2 — heading detection (synthetic text)", () => {
     expect(heading!.sectionPath).toEqual(["2", "2.4", "2.4.2"]);
   });
 
+  it('treats "1.3 approved 20 November 2012." as body text, not a heading', () => {
+    const text = [
+      "2.1.8 Title and Reference of Methodology",
+      "The methodology used to quantify the avoided emissions is the framework and component",
+      "modules of the modular REDD methodology VM0007 REDD Methodology Modules Version",
+      "1.3 approved 20 November 2012.",
+      "This project uses the following modules and tools:",
+    ].join("\n");
+    const doc = parseExtractedText(text, "synthetic", "test");
+    const block = doc.blocks.find((b) => b.text === "1.3 approved 20 November 2012.");
+    expect(block).toBeDefined();
+    expect(block!.blockType).toBe("body");
+    expect(block!.sectionHeading).toBe("Title and Reference of Methodology");
+    expect(block!.sectionPath).toEqual(["2", "2.1", "2.1.8"]);
+  });
+
   it('detects "A.1 Annex Section" style headings', () => {
     const text = "A.1 Annex Details\nAnnex content.\n";
     const doc = parseExtractedText(text, "synthetic", "test");
