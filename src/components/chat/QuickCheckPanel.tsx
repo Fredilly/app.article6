@@ -869,7 +869,16 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       : null;
   const canRenderResult = Boolean(result && activeResultKey && validatedResultKey === activeResultKey);
   const renderedResult = canRenderResult ? result : null;
-  const isVm0007RenderedResult = Boolean(renderedResult && draft.methodologyId.trim().toUpperCase() === "VM0007");
+  const isProjectDescriptionDocumentType = (documentType?: string | null) =>
+    typeof documentType === "string" && documentType.toLowerCase().includes("project description");
+  const isProjectDescriptionPdd =
+    documentPurpose === "project_description_pdd"
+    || isProjectDescriptionDocumentType(renderedResult?.extraction?.documentType);
+  const isVm0007RenderedResult = Boolean(
+    renderedResult
+    && draft.methodologyId.trim().toUpperCase() === "VM0007"
+    && isProjectDescriptionPdd,
+  );
   const extractionPreview = useMemo(
     () => (extractionState.analysis ? buildQuickCheckExtractionSnapshot({ claimText: effectiveClaimText, analysis: extractionState.analysis }) : null),
     [effectiveClaimText, extractionState.analysis],
@@ -994,9 +1003,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const showUploadVm0007ReportCard = useMemo(
     () =>
       activeSourceMode === "uploaded_file"
+      && isProjectDescriptionPdd
       && Boolean(extractionState.analysis?.rawPddText?.trim())
       && evidenceMentionsMethodologyCode(extractionState.analysis, "VM0007"),
-    [activeSourceMode, extractionState.analysis],
+    [activeSourceMode, extractionState.analysis, isProjectDescriptionPdd],
   );
   const uploadVm0007ReportAuditId = uploadVm0007GapReportAuditId ?? renderedResult?.vm0007GapReportAuditId ?? null;
   const canGenerateUploadVm0007Report = Boolean(
@@ -1170,6 +1180,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
   async function handleGenerateUploadVm0007GapReport() {
     if (!detectedVm0007Method?.methodologyVersion) return;
+    if (!isProjectDescriptionPdd) return;
     const rawPddText = extractionState.analysis?.rawPddText?.trim();
     if (!rawPddText) return;
 
