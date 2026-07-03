@@ -1,9 +1,10 @@
-import fs from "node:fs";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, test } from "@jest/globals";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import FixtureBackedVm0007ReportView from "@/components/preverif/FixtureBackedVm0007ReportView";
 import Vm0007GapReportView from "@/components/preverif/Vm0007GapReportView";
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
 import {
   auditEvidence,
   type MethodologyEvidenceAuditResult,
@@ -14,10 +15,11 @@ import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif
 import { VM0007_SYNCED_RULES, readQuickCheckFixtureText } from "../preverifVm0007Fixtures";
 import {
   assertClientReadinessGate,
-  assertNoUnclearEvidence,
-  assertNoMissingEvidence,
+  assertInternalPreviewBoundaries,
   assertInternalPreviewLabelVisible,
   assertNoBannedClientReadyWording,
+  assertNoMissingEvidence,
+  assertNoUnclearEvidence,
   assertUsesStandardReportShape,
 } from "./clientReadinessGate";
 
@@ -120,7 +122,6 @@ function makeMissingAudit(baseAudit: MethodologyEvidenceAuditSummary): Methodolo
   };
 }
 
-/** Build a report where every row is treated as supported or not applicable — no weak/missing. */
 function makeCleanAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
   const results = baseAudit.results.map((result) => {
     if (result.status === "missing_evidence" || result.status === "partially_supported" || result.status === "manual_review_needed") {
@@ -240,5 +241,15 @@ describe("clientReadinessGate helper", () => {
       const html = renderReport(report, "<div>Ready for verification</div>");
       expect(() => assertClientReadinessGate({ reportHtml: html, report })).toThrow();
     });
+  });
+});
+
+describe("clientReadinessGate", () => {
+  test("internal Envira fixture-backed preview stays inside internal-only wording boundaries", () => {
+    const html = renderToStaticMarkup(
+      createElement(FixtureBackedVm0007ReportView, { report: buildEnviraVm0007FixtureBackedReport() }),
+    );
+
+    assertInternalPreviewBoundaries(html);
   });
 });
