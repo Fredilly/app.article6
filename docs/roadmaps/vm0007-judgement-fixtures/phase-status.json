@@ -5,10 +5,10 @@
     "status": "active",
     "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
     "current_focus": [
-      "Phase 0 done: boundary-only fixture contract is documented",
+      "Phase 0 done: boundary-only fixture contract is documented and enforced.",
       "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
-      "Phase 2 is next: add PD_REDD VM0007 judgment fixtures using the same accepted/rejected evidence contract",
-      "Capture accepted and rejected evidence explicitly so the report can distinguish supported, weak, missing, and not-applicable rows",
+      "Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.",
+      "Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.",
       "Keep audit-summary and report-summary expectations fixture-driven"
     ],
     "not_active_now": [
@@ -63,7 +63,7 @@
     {
       "id": "phase_2_pd_redd_vm0007_judgment_fixtures",
       "title": "PD_REDD VM0007 Judgment Fixtures",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "phase_1_envira_vm0007_judgment_fixtures"
       ],
@@ -75,7 +75,7 @@
     {
       "id": "phase_3_full_58_rule_audit_fixture_shape",
       "title": "Full 58-Rule Audit Fixture Shape",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "phase_2_pd_redd_vm0007_judgment_fixtures"
       ],
@@ -120,17 +120,17 @@
     "phase_1_envira_vm0007_judgment_fixtures": {
       "title": "Envira VM0007 Judgment Fixtures",
       "status": "done",
-      "summary": "Add Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897."
+      "summary": "Added 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897."
     },
     "phase_2_pd_redd_vm0007_judgment_fixtures": {
       "title": "PD_REDD VM0007 Judgment Fixtures",
-      "status": "planned",
-      "summary": "Add fixture coverage for PD_REDD VM0007 cases using the same judgment contract discipline."
+      "status": "done",
+      "summary": "Added PD_REDD VM0007 fixture coverage using the same judgment contract discipline, including accepted evidence, rejected weak or generic evidence, and explicit FOUND / UNCLEAR / MISSING / N/A expectations."
     },
     "phase_3_full_58_rule_audit_fixture_shape": {
       "title": "Full 58-Rule Audit Fixture Shape",
-      "status": "planned",
-      "summary": "Stabilize the complete VM0007 audit fixture shape across all 58 rules."
+      "status": "done",
+      "summary": "Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation."
     },
     "phase_4_report_fixture_layer": {
       "title": "Report Fixture Layer",

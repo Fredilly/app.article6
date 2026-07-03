@@ -116,7 +116,14 @@ function findHeadingExcerpt(
   requireNonEmpty(sectionHeading, "sectionHeading");
   expect(page).not.toBeNull();
 
-  const candidatePages = [sectionHeadingPage, page, (page ?? 0) - 1]
+  if (sectionHeadingPage != null) {
+    const explicitExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
+    expect(explicitExcerpt).toBeTruthy();
+    expect(normalizeText(explicitExcerpt)).toContain(normalizeText(sectionHeading));
+    return explicitExcerpt!;
+  }
+
+  const candidatePages = [page, (page ?? 0) - 1]
     .filter((value, index, values): value is number => value != null && value > 0 && values.indexOf(value) === index);
 
   for (const candidatePage of candidatePages) {
@@ -286,6 +293,7 @@ export function assertVm0007FullAuditFixtureSet(
       expect(check.page).not.toBeNull();
       expect(check.sectionHeading).not.toBeNull();
       expect(check.expectedAnswer).not.toBeNull();
+      expect(check.clientAction).toBeNull();
       assertFullAuditQuoteAnchored(check, sourceExcerpts);
     }
 
@@ -309,9 +317,13 @@ export function assertVm0007FullAuditFixtureSet(
 
     if (check.expectedStatus === "N/A") {
       expect(normalizeText(check.reason)).toMatch(/not applicable|does not apply|not apply/);
-      if (check.evidence != null) {
-        assertFullAuditQuoteAnchored(check, sourceExcerpts);
-      }
+      expect(check.expectedAnswer).toBeNull();
+      expect(check.evidence).toBeNull();
+      expect(check.page).toBeNull();
+      expect(check.sectionHeading).toBeNull();
+      expect(check.sectionHeadingPage ?? null).toBeNull();
+      expect(check.spanId).toBeNull();
+      expect(check.clientAction).toBeNull();
     }
   }
 }

@@ -3,14 +3,11 @@ import { describe, expect, it } from "@jest/globals";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import Vm0007GapReportView from "@/components/preverif/Vm0007GapReportView";
-import type { EvidenceAuditStatus, MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import {
   assertQuoteDoesNotAppearInSourceExcerpts,
   assertVm0007FullAuditFixtureSet,
   assertVm0007JudgmentFixtureSet,
   type FullAuditFixtureSet,
-  type FixtureStatus,
-  type JudgmentFixture,
   type JudgmentFixtureSet,
   type SourceExcerpts,
 } from "./preverifJudgmentFixtureGate";
@@ -32,54 +29,6 @@ const SOURCE_EXCERPTS = JSON.parse(
 const PD_REDD_SOURCE_EXCERPTS = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-source-excerpts.json", "utf8"),
 ) as SourceExcerpts;
-
-function toAuditStatus(status: FixtureStatus): EvidenceAuditStatus {
-  switch (status) {
-    case "FOUND":
-      return "supported_by_pdd";
-    case "UNCLEAR":
-      return "manual_review_needed";
-    case "MISSING":
-      return "missing_evidence";
-    case "N/A":
-      return "not_applicable";
-  }
-}
-
-function buildAuditFromFixtures(checks: JudgmentFixture[]): MethodologyEvidenceAuditSummary {
-  const results: MethodologyEvidenceAuditResult[] = checks.map((check) => ({
-    ruleId: check.checkId,
-    stableId: check.checkId,
-    title: check.checkName,
-    ruleLogic: check.checkName,
-    status: toAuditStatus(check.expectedStatus),
-    bestEvidenceQuote: check.goldQuote,
-    page: check.page,
-    section: check.sectionHeading,
-    span: check.spanId,
-    reasonSelected: check.goldQuote
-      ? "Fixture-provided PDF-backed quote selected for report expectation coverage."
-      : "No usable PDF-backed quote exists for this fixture.",
-    assessmentReason: check.whyQuoteIsSufficientOrInsufficient,
-    gap: check.expectedStatus === "FOUND" || check.expectedStatus === "N/A"
-      ? ""
-      : check.whyQuoteIsSufficientOrInsufficient,
-    clientAction: check.expectedClientAction ?? "",
-    confidence: check.expectedStatus === "FOUND" ? "high" : "medium",
-  }));
-
-  return {
-    results,
-    totals: {
-      supported_by_pdd: results.filter((result) => result.status === "supported_by_pdd").length,
-      partially_supported: 0,
-      missing_evidence: results.filter((result) => result.status === "missing_evidence").length,
-      not_applicable: results.filter((result) => result.status === "not_applicable").length,
-      manual_review_needed: results.filter((result) => result.status === "manual_review_needed").length,
-    },
-    totalRules: results.length,
-  };
-}
 
 describe("Envira VM0007 judgment fixtures", () => {
   it("confirms Phase 0 is documented and the exact source document is the Envira project description PDF", () => {
@@ -113,29 +62,22 @@ describe("Envira VM0007 judgment fixtures", () => {
         check.coverageTags.includes("reject_registry_url") || check.coverageTags.includes("reject_generic_country_reference"),
       ),
     ).toBe(true);
-
-    for (const check of AUDIT_FIXTURE.checks) {
-      expect(check.checkId).toMatch(/^R-\d-\d{4}$/);
-      expect(check.checkName.trim().length).toBeGreaterThan(0);
-      expect(check.expectedAnswer.trim().length).toBeGreaterThan(0);
-      expect(check.whyQuoteIsSufficientOrInsufficient.trim().length).toBeGreaterThan(0);
-      expect(check.knownBadQuotesToReject.length).toBeGreaterThan(0);
-
-      if (check.expectedStatus === "FOUND") {
-        expect(check.goldQuote).not.toBeNull();
-        expect(check.page).not.toBeNull();
-        expect(check.sectionHeading).not.toBeNull();
-        expect(check.spanId ?? check.sectionHeading).not.toBeNull();
-      }
-
-      if (check.expectedStatus === "UNCLEAR" || check.expectedStatus === "MISSING") {
-        expect(check.expectedClientAction?.trim().length).toBeGreaterThan(0);
-      }
-    }
+    expect(AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0004")?.sectionHeadingPage).toBe(48);
   });
 
   it("anchors every gold quote and section heading to exact excerpts from the specified PDF", () => {
     assertVm0007JudgmentFixtureSet(AUDIT_FIXTURE, SOURCE_EXCERPTS);
+  });
+
+  it("fails when a continuation-page section heading points to an unrelated page", () => {
+    const wrongHeadingPage = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    wrongHeadingPage.checks = wrongHeadingPage.checks.map((check) =>
+      check.checkId === "R-1-0004"
+        ? { ...check, sectionHeadingPage: 37 }
+        : check,
+    );
+
+    expect(() => assertVm0007JudgmentFixtureSet(wrongHeadingPage, SOURCE_EXCERPTS)).toThrow();
   });
 
   it("keeps Envira quotes out of the PD_REDD source excerpts", () => {
@@ -204,6 +146,7 @@ describe("Envira VM0007 judgment fixtures", () => {
       VM0007_SYNCED_RULES,
       SOURCE_EXCERPTS,
     );
+
     const report = buildFixtureReport();
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
     const reportJson = JSON.stringify(report).toLowerCase();

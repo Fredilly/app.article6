@@ -392,6 +392,9 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("Validation Report");
     expect(text).toContain("Title and headers read “Validation Report”.");
     expect(text).toContain("VM0007");
+    expect(text).not.toContain("Internal VM0007 report");
+    expect(text).not.toContain("Generate Gap Report Preview");
+    expect(text).not.toContain("Generate the internal VM0007 gap report preview from the extracted PDD text.");
     expect(text).not.toContain("page 1 title");
     expect(text).not.toContain('body: "validation opinion"');
   });
