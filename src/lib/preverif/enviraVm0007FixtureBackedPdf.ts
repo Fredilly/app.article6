@@ -1,4 +1,14 @@
-import type { Vm0007FixtureBackedReport } from "@/lib/preverif/fixtureBackedVm0007Report";
+import {
+  getPriorityClientActionRows,
+  groupEvidenceMapRowsByStatus,
+  type Vm0007EvidenceMapRow,
+  type Vm0007FixtureBackedReport,
+} from "@/lib/preverif/fixtureBackedVm0007Report";
+import {
+  buildEvidenceMapDisplayBlocks,
+  buildPriorityActionDisplayBlocks,
+  type Vm0007DisplayBlock,
+} from "@/lib/preverif/vm0007ReportDisplay";
 
 function esc(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -12,6 +22,39 @@ function asciiSafeText(input: string): string {
     .replace(/\u2022/g, "-")
     .replace(/\u00B7/g, "-")
     .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+
+function buildDisplayBlockLines(block: Vm0007DisplayBlock): string[] {
+  if ("entries" in block) {
+    const lines = [block.label + ":"];
+    for (const entry of block.entries) {
+      lines.push(`- ${entry.quote}`);
+      lines.push(`Rejection reason: ${entry.rejectionReason}`);
+    }
+    return lines;
+  }
+
+  return [`${block.label}: ${block.value}`];
+}
+
+function buildRowLines(row: Vm0007EvidenceMapRow, blocks: Vm0007DisplayBlock[]): string[] {
+  const lines: string[] = [`Rule ID: ${row.ruleId}`, `Rule name: ${row.ruleName}`, `Status: ${row.status}`];
+  for (const block of blocks) {
+    lines.push(...buildDisplayBlockLines(block));
+  }
+  return lines;
+}
+
+function buildEvidenceRowLines(row: Vm0007EvidenceMapRow): string[] {
+  return buildRowLines(row, buildEvidenceMapDisplayBlocks(row));
+}
+
+function buildPriorityActionLines(report: Vm0007FixtureBackedReport): string[] {
+  const lines: string[] = ["Priority Client Actions"];
+  for (const row of getPriorityClientActionRows(report.evidenceMapRows)) {
+    lines.push(...buildRowLines(row, buildPriorityActionDisplayBlocks(row)));
+  }
+  return lines;
 }
 
 function wrapText(text: string, max = 96): string[] {
@@ -33,46 +76,41 @@ function wrapText(text: string, max = 96): string[] {
   return lines;
 }
 
-function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+export function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+  const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
-    `Project: ${report.project.name}`,
+    "Envira VM0007 Evidence Map",
+    "Internal fixture-backed preview",
+    "Not client-ready",
+    "Based on PDF-backed fixture truth",
+    "Purpose: show supported, weak, missing, and non-applicable methodology evidence",
+    `Project name: ${report.project.name}`,
+    report.project.description,
     `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
     `Generated: ${report.generatedAt}`,
     report.limitationBanner,
-    report.summary.headline,
-    "Summary counts",
     `FOUND: ${report.summary.counts.FOUND}`,
     `UNCLEAR: ${report.summary.counts.UNCLEAR}`,
     `MISSING: ${report.summary.counts.MISSING}`,
     `N/A: ${report.summary.counts["N/A"]}`,
     `Total rules: ${report.summary.totalRules}`,
-    "Evidence Map",
-    "Each row reflects reviewed fixture truth for a single VM0007 rule. UNCLEAR and MISSING rows remain visible for internal follow-up.",
+    report.summary.headline,
   ];
 
-  for (const row of report.evidenceMapRows) {
+  lines.push("");
+  lines.push(...buildPriorityActionLines(report));
+  lines.push("");
+  lines.push("Evidence Map");
+  lines.push("Rows are grouped by reviewed status and preserve the reviewed fixture truth.");
+
+  for (const group of groupedRows) {
     lines.push("");
-    lines.push(`Rule ID: ${row.ruleId}`);
-    lines.push(`Rule name: ${row.ruleName}`);
-    lines.push(`Status: ${row.status}`);
-    lines.push(`Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`);
-    lines.push(`Page number: ${row.page ?? "Not available"}`);
-    lines.push(`Section heading: ${row.sectionHeading ?? "Not available"}`);
-    lines.push(`Span ID: ${row.spanId ?? "Not available"}`);
-    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.rejectedEvidenceExamples.length === 0) {
-      lines.push("Rejected evidence examples: No rejected evidence examples encoded for this row.");
-    } else {
-      lines.push("Rejected evidence examples:");
-      for (const rejected of row.rejectedEvidenceExamples) {
-        lines.push(`Rejected evidence quote: ${rejected.quote}`);
-        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
-      }
+    lines.push(`${group.status} - ${group.rows.length}`);
+    for (const row of group.rows) {
+      lines.push("");
+      lines.push(...buildEvidenceRowLines(row));
     }
-    lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough ?? "No rejected evidence explanation encoded for this row."}`);
-    lines.push(`Client action: ${row.clientAction ?? "No client action required for this row."}`);
-    lines.push(`N/A reason: ${row.naReason ?? "This row is not marked N/A."}`);
   }
 
   return lines.flatMap((line) => wrapText(line));
