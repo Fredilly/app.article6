@@ -49,6 +49,7 @@
     "prebuild": "npm run fetch:methodologies-pack && npm run generate:manifest && npm run derive:all && npm run assert:derived && npm run check:golden",
     "generate:manifest": "node scripts/generate-manifest-from-pack.mjs",
     "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs",
+    "pr:gate:fixtures": "node scripts/pr-gate-fixtures.mjs",
     "pr:gate": "node scripts/pr-gate.mjs",
     "ci:coverage": "node scripts/compute-coverage.mjs",
     "ci:ratchet": "node scripts/gate-coverage-ratchet.mjs",
