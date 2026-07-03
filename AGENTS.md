@@ -31,6 +31,16 @@ This repository is app.article6.
 * Do not weaken tests to make a PR pass.
 * If the task is fixture-only, do not change production logic.
 
+## Quick Check PDF triage / Phase 7 fixture workflow
+
+For new Quick Check PDF triage or Phase 7 fixture tasks, first read and follow:
+
+docs/quick-check-v2/PDF_TRIAGE.md
+
+Do not create a fixture until the PDF has been bucketed and the user approves.
+
+This rule applies only to Quick Check PDF triage / Phase 7 fixture work.
+
 ## Verification
 
 Before final handoff, report:
