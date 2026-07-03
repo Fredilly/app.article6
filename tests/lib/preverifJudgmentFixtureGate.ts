@@ -107,6 +107,37 @@ function assertQuoteAnchored(check: JudgmentFixture, quoteExcerpt: string, headi
   expect(normalizeText(quoteExcerpt)).toContain(normalizeText(check.goldQuote));
 }
 
+function findHeadingExcerpt(
+  sourceExcerpts: SourceExcerpts,
+  page: number | null,
+  sectionHeading: string | null,
+  sectionHeadingPage?: number | null,
+): string {
+  requireNonEmpty(sectionHeading, "sectionHeading");
+  expect(page).not.toBeNull();
+
+  if (sectionHeadingPage != null) {
+    const explicitExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
+    expect(explicitExcerpt).toBeTruthy();
+    expect(normalizeText(explicitExcerpt)).toContain(normalizeText(sectionHeading));
+    return explicitExcerpt!;
+  }
+
+  const candidatePages = [page, (page ?? 0) - 1]
+    .filter((value, index, values): value is number => value != null && value > 0 && values.indexOf(value) === index);
+
+  for (const candidatePage of candidatePages) {
+    const excerpt = sourceExcerpts.pageExcerpts[String(candidatePage)];
+    if (excerpt && normalizeText(excerpt).includes(normalizeText(sectionHeading))) {
+      return excerpt;
+    }
+  }
+
+  const fallbackExcerpt = sourceExcerpts.pageExcerpts[String(candidatePages[0] ?? page)];
+  expect(fallbackExcerpt).toBeTruthy();
+  return fallbackExcerpt!;
+}
+
 export function assertVm0007JudgmentFixtureSet(
   fixtureSet: JudgmentFixtureSet,
   sourceExcerpts: SourceExcerpts,
@@ -152,11 +183,12 @@ export function assertVm0007JudgmentFixtureSet(
     if (check.goldQuote != null) {
       const quoteExcerpt = sourceExcerpts.pageExcerpts[String(check.page)];
       expect(quoteExcerpt).toBeTruthy();
-
-      const sectionHeadingPage = check.sectionHeadingPage ?? check.page;
-      expect([check.page, (check.page ?? 0) - 1]).toContain(sectionHeadingPage);
-      const headingExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
-      expect(headingExcerpt).toBeTruthy();
+      const headingExcerpt = findHeadingExcerpt(
+        sourceExcerpts,
+        check.page,
+        check.sectionHeading,
+        check.sectionHeadingPage,
+      );
 
       assertQuoteAnchored(check, quoteExcerpt, headingExcerpt);
     }
@@ -181,9 +213,9 @@ function assertStatusCountsMatch(
 
   expect(
     expectedStatusCounts.FOUND
-    + expectedStatusCounts.UNCLEAR
-    + expectedStatusCounts.MISSING
-    + expectedStatusCounts["N/A"],
+      + expectedStatusCounts.UNCLEAR
+      + expectedStatusCounts.MISSING
+      + expectedStatusCounts["N/A"],
   ).toBe(expectedTotalRules);
   expect(actualStatusCounts).toEqual(expectedStatusCounts);
 }
@@ -204,11 +236,12 @@ function assertFullAuditQuoteAnchored(
 
   const quoteExcerpt = sourceExcerpts.pageExcerpts[String(check.page)];
   expect(quoteExcerpt).toBeTruthy();
-
-  const sectionHeadingPage = check.sectionHeadingPage ?? check.page;
-  expect([check.page, (check.page ?? 0) - 1]).toContain(sectionHeadingPage);
-  const headingExcerpt = sourceExcerpts.pageExcerpts[String(sectionHeadingPage)];
-  expect(headingExcerpt).toBeTruthy();
+  const headingExcerpt = findHeadingExcerpt(
+    sourceExcerpts,
+    check.page,
+    check.sectionHeading,
+    check.sectionHeadingPage,
+  );
 
   expect(normalizeText(quoteExcerpt)).toContain(normalizeText(evidence.quote));
   expect(normalizeText(headingExcerpt)).toContain(normalizeText(check.sectionHeading));

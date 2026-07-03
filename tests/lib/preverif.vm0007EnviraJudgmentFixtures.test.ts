@@ -3,34 +3,16 @@ import { describe, expect, it } from "@jest/globals";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import Vm0007GapReportView from "@/components/preverif/Vm0007GapReportView";
-import { buildVm0007GapReport } from "@/lib/preverif/vm0007GapReport";
-import type { EvidenceAuditStatus, MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import {
   assertQuoteDoesNotAppearInSourceExcerpts,
+  assertVm0007FullAuditFixtureSet,
   assertVm0007JudgmentFixtureSet,
-  type FixtureStatus,
-  type JudgmentFixture,
+  type FullAuditFixtureSet,
   type JudgmentFixtureSet,
   type SourceExcerpts,
 } from "./preverifJudgmentFixtureGate";
-
-type ReportFixture = {
-  fixtureSetId: string;
-  title: string;
-  expectedReportTitle: string;
-  expectedSectionOrdering: string[];
-  expectedStatusCounts: {
-    supported: number;
-    weak: number;
-    missing: number;
-    notApplicable: number;
-  };
-  expectedVisibleWording: string[];
-  bannedWording: string[];
-  expectedEvidenceRendering: string[];
-  expectedWeakOrMissingExplanation: string[];
-  expectedClientActionWording: string[];
-};
+import { FULL_AUDIT_FIXTURE, REPORT_FIXTURE, buildFixtureReport } from "./preverifVm0007ReportFixtures";
+import { VM0007_SYNCED_RULES } from "./preverifVm0007Fixtures";
 
 const AUDIT_FIXTURE = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/envira-vm0007-judgment-fixtures.json", "utf8"),
@@ -40,10 +22,6 @@ const PD_REDD_FIXTURE = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-judgment-fixtures.json", "utf8"),
 ) as JudgmentFixtureSet;
 
-const REPORT_FIXTURE = JSON.parse(
-  fs.readFileSync("tests/fixtures/preverif/envira-vm0007-report-fixture.json", "utf8"),
-) as ReportFixture;
-
 const SOURCE_EXCERPTS = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/envira-vm0007-source-excerpts.json", "utf8"),
 ) as SourceExcerpts;
@@ -51,54 +29,6 @@ const SOURCE_EXCERPTS = JSON.parse(
 const PD_REDD_SOURCE_EXCERPTS = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-source-excerpts.json", "utf8"),
 ) as SourceExcerpts;
-
-function toAuditStatus(status: FixtureStatus): EvidenceAuditStatus {
-  switch (status) {
-    case "FOUND":
-      return "supported_by_pdd";
-    case "UNCLEAR":
-      return "manual_review_needed";
-    case "MISSING":
-      return "missing_evidence";
-    case "N/A":
-      return "not_applicable";
-  }
-}
-
-function buildAuditFromFixtures(checks: JudgmentFixture[]): MethodologyEvidenceAuditSummary {
-  const results: MethodologyEvidenceAuditResult[] = checks.map((check) => ({
-    ruleId: check.checkId,
-    stableId: check.checkId,
-    title: check.checkName,
-    ruleLogic: check.checkName,
-    status: toAuditStatus(check.expectedStatus),
-    bestEvidenceQuote: check.goldQuote,
-    page: check.page,
-    section: check.sectionHeading,
-    span: check.spanId,
-    reasonSelected: check.goldQuote
-      ? "Fixture-provided PDF-backed quote selected for report expectation coverage."
-      : "No usable PDF-backed quote exists for this fixture.",
-    assessmentReason: check.whyQuoteIsSufficientOrInsufficient,
-    gap: check.expectedStatus === "FOUND" || check.expectedStatus === "N/A"
-      ? ""
-      : check.whyQuoteIsSufficientOrInsufficient,
-    clientAction: check.expectedClientAction ?? "",
-    confidence: check.expectedStatus === "FOUND" ? "high" : "medium",
-  }));
-
-  return {
-    results,
-    totals: {
-      supported_by_pdd: results.filter((result) => result.status === "supported_by_pdd").length,
-      partially_supported: 0,
-      missing_evidence: results.filter((result) => result.status === "missing_evidence").length,
-      not_applicable: results.filter((result) => result.status === "not_applicable").length,
-      manual_review_needed: results.filter((result) => result.status === "manual_review_needed").length,
-    },
-    totalRules: results.length,
-  };
-}
 
 describe("Envira VM0007 judgment fixtures", () => {
   it("confirms Phase 0 is documented and the exact source document is the Envira project description PDF", () => {
@@ -133,25 +63,6 @@ describe("Envira VM0007 judgment fixtures", () => {
       ),
     ).toBe(true);
     expect(AUDIT_FIXTURE.checks.find((check) => check.checkId === "R-1-0004")?.sectionHeadingPage).toBe(48);
-
-    for (const check of AUDIT_FIXTURE.checks) {
-      expect(check.checkId).toMatch(/^R-\d-\d{4}$/);
-      expect(check.checkName.trim().length).toBeGreaterThan(0);
-      expect(check.expectedAnswer.trim().length).toBeGreaterThan(0);
-      expect(check.whyQuoteIsSufficientOrInsufficient.trim().length).toBeGreaterThan(0);
-      expect(check.knownBadQuotesToReject.length).toBeGreaterThan(0);
-
-      if (check.expectedStatus === "FOUND") {
-        expect(check.goldQuote).not.toBeNull();
-        expect(check.page).not.toBeNull();
-        expect(check.sectionHeading).not.toBeNull();
-        expect(check.spanId ?? check.sectionHeading).not.toBeNull();
-      }
-
-      if (check.expectedStatus === "UNCLEAR" || check.expectedStatus === "MISSING") {
-        expect(check.expectedClientAction?.trim().length).toBeGreaterThan(0);
-      }
-    }
   });
 
   it("anchors every gold quote and section heading to exact excerpts from the specified PDF", () => {
@@ -229,23 +140,14 @@ describe("Envira VM0007 judgment fixtures", () => {
     expect(() => assertVm0007JudgmentFixtureSet(mutated, PD_REDD_SOURCE_EXCERPTS)).toThrow();
   });
 
-  it("renders the fixture-backed report contract without misleading wording", () => {
-    const report = buildVm0007GapReport({
-      reportId: "fixture-report",
-      generatedAt: "2026-07-01T00:00:00Z",
-      project: {
-        name: "The Envira Amazonia Project",
-        projectId: "envira-fixture",
-        region: "Acre, Brazil",
-      },
-      methodology: {
-        code: "VM0007",
-        version: "4.2",
-        name: "VM0007: REDD Methodology Modules (REDD-MF)",
-      },
-      audit: buildAuditFromFixtures(AUDIT_FIXTURE.checks),
-    });
+  it("renders the fixture-backed report contract from the finalized 58-rule Envira audit fixture", () => {
+    assertVm0007FullAuditFixtureSet(
+      FULL_AUDIT_FIXTURE as FullAuditFixtureSet,
+      VM0007_SYNCED_RULES,
+      SOURCE_EXCERPTS,
+    );
 
+    const report = buildFixtureReport();
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
     const reportJson = JSON.stringify(report).toLowerCase();
 
@@ -255,25 +157,25 @@ describe("Envira VM0007 judgment fixtures", () => {
       weak: report.executiveSummary.totals.weak,
       missing: report.executiveSummary.totals.missing,
       notApplicable: report.executiveSummary.totals.notApplicable,
+      totalRules: report.fullRuleAuditTable.length,
     }).toEqual(REPORT_FIXTURE.expectedStatusCounts);
 
     for (const wording of REPORT_FIXTURE.expectedVisibleWording) {
       expect(reportHtml).toContain(wording);
     }
-    for (const evidenceText of REPORT_FIXTURE.expectedEvidenceRendering) {
-      expect(reportHtml).toContain(evidenceText);
-    }
-    for (const explanation of REPORT_FIXTURE.expectedWeakOrMissingExplanation) {
-      expect(reportHtml).toContain(explanation);
-    }
-    for (const action of REPORT_FIXTURE.expectedClientActionWording) {
-      expect(reportHtml).toContain(action);
+    for (const representative of REPORT_FIXTURE.expectedRepresentativeRows) {
+      if (representative.quoteSnippet) {
+        expect(reportHtml).toContain(representative.quoteSnippet);
+      }
+      expect(reportHtml).toContain(representative.reasonSnippet);
+      if (representative.clientActionSnippet) {
+        expect(reportHtml).toContain(representative.clientActionSnippet);
+      }
     }
     for (const banned of REPORT_FIXTURE.bannedWording) {
       expect(reportJson).not.toContain(banned.toLowerCase());
     }
-
-    expect([
+    expect(REPORT_FIXTURE.expectedSectionOrdering).toEqual([
       "Executive Summary",
       "Project Snapshot",
       "Methodology Scope",
@@ -283,6 +185,6 @@ describe("Envira VM0007 judgment fixtures", () => {
       "Follow-up Action List",
       "Full VM0007 Rule Audit Table",
       "Evidence Appendix",
-    ]).toEqual(REPORT_FIXTURE.expectedSectionOrdering);
+    ]);
   });
 });

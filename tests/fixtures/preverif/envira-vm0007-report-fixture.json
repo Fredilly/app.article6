@@ -1,6 +1,7 @@
 {
   "fixtureSetId": "envira-vm0007-report-fixture",
   "title": "Envira VM0007 Report Fixture Expectations",
+  "sourceAuditFixtureSetId": "envira-vm0007-full-audit-fixture-shape",
   "expectedReportTitle": "Internal VM0007 Gap Report Preview",
   "expectedSectionOrdering": [
     "Executive Summary",
@@ -14,35 +15,83 @@
     "Evidence Appendix"
   ],
   "expectedStatusCounts": {
-    "supported": 6,
-    "weak": 2,
-    "missing": 1,
-    "notApplicable": 0
+    "supported": 30,
+    "weak": 8,
+    "missing": 3,
+    "notApplicable": 17,
+    "totalRules": 58
   },
   "expectedVisibleWording": [
     "Internal preview only. This report shows current audit output and has not been manually reviewed.",
-    "Current PDD support is too unclear to classify confidently.",
-    "Current PDD support is missing for this rule.",
-    "What to add",
-    "Follow-up Action List"
+    "Rule totals are evidence-readiness categories drawn from the existing VM0007 audit output.",
+    "These rules currently have the strongest support signals in the audit output and still require human review.",
+    "Rules appear here only when the current PDD supports a not-applicable conclusion.",
+    "Weak and missing items are shown here so the project team can prioritize the next PDD updates.",
+    "All 58 VM0007 rules are listed below using internal preview language only.",
+    "Evidence quotes are reproduced from the existing audit output only."
   ],
   "bannedWording": [
     "all clear",
     "passed",
-    "confirmed"
+    "client-ready",
+    "verification-ready",
+    "certified"
   ],
-  "expectedEvidenceRendering": [
-    "Baseline deforestation in the project area falls within the planned deforestation category, as the agents of deforestation is the project proponent.",
-    "The Envira Amazonia Project has not been registered, nor is seeking registration, under any other GHG programs.",
-    "Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules."
+  "expectedRepresentativeRows": [
+    {
+      "ruleId": "R-1-0001",
+      "status": "supported",
+      "quoteSnippet": "The project area complies with this condition as mentioned in Section 1.10",
+      "page": 32,
+      "section": "2.2 Applicability of Methodology",
+      "reasonSnippet": "complete forest cover was demonstrated for 2002 and 2012"
+    },
+    {
+      "ruleId": "R-1-0004",
+      "status": "weak",
+      "quoteSnippet": "Deforestation is inferred to be legally permitted",
+      "page": 49,
+      "section": "3.1.2. Identifying proxy areas",
+      "reasonSnippet": "still an inference",
+      "clientActionSnippet": "Add the conversion authorization document"
+    },
+    {
+      "ruleId": "R-1-0013",
+      "status": "missing",
+      "reasonSnippet": "PDD does not yet show project-specific evidence for this REDD eligibility condition",
+      "clientActionSnippet": "Add the project-specific eligibility analysis"
+    },
+    {
+      "ruleId": "R-1-0005",
+      "status": "not applicable",
+      "reasonSnippet": "does not apply because the Envira Amazonia Project is a REDD forest-conservation project"
+    }
   ],
-  "expectedWeakOrMissingExplanation": [
-    "The quote is related evidence, but it is still an inference and does not cite the actual conversion authorization document, issuing authority, scope, or dates.",
-    "No direct PDF-backed quote in the Envira PDD documents expert-judgment inputs, rationale, or retained evidence for this rule."
-  ],
-  "expectedClientActionWording": [
-    "Add the project-specific baseline-module rationale, the reason BL-PL applies here, and the citations tying that module choice to the Envira project facts.",
-    "Add the conversion authorization document, the issuing authority, the area and dates it covers, and the citation tying it to APDef.",
-    "Add the expert-judgment basis, who applied it, what decision it informed, and the retained evidence or appendix references that support that judgment."
-  ]
+  "expectedGroupingSamples": {
+    "supportedFirstRuleIds": [
+      "R-1-0001",
+      "R-1-0002",
+      "R-1-0003"
+    ],
+    "weakRuleIds": [
+      "R-1-0004",
+      "R-2-0002",
+      "R-2-0012",
+      "R-3-0003",
+      "R-3-0004",
+      "R-3-0005",
+      "R-6-0004",
+      "R-6-0007"
+    ],
+    "missingRuleIds": [
+      "R-1-0013",
+      "R-1-0014",
+      "R-3-0008"
+    ],
+    "notApplicableFirstRuleIds": [
+      "R-1-0005",
+      "R-1-0006",
+      "R-1-0007"
+    ]
+  }
 }
