@@ -9,5 +9,10 @@ export const metadata: Metadata = {
 
 export default function EnviraVm0007FixtureBackedReportPage() {
   const report = buildEnviraVm0007FixtureBackedReport();
-  return <FixtureBackedVm0007ReportView report={report} />;
+  return (
+    <FixtureBackedVm0007ReportView
+      report={report}
+      pdfDownloadHref="/api/exports/internal/envira-vm0007-report"
+    />
+  );
 }

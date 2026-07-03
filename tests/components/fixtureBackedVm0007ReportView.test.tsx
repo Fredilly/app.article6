@@ -4,7 +4,12 @@ import FixtureBackedVm0007ReportView from "@/components/preverif/FixtureBackedVm
 import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
 
 function buildHtml() {
-  return renderToStaticMarkup(<FixtureBackedVm0007ReportView report={buildEnviraVm0007FixtureBackedReport()} />);
+  return renderToStaticMarkup(
+    <FixtureBackedVm0007ReportView
+      report={buildEnviraVm0007FixtureBackedReport()}
+      pdfDownloadHref="/api/exports/internal/envira-vm0007-report"
+    />,
+  );
 }
 
 describe("FixtureBackedVm0007ReportView", () => {
@@ -13,6 +18,7 @@ describe("FixtureBackedVm0007ReportView", () => {
     const rowCount = (html.match(/data-evidence-map-row=/g) ?? []).length;
 
     expect(html).toContain("Internal Envira VM0007 Fixture-Backed Report Preview");
+    expect(html).toContain("Download PDF");
     expect(html).toContain(">FOUND<");
     expect(html).toContain(">30<");
     expect(html).toContain(">UNCLEAR<");
