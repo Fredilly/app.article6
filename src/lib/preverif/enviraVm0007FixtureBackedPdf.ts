@@ -1,21 +1,24 @@
 import type { Vm0007FixtureBackedReport, Vm0007FixtureBackedStatus } from "@/lib/preverif/fixtureBackedVm0007Report";
 
 function esc(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
 }
 
-function asciiSafeText(input: string): string {
+function cleanText(input: string): string {
   return input
-    .replace(/[\\u2018\\u2019]/g, "'")
-    .replace(/[\\u201C\\u201D]/g, '"')
-    .replace(/[\\u2013\\u2014]/g, "-")
-    .replace(/\\u2022/g, "-")
-    .replace(/\\u00B7/g, "-")
-    .replace(/[^\\x09\\x0A\\x0D\\x20-\\x7E]/g, "");
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2022/g, "-")
+    .replace(/\u00B7/g, "-")
+    .replace(/[^\x20-\x7E]/g, "");
 }
 
 function wrapText(text: string, max = 96): string[] {
-  const words = asciiSafeText(text).split(/\\s+/).filter(Boolean);
+  const words = cleanText(text).split(/\s+/).filter(Boolean);
   if (words.length === 0) return [""];
 
   const lines: string[] = [];
@@ -50,7 +53,9 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   lines.push("");
   lines.push(report.reportName);
   lines.push(`Project: ${report.project.name}`);
-  lines.push(`Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`);
+  lines.push(
+    `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
+  );
   lines.push(`Report ID: ${report.reportId}`);
   lines.push(`Generated: ${report.generatedAt}`);
   lines.push("");
@@ -64,7 +69,9 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   lines.push("Executive Summary");
   lines.push("-".repeat(72));
   lines.push("");
-  lines.push(`${report.summary.totalRules} VM0007 rules rendered from reviewed fixture truth.`);
+  lines.push(
+    `${report.summary.totalRules} VM0007 rules rendered from reviewed fixture truth.`,
+  );
   lines.push("");
   lines.push(`  FOUND:    ${report.summary.counts.FOUND}`);
   lines.push(`  UNCLEAR:  ${report.summary.counts.UNCLEAR}`);
@@ -113,7 +120,9 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   if (grouped.length > 0) {
     lines.push("=".repeat(72));
     lines.push("Evidence Map");
-    lines.push("All 58 VM0007 rules grouped by status - MISSING first, then UNCLEAR, FOUND, and N/A.");
+    lines.push(
+      "All 58 VM0007 rules grouped by status - MISSING first, then UNCLEAR, FOUND, and N/A.",
+    );
     lines.push("=".repeat(72));
     lines.push("");
 
@@ -128,7 +137,9 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
       if (row.acceptedQuote) {
         lines.push(`    PDD quote: ${row.acceptedQuote}`);
       } else {
-        lines.push(`    PDD quote: No accepted quote encoded in fixture truth.`);
+        lines.push(
+          "    PDD quote: No accepted quote encoded in fixture truth.",
+        );
       }
       if (row.page || row.sectionHeading) {
         const parts: string[] = [];
@@ -158,7 +169,9 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   // ── Disclaimer ──
   lines.push("-".repeat(72));
   lines.push("Internal preview only.");
-  lines.push("This report is generated from fixture-backed audit data and is not");
+  lines.push(
+    "This report is generated from fixture-backed audit data and is not",
+  );
   lines.push("reviewed, certified, or client-ready. All findings are subject to");
   lines.push("manual review.");
   lines.push("-".repeat(72));
@@ -166,7 +179,10 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   return lines.flatMap((line) => wrapText(line));
 }
 
-function buildPages(lines: string[], linesPerPage = 56): string[][] {
+function buildPages(
+  lines: string[],
+  linesPerPage = 56,
+): string[][] {
   const pages: string[][] = [];
   for (let index = 0; index < lines.length; index += linesPerPage) {
     pages.push(lines.slice(index, index + linesPerPage));
@@ -175,46 +191,56 @@ function buildPages(lines: string[], linesPerPage = 56): string[][] {
 }
 
 function buildContentStream(lines: string[]): string {
-  const commands = ["BT", "/F1 9 Tf", "50 770 Td"];
-  lines.forEach((line, index) => {
-    if (index > 0) commands.push("0 -12 Td");
-    commands.push(`(${esc(line)}) Tj`);
-  });
+  const commands: string[] = ["BT", "/F1 9 Tf", "50 770 Td"];
+  for (let i = 0; i < lines.length; i++) {
+    if (i > 0) commands.push("0 -12 Td");
+    commands.push(`(${esc(lines[i])}) Tj`);
+  }
   commands.push("ET");
   return commands.join("\n");
 }
 
-export function buildEnviraVm0007FixtureBackedPdf(report: Vm0007FixtureBackedReport): Buffer {
-  const pageLines = buildPages(buildReportLines(report));
+export function buildEnviraVm0007FixtureBackedPdf(
+  report: Vm0007FixtureBackedReport,
+): Buffer {
+  const reportLines = buildReportLines(report);
+  const pageLines = buildPages(reportLines);
   const objects: string[] = [];
 
   objects.push("<< /Type /Catalog /Pages 2 0 R >>");
   const pageObjectNumbers = pageLines.map((_, index) => 4 + index * 2);
-  objects.push(`<< /Type /Pages /Kids [${pageObjectNumbers.map((num) => `${num} 0 R`).join(" ")}] /Count ${pageLines.length} >>`);
-  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  objects.push(
+    `<< /Type /Pages /Kids [${pageObjectNumbers.map((num) => `${num} 0 R`).join(" ")}] /Count ${pageLines.length} >>`,
+  );
+  objects.push(
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  );
 
-  pageLines.forEach((lines, index) => {
+  pageLines.forEach((pageContent, index) => {
     const pageObjectNumber = 4 + index * 2;
     const contentObjectNumber = pageObjectNumber + 1;
-    const stream = buildContentStream(lines);
+    const stream = buildContentStream(pageContent);
+    const streamBytes = Buffer.byteLength(stream, "utf8");
     objects.push(
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObjectNumber} 0 R >>`,
     );
-    objects.push(`<< /Length ${Buffer.byteLength(stream, "utf8")} >>\nstream\n${stream}\nendstream`);
+    objects.push(
+      `<< /Length ${streamBytes} >>\nstream\n${stream}\nendstream`,
+    );
   });
 
   let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  objects.forEach((object, index) => {
+  const offsets: number[] = [];
+  for (let i = 0; i < objects.length; i++) {
     offsets.push(Buffer.byteLength(pdf, "utf8"));
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-  });
+    pdf += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`;
+  }
 
   const xrefOffset = Buffer.byteLength(pdf, "utf8");
   pdf += `xref\n0 ${objects.length + 1}\n`;
   pdf += "0000000000 65535 f \n";
-  for (let index = 1; index < offsets.length; index += 1) {
-    pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+  for (let i = 0; i < offsets.length; i++) {
+    pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
   }
   pdf += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
 
