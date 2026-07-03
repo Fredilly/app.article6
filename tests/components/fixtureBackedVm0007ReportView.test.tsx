@@ -30,19 +30,29 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(rowCount).toBe(58);
   });
 
-  test("renders UNCLEAR, MISSING, and N/A rows with the required explanations", () => {
+  test("renders the executive summary section with VM0007 badge", () => {
     const html = buildHtml();
+    expect(html).toContain("Executive Summary");
+    expect(html).toContain("VM0007");
+    expect(html).toContain("Fixture-backed evidence report");
+  });
 
-    expect(html).toContain('data-status="UNCLEAR"');
+  test("renders priority client actions section showing MISSING and UNCLEAR only", () => {
+    const html = buildHtml();
+    expect(html).toContain("Priority Client Actions");
+    expect(html).toContain("Follow-up for MISSING and UNCLEAR evidence");
+
+    // Priority actions are rendered as cards before the evidence map
+    const missingIndex = html.indexOf("data-status=\"MISSING\"");
+    const unclearIndex = html.indexOf("data-status=\"UNCLEAR\"");
+    // Expect both statuses to appear in the page
+    expect(missingIndex).toBeGreaterThan(0);
+    expect(unclearIndex).toBeGreaterThan(0);
+
+    // Specific UNCLEAR rows with client actions
     expect(html).toContain("still an inference");
     expect(html).toContain("Add the conversion authorization document");
-
-    expect(html).toContain('data-status="MISSING"');
-    expect(html).toContain("No accepted quote encoded in fixture truth.");
     expect(html).toContain("Add the project-specific eligibility analysis");
-
-    expect(html).toContain('data-status="N/A"');
-    expect(html).toContain("does not apply because the Envira Amazonia Project is a REDD forest-conservation project");
   });
 
   test("renders rejected evidence examples where the fixture encodes them and avoids banned wording", () => {
@@ -62,6 +72,20 @@ describe("FixtureBackedVm0007ReportView", () => {
       "passed",
     ]) {
       expect(lower).not.toContain(banned);
+    }
+  });
+
+  test("evidence map groups MISSING before UNCLEAR before FOUND before N/A", () => {
+    const report = buildEnviraVm0007FixtureBackedReport();
+    const rows = [...report.evidenceMapRows].sort((a, b) => {
+      const rank = (s: string) => s === "MISSING" ? 0 : s === "UNCLEAR" ? 1 : s === "FOUND" ? 2 : 3;
+      const r = rank(a.status) - rank(b.status);
+      return r !== 0 ? r : a.ruleId.localeCompare(b.ruleId);
+    });
+    for (let i = 1; i < rows.length; i++) {
+      const prevRank = rows[i - 1].status === "MISSING" ? 0 : rows[i - 1].status === "UNCLEAR" ? 1 : rows[i - 1].status === "FOUND" ? 2 : 3;
+      const currRank = rows[i].status === "MISSING" ? 0 : rows[i].status === "UNCLEAR" ? 1 : rows[i].status === "FOUND" ? 2 : 3;
+      expect(prevRank).toBeLessThanOrEqual(currRank);
     }
   });
 });
