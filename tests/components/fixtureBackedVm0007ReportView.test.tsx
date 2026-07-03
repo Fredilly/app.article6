@@ -1,4 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
+import { JSDOM } from "jsdom";
 import { renderToStaticMarkup } from "react-dom/server";
 import FixtureBackedVm0007ReportView from "@/components/preverif/FixtureBackedVm0007ReportView";
 import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
@@ -10,6 +11,19 @@ function buildHtml() {
       pdfDownloadHref="/api/exports/internal/envira-vm0007-report"
     />,
   );
+}
+
+function buildDocument() {
+  return new JSDOM(buildHtml()).window.document;
+}
+
+function normalizeProvenanceText(value: string): string {
+  return value
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 describe("FixtureBackedVm0007ReportView", () => {
@@ -34,6 +48,49 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(rowCount).toBe(58);
     expect(html).toContain("Executive Summary");
     expect(html).toContain("Priority Client Actions");
+  });
+
+  test("renders row-scoped provenance for every evidence-bearing row and keeps missing rows honest", () => {
+    const document = buildDocument();
+    const report = buildEnviraVm0007FixtureBackedReport();
+
+    const rowsWithQuotes = report.evidenceMapRows.filter((row) => row.acceptedQuote?.trim());
+    const rowsWithPages = report.evidenceMapRows.filter((row) => row.page != null);
+    const rowsWithSections = report.evidenceMapRows.filter((row) => row.sectionHeading?.trim());
+
+    expect(rowsWithQuotes.length).toBeGreaterThan(0);
+    expect(rowsWithPages.length).toBeGreaterThan(0);
+    expect(rowsWithSections.length).toBeGreaterThan(0);
+
+    for (const row of report.evidenceMapRows) {
+      const rowEl = document.querySelector(`[data-evidence-map-row="${row.ruleId}"]`);
+      expect(rowEl).not.toBeNull();
+      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+      const normalizedRowText = normalizeProvenanceText(rowText);
+
+      if (row.acceptedQuote?.trim()) {
+        expect(normalizedRowText).toContain(normalizeProvenanceText(row.acceptedQuote.trim()));
+        expect(normalizedRowText).toContain(row.status === "UNCLEAR" ? "Weak quote" : "Accepted quote");
+      }
+
+      if (row.page != null) {
+        expect(normalizedRowText).toContain(String(row.page));
+      }
+
+      if (row.sectionHeading?.trim()) {
+        expect(normalizedRowText).toContain(normalizeProvenanceText(row.sectionHeading.trim()));
+      }
+    }
+
+    for (const row of report.evidenceMapRows.filter((entry) => entry.status === "MISSING")) {
+      const rowEl = document.querySelector(`[data-evidence-map-row="${row.ruleId}"]`);
+      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+
+      expect(rowText).not.toContain("No accepted quote encoded");
+      expect(rowText).not.toContain("Page: Not available");
+      expect(rowText).not.toContain("Section: Not available");
+      expect(rowText).not.toContain("Span ID: Not available");
+    }
   });
 
   test("renders grouped evidence-map sections and priority actions for UNCLEAR and MISSING rows", () => {

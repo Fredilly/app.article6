@@ -40,8 +40,8 @@ function labelCell(label: string, value: ReactNode) {
 function detailGrid(fields: DetailField[]) {
   return (
     <div className="grid gap-2">
-      {fields.map((field) => (
-        <div key={field.label}>{labelCell(field.label, field.value)}</div>
+      {fields.map((field, index) => (
+        <div key={`${field.label}-${index}`}>{labelCell(field.label, field.value)}</div>
       ))}
     </div>
   );
@@ -70,19 +70,18 @@ function statusSummaryCopy(status: Vm0007FixtureBackedStatus): string {
 function rowSupportingFields(row: Vm0007EvidenceMapRow): DetailField[] {
   const fields: DetailField[] = [];
 
-  if (row.status === "FOUND" && hasText(row.acceptedQuote)) {
-    fields.push({ label: "Accepted quote", value: row.acceptedQuote });
+  if (hasText(row.acceptedQuote)) {
+    fields.push({
+      label: row.status === "UNCLEAR" ? "Weak quote" : "Accepted quote",
+      value: row.acceptedQuote,
+    });
   }
 
-  if (row.status === "UNCLEAR" && hasText(row.acceptedQuote)) {
-    fields.push({ label: "Weak quote", value: row.acceptedQuote });
-  }
-
-  if (row.status === "FOUND" && row.page != null) {
+  if (row.page != null) {
     fields.push({ label: "Page", value: row.page });
   }
 
-  if (row.status === "FOUND" && hasText(row.sectionHeading)) {
+  if (hasText(row.sectionHeading)) {
     fields.push({ label: "Section", value: row.sectionHeading });
   }
 

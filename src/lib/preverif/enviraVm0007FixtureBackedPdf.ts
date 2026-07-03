@@ -29,18 +29,21 @@ function maybeLine(label: string, value: string | number | null | undefined): st
 function buildEvidenceRowLines(row: Vm0007EvidenceMapRow): string[] {
   const lines: string[] = [`Rule ID: ${row.ruleId}`, `Rule name: ${row.ruleName}`, `Status: ${row.status}`];
 
+  if (row.acceptedQuote?.trim()) {
+    lines.push(`${row.status === "UNCLEAR" ? "Weak quote" : "Accepted quote"}: ${row.acceptedQuote.trim()}`);
+  }
+
+  const pageLine = maybeLine("Page", row.page);
+  const sectionLine = maybeLine("Section", row.sectionHeading);
+  if (pageLine) lines.push(pageLine);
+  if (sectionLine) lines.push(sectionLine);
+
   if (row.status === "FOUND") {
-    if (row.acceptedQuote) lines.push(`Accepted quote: ${row.acceptedQuote}`);
-    const pageLine = maybeLine("Page", row.page);
-    const sectionLine = maybeLine("Section", row.sectionHeading);
-    if (pageLine) lines.push(pageLine);
-    if (sectionLine) lines.push(sectionLine);
     lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
     return lines;
   }
 
   if (row.status === "UNCLEAR") {
-    if (row.acceptedQuote) lines.push(`Weak quote: ${row.acceptedQuote}`);
     lines.push(`Why this is insufficient: ${row.whyEvidenceIsAccepted}`);
     if (row.rejectedEvidenceExamples.length > 0) {
       lines.push("Rejected evidence:");
@@ -103,7 +106,7 @@ function wrapText(text: string, max = 96): string[] {
   return lines;
 }
 
-function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+export function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
