@@ -19,6 +19,9 @@ describe("FixtureBackedVm0007ReportView", () => {
 
     expect(html).toContain("Internal Envira VM0007 Fixture-Backed Report Preview");
     expect(html).toContain("Download PDF");
+    expect(html).toContain("Project: Envira VM0007");
+    expect(html).toContain("This is an internal fixture-backed Evidence Map preview.");
+    expect(html).toContain("It is not client-ready.");
     expect(html).toContain(">FOUND<");
     expect(html).toContain(">30<");
     expect(html).toContain(">UNCLEAR<");
@@ -30,6 +33,7 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(rowCount).toBe(58);
     expect(html).toContain("Executive Summary");
     expect(html).toContain("Priority Client Actions");
+    expect(html).toContain("The purpose is to show evidence status, weak evidence, missing evidence, and client actions.");
   });
 
   test("renders grouped evidence-map sections and priority actions for UNCLEAR and MISSING rows", () => {

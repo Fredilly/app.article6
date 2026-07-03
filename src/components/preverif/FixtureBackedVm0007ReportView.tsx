@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import {
+  getPriorityClientActionRows,
+  groupEvidenceMapRowsByStatus,
   type Vm0007EvidenceMapRow,
   type Vm0007FixtureBackedReport,
   type Vm0007FixtureBackedStatus,
@@ -9,41 +11,6 @@ type FixtureBackedVm0007ReportViewProps = {
   report: Vm0007FixtureBackedReport;
   pdfDownloadHref?: string | null;
 };
-
-const VM0007_FIXTURE_BACKED_STATUS_ORDER: Vm0007FixtureBackedStatus[] = [
-  "MISSING",
-  "UNCLEAR",
-  "FOUND",
-  "N/A",
-];
-
-function compareRuleIds(left: string, right: string): number {
-  return left.localeCompare(right, undefined, { numeric: true });
-}
-
-function sortEvidenceMapRows(rows: Vm0007EvidenceMapRow[]): Vm0007EvidenceMapRow[] {
-  const order = new Map(VM0007_FIXTURE_BACKED_STATUS_ORDER.map((status, index) => [status, index]));
-  return rows.slice().sort((left, right) => {
-    const statusDiff = (order.get(left.status) ?? 99) - (order.get(right.status) ?? 99);
-    if (statusDiff !== 0) return statusDiff;
-    return compareRuleIds(left.ruleId, right.ruleId);
-  });
-}
-
-function groupEvidenceMapRowsByStatus(rows: Vm0007EvidenceMapRow[]): Array<{
-  status: Vm0007FixtureBackedStatus;
-  rows: Vm0007EvidenceMapRow[];
-}> {
-  const grouped = VM0007_FIXTURE_BACKED_STATUS_ORDER.map((status) => ({
-    status,
-    rows: sortEvidenceMapRows(rows).filter((row) => row.status === status),
-  }));
-  return grouped.filter((group) => group.rows.length > 0);
-}
-
-function getPriorityClientActionRows(rows: Vm0007EvidenceMapRow[]): Vm0007EvidenceMapRow[] {
-  return sortEvidenceMapRows(rows).filter((row) => row.status === "MISSING" || row.status === "UNCLEAR");
-}
 
 function statusTone(status: Vm0007FixtureBackedStatus): string {
   if (status === "FOUND") return "border-emerald-200 bg-emerald-50 text-emerald-900";
@@ -147,8 +114,11 @@ export default function FixtureBackedVm0007ReportView({ report, pdfDownloadHref 
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">{report.reportName}</h1>
           <div className="mt-2 text-base text-slate-700">{report.project.name}</div>
           <div className="mt-4 max-w-3xl text-sm leading-6 text-slate-700">
-            This internal preview packages the reviewed Envira VM0007 fixture truth into a reusable report shape for analysis, QA, and export.
-            It is intentionally separate from live audit output and is not a client-ready report.
+            <div>Project: Envira VM0007.</div>
+            <div>This is an internal fixture-backed Evidence Map preview.</div>
+            <div>It is not client-ready.</div>
+            <div>It is based on fixture-backed methodology truth.</div>
+            <div>The purpose is to show evidence status, weak evidence, missing evidence, and client actions.</div>
           </div>
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
             {report.limitationBanner}

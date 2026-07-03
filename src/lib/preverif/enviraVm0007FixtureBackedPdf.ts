@@ -1,4 +1,9 @@
-import type { Vm0007FixtureBackedReport } from "@/lib/preverif/fixtureBackedVm0007Report";
+import {
+  getPriorityClientActionRows,
+  groupEvidenceMapRowsByStatus,
+  type Vm0007EvidenceMapRow,
+  type Vm0007FixtureBackedReport,
+} from "@/lib/preverif/fixtureBackedVm0007Report";
 
 function esc(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -12,6 +17,65 @@ function asciiSafeText(input: string): string {
     .replace(/\u2022/g, "-")
     .replace(/\u00B7/g, "-")
     .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+
+function maybeLine(label: string, value: string | number | null | undefined): string | null {
+  if (value == null) return null;
+  const text = String(value).trim();
+  if (!text) return null;
+  return `${label}: ${text}`;
+}
+
+function buildEvidenceRowLines(row: Vm0007EvidenceMapRow): string[] {
+  const lines: string[] = [
+    `Rule ID: ${row.ruleId}`,
+    `Rule name: ${row.ruleName}`,
+    `Status: ${row.status}`,
+    `Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`,
+  ];
+
+  const pageLine = maybeLine("Page number", row.page);
+  const sectionLine = maybeLine("Section heading", row.sectionHeading);
+  const spanLine = maybeLine("Span ID", row.spanId);
+  if (pageLine) lines.push(pageLine);
+  if (sectionLine) lines.push(sectionLine);
+  if (spanLine) lines.push(spanLine);
+
+  lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
+
+  if (row.rejectedEvidenceExamples.length > 0) {
+    lines.push("Rejected evidence examples:");
+    for (const rejected of row.rejectedEvidenceExamples) {
+      lines.push(`- ${rejected.quote}`);
+      lines.push(`Rejection reason: ${rejected.rejectionReason}`);
+    }
+    if (row.whyRejectedEvidenceIsNotEnough) {
+      lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough}`);
+    }
+  }
+
+  if (row.clientAction) {
+    lines.push(`Client action: ${row.clientAction}`);
+  }
+
+  if (row.naReason) {
+    lines.push(`N/A reason: ${row.naReason}`);
+  }
+
+  return lines;
+}
+
+function buildPriorityActionLines(report: Vm0007FixtureBackedReport): string[] {
+  const lines: string[] = ["Priority Client Actions"];
+  for (const row of getPriorityClientActionRows(report.evidenceMapRows)) {
+    lines.push(
+      `Priority rule: ${row.ruleId} - ${row.ruleName}`,
+      `Status: ${row.status}`,
+      row.clientAction ? `Client action: ${row.clientAction}` : "Client action: Not encoded.",
+      `Why the evidence is accepted: ${row.whyEvidenceIsAccepted}`,
+    );
+  }
+  return lines;
 }
 
 function wrapText(text: string, max = 96): string[] {
@@ -34,45 +98,41 @@ function wrapText(text: string, max = 96): string[] {
 }
 
 function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+  const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
-    `Project: ${report.project.name}`,
+    "Internal only. Not client-ready.",
+    "Project: Envira VM0007",
+    `Project name: ${report.project.name}`,
+    report.project.description,
+    "This is an internal fixture-backed Evidence Map preview.",
+    "It is based on fixture-backed methodology truth.",
+    "Purpose: show evidence status, weak evidence, missing evidence, and client actions.",
     `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
     `Generated: ${report.generatedAt}`,
     report.limitationBanner,
+    "Executive Summary",
     report.summary.headline,
-    "Summary counts",
     `FOUND: ${report.summary.counts.FOUND}`,
     `UNCLEAR: ${report.summary.counts.UNCLEAR}`,
     `MISSING: ${report.summary.counts.MISSING}`,
     `N/A: ${report.summary.counts["N/A"]}`,
     `Total rules: ${report.summary.totalRules}`,
-    "Evidence Map",
-    "Each row reflects reviewed fixture truth for a single VM0007 rule. UNCLEAR and MISSING rows remain visible for internal follow-up.",
   ];
 
-  for (const row of report.evidenceMapRows) {
+  lines.push("");
+  lines.push(...buildPriorityActionLines(report));
+  lines.push("");
+  lines.push("Evidence Map");
+  lines.push("Rows are grouped by reviewed status and preserve the reviewed fixture truth.");
+
+  for (const group of groupedRows) {
     lines.push("");
-    lines.push(`Rule ID: ${row.ruleId}`);
-    lines.push(`Rule name: ${row.ruleName}`);
-    lines.push(`Status: ${row.status}`);
-    lines.push(`Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`);
-    lines.push(`Page number: ${row.page ?? "Not available"}`);
-    lines.push(`Section heading: ${row.sectionHeading ?? "Not available"}`);
-    lines.push(`Span ID: ${row.spanId ?? "Not available"}`);
-    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.rejectedEvidenceExamples.length === 0) {
-      lines.push("Rejected evidence examples: No rejected evidence examples encoded for this row.");
-    } else {
-      lines.push("Rejected evidence examples:");
-      for (const rejected of row.rejectedEvidenceExamples) {
-        lines.push(`Rejected evidence quote: ${rejected.quote}`);
-        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
-      }
+    lines.push(`${group.status} (${group.rows.length} rows)`);
+    for (const row of group.rows) {
+      lines.push("");
+      lines.push(...buildEvidenceRowLines(row));
     }
-    lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough ?? "No rejected evidence explanation encoded for this row."}`);
-    lines.push(`Client action: ${row.clientAction ?? "No client action required for this row."}`);
-    lines.push(`N/A reason: ${row.naReason ?? "This row is not marked N/A."}`);
   }
 
   return lines.flatMap((line) => wrapText(line));
