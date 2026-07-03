@@ -17,11 +17,12 @@ describe("FixtureBackedVm0007ReportView", () => {
     const html = buildHtml();
     const rowCount = (html.match(/data-evidence-map-row=/g) ?? []).length;
 
-    expect(html).toContain("Internal Envira VM0007 Fixture-Backed Report Preview");
+    expect(html).toContain("Envira VM0007 Evidence Map");
+    expect(html).toContain("Internal fixture-backed preview");
+    expect(html).toContain("Not client-ready");
+    expect(html).toContain("Based on PDF-backed fixture truth");
+    expect(html).toContain("Purpose: show supported, weak, missing, and non-applicable methodology evidence");
     expect(html).toContain("Download PDF");
-    expect(html).toContain("Project: Envira VM0007");
-    expect(html).toContain("This is an internal fixture-backed Evidence Map preview.");
-    expect(html).toContain("It is not client-ready.");
     expect(html).toContain(">FOUND<");
     expect(html).toContain(">30<");
     expect(html).toContain(">UNCLEAR<");
@@ -33,22 +34,20 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(rowCount).toBe(58);
     expect(html).toContain("Executive Summary");
     expect(html).toContain("Priority Client Actions");
-    expect(html).toContain("The purpose is to show evidence status, weak evidence, missing evidence, and client actions.");
   });
 
   test("renders grouped evidence-map sections and priority actions for UNCLEAR and MISSING rows", () => {
     const html = buildHtml();
 
-    expect(html).toContain(">MISSING<");
-    expect(html).toContain(">UNCLEAR<");
-    expect(html).toContain(">FOUND<");
-    expect(html).toContain(">N/A<");
+    expect(html).toContain("MISSING — 3");
+    expect(html).toContain("UNCLEAR — 8");
+    expect(html).toContain("FOUND — 30");
+    expect(html).toContain("N/A — 17");
     expect(html).toContain('data-status="UNCLEAR"');
     expect(html).toContain("still an inference");
     expect(html).toContain("Add the conversion authorization document");
 
     expect(html).toContain('data-status="MISSING"');
-    expect(html).toContain("No accepted quote encoded in fixture truth.");
     expect(html).toContain("Add the project-specific eligibility analysis");
 
     expect(html).toContain('data-status="N/A"');
@@ -63,7 +62,8 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain("Generic methodology-applicability language is not the underlying authorization document.");
     expect(html).toContain("Project Description");
     expect(html).not.toContain("Span ID: Not available");
-    expect(html).not.toContain("No rejected evidence examples encoded for this row.");
+    expect(html).not.toContain("No accepted quote encoded in fixture truth.");
+    expect(html).not.toContain("Rejected evidence examples");
 
     for (const banned of [
       "all clear",

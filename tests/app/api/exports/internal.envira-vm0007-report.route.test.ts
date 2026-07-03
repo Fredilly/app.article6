@@ -18,37 +18,34 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
     const normalized = text.replace(/\s+/g, " ").trim();
     const report = buildEnviraVm0007FixtureBackedReport();
 
-    expect(text).toContain("Internal Envira VM0007 Fixture-Backed Report Preview");
-    expect(text).toContain("Internal only. Not client-ready.");
-    expect(text).toContain("Project: Envira VM0007");
-    expect(text).toContain("This is an internal fixture-backed Evidence Map preview.");
-    expect(text).toContain("It is based on fixture-backed methodology truth.");
-    expect(text).toContain("Purpose: show evidence status, weak evidence, missing evidence, and client actions.");
-    expect(text).toContain("Executive Summary");
+    expect(text).toContain("Envira VM0007 Evidence Map");
+    expect(text).toContain("Internal fixture-backed preview");
+    expect(text).toContain("Not client-ready");
+    expect(text).toContain("Based on PDF-backed fixture truth");
+    expect(text).toContain("Purpose: show supported, weak, missing, and non-applicable methodology evidence");
     expect(text).toContain("FOUND: 30");
     expect(text).toContain("UNCLEAR: 8");
     expect(text).toContain("MISSING: 3");
     expect(text).toContain("N/A: 17");
     expect(text).toContain("Total rules: 58");
     expect(text).toContain("Priority Client Actions");
-    expect(text).toContain("MISSING (3 rows)");
-    expect(text).toContain("UNCLEAR (8 rows)");
-    expect(text).toContain("FOUND (30 rows)");
-    expect(text).toContain("N/A (17 rows)");
+    expect(text).toContain("MISSING - 3");
+    expect(text).toContain("UNCLEAR - 8");
+    expect(text).toContain("FOUND - 30");
+    expect(text).toContain("N/A - 17");
 
     for (const row of report.evidenceMapRows) {
       expect(text).toContain(`Rule ID: ${row.ruleId}`);
       expect(text).toContain(`Rule name: ${row.ruleName}`);
     }
 
-    expect((text.match(/Rule ID:/g) ?? []).length).toBe(58);
-    expect(normalized).toContain("Rejected evidence examples:");
+    expect(normalized).toContain("Rejected evidence:");
     expect(normalized).toContain("the land is legally permitted to be converted to non-forest");
     expect(normalized).toContain("Generic methodology-applicability language is not the underlying authorization document.");
     expect(text).not.toContain("Span ID: Not available");
-    expect(text).not.toContain("No rejected evidence examples encoded for this row.");
-    expect(text).not.toContain("Page number: Not available");
-    expect(text).not.toContain("Section heading: Not available");
+    expect(text).not.toContain("No accepted quote encoded in fixture truth.");
+    expect(text).not.toContain("Page: Not available");
+    expect(text).not.toContain("Section: Not available");
 
     for (const banned of [
       "all clear",

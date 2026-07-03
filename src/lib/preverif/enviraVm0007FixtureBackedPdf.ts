@@ -27,53 +27,59 @@ function maybeLine(label: string, value: string | number | null | undefined): st
 }
 
 function buildEvidenceRowLines(row: Vm0007EvidenceMapRow): string[] {
-  const lines: string[] = [
-    `Rule ID: ${row.ruleId}`,
-    `Rule name: ${row.ruleName}`,
-    `Status: ${row.status}`,
-    `Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`,
-  ];
+  const lines: string[] = [`Rule ID: ${row.ruleId}`, `Rule name: ${row.ruleName}`, `Status: ${row.status}`];
 
-  const pageLine = maybeLine("Page number", row.page);
-  const sectionLine = maybeLine("Section heading", row.sectionHeading);
-  const spanLine = maybeLine("Span ID", row.spanId);
-  if (pageLine) lines.push(pageLine);
-  if (sectionLine) lines.push(sectionLine);
-  if (spanLine) lines.push(spanLine);
+  if (row.status === "FOUND") {
+    if (row.acceptedQuote) lines.push(`Accepted quote: ${row.acceptedQuote}`);
+    const pageLine = maybeLine("Page", row.page);
+    const sectionLine = maybeLine("Section", row.sectionHeading);
+    if (pageLine) lines.push(pageLine);
+    if (sectionLine) lines.push(sectionLine);
+    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
+    return lines;
+  }
 
-  lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
-
-  if (row.rejectedEvidenceExamples.length > 0) {
-    lines.push("Rejected evidence examples:");
-    for (const rejected of row.rejectedEvidenceExamples) {
-      lines.push(`- ${rejected.quote}`);
-      lines.push(`Rejection reason: ${rejected.rejectionReason}`);
+  if (row.status === "UNCLEAR") {
+    if (row.acceptedQuote) lines.push(`Weak quote: ${row.acceptedQuote}`);
+    lines.push(`Why this is insufficient: ${row.whyEvidenceIsAccepted}`);
+    if (row.rejectedEvidenceExamples.length > 0) {
+      lines.push("Rejected evidence:");
+      for (const rejected of row.rejectedEvidenceExamples) {
+        lines.push(`- ${rejected.quote}`);
+        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
+      }
+      if (row.whyRejectedEvidenceIsNotEnough) {
+        lines.push(`Why the rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough}`);
+      }
     }
-    if (row.whyRejectedEvidenceIsNotEnough) {
-      lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough}`);
-    }
+    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
+    return lines;
   }
 
-  if (row.clientAction) {
-    lines.push(`Client action: ${row.clientAction}`);
+  if (row.status === "MISSING") {
+    lines.push(`Missing reason: ${row.whyEvidenceIsAccepted}`);
+    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
+    return lines;
   }
 
-  if (row.naReason) {
-    lines.push(`N/A reason: ${row.naReason}`);
-  }
-
+  if (row.naReason) lines.push(`N/A reason: ${row.naReason}`);
   return lines;
 }
 
 function buildPriorityActionLines(report: Vm0007FixtureBackedReport): string[] {
   const lines: string[] = ["Priority Client Actions"];
   for (const row of getPriorityClientActionRows(report.evidenceMapRows)) {
-    lines.push(
-      `Priority rule: ${row.ruleId} - ${row.ruleName}`,
-      `Status: ${row.status}`,
-      row.clientAction ? `Client action: ${row.clientAction}` : "Client action: Not encoded.",
-      `Why the evidence is accepted: ${row.whyEvidenceIsAccepted}`,
-    );
+    lines.push(`Rule ID: ${row.ruleId}`);
+    lines.push(`Rule name: ${row.ruleName}`);
+    lines.push(`Status: ${row.status}`);
+    lines.push(row.status === "MISSING" ? `Missing reason: ${row.whyEvidenceIsAccepted}` : `Weak evidence reason: ${row.whyEvidenceIsAccepted}`);
+    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
+    if (row.status === "UNCLEAR" && row.rejectedEvidenceExamples.length > 0) {
+      for (const rejected of row.rejectedEvidenceExamples) {
+        lines.push(`Rejected evidence: ${rejected.quote}`);
+        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
+      }
+    }
   }
   return lines;
 }
@@ -101,23 +107,22 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
-    "Internal only. Not client-ready.",
-    "Project: Envira VM0007",
+    "Envira VM0007 Evidence Map",
+    "Internal fixture-backed preview",
+    "Not client-ready",
+    "Based on PDF-backed fixture truth",
+    "Purpose: show supported, weak, missing, and non-applicable methodology evidence",
     `Project name: ${report.project.name}`,
     report.project.description,
-    "This is an internal fixture-backed Evidence Map preview.",
-    "It is based on fixture-backed methodology truth.",
-    "Purpose: show evidence status, weak evidence, missing evidence, and client actions.",
     `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
     `Generated: ${report.generatedAt}`,
     report.limitationBanner,
-    "Executive Summary",
-    report.summary.headline,
     `FOUND: ${report.summary.counts.FOUND}`,
     `UNCLEAR: ${report.summary.counts.UNCLEAR}`,
     `MISSING: ${report.summary.counts.MISSING}`,
     `N/A: ${report.summary.counts["N/A"]}`,
     `Total rules: ${report.summary.totalRules}`,
+    report.summary.headline,
   ];
 
   lines.push("");
@@ -128,7 +133,7 @@ function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
 
   for (const group of groupedRows) {
     lines.push("");
-    lines.push(`${group.status} (${group.rows.length} rows)`);
+    lines.push(`${group.status} - ${group.rows.length}`);
     for (const row of group.rows) {
       lines.push("");
       lines.push(...buildEvidenceRowLines(row));
