@@ -1,4 +1,4 @@
-import type { Vm0007FixtureBackedReport } from "@/lib/preverif/fixtureBackedVm0007Report";
+import type { Vm0007FixtureBackedReport, Vm0007FixtureBackedStatus } from "@/lib/preverif/fixtureBackedVm0007Report";
 
 function esc(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -6,16 +6,16 @@ function esc(value: string): string {
 
 function asciiSafeText(input: string): string {
   return input
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/[\u2013\u2014]/g, "-")
-    .replace(/\u2022/g, "-")
-    .replace(/\u00B7/g, "-")
-    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+    .replace(/[\\u2018\\u2019]/g, "'")
+    .replace(/[\\u201C\\u201D]/g, '"')
+    .replace(/[\\u2013\\u2014]/g, "-")
+    .replace(/\\u2022/g, "-")
+    .replace(/\\u00B7/g, "-")
+    .replace(/[^\\x09\\x0A\\x0D\\x20-\\x7E]/g, "");
 }
 
 function wrapText(text: string, max = 96): string[] {
-  const words = asciiSafeText(text).split(/\s+/).filter(Boolean);
+  const words = asciiSafeText(text).split(/\\s+/).filter(Boolean);
   if (words.length === 0) return [""];
 
   const lines: string[] = [];
@@ -33,47 +33,135 @@ function wrapText(text: string, max = 96): string[] {
   return lines;
 }
 
-function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
-  const lines: string[] = [
-    report.reportName,
-    `Project: ${report.project.name}`,
-    `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
-    `Generated: ${report.generatedAt}`,
-    report.limitationBanner,
-    report.summary.headline,
-    "Summary counts",
-    `FOUND: ${report.summary.counts.FOUND}`,
-    `UNCLEAR: ${report.summary.counts.UNCLEAR}`,
-    `MISSING: ${report.summary.counts.MISSING}`,
-    `N/A: ${report.summary.counts["N/A"]}`,
-    `Total rules: ${report.summary.totalRules}`,
-    "Evidence Map",
-    "Each row reflects reviewed fixture truth for a single VM0007 rule. UNCLEAR and MISSING rows remain visible for internal follow-up.",
-  ];
+function statusPriority(status: Vm0007FixtureBackedStatus): number {
+  if (status === "MISSING") return 0;
+  if (status === "UNCLEAR") return 1;
+  if (status === "FOUND") return 2;
+  return 3;
+}
 
-  for (const row of report.evidenceMapRows) {
+function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+  const lines: string[] = [];
+
+  // ── Cover / Intro ──
+  lines.push("=".repeat(72));
+  lines.push("VM0007  Fixture-backed evidence report  Internal");
+  lines.push("=".repeat(72));
+  lines.push("");
+  lines.push(report.reportName);
+  lines.push(`Project: ${report.project.name}`);
+  lines.push(`Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`);
+  lines.push(`Report ID: ${report.reportId}`);
+  lines.push(`Generated: ${report.generatedAt}`);
+  lines.push("");
+  lines.push(`[!] ${report.limitationBanner}`);
+  lines.push("");
+  lines.push(report.summary.headline);
+  lines.push("");
+
+  // ── Executive Summary ──
+  lines.push("-".repeat(72));
+  lines.push("Executive Summary");
+  lines.push("-".repeat(72));
+  lines.push("");
+  lines.push(`${report.summary.totalRules} VM0007 rules rendered from reviewed fixture truth.`);
+  lines.push("");
+  lines.push(`  FOUND:    ${report.summary.counts.FOUND}`);
+  lines.push(`  UNCLEAR:  ${report.summary.counts.UNCLEAR}`);
+  lines.push(`  MISSING:  ${report.summary.counts.MISSING}`);
+  lines.push(`  N/A:      ${report.summary.counts["N/A"]}`);
+  lines.push(`  Total:    ${report.summary.totalRules}`);
+  lines.push("");
+
+  // ── Priority Client Actions (MISSING + UNCLEAR only) ──
+  const priorityActions = [...report.evidenceMapRows]
+    .filter((row) => row.status === "MISSING" || row.status === "UNCLEAR")
+    .sort((a, b) => statusPriority(a.status) - statusPriority(b.status));
+
+  if (priorityActions.length > 0) {
+    lines.push("-".repeat(72));
+    lines.push("Priority Client Actions");
+    lines.push("Follow-up for MISSING and UNCLEAR evidence.");
+    lines.push("-".repeat(72));
     lines.push("");
-    lines.push(`Rule ID: ${row.ruleId}`);
-    lines.push(`Rule name: ${row.ruleName}`);
-    lines.push(`Status: ${row.status}`);
-    lines.push(`Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`);
-    lines.push(`Page number: ${row.page ?? "Not available"}`);
-    lines.push(`Section heading: ${row.sectionHeading ?? "Not available"}`);
-    lines.push(`Span ID: ${row.spanId ?? "Not available"}`);
-    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.rejectedEvidenceExamples.length === 0) {
-      lines.push("Rejected evidence examples: No rejected evidence examples encoded for this row.");
-    } else {
-      lines.push("Rejected evidence examples:");
-      for (const rejected of row.rejectedEvidenceExamples) {
-        lines.push(`Rejected evidence quote: ${rejected.quote}`);
-        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
+
+    for (const row of priorityActions) {
+      lines.push(`  [${row.status}] ${row.ruleId} - ${row.ruleName}`);
+      if (row.acceptedQuote) {
+        lines.push(`    Current PDD evidence: ${row.acceptedQuote}`);
       }
+      lines.push(`    Why: ${row.whyEvidenceIsAccepted}`);
+      if (row.clientAction) {
+        lines.push(`    Action needed: ${row.clientAction}`);
+      }
+      if (row.sectionHeading || row.page) {
+        const parts: string[] = [];
+        if (row.sectionHeading) parts.push(`Section: ${row.sectionHeading}`);
+        if (row.page) parts.push(`Page ${row.page}`);
+        lines.push(`    ${parts.join(" - ")}`);
+      }
+      lines.push("");
     }
-    lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough ?? "No rejected evidence explanation encoded for this row."}`);
-    lines.push(`Client action: ${row.clientAction ?? "No client action required for this row."}`);
-    lines.push(`N/A reason: ${row.naReason ?? "This row is not marked N/A."}`);
   }
+
+  // ── Evidence Map (grouped: MISSING / UNCLEAR / FOUND / N/A) ──
+  const grouped = [...report.evidenceMapRows].sort((a, b) => {
+    const r = statusPriority(a.status) - statusPriority(b.status);
+    return r !== 0 ? r : a.ruleId.localeCompare(b.ruleId);
+  });
+
+  if (grouped.length > 0) {
+    lines.push("=".repeat(72));
+    lines.push("Evidence Map");
+    lines.push("All 58 VM0007 rules grouped by status - MISSING first, then UNCLEAR, FOUND, and N/A.");
+    lines.push("=".repeat(72));
+    lines.push("");
+
+    let lastStatus: Vm0007FixtureBackedStatus | null = null;
+    for (const row of grouped) {
+      if (row.status !== lastStatus) {
+        lines.push(`--- ${row.status} ---`);
+        lastStatus = row.status;
+      }
+      lines.push(`  ${row.ruleId}  ${row.ruleName}`);
+      lines.push(`    Status: ${row.status}`);
+      if (row.acceptedQuote) {
+        lines.push(`    PDD quote: ${row.acceptedQuote}`);
+      } else {
+        lines.push(`    PDD quote: No accepted quote encoded in fixture truth.`);
+      }
+      if (row.page || row.sectionHeading) {
+        const parts: string[] = [];
+        if (row.sectionHeading) parts.push(row.sectionHeading);
+        if (row.page) parts.push(`p.${row.page}`);
+        lines.push(`    ${parts.join(" - ")}`);
+      }
+      if (row.whyEvidenceIsAccepted) {
+        lines.push(`    Why: ${row.whyEvidenceIsAccepted}`);
+      }
+      if (row.rejectedEvidenceExamples.length > 0) {
+        for (const rej of row.rejectedEvidenceExamples) {
+          lines.push(`    Rejected: ${rej.quote}`);
+          lines.push(`      Reason: ${rej.rejectionReason}`);
+        }
+      }
+      if (row.clientAction) {
+        lines.push(`    Client action: ${row.clientAction}`);
+      }
+      if (row.naReason) {
+        lines.push(`    N/A reason: ${row.naReason}`);
+      }
+      lines.push("");
+    }
+  }
+
+  // ── Disclaimer ──
+  lines.push("-".repeat(72));
+  lines.push("Internal preview only.");
+  lines.push("This report is generated from fixture-backed audit data and is not");
+  lines.push("reviewed, certified, or client-ready. All findings are subject to");
+  lines.push("manual review.");
+  lines.push("-".repeat(72));
 
   return lines.flatMap((line) => wrapText(line));
 }
