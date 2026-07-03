@@ -128,24 +128,6 @@ Report fixtures must include explicit expected counts:
 
 Keep Quick Check Phase 7 fixture work separate from methodology judgment fixture work unless explicitly instructed.
 
-For every new methodology/PDD fixture test, call:
-
-assertFixtureQualityGate(...)
-
-from:
-
-tests/lib/preverif/fixtureQualityGate.ts
-
-The gate should receive:
-- methodology rule list
-- audit summary
-- report object
-- rendered report HTML
-- judgment fixture JSON
-- source excerpts JSON
-- expected visible wording
-- banned wording
-
 Before final handoff, confirm:
 - AGENTS.md was followed
 - final PR diff is scoped correctly
