@@ -37,6 +37,11 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
     const rowsWithQuotes = report.evidenceMapRows.filter((row) => row.acceptedQuote?.trim());
     const rowsWithPages = report.evidenceMapRows.filter((row) => row.page != null);
     const rowsWithSections = report.evidenceMapRows.filter((row) => row.sectionHeading?.trim());
+    const reportLineList = reportLines.split("\n");
+    const prioritySectionStart = reportLineList.indexOf("Priority Client Actions");
+    const prioritySectionEnd = reportLineList.indexOf("Evidence Map");
+    const prioritySectionLines = prioritySectionStart >= 0 && prioritySectionEnd > prioritySectionStart ? reportLineList.slice(prioritySectionStart, prioritySectionEnd) : [];
+    const priorityRows = report.evidenceMapRows.filter((row) => row.status === "UNCLEAR" || row.status === "MISSING");
 
     expect(text).toContain("Envira VM0007 Evidence Map");
     expect(text).toContain("Internal fixture-backed preview");
@@ -85,6 +90,53 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
         expect(normalizePdfProvenanceText(textNormalized)).toContain(
           normalizePdfProvenanceText(`Section: ${row.sectionHeading.trim()}`),
         );
+      }
+    }
+
+    for (const row of priorityRows) {
+      const startIndex = prioritySectionLines.indexOf(`Rule ID: ${row.ruleId}`);
+      expect(startIndex).toBeGreaterThanOrEqual(0);
+
+      let endIndex = prioritySectionLines.length;
+      for (let index = startIndex + 1; index < prioritySectionLines.length; index += 1) {
+        if (prioritySectionLines[index].startsWith("Rule ID: ")) {
+          endIndex = index;
+          break;
+        }
+      }
+
+      const rowText = normalizePdfProvenanceText(prioritySectionLines.slice(startIndex, endIndex).join(" "));
+      expect(rowText).toContain(row.ruleId);
+      expect(rowText).toContain(row.ruleName);
+
+      if (row.status === "UNCLEAR") {
+        if (row.acceptedQuote?.trim()) {
+          expect(rowText).toContain(normalizePdfProvenanceText(row.acceptedQuote.trim()));
+          expect(rowText).toContain("Weak quote");
+        }
+
+        if (row.page != null) {
+          expect(rowText).toContain(`Page: ${row.page}`);
+        }
+
+        if (row.sectionHeading?.trim()) {
+          expect(rowText).toContain(normalizePdfProvenanceText(`Section: ${row.sectionHeading.trim()}`));
+        }
+
+        if (row.clientAction?.trim()) {
+          expect(rowText).toContain(normalizePdfProvenanceText(row.clientAction.trim()));
+        }
+      }
+
+      if (row.status === "MISSING") {
+        expect(rowText).toContain(normalizePdfProvenanceText(row.whyEvidenceIsAccepted.trim()));
+        if (row.clientAction?.trim()) {
+          expect(rowText).toContain(normalizePdfProvenanceText(row.clientAction.trim()));
+        }
+        expect(rowText).not.toContain("No accepted quote encoded");
+        expect(rowText).not.toContain("Page: Not available");
+        expect(rowText).not.toContain("Section: Not available");
+        expect(rowText).not.toContain("Span ID: Not available");
       }
     }
 

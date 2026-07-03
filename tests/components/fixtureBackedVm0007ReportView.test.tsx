@@ -93,7 +93,7 @@ describe("FixtureBackedVm0007ReportView", () => {
     }
   });
 
-  test("renders grouped evidence-map sections and priority actions for UNCLEAR and MISSING rows", () => {
+  test("renders grouped evidence-map sections in the expected order", () => {
     const html = buildHtml();
 
     expect(html).toContain("MISSING — 3");
@@ -101,14 +101,67 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain("FOUND — 30");
     expect(html).toContain("N/A — 17");
     expect(html).toContain('data-status="UNCLEAR"');
-    expect(html).toContain("still an inference");
-    expect(html).toContain("Add the conversion authorization document");
-
     expect(html).toContain('data-status="MISSING"');
-    expect(html).toContain("Add the project-specific eligibility analysis");
-
     expect(html).toContain('data-status="N/A"');
-    expect(html).toContain("does not apply because the Envira Amazonia Project is a REDD forest-conservation project");
+  });
+
+  test("renders row-scoped priority client actions with provenance for UNCLEAR rows", () => {
+    const document = buildDocument();
+    const report = buildEnviraVm0007FixtureBackedReport();
+    const priorityRows = report.evidenceMapRows.filter((row) => row.status === "UNCLEAR" || row.status === "MISSING");
+
+    expect(priorityRows.length).toBeGreaterThan(0);
+
+    for (const row of priorityRows) {
+      const rowEl = document.querySelector(`[data-priority-action-row="${row.ruleId}"]`);
+      expect(rowEl).not.toBeNull();
+
+      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+      const normalizedRowText = normalizeProvenanceText(rowText);
+
+      if (row.status === "UNCLEAR") {
+        if (row.acceptedQuote?.trim()) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(row.acceptedQuote.trim()));
+          expect(normalizedRowText).toContain("Weak quote");
+        }
+
+        if (row.page != null) {
+          expect(normalizedRowText).toContain(String(row.page));
+        }
+
+        if (row.sectionHeading?.trim()) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(row.sectionHeading.trim()));
+        }
+
+        expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyEvidenceIsAccepted));
+
+        if (row.whyRejectedEvidenceIsNotEnough?.trim()) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyRejectedEvidenceIsNotEnough.trim()));
+        }
+
+        for (const rejected of row.rejectedEvidenceExamples) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(rejected.quote));
+          expect(normalizedRowText).toContain(normalizeProvenanceText(rejected.rejectionReason));
+        }
+
+        if (row.clientAction?.trim()) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(row.clientAction.trim()));
+        }
+      }
+
+      if (row.status === "MISSING") {
+        expect(rowText).toContain("Missing reason");
+        expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyEvidenceIsAccepted));
+
+        if (row.clientAction?.trim()) {
+          expect(normalizedRowText).toContain(normalizeProvenanceText(row.clientAction.trim()));
+        }
+
+        for (const placeholder of ["No accepted quote encoded", "Page: Not available", "Section: Not available", "Span ID: Not available"]) {
+          expect(rowText).not.toContain(placeholder);
+        }
+      }
+    }
   });
 
   test("hides placeholder clutter while preserving rejected evidence where encoded and avoids banned wording", () => {

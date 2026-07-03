@@ -4,6 +4,11 @@ import {
   type Vm0007EvidenceMapRow,
   type Vm0007FixtureBackedReport,
 } from "@/lib/preverif/fixtureBackedVm0007Report";
+import {
+  buildEvidenceMapDisplayBlocks,
+  buildPriorityActionDisplayBlocks,
+  type Vm0007DisplayBlock,
+} from "@/lib/preverif/vm0007ReportDisplay";
 
 function esc(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -19,70 +24,35 @@ function asciiSafeText(input: string): string {
     .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
 }
 
-function maybeLine(label: string, value: string | number | null | undefined): string | null {
-  if (value == null) return null;
-  const text = String(value).trim();
-  if (!text) return null;
-  return `${label}: ${text}`;
+function buildDisplayBlockLines(block: Vm0007DisplayBlock): string[] {
+  if ("entries" in block) {
+    const lines = [block.label + ":"];
+    for (const entry of block.entries) {
+      lines.push(`- ${entry.quote}`);
+      lines.push(`Rejection reason: ${entry.rejectionReason}`);
+    }
+    return lines;
+  }
+
+  return [`${block.label}: ${block.value}`];
+}
+
+function buildRowLines(row: Vm0007EvidenceMapRow, blocks: Vm0007DisplayBlock[]): string[] {
+  const lines: string[] = [`Rule ID: ${row.ruleId}`, `Rule name: ${row.ruleName}`, `Status: ${row.status}`];
+  for (const block of blocks) {
+    lines.push(...buildDisplayBlockLines(block));
+  }
+  return lines;
 }
 
 function buildEvidenceRowLines(row: Vm0007EvidenceMapRow): string[] {
-  const lines: string[] = [`Rule ID: ${row.ruleId}`, `Rule name: ${row.ruleName}`, `Status: ${row.status}`];
-
-  if (row.acceptedQuote?.trim()) {
-    lines.push(`${row.status === "UNCLEAR" ? "Weak quote" : "Accepted quote"}: ${row.acceptedQuote.trim()}`);
-  }
-
-  const pageLine = maybeLine("Page", row.page);
-  const sectionLine = maybeLine("Section", row.sectionHeading);
-  if (pageLine) lines.push(pageLine);
-  if (sectionLine) lines.push(sectionLine);
-
-  if (row.status === "FOUND") {
-    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
-    return lines;
-  }
-
-  if (row.status === "UNCLEAR") {
-    lines.push(`Why this is insufficient: ${row.whyEvidenceIsAccepted}`);
-    if (row.rejectedEvidenceExamples.length > 0) {
-      lines.push("Rejected evidence:");
-      for (const rejected of row.rejectedEvidenceExamples) {
-        lines.push(`- ${rejected.quote}`);
-        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
-      }
-      if (row.whyRejectedEvidenceIsNotEnough) {
-        lines.push(`Why the rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough}`);
-      }
-    }
-    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
-    return lines;
-  }
-
-  if (row.status === "MISSING") {
-    lines.push(`Missing reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
-    return lines;
-  }
-
-  if (row.naReason) lines.push(`N/A reason: ${row.naReason}`);
-  return lines;
+  return buildRowLines(row, buildEvidenceMapDisplayBlocks(row));
 }
 
 function buildPriorityActionLines(report: Vm0007FixtureBackedReport): string[] {
   const lines: string[] = ["Priority Client Actions"];
   for (const row of getPriorityClientActionRows(report.evidenceMapRows)) {
-    lines.push(`Rule ID: ${row.ruleId}`);
-    lines.push(`Rule name: ${row.ruleName}`);
-    lines.push(`Status: ${row.status}`);
-    lines.push(row.status === "MISSING" ? `Missing reason: ${row.whyEvidenceIsAccepted}` : `Weak evidence reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.clientAction) lines.push(`Client action: ${row.clientAction}`);
-    if (row.status === "UNCLEAR" && row.rejectedEvidenceExamples.length > 0) {
-      for (const rejected of row.rejectedEvidenceExamples) {
-        lines.push(`Rejected evidence: ${rejected.quote}`);
-        lines.push(`Rejection reason: ${rejected.rejectionReason}`);
-      }
-    }
+    lines.push(...buildRowLines(row, buildPriorityActionDisplayBlocks(row)));
   }
   return lines;
 }
