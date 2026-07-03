@@ -87,6 +87,8 @@ describe("VM0007 evidence contracts", () => {
 
     for (const contract of contracts) {
       expect(contract.clientAction.trim().length).toBeGreaterThan(0);
+      expect(contract.methodologyId).toBe("VM0007");
+      expect(contract.rulebookVersion.trim().length).toBeGreaterThan(0);
     }
   });
 

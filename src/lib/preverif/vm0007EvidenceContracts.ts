@@ -20,9 +20,14 @@ type NormalizedRule = {
   text: string;
 };
 
-function defineContract(input: Vm0007EvidenceContract): Vm0007EvidenceContract {
+function defineContract(
+  input: Omit<Vm0007EvidenceContract, "methodologyId" | "rulebookVersion">
+    & Partial<Pick<Vm0007EvidenceContract, "methodologyId" | "rulebookVersion">>,
+): Vm0007EvidenceContract {
   return Object.freeze({
     ...input,
+    methodologyId: input.methodologyId || "VM0007",
+    rulebookVersion: input.rulebookVersion || "v4.2",
     appliesToRuleIds: input.appliesToRuleIds ? Object.freeze([...input.appliesToRuleIds]) : undefined,
     pddSectionsToSearch: Object.freeze([...input.pddSectionsToSearch]),
     strongEvidenceSignals: Object.freeze([...input.strongEvidenceSignals]),

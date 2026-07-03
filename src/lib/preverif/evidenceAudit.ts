@@ -12,9 +12,19 @@ export const EVIDENCE_AUDIT_STATUSES = [
 export type EvidenceAuditStatus = (typeof EVIDENCE_AUDIT_STATUSES)[number];
 export type EvidenceAuditConfidence = "high" | "medium" | "low";
 
+export type MethodologyVersionLock = Readonly<{
+  methodologyId: string;
+  rulebookVersion: string;
+  pddDeclaredMethodologyVersion: string;
+  versionMatch: boolean;
+  versionMismatchReason: string;
+}>;
+
 export type MethodologyEvidenceContract = Readonly<{
   id: string;
   label: string;
+  methodologyId: string;
+  rulebookVersion: string;
   appliesToFamily?: string;
   appliesToRuleIds?: readonly string[];
   pddSectionsToSearch: readonly string[];
@@ -45,6 +55,11 @@ export type MethodologyEvidenceAuditResult = {
   stableId: string;
   title: string;
   ruleLogic: string;
+  methodologyId?: string;
+  rulebookVersion?: string;
+  pddDeclaredMethodologyVersion?: string;
+  versionMatch?: boolean;
+  versionMismatchReason?: string;
   status: EvidenceAuditStatus;
   bestEvidenceQuote: string | null;
   page: number | null;
@@ -58,6 +73,12 @@ export type MethodologyEvidenceAuditResult = {
 };
 
 export type MethodologyEvidenceAuditSummary = {
+  auditStatus?: "AUDITED" | "BLOCKED_VERSION_MISMATCH";
+  methodologyId?: string;
+  rulebookVersion?: string;
+  pddDeclaredMethodologyVersion?: string;
+  versionMatch?: boolean;
+  versionMismatchReason?: string;
   results: MethodologyEvidenceAuditResult[];
   totals: Record<EvidenceAuditStatus, number>;
   totalRules: number;
@@ -68,6 +89,7 @@ export type MethodologyEvidenceAuditInput = {
   evidenceDocument: EvidenceDocument;
   getContract: (rule: MethodologyRuleLike | string) => MethodologyEvidenceContract;
   normalizeRuleId?: (ruleId: string) => string;
+  versionContext?: Partial<Pick<MethodologyVersionLock, "methodologyId" | "rulebookVersion" | "pddDeclaredMethodologyVersion">>;
   sections?: readonly Pick<
     DocumentStructure["sections"][number],
     "id" | "sectionNumber" | "titleRaw" | "titleClean" | "bodyRaw" | "bodyClean"
@@ -161,6 +183,107 @@ function normalizeText(value: string | null | undefined): string {
   return (value ?? "").toLowerCase().replace(/[^\w\s/-]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function normalizeMethodologyId(value: string | null | undefined): string {
+  return (value ?? "").trim().toUpperCase();
+}
+
+function normalizeVersionValue(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return "";
+  if (trimmed.toLowerCase().startsWith("version ")) {
+    return `v${trimmed.slice(8).trim()}`;
+  }
+  if (trimmed.toLowerCase().startsWith("v")) {
+    return `v${trimmed.slice(1).trim().replace(/^\/+/, "")}`;
+  }
+  return trimmed.startsWith("v") ? trimmed : `v${trimmed}`;
+}
+
+function extractDeclaredMethodologyId(rawValue: string): string {
+  const normalized = rawValue.trim().toUpperCase();
+  const match = normalized.match(/\b(VM\d{4}|AMS-[A-Z0-9.]+|AR-[A-Z0-9.]+|ACM\d{4}|AM\d{4}|GS-[A-Z0-9.]+)\b/);
+  return match?.[1] ?? "";
+}
+
+function extractDeclaredMethodologyVersion(rawValue: string): string {
+  const normalized = rawValue.trim();
+  const match = normalized.match(/\b(?:version\s*)?(v?\d+(?:[.-]\d+)*)\b/i);
+  return normalizeVersionValue(match?.[1] ?? "");
+}
+
+function extractDeclaredMethodologyReference(rawText: string, expectedMethodologyId?: string): string {
+  const trimmed = rawText.trim();
+  if (!trimmed) return "";
+
+  const expectedId = normalizeMethodologyId(expectedMethodologyId);
+  if (expectedId) {
+    const index = trimmed.toUpperCase().indexOf(expectedId);
+    if (index >= 0) {
+      const windowText = trimmed.slice(Math.max(0, index - 40), Math.min(trimmed.length, index + 160));
+      const declaredMethodologyId = extractDeclaredMethodologyId(windowText) || expectedId;
+      const declaredRulebookVersion = extractDeclaredMethodologyVersion(windowText);
+      if (declaredMethodologyId || declaredRulebookVersion) {
+        return [declaredMethodologyId, declaredRulebookVersion].filter(Boolean).join(" ").trim();
+      }
+    }
+  }
+
+  const declaredMethodologyId = extractDeclaredMethodologyId(trimmed);
+  const declaredRulebookVersion = extractDeclaredMethodologyVersion(trimmed);
+  return [declaredMethodologyId, declaredRulebookVersion].filter(Boolean).join(" ").trim();
+}
+
+function buildVersionMismatchReason(input: {
+  methodologyId: string;
+  rulebookVersion: string;
+  pddDeclaredMethodologyVersion: string;
+  declaredMethodologyId: string;
+  declaredRulebookVersion: string;
+}): string {
+  const problems: string[] = [];
+  if (!input.declaredMethodologyId) {
+    problems.push("PDD-declared methodology ID is missing");
+  } else if (normalizeMethodologyId(input.declaredMethodologyId) !== normalizeMethodologyId(input.methodologyId)) {
+    problems.push(`methodology ID mismatch: PDD declares ${input.declaredMethodologyId}, loaded contract is ${input.methodologyId}`);
+  }
+
+  if (!input.declaredRulebookVersion) {
+    problems.push("PDD-declared methodology version is missing");
+  } else if (normalizeVersionValue(input.declaredRulebookVersion) !== normalizeVersionValue(input.rulebookVersion)) {
+    problems.push(`rulebook version mismatch: PDD declares ${normalizeVersionValue(input.declaredRulebookVersion)}, loaded contract is ${normalizeVersionValue(input.rulebookVersion)}`);
+  }
+
+  if (problems.length === 0) return "";
+  return `Version lock blocked: ${problems.join("; ")}.`;
+}
+
+export function buildMethodologyVersionLock(input: {
+  methodologyId: string;
+  rulebookVersion: string;
+  pddDeclaredMethodologyVersion: string;
+}): MethodologyVersionLock {
+  const methodologyId = normalizeMethodologyId(input.methodologyId);
+  const rulebookVersion = normalizeVersionValue(input.rulebookVersion);
+  const pddDeclaredMethodologyVersion = input.pddDeclaredMethodologyVersion.trim();
+  const declaredMethodologyId = extractDeclaredMethodologyId(pddDeclaredMethodologyVersion);
+  const declaredRulebookVersion = extractDeclaredMethodologyVersion(pddDeclaredMethodologyVersion);
+  const versionMismatchReason = buildVersionMismatchReason({
+    methodologyId,
+    rulebookVersion,
+    pddDeclaredMethodologyVersion,
+    declaredMethodologyId,
+    declaredRulebookVersion,
+  });
+
+  return Object.freeze({
+    methodologyId,
+    rulebookVersion,
+    pddDeclaredMethodologyVersion,
+    versionMatch: versionMismatchReason.length === 0,
+    versionMismatchReason,
+  });
+}
+
 function tokenize(value: string | null | undefined, stopwords: Set<string>): string[] {
   const tokens = normalizeText(value).split(" ").filter(Boolean);
   return Array.from(new Set(tokens.filter((token) => token.length > 2 && !stopwords.has(token))));
@@ -207,6 +330,26 @@ function resolveRuleLogic(rule: MethodologyEvidenceAuditRule): string {
 
 function resolveStableId(rule: MethodologyEvidenceAuditRule): string {
   return rule.stableId?.trim() || rule.id.trim();
+}
+
+function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): MethodologyVersionLock {
+  const firstRule = input.rules[0];
+  const firstContract = firstRule ? input.getContract(firstRule) : null;
+  const methodologyId = input.versionContext?.methodologyId?.trim()
+    || firstContract?.methodologyId
+    || "";
+  const rulebookVersion = input.versionContext?.rulebookVersion?.trim()
+    || firstContract?.rulebookVersion
+    || "";
+  const pddDeclaredMethodologyVersion = input.versionContext?.pddDeclaredMethodologyVersion?.trim()
+    || extractDeclaredMethodologyReference(input.rawText ?? "", methodologyId)
+    || "";
+
+  return buildMethodologyVersionLock({
+    methodologyId,
+    rulebookVersion,
+    pddDeclaredMethodologyVersion,
+  });
 }
 
 function buildSectionLookup(sections: readonly SectionLike[] | undefined): Map<string, SectionLike> {
@@ -591,6 +734,7 @@ function reasonSelected(input: {
 function resultFromCandidate(input: {
   rule: MethodologyEvidenceAuditRule;
   contract: MethodologyEvidenceContract;
+  versionLock: MethodologyVersionLock;
   candidate: CandidateScore | null;
   status: EvidenceAuditStatus;
   confidence: EvidenceAuditConfidence;
@@ -608,6 +752,11 @@ function resultFromCandidate(input: {
     stableId: resolveStableId(input.rule),
     title: resolveRuleTitle(input.rule),
     ruleLogic: resolveRuleLogic(input.rule),
+    methodologyId: input.versionLock.methodologyId,
+    rulebookVersion: input.versionLock.rulebookVersion,
+    pddDeclaredMethodologyVersion: input.versionLock.pddDeclaredMethodologyVersion,
+    versionMatch: input.versionLock.versionMatch,
+    versionMismatchReason: input.versionLock.versionMismatchReason,
     status: input.status,
     bestEvidenceQuote: input.candidate ? compactQuote(input.candidate.span.text) : null,
     page: input.candidate?.span.page ?? null,
@@ -622,6 +771,27 @@ function resultFromCandidate(input: {
 }
 
 export function auditEvidence(input: MethodologyEvidenceAuditInput): MethodologyEvidenceAuditSummary {
+  const versionLock = resolveAuditVersionLock(input);
+  if (!versionLock.versionMatch) {
+    return {
+      auditStatus: "BLOCKED_VERSION_MISMATCH",
+      methodologyId: versionLock.methodologyId,
+      rulebookVersion: versionLock.rulebookVersion,
+      pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
+      versionMatch: false,
+      versionMismatchReason: versionLock.versionMismatchReason,
+      results: [],
+      totals: {
+        supported_by_pdd: 0,
+        partially_supported: 0,
+        missing_evidence: 0,
+        not_applicable: 0,
+        manual_review_needed: 0,
+      },
+      totalRules: input.rules.length,
+    };
+  }
+
   const results = input.rules.map((rule) => {
     const contract = input.getContract(rule);
     const bestCandidate = selectBestCandidate({
@@ -647,6 +817,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
     return resultFromCandidate({
       rule,
       contract,
+      versionLock,
       candidate,
       status: classified.status,
       confidence: classified.confidence,
@@ -668,6 +839,12 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
   });
 
   return {
+    auditStatus: "AUDITED",
+    methodologyId: versionLock.methodologyId,
+    rulebookVersion: versionLock.rulebookVersion,
+    pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
+    versionMatch: true,
+    versionMismatchReason: "",
     results,
     totals,
     totalRules: input.rules.length,
