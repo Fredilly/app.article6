@@ -1,8 +1,4 @@
-import {
-  getPriorityClientActionRows,
-  groupEvidenceMapRowsByStatus,
-  type Vm0007FixtureBackedReport,
-} from "@/lib/preverif/fixtureBackedVm0007Report";
+import type { Vm0007FixtureBackedReport } from "@/lib/preverif/fixtureBackedVm0007Report";
 
 function esc(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -38,76 +34,45 @@ function wrapText(text: string, max = 96): string[] {
 }
 
 function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
-  const priorityRows = getPriorityClientActionRows(report.evidenceMapRows);
-  const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
     `Project: ${report.project.name}`,
     `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
     `Generated: ${report.generatedAt}`,
-    "Internal Envira VM0007 cover and introduction",
-    "This internal preview packages reviewed Envira VM0007 fixture truth into a reusable report shape for analysis, QA, and export.",
     report.limitationBanner,
     report.summary.headline,
-    "Executive Summary",
+    "Summary counts",
     `FOUND: ${report.summary.counts.FOUND}`,
     `UNCLEAR: ${report.summary.counts.UNCLEAR}`,
     `MISSING: ${report.summary.counts.MISSING}`,
     `N/A: ${report.summary.counts["N/A"]}`,
     `Total rules: ${report.summary.totalRules}`,
-    `Priority follow-up rows: ${priorityRows.length}`,
-    "Priority Client Actions",
-    "Only UNCLEAR and MISSING rows appear in this section.",
+    "Evidence Map",
+    "Each row reflects reviewed fixture truth for a single VM0007 rule. UNCLEAR and MISSING rows remain visible for internal follow-up.",
   ];
 
-  for (const row of priorityRows) {
-    lines.push(`Priority action rule: ${row.ruleId}`);
-    lines.push(`Priority action rule name: ${row.ruleName}`);
-    lines.push(`Priority action status: ${row.status}`);
-    lines.push(`Priority action reason: ${row.whyEvidenceIsAccepted}`);
-    if (row.clientAction) {
-      lines.push(`Priority client action: ${row.clientAction}`);
-    }
-  }
-
-  lines.push(
-    "Evidence Map",
-    "All 58 VM0007 rows remain visible below, grouped by reviewed status without changing fixture-backed truth.",
-  );
-
-  for (const group of groupedRows) {
+  for (const row of report.evidenceMapRows) {
     lines.push("");
-    lines.push(`Status group: ${group.status}`);
-    lines.push(`Status group count: ${group.rows.length}`);
-    for (const row of group.rows) {
-      lines.push(`Rule ID: ${row.ruleId}`);
-      lines.push(`Rule name: ${row.ruleName}`);
-      lines.push(`Status: ${row.status}`);
-      lines.push(`Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`);
-      if (row.page != null) {
-        lines.push(`Page number: ${row.page}`);
-      }
-      if (row.sectionHeading) {
-        lines.push(`Section heading: ${row.sectionHeading}`);
-      }
-      if (row.spanId) {
-        lines.push(`Span ID: ${row.spanId}`);
-      }
-      lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
+    lines.push(`Rule ID: ${row.ruleId}`);
+    lines.push(`Rule name: ${row.ruleName}`);
+    lines.push(`Status: ${row.status}`);
+    lines.push(`Accepted quote: ${row.acceptedQuote ?? "No accepted quote encoded in fixture truth."}`);
+    lines.push(`Page number: ${row.page ?? "Not available"}`);
+    lines.push(`Section heading: ${row.sectionHeading ?? "Not available"}`);
+    lines.push(`Span ID: ${row.spanId ?? "Not available"}`);
+    lines.push(`Accepted reason: ${row.whyEvidenceIsAccepted}`);
+    if (row.rejectedEvidenceExamples.length === 0) {
+      lines.push("Rejected evidence examples: No rejected evidence examples encoded for this row.");
+    } else {
+      lines.push("Rejected evidence examples:");
       for (const rejected of row.rejectedEvidenceExamples) {
         lines.push(`Rejected evidence quote: ${rejected.quote}`);
         lines.push(`Rejection reason: ${rejected.rejectionReason}`);
       }
-      if (row.rejectedEvidenceExamples.length > 0 && row.whyRejectedEvidenceIsNotEnough) {
-        lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough}`);
-      }
-      if (row.clientAction) {
-        lines.push(`Client action: ${row.clientAction}`);
-      }
-      if (row.naReason) {
-        lines.push(`N/A reason: ${row.naReason}`);
-      }
     }
+    lines.push(`Why rejected evidence is not enough: ${row.whyRejectedEvidenceIsNotEnough ?? "No rejected evidence explanation encoded for this row."}`);
+    lines.push(`Client action: ${row.clientAction ?? "No client action required for this row."}`);
+    lines.push(`N/A reason: ${row.naReason ?? "This row is not marked N/A."}`);
   }
 
   return lines.flatMap((line) => wrapText(line));

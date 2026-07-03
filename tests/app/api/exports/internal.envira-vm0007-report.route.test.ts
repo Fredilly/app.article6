@@ -24,8 +24,6 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
     expect(text).toContain("MISSING: 3");
     expect(text).toContain("N/A: 17");
     expect(text).toContain("Total rules: 58");
-    expect(text).toContain("Priority Client Actions");
-    expect(text).toContain("Priority client action:");
     expect(normalized).toContain(
       "Internal preview only. This route renders reviewed fixture truth for analysis and is not client-ready.",
     );
@@ -40,8 +38,6 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
     expect(normalized).toContain(
       "Rejection reason: Generic methodology-applicability language is not the underlying authorization document.",
     );
-    expect(text).not.toContain("Span ID: Not available");
-    expect(text).not.toContain("No rejected evidence examples encoded for this row.");
 
     for (const banned of [
       "all clear",
