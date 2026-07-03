@@ -41,6 +41,106 @@ Do not create a fixture until the PDF has been bucketed and the user approves.
 
 This rule applies only to Quick Check PDF triage / Phase 7 fixture work.
 
+## PDD judgment fixture workflow
+
+Use this workflow whenever the task asks to add a new PDD, PD, project description, or methodology judgment fixture.
+
+1. Use one PDF only.
+
+2. First confirm the document type.
+
+Accept only:
+- PDD
+- PD
+- project description
+- project design document
+
+Reject or pause if the file appears to be:
+- deed
+- contract
+- registry listing
+- methodology PDF
+- validation report
+- verification report
+- monitoring report
+- generic legal document
+
+3. Do not use current app output as gold.
+
+PDF truth beats current app output.
+
+Every FOUND fixture must have:
+- exact quote
+- page number
+- section heading
+- span ID if available
+- expected answer
+- direct support for the answer
+
+4. Status rules:
+
+FOUND means the quote directly proves the answer.
+
+UNCLEAR means related evidence exists, but it is weak, generic, incomplete, contradictory, or not enough to prove the answer.
+
+MISSING means no usable project evidence exists in the document.
+
+N/A means the rule truly does not apply and the reason is specific.
+
+Never mark FOUND because related words exist.
+
+5. Encode rejected evidence.
+
+Reject junk evidence such as:
+- boilerplate
+- table of contents rows
+- methodology instructions
+- module tables
+- URLs
+- registry links
+- random country mentions
+- generic section headings without body evidence
+- references to supporting documents without the actual evidence in the PDD
+
+6. Use the reusable fixture quality gate.
+
+For every new methodology/PDD fixture test, call:
+
+assertFixtureQualityGate(...)
+
+from:
+
+tests/lib/preverif/fixtureQualityGate.ts
+
+The gate should receive:
+- methodology rule list
+- audit summary
+- report object
+- rendered report HTML
+- judgment fixture JSON
+- source excerpts JSON
+- expected visible wording
+- banned wording
+
+7. Keep fixture PRs clean.
+
+Do not change:
+- production audit logic
+- parser/router logic
+- client-facing report UI
+- unrelated fixtures
+- unrelated dirty files
+
+8. Testing
+
+Run the focused fixture test for the new PDD.
+
+Then run:
+
+npm run pr:gate
+
+If npm run pr:gate fails because of an unrelated existing failure, report the exact failing test and explain why it is unrelated.
+
 ## Verification
 
 Before final handoff, report:
