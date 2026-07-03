@@ -110,6 +110,24 @@ tests/lib/preverif/fixtureQualityGate.test.ts
 
 Do not add every future PDD to fixtureQualityGate.test.ts. For each serious new PDD/methodology fixture, create a fixture-specific test that imports assertFixtureQualityGate from tests/lib/preverif/fixtureQualityGate.ts.
 
+For new PDD judgment fixture PRs, prefer fixture-specific test names such as:
+
+tests/lib/preverif/<method-code><shortPdfName>FixtureQualityGate.test.ts
+
+Each new PDD judgment fixture should include or update the relevant:
+- judgment fixture JSON
+- report fixture JSON
+- source excerpts JSON
+- fixture-specific quality gate test
+
+Report fixtures must include explicit expected counts:
+- FOUND
+- UNCLEAR
+- MISSING
+- N/A
+
+Keep Quick Check Phase 7 fixture work separate from methodology judgment fixture work unless explicitly instructed.
+
 For every new methodology/PDD fixture test, call:
 
 assertFixtureQualityGate(...)
@@ -127,6 +145,13 @@ The gate should receive:
 - source excerpts JSON
 - expected visible wording
 - banned wording
+
+Before final handoff, confirm:
+- AGENTS.md was followed
+- final PR diff is scoped correctly
+- no production audit logic changed
+- no parser/router logic changed
+- no client-facing report UI changed
 
 7. Keep fixture PRs clean.
 
