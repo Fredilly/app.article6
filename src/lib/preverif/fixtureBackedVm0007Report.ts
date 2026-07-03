@@ -44,6 +44,41 @@ export type Vm0007FixtureBackedReport = {
   evidenceMapRows: Vm0007EvidenceMapRow[];
 };
 
+export const VM0007_FIXTURE_BACKED_STATUS_ORDER: Vm0007FixtureBackedStatus[] = [
+  "MISSING",
+  "UNCLEAR",
+  "FOUND",
+  "N/A",
+];
+
+function compareRuleIds(left: string, right: string): number {
+  return left.localeCompare(right, undefined, { numeric: true });
+}
+
+export function sortEvidenceMapRows(rows: Vm0007EvidenceMapRow[]): Vm0007EvidenceMapRow[] {
+  const order = new Map(VM0007_FIXTURE_BACKED_STATUS_ORDER.map((status, index) => [status, index]));
+  return rows.slice().sort((left, right) => {
+    const statusDiff = (order.get(left.status) ?? 99) - (order.get(right.status) ?? 99);
+    if (statusDiff !== 0) return statusDiff;
+    return compareRuleIds(left.ruleId, right.ruleId);
+  });
+}
+
+export function groupEvidenceMapRowsByStatus(rows: Vm0007EvidenceMapRow[]): Array<{
+  status: Vm0007FixtureBackedStatus;
+  rows: Vm0007EvidenceMapRow[];
+}> {
+  const grouped = VM0007_FIXTURE_BACKED_STATUS_ORDER.map((status) => ({
+    status,
+    rows: sortEvidenceMapRows(rows).filter((row) => row.status === status),
+  }));
+  return grouped.filter((group) => group.rows.length > 0);
+}
+
+export function getPriorityClientActionRows(rows: Vm0007EvidenceMapRow[]): Vm0007EvidenceMapRow[] {
+  return sortEvidenceMapRows(rows).filter((row) => row.status === "MISSING" || row.status === "UNCLEAR");
+}
+
 function buildJudgmentIndex(judgmentFixtureSet?: JudgmentFixtureSet): Map<string, JudgmentFixtureSet["checks"][number]> {
   return new Map((judgmentFixtureSet?.checks ?? []).map((check) => [check.checkId, check]));
 }

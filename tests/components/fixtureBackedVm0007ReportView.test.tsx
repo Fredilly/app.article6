@@ -28,11 +28,17 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain(">N/A<");
     expect(html).toContain(">17<");
     expect(rowCount).toBe(58);
+    expect(html).toContain("Executive Summary");
+    expect(html).toContain("Priority Client Actions");
   });
 
-  test("renders UNCLEAR, MISSING, and N/A rows with the required explanations", () => {
+  test("renders grouped evidence-map sections and priority actions for UNCLEAR and MISSING rows", () => {
     const html = buildHtml();
 
+    expect(html).toContain(">MISSING<");
+    expect(html).toContain(">UNCLEAR<");
+    expect(html).toContain(">FOUND<");
+    expect(html).toContain(">N/A<");
     expect(html).toContain('data-status="UNCLEAR"');
     expect(html).toContain("still an inference");
     expect(html).toContain("Add the conversion authorization document");
@@ -45,13 +51,15 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain("does not apply because the Envira Amazonia Project is a REDD forest-conservation project");
   });
 
-  test("renders rejected evidence examples where the fixture encodes them and avoids banned wording", () => {
+  test("hides placeholder clutter while preserving rejected evidence where encoded and avoids banned wording", () => {
     const html = buildHtml();
     const lower = html.toLowerCase();
 
     expect(html).toContain("the land is legally permitted to be converted to non-forest");
     expect(html).toContain("Generic methodology-applicability language is not the underlying authorization document.");
     expect(html).toContain("Project Description");
+    expect(html).not.toContain("Span ID: Not available");
+    expect(html).not.toContain("No rejected evidence examples encoded for this row.");
 
     for (const banned of [
       "all clear",
