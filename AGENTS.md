@@ -104,6 +104,12 @@ Reject junk evidence such as:
 
 6. Use the reusable fixture quality gate.
 
+Use this reference test to see the correct wiring pattern:
+
+tests/lib/preverif/fixtureQualityGate.test.ts
+
+Do not add every future PDD to fixtureQualityGate.test.ts. For each serious new PDD/methodology fixture, create a fixture-specific test that imports assertFixtureQualityGate from tests/lib/preverif/fixtureQualityGate.ts.
+
 For every new methodology/PDD fixture test, call:
 
 assertFixtureQualityGate(...)
