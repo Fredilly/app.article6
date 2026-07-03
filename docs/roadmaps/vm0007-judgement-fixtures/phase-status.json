@@ -7,9 +7,10 @@
     "current_focus": [
       "Phase 0 done: boundary-only fixture contract is documented and enforced.",
       "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
-      "Phase 2 done: PD_REDD VM0007 judgment fixtures are established with PDF-backed accepted and rejected evidence coverage.",
-      "Next focus: expand from targeted fixture sets to the full 58-rule audit fixture shape.",
-      "Keep audit-summary and report-summary expectations fixture-driven"
+      "Phase 2 done: PD_REDD VM0007 judgment fixtures established with PDF-backed accepted and rejected evidence coverage.",
+      "Phase 3 done: Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.",
+      "Phase 4 done: Report fixture layer delivered by PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output.",
+      "Next focus: Phase 5 — Client-Readiness Gate to prevent fixture drift from being mistaken for client-ready output."
     ],
     "not_active_now": [
       "Production audit logic changes",
@@ -18,7 +19,7 @@
       "LLM final judgment",
       "Quick Check v2 Phase 7 work"
     ],
-    "last_updated_at": "2026-07-01T13:31:04Z"
+    "last_updated_at": "2026-07-02T17:30:00Z"
   },
   "goals": [
     {
@@ -88,10 +89,12 @@
     {
       "id": "phase_4_report_fixture_layer",
       "title": "Report Fixture Layer",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "phase_3_full_58_rule_audit_fixture_shape"
       ],
+      "branch": "test/vm0007-report-fixture-layer",
+      "pr": 914,
       "doneCriteria": [
         "Report summary expectations are fixture-driven",
         "Row grouping and summary sections are testable from fixtures",
@@ -134,8 +137,8 @@
     },
     "phase_4_report_fixture_layer": {
       "title": "Report Fixture Layer",
-      "status": "planned",
-      "summary": "Add internal preview report expectations for summary sections and row grouping."
+      "status": "done",
+      "summary": "Completed via PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed."
     },
     "phase_5_client_readiness_gate": {
       "title": "Client-Readiness Gate",
