@@ -24,16 +24,10 @@ export const INTERNAL_PREVIEW_LABELS = [
 ] as const;
 
 export type ClientReadinessGateInput = {
-  /** The rendered HTML of the gap report. */
   reportHtml: string;
-  /** The Vm0007GapReport object (used for data checks and banned-wording scan). */
   report: Vm0007GapReport;
 };
 
-/**
- * Asserts that the report has no UNCLEAR ("weak") rows.
- * Throws if any weak rows are present.
- */
 export function assertNoUnclearEvidence(report: Vm0007GapReport): void {
   const unclearCount = report.fullRuleAuditTable.filter(
     (row) => row.status === "weak",
@@ -41,10 +35,6 @@ export function assertNoUnclearEvidence(report: Vm0007GapReport): void {
   expect(unclearCount).toBe(0);
 }
 
-/**
- * Asserts that the report has no MISSING rows.
- * Throws if any missing rows are present.
- */
 export function assertNoMissingEvidence(report: Vm0007GapReport): void {
   const missingCount = report.fullRuleAuditTable.filter(
     (row) => row.status === "missing",
@@ -52,9 +42,6 @@ export function assertNoMissingEvidence(report: Vm0007GapReport): void {
   expect(missingCount).toBe(0);
 }
 
-/**
- * Asserts that the report HTML contains an internal preview label.
- */
 export function assertInternalPreviewLabelVisible(reportHtml: string): void {
   const text = reportHtml
     .replace(/<[^>]+>/g, " ")
@@ -67,10 +54,6 @@ export function assertInternalPreviewLabelVisible(reportHtml: string): void {
   expect(hasLabel).toBe(true);
 }
 
-/**
- * Asserts that neither the rendered HTML nor the report data
- * contain any banned client-ready phrasing.
- */
 export function assertNoBannedClientReadyWording(
   reportHtml: string,
   report: Vm0007GapReport,
@@ -83,11 +66,6 @@ export function assertNoBannedClientReadyWording(
   }
 }
 
-/**
- * Asserts that the report uses only standard VM0007 display statuses
- * and carries an internal preview name and limitation banner.
- * This guard prevents the gate from being bypassed by type changes.
- */
 export function assertUsesStandardReportShape(
   report: Vm0007GapReport,
 ): void {
@@ -100,12 +78,6 @@ export function assertUsesStandardReportShape(
   expect(report.limitationBanner).toContain("Internal preview only");
 }
 
-/**
- * Full client-readiness gate assertion.
- *
- * Runs all checks and throws on the first failure.
- * Use this for convenience when you want all enforcement in one call.
- */
 export function assertClientReadinessGate(input: ClientReadinessGateInput): void {
   const { reportHtml, report } = input;
 
@@ -114,4 +86,22 @@ export function assertClientReadinessGate(input: ClientReadinessGateInput): void
   assertNoMissingEvidence(report);
   assertInternalPreviewLabelVisible(reportHtml);
   assertNoBannedClientReadyWording(reportHtml, report);
+}
+
+export function assertInternalPreviewBoundaries(text: string): void {
+  const normalized = text.toLowerCase();
+
+  expect(normalized).toContain("internal preview only");
+  expect(normalized).toContain("not client-ready");
+
+  for (const banned of [
+    "all clear",
+    "fully verified",
+    "ready for verification",
+    "58 supported",
+    "all rules supported",
+    "passed",
+  ]) {
+    expect(normalized).not.toContain(banned);
+  }
 }
