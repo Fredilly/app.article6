@@ -6,7 +6,10 @@
     "goldQuote": "Central Kalimantan, Indonesia (Figure 1). The Carbon Accounting Area defines the boundary for COP",
     "page": 9,
     "sectionHeading": "Project location including geographic and physical information allowing the unique",
-    "sectionPath": ["1", "1.5"],
+    "sectionPath": [
+      "1",
+      "1.5"
+    ],
     "spanId": "proj-desc-674:p9:b426:80ef2a56",
     "sourceType": "fact_contract"
   },
@@ -14,19 +17,25 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0004: Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1-0",
-    "expectedMethodology": {
-      "methodologyId": "VM0004",
-      "methodologyName": "Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests",
-      "methodologyAlias": "",
-      "pddDeclaredMethodologyVersion": "v1-0",
-      "versionStatus": "DECLARED"
-    },
     "goldQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1‐0”.",
     "page": 40,
     "sectionHeading": "Title and Reference of the VCS Methodology applied to the Project Activity and explanation of",
-    "sectionPath": ["2", "2.1"],
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
     "spanId": "proj-desc-674:p40:b1589:1fead303",
-    "sourceType": "fact_contract"
+    "sourceType": "fact_contract",
+    "expectedMethodology": {
+      "methodologyId": "VM0004",
+      "methodologyName": "Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 40,
+      "evidenceSection": "Title and Reference of the VCS Methodology applied to the Project Activity and explanation of",
+      "evidenceQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1‐0”."
+    }
   },
   {
     "checkName": "baseline_scenario",
@@ -35,7 +44,10 @@
     "goldQuote": "Of the alternative scenarios identified for the project, complete conversion of the peat swamp forest to palm oil plantations was determined to be the most plausible scenario to occur in the absence of the project, and was therefore selected as the baseline scenario.",
     "page": 46,
     "sectionHeading": "Description of how the baseline scenario is identified and description of the identified baseline",
-    "sectionPath": ["2", "2.4"],
+    "sectionPath": [
+      "2",
+      "2.4"
+    ],
     "spanId": "proj-desc-674:p46:b1991:33954d3c",
     "sourceType": "exact_section"
   },
@@ -46,7 +58,10 @@
     "goldQuote": "clearly demonstrate additionality. That is, the project activity (conservation of peat swamp forest) reduces GHG emissions in the baseline scenario (conversion of peat swamp forest to palm oil) and is therefore determined to be additional.",
     "page": 46,
     "sectionHeading": "Description of how the emissions of GHG by source in baseline scenario are reduced below",
-    "sectionPath": ["2", "2.5"],
+    "sectionPath": [
+      "2",
+      "2.5"
+    ],
     "spanId": "proj-desc-674:p46:b2002:f5dfc05e",
     "sourceType": "exact_section"
   },
@@ -57,7 +72,11 @@
     "goldQuote": "When REDD project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction.",
     "page": 106,
     "sectionHeading": "Market Leakage",
-    "sectionPath": ["4", "4.3", "4.3.2"],
+    "sectionPath": [
+      "4",
+      "4.3",
+      "4.3.2"
+    ],
     "spanId": "proj-desc-674:p106:b4185:e98555da",
     "sourceType": "exact_section"
   },
@@ -68,7 +87,9 @@
     "goldQuote": "Despite the absence of communities or families living within the boundaries of the Carbon Accounting Area, the Rimba Raya Reserve project has, through a series of formalized meetings, gained local approval of the project by including communities bordering the buffer zone of the Carbon Accounting Area as stakeholders in the project development process. These meetings and community approvals are summarized in Table 25 and documented in Annex 11. InfiniteEARTH views local stakeholder participation as the key to the project’s success in terms of preventing illegal logging and fires.",
     "page": 128,
     "sectionHeading": "Stakeholders’ Comments",
-    "sectionPath": ["6"],
+    "sectionPath": [
+      "6"
+    ],
     "spanId": "proj-desc-674:p128:b5207:68f28fe4",
     "sourceType": "exact_section"
   }

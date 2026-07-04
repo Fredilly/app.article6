@@ -27,7 +27,7 @@ describe("methodologyRoleClassifier", () => {
       expect(primary(result)?.id).toBe("VM0007");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
       expect(primary(result)?.confidence).toBe("high");
-      expect(primary(result)?.version).toBe("1.0");
+      expect(primary(result)?.version).toBe("v1.0");
     });
 
     it("classifies VM0007 under 'Title and Reference of Methodology' as primary", () => {
@@ -41,7 +41,7 @@ describe("methodologyRoleClassifier", () => {
       expect(primary(result)?.id).toBe("VM0007");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
       expect(primary(result)?.confidence).toBe("high");
-      expect(primary(result)?.version).toBe("1.0");
+      expect(primary(result)?.version).toBe("v1.0");
     });
 
     it("classifies VM0009 under 'Title and reference of the VCS methodology applied' as primary", () => {
@@ -79,7 +79,7 @@ describe("methodologyRoleClassifier", () => {
       const result = classifyMethodologyRoles(text);
       expect(primary(result)?.id).toBe("ACM0010");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
-      expect(primary(result)?.version).toBe("03.0");
+      expect(primary(result)?.version).toBe("v03.0");
     });
 
     it("classifies VM0009 from Kariba-style PDD fixture", () => {
@@ -151,7 +151,7 @@ describe("methodologyRoleClassifier", () => {
       const result = classifyMethodologyRoles(text);
       expect(primary(result)).toBeNull();
       expect(monitoring(result)?.id).toBe("ACM0002");
-      expect(monitoring(result)?.version).toBe("02.0");
+      expect(monitoring(result)?.version).toBe("v02.0");
       expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
     });
 
@@ -246,10 +246,10 @@ describe("methodologyRoleClassifier", () => {
 
       const result = classifyMethodologyRoles(text);
       expect(primary(result)?.id).toBe("VM0007");
-      expect(primary(result)?.version).toBe("1.0");
+      expect(primary(result)?.version).toBe("v1.0");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
       expect(monitoring(result)?.id).toBe("ACM0002");
-      expect(monitoring(result)?.version).toBe("02.0");
+      expect(monitoring(result)?.version).toBe("v02.0");
       expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
     });
 

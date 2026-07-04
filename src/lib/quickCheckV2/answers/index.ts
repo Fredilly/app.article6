@@ -26,6 +26,7 @@ import {
   type RetrievedEvidence,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
@@ -104,18 +105,6 @@ function toGerundPhrase(value: string): string {
 function simplifyBaselineReference(value: string): string {
   const normalized = stripTrailingPunctuation(normalizeAnswerText(value));
   return normalized.replace(/^conversion of [a-z ]+ to /i, "conversion to ");
-}
-
-function normalizeDeclaredMethodologyVersion(rawVersion: string): string | null {
-  const compact = normalizeAnswerText(rawVersion)
-    .replace(/^version\s*/i, "")
-    .replace(/^[vV]\s*/i, "")
-    .replace(/\s+/g, "");
-  if (!compact) return null;
-
-  const normalized = compact.replace(/-/g, ".");
-  if (!/^\d+(?:\.\d+)*$/.test(normalized)) return null;
-  return `v${normalized}`;
 }
 
 function extractMethodologyTableDetails(evidence: RetrievedEvidence): MethodologyExtraction | null {

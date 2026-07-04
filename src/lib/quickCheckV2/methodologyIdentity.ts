@@ -1,4 +1,5 @@
 import type { RetrievedEvidence } from "@/lib/quickCheckV2/evidence";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type QuickCheckMethodologyVersionStatus =
   | "DECLARED"
@@ -8,7 +9,7 @@ export type QuickCheckMethodologyVersionStatus =
 export type QuickCheckMethodologyIdentity = Readonly<{
   methodologyId: string;
   methodologyName: string;
-  methodologyAlias: string;
+  methodologyAlias: string | null;
   pddDeclaredMethodologyVersion: string | null;
   versionStatus: QuickCheckMethodologyVersionStatus;
   evidencePage: number;
@@ -50,22 +51,22 @@ function extractVersionFromQuote(quote: string): string | null {
     /\b(?:version|ver\.?|v)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i,
   );
   if (explicitVersion?.[1]) {
-    return `v${explicitVersion[1]}`;
+    return normalizeDeclaredMethodologyVersion(explicitVersion[0]);
   }
 
   const parentheticalVersion = normalized.match(/\((?:[^)]*?)\bversion\s*([0-9]+(?:[.-][0-9]+){0,2})\b[^)]*\)/i);
   if (parentheticalVersion?.[1]) {
-    return `v${parentheticalVersion[1]}`;
+    return normalizeDeclaredMethodologyVersion(parentheticalVersion[0]);
   }
 
   return null;
 }
 
-function extractAlias(body: string): string {
+function extractAlias(body: string): string | null {
   const aliasMatch = normalizeDashCharacters(body).match(/\(([^)]+)\)\s*$/);
-  if (!aliasMatch?.[1]) return "";
+  if (!aliasMatch?.[1]) return null;
   const alias = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(aliasMatch[1])));
-  return alias;
+  return alias || null;
 }
 
 function extractMethodologyName(body: string): string {
@@ -112,5 +113,5 @@ export function formatMethodologyDisplayLabel(identity: Pick<
   QuickCheckMethodologyIdentity,
   "methodologyId" | "methodologyName" | "methodologyAlias"
 >): string {
-  return identity.methodologyAlias.trim() || identity.methodologyName.trim() || identity.methodologyId.trim();
+  return identity.methodologyAlias?.trim() || identity.methodologyName.trim() || identity.methodologyId.trim();
 }

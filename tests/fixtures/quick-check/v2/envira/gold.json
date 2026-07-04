@@ -6,7 +6,10 @@
     "goldQuote": "The Envira Amazonia Project is located near Feijó in Acre, Brazil. The property where the project area is",
     "page": 3,
     "sectionHeading": "Summary Description of the Project",
-    "sectionPath": ["1", "1.1"],
+    "sectionPath": [
+      "1",
+      "1.1"
+    ],
     "spanId": "proj-desc-1382-extracted:p3:b68:69787023",
     "sourceType": "fact_contract"
   },
@@ -14,19 +17,25 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0007: REDD Methodology Modules (REDD-MF)",
+    "goldQuote": "The Envira Amazonia Project is utilizing the Avoided Deforestation Partners’ VCS REDD Methodology, entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this project is avoiding planned deforestation, hence only modules related to planned deforestation are required.",
+    "page": 31,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
+    "spanId": "proj-desc-1382-extracted:p31:b781:87b6e442",
+    "sourceType": "fact_contract",
     "expectedMethodology": {
       "methodologyId": "VM0007",
       "methodologyName": "REDD Methodology Modules",
       "methodologyAlias": "REDD-MF",
       "pddDeclaredMethodologyVersion": null,
-      "versionStatus": "NOT_EXPLICITLY_DECLARED"
-    },
-    "goldQuote": "The Envira Amazonia Project is utilizing the Avoided Deforestation Partners’ VCS REDD Methodology, entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this project is avoiding planned deforestation, hence only modules related to planned deforestation are required.",
-    "page": 31,
-    "sectionHeading": "Title and Reference of Methodology",
-    "sectionPath": ["2", "2.1"],
-    "spanId": "proj-desc-1382-extracted:p31:b781:87b6e442",
-    "sourceType": "fact_contract"
+      "versionStatus": "NOT_EXPLICITLY_DECLARED",
+      "evidencePage": 31,
+      "evidenceSection": "Title and Reference of Methodology",
+      "evidenceQuote": "The Envira Amazonia Project is utilizing the Avoided Deforestation Partners’ VCS REDD Methodology, entitled, “VM0007: REDD Methodology Modules (REDD-MF).” The only eligible activity as part of this project is avoiding planned deforestation, hence only modules related to planned deforestation are required."
+    }
   },
   {
     "checkName": "baseline_scenario",
@@ -35,7 +44,11 @@
     "goldQuote": "The most likely baseline scenario in conversion of the non-legal reserve to pasture.",
     "page": 38,
     "sectionHeading": "Conversion to Pasture",
-    "sectionPath": ["2", "2.4", "2.4.2"],
+    "sectionPath": [
+      "2",
+      "2.4",
+      "2.4.2"
+    ],
     "spanId": "proj-desc-1382-extracted:p38:b1100:9eb0e0a1",
     "sourceType": "exact_section"
   },
@@ -46,7 +59,11 @@
     "goldQuote": "As the project activity generates no financial or economic benefits to the project proponents other than VCS related income through the project activity, a simple cost analysis is justified.",
     "page": 38,
     "sectionHeading": "Simple Cost Analysis",
-    "sectionPath": ["2", "2.5", "2.5.1"],
+    "sectionPath": [
+      "2",
+      "2.5",
+      "2.5.1"
+    ],
     "spanId": "proj-desc-1382-extracted:p38:b1119:43afd076",
     "sourceType": "exact_section"
   },
@@ -57,7 +74,10 @@
     "goldQuote": "Leakage emissions from displacement of planned deforestation are estimated in conformance with the VCS modular REDD methodology VM0007, specifically the LK-ASP and LK-ME modules. These modules provide for accounting for activity shifting leakage resulting from displacement of deforestation activities by the agent of deforestation and estimating GHG emissions caused by the market-effects leakage related to extraction of wood for timber.",
     "page": 69,
     "sectionHeading": "Leakage",
-    "sectionPath": ["3", "3.3"],
+    "sectionPath": [
+      "3",
+      "3.3"
+    ],
     "spanId": "proj-desc-1382-extracted:p69:b2162:89495e2a",
     "sourceType": "exact_section"
   },
@@ -68,7 +88,9 @@
     "goldQuote": "The following stakeholders were involved in project design to optimize climate, community and biodiversity benefits while ensuring the Envira Amazonia Project was best aligned with the State of Acre’s climate mitigation, community, and biodiversity goals.",
     "page": 122,
     "sectionHeading": "STAKEHOLDER COMMENTS",
-    "sectionPath": ["6"],
+    "sectionPath": [
+      "6"
+    ],
     "spanId": "proj-desc-1382-extracted:p122:b4479:d4eb8215",
     "sourceType": "exact_section"
   }

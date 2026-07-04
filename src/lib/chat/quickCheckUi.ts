@@ -8,6 +8,7 @@ import {
   quickCheckDocumentClassLabel,
   type QuickCheckDocumentClassification,
 } from "@/lib/documentClassification";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
@@ -480,12 +481,6 @@ function buildPreviewSignals(input: {
   return signals;
 }
 
-function normalizeDetectedVersion(rawVersion: string): string {
-  const compact = rawVersion.trim().replace(/\s+/g, "");
-  const normalized = compact.replace(/^version/i, "v").replace(/\./g, "-");
-  return normalized.toLowerCase().startsWith("v") ? normalized.toLowerCase() : `v${normalized.toLowerCase()}`;
-}
-
 function detectMethodologyFromRecoveredText(rawText: string | undefined, mentions: string[]): { label: string; confidence: ExtractionPreviewConfidence } | null {
   const prioritized = prioritizeMethodologyMentions(mentions);
   const methodCode = prioritized.find((mention) => /^(VM\d{4}|ACM\d{4}|AM\d{4}|AR-[A-Z]{2,}\d{4}|AMS-[A-Z0-9.]+|VMR\d{3,4}|GS-VER\d+)$/i.test(mention));
@@ -498,7 +493,7 @@ function detectMethodologyFromRecoveredText(rawText: string | undefined, mention
     text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
     text.match(new RegExp(`(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
 
-  const version = versionMatch?.[1] ? normalizeDetectedVersion(versionMatch[1]) : null;
+  const version = versionMatch?.[1] ? normalizeDeclaredMethodologyVersion(versionMatch[1]) : null;
   return {
     label: version ? `${normalizedCode} · ${version}` : normalizedCode,
     confidence: version ? "medium" : "low",
@@ -535,7 +530,10 @@ export function buildExtractionPreviewViewModel(input: {
 
   if (input.methodologyResolution?.status === "single") {
     const matched = input.methodologyResolution.matchedMethods[0];
-    detectedMethodology = `${matched.methodologyId} · ${matched.methodologyVersion}`;
+    const displayVersion = matched.methodologyVersion.trim().toLowerCase().startsWith("v")
+      ? matched.methodologyVersion
+      : (normalizeDeclaredMethodologyVersion(matched.methodologyVersion) ?? matched.methodologyVersion);
+    detectedMethodology = `${matched.methodologyId} · ${displayVersion}`;
     methodologyConfidence = confidenceBucket(input.analysis.extractionConfidence) === "low" ? "medium" : confidenceBucket(input.analysis.extractionConfidence);
   } else if (input.methodologyResolution?.status === "multiple" || input.methodologyResolution?.status === "unsupported") {
     methodologyConfidence = "low";
@@ -555,7 +553,7 @@ export function buildExtractionPreviewViewModel(input: {
   const primaryMethodology = classification?.primaryMethodology
     ? {
         id: classification.primaryMethodology.id,
-        version: classification.primaryMethodology.version,
+        version: normalizeDeclaredMethodologyVersion(classification.primaryMethodology.version) ?? classification.primaryMethodology.version,
         role: classification.primaryMethodology.role,
         confidence: classification.primaryMethodology.confidence,
       }
@@ -563,7 +561,7 @@ export function buildExtractionPreviewViewModel(input: {
   const monitoringMethodology = classification?.monitoringMethodology
     ? {
         id: classification.monitoringMethodology.id,
-        version: classification.monitoringMethodology.version,
+        version: normalizeDeclaredMethodologyVersion(classification.monitoringMethodology.version) ?? classification.monitoringMethodology.version,
         role: classification.monitoringMethodology.role,
         confidence: classification.monitoringMethodology.confidence,
       }
@@ -571,7 +569,7 @@ export function buildExtractionPreviewViewModel(input: {
   const referencedMethods = classification?.referencedMethods?.length
     ? classification.referencedMethods.map((m) => ({
         id: m.id,
-        version: m.version,
+        version: normalizeDeclaredMethodologyVersion(m.version) ?? m.version,
         role: m.role,
         confidence: m.confidence,
       }))

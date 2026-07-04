@@ -19,7 +19,17 @@
     "sectionHeading": null,
     "sectionPath": [],
     "spanId": null,
-    "sourceType": null
+    "sourceType": null,
+    "expectedMethodology": {
+      "methodologyId": null,
+      "methodologyName": null,
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": null,
+      "versionStatus": "NOT_EXPLICITLY_DECLARED",
+      "evidencePage": null,
+      "evidenceSection": "",
+      "evidenceQuote": null
+    }
   },
   {
     "checkName": "baseline_scenario",

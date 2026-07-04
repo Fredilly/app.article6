@@ -262,8 +262,60 @@ describe("quick check ui helpers", () => {
       'Title and headers read “Validation Report”.',
     ]);
     expect(view.referencedMethods).toEqual([
-      { id: "ACM0010", version: "3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
+      { id: "ACM0010", version: "v3.1", role: "REFERENCED_CALCULATION_METHOD", confidence: "high" },
     ]);
+  });
+
+  it("normalizes classifier methodology versions for runtime display", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "marcondes-preview.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["marcondes-preview.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: ["VM0007", "1.8"],
+        extractionConfidence: 0.8,
+        warnings: [],
+        rawPddText: "Applied Methodology VM0007 REDD+ Methodology Framework 1.8",
+      },
+      extractionSnapshot: {
+        documentType: "Document",
+        extractedFacts: [],
+        methodologyMentions: ["VM0007"],
+        methodologyClassification: {
+          primaryMethodology: {
+            id: "VM0007",
+            version: "1.8",
+            role: "PRIMARY_PROJECT_METHODOLOGY",
+            confidence: "high",
+          },
+          monitoringMethodology: null,
+          referencedMethods: [],
+        },
+        warnings: [],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 0,
+          relevantFactCount: 0,
+          methodologyMentionCount: 1,
+          warningCount: 0,
+        },
+        extractionConfidence: 0.8,
+        recoveredLocally: false,
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: ["VM0007"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.primaryMethodology?.version).toBe("v1.8");
+    expect(view.detectedMethodology).not.toContain("· 1.8");
   });
 
   it("uses recovered-signals language and suppresses generic fallback chips", () => {
@@ -469,7 +521,7 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.detectedDocumentType).toBe("Project Description / PD");
-    expect(view.detectedMethodology).toBe("VM0004 · v1-0");
+    expect(view.detectedMethodology).toBe("VM0004 · v1.0");
     expect(view.warning).toBe(
       "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
     );

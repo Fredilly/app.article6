@@ -1,4 +1,5 @@
 import { extractMethodologyMentions } from "@/lib/chat/quickCheckEvidence";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type MethodologyRole =
   | "PRIMARY_PROJECT_METHODOLOGY"
@@ -138,7 +139,7 @@ function extractNearbyVersion(lines: string[], lineIndex: number): string | null
   for (let i = start; i < end; i++) {
     const line = lines[i] ?? "";
     const m = VERSION_RE.exec(line);
-    if (m?.[1]) return m[1];
+    if (m?.[0]) return normalizeDeclaredMethodologyVersion(m[0]);
   }
   return null;
 }
