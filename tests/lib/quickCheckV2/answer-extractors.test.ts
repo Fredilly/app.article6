@@ -1,5 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
-import { extractAnswerFromEvidence, extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
+import {
+  extractAnswerFromEvidence,
+  extractAnswersForAllChecks,
+  extractMethodologyDetailsFromEvidence,
+} from "@/lib/quickCheckV2/answers";
 import {
   loadAndParseExtractedText,
   retrieveEvidenceForAllChecks,
@@ -12,6 +16,9 @@ import { validateAnswerResult } from "@/lib/quickCheckV2/status";
 const ENVIRA_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/envira/extracted.txt";
 const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
+const MARCONDES_FIXTURE_PATH =
+  "tests/fixtures/quick-check/v2/marcondes-pdd/extracted.txt";
+const MARCONDES_DOCUMENT_ID = "marcondes-pdd-extracted";
 
 function answerIsGroundedInEvidence(
   answer: string | null,
@@ -46,8 +53,13 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     ENVIRA_FIXTURE_PATH,
     ENVIRA_DOCUMENT_ID,
   );
+  const marcondesDocument = loadAndParseExtractedText(
+    MARCONDES_FIXTURE_PATH,
+    MARCONDES_DOCUMENT_ID,
+  );
   const selectedEvidence = retrieveEvidenceForAllChecks(document);
   const answers = extractAnswersForAllChecks(document);
+  const marcondesAnswers = extractAnswersForAllChecks(marcondesDocument);
 
   it("returns answer results for all six structured checks", () => {
     expect(answers.map((result) => result.checkName)).toStrictEqual([
@@ -63,6 +75,11 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
 
   it("returns Brazil for host_country", () => {
     const result = answers.find((item) => item.checkName === "host_country");
+    expect(result?.answer).toBe("Brazil");
+  });
+
+  it("returns Brazil for the Marcondes host_country check", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "host_country");
     expect(result?.answer).toBe("Brazil");
   });
 
@@ -101,6 +118,51 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       checkName: "methodology",
       evidence,
     }).answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
+  });
+
+  it("extracts structured methodology metadata from the Marcondes table row", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "methodology");
+    const methodology = extractMethodologyDetailsFromEvidence(result?.evidence ?? null);
+
+    expect(result?.answer).toBe("VM0007 REDD+ Methodology Framework v1.8");
+    expect(methodology).toStrictEqual({
+      methodologyId: "VM0007",
+      methodologyName: "REDD+ Methodology Framework",
+      methodologyAlias: "REDD+MF",
+      pddDeclaredMethodologyVersion: "v1.8",
+      versionStatus: "DECLARED",
+      evidencePage: 61,
+      evidenceSection: "Title and Reference of Methodology (VCS, 3.1)",
+      evidenceQuote: result?.evidence?.quote,
+    });
+  });
+
+  it("prefers the Table 30 methodology row over the conflicting v1.7 prose sentence", () => {
+    const evidence = {
+      sourceType: "fact_contract" as const,
+      quote: "As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Table 30. Methodologies, modules, and tools applied Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2",
+      page: 61,
+      sectionHeading: "Title and Reference of Methodology (VCS, 3.1)",
+      sectionPath: ["3", "3.1", "3.1.1"],
+      spanId: "synthetic-doc:p61:b1:methodology",
+    };
+
+    const result = extractAnswerFromEvidence({
+      checkName: "methodology",
+      evidence,
+    });
+
+    expect(result.answer).toBe("VM0007 REDD+ Methodology Framework v1.8");
+    expect(extractMethodologyDetailsFromEvidence(result.evidence)).toStrictEqual({
+      methodologyId: "VM0007",
+      methodologyName: "REDD+ Methodology Framework",
+      methodologyAlias: "REDD+MF",
+      pddDeclaredMethodologyVersion: "v1.8",
+      versionStatus: "DECLARED",
+      evidencePage: 61,
+      evidenceSection: "Title and Reference of Methodology (VCS, 3.1)",
+      evidenceQuote: evidence.quote,
+    });
   });
 
   it("extracts a concise VM0009 methodology answer from a wrapped sentence", () => {
@@ -151,6 +213,33 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       status: "FOUND",
       reason: "answer_and_provenance_complete",
     });
+  });
+
+  it("does not mark the Marcondes leakage placeholder as FOUND", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "leakage");
+    expect(result?.answer).toBeNull();
+    expect(validateAnswerResult(result ?? { checkName: "leakage", answer: null, evidence: null })).toMatchObject({
+      status: "UNCLEAR",
+      reason: "answer_missing",
+    });
+  });
+
+  it("extracts the Marcondes baseline scenario from Scenario 2 evidence", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "baseline_scenario");
+    expect(result?.answer).toContain("Legal deforestation of 20% of the property (APD)");
+    expect(result?.answer).toContain("forest suppression for pasture");
+  });
+
+  it("extracts the Marcondes additionality evidence from the carbon finance barrier sentence", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "additionality");
+    expect(result?.answer).toContain("would not occur without carbon finance");
+    expect(result?.answer).toContain("financial barriers");
+  });
+
+  it("extracts the Marcondes stakeholder consultation summary from the FPIC timeline", () => {
+    const result = marcondesAnswers.find((item) => item.checkName === "stakeholder_consultation");
+    expect(result?.answer).toContain("Exploratory visit");
+    expect(result?.answer).toContain("FPIC Principal Assembly");
   });
 
   it("returns null when evidence is missing", () => {

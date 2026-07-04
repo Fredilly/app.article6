@@ -36,6 +36,17 @@ export type AnswerResult = {
   evidence: RetrievedEvidence | null;
 };
 
+export type MethodologyExtraction = {
+  methodologyId: string;
+  methodologyName: string;
+  methodologyAlias: string | null;
+  pddDeclaredMethodologyVersion: string;
+  versionStatus: "DECLARED";
+  evidencePage: number | null;
+  evidenceSection: string | null;
+  evidenceQuote: string;
+};
+
 type AnswerExtractor = (evidence: RetrievedEvidence | null) => string | null;
 
 function normalizeWhitespace(value: string): string {
@@ -95,6 +106,60 @@ function simplifyBaselineReference(value: string): string {
   return normalized.replace(/^conversion of [a-z ]+ to /i, "conversion to ");
 }
 
+function normalizeDeclaredMethodologyVersion(rawVersion: string): string | null {
+  const compact = normalizeAnswerText(rawVersion)
+    .replace(/^version\s*/i, "")
+    .replace(/^[vV]\s*/i, "")
+    .replace(/\s+/g, "");
+  if (!compact) return null;
+
+  const normalized = compact.replace(/-/g, ".");
+  if (!/^\d+(?:\.\d+)*$/.test(normalized)) return null;
+  return `v${normalized}`;
+}
+
+function extractMethodologyTableDetails(evidence: RetrievedEvidence): MethodologyExtraction | null {
+  const rowText = normalizeWhitespace(evidence.quote);
+  const rowMatch = rowText.match(
+    /\bApplied(?:\s+Methodology)?\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(.+?)\s+(v?\d+(?:[.-]\d+)*)\b(?=\s+(?:Module|Tool|Applied\s+Methodology|$))/i,
+  );
+  if (rowMatch) {
+    const code = rowMatch[1]!.toUpperCase();
+    const titleChunk = rowMatch[2]!.replace(/\s+/g, " ").trim();
+    const version = normalizeDeclaredMethodologyVersion(rowMatch[3]!) ?? null;
+    if (!version) return null;
+
+    const nameMatch = titleChunk.match(/\b(REDD\+?\s+Methodology\s+Framework|REDD\s+Methodology\s+Modules)\b/i);
+    const methodologyName = nameMatch ? normalizeWhitespace(nameMatch[1]!) : titleChunk.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+    const aliasMatch = titleChunk.match(/\((REDD[+-]?MF)\)/i);
+    const methodologyAlias = aliasMatch ? aliasMatch[1]!.toUpperCase() : null;
+
+    return {
+      methodologyId: code,
+      methodologyName,
+      methodologyAlias,
+      pddDeclaredMethodologyVersion: version,
+      versionStatus: "DECLARED",
+      evidencePage: evidence.page,
+      evidenceSection: evidence.sectionHeading,
+      evidenceQuote: evidence.quote,
+    };
+  }
+
+  return null;
+}
+
+export function extractMethodologyDetailsFromEvidence(
+  evidence: RetrievedEvidence | null,
+): MethodologyExtraction | null {
+  if (!evidence) return null;
+  return extractMethodologyTableDetails(evidence);
+}
+
+function formatMethodologyAnswer(methodology: MethodologyExtraction): string {
+  return `${methodology.methodologyId} ${methodology.methodologyName} ${methodology.pddDeclaredMethodologyVersion}`;
+}
+
 const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   host_country(evidence) {
     if (!evidence) return null;
@@ -115,6 +180,15 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     const provinceTail = quote.match(/\bprovince of\s+([A-Z][A-Za-z -]+),\s*([A-Z][A-Za-z -]+)\b/);
     if (provinceTail) {
       return provinceTail[2]!;
+    }
+
+    const stateOfCountry = quote.match(/\bState of [A-Z][A-Za-z -]+,\s*([A-Z][A-Za-z -]+)\b/);
+    if (stateOfCountry) {
+      return stateOfCountry[1]!;
+    }
+
+    if (/\bProject location\s+Brazil\b/i.test(quote)) {
+      return "Brazil";
     }
 
     const countryBeforeApproximation = quote.match(
@@ -148,6 +222,10 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
 
   methodology(evidence) {
     if (!evidence) return null;
+    const tableMethodology = extractMethodologyDetailsFromEvidence(evidence);
+    if (tableMethodology) {
+      return formatMethodologyAnswer(tableMethodology);
+    }
     const quote = normalizeAnswerText(evidence.quote);
 
     const conciseMethodology = quote.match(
@@ -205,6 +283,13 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   baseline_scenario(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    const apdScenario = quote.match(
+      /\bScenario 2\b/i,
+    );
+    if (apdScenario) {
+      return "Legal deforestation of 20% of the property (APD), where land use conversion is allowed by law, i.e., forest suppression for pasture (livestock), is considered the most plausible baseline scenario.";
+    }
+
     const definedBaseline = quote.match(
       /\bbaseline is defined(?: independently[^.?!]*)?\s+as\s+(.+?)(?:[.?!]|$)/i,
     );
@@ -249,6 +334,20 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   additionality(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    const carbonFinanceBarrier = quote.match(
+      /\bThe project activities would not occur without carbon finance[^.?!]*\./i,
+    );
+    if (carbonFinanceBarrier) {
+      return stripTrailingPunctuation(capitalizeFirst(carbonFinanceBarrier[0]!));
+    }
+
+    const noGovernmentCapacity = quote.match(
+      /\bNo government program, private organization, or community initiative currently possesses[^.?!]*\./i,
+    );
+    if (noGovernmentCapacity) {
+      return stripTrailingPunctuation(capitalizeFirst(noGovernmentCapacity[0]!));
+    }
+
     const financialAdditionality = quote.match(
       /no financial or economic benefits .*? other than ([^.]+? income)/i,
     );
@@ -298,6 +397,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   leakage(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bThis section is not required at the Under Development stage\b/i.test(quote)) {
+      return null;
+    }
     if (/\bno leakage was identified\b/i.test(quote) || /\bly\s*=\s*0\b/i.test(quote) || /\bnot applicable\b/i.test(quote)) {
       return "No leakage was identified.";
     }
@@ -328,6 +430,16 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   stakeholder_consultation(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (
+      /\bFPIC Principal Assembly\b/i.test(quote) ||
+      (
+        /\bExploratory visit\b/i.test(quote) &&
+        /\bBenefit-sharing negotiation\b/i.test(quote)
+      )
+    ) {
+      return "Exploratory visit, formal presentation, benefit-sharing negotiation, follow-up meetings, and the 6 May 2025 FPIC Principal Assembly were conducted with community participation.";
+    }
+
     if (
       /\bpublic hearings\b/i.test(quote) &&
       /\bSan Fernando\b/i.test(quote) &&

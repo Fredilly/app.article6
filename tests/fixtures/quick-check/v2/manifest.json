@@ -32,6 +32,10 @@
     {
       "id": "monit-rep-985-vm0007",
       "directory": "monit-rep-985-vm0007"
+    },
+    {
+      "id": "marcondes-pdd",
+      "directory": "marcondes-pdd"
     }
   ]
 }
