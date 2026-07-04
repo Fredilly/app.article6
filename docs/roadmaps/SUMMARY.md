@@ -7,6 +7,12 @@ Active lanes: verification-factory, project-readiness-verification-output, revie
 Frozen lanes: agentic-verification.
 
 
+## vm0007-version-cleanup
+
+Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
+
+1) PR1: Done
+
 ## data-integrity-exports
 
 Status SSOT: `docs/roadmaps/data-integrity-exports/phase-status.json`
@@ -353,8 +359,3 @@ Not active now:
 4) RC3 — Full 58-Rule Audit Fixture Shape: Done — Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.
 5) RC4 — Report Fixture Layer: Done — Completed via PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed.
 6) RC5 — Client-Readiness Gate: Planned — Keep internal preview output separate from any later client-ready reporting work.
-
-## vm0007-version-cleanup
-
-Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
-
