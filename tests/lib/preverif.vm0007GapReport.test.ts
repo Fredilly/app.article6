@@ -19,6 +19,7 @@ import {
 } from "./preverifVm0007Fixtures";
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF / VM0007 v1.8");
 
 function auditText(rawText: string): MethodologyEvidenceAuditSummary {
   const context = getStructuredQueryContext(rawText);
@@ -50,7 +51,7 @@ function retotal(results: MethodologyEvidenceAuditResult[]): MethodologyEvidence
 }
 
 function buildMixedAudit(): MethodologyEvidenceAuditSummary {
-  const base = auditText(ENVIRA_TEXT);
+  const base = auditText(ENVIRA_V18_TEXT);
   const results = base.results.map((result) => {
     if (result.ruleId === "R-1-0002") {
       return withStatus(result, {
@@ -93,7 +94,7 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
 }
 
 function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
-  const base = auditText(ENVIRA_TEXT);
+  const base = auditText(ENVIRA_V18_TEXT);
   const results = Array.from({ length: 58 }, (_, index) =>
     withStatus(base.results[index]!, {
       ruleId: `R-6-${String(index + 1).padStart(4, "0")}`,
@@ -109,6 +110,19 @@ function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
     results,
     totals: retotal(results),
     totalRules: results.length,
+  };
+}
+
+function buildWarningAcceptedAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
+  return {
+    ...baseAudit,
+    auditStatus: "VERSION_WARNING_ACCEPTED",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1-8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1-8.",
+    userAcceptedVersionWarning: true,
   };
 }
 
@@ -135,7 +149,7 @@ function buildReport(audit: MethodologyEvidenceAuditSummary) {
 
 describe("buildVm0007GapReport", () => {
   it("builds a 58-rule report from existing VM0007 audit output", () => {
-    const report = buildReport(auditText(ENVIRA_TEXT));
+    const report = buildReport(auditText(ENVIRA_V18_TEXT));
 
     expect(report.reportName).toBe("Internal VM0007 Gap Report Preview");
     expect(report.statementOfCoverage).toBe("58 VM0007 rules assessed for validation readiness.");
@@ -148,6 +162,15 @@ describe("buildVm0007GapReport", () => {
 
     expect(report.limitationBanner).toBe("Internal preview only. This report shows current audit output and has not been manually reviewed.");
     expect(report.executiveSummary.allSupportedWarning).toBe("All rules are currently marked supported. Review evidence quality before relying on this result.");
+  });
+
+  it("prepends the version warning to the report banner when the warning was accepted", () => {
+    const report = buildReport(buildWarningAcceptedAudit(auditText(ENVIRA_V18_TEXT)));
+
+    expect(report.limitationBanner).toContain("Methodology version mismatch:");
+    expect(report.limitationBanner).toContain("Evidence judgment may be wrong.");
+    expect(report.limitationBanner).toContain("Internal preview only. This report shows current audit output and has not been manually reviewed.");
+    expect(report.executiveSummary.limitations[0]).toContain("Methodology version mismatch:");
   });
 
   it("keeps client action guidance on every weak or missing rule", () => {

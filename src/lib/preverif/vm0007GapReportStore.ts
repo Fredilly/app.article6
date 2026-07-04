@@ -18,6 +18,7 @@ export type Vm0007GapReportAuditRecord = {
   methodologyVersion: string;
   generatedAt: string;
   evidenceFileName?: string;
+  userAcceptedVersionWarning?: boolean;
   audit: MethodologyEvidenceAuditSummary;
 };
 
@@ -98,6 +99,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   evidenceFileName?: string;
   rawPddText: string;
   rules: readonly RuleSummary[];
+  userAcceptedVersionWarning?: boolean;
 }): Vm0007GapReportAuditRecord | null {
   if (input.methodologyId.trim().toUpperCase() !== "VM0007") return null;
   if (!input.rawPddText.trim() || input.rules.length === 0) return null;
@@ -110,6 +112,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     normalizeRuleId: normalizeVm0007RuleId,
     sections: context.documentStructure.sections,
     rawText: input.rawPddText,
+    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
 
   const record: Vm0007GapReportAuditRecord = {
@@ -118,6 +121,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     methodologyVersion: input.methodologyVersion.trim(),
     generatedAt: nowIso(),
     evidenceFileName: input.evidenceFileName?.trim() || undefined,
+    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
     audit,
   };
   saveVm0007GapReportAudit(record);

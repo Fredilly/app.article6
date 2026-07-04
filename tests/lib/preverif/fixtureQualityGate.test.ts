@@ -24,6 +24,7 @@ const SOURCE_EXCERPTS = JSON.parse(
 ) as SourceExcerpts;
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF / VM0007 v1.8");
 
 function auditText(rawText: string): MethodologyEvidenceAuditSummary {
   const context = getStructuredQueryContext(rawText);
@@ -45,7 +46,7 @@ function withStatus(
 }
 
 function buildMixedAudit(): MethodologyEvidenceAuditSummary {
-  const base = auditText(ENVIRA_TEXT);
+  const base = auditText(ENVIRA_V18_TEXT);
   const results = base.results.map((result) => {
     if (result.ruleId === "R-1-0002") {
       return withStatus(result, {

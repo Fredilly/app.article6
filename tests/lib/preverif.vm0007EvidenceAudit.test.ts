@@ -15,6 +15,7 @@ import {
 } from "./preverifVm0007Fixtures";
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF / VM0007 v1.8");
 
 function auditText(rawText: string) {
   const context = getStructuredQueryContext(rawText);
@@ -36,7 +37,7 @@ function byRuleId(results: MethodologyEvidenceAuditResult[], ruleId: string): Me
 
 describe("auditEvidence with VM0007 contracts", () => {
   it("produces audit results for all 58 synced VM0007 rules and totals add up", () => {
-    const audit = auditText(ENVIRA_TEXT);
+    const audit = auditText(ENVIRA_V18_TEXT);
     const totalFromBuckets = Object.values(audit.totals).reduce((sum, count) => sum + count, 0);
 
     expect(audit.results).toHaveLength(58);
@@ -45,7 +46,7 @@ describe("auditEvidence with VM0007 contracts", () => {
   });
 
   it("uses only allowed statuses", () => {
-    const audit = auditText(ENVIRA_TEXT);
+    const audit = auditText(ENVIRA_V18_TEXT);
 
     for (const result of audit.results) {
       expect(EVIDENCE_AUDIT_STATUSES).toContain(result.status);
@@ -53,7 +54,7 @@ describe("auditEvidence with VM0007 contracts", () => {
   });
 
   it("includes client action on weak or missing outcomes", () => {
-    const audit = auditText(ENVIRA_TEXT);
+    const audit = auditText(ENVIRA_V18_TEXT);
     const weakResults = audit.results.filter((result) =>
       result.status === "partially_supported"
       || result.status === "missing_evidence"
@@ -68,13 +69,13 @@ describe("auditEvidence with VM0007 contracts", () => {
 
   it("requires actual PDD support before marking wetland-family rules not applicable", () => {
     const noNaSupport = auditText(`
-      VM0007 Version 4.2
+      REDD-MF / VM0007 v1.8
       Project Description Document
       3.3 Leakage
       Leakage is discussed for nearby communities, but the PDD does not say whether the project is peatland, tidal wetland, or upland REDD only.
     `);
     const explicitNaSupport = auditText(`
-      VM0007 Version 4.2
+      REDD-MF / VM0007 v1.8
       Project Description Document
       1.1 Project Activity
       This is a REDD/APD project in upland forest landscapes.
@@ -91,13 +92,13 @@ describe("auditEvidence with VM0007 contracts", () => {
   });
 
   it("never uses passed-style outcome wording", () => {
-    const audit = auditText(ENVIRA_TEXT);
+    const audit = auditText(ENVIRA_V18_TEXT);
     expect(JSON.stringify(audit)).not.toMatch(/\bpassed\b/i);
   });
 
   it("does not treat VM0007 boilerplate or copied rule text as supported_by_pdd", () => {
     const audit = auditText(`
-      VM0007 Version 4.2
+      REDD-MF / VM0007 v1.8
       Project Description Document
 
       2.4 Baseline Scenario
@@ -121,7 +122,7 @@ describe("auditEvidence with VM0007 contracts", () => {
   });
 
   it("produces useful Envira-like outputs across the main VM0007 categories", () => {
-    const audit = auditText(ENVIRA_TEXT);
+    const audit = auditText(ENVIRA_V18_TEXT);
 
     const eligibility = byRuleId(audit.results, "R-1-0001");
     const baseline = byRuleId(audit.results, "R-3-0001");
