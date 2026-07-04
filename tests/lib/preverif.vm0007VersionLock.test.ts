@@ -13,6 +13,34 @@ import { readQuickCheckFixtureText, VM0007_SYNCED_RULES } from "./preverifVm0007
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
 const ENVIRA_V18_VERSION_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "VM0007, version 1.8");
 const ENVIRA_V18_FRAMEWORK_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF, REDD Methodology Framework Version 1.8");
+const MAYA_FLATTENED_TEXT = [
+  "3.1 Application of Methodology",
+  "3.1.1 Title and Reference of Methodology",
+  "Type Methodology Reference ID VM0007 Title REDD Methodology Framework Version 1.8",
+  "Type Module Reference ID VMD0001 Title Carbon stock module Version 1.2",
+  "Type Module Reference ID VMD0005 Title Wood products module Version 1.1",
+  "Type Module Reference ID VMD0002 Title Dead wood module Version 1.3",
+  "Type Tool Reference ID VT0002 Title Significance tool Version 2.2",
+  "Type Tool Reference ID VT0001 Title Additionality tool Version 3.0",
+  "Type Tool Reference ID VT0009 Title Program reference Version 4.2",
+  "3.1.2 Applicability of Methodology",
+].join("\n");
+const LISALA_FLATTENED_TEXT = [
+  "3.1 Application of Methodology",
+  "3.1.1 Title and Reference of Methodology",
+  "Type Methodology Reference ID VM0007 Title REDD Methodology Framework Version 1.8",
+  "Type Module Reference ID VMD0015 Title Monitoring module Version 2.1",
+  "Type Module Reference ID VMD0006 Title Baseline module Version 1.2",
+  "Type Tool Reference ID VT0001 Title Additionality tool Version 3.0",
+  "Type Tool Reference ID VT0002 Title Significance tool Version 1.1",
+  "3.1.2 Applicability of Methodology",
+].join("\n");
+const LISALA_PROSE_TEXT = [
+  "3.1 Application of Methodology",
+  "3.1.1 Title and Reference of Methodology",
+  "The project applies VM0007 (v.1.8) for avoided deforestation.",
+  "3.1.2 Applicability of Methodology",
+].join("\n");
 
 function auditVm0007(
   rawText: string,
@@ -180,19 +208,8 @@ describe("VM0007 version lock", () => {
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
   });
 
-  it("allows a methodology table row for VM0007 v1.8 even when module and tool rows have other versions", () => {
-    const document = makeTableEvidenceDocument([
-      ["Type", "Reference ID", "Version"],
-      ["Methodology", "VM0007", "1.8"],
-      ["Module", "VMD0001", "1.2"],
-      ["Module", "VMD0005", "1.1"],
-      ["Tool", "VT0001", "4.2"],
-      ["Module", "VMD0002", "1.3"],
-      ["Tool", "VT0002", "2.2"],
-      ["Tool", "VT0003", "3.0"],
-    ]);
-
-    const audit = auditVm0007WithDocument(document, document.rawText, {
+  it("allows a Maya-style flattened methodology block with a VM0007 v1.8 row and other module/tool versions", () => {
+    const audit = auditVm0007(MAYA_FLATTENED_TEXT, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -201,17 +218,8 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
-  it("allows a Lisala-style methodology table row for VM0007 v1.8", () => {
-    const document = makeTableEvidenceDocument([
-      ["Type", "Reference ID", "Version"],
-      ["Methodology", "VM0007", "1.8"],
-      ["Module", "VMD0015", "2.1"],
-      ["Module", "VMD0006", "1.2"],
-      ["Tool", "VT0001", "3.0"],
-      ["Tool", "VT0002", "1.1"],
-    ]);
-
-    const audit = auditVm0007WithDocument(document, document.rawText, {
+  it("allows a Lisala-style flattened methodology block with a VM0007 v1.8 row", () => {
+    const audit = auditVm0007(LISALA_FLATTENED_TEXT, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -220,8 +228,8 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
-  it("allows prose text written as 'VM0007 (v.1.8)'", () => {
-    const audit = auditVm0007("Section 3.1 Application of Methodology\nThe project applies VM0007 (v.1.8) for avoided deforestation.", {
+  it("allows a Lisala-style prose fallback written as 'VM0007 (v.1.8)'", () => {
+    const audit = auditVm0007(LISALA_PROSE_TEXT, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -230,7 +238,7 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
-  it("blocks a methodology table row for VM0007 v1.5 even when module and tool rows have other versions", () => {
+  it("blocks a methodology row for VM0007 v1.5 even when the flattened block also contains module and tool versions", () => {
     const document = makeTableEvidenceDocument([
       ["Type", "Reference ID", "Version"],
       ["Methodology", "VM0007", "1.5"],
@@ -290,8 +298,13 @@ describe("VM0007 version lock", () => {
     expect(audit.results).toEqual([]);
   });
 
-  it("blocks when VM0007 is declared without a methodology version in prose", () => {
-    const audit = auditVm0007("Section 3.1 Application of Methodology\nThe document identifies VM0007 but does not provide a methodology version.", {
+  it("blocks when VM0007 is declared without a methodology version inside the 3.1.1 methodology block", () => {
+    const audit = auditVm0007([
+      "3.1 Application of Methodology",
+      "3.1.1 Title and Reference of Methodology",
+      "The document identifies VM0007 but does not provide a methodology version.",
+      "3.1.2 Applicability of Methodology",
+    ].join("\n"), {
       getContract: makeVersionedContract("v1-8"),
     });
 

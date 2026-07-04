@@ -236,6 +236,19 @@ const TABLE_ROW_BOUNDARY_PATTERNS = [
   /^(?:vcs standard|ccb standard|document version)\b/i,
 ] as const;
 
+const METHODOLOGY_BLOCK_START_PATTERNS = [
+  /\b3\.1\.1\s+title and reference of methodology\b/i,
+  /\b2\.1\s+title and reference of methodology\b/i,
+  /\btitle and reference of methodology applied\b/i,
+  /\btitle and reference of methodology\b/i,
+] as const;
+
+const METHODOLOGY_BLOCK_END_PATTERNS = [
+  /\b3\.1\.2\s+applicability of methodology\b/i,
+  /\b2\.2\s+applicability of methodology\b/i,
+  /\bapplicability of methodology\b/i,
+] as const;
+
 function isTableBoundaryLine(line: string): boolean {
   const normalized = line.trim();
   if (!normalized) return true;
@@ -252,6 +265,61 @@ function extractVersionTokens(text: string): string[] {
   );
 }
 
+function extractExplicitVersionTokens(text: string): string[] {
+  return Array.from(
+    new Set(
+      Array.from(text.matchAll(/\b(?:version\s+|v\.?\s*)(\d+(?:[.-]\d+)*)\b/gi))
+        .map((match) => normalizeVersionValue(match[1] ?? ""))
+        .filter(Boolean),
+    ),
+  );
+}
+
+function extractMethodologyBlock(rawText: string): string {
+  const lines = rawText.split(/\n+/);
+  const startIndex = lines.findIndex((line) =>
+    METHODOLOGY_BLOCK_START_PATTERNS.some((pattern) => pattern.test(line)),
+  );
+  if (startIndex < 0) return rawText;
+
+  let endIndex = lines.length;
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    if (METHODOLOGY_BLOCK_END_PATTERNS.some((pattern) => pattern.test(lines[index] ?? ""))) {
+      endIndex = index;
+      break;
+    }
+  }
+
+  return lines.slice(startIndex, endIndex).join("\n").trim();
+}
+
+function extractFlattenedMethodologyRow(blockText: string, expectedMethodologyId: string): {
+  declaredMethodologyId: string;
+  declaredRulebookVersions: string[];
+} | null {
+  const rowPatterns = [
+    new RegExp(
+      String.raw`Type\s+Methodology\b[\s\S]{0,240}?Reference\s+ID\s+${expectedMethodologyId}\b[\s\S]{0,240}?(?=Type\s+(?:Methodology|Module|Tool)\b|3\.1\.2\b|2\.2\b|Applicability of Methodology|$)`,
+      "i",
+    ),
+    new RegExp(
+      String.raw`\bMethodology\b[\s\S]{0,120}?${expectedMethodologyId}\b[\s\S]{0,240}?(?=Type\s+(?:Methodology|Module|Tool)\b|3\.1\.2\b|2\.2\b|Applicability of Methodology|$)`,
+      "i",
+    ),
+  ];
+
+  for (const pattern of rowPatterns) {
+    const rowMatch = blockText.match(pattern);
+    if (!rowMatch?.[0]) continue;
+    return {
+      declaredMethodologyId: expectedMethodologyId,
+      declaredRulebookVersions: extractVersionTokens(rowMatch[0]),
+    };
+  }
+
+  return null;
+}
+
 function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: string): string[] {
   const declaredVersions: string[] = [];
 
@@ -262,7 +330,7 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
       || METHODOLOGY_DECLARATION_ANCHORS.some((pattern) => pattern.test(line));
     if (!hasExplicitMethodologyAnchor) continue;
 
-    const lineVersions = extractVersionTokens(line);
+    const lineVersions = extractExplicitVersionTokens(line);
     if (lineVersions.length > 0) {
       declaredVersions.push(...lineVersions);
       continue;
@@ -270,7 +338,7 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
 
     const nextLine = lines[index + 1]?.trim();
     if (!nextLine || isTableBoundaryLine(nextLine)) continue;
-    const nextLineVersions = extractVersionTokens(nextLine);
+    const nextLineVersions = extractExplicitVersionTokens(nextLine);
     if (nextLineVersions.length === 0) continue;
     declaredVersions.push(...nextLineVersions);
   }
@@ -324,9 +392,15 @@ function extractDeclaredMethodologyReferenceFromText(rawText: string, expectedMe
   }
 
   const expectedId = normalizeMethodologyId(expectedMethodologyId);
-  const lines = trimmed.split(/\n+/);
+  const methodologyBlock = extractMethodologyBlock(trimmed);
+  const flattenedMethodologyRow = expectedId
+    ? extractFlattenedMethodologyRow(methodologyBlock, expectedId)
+    : null;
+  if (flattenedMethodologyRow) return flattenedMethodologyRow;
+
+  const lines = methodologyBlock.split(/\n+/);
   const declarationVersions = collectProseDeclaredVersions(lines, expectedId);
-  const declaredMethodologyId = expectedId || extractDeclaredMethodologyId(trimmed) || "";
+  const declaredMethodologyId = expectedId || extractDeclaredMethodologyId(methodologyBlock) || "";
 
   return {
     declaredMethodologyId,
