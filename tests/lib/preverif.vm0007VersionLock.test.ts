@@ -6,6 +6,7 @@ import {
   type MethodologyEvidenceAuditSummary,
   type MethodologyEvidenceContract,
 } from "@/lib/preverif/evidenceAudit";
+import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
 import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 import { readQuickCheckFixtureText, VM0007_SYNCED_RULES } from "./preverifVm0007Fixtures";
 
@@ -34,11 +35,72 @@ function auditVm0007(
   });
 }
 
+function auditVm0007WithDocument(
+  evidenceDocument: EvidenceDocument,
+  rawText: string,
+  options?: {
+    versionContext?: {
+      pddDeclaredMethodologyVersion: string;
+    };
+    getContract?: (rule: (typeof VM0007_SYNCED_RULES)[number]) => MethodologyEvidenceContract;
+  },
+): MethodologyEvidenceAuditSummary {
+  return auditEvidence({
+    rules: VM0007_SYNCED_RULES,
+    evidenceDocument,
+    getContract: options?.getContract ?? getVm0007EvidenceContract,
+    normalizeRuleId: normalizeVm0007RuleId,
+    sections: [],
+    rawText,
+    versionContext: options?.versionContext,
+  });
+}
+
 function makeVersionedContract(version: string) {
   return (rule: (typeof VM0007_SYNCED_RULES)[number]): MethodologyEvidenceContract => ({
     ...getVm0007EvidenceContract(rule),
     rulebookVersion: version,
   });
+}
+
+function makeTableEvidenceDocument(rows: string[][], heading = "Title and Reference of Methodology"): EvidenceDocument {
+  const cells = rows.flatMap((row, rowIndex) =>
+    row.map((text, columnIndex) => ({
+      rowIndex,
+      columnIndex,
+      text,
+      normalizedText: text.trim().toLowerCase(),
+    })),
+  );
+
+  return {
+    docId: "vm0007-version-lock-test",
+    rawText: rows.map((row) => row.join(" | ")).join("\n"),
+    spans: [
+      {
+        spanId: "span-table-1",
+        docId: "vm0007-version-lock-test",
+        page: 83,
+        sectionId: "section:3.1",
+        heading,
+        headingPath: ["Application of Methodology", heading],
+        sectionPath: ["Application of Methodology", heading],
+        blockType: "table",
+        text: rows.map((row) => row.join(" | ")).join("\n"),
+        normalizedText: rows.map((row) => row.join(" | ")).join("\n").toLowerCase(),
+        charStart: 0,
+        charEnd: null,
+        table: {
+          rowCount: rows.length,
+          columnCount: Math.max(...rows.map((row) => row.length)),
+          headerRowCount: 1,
+          cells,
+        },
+        reliability: "primary",
+        confidence: 100,
+      } as EvidenceDocument["spans"][number],
+    ],
+  };
 }
 
 describe("VM0007 version lock", () => {
@@ -118,8 +180,19 @@ describe("VM0007 version lock", () => {
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
   });
 
-  it("allows VM0007 Version 1.8 even when the document also mentions VCS v4.4", () => {
-    const audit = auditVm0007("Title and Reference of Methodology: VM0007 Version 1.8. VCS v4.4 is mentioned elsewhere.", {
+  it("allows a methodology table row for VM0007 v1.8 even when module and tool rows have other versions", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", "1.8"],
+      ["Module", "VMD0001", "1.2"],
+      ["Module", "VMD0005", "1.1"],
+      ["Tool", "VT0001", "4.2"],
+      ["Module", "VMD0002", "1.3"],
+      ["Tool", "VT0002", "2.2"],
+      ["Tool", "VT0003", "3.0"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -128,8 +201,17 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
-  it("allows REDD-MF Version 1.8 even when the document also mentions document version 7", () => {
-    const audit = auditVm0007("REDD-MF Version 1.8\nDocument version 7 is listed for the file export.", {
+  it("allows a Lisala-style methodology table row for VM0007 v1.8", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", "1.8"],
+      ["Module", "VMD0015", "2.1"],
+      ["Module", "VMD0006", "1.2"],
+      ["Tool", "VT0001", "3.0"],
+      ["Tool", "VT0002", "1.1"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -138,8 +220,29 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
-  it("blocks VM0007 v1.5 even when the document also mentions VCS v4.4", () => {
-    const audit = auditVm0007("Title and Reference of Methodology: VM0007 v1.5. VCS v4.4 is mentioned elsewhere.", {
+  it("allows prose text written as 'VM0007 (v.1.8)'", () => {
+    const audit = auditVm0007("Section 3.1 Application of Methodology\nThe project applies VM0007 (v.1.8) for avoided deforestation.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
+  it("blocks a methodology table row for VM0007 v1.5 even when module and tool rows have other versions", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", "1.5"],
+      ["Module", "VMD0001", "1.2"],
+      ["Module", "VMD0005", "1.1"],
+      ["Tool", "VT0001", "4.2"],
+      ["Module", "VMD0002", "1.3"],
+      ["Tool", "VT0002", "2.2"],
+      ["Tool", "VT0003", "3.0"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -149,8 +252,15 @@ describe("VM0007 version lock", () => {
     expect(audit.results).toEqual([]);
   });
 
-  it("blocks when VM0007 is declared without a methodology version", () => {
-    const audit = auditVm0007("Title and Reference of Methodology: VM0007. Tool version 7 appears elsewhere.", {
+  it("blocks when the methodology table row is present but the version cell is empty", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", ""],
+      ["Module", "VMD0001", "1.2"],
+      ["Tool", "VT0001", "4.2"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -160,8 +270,15 @@ describe("VM0007 version lock", () => {
     expect(audit.results).toEqual([]);
   });
 
-  it("blocks when the same methodology declaration contains both v1.8 and v1.5", () => {
-    const audit = auditVm0007("Title and Reference of Methodology: VM0007 v1.8 and v1.5.", {
+  it("blocks when the same methodology table row contains both v1.8 and v1.5", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", "1.8 and 1.5"],
+      ["Module", "VMD0001", "1.2"],
+      ["Tool", "VT0001", "4.2"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
       getContract: makeVersionedContract("v1-8"),
     });
 
@@ -170,6 +287,17 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toContain("ambiguous");
     expect(audit.versionMismatchReason).toContain("v1.8");
     expect(audit.versionMismatchReason).toContain("v1.5");
+    expect(audit.results).toEqual([]);
+  });
+
+  it("blocks when VM0007 is declared without a methodology version in prose", () => {
+    const audit = auditVm0007("Section 3.1 Application of Methodology\nThe document identifies VM0007 but does not provide a methodology version.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("missing");
     expect(audit.results).toEqual([]);
   });
 
