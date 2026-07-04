@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globa
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import Vm0007GapReportPreview from "@/components/preverif/Vm0007GapReportPreview";
-import type { MethodologyEvidenceAuditResult } from "@/lib/preverif/evidenceAudit";
+import type { MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import { saveVm0007GapReportAudit } from "@/lib/preverif/vm0007GapReportStore";
 import {
   REPORT_FIXTURE,
@@ -33,6 +33,26 @@ function buildAllSupportedAudit() {
     results: supportedOnlyResults,
     totals: {
       supported_by_pdd: 58,
+      partially_supported: 0,
+      missing_evidence: 0,
+      not_applicable: 0,
+      manual_review_needed: 0,
+    },
+    totalRules: 58,
+  };
+}
+
+function buildBlockedAudit(): MethodologyEvidenceAuditSummary {
+  return {
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1.8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
+    results: [],
+    totals: {
+      supported_by_pdd: 0,
       partially_supported: 0,
       missing_evidence: 0,
       not_applicable: 0,
@@ -112,6 +132,38 @@ describe("Vm0007GapReportPreview", () => {
     expect(container.textContent ?? "").toContain(
       "All rules are currently marked supported. Review evidence quality before relying on this result.",
     );
+  });
+
+  test("shows the saved audit version-lock fields in the internal preview debug panel", async () => {
+    saveVm0007GapReportAudit({
+      auditId: "audit-blocked",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1.8",
+      generatedAt: "2026-07-03T00:00:00Z",
+      evidenceFileName: "envira-amazonia-vm0007.pdf",
+      audit: buildBlockedAudit(),
+    });
+
+    await act(async () => {
+      root.render(<Vm0007GapReportPreview auditId="audit-blocked" />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Saved audit payload");
+    expect(text).toContain("BLOCKED_VERSION_MISMATCH");
+    expect(text).toContain("Methodology ID");
+    expect(text).toContain("VM0007");
+    expect(text).toContain("Rulebook version");
+    expect(text).toContain("v1.8");
+    expect(text).toContain("PDD-declared version");
+    expect(text).toContain("REDD-MF / VM0007 v1.5");
+    expect(text).toContain("Version match");
+    expect(text).toContain("false");
+    expect(text).toContain("Version mismatch reason");
+    expect(text).toContain("rulebook version mismatch");
   });
 
   test("keeps banned wording out of the rendered internal preview", async () => {

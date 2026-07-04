@@ -59,6 +59,10 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
     );
   }
 
+  const audit = record.audit;
+  const auditStatus = audit.auditStatus ?? "AUDITED";
+  const versionMatchLabel = audit.versionMatch === false ? "false" : "true";
+
   return (
     <main className="vm0007-gap-report-preview vm0007-gap-report-preview-page min-h-screen bg-slate-50 px-4 py-8">
       <style jsx global>{`
@@ -102,6 +106,41 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
             Print / Save PDF
           </button>
         </div>
+        <section className="no-print mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-semibold text-slate-950">Saved audit payload</h2>
+            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${auditStatus === "BLOCKED_VERSION_MISMATCH" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-900"}`}>
+              {auditStatus}
+            </span>
+          </div>
+          {auditStatus === "BLOCKED_VERSION_MISMATCH" ? (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              {audit.versionMismatchReason || "Evidence judgment blocked by methodology version mismatch."}
+            </div>
+          ) : null}
+          <dl className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Methodology ID</dt>
+              <dd className="mt-1 font-medium text-slate-950">{audit.methodologyId ?? record.methodologyId}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rulebook version</dt>
+              <dd className="mt-1 font-medium text-slate-950">{audit.rulebookVersion ?? record.methodologyVersion}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">PDD-declared version</dt>
+              <dd className="mt-1 font-medium text-slate-950">{audit.pddDeclaredMethodologyVersion || "not detected"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Version match</dt>
+              <dd className="mt-1 font-medium text-slate-950">{versionMatchLabel}</dd>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Version mismatch reason</dt>
+              <dd className="mt-1 font-medium text-slate-950">{audit.versionMismatchReason || "none"}</dd>
+            </div>
+          </dl>
+        </section>
         <Vm0007GapReportView report={report} />
       </div>
     </main>
