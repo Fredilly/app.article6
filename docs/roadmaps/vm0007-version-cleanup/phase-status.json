@@ -1,0 +1,35 @@
+{
+  "roadmap": "vm0007-version-cleanup",
+  "phases": [
+    {
+      "title": "Phase 1: Version Lock",
+      "description": "Internal review warning gate for VM0007 version mismatches; hard blocking is deferred to issue #926.",
+      "status": "in_progress"
+    },
+    {
+      "title": "Phase 2: Envira Quarantine",
+      "description": "Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.",
+      "status": "planned"
+    },
+    {
+      "title": "Phase 3: Report and PDF Blocking",
+      "description": "Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.",
+      "status": "planned"
+    },
+    {
+      "title": "Phase 4: Gate Strengthening",
+      "description": "Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.",
+      "status": "planned"
+    },
+    {
+      "title": "Phase 5: Roadmap Correction",
+      "description": "Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.",
+      "status": "planned"
+    },
+    {
+      "title": "Phase 6: Forward Path",
+      "description": "Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.",
+      "status": "planned"
+    }
+  ]
+}
