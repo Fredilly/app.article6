@@ -27,7 +27,7 @@ function defineContract(
   return Object.freeze({
     ...input,
     methodologyId: input.methodologyId || "VM0007",
-    rulebookVersion: input.rulebookVersion || "v4.2",
+    rulebookVersion: input.rulebookVersion || "v1.8",
     appliesToRuleIds: input.appliesToRuleIds ? Object.freeze([...input.appliesToRuleIds]) : undefined,
     pddSectionsToSearch: Object.freeze([...input.pddSectionsToSearch]),
     strongEvidenceSignals: Object.freeze([...input.strongEvidenceSignals]),
