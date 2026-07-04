@@ -255,10 +255,11 @@ function isTableBoundaryLine(line: string): boolean {
   return TABLE_ROW_BOUNDARY_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
-function extractVersionTokens(text: string): string[] {
+function extractMethodologyVersionCellTokens(text: string): string[] {
+  const cleaned = text.replace(/\[\s*\d+\s*\]/g, " ").trim();
   return Array.from(
     new Set(
-      Array.from(text.matchAll(/\b(?:version\s*)?(?:v\.?\s*)?(\d+(?:[.-]\d+)*)\b/gi))
+      Array.from(cleaned.matchAll(/\b(?:version\s*|v\.?\s*)?(\d+(?:[.-]\d+)+)\b/gi))
         .map((match) => normalizeVersionValue(match[1] ?? ""))
         .filter(Boolean),
     ),
@@ -297,27 +298,23 @@ function extractFlattenedMethodologyRow(blockText: string, expectedMethodologyId
   declaredMethodologyId: string;
   declaredRulebookVersions: string[];
 } | null {
-  const rowPatterns = [
+  const rowMatch = blockText.match(
     new RegExp(
       String.raw`Type\s+Methodology\b[\s\S]{0,240}?Reference\s+ID\s+${expectedMethodologyId}\b[\s\S]{0,240}?(?=Type\s+(?:Methodology|Module|Tool)\b|3\.1\.2\b|2\.2\b|Applicability of Methodology|$)`,
       "i",
     ),
-    new RegExp(
-      String.raw`\bMethodology\b[\s\S]{0,120}?${expectedMethodologyId}\b[\s\S]{0,240}?(?=Type\s+(?:Methodology|Module|Tool)\b|3\.1\.2\b|2\.2\b|Applicability of Methodology|$)`,
-      "i",
-    ),
-  ];
+  );
+  if (!rowMatch?.[0]) return null;
 
-  for (const pattern of rowPatterns) {
-    const rowMatch = blockText.match(pattern);
-    if (!rowMatch?.[0]) continue;
-    return {
-      declaredMethodologyId: expectedMethodologyId,
-      declaredRulebookVersions: extractVersionTokens(rowMatch[0]),
-    };
-  }
-
-  return null;
+  const rowLine = rowMatch[0]
+    .split("\n")
+    .find((line) => /\bversion\b/i.test(line))
+    ?? rowMatch[0];
+  const versionCellText = rowLine.match(/\bVersion\b([^\n]{0,80})/i)?.[1] ?? "";
+  return {
+    declaredMethodologyId: expectedMethodologyId,
+    declaredRulebookVersions: extractMethodologyVersionCellTokens(versionCellText),
+  };
 }
 
 function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: string): string[] {
@@ -356,19 +353,31 @@ function extractDeclaredMethodologyReferenceFromTables(input: {
     if (!METHODOLOGY_DECLARATION_HEADINGS.some((pattern) => pattern.test(contextText))) continue;
     if (!span.table?.cells?.length) continue;
 
-    const rows = new Map<number, string[]>();
+    const headerRowCount = span.table.headerRowCount ?? 0;
+    const versionColumnIndexes = new Set(
+      span.table.cells
+        .filter((cell) => cell.rowIndex < headerRowCount && /\bversion\b/i.test(cell.text))
+        .map((cell) => cell.columnIndex),
+    );
+
+    const rows = new Map<number, typeof span.table.cells>();
     for (const cell of span.table.cells) {
-      if (span.table.headerRowCount && cell.rowIndex < span.table.headerRowCount) continue;
+      if (headerRowCount && cell.rowIndex < headerRowCount) continue;
       const row = rows.get(cell.rowIndex) ?? [];
-      row.push(cell.text);
+      row.push(cell);
       rows.set(cell.rowIndex, row);
     }
 
     for (const rowCells of rows.values()) {
-      const rowText = rowCells.join(" ").trim();
+      const rowText = rowCells.map((cell) => cell.text).join(" ").trim();
       if (!rowText || !/methodology/i.test(rowText)) continue;
       if (input.expectedMethodologyId && !new RegExp(`\\b${input.expectedMethodologyId}\\b`, "i").test(rowText)) continue;
-      const declaredRulebookVersions = extractVersionTokens(rowText);
+      const versionCellText = rowCells
+        .filter((cell) => versionColumnIndexes.has(cell.columnIndex))
+        .map((cell) => cell.text)
+        .join(" ")
+        .trim();
+      const declaredRulebookVersions = extractMethodologyVersionCellTokens(versionCellText);
       return {
         declaredMethodologyId: input.expectedMethodologyId || extractDeclaredMethodologyId(rowText) || "",
         declaredRulebookVersions,

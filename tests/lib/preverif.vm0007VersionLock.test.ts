@@ -25,6 +25,15 @@ const MAYA_FLATTENED_TEXT = [
   "Type Tool Reference ID VT0009 Title Program reference Version 4.2",
   "3.1.2 Applicability of Methodology",
 ].join("\n");
+const MAYA_FLATTENED_FOOTNOTE_TEXT = [
+  "3.1 Application of Methodology",
+  "3.1.1 Title and Reference of Methodology",
+  "Type Methodology Reference ID VM0007 [1] Title REDD Methodology Framework [2] Version 1.8 [3]",
+  "VCS Standard Version 4.4",
+  "Type Module Reference ID VMD0001 Title Carbon stock module Version 1.2",
+  "Type Tool Reference ID VT0001 Title Additionality tool Version 3.0",
+  "3.1.2 Applicability of Methodology",
+].join("\n");
 const LISALA_FLATTENED_TEXT = [
   "3.1 Application of Methodology",
   "3.1.1 Title and Reference of Methodology",
@@ -218,6 +227,16 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
+  it("allows a flattened methodology row with VM0007 footnotes while ignoring unrelated standard and module/tool versions", () => {
+    const audit = auditVm0007(MAYA_FLATTENED_FOOTNOTE_TEXT, {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
   it("allows a Lisala-style flattened methodology block with a VM0007 v1.8 row", () => {
     const audit = auditVm0007(LISALA_FLATTENED_TEXT, {
       getContract: makeVersionedContract("v1-8"),
@@ -276,6 +295,23 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMatch).toBe(false);
     expect(audit.versionMismatchReason).toContain("missing");
     expect(audit.results).toEqual([]);
+  });
+
+  it("allows a structured methodology table row when the version cell is v1.8 even if the row includes footnotes", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007 [1]", "1.8 [2]"],
+      ["Module", "VMD0001", "1.2"],
+      ["Tool", "VT0001", "4.2"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
   });
 
   it("blocks when the same methodology table row contains both v1.8 and v1.5", () => {
