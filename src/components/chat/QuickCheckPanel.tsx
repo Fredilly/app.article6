@@ -1187,10 +1187,18 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     rawPddText: string;
     rules: readonly RuleSummary[];
   }) {
+    const parsedDocument = parseExtractedText(
+      input.rawPddText,
+      input.evidenceFileName || "quick-check-v2",
+      "quick-check-panel",
+    );
+    const methodologyResult = validateAnswerResults(extractAnswersForAllChecks(parsedDocument))
+      .find((result) => result.checkName === "methodology");
+    const methodology = methodologyResult?.methodology;
     const versionLock = buildMethodologyVersionLock({
-      methodologyId: input.methodologyId,
+      methodologyId: methodology?.methodologyId || input.methodologyId,
       rulebookVersion: input.methodologyVersion,
-      pddDeclaredMethodologyVersion: input.rawPddText,
+      pddDeclaredMethodologyVersion: methodology?.pddDeclaredMethodologyVersion || "",
     });
     if (!versionLock.versionMatch) {
       const warningMessage = [
@@ -1217,7 +1225,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     return buildAndSaveVm0007GapReportAudit({
-      ...input,
+      methodology: methodology ?? {
+        methodologyId: input.methodologyId,
+        methodologyName: input.methodologyId,
+        methodologyAlias: "",
+        pddDeclaredMethodologyVersion: null,
+        versionStatus: "UNKNOWN",
+        evidencePage: 0,
+        evidenceSection: "",
+        evidenceQuote: input.rawPddText.trim(),
+      },
+      loadedRulebookId: input.methodologyId,
+      loadedRulebookVersion: input.methodologyVersion,
+      evidenceFileName: input.evidenceFileName,
+      rawPddText: input.rawPddText,
+      rules: input.rules,
       userAcceptedVersionWarning: !versionLock.versionMatch,
     });
   }

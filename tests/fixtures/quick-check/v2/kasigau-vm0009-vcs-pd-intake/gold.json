@@ -14,6 +14,13 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests",
+    "expectedMethodology": {
+      "methodologyId": "VM0009",
+      "methodologyName": "Methodology for Avoided Mosaic Deforestation of Tropical Forests",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": null,
+      "versionStatus": "NOT_EXPLICITLY_DECLARED"
+    },
     "goldQuote": "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.",
     "page": 9,
     "sectionHeading": "Title and reference of the VCS methodology applied to the",

@@ -194,6 +194,28 @@ describe("VM0007 version lock", () => {
     expect(audit.results[0]?.userAcceptedVersionWarning).toBe(true);
   });
 
+  it("allows a missing VM0007 version to proceed when the user accepts the warning", () => {
+    const document = makeTableEvidenceDocument([
+      ["Type", "Reference ID", "Version"],
+      ["Methodology", "VM0007", ""],
+      ["Module", "VMD0001", "1.2"],
+      ["Tool", "VT0001", "4.2"],
+    ]);
+
+    const audit = auditVm0007WithDocument(document, document.rawText, {
+      getContract: makeVersionedContract("v1-8"),
+      userAcceptedVersionWarning: true,
+    });
+
+    expect(audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
+    expect(audit.methodologyId).toBe("VM0007");
+    expect(audit.rulebookVersion).toBe("v1-8");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("missing");
+    expect(audit.results).toHaveLength(58);
+    expect(audit.results[0]?.userAcceptedVersionWarning).toBe(true);
+  });
+
   it("blocks ambiguous VM0007 versions when both v1.5 and v1.8 are present", () => {
     const ambiguousText = "REDD-MF / VM0007 v1.5 and later VM0007 v1.8";
 
