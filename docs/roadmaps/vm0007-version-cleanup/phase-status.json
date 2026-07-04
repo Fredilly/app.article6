@@ -1,5 +1,5 @@
 {
-  "roadmap": "vm0007-version-cleanup",
+  "PR1": "done",
   "phases": [
     {
       "title": "Phase 1: Version Lock",
@@ -31,5 +31,6 @@
       "description": "Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.",
       "status": "planned"
     }
-  ]
+  ],
+  "roadmap": "vm0007-version-cleanup"
 }
