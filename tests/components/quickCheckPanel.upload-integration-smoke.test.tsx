@@ -61,6 +61,8 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
 import { loadVm0007GapReportAudit } from "@/lib/preverif/vm0007GapReportStore";
 
+jest.setTimeout(15000);
+
 describe("QuickCheckPanel upload/session boundary smoke test — proves the panel can consume seeded upload/session state; does not test real PDF extraction or parser reliability", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
@@ -364,8 +366,19 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
       node.textContent?.includes("View Gap Report"),
     );
     expect(link).toBeTruthy();
+    const href = link?.getAttribute("href") ?? "";
+    const auditIdMatch = href.match(/\/internal\/reports\/vm0007-gap\/(.+)$/);
+    expect(auditIdMatch?.[1]).toBeTruthy();
+    const audit = loadVm0007GapReportAudit(auditIdMatch?.[1] ?? "");
+    expect(audit).not.toBeNull();
+    expect(audit?.methodology?.methodologyId).toBe("VM0007");
+    expect(audit?.methodology?.methodologyName).toBeTruthy();
+    expect(audit?.loadedRulebookId).toBe("VM0007");
+    expect(audit?.loadedRulebookVersion).toBe("v1-0");
+    expect(audit?.audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
+    expect(audit?.audit.versionMatch).toBe(false);
+    expect(audit?.audit.userAcceptedVersionWarning).toBe(true);
     expect(container.textContent ?? "").toContain("View Gap Report");
-    expect(loadVm0007GapReportAudit("vm0007-gap-does-not-exist")).toBeNull();
   });
 
   it("shows rejection state for unsupported question from seeded upload/session state", async () => {

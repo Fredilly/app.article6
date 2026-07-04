@@ -42,26 +42,6 @@ function buildAllSupportedAudit() {
   };
 }
 
-function buildBlockedAudit(): MethodologyEvidenceAuditSummary {
-  return {
-    auditStatus: "BLOCKED_VERSION_MISMATCH",
-    methodologyId: "VM0007",
-    rulebookVersion: "v1.8",
-    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
-    versionMatch: false,
-    versionMismatchReason: "PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.",
-    results: [],
-    totals: {
-      supported_by_pdd: 0,
-      partially_supported: 0,
-      missing_evidence: 0,
-      not_applicable: 0,
-      manual_review_needed: 0,
-    },
-    totalRules: 58,
-  };
-}
-
 function buildWarningAcceptedAudit(): MethodologyEvidenceAuditSummary {
   return {
     auditStatus: "VERSION_WARNING_ACCEPTED",
@@ -168,40 +148,40 @@ describe("Vm0007GapReportPreview", () => {
     );
   });
 
-  test("short-circuits to a blocked-only view when the audit is version-mismatched", async () => {
+  test("renders the full report when a missing-version audit is accepted", async () => {
     saveVm0007GapReportAudit({
-      auditId: "audit-blocked",
+      auditId: "audit-warning-missing",
       methodologyId: "VM0007",
       methodologyVersion: "v1.8",
       loadedRulebookId: "VM0007",
       loadedRulebookVersion: "v1.8",
       methodology: {
         ...METHODOLOGY_IDENTITY,
-        pddDeclaredMethodologyVersion: "v1.5",
-        versionStatus: "DECLARED",
-        evidenceQuote: "REDD-MF / VM0007 v1.5",
+        pddDeclaredMethodologyVersion: null,
+        versionStatus: "NOT_EXPLICITLY_DECLARED",
+        evidenceQuote: "VM0007: REDD Methodology Modules (REDD-MF)",
       },
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
-      audit: buildBlockedAudit(),
+      userAcceptedVersionWarning: true,
+      audit: buildWarningAcceptedAudit(),
     });
 
     await act(async () => {
-      root.render(<Vm0007GapReportPreview auditId="audit-blocked" />);
+      root.render(<Vm0007GapReportPreview auditId="audit-warning-missing" />);
     });
     await act(async () => {
       await Promise.resolve();
     });
 
     const text = container.textContent ?? "";
-    expect(text).toContain("PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.");
-    expect(text).not.toContain("Print / Save PDF");
-    expect(text).not.toContain(REPORT_FIXTURE.expectedReportTitle);
-    expect(text).not.toContain("58 VM0007 rules assessed for validation readiness.");
-    expect(text).not.toContain("Follow-up Action List");
-    expect(text).not.toContain("Saved audit payload");
-    expect(text).not.toContain("REDD-MF / VM0007 v1.5");
-    expect(text).toContain("PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.");
+    expect(text).toContain("Version warning accepted before audit generation.");
+    expect(text).toContain("VERSION_WARNING_ACCEPTED");
+    expect(text).toContain("Print / Save PDF");
+    expect(text).toContain(REPORT_FIXTURE.expectedReportTitle);
+    expect(text).toContain("58 VM0007 rules assessed for validation readiness.");
+    expect(text).toContain("User accepted warning");
+    expect(text).toContain("true");
   });
 
   test("renders the full report with a warning banner when a mismatched audit is accepted", async () => {
