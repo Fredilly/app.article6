@@ -10,6 +10,8 @@ import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif
 import { readQuickCheckFixtureText, VM0007_SYNCED_RULES } from "./preverifVm0007Fixtures";
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_VERSION_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "VM0007, version 1.8");
+const ENVIRA_V18_FRAMEWORK_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF, REDD Methodology Framework Version 1.8");
 
 function auditVm0007(
   rawText: string,
@@ -114,5 +116,49 @@ describe("VM0007 version lock", () => {
     expect(audit.results[0]?.pddDeclaredMethodologyVersion).toBe("REDD-MF / VM0007 v1.8");
     expect(audit.results.every((result) => result.versionMatch === true)).toBe(true);
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
+  });
+
+  it("recognizes a VM0007 v1.8 declaration written as 'VM0007, version 1.8'", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1.8",
+      pddDeclaredMethodologyVersion: "VM0007, version 1.8",
+    });
+
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("recognizes a VM0007 v1.8 declaration written as 'REDD-MF, REDD Methodology Framework Version 1.8'", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1.8",
+      pddDeclaredMethodologyVersion: "REDD-MF, REDD Methodology Framework Version 1.8",
+    });
+
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("allows a v1.8 VM0007 PDD when the real text uses 'VM0007, version 1.8'", () => {
+    const audit = auditVm0007(ENVIRA_V18_VERSION_TEXT, {
+      getContract: makeVersionedContract("v1.8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+    expect(audit.results).toHaveLength(58);
+  });
+
+  it("allows a v1.8 VM0007 PDD when the real text uses 'REDD-MF, REDD Methodology Framework Version 1.8'", () => {
+    const audit = auditVm0007(ENVIRA_V18_FRAMEWORK_TEXT, {
+      getContract: makeVersionedContract("v1.8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+    expect(audit.results).toHaveLength(58);
   });
 });

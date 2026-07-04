@@ -209,7 +209,7 @@ function extractDeclaredMethodologyVersionMatches(rawValue: string): string[] {
   const normalized = rawValue.trim();
   if (!normalized) return [];
 
-  const matches = Array.from(normalized.matchAll(/\b(?:version\s*)?(v\d+(?:[.-]\d+)*)\b/gi))
+  const matches = Array.from(normalized.matchAll(/\b(?:version\s*)?(v?\d+(?:[.-]\d+)*)\b/gi))
     .map((match) => normalizeVersionValue(match[1] ?? ""))
     .filter(Boolean);
 
@@ -229,18 +229,41 @@ function extractDeclaredMethodologyReference(rawText: string, expectedMethodolog
   }
 
   const expectedId = normalizeMethodologyId(expectedMethodologyId);
+  const anchorMatches: Array<RegExpMatchArray> = [];
   if (expectedId) {
-    const index = trimmed.toUpperCase().indexOf(expectedId);
-    if (index >= 0) {
-      const windowText = trimmed.slice(Math.max(0, index - 40), Math.min(trimmed.length, index + 160));
-      const declaredMethodologyId = extractDeclaredMethodologyId(windowText) || expectedId;
-      const declaredRulebookVersions = extractDeclaredMethodologyVersionMatches(windowText);
-      if (declaredMethodologyId || declaredRulebookVersions.length > 0) {
-        return {
-          declaredMethodologyId,
-          declaredRulebookVersions,
-        };
+    const expectedMatch = trimmed.toUpperCase().match(new RegExp(`\\b${expectedId}\\b`));
+    if (expectedMatch) anchorMatches.push(expectedMatch);
+  }
+  anchorMatches.push(...Array.from(trimmed.matchAll(/\bREDD[-\s]?MF\b/gi)));
+
+  const anchorMatch = anchorMatches.find((match) => {
+    const windowText = trimmed.slice(match.index ?? 0, Math.min(trimmed.length, (match.index ?? 0) + 220));
+    return /\bversion\b/i.test(windowText) || /\bv\d+(?:[.-]\d+)*\b/i.test(windowText);
+  }) ?? anchorMatches[0] ?? null;
+
+  if (anchorMatch?.index !== undefined) {
+    const windowText = trimmed.slice(anchorMatch.index, Math.min(trimmed.length, anchorMatch.index + 280));
+    const declarationLines: string[] = [];
+    for (const line of windowText.split(/\n+/)) {
+      const normalizedLine = line.trim();
+      if (!normalizedLine) continue;
+      if (/^(Carbon pool modules:|Baseline module:|Leakage modules:|Monitoring modules:|Project Description Document|Project Description:)/i.test(normalizedLine)) {
+        break;
       }
+      if (/^\d+\.\d+/.test(normalizedLine) && declarationLines.length > 0) {
+        break;
+      }
+      declarationLines.push(normalizedLine);
+      if (declarationLines.length >= 3) break;
+    }
+    const declarationText = declarationLines.join("\n").trim();
+    const declaredMethodologyId = expectedId || extractDeclaredMethodologyId(windowText) || "";
+    const declaredRulebookVersions = extractDeclaredMethodologyVersionMatches(declarationText);
+    if (declaredMethodologyId || declaredRulebookVersions.length > 0) {
+      return {
+        declaredMethodologyId,
+        declaredRulebookVersions,
+      };
     }
   }
 
@@ -286,7 +309,7 @@ export function buildMethodologyVersionLock(input: {
   const methodologyId = normalizeMethodologyId(input.methodologyId);
   const rulebookVersion = normalizeVersionValue(input.rulebookVersion);
   const pddDeclaredMethodologyVersion = input.pddDeclaredMethodologyVersion.trim();
-  const declaredReference = extractDeclaredMethodologyReference(pddDeclaredMethodologyVersion);
+  const declaredReference = extractDeclaredMethodologyReference(pddDeclaredMethodologyVersion, methodologyId);
   const versionMismatchReason = buildVersionMismatchReason({
     methodologyId,
     rulebookVersion,
