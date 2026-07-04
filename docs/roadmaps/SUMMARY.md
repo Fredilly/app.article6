@@ -3,9 +3,31 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup.
+Active lanes: vm0007-version-cleanup, verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures.
 Frozen lanes: agentic-verification.
 
+
+## vm0007-version-cleanup
+
+Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
+
+Lane status: Active
+VM0007 internal review is using a temporary version-warning flow while hard blocking is deferred to issue #926.
+
+Current focus:
+- Keep the VM0007 v1.8 internal review path usable while version detection is being hardened
+- Preserve the issue #926 follow-up for restoring hard blocking
+- Keep Envira quarantine and later cleanup phases pending
+
+Not active now:
+- Marking Phase 1 done
+- Envira quarantine
+- Report/PDF blocking
+- Gate strengthening
+- Roadmap correction
+- Forward-path expansion
+
+1) PR1: Done
 
 ## data-integrity-exports
 
@@ -353,30 +375,3 @@ Not active now:
 4) RC3 — Full 58-Rule Audit Fixture Shape: Done — Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.
 5) RC4 — Report Fixture Layer: Done — Completed via PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed.
 6) RC5 — Client-Readiness Gate: Planned — Keep internal preview output separate from any later client-ready reporting work.
-
-## vm0007-version-cleanup
-
-Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
-
-Lane status: Active
-VM0007 internal review is using a temporary version-warning flow while hard blocking is deferred to issue #926.
-
-Current focus:
-- Keep the VM0007 v1.8 internal review path usable while version detection is being hardened
-- Preserve the issue #926 follow-up for restoring hard blocking
-- Keep Envira quarantine and later cleanup phases pending
-
-Not active now:
-- Marking Phase 1 done
-- Envira quarantine
-- Report/PDF blocking
-- Gate strengthening
-- Roadmap correction
-- Forward-path expansion
-
-1) RC1 — Phase 1: Version Lock: In progress — Internal review warning gate for VM0007 version mismatches; hard blocking is deferred to issue #926.
-2) RC2 — Phase 2: Envira Quarantine: Planned — Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.
-3) RC3 — Phase 3: Report and PDF Blocking: Planned — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
-4) RC4 — Phase 4: Gate Strengthening: Planned — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
-5) RC5 — Phase 5: Roadmap Correction: Planned — Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.
-6) RC6 — Phase 6: Forward Path: Planned — Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.
