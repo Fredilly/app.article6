@@ -134,7 +134,7 @@ describe("Vm0007GapReportPreview", () => {
     );
   });
 
-  test("shows the saved audit version-lock fields in the internal preview debug panel", async () => {
+  test("short-circuits to a blocked-only view when the audit is version-mismatched", async () => {
     saveVm0007GapReportAudit({
       auditId: "audit-blocked",
       methodologyId: "VM0007",
@@ -152,17 +152,13 @@ describe("Vm0007GapReportPreview", () => {
     });
 
     const text = container.textContent ?? "";
-    expect(text).toContain("Saved audit payload");
-    expect(text).toContain("BLOCKED_VERSION_MISMATCH");
-    expect(text).toContain("Methodology ID");
-    expect(text).toContain("VM0007");
-    expect(text).toContain("Rulebook version");
-    expect(text).toContain("v1.8");
-    expect(text).toContain("PDD-declared version");
-    expect(text).toContain("REDD-MF / VM0007 v1.5");
-    expect(text).toContain("Version match");
-    expect(text).toContain("false");
-    expect(text).toContain("Version mismatch reason");
+    expect(text).toContain("Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.");
+    expect(text).not.toContain("Print / Save PDF");
+    expect(text).not.toContain(REPORT_FIXTURE.expectedReportTitle);
+    expect(text).not.toContain("58 VM0007 rules assessed for validation readiness.");
+    expect(text).not.toContain("Follow-up Action List");
+    expect(text).not.toContain("Saved audit payload");
+    expect(text).not.toContain("REDD-MF / VM0007 v1.5");
     expect(text).toContain("rulebook version mismatch");
   });
 
