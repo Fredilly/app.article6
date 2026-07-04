@@ -2,7 +2,7 @@
 
 ## Goal
 
-Block VM0007 evidence audits unless the PDD-declared methodology version matches the loaded rulebook/contract version.
+Block VM0007 evidence audits unless the PDD-declared methodology version matches the loaded rulebook/contract version. For the current internal review lane, version mismatches are surfaced as warnings that require explicit user confirmation, but hard blocking remains the intended end state.
 
 ## Non-Negotiable Invariant
 
@@ -17,7 +17,15 @@ No VM0007 evidence judgment may produce FOUND, UNCLEAR, MISSING, N/A, report out
 
 ### Phase 1: Version Lock
 
-Status: active
+Status: in_progress
+
+Current note:
+
+- Internal review is running with VM0007 v1.8 as the only active rulebook target for now.
+- Version mismatches currently show a warning and may continue only after explicit user confirmation.
+- Warning-accepted results are draft/internal only and may be wrong.
+- Hard `BLOCKED_VERSION_MISMATCH` behavior is deferred because version detection is currently over-blocking valid v1.8 uploads.
+- Follow-up hard-block restoration is tracked in GitHub issue #926.
 
 Done when:
 

@@ -1,35 +1,53 @@
 {
   "roadmap": "vm0007-version-cleanup",
-  "phases": [
-    {
+  "phase_meta": {
+    "status": "active",
+    "summary": "VM0007 internal review is using a temporary version-warning flow while hard blocking is deferred to issue #926.",
+    "current_focus": [
+      "Keep the VM0007 v1.8 internal review path usable while version detection is being hardened",
+      "Preserve the issue #926 follow-up for restoring hard blocking",
+      "Keep Envira quarantine and later cleanup phases pending"
+    ],
+    "not_active_now": [
+      "Marking Phase 1 done",
+      "Envira quarantine",
+      "Report/PDF blocking",
+      "Gate strengthening",
+      "Roadmap correction",
+      "Forward-path expansion"
+    ],
+    "last_updated_at": "2026-07-04T00:00:00Z"
+  },
+  "phases": {
+    "phase_1_version_lock": {
       "title": "Phase 1: Version Lock",
-      "description": "Block VM0007 evidence audit unless PDD-declared methodology version matches the loaded contract/rulebook version.",
-      "status": "active"
+      "status": "in_progress",
+      "summary": "Internal review warning gate for VM0007 version mismatches; hard blocking is deferred to issue #926."
     },
-    {
+    "phase_2_envira_quarantine": {
       "title": "Phase 2: Envira Quarantine",
-      "description": "Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.",
-      "status": "planned"
+      "status": "planned",
+      "summary": "Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth."
     },
-    {
+    "phase_3_report_and_pdf_blocking": {
       "title": "Phase 3: Report and PDF Blocking",
-      "description": "Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.",
-      "status": "planned"
+      "status": "planned",
+      "summary": "Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims."
     },
-    {
+    "phase_4_gate_strengthening": {
       "title": "Phase 4: Gate Strengthening",
-      "description": "Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.",
-      "status": "planned"
+      "status": "planned",
+      "summary": "Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output."
     },
-    {
+    "phase_5_roadmap_correction": {
       "title": "Phase 5: Roadmap Correction",
-      "description": "Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.",
-      "status": "planned"
+      "status": "planned",
+      "summary": "Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit."
     },
-    {
+    "phase_6_forward_path": {
       "title": "Phase 6: Forward Path",
-      "description": "Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.",
-      "status": "planned"
+      "status": "planned",
+      "summary": "Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet."
     }
-  ]
+  }
 }
