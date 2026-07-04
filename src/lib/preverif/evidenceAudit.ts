@@ -216,15 +216,69 @@ function extractDeclaredMethodologyId(rawValue: string): string {
   return match?.[1] ?? "";
 }
 
-function extractDeclaredMethodologyVersionMatches(rawValue: string): string[] {
-  const normalized = rawValue.trim();
-  if (!normalized) return [];
+const METHODOLOGY_DECLARATION_HEADINGS = [
+  /\btitle and reference of methodology\b/i,
+  /\btitle and reference of approved baseline methodology applied\b/i,
+  /\bname and reference of approved monitoring methodology applied\b/i,
+  /\bmethodology applied\b/i,
+] as const;
 
-  const matches = Array.from(normalized.matchAll(/\b(?:version\s*)?(v?\d+(?:[.-]\d+)*)\b/gi))
-    .map((match) => normalizeVersionValue(match[1] ?? ""))
-    .filter(Boolean);
+const METHODOLOGY_DECLARATION_ANCHORS = [
+  /\bVM0007\b/i,
+  /\bREDD[-\s]?MF\b/i,
+  /\bREDD\s+Methodology\s+Framework\b/i,
+] as const;
 
-  return Array.from(new Set(matches));
+const VERSION_CONTEXT_BLOCKLIST = /\b(document|tool|module|standard|section|report|validation|verification|table|figure|appendix|vcs)\b/i;
+
+function lineContainsMethodologyDeclaration(line: string, expectedMethodologyId: string): boolean {
+  if (!line) return false;
+  if (expectedMethodologyId && new RegExp(`\\b${expectedMethodologyId}\\b`, "i").test(line)) return true;
+  if (METHODOLOGY_DECLARATION_ANCHORS.some((pattern) => pattern.test(line))) return true;
+  return METHODOLOGY_DECLARATION_HEADINGS.some((pattern) => pattern.test(line));
+}
+
+function isContinuationLine(line: string): boolean {
+  const normalized = line.trim();
+  if (!normalized) return false;
+  if (/^(?:\d+\.\d+|section|chapter|appendix|table|figure)\b/i.test(normalized)) return false;
+  return true;
+}
+
+function extractVersionsFromMethodologyDeclarationSegment(segmentText: string): string[] {
+  const normalizedSegment = segmentText.toLowerCase();
+  const anchorPositions = Array.from(
+    normalizedSegment.matchAll(/\b(?:vm0007|redd[-\s]?mf|redd methodology framework|title and reference of methodology|title and reference of approved baseline methodology applied|name and reference of approved monitoring methodology applied|methodology applied)\b/gi),
+    (match) => match.index ?? -1,
+  ).filter((index): index is number => index >= 0);
+
+  if (anchorPositions.length === 0) return [];
+
+  const sortedAnchorPositions = Array.from(new Set(anchorPositions)).sort((left, right) => left - right);
+  const declaredVersions: string[] = [];
+
+  for (let index = 0; index < sortedAnchorPositions.length; index += 1) {
+    const anchorIndex = sortedAnchorPositions[index];
+    let relevantSegment = normalizedSegment.slice(anchorIndex);
+
+    const nextAnchorIndex = sortedAnchorPositions[index + 1];
+    if (nextAnchorIndex !== undefined && nextAnchorIndex > anchorIndex) {
+      relevantSegment = relevantSegment.slice(0, nextAnchorIndex - anchorIndex);
+    }
+
+    const blocklistedMatch = relevantSegment.match(VERSION_CONTEXT_BLOCKLIST);
+    if (blocklistedMatch?.index !== undefined) {
+      relevantSegment = relevantSegment.slice(0, blocklistedMatch.index);
+    }
+
+    declaredVersions.push(
+      ...Array.from(relevantSegment.matchAll(/\b(?:version\s*)?(v?\d+(?:[.-]\d+)*)\b/gi))
+        .map((match) => normalizeVersionValue(match[1] ?? ""))
+        .filter(Boolean),
+    );
+  }
+
+  return Array.from(new Set(declaredVersions));
 }
 
 function extractDeclaredMethodologyReference(rawText: string, expectedMethodologyId?: string): {
@@ -240,46 +294,33 @@ function extractDeclaredMethodologyReference(rawText: string, expectedMethodolog
   }
 
   const expectedId = normalizeMethodologyId(expectedMethodologyId);
-  const anchorMatches: Array<RegExpMatchArray> = [];
-  if (expectedId) {
-    const expectedMatch = trimmed.toUpperCase().match(new RegExp(`\\b${expectedId}\\b`));
-    if (expectedMatch) anchorMatches.push(expectedMatch);
-  }
-  anchorMatches.push(...Array.from(trimmed.matchAll(/\bREDD[-\s]?MF\b/gi)));
+  const lines = trimmed.split(/\n+/);
+  const declarationVersions: string[] = [];
+  let declaredMethodologyId = "";
 
-  const anchorMatch = anchorMatches.find((match) => {
-    const windowText = trimmed.slice(match.index ?? 0, Math.min(trimmed.length, (match.index ?? 0) + 220));
-    return /\bversion\b/i.test(windowText) || /\bv\d+(?:[.-]\d+)*\b/i.test(windowText);
-  }) ?? anchorMatches[0] ?? null;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    if (!line || !lineContainsMethodologyDeclaration(line, expectedId)) continue;
 
-  if (anchorMatch?.index !== undefined) {
-    const windowText = trimmed.slice(anchorMatch.index, Math.min(trimmed.length, anchorMatch.index + 280));
-    const declarationLines: string[] = [];
-    for (const line of windowText.split(/\n+/)) {
-      const normalizedLine = line.trim();
-      if (!normalizedLine) continue;
-      if (/^(Carbon pool modules:|Baseline module:|Leakage modules:|Monitoring modules:|Project Description Document|Project Description:)/i.test(normalizedLine)) {
-        break;
+    const declarationLines = [line];
+    if (METHODOLOGY_DECLARATION_HEADINGS.some((pattern) => pattern.test(line))) {
+      for (let offset = 1; offset <= 2; offset += 1) {
+        const nextLine = lines[index + offset]?.trim();
+        if (!nextLine || !isContinuationLine(nextLine)) break;
+        declarationLines.push(nextLine);
+        if (lineContainsMethodologyDeclaration(nextLine, expectedId)) break;
       }
-      if (/^\d+\.\d+/.test(normalizedLine) && declarationLines.length > 0) {
-        break;
-      }
-      declarationLines.push(normalizedLine);
-      if (declarationLines.length >= 3) break;
     }
+
     const declarationText = declarationLines.join("\n").trim();
-    const declaredMethodologyId = expectedId || extractDeclaredMethodologyId(windowText) || "";
-    const declaredRulebookVersions = extractDeclaredMethodologyVersionMatches(declarationText);
-    if (declaredMethodologyId || declaredRulebookVersions.length > 0) {
-      return {
-        declaredMethodologyId,
-        declaredRulebookVersions,
-      };
-    }
+    declaredMethodologyId ||= expectedId || extractDeclaredMethodologyId(declarationText) || "";
+    declarationVersions.push(...extractVersionsFromMethodologyDeclarationSegment(declarationText));
   }
 
-  const declaredMethodologyId = extractDeclaredMethodologyId(trimmed);
-  const declaredRulebookVersions = extractDeclaredMethodologyVersionMatches(trimmed);
+  const declaredRulebookVersions = Array.from(
+    new Set(declarationVersions.map((version) => normalizeVersionValue(version)).filter(Boolean)),
+  );
+
   return {
     declaredMethodologyId,
     declaredRulebookVersions,

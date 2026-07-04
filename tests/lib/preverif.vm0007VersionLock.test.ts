@@ -118,6 +118,61 @@ describe("VM0007 version lock", () => {
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
   });
 
+  it("allows VM0007 Version 1.8 even when the document also mentions VCS v4.4", () => {
+    const audit = auditVm0007("Title and Reference of Methodology: VM0007 Version 1.8. VCS v4.4 is mentioned elsewhere.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
+  it("allows REDD-MF Version 1.8 even when the document also mentions document version 7", () => {
+    const audit = auditVm0007("REDD-MF Version 1.8\nDocument version 7 is listed for the file export.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
+  it("blocks VM0007 v1.5 even when the document also mentions VCS v4.4", () => {
+    const audit = auditVm0007("Title and Reference of Methodology: VM0007 v1.5. VCS v4.4 is mentioned elsewhere.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("v1.5");
+    expect(audit.results).toEqual([]);
+  });
+
+  it("blocks when VM0007 is declared without a methodology version", () => {
+    const audit = auditVm0007("Title and Reference of Methodology: VM0007. Tool version 7 appears elsewhere.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("missing");
+    expect(audit.results).toEqual([]);
+  });
+
+  it("blocks when the same methodology declaration contains both v1.8 and v1.5", () => {
+    const audit = auditVm0007("Title and Reference of Methodology: VM0007 v1.8 and v1.5.", {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("ambiguous");
+    expect(audit.versionMismatchReason).toContain("v1.8");
+    expect(audit.versionMismatchReason).toContain("v1.5");
+    expect(audit.results).toEqual([]);
+  });
+
   it("recognizes a VM0007 v1.8 declaration written as 'VM0007, version 1.8'", () => {
     const lock = buildMethodologyVersionLock({
       methodologyId: "VM0007",
@@ -160,27 +215,5 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMatch).toBe(true);
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
-  });
-
-  it("treats no declared version as blocked", () => {
-    const lock = buildMethodologyVersionLock({
-      methodologyId: "VM0007",
-      rulebookVersion: "v1-8",
-      pddDeclaredMethodologyVersion: "",
-    });
-
-    expect(lock.versionMatch).toBe(false);
-    expect(lock.versionMismatchReason).toContain("missing");
-  });
-
-  it("treats multiple distinct declared versions as blocked", () => {
-    const lock = buildMethodologyVersionLock({
-      methodologyId: "VM0007",
-      rulebookVersion: "v1-8",
-      pddDeclaredMethodologyVersion: "VM0007 v1.5 and VM0007 version 1.8",
-    });
-
-    expect(lock.versionMatch).toBe(false);
-    expect(lock.versionMismatchReason).toContain("ambiguous");
   });
 });
