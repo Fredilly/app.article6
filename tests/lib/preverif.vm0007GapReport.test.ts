@@ -19,6 +19,7 @@ import {
 } from "./preverifVm0007Fixtures";
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF / VM0007 v1.8");
 
 function auditText(rawText: string): MethodologyEvidenceAuditSummary {
   const context = getStructuredQueryContext(rawText);
@@ -50,7 +51,7 @@ function retotal(results: MethodologyEvidenceAuditResult[]): MethodologyEvidence
 }
 
 function buildMixedAudit(): MethodologyEvidenceAuditSummary {
-  const base = auditText(ENVIRA_TEXT);
+  const base = auditText(ENVIRA_V18_TEXT);
   const results = base.results.map((result) => {
     if (result.ruleId === "R-1-0002") {
       return withStatus(result, {
@@ -93,7 +94,7 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
 }
 
 function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
-  const base = auditText(ENVIRA_TEXT);
+  const base = auditText(ENVIRA_V18_TEXT);
   const results = Array.from({ length: 58 }, (_, index) =>
     withStatus(base.results[index]!, {
       ruleId: `R-6-${String(index + 1).padStart(4, "0")}`,
@@ -135,7 +136,7 @@ function buildReport(audit: MethodologyEvidenceAuditSummary) {
 
 describe("buildVm0007GapReport", () => {
   it("builds a 58-rule report from existing VM0007 audit output", () => {
-    const report = buildReport(auditText(ENVIRA_TEXT));
+    const report = buildReport(auditText(ENVIRA_V18_TEXT));
 
     expect(report.reportName).toBe("Internal VM0007 Gap Report Preview");
     expect(report.statementOfCoverage).toBe("58 VM0007 rules assessed for validation readiness.");

@@ -24,6 +24,7 @@ import {
 } from "./clientReadinessGate";
 
 const ENVIRA_TEXT = readQuickCheckFixtureText("envira-amazonia-vm0007-extracted.txt");
+const ENVIRA_V18_TEXT = ENVIRA_TEXT.replace("VM0007 Version 4.2", "REDD-MF / VM0007 v1.8");
 
 function auditText(rawText: string): MethodologyEvidenceAuditSummary {
   const context = getStructuredQueryContext(rawText);
@@ -45,7 +46,7 @@ function withStatus(
 }
 
 function buildReport(auditOverride?: MethodologyEvidenceAuditSummary) {
-  const base = auditOverride ?? auditText(ENVIRA_TEXT);
+  const base = auditOverride ?? auditText(ENVIRA_V18_TEXT);
   return buildVm0007GapReport({
     reportId: "VRGR-VM0007-CRG-001",
     generatedAt: "2026-07-03T00:00:00Z",
@@ -148,24 +149,24 @@ function makeCleanAudit(baseAudit: MethodologyEvidenceAuditSummary): Methodology
 describe("clientReadinessGate helper", () => {
   describe("assertNoUnclearEvidence", () => {
     it("passes when report has zero weak rows", () => {
-      const report = buildReport(makeCleanAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeCleanAudit(auditText(ENVIRA_V18_TEXT)));
       expect(() => assertNoUnclearEvidence(report)).not.toThrow();
     });
 
     it("fails when report has weak rows", () => {
-      const report = buildReport(makeWeakAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeWeakAudit(auditText(ENVIRA_V18_TEXT)));
       expect(() => assertNoUnclearEvidence(report)).toThrow();
     });
   });
 
   describe("assertNoMissingEvidence", () => {
     it("passes when report has zero missing rows", () => {
-      const report = buildReport(makeCleanAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeCleanAudit(auditText(ENVIRA_V18_TEXT)));
       expect(() => assertNoMissingEvidence(report)).not.toThrow();
     });
 
     it("fails when report has missing rows", () => {
-      const report = buildReport(makeMissingAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeMissingAudit(auditText(ENVIRA_V18_TEXT)));
       expect(() => assertNoMissingEvidence(report)).toThrow();
     });
   });
@@ -218,20 +219,20 @@ describe("clientReadinessGate helper", () => {
 
   describe("assertClientReadinessGate (composite)", () => {
     it("passes for a clean report (no weak, no missing, internal label, no banned wording)", () => {
-      const report = buildReport(makeCleanAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeCleanAudit(auditText(ENVIRA_V18_TEXT)));
       const html = renderReport(report);
 
       expect(() => assertClientReadinessGate({ reportHtml: html, report })).not.toThrow();
     });
 
     it("fails on UNCLEAR evidence", () => {
-      const report = buildReport(makeWeakAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeWeakAudit(auditText(ENVIRA_V18_TEXT)));
       const html = renderReport(report);
       expect(() => assertClientReadinessGate({ reportHtml: html, report })).toThrow();
     });
 
     it("fails on MISSING evidence", () => {
-      const report = buildReport(makeMissingAudit(auditText(ENVIRA_TEXT)));
+      const report = buildReport(makeMissingAudit(auditText(ENVIRA_V18_TEXT)));
       const html = renderReport(report);
       expect(() => assertClientReadinessGate({ reportHtml: html, report })).toThrow();
     });
