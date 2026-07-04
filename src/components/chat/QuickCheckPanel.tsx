@@ -77,7 +77,7 @@ import {
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
-import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
+import { extractAnswersForAllChecks, extractMethodologyDetailsFromEvidence, type MethodologyExtraction } from "@/lib/quickCheckV2/answers";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
 import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
@@ -138,6 +138,7 @@ type StructuredEvidenceCheckResult = {
   pages: number[];
   sections: string[];
   evidenceSpanIds: string[];
+  methodology?: MethodologyExtraction | null;
 };
 
 type FieldErrors = {
@@ -2097,6 +2098,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   ? evidence.sectionPath
                   : [],
             evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+            methodology:
+              statusResult.checkName === "methodology"
+                ? extractMethodologyDetailsFromEvidence(evidence)
+                : undefined,
           };
         })
         .filter((result) => allChecks.some((check) => check.id === result.checkId));
@@ -2175,6 +2180,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     ? evidence.sectionPath
                     : [],
               evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+              methodology:
+                statusResult.checkName === "methodology"
+                  ? extractMethodologyDetailsFromEvidence(evidence)
+                  : undefined,
             };
           })
           .filter((result) => allChecks.some((check) => check.id === result.checkId));
@@ -2719,6 +2728,23 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           {result.status === "found" ? (
                             <>
                               <div className="text-xs text-slate-700">{result.answerText}</div>
+                              {result.checkId === "methodology" && result.methodology ? (
+                                <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-2 text-[10px] leading-5 text-slate-600">
+                                  <div><span className="font-semibold text-slate-500">Methodology ID:</span> {result.methodology.methodologyId}</div>
+                                  <div><span className="font-semibold text-slate-500">Methodology name:</span> {result.methodology.methodologyName}</div>
+                                  {result.methodology.methodologyAlias ? (
+                                    <div><span className="font-semibold text-slate-500">Alias:</span> {result.methodology.methodologyAlias}</div>
+                                  ) : null}
+                                  <div><span className="font-semibold text-slate-500">Declared version:</span> {result.methodology.pddDeclaredMethodologyVersion}</div>
+                                  <div><span className="font-semibold text-slate-500">Version status:</span> {result.methodology.versionStatus}</div>
+                                  {typeof result.methodology.evidencePage === "number" ? (
+                                    <div><span className="font-semibold text-slate-500">Evidence page:</span> {result.methodology.evidencePage}</div>
+                                  ) : null}
+                                  {result.methodology.evidenceSection ? (
+                                    <div><span className="font-semibold text-slate-500">Evidence section:</span> {result.methodology.evidenceSection}</div>
+                                  ) : null}
+                                </div>
+                              ) : null}
                               {result.quotes.length > 0 ? (
                                 <div className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600 italic">
                                   &ldquo;{result.quotes[0]?.slice(0, 280)}{(result.quotes[0]?.length ?? 0) > 280 ? "\u2026" : ""}&rdquo;

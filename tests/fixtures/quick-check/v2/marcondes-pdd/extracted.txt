@@ -1,0 +1,3396 @@
+Page 1
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+1
+CCB v3.0, VCS v4.4
+MARCONDES REDD+
+Project title MARCONDES REDD+
+Project ID 5953
+Crediting period 01 May 2023 – 30 April 2063
+Project lifetime 01 May 2023 – 30 April 2063, 40 years
+(CCB) GHG accounting
+period
+01 May 2023 – 30 April 2063, 40 years
+Original date of issue 20-March-2026
+Most recent date of
+issue
+20-March-2026
+Version 1.0
+VCS Standard version 5.0
+CCB Standards version 3.1
+Project location Brazil, municipalities of Nhamundá, Parintins and Barreirinha, State of
+Amazonas
+Project proponent(s) Organica Consultoria LTDA
+Rémi Denecheau
+Chief Executive Officer
+admin@organica-consulting.com
+Validation/verification
+body
+To Be Confirmed
+History of CCB status No previous CCB validation has been conducted. This is the first submission
+of the project for CCB listing.
+
+Page 2
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+2
+CCB v3.0, VCS v4.4
+Gold Level criteria To Be Confirmed
+Expected verification
+schedule
+To Be Confirmed
+Prepared by Organica Consultoria LTDA
+
+Page 3
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+3
+CCB v3.0, VCS v4.4
+CONTENTS
+1 SUMMARY OF PROJECT BENEFITS ........................................................................... 4
+1.1 Unique Project Benefits ........................................................................................................ 4
+1.2 Standardized Benefit Metrics .............................................................................................. 6
+2 PROJECT DETAILS ................................................................................................... 10
+2.1 Project Goals, Design and Long-Term Viability .............................................................. 10
+2.2 Without-project Land Use Scenario and Additionality .................................................. 41
+2.3 Safeguards and Stakeholder Engagement .................................................................... 43
+2.4 Management Capacity .................................................................................................... 53
+2.5 Legal Status and Property Rights ...................................................................................... 57
+2.6 Additional Information Relevant to the Project ............................................................. 60
+3 CLIMATE ................................................................................................................. 61
+3.1 Application of Methodology ............................................................................................ 61
+3.2 Quantification of Estimated GHG Emission Reductions and Removals ...................... 67
+3.3 Monitoring ........................................................................................................................... 68
+3.4 Optional Criterion: Climate Change Adaptation Benefits ........................................... 69
+4 COMMUNITY .......................................................................................................... 69
+4.1 Without-Project Community Scenario ............................................................................. 69
+4.2 Net Positive Community Impacts ..................................................................................... 70
+4.3 Other Stakeholder Impacts ............................................................................................... 70
+4.4 Community Impact Monitoring ........................................................................................ 71
+4.5 Optional Criterion: Exceptional Community Benefits .................................................... 71
+5 BIODIVERSITY ......................................................................................................... 72
+5.1 Without-Project Biodiversity Scenario .............................................................................. 72
+5.2 Net Positive Biodiversity Impacts ...................................................................................... 72
+5.3 Offsite Biodiversity Impacts................................................................................................ 74
+5.4 Biodiversity Impact Monitoring ......................................................................................... 74
+5.5 Optional Criterion: Exceptional Biodiversity Benefits ..................................................... 74
+APPENDIX 1: STAKEHOLDER DESCRIPTION TABLE ....................................................... 75
+APPENDIX 2: PROJECT ACTIVITIES AND THEORY OF CHANGE TABLE ....................... 76
+APPENDIX 3: PROJECT RISKS TABLE ............................................................................ 77
+APPENDIX 4: COMMERCIALLY SENSITIVE INFORMATION.......................................... 80
+APPENDIX X: <TITLE OF APPENDIX> ............................................................................ 81
+
+Page 4
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+4
+CCB v3.0, VCS v4.4
+1 SUMMARY OF PROJECT BENEFITS
+The Marcondes Reducing Emissions from Deforestation and Forest Degradation (REDD+) Project
+is an AFOLU initiative focused on Avoided Planned Deforestation (APD), spanning a total area of
+74,783 hectares of Amazon rainforest across 36 rural properties in the municipalities of
+Nhamundá, Parintins, and Barreirinha, State of Amazonas, Brazil. The project's core objective is
+to conserve approximately 14,957 hectares of dense ombrophilous forest that would otherwise
+be legally converted to cattle pasture under the Brazilian Forest Code (Law 12.651/2012). By
+the end of the 40-year crediting period, an estimated 10,008,517.90 tCO₂e of net GHG emission
+reductions will be achieved.
+This project is developed in alignment with the Climate, Community, and Biodiversity (CCB)
+Standards v3.1, ensuring measurable benefits across three critical areas. From a climate
+perspective, the conservation of 74,783 hectares of standing forest maintains critical carbon
+stocks (668.42 tCO₂e/ha) and preserves the hydrological functions of the Nhamundá River
+basin, a clearwater tributary draining the southern Guiana Shield.
+For local communities, the project delivers transformative benefits to the Comunidade
+Tradicional São Tomé do Mocambo do Arari (~80 families, Parintins) through a formal Benefit-
+Sharing Plan encompassing direct monetary benefits (participation in carbon credit revenue),
+community infrastructure (sanitation, energy, communication), training and capacity building,
+participatory forest monitoring with paid community guards, and cultural heritage support for
+traditional artisanal ceramics. The 40%/60% benefit-sharing structure ensures 60% of carbon
+revenues flow directly to the 36 participating landowners.
+The project prioritizes biodiversity conservation within the Uatumã–Trombetas Moist Forests
+ecoregion, harboring at least 10 globally threatened mammal species (including Inia geoffrensis
+— EN, Pteronura brasiliensis — EN, Tapirus terrestris — VU), 250+ bird species, 300+ fish species
+(including endemic taxa in the Nhamundá River), and threatened tree species (Swietenia
+macrophylla — VU, Bertholletia excelsa — VU). Forest conservation preserves ecosystem functions
+including nutrient cycling, carbon sequestration, watershed protection, and ecological
+connectivity.
+1.1 Unique Project Benefits
+Outcome or impact estimated by the end of project lifetime
+Section
+referenc
+e
+1) Avoiding the emission of 10,008,517.90 tCO₂e of GHG, contributing to climate
+change mitigation over a 40-year period.
+2.1.13 & 3
+
+Page 5
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+5
+CCB v3.0, VCS v4.4
+2) Improved livelihoods for ~80 families of the Comunidade Tradicional São Tomé
+do Mocambo do Arari through benefit-sharing, infrastructure, training, and
+participatory monitoring employment.
+4.2
+3) Conservation of 74,783 ha of dense ombrophilous forest maintaining habitat for
+10+ globally threatened species and 300+ fish species in the Nhamundá River
+system.
+5.2
+4) Strengthening of traditional cultural practices (artisanal ceramics) and
+community governance through the Benefit-Sharing Plan.
+4.2
+
+Page 6
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+6
+CCB v3.0, VCS v4.4
+1.2 Standardized Benefit Metrics
+1 Land with woody vegetation that meets an internationally accepted definition (e.g., UNFCCC, FAO, or IPCC) of what constitutes a forest,
+which includes threshold parameters, such as minimum forest area, tree height and level of crown cover, and may include mature,
+secondary, degraded and wetland forests (VCS Program Definitions)
+2 Reduced emissions from deforestation and forest degradation (REDD) - Activities that reduce GHG emissions by slowing or stopping
+conversion of forests to non-forest land and/or reduce the degradation of forest land where forest biomass is lost (VCS Program
+Definitions)
+3 Afforestation, reforestation and revegetation (ARR) - Activities that increase carbon stocks in woody biomass (and in some cases soils) by
+establishing, increasing and/or restoring vegetative cover through the planting, sowing and/or human-assisted natural regeneration of
+woody vegetation (VCS Program Definitions)
+4 Improved forest management (IFM) - Activities that change forest management practices and increase carbon stock on forest lands
+managed for wood products such as saw timber, pulpwood, and fuelwood (VCS Program Definitions)
+Category Metric Estimated by the end of project
+lifetime
+Section
+reference
+GHG emission
+reductions or carbon
+dioxide removals
+Net estimated removals in the
+project area, measured against
+the without-project scenario
+10,008,517.90 tCO₂e 2.1.13
+Net estimated reductions in the
+project area, measured against
+the without-project scenario
+14,957 ha (APD area) 3.1.4
+Forest
+1 cover
+For REDD2 projects: Estimated
+number of hectares of reduced
+forest loss in the project area
+measured against the without-
+project scenario
+74,783 ha 2.1.14
+For ARR3 projects: Estimated
+number of hectares of forest
+cover increased in the project
+area measured against the
+without-project scenario
+Not applicable N/A
+Improved land management
+Number of hectares of existing
+production forest land in which
+IFM4 practices are expected to
+occur as a result of project
+activities, measured against the
+without-project scenario
+Not applicable N/A
+Number of hectares of non-forest
+land in which improved land
+management practices are
+expected to occur as a result of
+project activities, measured
+Not applicable N/A
+
+Page 7
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+7
+CCB v3.0, VCS v4.4
+5 Employed in project activities means people directly working on project activities in return for compensation (financial or otherwise),
+including employees, contracted workers, sub-contracted workers and community members that are paid to carry out project-related work.
+6 Full time equivalency is calculated as the total number of hours worked (by full-time, part-time, temporary and/or seasonal staff) divided
+by the average number of hours worked in full-time jobs within the country, region or economic territory (adapted from the UN System of
+National Accounts (1993) paragraphs 17.14[15.102];[17.28])
+7 Livelihoods are the capabilities, assets (including material and social resources) and activities required for a means of living (Krantz,
+Lasse, 2001. The Sustainable Livelihood Approach to Poverty Reduction. SIDA). Livelihood benefits may include benefits reported in the
+Employment metrics of this table.
+against the without-project
+scenario
+Training
+Total number of community
+members who are expected to
+have improved skills and/or
+knowledge resulting from training
+provided as part of project
+activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Number of female community
+members who are expected to
+have improved skills and/or
+knowledge resulting from training
+as part of project activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Employment
+Total number of people expected
+to be employed in project
+activities5, expressed as number
+of full-time employees6
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Number of women expected to be
+employed as a result of project
+activities, expressed as number
+of full-time employees
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Livelihoods
+Total number of people expected
+to have improved livelihoods7 or
+income generated as a result of
+project activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Number of women expected to
+have improved livelihoods or
+income generated as a result of
+project activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Health
+
+Total number of people for whom
+health services are expected to
+improve as a result of project
+activities, measured against the
+without-project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+
+Page 8
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+8
+CCB v3.0, VCS v4.4
+8 Well-being is people’s experience of the quality of their lives. Well-being benefits may include benefits reported in other metrics of this
+table (e.g. Training, Employment, Livelihoods, Health, Education and Water), and may also include other benefits such as strengthened
+legal rights to resources, increased food security, conservation of access to areas of cultural significance, etc.
+Number of women for whom
+health services are expected to
+improve as a result of project
+activities, measured against the
+without-project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Education
+Total number of people for whom
+access to, or quality of, education
+is expected to improve as result
+of project activities, measured
+against the without-project
+scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Number of women and girls for
+whom access to, or quality of,
+education is expected to improve
+as result of project activities,
+measured against the without-
+project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Water
+Total number of people who are
+expected to experience increased
+water quality and/or improved
+access to drinking water as a
+result of project activities,
+measured against the without-
+project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Number of women who are
+expected to experience increased
+water quality and/or improved
+access to drinking water as a
+result of project activities,
+measured against the without-
+project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Well
+-being
+
+Total number of community
+members whose well-being8 is
+expected to improve as a result of
+project activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+
+Page 9
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+9
+CCB v3.0, VCS v4.4
+9 Managed for biodiversity conservation in this context means areas where specific management measures are being implemented as a
+part of project activities with an objective of enhancing biodiversity conservation, e.g. enhancing the status of endangered species
+10 Per IUCN’s Red List of Threatened Species
+11 In the absence of direct population or occupancy measures, measurement of reduced threats may be used as evidence of benefit
+Number of women whose well-
+being is expected to improve as a
+result of project activities
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Biodiversity conservation
+Expected change in the number
+of hectares managed
+significantly better by the project
+for biodiversity conservation9,
+measured against the without-
+project scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+Expected number of globally
+Critically Endangered or
+Endangered species10 benefiting
+from reduced threats as a result
+of project activities11, measured
+against the without-project
+scenario
+Section not required for the Under
+Development stage in accordance with
+Section 3.1.6 of Registration and
+Issuance Process v5.0.
+2.1.17 &
+4.2.1
+
+Page 10
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+10
+CCB v3.0, VCS v4.4
+2 PROJECT DETAILS
+2.1 Project Goals, Design and Long-Term Viability
+2.1.1 Summary Description of the Project (VCS, 3.2, 3.6, 3.10, 3.11, 3.13, 3.14; CCB,
+G1.2)
+The Marcondes REDD+ project is located in the municipalities of Nhamundá, Parintins, and
+Barreirinha, in the state of Amazonas, Brazil. The project area lies within the Middle Amazon
+basin, in the Nhamundá River watershed, a region of significant ecological value facing persistent
+deforestation pressures. According to Global Forest Watch (2020), Nhamundá municipality
+retains approximately 1.26 million hectares of natural forest, covering roughly 89% of its land
+area. Despite recent national progress, PRODES/INPE data shows Amazon deforestation
+declined by 50% cumulatively between 2022 and 2025, reaching 5,796 km² in the August 2024–
+July 2025 period the state of Amazonas remains the second-largest contributor to absolute
+deforestation in the Legal Amazon, with 1,016 km² cleared in the most recent PRODES cycle. The
+main drivers of deforestation in the project region include legal land clearance for cattle ranching
+and agriculture, selective and illegal logging, and pressure from infrastructure development and
+land speculation along river corridors.
+The Marcondes REDD+ project aims to avoid planned deforestation and degradation across a
+total project area of approximately 74,783 hectares (per GIS measurement, SIRGAS 2000 – EPSG
+4674), comprising 36 rural properties (fazendas) held by approximately 24 landowners and
+entities. As an Avoided Planned Deforestation (APD) project under VM0007 v1.8, the project
+prevents the legally authorized conversion of 20% of each property's area (approximately 14,957
+ha total APD area) from dense ombrophilous forest to cattle pasture. Under the baseline scenario,
+landowners would legally convert these forest areas to cattle pasture in accordance with the
+Brazilian Forest Code, resulting in significant carbon emissions from forest clearing and land-use
+change.
+The project is located in the municipalities of Nhamundá (pop. 20,136, IBGE 2022; IDHM 0.586),
+Parintins (pop. 96,251), and Barreirinha, in the state of Amazonas, Brazil. The total estimated
+emission reductions and removals (ERRs) generated during the crediting period are
+10,008,517.90 tCO₂e. The project crediting period spans 40 years, from 01 May 2023 to 30 April
+2063. During this period, the average annual ERRs are estimated at 250,212.95 tCO₂e per year.
+The project implements a comprehensive set of activities organized around four pillars: (1) Forest
+protection and monitoring, including satellite-based surveillance using Landsat, Sentinel-2 and
+Planet imagery, PRODES/DETER real-time deforestation alerts, drone-based photogrammetry
+and LiDAR surveys, and community-based patrols conducted in partnership with Comunidade
+São Tomé do Mocambo; (2) Sustainable livelihoods and bioeconomy, supporting the collection,
+
+Page 11
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+11
+CCB v3.0, VCS v4.4
+processing, and commercialization of non-timber forest products (NTFPs) including Brazil nuts
+(Bertholletia excelsa), açaí (Euterpe spp.), copaíba oil (Copaifera spp.), and andiroba (Carapa
+guianensis), leveraging the project proponent's 20-year supply chain connecting Amazon
+communities to international markets; (3) Community infrastructure and well-being,
+encompassing solar energy systems, water capture and treatment, internet connectivity, and
+improvements to community facilities; and (4) Capacity building and environmental education,
+including training in sustainable forest management, organic and fair trade certification, fire
+prevention, and biodiversity monitoring techniques.
+The project area is situated within the Amazon biome ecoregion of Uatumã–Trombetas Moist
+Forests (WWF classification), characterized by dense ombrophilous forest (terra firme), alluvial
+forests (várzea and igapó), and transitional vegetation zones. The region supports significant
+biodiversity, including species classified as Vulnerable, Endangered, or Critically Endangered by
+the IUCN, such as Harpia harpyja (Harpy Eagle, VU), Pteronura brasiliensis (Giant Otter, EN),
+Priodontes maximus (Giant Armadillo, VU), and Bertholletia excelsa (Brazil Nut, VU). By
+maintaining forest cover across the 36 properties, the project ensures the continuity of vital
+ecosystem services including carbon sequestration, watershed regulation, nutrient cycling, and
+habitat connectivity within a contiguous forest block.
+Monitoring is carried out through an integrated system combining remote sensing (satellite
+imagery at multiple resolutions, drone surveys, FIRMS fire alerts), ground-based verification
+(permanent forest inventory plots, biodiversity transects, camera traps), and community-based
+surveillance (monthly patrols, fire detection and response). This multi-layered approach ensures
+early detection of threats and supports adaptive management.
+Climate Objectives:
+Avoid planned deforestation across the APD area of approximately 14,95 hectares, preventing
+the release of 10,008,517.90 tCO₂e over the 40-year crediting period (May 2023 – April 2063),
+representing an average estimated emission reductions of approximately 250,212.95 tCO₂e per
+year.
+Community Objectives:
+Improve livelihoods of riverine communities within the project zone through sustainable
+economic alternatives based on NTFP value chains, community infrastructure investments (solar
+energy, water systems, connectivity), capacity building, and equitable benefit-sharing of carbon
+credit revenues.
+Biodiversity Objectives:
+Protect habitat for threatened species and maintain ecological connectivity within the Amazon
+biome by preventing fragmentation, preserving High Conservation Value (HCV) areas, and
+implementing a comprehensive biodiversity monitoring program. The project is not located within
+a jurisdiction covered by a jurisdictional REDD+ program.
+
+Page 12
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+12
+CCB v3.0, VCS v4.4
+2.1.2 Audit History (VCS, 4.1)
+Audit type Period Program Validation/verification
+body name
+Number
+of years
+Validation/
+verification
+(DD-Month-YYYY--
+DD-Month-YYYY)
+VCS CCB Validation/verification body
+name
+One year
+….
+2.1.3 Sectoral Scope and Project Type (VCS, 3.2)
+Sectoral scope 14: Agriculture, forestry, and other land use
+AFOLU project category 12 Reduced Emissions from Deforestation and Degradation (REDD)
+Project activity type Avoiding Planned Deforestation (APD)
+2.1.4 Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)
+The project is eligible under the VCS Program REDD activity category of avoiding planned
+deforestation as per Appendix 1 of the VCS standard v5.0. The project area qualifies as forest
+and has remained forested for more than 10 years prior to the project start date, meeting the
+applicable forest definition thresholds. In the absence of the project, the area was legally
+authorized and documented for conversion to non-forest land, which would have resulted in
+significant loss of forest carbon stocks. The project activities prevent this planned conversion by
+maintaining the forest cover and protecting existing carbon stocks, thereby reducing net GHG
+emissions associated with deforestation.
+General Requirements
+General eligibility of the project as per Section 3.1 of the VCS Standard v5.0:
+General Eligibility as per VCS Standard v5.0 Justification
+3.1.1 Projects shall meet all applicable VCS
+Program rules.
+The project meets all applicable rules and
+requirements set out under the VCS Program,
+as detailed in this section and in Applicability
+of Methodology.
+3.1.2 Project proponents shall apply
+methodologies listed on the Verra website.
+The project applies the approved methodology
+VM0007 REDD+ Methodology Framework
+v1.8, which is currently active and listed on the
+Verra website.
+12 See Appendix 1 of the VCS Standard
+
+Page 13
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+13
+CCB v3.0, VCS v4.4
+3.1.3 Modules and tools shall be applied in
+accordance with the VCS Program rules and
+the applied methodology.
+Modules and tools have been applied in
+accordance with the requirements of the
+VM0007 REDD+ Methodology Framework v1.8
+and consistent with the rules of the VCS
+Program. Details of the modules and tools
+applied are provided in Section 3.1.1.
+3.1.4 The version of a methodology, module,
+or tool that is applied shall be active on the
+date that the respective project request is
+submitted to Verra for the following types of
+requests:
+1) Registration
+2) Verification approval where the
+verification includes:
+a) baseline reassessment and/or
+b) a methodology change through a
+project description deviation
+3) Crediting period renewal
+4) Requantification
+At the time of submission of the project for
+listing to Verra, the applied methodology
+VM0007 REDD+ Methodology Framework v1.8
+and any associated modules and tools are
+active on the Verra website. The project
+proponent will ensure that the versions applied
+remain valid at the time of registration and will
+incorporate any updates or changes to the
+methodology, modules, or tools in accordance
+with VCS Program requirements, if applicable.
+3.1.5 The project proponent may continue to
+apply the versions described in Section 3.1.4
+for the remainder of the project crediting
+period or baseline reassessment period,
+whichever is shorter, unless otherwise
+specified on the Verra website.
+VM0007 REDD+ Methodology Framework v1.8
+and any associated modules and tools will
+continue to be applied for the duration of the
+project crediting period or baseline
+reassessment period, whichever is shorter,
+unless otherwise specified on the Verra
+website.
+3.1.6 Project proponents shall conduct
+themselves lawfully at all times and ensure
+that the project and implementation of
+project activities do not lead to the violation
+of any national, state or provincial, local or
+municipal, or any other applicable law,
+regardless of whether the law is enforced.
+Where laws conflict, the more restrictive
+requirement shall prevail.
+The project activities are implemented in
+compliance with all applicable national, state,
+provincial, and local laws and regulations as
+detailed in Section 2.5.
+In cases where multiple legal requirements
+apply and conflicts arise, the more restrictive
+requirement shall prevail to ensure full legal
+compliance throughout the implementation of
+the project activities.
+
+Page 14
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+14
+CCB v3.0, VCS v4.4
+3.1.7 Where a methodology permits the
+project proponent to choose a model:
+1) the model shall conform to the VCS
+Methodology Requirements.
+2) it shall be demonstrated at validation that
+the model is appropriate to the project
+circumstances and its use will lead to an
+appropriate quantification of reductions
+and/or removals.
+Where the applied methodology VM0007
+REDD+ Methodology Framework v1.8 allows
+the selection of a model, the selected model
+shall conform to the VCS Methodology
+Requirements. The appropriateness of the
+model for the project circumstances and its
+suitability for accurately quantifying GHG
+emission reductions will be demonstrated at
+validation.
+3.1.8 Where a methodology permits the
+project proponent to choose a third-party
+default factor or standard to ascertain GHG
+emission data and any supporting data for
+establishing baseline scenarios and
+demonstrating additionality, the default
+factor or standard shall conform to the
+relevant requirements in the VCS
+Methodology Requirements.
+Where the applied methodology VM0007
+REDD+ Methodology Framework v1.8 permits
+the use of third-party default factors or
+standards to determine GHG emission data or
+supporting information for establishing the
+baseline scenario and demonstrating
+additionality, such factors will be sourced from
+recognized references such as the
+Intergovernmental Panel on Climate Change
+(IPCC) guidelines, peer-reviewed scientific
+literature, and other internationally accepted
+datasets. All selected default factors and
+standards shall conform to the relevant
+requirements specified in the VCS
+Methodology Requirements.
+3.1.9 Implementing partners working with
+the project proponent shall be identified in
+the project description, including their roles
+and responsibilities over the project crediting
+period with respect to at least
+implementation, management, and
+monitoring of the project.
+All implementing partners involved in the
+project are identified in Section 2.1.8,
+including their respective roles and
+responsibilities related to the implementation,
+management, and monitoring of project
+activities during the project crediting period.
+Detailed information will be provided during
+the validation stage in Section 2.4.
+3.1.10 Project proponents shall demonstrate
+that during each verification period:
+1) project activities have been implemented
+in accordance with the project design.
+During each verification period, it will be
+demonstrated that the project activities have
+been implemented in accordance with the
+project design. Where no new project activities
+are implemented, evidence will confirm that
+previously implemented activities have
+
+Page 15
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+15
+CCB v3.0, VCS v4.4
+2) where no new project activities have been
+implemented, previously implemented
+project activities continued to be
+implemented.
+continued. Any changes, if applicable, will be
+demonstrated and documented as project
+description deviations in accordance with
+Verra VCS Program requirements.
+Project Crediting Period and Registration Timelines
+3.8.1 The initial crediting period start date
+shall:
+1) be consistent with the definition of initial
+crediting period start date in the VCS
+Program Definitions.
+2) conform to any criteria set out in the
+applied methodology.
+3) be established based on implementation
+of the earliest project activity, where the
+project includes multiple project activities.
+4) determine the start of the first project
+monitoring period, which shall begin on the
+initial crediting period start date. Some
+methodologies may require project
+proponents to quantify emissions that occur
+prior to this date to account for all project or
+baseline emissions.
+The initial crediting period start date for the
+Marcondes REDD+ Project is 01 May 2023,
+which is consistent with the definition of the
+initial crediting period start date under the VCS
+Program and conforms to the criteria specified
+in the applied methodology.
+The project does not involve multiple project
+activities and implements a single REDD+
+activity in a grouped project design aimed at
+avoiding planned deforestation (APD).
+Accordingly, the crediting period start date is
+established based on the earliest
+implementation of project activities
+undertaken to prevent planned deforestation.
+The selected date corresponds to the
+commencement of project implementation
+activities, including the execution of carbon
+credit agreements with participating
+landowners and the initiation of monitoring
+activities across properties located in the
+municipalities of Nhamundá, Parintins, and
+Barreirinha in the state of Amazonas.
+This date also determines the start of the first
+monitoring period, from which emission
+reductions are accounted for under the
+project. The applied methodology does not
+require quantification of emissions occurring
+prior to the crediting period start date;
+therefore, this provision is not applicable to the
+project. Further details on the project start
+date and commencement of implementation
+are provided in Section 2.1.10 of the PD..
+Listing and Registration Deadlines
+
+Page 16
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+16
+CCB v3.0, VCS v4.4
+3.8.2 Project proponents shall submit a
+pipeline listing request within one year of the
+initial crediting period start date.
+The requirement under section 3.8.2 of the
+VCS Standard v5.0 requires project
+proponents to submit a pipeline listing request
+within one year of the initial crediting period
+start date. However, as clarified in the
+document “VCS Version 5: Overview of VCS
+Program Updates and Effective Dates”
+released by Verra on 16 December 2025, this
+requirement is only effective for pipeline listing
+requests submitted on or after 1 January 2027.
+Therefore, this requirement is not applicable to
+the present project, and the project remains
+eligible for pipeline listing even though the
+submission occurs more than one year after
+the initial crediting period start date.
+3.8.3 Project proponents shall submit an
+initial registration request within the
+timelines set out in Table 7 in the VCS
+Standard v5.0
+As per Table 7 in the VCS Standard v5.0, AFOLU
+projects are required to submit the registration
+request within eight years from the start of the
+initial crediting period. The present project
+complies with this requirement, as the
+registration request will be submitted within
+the applicable timeline from the initial
+crediting period start date.
+Project Crediting Period Length
+3.8.4 The project crediting period shall be
+determined as set out in Table 8 in the VCS
+Standard v5.0
+The crediting period for the present project is
+40 years, spanning 01 May 2023 to 30 April
+2063.
+3.8.5 Proponents of AFOLU projects shall
+have a credible and robust plan for managing
+and implementing the project over the project
+crediting period, including for monitoring and
+verifying the project’s performance. Where
+the project crediting period is less than 40
+years, the permanence of the project’s
+carbon stocks shall be monitored in
+accordance with the requirements in
+Sections 3.2.25–3.2.26.
+The present project has established a
+comprehensive project implementation and
+management plan that includes institutional
+arrangements, monitoring procedures, and
+verification provisions to ensure effective
+implementation throughout the crediting
+period. The project has a crediting period of 40
+years (01 May 2023 to 30 April 2063). Since
+the crediting period is 40 years, the
+requirement related to additional permanence
+monitoring for projects with a crediting period
+of less than 40 years, as referenced in
+
+Page 17
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+17
+CCB v3.0, VCS v4.4
+Sections 3.2.25–3.2.26, is not applicable to
+the present project. Therefore, the project
+complies with the requirement specified under
+section 3.8.5 of the VCS Standard v5.0.
+2.1.5 Transfer Project Eligibility (VCS, 3.23, Appendix 2)
+Not applicable. The Marcondes REDD+ project is not registered in another GHG program with
+activities included in the scope of the VCS program.
+2.1.6 Project Design (VCS, 3.6)
+Indicate if the project has been designed as:
+☐ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+☒ Grouped project
+2.1.6.1 Eligibility Criteria for Grouped Projects (VCS, 3.6; CCB, G1.14)
+The Marcondes REDD+ Project is a grouped project with all the new project activity instances will
+follow the same requirements applied to the initial instances that will participate during validation,
+in accordance with Section 3.5.3 to 3.5.7 of the VCS Standard v5.0. As a grouped project, it also
+allows the inclusion of additional project activity instances in future years after the validation
+process, which currently covers only one instance.
+VCS Standard Eligibility for Grouped Projects Marcondes REDD+ Project
+3.5.3 (1) Grouped projects shall specify one or
+more grouped project eligibility areas, which may
+be spatially distinct or overlapping.
+The Marcondes REDD+ Project is implemented on
+properties located within the municipalities of
+Nhamundá, Parintins, and Barreirinha in the state of
+Amazonas, within the Amazon Biome.
+The Amazon Biome within the state of Amazonas
+constitutes the Grouped Project Eligibility Area for
+the project, within which future project instances
+may be included, subject to meeting the project
+eligibility criteria.
+3.5.3 (2) Establish at least one initial project
+activity instance in each eligibility area.
+As for validation, at least one initial project activity
+instance has been established within the grouped
+project eligibility area. The Marcondes REDD+
+Project is currently implemented across 36
+properties located within the municipalities of
+Nhamundá, Parintins, and Barreirinha in the state of
+Amazonas, within the Amazon Biome. These
+
+Page 18
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+18
+CCB v3.0, VCS v4.4
+properties constitute the initial project activity
+instances established within the defined grouped
+project eligibility area.
+3.5.3 (3) Determine the baseline scenario and
+demonstrate additionality separately for each
+eligibility area
+The baseline scenario and demonstration of
+additionality have been determined separately for
+the grouped project eligibility area defined within the
+Amazon Biome located in the state of Amazonas. The
+analysis considers the prevailing land-use dynamics,
+drivers of deforestation, and regulatory context
+within the eligibility area to establish the most
+plausible baseline scenario and to demonstrate that
+the project activities implemented across the
+municipalities of Nhamundá, Parintins, and
+Barreirinha are additional to the baseline conditions.
+3.5.4 The physical boundary of an eligibility area
+shall align with a jurisdiction or combination of
+jurisdictions and be within a single country.
+The grouped project eligibility area for the proposed
+project is defined within the Amazon Biome located
+in the state of Amazonas, which lies entirely within
+Brazil. The project activities are currently
+implemented on properties located within the
+municipalities of Nhamundá, Parintins, and
+Barreirinha, which are administrative jurisdictions
+within the state of Amazonas.
+Therefore, the physical boundary of the eligibility
+area aligns with a combination of recognized
+administrative jurisdictions (municipalities) within
+the state of Amazonas and is entirely contained
+within the national boundary of Brazil. As such, the
+eligibility area complies with the requirement that
+the physical boundary aligns with a jurisdiction or
+combination of jurisdictions and is located within a
+same country.
+3.5.5 The determination of baseline scenario and
+demonstration of additionality for an eligibility
+area shall:
+• be based on the initial project activity
+instances.
+• apply across the entire eligibility area.
+The determination of the baseline scenario and
+demonstration of additionality for the eligibility area
+are based on the initial project activity instances
+implemented across 36 properties located within
+the municipalities of Nhamundá, Parintins, and
+Barreirinha in the state of Amazonas, within the
+Amazon Biome.
+The baseline scenario and additionality assessment
+are based on the prevailing deforestation drivers,
+land-use practices, and regulatory conditions
+observed within the initial project activity instances,
+supported by proxy area analysis to ensure
+
+Page 19
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+19
+CCB v3.0, VCS v4.4
+representativeness across the eligibility area. Since
+these conditions are representative of the broader
+forest areas within the defined eligibility area, the
+same baseline scenario and additionality
+justification are applied consistently across the
+entire eligibility area.
+3.5.6 For each eligibility area, project proponents
+shall specify eligibility criteria for adding new
+project activity instances to the eligibility area.
+The project defines one eligibility area, located within
+the Amazon Biome in the state of Amazonas.
+Eligibility criteria have been specified to ensure that
+any new project activity instances added to the
+grouped project are located within this defined
+eligibility area and meet the same baseline,
+additionality, and monitoring requirements as the
+initial project activity instances implemented across
+properties in the municipalities of Nhamundá,
+Parintins, and Barreirinha.
+3.5.7 Eligibility criteria shall ensure that all
+instances added to an eligibility area:
+• are uniquely identifiable.
+• share the same baseline scenario as the
+initial instances, or where multiple project
+• activities are implemented in each
+instance, the same combination of baseline
+scenarios.
+• share the same conditions relevant to
+additionality as the initial instances.
+• implement the same technologies or
+measures as the initial instances.
+• meet all applicability conditions of the
+applied methodology.
+The eligibility criteria defined for the single eligibility
+area within the Amazon Biome in the state of
+Amazonas ensure that all new project activity
+instances added to the grouped project are uniquely
+identifiable at the property level and are located
+within the defined eligibility area.
+All added instances must share the same baseline
+scenario and conditions relevant to additionality as
+the initial project activity instances implemented
+across properties in the municipalities of
+Nhamundá, Parintins, and Barreirinha. The added
+instances will implement the project activity
+measures as the initial instances and will comply
+with all applicability conditions of the applied
+methodology.
+3.5.8 Where project proponents add new project
+activity instances, these shall be added to a
+project in one or more batches at verification.
+Any new project activity instances added to the
+grouped project will be incorporated in batches at
+the time of verification, in accordance with the
+applicable requirements. These instances will be
+added within the defined eligibility area in the
+Amazon Biome in the state of Amazonas and will
+meet the established eligibility criteria before
+inclusion in the project.
+3.5.9 Project proponents shall hold the right to
+operate and the right to reductions and removals
+The PP has established agreements with
+participating landowners within the project area,
+
+Page 20
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+20
+CCB v3.0, VCS v4.4
+for each new instance in a batch, demonstrated
+in accordance with Section 3.6 of the VCS
+Standard v5.0.
+granting the PP the right to implement the project
+activities and the right to the VCUs generated from
+the respective properties. Through these
+agreements, the PP holds full control over the VCUs
+generated from each project activity instance, while
+a defined proportion of the benefits from the sale of
+VCUs will be shared with the participating
+landowners. Accordingly, the PP will demonstrate the
+right to operate and the right to VCUs for each new
+instance added in future, in accordance with Section
+3.6 of the VCS Standard v5.0.
+3.5.10 All instances within a batch shall:
+• be within a single eligibility area.
+• conform to the eligibility criteria
+established for the eligibility area.
+• have been implemented during the
+monitoring period being verified.
+• only be eligible for crediting up to the end
+of the project crediting period.
+• never have been enrolled in another
+project registered with the VCS Program, unless
+authorized by Verra.
+All new project activity instances added in a batch
+will be located within the single defined eligibility
+area in the Amazon Biome within the state of
+Amazonas. Each instance will conform to the
+eligibility criteria established for the eligibility area
+and will have been implemented during the
+monitoring period being verified.
+All instances included in a batch will be eligible for
+crediting only up to the end of the project crediting
+period and will be verified to ensure that they have
+not been previously enrolled in any other project
+registered under the VCS Program, unless otherwise
+authorized by Verra.
+3.5.11 Where the addition of a new batch of
+project activity instances impacts the leakage
+assessment of the existing instances, activity-
+shifting, market, and ecological leakage shall be
+reassessed for the entire project area.
+Where a new batch of project activity instances is
+added, the project proponent will assess whether the
+inclusion of these instances affects the existing
+leakage assessment. If any impact is identified,
+activity-shifting, market, and ecological leakage will
+be reassessed for the entire project area within the
+eligibility area located in the Amazon Biome in the
+state of Amazonas, in accordance with the
+applicable methodology requirements.
+2.1.7 Project Proponent (VCS, 3.7; CCB, G1.1)
+Organization name Organica Consultoria LTDA
+Contact person Rémi Denecheau
+Title Chief Executive Officer
+
+Page 21
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+21
+CCB v3.0, VCS v4.4
+Address Rua Barbosa de Freitas 1741, Sala 04, Aldeota, Fortaleza, CE 60170-021,
+Brazil
+Telephone +55 85 99106 3502
+Email admin@organica-consulting.com
+2.1.8 Other Entities Involved in the Project
+Organization name Comunidade São Tomé do Mocambo
+Role in the project Community partner — liaison with local populations, FPIC facilitation,
+community-based monitoring and patrols, stakeholder engagement
+Contact person To be confirmed
+Title Community representative
+Address R. Antônio Lopes, 10 — Mocambo, CEP 69157-899, Parintins, Amazonas,
+Brazil (Coordinates: -2.431562, -57.299312)
+Telephone Via Organica Consultoria: +55 85 99106 3502
+Email admin@organica-consulting.com
+Organization name Urupolpas Comércio de Produtos Alimentícios Ltda (CNPJ
+44.749.580/0001-90)
+Role in the project Implementation partner for local operations, forest inventory, biodiversity
+surveys, FPIC consultations, and community relations
+Contact person Rémi Denecheau
+Title Administrator
+Address Estrada Governador Gilberto Mestrinho, Km 02, CEP 69.130-000,
+Urucará, Amazonas, Brazil
+Telephone +55 85 99431-7279
+Email contact@urupolpas.com
+2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8)
+Legal Framework Governing Land Rights
+
+Page 22
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+22
+CCB v3.0, VCS v4.4
+Land ownership and tenure of the Marcondes REDD+ project properties are governed by applicable
+federal and state legislation in Brazil, which establishes the legal basis for possession,
+environmental registration, georeferenced boundary certification, and formal land tenure rights.
+Federal Legislation
+▪ Brazilian Civil Code (Law No. 10.406/2002, Articles 1.196–1.228): Recognizes possession
+(posse) as a protected right and establishes usucapião as a legal pathway to ownership.
+▪ Brazilian Forest Code (Law No. 12.651/2012): Establishes the requirement for Cadastro
+Ambiental Rural (CAR) registration and mandates an 80% Legal Reserve for rural properties
+located in the Legal Amazon.
+▪ Law No. 10.267/2001 and Decree No. 4.449/2002: Establish the SIGEF system (Sistema de
+Gestão Fundiária) and define requirements for georeferenced rural property registration.
+▪ Law No. 6.015/1973 (Public Registries Law): Regulates property registration and the Matrícula
+system at the Cartório de Registro de Imóveis.
+State Legislation (Amazonas)
+▪ State Law No. 2.665/2001: Regulates state land policy, including the issuance of Concessão
+de Direito Real de Uso (CDRU) for state lands and terras devolutas.
+▪ State Law No. 3.135/2007: Establishes the Amazonas State Policy on Climate Change,
+providing the legal framework for carbon credit projects and ecosystem services.
+Land Ownership
+The Marcondes REDD+ project is a grouped project and for validation comprises 36 rural properties
+located primarily in the municipality of Nhamundá, Parintins and Barreirinha, State of Amazonas,
+Brazil. The total project area is approximately 74,698 hectares, held by approximately 24
+landowners and legal entities.
+All 36 project properties are registered in the SIGEF system (Sistema de Gestão Fundiária)
+managed by INCRA, providing legally recognized, georeferenced, non-overlapping property
+boundaries. All properties are also registered in the Cadastro Ambiental Rural (CAR), which includes
+declared georeferenced boundaries, identification of Permanent Protection Areas (APPs), and
+demarcation of Legal Reserves in accordance with the 80% requirement applicable in the Legal
+Amazon. Applications for Concessão de Direito Real de Uso (CDRU) have been submitted to the
+SECT (Secretaria de Estado das Cidades e Territórios) for all properties, providing secure long-term
+rights of land use and management. Environmental license applications (Autorização de Supressão
+Vegetal — ASV) have been filed with IPAAM (Instituto de Proteção Ambiental do Amazonas) for all
+properties, confirming the legal authorization for land conversion that constitutes the basis for the
+APD baseline scenario.
+Table 9. Overview of Applicable Land Regularization Pathway
+Land Type State lands (terras devolutas) and lands with occupation history
+
+Page 23
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+23
+CCB v3.0, VCS v4.4
+Issuing Authority SECT — Secretaria de Estado das Cidades e Territórios
+Prerequisite SIGEF registration + CAR + Escritura de posse or equivalent
+Titling Outcome Concessão de Direito Real de Uso (CDRU)
+Key Document SIGEF certification (georeferenced boundaries)
+Duration CDRU grants long-term use rights compatible with project longevity
+Carbon Credit Agreements
+All 36 project properties are covered by carbon credit agreements between the respective
+landowners/possessors and the PP. Each agreement has a project duration of 40 years
+corresponding to the crediting period, with a longevity commitment of 100 years aligned with,
+Section 3.2.12 of VCS Standard v5.0.
+Participants commit to maintaining forest cover within the APD area. The agreements grant the
+Project Proponent exclusive rights to claim, register, issue, and commercialize VCUs. They also
+provide access for monitoring, validation, verification, and audit purposes, and establish equitable
+benefit-sharing arrangements.
+When an instance leaves the grouped project before the end of the project longevity, the provisions
+of Section 3.2.19 (1) or (2) of the VCS Standard v5.0 shall be followed.
+Participating Parties
+Table 10. Inventory of Project Properties
+# Fazenda Owner/Entity Munici
+pal
+Contr.(ha) SIGEF(ha
+)
+Contract SIGEF Status
+1 AnaLina I Laís Miller / Paulo R.
+M.N. da Motta
+Nham. 500.1 506.3 Signed SIGEF Active — CDRU
+Filed
+2 AnaLina II Paulo Renato M.N. da
+Motta
+Nham. 735.1 735.1 Signed SIGEF Active — CDRU
+Filed
+3 Takahara Fábio K. Kobayashi Nham. 1,500.0 1,500.0 Signed SIGEF Active — CDRU
+Filed
+4 Luciano
+Miller R.R.
+Luciano Miller Nham. 573.5 512.5 Signed SIGEF Active — CDRU
+Filed
+5 Aninha Alexandre J. Rossato Nham. 1,001.9 1,001.9 240900
+3
+SIGEF Active — CDRU
+Filed
+6 Ghanima Ricardo B. Dias / Ana
+P. Hernandez
+Nham. 501.2 501.2 240901
+8
+SIGEF Active — CDRU
+Filed
+7 Dona
+Flávia
+Roberto Vidosky /
+RFRMV Inv.
+Nham. 2,434.0 2,434.0 240900
+6
+SIGEF Active — CDRU
+Filed
+8 Foizer Guilherme A. Foizer Nham. 1,004.1 1,000.8 240900
+7
+SIGEF Active — CDRU
+Filed
+
+Page 24
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+24
+CCB v3.0, VCS v4.4
+9 Bressan João Vitor R. Bressan
+Dias
+Nham. 506.1 506.1 240900
+5
+SIGEF Active — CDRU
+Filed
+10 Castro
+Alves
+Layron M. Alves / Aline
+L. de Castro
+Nham. 501.7 506.7 240900
+8-L
+SIGEF Active — CDRU
+Filed
+11 Luciano Luciano Marcondes
+Cesar
+Nham. 573.5 574.0 240901
+9
+SIGEF Active — CDRU
+Filed
+12 Mayara Roberto Camargo
+Quevedo
+Parin. 702.4 720.0 240901
+1
+SIGEF Active — CDRU
+Filed
+13 Lilian
+Trabulsi
+José Roberto Trabulsi Nham. 730.0 736.1 Signed SIGEF Active — CDRU
+Filed
+14 Trabulsi José Roberto Trabulsi Nham. 502.1 499.5 Signed SIGEF Active — CDRU
+Filed
+15 Gustavo e
+Flávia
+José Roberto Trabulsi Nham. 3,294.8 3,294.8 Signed SIGEF Active — CDRU
+Filed
+16 André
+Marconde
+s IV
+André E. Marcondes
+Cesar
+Parin. 4,549.8 4,549.8 240901
+6-A
+SIGEF Active — CDRU
+Filed
+17 N.Sra.
+Aparecida
+André E. Marcondes
+Cesar
+Nham. 6,086.8 6,122.8 240901
+6-B
+SIGEF Active — CDRU
+Filed
+18 Yod He
+Vav He
+André E. Marcondes
+Cesar
+Barr. 11,234.3 11,243.
+1
+240901
+6-B
+SIGEF Active — CDRU
+Filed
+19 I.N.R.I André E. Marcondes
+Cesar
+Nham. 2,488.1 2,488.1 Signed SIGEF Active — CDRU
+Filed
+20 Marconde
+s Q Corp.
+Marco Q Participações
+Ltda
+Nham. 15,658.6 15,671.
+4
+240901
+0
+SIGEF Active — CDRU
+Filed
+21 Pura Vida Layron M. Alves /
+Leandro Roberto
+Nham. 1,000.0 998.6 Signed SIGEF Active — CDRU
+Filed
+22 Mariana
+Quevedo
+Marco Q Participações
+Ltda
+Nham. 4,569.2 4,573.0 240901
+7
+SIGEF Active — CDRU
+Filed
+23 Pachama
+ma
+Matias Emmanuel
+Ferrero
+Nham. 503.1 503.1 240901
+3
+SIGEF Active — CDRU
+Filed
+24 Beca Cezar Augusto / Beca
+Gestão
+Nham. 1,055.2 1,017.4 240900
+4
+SIGEF Active — CDRU
+Filed
+25 P&M
+Cavali
+Paulo Tadeu Maia
+Cavali
+Nham. 1,003.1 989.7 240901
+2
+SIGEF Active — CDRU
+Filed
+26 Rodriguez
+3
+Ricardo José Rodriguez
+Ferreira
+Nham. 490.3 490.3 240901
+4
+SIGEF Active — CDRU
+Filed
+27 FEHU
+Corporatio
+n
+Aécio R. Dias Pereira
+Filho
+Nham. 1,000.8 1,011.0 240900
+1
+SIGEF Active — CDRU
+Filed
+28 FEHU
+Corp. II
+Aécio R. Dias Pereira
+Filho
+Nham. 1,000.0 1,000.0 Signed SIGEF Active — CDRU
+Filed
+29 Irmãos
+Marconde
+s
+Luciano M. Cesar /
+Caio Marcondes
+Nham. 1,000.0 1,000.0 Signed SIGEF Active — CDRU
+Filed
+
+Page 25
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+25
+CCB v3.0, VCS v4.4
+30 Alvorada Francisco R. Borges
+Ribeiro
+Nham. 401.0 401.0 240900
+8-F
+SIGEF Active — CDRU
+Filed
+31 Alvorada 2 Francisco R. Borges
+Ribeiro
+Nham. 599.6 599.6 240900
+8-F
+SIGEF Active — CDRU
+Filed
+32 Pitton Wagner Rodrigo Pitton Nham. 1,001.7 1,001.7 Signed SIGEF Active — CDRU
+Filed
+33 Clara Mara Carolina Speri de
+Mello
+Nham. 1,001.7 1,001.7 Signed SIGEF Active — CDRU
+Filed
+34 AnaLina III Laís Miller / Paulo R.
+M.N. da Motta
+Nham. 2,980.5 2,980.5 Signed SIGEF Active — CDRU
+Filed
+35 André
+Marconde
+s V
+Marco Q Participações
+Ltda
+Nham. 1,008.9 1,008.9 240901
+7
+SIGEF Active — CDRU
+Filed
+36 Sítio
+Maranhen
+se
+João Maciel Nham. 1,004.1 1,004.1 Signed SIGEF Active — CDRU
+Filed
+TOTAL ~24 owners/entities 3 mun. ~74,698 ~74,698
+Note: All 36 properties are registered in SIGEF with georeferenced boundaries, registered in CAR, and have CDRU
+applications filed with SECT. Environmental license applications have been submitted to IPAAM for all properties.
+Evidence of Right to Emission Reductions
+The Project Proponent demonstrates the right to the GHG emission reductions through: (1)
+executed carbon credit agreements with all 36 participating landowners granting exclusive VCU
+rights; (2) documented chain of possession for each property; (3) active CDRU regularization
+proceedings; and (4) possession rights under Brazilian Civil Code, Articles 1.196–1.228.
+2.1.10 Project Start Date (VCS, 3.8)
+Project start date 01st May 2023
+Justification The start date of 01 May 2023 corresponds to the commencement of
+project implementation activities, including the execution of the initial
+carbon credit agreements with participating landowners, the initiation of
+remote sensing monitoring over the project area, and the first field tasks
+to establish baseline conditions.
+In Brazil, it is common practice for landowners to initiate deforestation
+prior to the issuance of a formal vegetation suppression licence where
+such practice is established at the regional level. In the municipality of
+Nhamundá, the Instituto de Proteção Ambiental do Amazonas (IPAAM)
+has authority to issue vegetation suppression authorizations
+(Autorização de Supressão Vegetal — ASV) for areas above 20 hectares,
+while smaller areas may be processed at the municipal level. The project
+intervened to prevent legally authorized deforestation by establishing
+conservation agreements with landowners and initiating monitoring and
+patrol activities from the project start date.
+
+Page 26
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+26
+CCB v3.0, VCS v4.4
+Evidence of project implementation, including executed carbon credit
+agreements, field mission reports, and satellite monitoring records, will
+be made available to the VVB for review.
+2.1.11 Benefits Assessment and Project Crediting Period (VCS, 3.9; CCB, G1.9)
+Crediting period 01-May-2023 to 30-April-2063 (40 Years)
+Start date of first or
+fixed crediting
+period
+01-May-2023
+CCB benefits
+assessment period
+01-May-2023 to 30-April-2063 (40 Years)
+2.1.12 Differences in Assessment/Project Crediting Periods (CCB, G1.9)
+Not applicable. The periods for benefits assessment and project crediting period are the same.
+2.1.13 Project Scale and Estimated Reductions or Removals (VCS, 3.10)
+☒ < 300,000 tCO2e/year (project)
+☐ ≥ 300,000 tCO2e/year (large project)
+Table 13. Estimated Emission Reductions (ERRs) by Vintage Year:
+Calendar year of crediting period Estimated reductions (tCO2e)
+01-May-2023 to 31-Dec-2023 325951.51
+01-Jan-2024 to 31-Dec-2024 493326.28
+01-Jan-2025 to 31-Dec-2025 504835.03
+01-Jan-2026 to 31-Dec-2026 516343.77
+01-Jan-2027 to 31-Dec-2027 527852.52
+01-Jan-2028 to 31-Dec-2028 539361.27
+01-Jan-2029 to 31-Dec-2029 550870.02
+01-Jan-2030 to 31-Dec-2030 562378.77
+01-Jan-2031 to 31-Dec-2031 573887.52
+
+Page 27
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+27
+CCB v3.0, VCS v4.4
+01-Jan-2032 to 31-Dec-2032 585396.27
+01-Jan-2033 to 31-Dec-2033 589940.55
+01-Jan-2034 to 31-Dec-2034 591073.66
+01-Jan-2035 to 31-Dec-2035 592206.77
+01-Jan-2036 to 31-Dec-2036 593339.88
+01-Jan-2037 to 31-Dec-2037 594472.99
+01-Jan-2038 to 31-Dec-2038 595606.10
+01-Jan-2039 to 31-Dec-2039 594521.85
+01-Jan-2040 to 31-Dec-2040 112218.54
+01-Jan-2041 to 31-Dec-2041 101842.91
+01-Jan-2042 to 31-Dec-2042 91467.27
+01-Jan-2043 to 31-Dec-2043 80331.05
+01-Jan-2044 to 31-Dec-2044 68822.30
+01-Jan-2045 to 31-Dec-2045 57313.55
+01-Jan-2046 to 31-Dec-2046 45804.80
+01-Jan-2047 to 31-Dec-2047 34296.05
+01-Jan-2048 to 31-Dec-2048 22787.31
+01-Jan-2049 to 31-Dec-2049 11325.93
+01-Jan-2050 to 31-Dec-2050 10192.82
+01-Jan-2051 to 31-Dec-2051 9059.71
+01-Jan-2052 to 31-Dec-2052 7926.60
+01-Jan-2053 to 31-Dec-2053 6793.49
+01-Jan-2054 to 31-Dec-2054 5660.38
+01-Jan-2055 to 31-Dec-2055 4527.27
+
+Page 28
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+28
+CCB v3.0, VCS v4.4
+01-Jan-2056 to 31-Dec-2056 3394.16
+01-Jan-2057 to 31-Dec-2057 2261.05
+01-Jan-2058 to 31-Dec-2058 1127.94
+01-Jan-2059 to 31-Dec-2059 0.00
+01-Jan-2060 to 31-Dec-2060 0.00
+01-Jan-2061 to 31-Dec-2061 0.00
+01-Jan-2062 to 31-Dec-2062 0.00
+01-Jan-2063 to 30-Apr-2063 0.00
+Total estimated ERRs during crediting period 10008517.90
+Total Crediting Period (Years) 40
+Average annual ERRs 250212.95
+2.1.14 Physical Parameters (CCB, G1.3)
+The project area is characterized by the following physical parameters, based on regional data
+from INPE, IBGE, CPRM, and INMET, supplemented by site-specific observations from field
+missions conducted since 2023.
+General Location and Access
+The Marcondes REDD+ project covers approximately 74,698 hectares across 36 rural properties
+primarily in the municipality of Nhamundá (14,107 km², Baixo Amazonas sub-region), with
+additional properties in Parintins (5,956 km²) and Barreirinha (5,752 km²). Nhamundá
+municipality borders Parintins and Urucará to the south, the state of Roraima to the north, and
+the municipalities of Faro and Terra Santa (State of Pará) to the east. Access is exclusively by
+waterway (via the Amazon and Nhamundá rivers from Parintins, approximately 577 km from
+Manaus by river) or by small aircraft using the Nhamundá airstrip. Elevation ranges from
+approximately 15 m (floodplain areas along the Amazon) to 150 m above sea level in the terra
+firme uplands within the project area.
+
+Page 29
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+29
+CCB v3.0, VCS v4.4
+Figure: General Location of the Project
+Geology, Geomorphology and Topography
+The project area is situated within the Amazon Sedimentary Basin, underlain by Cretaceous and
+Tertiary sedimentary formations. The predominant geological unit is the Alter do Chão Formation
+(Cretaceous–Paleogene), composed of sandstones, siltstones, and claystones, typical of the
+central Amazon lowlands. Geomorphologically, the landscape comprises dissected tertiary
+plateaus (terra firme), fluvial terraces, and extensive floodplain systems (várzea) along the
+Amazon and Nhamundá rivers. Topography is gently undulating to flat, with elevations generally
+between 30 m and 120 m in the terra firme zones. The Nhamundá River, which forms the
+boundary between the states of Amazonas and Pará, has a sandy bed and clear waters, with
+several rapids in its upper course and lake formations at the confluence with the Paracatu River.
+
+Page 30
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+30
+CCB v3.0, VCS v4.4
+Figure: Topography of the Marcondes REDD+ Project area based on Digital Elevation Model
+(DEM) data.
+Figure: Terrain slope distribution within the Marcondesq REDD+ Project area based on DEM
+data.
+
+Page 31
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+31
+CCB v3.0, VCS v4.4
+Climate
+The climate is classified as Equatorial Humid (Af in the Köppen system), controlled by the
+Intertropical Convergence Zone (ITCZ) and equatorial continental air masses. Mean annual
+temperature is 26.3°C, with minimal seasonal variation (range: 24°C to 34°C). Annual
+precipitation ranges from 2,000 to 2,500 mm, distributed across two distinct seasons: the rainy
+season (December to May, with peak rainfall in March–April) and the dry season (June to
+November, with minimum rainfall in September–October). Relative humidity averages 80–90%
+throughout the year. The region occasionally experiences 'friagem' events (cold fronts from the
+south) that can temporarily reduce temperatures by 5–8°C.
+Hydrology
+The project area lies within the drainage basin of the Amazon River (right bank) and the
+Nhamundá River system. The Nhamundá River, a clear-water river originating in the highlands of
+Roraima, flows southward forming the natural boundary between the states of Amazonas and
+Pará before joining the Amazon. Its watershed encompasses a significant portion of the project
+properties. The hydrological regime is strongly seasonal, with annual flooding of the várzea areas
+between February and June (peak in May–June) and low-water levels from September to
+November. Water bodies within the project zone include the Amazon River main channel, the
+Nhamundá River and its tributaries, numerous igarapés (small forest streams), and seasonal and
+permanent lakes (lagos de várzea). These water systems are critical for local communities,
+supporting fishing, transportation, and domestic water supply.
+Figure: River and drainage network within the Marcondes REDD+ Project area.
+
+Page 32
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+32
+CCB v3.0, VCS v4.4
+Soils (Pedology)
+Soils in the project area are predominantly Dystrophic Yellow Latosols (Oxisols) in the terra firme
+zones, characterized by deep, well-drained profiles with low natural fertility, high aluminum
+saturation, and acidic pH (4.0–5.5). In the várzea zones, Gleysols and Fluvic Neosols
+predominate, with higher fertility due to annual sediment deposition from the Amazon River.
+Podzols (Spodosols) occur in localized areas of white-sand formations (campinarana). The low
+natural fertility of terra firme soils is a key factor limiting agricultural productivity and reinforcing
+the economic incentive for forest conversion to extensive cattle pasture the principal
+deforestation driver in the project region.
+Figure: Soil map of the Marcondes REDD+ Project area showing the spatial distribution of soil
+types across individual project properties.
+Vegetation and Land Cover
+The project area is covered predominantly by Dense Ombrophilous Forest (Floresta Ombrófila
+Densa) in the terra firme zones, with Alluvial Ombrophilous Forest (várzea and igapó) along the
+river corridors. According to Global Forest Watch (2020), Nhamundá municipality retains
+approximately 1.26 million hectares of natural forest, covering roughly 89% of its land area. The
+vegetation types present include: (a) terra firme forest the dominant formation, with canopy
+heights of 25–35 m and emergents reaching 45 m, high species diversity (>200 tree species per
+hectare), and high above-ground biomass (estimated 150–300 t C/ha); (b) várzea forest
+seasonally flooded alluvial forest along the Amazon and Nhamundá rivers, with lower canopy
+(15–25 m) and adapted species; (c) igapó forest permanently or semi-permanently flooded
+blackwater forest; and (d) campinarana localized low-stature vegetation on white-sand soils. Non-
+
+Page 33
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+33
+CCB v3.0, VCS v4.4
+forest land cover within the project zone is minimal, limited to small-scale agricultural clearings,
+secondary vegetation (capoeira), and waterways.
+Figure: Vegetation map showing the spatial distribution of vegetation types within the
+Marcondes REDD+ Project area.
+Figure: Land Use and Land Cover (LULC) map of the Marcondes REDD+ Project area showing
+the spatial distribution of major land cover classes within the project boundaries.
+
+Page 34
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+34
+CCB v3.0, VCS v4.4
+Deforestation Dynamics
+Deforestation in the Brazilian Legal Amazon reached 5,796 km² in the August 2024–July 2025
+PRODES/INPE cycle, representing an 11.08% decrease from the prior period and the third-lowest
+rate since measurements began in 1988. This marks the third consecutive year of decline under
+the Lula administration, with a cumulative 50% reduction compared to 2022. The state of
+Amazonas specifically recorded a 16.93% reduction in deforestation (to approximately 1,000
+km²). However, forest degradation has increased significantly 2,500,000+ hectares degraded in
+2024, a 163% increase compared to 2022, primarily due to fire. Despite declining national rates,
+private landowners in the Baixo Amazonas sub-region continue to exercise their legal right to
+convert up to 20% of property area under the Forest Code (Law 12.651/2012). The Marcondes
+project addresses this ongoing baseline threat on 36 specific properties where deforestation
+authorization has been sought from IPAAM. Nhamundá municipality (14,107.5 km², pop. 20,136,
+IBGE 2022; pop. estimated 21,251 in 2025; IDHM 0.586) has 62 rural communities and limited
+economic alternatives to livestock, reinforcing the economic rationale for planned forest
+conversion.
+2.1.15 Social Parameters (VCS, 3.18; CCB, G1.3)
+Socioeconomic conditions in the three municipalities hosting project properties are characterized
+by low human development indices, dependence on subsistence agriculture and extractivism,
+limited public services, and geographic isolation typical of the interior Amazon.
+Municipality Overview - Nhamundá
+Nhamundá: Population 20,136 (IBGE Census 2022), estimated at 21,251 (2025). Area: 14,107
+km². Density: 1.43 inhabitants/km². IDHM: 0.586 (PNUD/IBGE, 2010) — classified as low human
+development. PIB per capita: R$11,905.57 (2023). School enrollment (6–14 years): 98.93%.
+Infant mortality: 13.25 per 1,000 live births (2023). The municipality has 57 identified
+communities, with the majority of the rural population (approximately 60%) living in dispersed
+riverine settlements along the Amazon and Nhamundá rivers. The economy is based on
+subsistence agriculture (manioc, rice, beans), fishing, livestock (small-scale), and extractivism
+(Brazil nuts, açaí, timber). Indigenous peoples present in the municipality include the Waiwái,
+Hixkaryana, and Karafáwyna. Access to the municipal seat is by river only, from Parintins
+(approximately 8 hours by boat). Health infrastructure comprises basic public facilities only, with
+referral cases transferred to Parintins or Manaus.
+Municipality Overview - Parintins
+Parintins: Population 96,372 (IBGE Census 2022), estimated at 101,855 (2025). Area: 5,956
+km². Density: 16.18 inhabitants/km². IDHM: 0.658 (PNUD/IBGE, 2010) classified as medium
+human development. PIB per capita: R$17,193.26 (2023). Parintins is the regional center
+(Centro Sub-regional B) for the Baixo Amazonas region, serving as the commercial, educational,
+and healthcare hub for surrounding municipalities including Nhamundá and Barreirinha. The city
+is internationally known for the Festival Folclórico de Parintins (Boi-Bumbá Garantido vs.
+Caprichoso), a major cultural event. Two project properties (Mayara and André Marcondes IV) are
+located within Parintins municipality. Urban population share is approximately 68%.
+
+Page 35
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+35
+CCB v3.0, VCS v4.4
+Municipality Overview - Barreirinha
+Barreirinha: Population 31,065 (IBGE Census 2022), estimated at 33,442 (2024). Area: 5,752
+km². IDHM: 0.562 (PNUD/IBGE, 2010) classified as low human development. The municipality
+includes 14 districts and 170 communities, including indigenous territories of the Sateré-Mawé
+people and quilombola communities. One project property (Yod He Vav He, 11,234 ha the largest
+single property in the project) is located in Barreirinha municipality. The local economy is based
+on manioc flour production, fishing, guaraná cultivation (traditional Sateré-Mawé crop), and
+timber extraction.
+Communities within the Project Zone
+Communities within the project zone include Comunidade São Tomé do Mocambo (municipality
+of Parintins, coordinates -2.4316, -57.2993), which serves as the primary community partner,
+and dispersed riverine settlements along the Nhamundá River and its tributaries. These
+communities are characterized by subsistence livelihoods (fishing, manioc cultivation, NTFP
+collection), limited infrastructure (no electricity grid, river transport only), and low human
+development indicators. Nhamundá municipality has 62 rural communities (Prefeitura de
+Nhamundá 2025), a population density of 1.43 inhabitants/km² (IBGE 2022), and only 16.1%
+sewage coverage. The municipality's PIB per capita is R$11,905.57 (IBGE 2023), and infant
+mortality stands at 13.25 per 1,000 live births (2023). Neighboring municipalities include
+Parintins (96,251 pop., IDHM 0.658), Barreirinha (IDHM 0.562), and Urucará. Detailed
+community enumeration and needs assessments will be completed during the baseline
+socioeconomic survey.
+2.1.16 Project Zone Map and Project Location (VCS, 3.11, 3.18; CCB, G1.4-7, G1.13,
+CM1.2, B1.2)
+The Marcondes REDD+ project aims to avoid planned deforestation and degradation across a total
+project area of approximately 74,783 hectares (per GIS measurement, SIRGAS 2000 – EPSG
+4674), comprising 36 rural properties (fazendas) held by approximately 24 landowners and
+entities.
+
+Page 36
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+36
+CCB v3.0, VCS v4.4
+GIS-produced maps (see Appendix 9 — MARCONDES_LOCALIZAÇÃO.jpg, SIRGAS 2000 – EPSG
+4674, Scale 1:300,000): (a) project boundary map with 36 property boundaries; (b) regional
+context map showing municipalities (Nhamundá, Parintins, Barreirinha) and state boundaries
+(Amazonas, Pará, Roraima); (c) property identification numbers.
+Figure: Project Location
+
+Page 37
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+37
+CCB v3.0, VCS v4.4
+Figure: Zoomed-in view showing individual landholdings within the project area.
+Additional maps to be produced: proxy area locations, vegetation classification, deforestation
+history (MapBiomas), and sample plot distribution.
+▪ Project Zone Map: boundaries of 36 fazendas, municipality boundaries, project zone
+envelope
+▪ Community Location Map
+▪ APD Area Map within total project area
+▪ HCV Areas Map
+▪ Land Cover Map
+▪ Reference Region Map
+Geodetic coordinates: Central point approximately 2°15'S, 57°10'W. Bounding box: 56°50'W to
+57°30'W, 2°05'S to 2°25'S. Reference system: SIRGAS 2000 – EPSG 4674. KML file to be
+submitted separately with the VCS registration package.
+The project area is distributed across Nhamundá (31 parcels), Parintins (2 parcels: Mayara, André
+Marcondes IV), and Barreirinha (1 parcel: Yod He Vav He).
+2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8)
+The project implements four main activities designed to prevent planned deforestation while
+generating measurable climate, community, and biodiversity benefits:
+
+Page 38
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+38
+CCB v3.0, VCS v4.4
+1. Forest Cover Maintenance and Monitoring
+The project maintains the Avoided Planned Deforestation (APD) area approximately 14,940
+hectares (20% of the total 74,698 ha project area) through continuous remote sensing (PRODES,
+DETER, and Planet imagery), drone surveillance, and ground patrols conducted in partnership
+with the Comunidade São Tomé do Mocambo. A monitoring protocol combining automated
+deforestation alerts with periodic field verification ensures early detection and response to any
+unauthorized clearing. Monitoring reports are produced quarterly and shared with landowners
+and community stakeholders.
+2. Biodiversity Conservation and Research
+Biodiversity is conserved through habitat protection across the full 74,698 ha project area,
+monitoring of sensitive and threatened species including Harpy Eagle (Harpia harpyja, VU), Giant
+Otter (Pteronura brasiliensis, EN), Giant Armadillo (Priodontes maximus, VU), and Brazil Nut Tree
+(Bertholletia excelsa, VU), and support for scientific research. The project maintains permanent
+biodiversity monitoring plots and conducts annual fauna and flora surveys in collaboration with
+research institutions. Camera traps, acoustic monitoring, and participatory species inventories
+with community members complement systematic transect surveys.
+3. Community Infrastructure and Livelihood Development
+The project enhances community well-being through targeted infrastructure investments and
+livelihood diversification programs. Specific interventions include: installation of solar energy
+systems for off-grid communities, provision of water filtration and treatment units, deployment of
+Starlink satellite internet systems for connectivity, and support for NTFP processing facilities
+(Brazil nut shelling, açaí processing, copaíba oil extraction). The project also supports community-
+based agroforestry initiatives, fair-trade certification for NTFP products, and market access
+development to diversify income sources beyond subsistence agriculture.
+4. Capacity Building and Training Programs
+Training programs build skills in sustainable forest management, NTFP processing, fair trade,
+and renewable technologies, promoting gender and youth inclusion.
+The project is implemented through coordinated roles: Organica Consultoria LTDA oversees
+coordination, carbon accounting, and monitoring. The Comunidade São Tomé do Mocambo
+provides community liaison, local monitoring support, and stakeholder engagement. Urupolpas
+Comércio de Produtos Alimentícios Ltda serves as the local implementation partner for field
+operations, forest inventories, FPIC processes, and community relations. The technical team
+project provides expertise in forest engineering, GIS analysis, biodiversity assessment, and
+socioeconomic evaluation.
+The Theory of Change diagram will be developed as Appendix 2. The diagram illustrates causal
+pathways from project inputs (carbon finance from VCU sales, technical capacity from Organica
+Consultoria LTDA /Urupolpas, community partnerships with Mocambo) through activities (forest
+
+Page 39
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+39
+CCB v3.0, VCS v4.4
+conservation agreements with 36 landowners, monitoring and surveillance, community benefit
+programs, NTFP value chain development) to outputs (14,957 ha of avoided deforestation,
+employment creation, infrastructure improvements) and outcomes (231,138 tCO₂e/year avoided
+emissions, improved household incomes through 60% benefit-sharing, maintained ecosystem
+services, biodiversity conservation). Key assumptions include: continued VCU market demand,
+landowner compliance with conservation agreements, and political stability of Brazil's
+environmental regulatory framework. The Theory of Change will be finalized in the PD submission
+version with quantified indicators and a visual diagram.
+2.1.18 Sustainable Development Contributions (VCS, 3.17)
+The Marcondes REDD+ project contributes to the following United Nations Sustainable
+Development Goals (SDGs) and is aligned with Brazil's Nationally Determined Contribution (NDC)
+under the Paris Agreement:
+▪ SDG 1 (No Poverty): Alternative income through benefit-sharing and NTFP value chains
+▪ SDG 4 (Quality Education): Environmental education and training programs
+▪ SDG 6 (Clean Water and Sanitation): Provision of water filtration and treatment systems to
+riverine communities within the project zone, improving access to safe drinking water.
+▪ SDG 7 (Affordable and Clean Energy): Installation of solar photovoltaic systems and battery
+storage for off-grid communities, replacing diesel generators and reducing reliance on fossil fuels.
+▪ SDG 8 (Decent Work): Local employment through monitoring, patrol, NTFP processing
+▪ SDG 13 (Climate Action): Direct GHG emission reductions through avoided deforestation
+▪ SDG 15 (Life on Land): Forest conservation and biodiversity protection
+The project is aligned with Brazil's updated NDC (COP26), which commits to eliminating illegal
+deforestation by 2028 and achieving climate neutrality by 2050. The project also supports the
+objectives of the PPCDAm (Action Plan for Prevention and Control of Deforestation in the Legal
+Amazon) and the National REDD+ Strategy (ENREDD+). At the state level, the project contributes
+to the Amazonas State Climate Change Policy (Law No. 3.135/2007) and the State REDD+ System.
+2.1.19 Implementation Schedule (CCB, G1.9)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.1.20 Risks to the Project (CCB, G1.10)
+Table 15. Project Risks and Mitigation Measures
+Identified Risk Potential Impact Mitigation Measures
+Illegal logging and
+encroachment
+Loss of forest cover, reduced emission
+reductions, habitat degradation
+Remote sensing monitoring
+(PRODES/DETER), river and land
+patrols, coordination with IBAMA
+
+Page 40
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+40
+CCB v3.0, VCS v4.4
+Wildfire Forest loss, carbon stock reduction,
+biodiversity damage
+Fire prevention program, community
+brigades, satellite fire alerts (FIRMS)
+Land tenure disputes Project ownership challenges, legal
+uncertainty
+Active CDRU regularization, legal
+support, SECT/INCRA engagement. 4
+SECT-cancelled properties being
+resolved
+Climate change
+impacts
+Increased drought/fire risk, changes
+in forest composition
+Adaptation measures (Section 3.4),
+forest health monitoring
+Government policy
+changes
+Regulatory changes affecting REDD+
+or land tenure
+Policy engagement, revenue
+diversification
+Low carbon credit
+prices
+Insufficient revenue for project
+activities
+Offtaker agreements, NTFP
+diversification, cost optimization
+Community non-
+participation
+Loss of social license, stakeholder
+opposition
+Continuous consultation via
+Comunidade São Tomé do Mocambo,
+transparent benefit-sharing, grievance
+mechanism
+Loss of project
+instances
+Reduction in area and emission
+reductions
+40-year contracts + 100-year
+longevity, VCS Section 3.2.18, buffer
+pool
+2.1.21 Benefit Permanence (CCB, G1.11)
+In order to maintain and enhance the climate, social and biodiversity benefits, a set of actions
+organized in social and environmental programs will be carried out. Organica Consultoria LTDA and
+its investors have the necessary financial resources to maintain project activities until the first
+verification. Thereafter, revenues from carbon credit sales will sustain the project.
+Climate:
+Project activities aim to decrease deforestation and GHG emissions through systematic monitoring
+including river and land patrols and satellite surveillance. Maintenance of forest cover protects the
+watershed network and contributes to water regulation.
+Communities:
+Community residents will be protagonists in defining actions developed. Socio-environmental
+programs will reduce climate change impacts and improve quality of life in the communities of the
+project area, through access to renewable energy, clean water, connectivity, income diversification
+through NTFP value chains, and capacity building in sustainable forest management.
+Biodiversity:
+Fauna diagnosis and forest inventory have been initiated and will be expanded. Areas will be
+monitored with permanent plots for vegetation dynamics, and annual biodiversity assessments will
+track species populations and habitat integrity. Camera trap networks and acoustic monitoring
+stations will provide continuous data on key indicator species.
+
+Page 41
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+41
+CCB v3.0, VCS v4.4
+Permanence Mechanisms:
+▪ 100-year longevity commitment in all carbon credit agreements
+▪ VCS Standard v5.0, Section 3.2.19 provisions for instance exits
+▪ AFOLU Non-Permanence Risk buffer pool
+▪ Integration of sustainable economic activities (NTFP value chains, agroforestry) creating lasting
+conservation incentives
+2.1.22 Financial Sustainability (CCB, G1.12)
+Financing of project activities is guaranteed by funds committed by the project proponents from
+the project start date until the first verification.
+The financing structure for the Marcondes REDD+ project is based on carbon credit revenues
+under the VCS Program, supplemented by initial investment from the project proponent:
+The Project Proponent has secured project financing through carbon credit offtaker agreements
+that provide advance funding for project implementation. A portion of the forecasted carbon
+credits has been committed under forward purchase agreements, ensuring financial resources
+are available from the project start date through the first verification cycle. This pre-financing
+covers monitoring infrastructure, community program implementation, and project development
+costs.
+Ongoing project financing is sustained through the sale of verified carbon credits (VCUs) on the
+voluntary carbon market, with revenues allocated according to the benefit-sharing structure
+defined in the carbon credit agreements with landowners. A portion of carbon credit revenues is
+dedicated to the community benefit fund, administered in consultation with the Comunidade São
+Tomé do Mocambo, ensuring long-term financial sustainability of community programs and
+biodiversity conservation activities.
+2.2 Without-project Land Use Scenario and Additionality
+2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project
+(VCS, 3.13; CCB, G2.1)
+The following scenarios represent the range of possible land-use outcomes in the absence of the
+Marcondes REDD+ project. These scenarios were developed based on analysis of regional land-
+use dynamics, landowner intentions, legal frameworks, and historical deforestation patterns in the
+municipalities of Nhamundá, Parintins, and Barreirinha, State of Amazonas, Brazil.
+SCENARIO 1: Maintenance of forest cover (conservation without project)
+Maintenance of the forest cover of 20% of the property, where land use conversion is allowed by
+law: the area is maintained without economic activities or conservation measures, but exposed to
+invasions and illegal deforestation, antecedents to livestock a common practice in the region. The
+landowner remains responsible for taxes to maintain ownership.
+
+Page 42
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+42
+CCB v3.0, VCS v4.4
+SCENARIO 2: Legal deforestation of 20% of the property (APD)
+Legal deforestation of 20% of the property (deforestation with allowances), where land use
+conversion is allowed by law, i.e., forest suppression for pasture (livestock). Under the Brazilian
+Forest Code (Law No. 12.651/2012), rural properties in the Legal Amazon must maintain an 80%
+Legal Reserve, meaning up to 20% may be legally converted.
+SCENARIO 3: Illegal deforestation exceeding 20%
+Illegal deforestation of over 20% of the property (deforestation without a grant), where the
+conversion of land use exceeds the legal limit, driven by pasture expansion, agricultural purposes,
+or real estate speculation.
+Evidence of deforestation drivers in the project area includes: (a) all 36 property owners hold
+environmental license applications (ASV) filed with IPAAM, demonstrating documented intent to
+clear the legally convertible 20% of their properties for pasture establishment; (b) PRODES/INPE
+and MapBiomas historical data show progressive deforestation on comparable private properties
+in the Nhamundá, Parintins, and Barreirinha municipalities; (c) the Nhamundá municipal economy
+is dominated by cattle ranching and subsistence agriculture (IBGE Municipal Agricultural
+Production data), with limited economic alternatives; (d) pasture land/agriculture land values
+exceed forest land values in the region, providing direct economic incentive for conversion; (e) road
+access improvements and population growth (4.82% increase from 2022 to 2024 per IBGE) are
+increasing pressure on forested lands.
+2.2.2 Most-Likely Scenario Justification (CCB, G2.1)
+The most likely scenario observed for the Marcondes project area is the conversion of land use
+and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the
+property (Scenario 2) is considered the most plausible baseline scenario because the land is
+expected to be converted to non-forest land and the conversion is legally authorized and
+documented, following VM0007 v1.8.
+The identified deforestation agents are the landowners themselves, who have documented legal
+authorization to clear up to 20% of their property areas under the Forest Code (Law
+12.651/2012). Evidence includes: (a) IPAAM environmental license applications (ASV) filed by all
+36 property holders; (b) property registration in SIGEF demonstrating legal control of the land; (c)
+CAR (Cadastro Ambiental Rural) registration identifying the legal reserve and APD-eligible areas;
+(d) economic profile consistent with agricultural expansion the landowners include individual
+farmers, family groups (e.g., Fazenda AnaLina I/II/III, Fazenda Irmãos Marcondes, Fazenda André
+Marcondes IV/V), and corporate entities (FIEMU Corporation, Marcondes Q Corporation) whose
+primary economic activity is or would be cattle ranching.
+2.2.3 Community and Biodiversity Additionality (CCB, G2.2)
+In the absence of the Marcondes REDD+ project, neither the community benefits nor the
+biodiversity conservation outcomes would occur. The project area is located in a region of the
+
+Page 43
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+43
+CCB v3.0, VCS v4.4
+eastern Amazon where planned deforestation is legally permissible and widely practiced due to
+expanding pressures from cattle ranching, agriculture, timber extraction, and other land-use
+conversion activities.
+Without the project, these drivers would continue to advance, resulting in large-scale forest loss,
+degradation of ecosystems, and a decline in ecosystem services that sustain local communities.
+No government program, private organization, or community initiative currently possesses the
+financial, technical, or institutional capacity to prevent this deforestation or to generate the
+significant social and environmental benefits that the project will deliver.
+Although Brazilian environmental legislation primarily the Forest Code establishes requirements
+for Legal Reserves and Areas of Permanent Preservation, enforcement in remote Amazonian
+regions is limited. Environmental agencies such as IBAMA, ICMBio, and state-level authorities
+operate with insufficient personnel, financial resources, and field presence to monitor land-use
+change effectively. As a result, illegal deforestation persists, and legally authorized clearing
+continues unchecked.
+The project activities would not occur without carbon finance due to substantial financial barriers.
+Local communities lack the investment capacity needed to install renewable energy systems,
+develop potable water infrastructure, or establish agro-industries for processing NTFPs.
+Landowners similarly lack resources to implement forest monitoring systems, engage
+professional biodiversity technicians, or conduct long-term conservation planning. No
+government or donor program is currently committed to filling these gaps.
+Significant technological and knowledge barriers also prevent the implementation of sustainable
+development actions in the without-project scenario. Community members do not have access
+to the technical expertise required to manage NTFP value chains, apply sustainable harvesting
+techniques, conduct biodiversity monitoring, or maintain renewable energy systems.
+2.2.4 Benefits to be used as Offsets (CCB, G2.2)
+The community and biodiversity benefits are not intended to be used as offsets but are
+documented and monitored under the CCB Standard to demonstrate the project's net positive
+impacts on local communities and ecosystems.
+2.3 Safeguards and Stakeholder Engagement
+2.3.1 Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)
+The stakeholder identification process for the Marcondes REDD+ project was conducted using a
+structured, two-phase assessment, combining remote analysis and on-the-ground field validation.
+Stakeholders were identified based on their legal rights, forest resource dependence, potential
+influence on project outcomes, and possession of relevant local knowledge.
+Phase 1 — Remote Stakeholder Identification
+
+Page 44
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+44
+CCB v3.0, VCS v4.4
+This phase consisted of a structured remote assessment aimed at identifying all stakeholders
+relevant to or potentially affected by the project. This phase relied on bibliographic reviews,
+targeted internet searches, and consultations with landowners and local intermediaries to
+establish an initial understanding of the social, environmental, and institutional landscape across
+the municipalities of Nhamundá, Parintins, and Barreirinha. Methodological guidance from VCS-
+CCB Standard, UN-REDD stakeholder engagement guidelines, and FAO REDD+ materials ensured
+systematic consideration of all required stakeholder categories.
+Through this process, the following major stakeholder groups were identified:
+• Project Proponent: Organica Consultoria LTDA
+• Landowners/Possessors: The 24 landowners and entities holding the 36 project properties
+• Community implementation partner: Comunidade São Tomé do Mocambo
+• Public authorities: Prefeitura Municipal de Nhamundá, IPAAM, IDAM, SEMA, INPA, SECT,
+INCRA
+• Local community beneficiaries: Comunidade São Tomé do Mocambo (Parintins), and
+dispersed riverine communities along the Nhamundá River and its tributaries within and adjacent
+to the project zone. Community names identified include those located within the 62 rural
+communities of Nhamundá municipality (Prefeitura de Nhamundá). Specific community
+enumeration and beneficiary registration will be completed during the baseline socioeconomic
+assessment and FPIC consultation process.
+
+Page 45
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+45
+CCB v3.0, VCS v4.4
+• Third sector: Agrofrut Cooperative (cooperative of rural producers in the Nhamundá region),
+Colônia de Pescadores de Nhamundá (local fishermen's association), community-based
+organizations in Comunidade São Tomé do Mocambo, and church-based community groups.
+Specific associations and their roles in project implementation will be confirmed and formalized
+during the stakeholder engagement process.
+
+Page 46
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+46
+CCB v3.0, VCS v4.4
+Figure: Discussion in loco in the project area — technical team and community members assessing
+forest cover and access roads (6 May 2025)
+Figure: Field visit to the Marcondes REDD+ project area — Organica Consultoria team and
+community representatives. GPS: 2.4239°S / 57.3032°W (6 May 2025, 08:52)
+Phase 2 — On-Site Field Engagement and Validation
+Field visits and community engagement for the Marcondes REDD+ project have been conducted
+as follows:
+1. November/December 2022 — Exploratory visit: First visit by the project team to the
+Comunidade São Tomé do Mocambo do Arari. Initial presentation of the REDD+ concept to
+community leaders, identification of community structure and representatives, and preliminary
+assessment of community interest and needs.
+2. February 2023 — Formal presentation: Formal presentation of the Marcondes REDD+ project
+to the community association (Associação comunitária local). Detailed explanation of the
+REDD+ mechanism, voluntary carbon market, VCU generation process, and the role of VCS
+v4.4/CCB v3.0 certification standards.
+3. April 2023 — Benefit-sharing negotiation: Presentation and negotiation of the Benefit-Sharing
+Plan (Plano de Repartição de Benefícios — PRB). Discussion of benefit categories: direct
+monetary benefits, community infrastructure, training and capacity building, participatory
+monitoring, and cultural heritage support.
+4. 1 May 2023 — Official project start date: Formal launch of the Marcondes REDD+ project.
+
+Page 47
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+47
+CCB v3.0, VCS v4.4
+5. Second semester 2023 — Follow-up meeting: First semi-annual follow-up meeting with the
+community. Presentation of initial project results and satellite monitoring data.
+6. First semester 2024 — Annual assembly 2024: Community general assembly with broad
+participation. Accountability report on project activities and benefit distribution.
+7. Second semester 2024 — Monitoring meeting: Socio-environmental monitoring meeting.
+Participatory assessment of CCB co-benefits (climate, community, biodiversity).
+8. 6 May 2025 — FPIC Principal Assembly: Main Free, Prior and Informed Consent assembly held
+at the community hall (salão comunitário) and Igreja de São Tomé. Comprehensive
+presentation of project status after 2 years of operation, review of benefit-sharing, formal
+consent resolution, photographic documentation. The assembly was attended by community
+members, project technical staff from Organica Consultoria LTDA, and community
+representatives. Field visit to the project area was conducted (coordinates: 2.4239°S /
+57.3032°W).
+9. April 2026 — Planned: Field visit and Annual Assembly 2026 with updated project information
+and continued consultation. Complete FPIC documentation with CLPI dossier included as
+Appendix.
+It was confirmed that all land tenure and access rights within the project area are held by the 36
+participating landowners and entities, as documented in the property inventory (Table 10) and
+carbon credit agreements. No legal or customary tenure or access rights held by communities
+have been identified that conflict with the project activities. Dispersed riverine communities along
+the Nhamundá River maintain traditional fishing and NTFP collection rights on waterways
+adjacent to but outside the project property boundaries, consistent with Brazilian law. These
+customary use rights are respected and unaffected by the project.
+2.3.2 Stakeholder Descriptions (VCS, 3.18, 3.19; CCB, G1.6, G1.13)
+Detailed descriptions of each stakeholder group, including their rights, interests, relevance to the
+project, and potential impacts, are provided in Appendix 1: Stakeholder Description Table.
+Stakeholder descriptions:
+(1) 24 landowner groups/entities controlling 36 properties — private landowners and corporate
+entities (FIEMU Corporation, Marcondes Q Corporation, family groups) with ASV applications filed
+with IPAAM.
+(2) Comunidade Tradicional São Tomé do Mocambo do Arari — Traditional Ribeirinha community,
+approximately 80 families, located on Lago Mocambo (affluent of the Amazon River), municipality
+of Parintins, Amazonas (coordinates: -2.430479, -57.300309). The community is represented by
+a local community association. Economic activities: family agriculture, artisanal fishing, plant
+extractivism, artisanal ceramics. Community infrastructure: church (Igreja de São Tomé),
+community hall (salão comunitário), school, football field, water supply system. Access: fluvial via
+Amazon River / Lago Mocambo.
+(3) Prefeitura de Nhamundá — municipal government.
+
+Page 48
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+48
+CCB v3.0, VCS v4.4
+(4) IPAAM — state environmental agency (ASV authorization, environmental licensing).
+(5) IDAM — state agricultural extension (sustainable livelihood alternatives).
+(6) INCRA — federal land regularization agency.
+(7) Agrofrut Cooperative — rural producers cooperative in the Nhamundá region.
+(8) Colônia de Pescadores de Nhamundá — local fishermen's association.
+Detailed stakeholder descriptions are provided in the CLPI dossier
+(CLPI_Marcondes_Mocambo_v1.docx).
+2.3.3 Stakeholder Access to Project Documents (VCS, 3.18, 3.19; CCB, G3.1)
+The Project Proponent ensures that all relevant project documentation is accessible to
+stakeholders through multiple channels:
+▪ The Project Description, monitoring reports, and validation/verification reports are made
+publicly available through the Verra Registry upon registration.
+▪ Summary project documents in Portuguese are made available to communities through the
+Comunidade São Tomé do Mocambo and during stakeholder consultation meetings.
+▪ Hard copies of key project documents are maintained at the project field office and at the
+Comunidade São Tomé do Mocambo for consultation by local stakeholders.
+▪ Digital copies are available upon request to the Project Proponent via email
+(admin@organica-consulting.com) or telephone (+55 85 99106 3502).
+All project documents intended for community distribution are translated into Portuguese and
+presented in accessible language appropriate for the educational level of local stakeholders.
+Where necessary, oral explanations are provided during community meetings.
+2.3.4 Dissemination of Summary Project Documents (VCS, 3.18, 3.19; CCB, G3.1)
+A summary of the Project Description Document, written in accessible Portuguese, is
+disseminated to all identified stakeholder communities prior to the public comment period and
+prior to validation. The summary includes a description of the project activities, expected climate,
+community and biodiversity benefits, the grievance mechanism, and information on how to
+participate in the public comment process.
+Dissemination methods include: distribution during stakeholder meetings, posting at community
+notice boards, delivery through the Comunidade São Tomé do Mocambo network, and electronic
+distribution where internet access is available.
+2.3.5 Informational Meetings with Stakeholders (VCS, 3.18, 3.19; CCB, G3.1)
+
+Page 49
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+49
+CCB v3.0, VCS v4.4
+The Project Proponent organizes informational meetings with stakeholders to present the project,
+explain its objectives and activities, and respond to questions and concerns. These meetings are
+held in Portuguese and conducted in culturally appropriate formats.
+Informational meetings conducted for the Marcondes REDD+ project:
+(1) November/December 2022 — Comunidade São Tomé do Mocambo do Arari: Exploratory visit.
+Topics: initial presentation of REDD+ concept, identification of community leaders and
+representatives, preliminary needs assessment.
+(2) February 2023 — Comunidade São Tomé do Mocambo do Arari: Formal project presentation
+to the community association. Topics: REDD+ mechanism explanation, voluntary carbon market,
+VCU generation, VCS/CCB certification process, project timeline and activities.
+(3) April 2023 — Comunidade São Tomé do Mocambo do Arari: Benefit-sharing negotiation
+meeting. Topics: Plano de Repartição de Benefícios (PRB) categories direct monetary benefits,
+infrastructure, training, participatory monitoring, cultural heritage suppor t. Community priorities
+discussed.
+(4) 2023–2024 — Semi-annual follow-up meetings with the community (S2 2023, S1 2024, S2
+2024). Topics: project progress, monitoring results, benefit distribution status, co-benefit
+assessment.
+(5) 6 May 2025 — FPIC Principal Assembly at Comunidade São Tomé do Mocambo do Arari.
+Topics: comprehensive project status after 2 years, REDD+ mechanism review, community rights
+(right to refuse, right to participate, right to grievance mechanism), benefit-sharing review, formal
+consent resolution. Photographic documentation included in CLPI dossier.
+(6) Consultations with all 36 property holders were conducted individually and in groups in
+Nhamundá and Parintins. Topics: carbon credit agreement terms, 40%/60% benefit-sharing
+formula, conservation commitments, 100-year permanence clause, monitoring requirements.
+Meeting minutes (atas de reunião) are on file.
+(7) Government authority consultations were held with Prefeitura de Nhamundá, IPAAM, and
+other relevant agencies. Topics: project registration, ASV status, environmental compliance,
+municipal coordination. Meeting dates to be detailed in the validation package.
+2.3.6 Risks from the Project and No Net Harm (VCS, 3.18, 3.19)
+The project has been designed to ensure no net harm to stakeholders. A risk assessment has
+been conducted to identify potential negative impacts of project activities on local communities,
+and mitigation measures have been developed for each identified risk.
+The principal risk identified is that forest conservation activities may limit access to forest
+resources for communities that historically depend on them. This risk is mitigated through: (1)
+benefit-sharing mechanisms that provide alternative income; (2) continued access to NTFPs
+under sustainable harvesting plans; (3) community participation in project design and
+
+Page 50
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+50
+CCB v3.0, VCS v4.4
+implementation through the Comunidade São Tomé do Mocambo; and (4) the grievance
+mechanism.
+Additional risks identified include: (a) potential conflicts with informal resource users
+(garimpeiros, illegal loggers) who may resist forest conservation measures mitigated through
+coordination with IBAMA and state environmental police; (b) political opposition from local
+authorities or economic actors who benefit from deforestation-driven development mitigated
+through transparent stakeholder engagement and documentation of project benefits; (c) extreme
+weather events (flooding, drought) affecting community infrastructure and project operations
+mitigated through adaptive management and climate-resilient infrastructure design.
+2.3.7 Community Costs, Risks, and Benefits (CCB, G3.2)
+The project has assessed potential costs, risks, and benefits to communities within the project
+zone:
+Benefits:
+▪ Direct income from benefit-sharing of carbon credit revenues
+▪ Employment opportunities in monitoring, patrol, and NTFP processing
+▪ Solar photovoltaic systems for off-grid energy access, water filtration and purification
+units, Starlink satellite internet connectivity, and NTFP processing equipment (Brazil nut
+shelling units, açaí processors, oil extraction presses)
+▪ Capacity building and training programs
+▪ Improved environmental quality and ecosystem services
+Costs:
+▪ Potential reduction in access to timber resources in conservation areas
+▪ Time commitment for participation in consultations and monitoring activities
+Risk Mitigation:
+Costs are mitigated through benefit-sharing arrangements that compensate for any reduced
+resource access, and through the continued availability of NTFPs under sustainable
+management. The grievance mechanism provides a channel for addressing unforeseen negative
+impacts.
+2.3.8 Information to Stakeholders on Validation and Verification Process (VCS, 3.18.6,
+3.19; CCB, G3.3)
+Stakeholders are informed about the validation and verification process through the following
+mechanisms:
+
+Page 51
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+51
+CCB v3.0, VCS v4.4
+▪ The public comment period (30 days) during which any stakeholder may submit comments
+through the Verra Registry.
+▪ Informational meetings with communities explaining the validation process, the role of the
+validation/verification body (VVB), and opportunities to communicate directly with auditors.
+▪ Written notice distributed through the Comunidade São Tomé do Mocambo network prior to
+the VVB site visit.
+▪ Stakeholders are informed that they have the right to submit comments and that all
+comments received during the public comment period will be addressed in the validation
+report.
+2.3.9 Site Visit Information and Opportunities to Communicate with Auditor (VCS,
+3.18.6; CCB, G3.3)
+The Project Proponent ensures that stakeholders are informed of upcoming VVB site visits and
+are provided with opportunities to communicate directly with the auditor. Specifically:
+▪ Community leaders and the Comunidade São Tomé do Mocambo are notified at least 15
+days in advance of any planned site visit by the VVB.
+▪ The VVB is provided with a list of stakeholder contacts and community locations to facilitate
+direct engagement during the site visit.
+▪ Stakeholder meetings with the VVB are organized in accessible locations within the project
+zone.
+▪ Stakeholders may also communicate with the VVB through the Verra Registry public comment
+process.
+2.3.10 Stakeholder Consultations (VCS, 3.18; CCB, G3.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.11 Continued Consultation and Adaptive Management (VCS, 3.18; CCB, G3.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.12 Stakeholder Consultation Channels (CCB, G3.5)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+
+Page 52
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+52
+CCB v3.0, VCS v4.4
+2.3.13 Stakeholder Participation in Decision-Making and Implementation (VCS, 3.18,
+3.19; CCB, G3.6)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.14 Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.15 Feedback and Grievance Redress Procedure (VCS, 3.18.4; CCB, G3.8)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.16 Accessibility of the Feedback and Grievance Redress Procedure (VCS, 3.19;
+CCB, G3.8)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.17 Worker Training (VCS, 3.19; CCB, G3.9)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.18 Community Employment Opportunities (VCS, 3.19.13; CCB, G3.10)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.3.19 Occupational Safety Assessment (VCS, 3.19; CCB, G3.12)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+
+Page 53
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+53
+CCB v3.0, VCS v4.4
+2.4 Management Capacity
+2.4.1 Project Governance Structures (CCB, G4.1)
+The project is managed by the proponent Organica Consultoria LTDA, under the direction of Rémi
+Denecheau, who conducts the overall coordination of the project. His responsibilities include
+coordinating data management, marketing carbon credits, and drafting the project's design,
+implementation and monitoring documents.
+The main entities involved in the project governance are:
+▪ Organica Consultoria LTDA: Project Proponent, overall coordination, carbon accounting,
+monitoring, VCS/CCB compliance
+▪ Comunidade São Tomé do Mocambo: Community engagement, stakeholder liaison, local
+monitoring support
+▪ Urupolpas Comércio de Produtos Alimentí LTDA cios Ltda: Local implementation partner for
+field operations, forest inventories, FPIC processes, and community engagement, under the
+administration of Rémi Denecheau.
+Governance structure: Organica Consultoria LTDA (Project Proponent — overall coordination,
+VCS/CCB compliance, financial management, benefit-sharing administration) → Urupolpas (local
+field operations, community liaison, logistical support in Nhamundá/Parintins region) →
+Community Advisory Committee (Comunidade São Tomé do Mocambo representatives,
+landowner representatives, Agrofrut Cooperative) → Technical Partners (GIS/remote sensing:
+John Klefesson; forest inventory: field team; legal: dedicated legal counsel). A governance
+structure diagram will be included as a figure in the final PD version.
+Table 28. Activities and responsibilities of the organizations involved in the project
+Entity Responsibilities
+Organica Consultoria
+LTDA
+Project coordination, carbon accounting, methodology application,
+monitoring plan, VCS/CCB compliance, VVB liaison, credit
+commercialization, financial management
+Comunidade São Tomé
+do Mocambo
+Community engagement, stakeholder consultations, local monitoring,
+patrol coordination, NTFP activities, grievance reception
+Technical partners:
+GIS/remote sensing
+(John Klefesson),
+forestry engineers,
+biodiversity specialists
+Remote sensing analysis, forest inventory, biodiversity assessment,
+GIS mapping, carbon stock estimation
+Land regularization:
+CDRU pathway —
+(SIGEF, INCRA
+coordination)
+SIGEF certification, CDRU proceedings, property documentation,
+SECT/INCRA liaison
+
+Page 54
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+54
+CCB v3.0, VCS v4.4
+2.4.2 Required Technical Skills (VCS, 3.19; CCB, G4.2)
+To better support the implementation of the Marcondes Project, Organica Consultoria LTDA and
+its team possess the following key skills and expertise:
+▪ REDD+ methodology expertise (VM0007 v1.8) - carbon accounting, baseline modeling,
+leakage estimation, ex-ante ER quantification
+▪ Remote sensing and GIS analysis - satellite imagery interpretation, land-use change
+detection, deforestation monitoring
+▪ Forest inventory - plot design, tree measurement, biomass estimation, allometric equations
+▪ Biodiversity assessment - fauna and flora surveys, species identification, HCV assessment
+▪ Socioeconomic baseline assessment - community surveys, livelihood analysis, stakeholder
+mapping
+▪ Legal expertise - Brazilian environmental law, land tenure, carbon credit legislation
+▪ Community engagement - participatory methods, FPIC processes, benefit-sharing design
+▪ Financial management - project budgeting, carbon credit revenue management, benefit
+distribution
+2.4.3 Management Team Experience (VCS, 3.19; CCB, G4.2)
+Rémi Denecheau - Project Director / CEO, Organica Consultoria LTDA
+Over 20 years of experience connecting Amazon communities to international markets.
+Engineering background (UTC Compiègne), MBA in Carbon Credits (Universidade Focus, Brazil,
+2025). Founder of RDV Productions (France, 2004), Organica Consultoria Ambiental (Brazil,
+2016), and Botanik Source (Belgium, 2020). Core expertise in REDD+ carbon project
+development (VM0007), organic and Fair-Trade certification, Amazonian non-timber forest
+products, and industrial processing. Holder of a yerba mate patent (INPI, 2017–2019). Managed
+international cooperation programs (DEG/KfW, SEQUA, ADA Austria). Long-standing relationships
+with ribeirinho communities in Urucará and Nhamundá.
+The project technical team is the multidisciplinary team that developed and operated the similar
+Project activities, providing continuity and proven expertise:
+▪ Hector Monteiro — Forest Engineer: Forest inventory design, biomass estimation, allometric
+analysis
+▪ Katherine Oliveira — Community Training and Engagement Coordinator
+▪ Davidson do Canto — Biologist: Biodiversity surveys, fauna and flora inventories, species
+monitoring
+
+Page 55
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+55
+CCB v3.0, VCS v4.4
+▪ Hendrew Nunes de Souza — Biodiversity Manager: HCV assessment, threatened species
+monitoring
+▪ Douglas Martins — GIS Analyst: Remote sensing, land-use change detection, deforestation
+monitoring
+▪ Odiélio Nascimento — Climate and Environmental Data Analyst: Climate data collection,
+meteorological analysis
+▪ Roberto Kwengwe — Marketing and Communications Specialist
+▪ Sandro Martins — Funding and Regularization Coordinator: Land tenure, CDRU, CAR, SIGEF
+processes
+▪ Daniel Vale — Finance and Administrative Analyst: Project budgeting, financial reporting
+▪ Regiane Dias — Land Management Analyst: Property records, cartographic analysis
+▪ Marcio Freitas — Agronomic and Certification Technician: Organic certification, field
+operations
+2.4.4 Project Management Partnerships and Team Development (VCS, 3.19; CCB,
+G4.2)
+The project builds on partnerships established through the, leveraging existing relationships with
+technical service providers, legal advisors, and community organizations in the Amazonas region.
+Key partnerships include:
+▪ Comunidade São Tomé do Mocambo community-level implementation and engagement
+▪ Technical team partnership: Forest inventory and carbon stock assessment conducted by
+qualified forestry engineers under the supervision of Organica Consultoria LTDA, with field
+support from Urupolpas and local community members trained in inventory techniques.
+▪ Land regularization team: A dedicated team with land regularization specialists managing
+CDRU applications, SIGEF registration, and INCRA/SECT coordination for all 36 properties.
+▪ Legal advisors: Dedicated legal counsel for contract management (carbon credit
+agreements), land tenure issues, environmental compliance (IPAAM/SEMA), and corporate
+governance across the Kanopy Partners group structure.
+Team development activities include capacity building for community monitors, technical training
+for field staff, and knowledge transfer from the similar project experience.
+2.4.5 Financial Health of Implementing Organization(s) (CCB, G4.3)
+Organica Consultoria LTDA is a legally constituted company in Brazil with the financial capacity
+to implement the project. The organization has demonstrated financial viability through the
+
+Page 56
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+56
+CCB v3.0, VCS v4.4
+successful development of the similar REDD+ APD Project and through its ongoing commercial
+activities in Amazonian products.
+Evidence of financial health will be provided to the VVB during validation, including: audited
+financial statements of Organica Consultoria LTDA, bank references, and evidence of the
+proponent's capacity to sustain project operations through the carbon credit revenue cycle. The
+proponent's track record with the similar project development demonstrates financial and
+operational viability.
+2.4.6 Avoidance of Corruption and Other Unethical Behavior (VCS, 3.19; CCB, G4.3)
+The Project Proponent is committed to conducting all project activities in accordance with
+applicable anti-corruption laws, ethical standards, and best international practices. All activities
+are implemented in compliance with:
+Brazilian Anti-Corruption Law No. 12.846/2013
+Relevant provisions of the Brazilian Criminal Code concerning corruption, fraud, and misuse of
+resources
+Ethical conduct requirements under the Verified Carbon Standard (VCS) Program
+A zero-tolerance policy is strictly enforced against corruption, bribery, embezzlement, fraud,
+favoritism, cronyism, nepotism, extortion, and collusion. To ensure transparency, accountability,
+and ethical conduct throughout project implementation, the following measures are
+implemented:
+Code of Conduct and Compliance Policies: A comprehensive Code of Conduct and compliance
+framework has been established, outlining ethical standards and behavioral expectations for all
+project participants, including team members, contractors, suppliers, and partners. These
+policies explicitly prohibit corrupt or unethical practices and provide clear guidance on acceptable
+conduct.
+Transparent Financial Management: All financial transactions related to project activities are
+recorded, documented, and maintained in transparent financial management systems to ensure
+traceability and accountability.
+Competitive Procurement Procedures: Procurement of goods and services follows competitive
+and transparent processes to avoid conflicts of interest and ensure fair participation of suppliers
+and service providers.
+Segregation of Duties: Financial management responsibilities are clearly separated among
+personnel to minimize the risk of fraud or misuse of funds.
+Anti-Corruption Training and Awareness: Regular training sessions and awareness programs are
+conducted to educate project staff, contractors, and stakeholders on the prevention of corruption
+
+Page 57
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+57
+CCB v3.0, VCS v4.4
+and unethical behavior. These programs cover types of corruption, legal implications, reporting
+mechanisms, and consequences of violations, promoting a culture of integrity and accountability.
+Grievance and Whistleblower Protection: A grievance redress mechanism is established to allow
+stakeholders to report concerns, including suspected corruption or unethical behavior. Reports
+may be submitted confidentially, and whistleblowers are protected from retaliation.
+Internal Monitoring and Reviews: Regular internal reviews and compliance checks are conducted
+to evaluate financial management systems, procurement procedures, and operational practices
+to ensure adherence to applicable laws, standards, and project policies.
+All benefit-sharing payments are properly documented, traceable, and transparently recorded,
+and the methodology for distributing benefits is clearly communicated to all project participants
+and stakeholders.
+2.4.7 Commercially Sensitive Information (VCS, 3.5.2 – 3.5.4; CCB Rules, 3.5.13 – 3.5.14)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5 Legal Status and Property Rights
+2.5.1 National and Local Laws (VCS, 3.1, 3.6. 3.7, 3.14, 3.18, 3.19; CCB, G5.6)
+The project complies with all applicable Brazilian labor and worker protection legislation, including:
+▪ Consolidação das Leis do Trabalho (CLT — Decree-Law No. 5.452/1943): Comprehensive labor
+law covering employment contracts, working hours, wages, and employee protections.
+▪ Federal Constitution of 1988 (Articles 6–11): Fundamental social and labor rights.
+▪ Statute of the Child and Adolescent (Law No. 8.069/1990): Prohibits child labor (under 14)
+and regulates apprenticeship (14–16).
+▪ Law No. 10.803/2003: Slavery-like labor conditions the project explicitly prohibits forced labor.
+▪ Normas Regulamentadoras (NRs): Occupational safety standards, particularly NR-6 (PPE), NR-
+21 (open-air work), NR-31 (forestry and agriculture).
+▪ Law No. 8.213/1991: Social security and occupational accident coverage.
+▪ ILO Conventions ratified by Brazil: Including C029 (Forced Labour), C087 (Freedom of
+Association), C098 (Right to Organize), C100 (Equal Remuneration), C111 (Discrimination),
+C138 (Minimum Age), C182 (Worst Forms of Child Labour).
+All project workers receive fair compensation, safe working conditions, and access to the grievance
+mechanism. No child labor or forced labor is permitted in any project activity.
+2.5.2 Relevant Laws and Regulations Related to Worker’s Rights (VCS, 3.18.2; CCB,
+G3.11)
+
+Page 58
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+58
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.3 Human Rights (VCS, 3.19)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.4 Indigenous Peoples and Cultural Heritage (VCS, 3.18, 3.19)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.5 Statutory and Customary Property Rights (VCS, 3.18, 3.19; CCB, G5.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.6 Recognition of Property Rights (VCS, 3.7, 3.18, 3.19; CCB, G5.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.7 Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.8 Benefit Sharing Mechanisms (VCS, 3.18, 3.19;)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.9 Property Rights Protection (VCS, 3.18, 3.19; CCB, G5.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+
+Page 59
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+59
+CCB v3.0, VCS v4.4
+2.5.10 Illegal Activity Identification (VCS, 3.19; CCB, G5.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.11 Ongoing Disputes (VCS, 3.18, 3.19; CCB, G5.5)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.12 Approvals (CCB, G5.7)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.5.13 Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB
+G5.9)
+2.5.13.1 No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity
+under another GHG program, or any other form of community, social, or biodiversity unit or
+credit?
+☐ Yes ☒ No
+2.5.13.2 Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+Is the project active under the other program?
+☐ Yes ☒ No
+2.5.13.3 Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+2.5.14 Double Claiming, Other Forms of Credit, and Scope 3 Emissions (VCS, 3.24)
+2.5.14.1 No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+
+Page 60
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+60
+CCB v3.0, VCS v4.4
+Are project reductions and removals or project activities also included in an emissions trading
+program or binding emission limit? See the VCS Program Definitions for definitions of
+emissions trading program and binding emission limit.
+☐ Yes ☒ No
+2.5.14.2 No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-
+related environmental credit system? See the VCS Program Definitions for definition of GHG-
+related environmental credit system.
+☐ Yes ☒ No
+2.5.14.3 Supply Chain (Scope 3) Emissions
+Do the project activities affect the emissions footprint of any product(s) (goods or services) that
+are part of a supply chain?
+☐ Yes ☒ No
+If yes:
+Is the project proponent(s) or authorized representative a buyer or seller of the product(s)
+(goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+Has the project proponent(s) or authorized representative posted a public statement on their
+website saying, “Carbon credits may be issued through Verified Carbon Standard project
+[project ID] for the greenhouse gas emission reductions or removals associated with [project
+proponent or authorized representative organization name(s)] [name of product(s) whose
+emissions footprint is changed by the project activities].”?
+☐ Yes ☒ No
+2.6 Additional Information Relevant to the Project
+2.6.1 Leakage Management (VCS, 3.11, 3.15)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+2.6.2 Further Information
+
+Page 61
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+61
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3 CLIMATE
+3.1 Application of Methodology
+3.1.1 Title and Reference of Methodology (VCS, 3.1)
+The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and
+Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD)
+deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists
+of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which
+would be an area that has been forested for at least 10 years prior to the project start date.
+Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest
+and of native grassland to a non-native state.
+Table 30. Methodologies, modules, and tools applied
+Type Reference ID Title Version
+Applied
+Methodology
+VM0007 REDD+ Methodology Framework (REDD+MF)
+(Avoided Planned Deforestation)
+1.8
+Module VMD0001 Estimation of carbon stocks in the above- and
+below-ground biomass in live trees and non-tree
+pools
+1.2
+Module VMD0002 Estimation of carbon stocks in the dead wood
+pool
+1.1
+Module VMD0003 Estimation of carbon stocks in the litter pool 1.1
+Module VMD0005 Estimation of carbon stocks in the soil organic
+carbon (SOC) pool
+1.1
+Module VMD0006 Estimation of baseline carbon stock changes and
+GHG emissions from planned deforestation (BL-
+PL)
+1.4
+Module VMD0009 Estimation of emissions from activity shifting for
+avoiding planned deforestation/forest
+degradation and avoiding planned wetland
+degradation (LK-ASP)
+1.3
+Module VMD0011 Estimation of emissions from market leakage (LK-
+ME)
+1.2
+
+Page 62
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+62
+CCB v3.0, VCS v4.4
+Module VMD0015 Methods for monitoring of greenhouse gas
+emissions and removals (M-REDD)
+2.3
+Module VMD0016 Methods for stratification of the project area (X-
+STR)
+1.3
+Module VMD0017 Estimation of uncertainty for REDD project
+activities (X-UNC)
+2.2
+Tool VT0001 Tool for the Demonstration and Assessment of
+Additionality in VCS-AFOLU Project Activities
+3.0
+Tool — AFOLU Non-Permanence Risk Tool 4.2
+3.1.2 Applicability of Methodology (VCS, 3.1)
+The applicability conditions of the VM0007 methodology and its associated modules are detailed
+in the table below.
+Table 31. Applicability conditions and justification of conformance
+Reference Applicability Condition Justification of Conformance
+VM0007 v1.8 1) Land in the project area has qualified
+as forest (following the definition used
+by the VCS; in addition, see Section
+5.1.2) for at least the 10 years prior to
+the project start date. Mangrove forests
+are excluded from any tree height
+requirement in a forest definition, as
+they consist of 95 percent mangrove
+species, which often do not reach the
+same height as other tree species.
+Mangroves occupy contiguous areas
+and their functioning as a forest is
+independent of tree height.
+MapBiomas Collection 10 and
+PRODES/INPE data confirm continuous
+forest cover for all 36 properties throughout
+the historical reference period (2013–
+2023). Annual LULC maps demonstrate
+Dense Ombrophilous Forest classification
+without interruption.
+2) Where land within the project area is
+peatland or tidal wetlands and
+emissions from the SOC pool are
+deemed significant, the relevant WRC
+modules (see Table 3) are applied
+alongside other relevant modules.
+There are no peat soils and tidal wetlands
+present in the Marcondes REDD+ Project
+Area.
+3) Baseline deforestation in the project
+area falls within either of the following
+categories:
+Deforestation in the project area is legally
+authorized under the Brazilian Forest Code
+(Law 12.651/2012), Article 12, which
+permits clearing of up to 20% of rural
+
+Page 63
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+63
+CCB v3.0, VCS v4.4
+a) Unplanned deforestation (VCS
+category AUDef)
+b) Planned deforestation (VCS category
+APDef)
+properties in the Legal Amazon. The APDef
+category is applicable.
+REDD activity types are not applicable
+under the following condition:
+4) Leakage prevention activities
+include:
+a) Flooding agricultural lands to
+increase production (e.g., rice paddies);
+and/or
+b) Intensifying livestock production
+through use of feed-lots and/or manure
+lagoons.
+Leakage mitigation activities under the
+project do not implement flooded agriculture
+or livestock intensification through feedlots
+or manure lagoons.
+Avoiding planned deforestation
+activities are applicable under the
+following condition:
+7) Where conversion of forest lands to a
+deforested condition is legally
+permitted
+All 36 project properties are classified as
+forest. In the baseline scenario, landowners
+would exercise their legal right to deforest up
+to 20% of each property.
+Deforestation is authorized under the
+Brazilian Forest Code (Law 12.651/2012).
+All 36 property owners have filed ASV
+applications with IPAAM. SIGEF and CAR
+registrations confirm legal property
+boundaries and forest code compliance.
+VMD0006 v1.4 The module is applicable for estimating
+the baseline emissions on forest lands
+(usually privately or government owned)
+that are legally authorized and
+documented to be converted to non-
+forest land.
+The Marcondes project reduces emissions
+from planned deforestation (APD) on forest
+land (privately owned) within the Legal
+Amazon that are legally authorized and
+documented to be converted to non-forest
+land.
+VMD0001 v1.2 The module allows for the ex-ante
+estimation of carbon stocks in tree and
+non- tree above and below ground
+biomass in the baseline scenario (for
+both pre- and post-deforestation
+stocks) and in the project case and for
+the ex-post estimation of the change in
+This module is applicable to all forest phyto
+physiognomies and age classes. The
+inclusion of the above ground tree biomass
+pool as part of the project boundary is
+mandatory according to the REDD-MF
+module.
+
+Page 64
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+64
+CCB v3.0, VCS v4.4
+carbon stocks in tree above and below
+ground biomass in the project case.
+Carbon stocks will be estimated through
+forest inventory plots using allometric
+equations.
+VMD0005 v1.2 This module is applicable to all cases
+where wood is harvested for conversion
+to wood products for commercial
+markets, for all forest types and age
+classes.
+This module is applicable to all cases where
+timber is harvested for conversion into
+timber products for commercial markets, for
+all forest Phyto physiognomies and age
+classes. This module is applicable in the
+baseline, as the wood products pool is
+included as part of the project boundary, as
+per applicability criteria in the REDD-MF
+framework module, specifically:
+▪ Timber harvesting occurs before or
+during the deforestation process, and
+the timber is destined for commercial
+markets.
+▪ The wood product pool is determined to
+be significant (using T GIS).
+VMD0009 v1.3 The module is applicable for estimating
+the leakage emissions due to activity
+shifting from forest lands that are
+legally authorized and documented to
+be converted to non-forest land,
+including activity shifting to forested
+wetland that is drained or degraded as
+a consequence of project
+implementation. The module is also
+applicable for estimating the leakage
+emissions due to activity shifting from
+non-forested wetlands that are legally
+authorized and documented to be
+converted and degraded. Under these
+situations, displacement of baseline
+activities can be controlled and
+measured directly by monitoring the
+baseline deforestation or wetland
+degradation agents or class of agents.
+This tool must be used for projects in
+areas where planned deforestation
+happens on forested wetlands,
+regardless of the absence of wetland
+within the project boundaries.
+The module is mandatory if the BL-PL
+Module is used to define the baseline, and
+the applicability conditions in the BL-PL
+Module must be met in full.
+
+Page 65
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+65
+CCB v3.0, VCS v4.4
+VMD0011 v1.2 This module is applicable for calculating
+market-effects leakage from projects
+that are anticipated to reduce levels of
+wood harvest substantially and
+permanently. When project activities
+result in reductions in wood harvest, it
+is likely that production could shift to
+other areas of the country to
+compensate for the reduction, including
+activity shifting to forested peatland
+that is drained as a consequence of
+project implementation. This tool shall
+be used in countries where wood
+harvest happens on forested peatland
+regardless of the absence of peatland
+within the project boundary.
+As referenced in the Framework (REDD
+MF), the module is mandatory where:
+The deforestation process involves
+harvesting timber for commercial
+markets. Baseline is calculated using
+BL-DFW and firewood or charcoal is
+harvested for commercial markets.
+In all other circumstances, the module
+should not be used.
+The module is mandatory when the
+deforestation process involves the extraction
+of timber for commercial markets.
+The module is applicable to the Marcondes
+Project as project activities are expected to
+substantially reduce and prevent wood
+harvesting within the project boundary
+through the protection and conservation of
+native forest areas. Such reductions in
+timber supply could potentially lead to
+market-effects leakage if wood production
+shifts to other regions within Brazil to meet
+market demand. The project therefore
+assesses the potential for market-effects
+leakage.
+VMD0013 v1.3 This module is applicable to REDD
+project activities with emissions from
+biomass burning and REDD-WRC
+project activities with emissions from
+biomass and/or peat burning. This
+module is also applicable to RWE and
+ARR-RWE project activities with
+emissions from peat burning.
+In the baseline scenario, fire is used to clear
+land, resulting in emissions of CO2, N2O and
+CH4.
+When used in the baseline, accounting must
+occur both under the baseline and in the
+project scenario and both in the project area
+and in the leakage belt. Where fires occur ex-
+post in areas that coincide with deforested or
+degraded areas in the baseline, the module
+should be used to account for greenhouse
+gas emissions.
+VMD0016 v1.3 This module provides guidance on how
+to stratify the project area into discrete,
+relatively homogeneous units to
+improve the accuracy and precision of
+Strata are only used for forest classes under
+deforestation pressure and are the same in
+the case of the baseline and project
+scenario.
+
+Page 66
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+66
+CCB v3.0, VCS v4.4
+carbon stock and carbon stock change
+estimates.
+The post-deforestation (conversion) scenario
+is not stratified, instead the average of the
+carbon stock values for post-deforestation
+land uses is applied observing the guidelines
+of Module BL-PL.
+VMD0017 v2.2 This module is mandatory when using
+methodology REDD+ MF. It is applicable
+for estimating the uncertainty of
+estimates of emissions and removals of
+CO2-e generated from REDD and WRC
+project activities. The module focuses
+on the following sources of uncertainty:
+▪ Determination of rates of
+deforestation and degradation
+▪ Uncertainty associated with
+estimation of stocks in carbon
+pools and changes in carbon stocks
+▪ Uncertainty associated with
+estimation of peat emissions
+▪ Uncertainty in assessment of
+project emissions
+Where an uncertainty value is not
+known or cannot be simply calculated,
+a project must justify that it is using an
+indisputably conservative number and
+an uncertainty of 0% may be used for
+this component.
+This module is mandatory when using the
+REDD+ MF methodology.
+The project therefore quantifies
+uncertainties related to the determination of
+deforestation and degradation rates,
+estimation of carbon stock levels and
+changes in carbon pools, and assessment of
+project emissions.
+VT0001 v3.0 ▪ AFOLU activities the same or similar
+to the proposed project activity on
+the land within the proposed
+project boundary, performed with or
+without registration as a VCS AFOLU
+project, will not lead to a violation of
+any applicable law, even if the law
+is not enforced.
+▪ The use of this tool to determine
+additionality requires that the
+baseline methodology provide a
+stepwise approach that justifies the
+determination of the most plausible
+baseline scenario. Project
+proponents proposing new baseline
+methodologies should ensure
+The planned project activities within the
+forest area consist of avoiding deforestation
+and conserving forest resources and are fully
+compliant with all applicable laws and
+regulations in Brazil.
+As stated in Section 2.5, the project is in
+compliance with all relevant laws, statutes
+and regulatory frameworks.
+The determination of the baseline scenario
+and additionality follows the stepwise
+procedures outlined in the applicable
+methodology.
+
+Page 67
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+67
+CCB v3.0, VCS v4.4
+consistency between the
+determination of a baseline
+scenario and the determination of
+the additionality of a project
+activity.
+3.1.3 Project Boundary (VCS, 3.12)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.1.4 Baseline Scenario (VCS, 3.13)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.1.5 Additionality (VCS, 3.14)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.1.5.1 Regulatory Surplus (VCS, 3.14)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.1.5.2 Additionality Methods (VCS, 3.14)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.1.6 Methodology Deviations (VCS, 3.20)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.2 Quantification of Estimated GHG Emission Reductions and Removals
+3.2.1 Baseline Emissions (VCS, 3.15)
+
+Page 68
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+68
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.2.2 Project Emissions (VCS, 3.15)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.2.3 Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15,
+4.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.3 Monitoring
+3.3.1 Data and Parameters Available at Validation (VCS, 3.16)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.3.2 Data and Parameters Monitored (VCS, 3.16)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.3.3 Monitoring Plan (VCS, 3.16, 3.20)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.3.4 Dissemination of Monitoring Plan and Results (VCS, 3.18; CCB, CL4.2)
+
+Page 69
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+69
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+3.4 Optional Criterion: Climate Change Adaptation Benefits
+3.4.1 Regional Climate Change Scenarios (CCB, GL1.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+3.4.2 Climate Change Impacts (CCB, GL1.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+3.4.3 Measures Needed and Designed for Adaptation (CCB, GL1.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4 COMMUNITY
+4.1 Without-Project Community Scenario
+4.1.1 Descriptions of Communities at Project Start (CCB, CM1.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.1.2 Interactions between Communities and Community Groups (VCS, 3.19; CCB,
+CM1.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.1.3 High Conservation Values (CCB, CM1.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.1.4 Without-Project Scenario: Community (CCB, CM1.3)
+
+Page 70
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+70
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.2 Net Positive Community Impacts
+4.2.1 Expected Community Impacts (CCB, CM2.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.2.2 Negative Community Impact Mitigation (VCS, 3.19; CCB, CM2.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.2.3 Net Positive Community Well-Being (VCS, 3.19; CCB, CM2.3, GL1.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.2.4 High Conservation Values Protected (CCB, CM2.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.3 Other Stakeholder Impacts
+4.3.1 Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB, CM3.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.3.2 Mitigation of Negative Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB,
+CM3.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+
+Page 71
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+71
+CCB v3.0, VCS v4.4
+4.3.3 Net Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB, CM3.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.4 Community Impact Monitoring
+4.4.1 Community Monitoring Plan (CCB, CM4.1, CM4.2, GL1.4, GL2.2, GL2.3, GL2.5)
+This section is not required at the Under Development stage in accordance with Section 3.1.6
+of the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.4.2 Monitoring Plan Dissemination (CCB, CM4.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0. The relevant information will be provided
+during the validation stage of the project.
+4.5 Optional Criterion: Exceptional Community Benefits
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.1 Exceptional Community Criteria (CCB, GL2.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.2 Short-term and Long-term Community Benefits (CCB, GL2.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.3 Community Participation Risks (CCB, GL2.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.4 Marginalized and/or Vulnerable Community Groups (CCB, GL2.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.5 Net Impacts on Women (CCB, GL2.5)
+
+Page 72
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+72
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.6 Benefit Sharing Mechanisms (CCB, GL2.6)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.7 Benefits, Costs, and Risks Communication (VCS, 3.18; CCB, GL2.7)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.8 Governance and Implementation Structures (CCB, GL2.8)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+4.5.9 Smallholders/Community Members Capacity Development (CCB, GL2.9)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5 BIODIVERSITY
+5.1 Without-Project Biodiversity Scenario
+5.1.1 Existing Conditions (VCS, 3.19; CCB, B1.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.1.2 High Conservation Values (CCB, B1.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.1.3 Without-project Scenario: Biodiversity (CCB, B1.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2 Net Positive Biodiversity Impacts
+5.2.1 Expected Biodiversity Changes (VCS, 3.19; CCB, B2.1)
+
+Page 73
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+73
+CCB v3.0, VCS v4.4
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.2 Mitigation Measures (VCS, 3.19; CCB, B2.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.3 Net Positive Biodiversity Impacts (CCB, B2.2, GL1.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.4 High Conservation Values Protected (CCB, B2.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.5 Species Used (VCS, 3.19; CCB, B2.5, B2.6)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.6 Invasive Species (VCS, 3.19; CCB, B2.5)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.7 GMO Exclusion (CCB, B2.7)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.8 Inputs Justification (VCS, 3.19; CCB, B2.8)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.2.9 Waste Products (VCS, 3.19; CCB, B2.9)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+
+Page 74
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+74
+CCB v3.0, VCS v4.4
+5.3 Offsite Biodiversity Impacts
+5.3.1 Negative Offsite Biodiversity Impacts (CCB, B3.1) and Mitigation Measures (CCB,
+B3.2)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.3.2 Net Offsite Biodiversity Benefits (VCS, 3.19; CCB, B3.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.4 Biodiversity Impact Monitoring
+5.4.1 Biodiversity Monitoring Plan (CCB, B4.1, B4.2, GL1.4, GL3.4)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.4.2 Biodiversity Monitoring Plan Dissemination (CCB, B4.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.5 Optional Criterion: Exceptional Biodiversity Benefits
+5.5.1 High Biodiversity Conservation Priority Status (CCB, GL3.1)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+5.5.2 Trigger Species Population Trends (CCB, GL3.2, GL3.3)
+This section is not required at the Under Development stage in accordance with Section 3.1.6 of
+the Verra Registration and Issuance Process v5.0.
+
+Page 75
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+75
+CCB v3.0, VCS v4.4
+APPENDIX 1: STAKEHOLDER DESCRIPTION TABLE
+Stakeholder Rights, interest, and overall relevance to the project
+
+Page 76
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+76
+CCB v3.0, VCS v4.4
+APPENDIX 2: PROJECT ACTIVITIES AND THEORY OF
+CHANGE TABLE
+Use this appendix, if applicable, to identify project activities and fulfill the requirements of Section 0 above. This is an example of just one
+method of representing the theory of change. Results chains/flow diagrams are another effective way to represent the theory o f change.
+Modify the table, if necessary, to suit the project activities, or delete if not used.
+Activity description Expected climate, community, and/or biodiversity Relevance to project’s
+objectives
+Outputs
+(short term)
+Outcomes
+(medium term)
+Impacts
+(long term)
+
+Page 77
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+77
+CCB v3.0, VCS v4.4
+APPENDIX 3: PROJECT RISKS TABLE
+Use this appendix to identify and summarize the project risks and fulfill the requirements of Sections 2.3.6, 2.3.17, 2.5, and 5.2.1– 5.2.9,
+above. Where no risk is identified, write ‘No risk identified’ and provide justification in the third column. Add rows as needed.
+Identified risk(s) Potential impact of risk on
+stakeholders, ecosystem health,
+and biodiversity
+Mitigation or preventative measure(s) taken
+Natural and human
+induced risks to
+stakeholders’ wellbeing
+Risks to stakeholder
+participation
+Working conditions
+Safety of women and girls
+Safety of minority and
+marginalized groups,
+including children
+Pollutants (air, noise,
+discharges to water,
+generation of waste, and
+release of hazardous
+materials and chemical
+pesticides and fertilizers)
+Discrimination
+
+Page 78
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+78
+CCB v3.0, VCS v4.4
+Sexual harassment
+Equal pay for equal work
+Gender equity in labor
+and work
+Forced labor13
+Child labor
+Human trafficking
+Recognition of, respect
+of, and promotion of the
+rights to IPs, LCs and
+customary rights holders
+Preserving and protecting
+cultural heritage
+Protecting and preserving
+property rights, customary
+rights, or protecting legal
+or customary
+tenure/access rights to
+territories, property, and
+resources, including
+collective and/or
+conflicting rights
+13 The identified risks and commensurate mitigation or preventative measure(s) for forced labor, child labor, and human trafficking, must be inclusive of staff and
+contracted workers employed by third parties.
+
+Page 79
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+79
+CCB v3.0, VCS v4.4
+Impacts on biodiversity
+and ecosystems
+Soil degradation and soil
+erosion
+Water consumption and
+stress
+Habitats (and areas
+needed for habitat
+connectivity) for rare,
+threatened, and
+endangered species
+Areas needed for habitat
+connectivity
+Invasive species
+Ecosystem conversion
+[Additional risk identified]
+
+Page 80
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+80
+CCB v3.0, VCS v4.4
+APPENDIX 4: COMMERCIALLY SENSITIVE INFORMATION
+Section Information Justification
+Not Applicable Not Applicable Not Applicable
+
+Page 81
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+81
+CCB v3.0, VCS v4.4
+APPENDIX X: <TITLE OF APPENDIX>
+Use appendices for supporting information. Delete this appendix (title and instructions) where no
+appendix is required.

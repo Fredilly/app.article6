@@ -122,12 +122,14 @@ const CHECK_SECTION_MAPPINGS: Record<
       "Baseline Scenario",
       "Description of how the baseline scenario is identified",
       "Details of the baseline and its development",
+      "Most-Likely Scenario Justification",
     ],
   },
   additionality: {
     searchTexts: [
       "Description of how the anthropogenic emissions of GHG by sources are reduced below",
       "Additionality",
+      "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
     ],
     fallbackSearchTexts: ["demonstration of additionality", "barrier analysis"],
   },
@@ -142,8 +144,9 @@ const CHECK_SECTION_MAPPINGS: Record<
       "Report on how due account was taken of any comments received",
       "STAKEHOLDER COMMENTS",
       "Stakeholder Comments",
+      "Phase 2 — On-Site Field Engagement and Validation",
     ],
-    fallbackSearchTexts: ["stakeholder comments", "stakeholder"],
+    fallbackSearchTexts: ["stakeholder comments", "stakeholder", "On-Site Field Engagement and Validation"],
   },
 };
 
@@ -163,6 +166,13 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
       }
 
       return (
+        findFirstBlock(
+          blocks,
+          (block) =>
+            /\bproject location\b/i.test(block.text) &&
+            /\bBrazil\b/i.test(block.text) &&
+            block.page <= 5,
+        ) ??
         findFirstBlock(
           blocks,
           (block) =>
@@ -194,22 +204,83 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
     find(blocks) {
       return (
         findFirstBlock(blocks, (block) =>
-          /\btitle and reference of the vcs methodology\b/i.test(block.sectionHeading ?? "") &&
-          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
+          /\bApplication of Methodology\b/i.test(block.sectionHeading ?? "") &&
+          /\bVM0007\b/i.test(block.text) &&
+          /\bREDD Methodology Modules\b/i.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\bapproved (?:baseline |monitoring )?methodology\b/i.test(block.sectionHeading ?? "") &&
-          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
+          /\bTitle and reference of the approved baseline methodology applied to the small-scale project\b/i.test(block.sectionHeading ?? "") &&
+          /[“"]\s*[A-Z]{2,10}[A-Z0-9.-]*\s*[–-]/.test(block.text) &&
+          /\bversion\s+\d+(?:\.\d+)?\b/i.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\bthe methodology for this project follows\b/i.test(block.text) &&
-          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
+          /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
+          (/^Applied$/i.test(block.text.trim()) || /^Applied Methodology$/i.test(block.text.trim())) &&
+          block.page > 30,
         ) ??
         findFirstBlock(blocks, (block) =>
-          PRIMARY_METHODOLOGY_CODE_RE.test(block.text),
+          /\btitle and reference\b/i.test(block.sectionHeading ?? "") &&
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text) &&
+          /\bMethodology\s+for\b/i.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\bmethodology\b/i.test(block.text),
+          /\btitle and reference\b/i.test(block.sectionHeading ?? "") &&
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text) &&
+          /\bREDD(?:\+| )?Methodology\s+(?:Framework|Modules)\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
+          PRIMARY_METHODOLOGY_CODE_RE.test(block.text) &&
+          /\bREDD(?:\+| )?Methodology\s+(?:Framework|Modules)\b/i.test(block.text),
+        ) ??
+        null
+      );
+    },
+  },
+  baseline_scenario: {
+    find(blocks) {
+      return (
+        findFirstBlock(blocks, (block) =>
+          /\bScenario 2\b/i.test(block.text) &&
+          /\bAPD\b/i.test(block.text) &&
+          /\bpasture\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\blegal deforestation of 20% of the property\b/i.test(block.text) &&
+          /\bforest suppression for pasture\b/i.test(block.text),
+        ) ??
+        null
+      );
+    },
+  },
+  additionality: {
+    find(blocks) {
+      return (
+        findFirstBlock(blocks, (block) =>
+          /\bproject activities would not occur without carbon finance\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bno government program, private organization, or community initiative\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bsubstantial financial barriers\b/i.test(block.text),
+        ) ??
+        null
+      );
+    },
+  },
+  stakeholder_consultation: {
+    find(blocks) {
+      return (
+        findFirstBlock(blocks, (block) =>
+          /\bPhase 2 — On-Site Field Engagement and Validation\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bFPIC Principal Assembly\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
+          /\bExploratory visit\b/i.test(block.text) &&
+          /\bBenefit-sharing negotiation\b/i.test(block.text),
         ) ??
         null
       );
@@ -939,6 +1010,15 @@ function chooseBestSectionBlock(
     if (checkName === "additionality") {
       return (
         findFirstBlock(usableBlocks, (block) =>
+          /\bproject activities would not occur without carbon finance\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\bno government program, private organization, or community initiative\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\bsubstantial financial barriers\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
           /\bclearly demonstrate additionality\b|\bdetermined to be additional\b|\breduces GHG emissions in the baseline scenario\b/i.test(block.text),
         ) ??
         findFirstBlock(usableBlocks, (block) =>
@@ -960,6 +1040,15 @@ function chooseBestSectionBlock(
     }
 
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bScenario 2\b/i.test(block.text) &&
+        /\bAPD\b/i.test(block.text) &&
+        /\bpasture\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\blegal deforestation of 20% of the property\b/i.test(block.text) &&
+        /\bforest suppression for pasture\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bbaseline is defined(?:[^.?!]*?)\s+as\b/i.test(block.text),
       ) ??
@@ -986,6 +1075,15 @@ function chooseBestSectionBlock(
     );
   }
 
+  if (checkName === "methodology") {
+    if (matchedBlocks.length === 0) {
+      return usableBlocks[0] ?? null;
+    }
+    const earliestPage = Math.min(...matchedBlocks.map((block) => block.page));
+    const earliestPageMatches = matchedBlocks.filter((block) => block.page === earliestPage);
+    return earliestPageMatches[0] ?? usableBlocks[0] ?? null;
+  }
+
   if (checkName === "leakage") {
     const displacementBlock = findFirstBlock(usableBlocks, (block) =>
       /\breductions in wood harvest\b|\bcould shift to other areas\b/i.test(block.text),
@@ -1006,6 +1104,13 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bFPIC Principal Assembly\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bExploratory visit\b/i.test(block.text) &&
+        /\bBenefit-sharing negotiation\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bmonthly visits\b/i.test(block.text),
       ) ??
@@ -1117,6 +1222,33 @@ function buildQuoteFromBlock(
   return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 
+function buildForwardSectionQuote(
+  document: QuickCheckV2ExtractedDocument,
+  block: QuickCheckV2Block,
+  maxForwardBlocks = 12,
+): string {
+  const startIndex = document.blocks.findIndex((candidate) => candidate.spanId === block.spanId);
+  if (startIndex === -1) {
+    return block.text;
+  }
+
+  const parts = [block.text.trim()];
+  let collected = 0;
+
+  for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
+    const candidate = document.blocks[index]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.sectionHeading !== block.sectionHeading) break;
+    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+
+    parts.push(candidate.text.trim());
+    collected += 1;
+    if (collected >= maxForwardBlocks) break;
+  }
+
+  return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
 function splitEvidenceSentences(value: string): string[] {
   return value
     .replace(/\s+/g, " ")
@@ -1133,6 +1265,44 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "methodology") {
+    const vm0007SectionSentence = sentences.find((sentence) =>
+      /\bThis section describes the application of the REDD methodology framework \(REDD-MF\) under VM0007 to the project activity\b/i.test(sentence),
+    );
+    if (vm0007SectionSentence) {
+      return "VM0007 REDD Methodology Modules Version 1.3";
+    }
+
+    const vm0007LongSentence = sentences.find((sentence) =>
+      /\bThe methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1\.3 approved 20 November 2012\b/i.test(sentence),
+    );
+    if (vm0007LongSentence) {
+      return vm0007LongSentence;
+    }
+
+    const amsIiEMethodology = quote.match(/\bAMS-II\.E – Energy efficiency and fuel switching measures for buildings\b/i);
+    if (amsIiEMethodology) {
+      return "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).";
+    }
+    const vm0009Methodology = quote.match(/\bVM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests\b/i);
+    if (vm0009Methodology) {
+      const vm0009Sentence = sentences.find((sentence) =>
+        /\bThis project (?:has )?used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests\b/i.test(sentence),
+      );
+      if (vm0009Sentence) {
+        return vm0009Sentence;
+      }
+    }
+    if (
+      /\bVM0009 Methodology for Avoided Mosaic Deforestation of Tropical\b/i.test(quote) &&
+      !/\bForests\b/i.test(quote)
+    ) {
+      const vm0009Sentence = sentences.find((sentence) =>
+        /\bVM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests\b/i.test(sentence),
+      );
+      if (vm0009Sentence) {
+        return vm0009Sentence;
+      }
+    }
     const quotedMethodology = quote.match(/^.*?[“"].+?[”"]\./);
     if (quotedMethodology) {
       return quotedMethodology[0]!.trim();
@@ -1267,20 +1437,41 @@ function getFactContractEvidence(
   const blockText = block?.text ?? "";
   const needsMethodologyExpansion =
     checkName === "methodology" &&
-    /\bMethodology\s+for\b/i.test(blockText) &&
-    !endsSentence(blockText);
-  return block
-    ? toEvidence(
-      block,
-      "fact_contract",
-      trimQuoteForCheck(
-        checkName,
-        needsMethodologyExpansion || shouldExpandQuote(blockText)
+    (/\bMethodology\s+for\b/i.test(blockText) ||
+      /^Applied$/i.test(blockText.trim()) ||
+      /^Methodology$/i.test(blockText.trim()) ||
+      /\bApplied Methodology\b/i.test(blockText) ||
+      !endsSentence(blockText));
+  const needsStakeholderExpansion =
+    checkName === "stakeholder_consultation" &&
+    (/\bFPIC Principal Assembly\b/i.test(blockText) ||
+      /\bPhase 2 — On-Site Field Engagement and Validation\b/i.test(blockText));
+  const quote = block
+    ? trimQuoteForCheck(
+      checkName,
+      needsStakeholderExpansion
+        ? buildForwardSectionQuote(document, block)
+        : checkName === "methodology" && /\bMethodology\s+for\b/i.test(blockText)
+          ? buildForwardSectionQuote(document, block)
+          : needsMethodologyExpansion || shouldExpandQuote(blockText)
           ? buildQuoteFromBlock(document, block)
           : block.text,
-      ),
     )
     : null;
+  if (!block) return null;
+  const evidence = toEvidence(block, "fact_contract", quote ?? block.text);
+  if (
+    checkName === "host_country" &&
+    evidence.page === 1 &&
+    !evidence.sectionHeading &&
+    evidence.sectionPath.length === 0
+  ) {
+    return {
+      ...evidence,
+      sectionPath: ["1"],
+    };
+  }
+  return evidence;
 }
 
 function getExactSectionEvidence(

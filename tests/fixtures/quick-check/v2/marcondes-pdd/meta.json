@@ -1,0 +1,10 @@
+{
+  "id": "marcondes-pdd",
+  "title": "Quick Check v2 Phase 7 Marcondes gold fixture",
+  "documentId": "marcondes-pdd-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "phase_7",
+  "registry": "VCS",
+  "documentType": "Project Description / PD"
+}
