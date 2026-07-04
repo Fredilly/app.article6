@@ -99,21 +99,21 @@ describe("VM0007 version lock", () => {
 
   it("allows a matching VM0007 v1.8 PDD to proceed to normal evidence judgment", () => {
     const audit = auditVm0007(ENVIRA_TEXT, {
-      getContract: makeVersionedContract("v1.8"),
+      getContract: makeVersionedContract("v1-8"),
       versionContext: {
-        pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.8",
+        pddDeclaredMethodologyVersion: "VM0007 Version 1.8",
       },
     });
 
     expect(audit.auditStatus).toBe("AUDITED");
     expect(audit.methodologyId).toBe("VM0007");
-    expect(audit.rulebookVersion).toBe("v1.8");
+    expect(audit.rulebookVersion).toBe("v1-8");
     expect(audit.versionMatch).toBe(true);
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
     expect(audit.results[0]?.methodologyId).toBe("VM0007");
-    expect(audit.results[0]?.rulebookVersion).toBe("v1.8");
-    expect(audit.results[0]?.pddDeclaredMethodologyVersion).toBe("REDD-MF / VM0007 v1.8");
+    expect(audit.results[0]?.rulebookVersion).toBe("v1-8");
+    expect(audit.results[0]?.pddDeclaredMethodologyVersion).toBe("VM0007 Version 1.8");
     expect(audit.results.every((result) => result.versionMatch === true)).toBe(true);
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
   });
@@ -121,7 +121,7 @@ describe("VM0007 version lock", () => {
   it("recognizes a VM0007 v1.8 declaration written as 'VM0007, version 1.8'", () => {
     const lock = buildMethodologyVersionLock({
       methodologyId: "VM0007",
-      rulebookVersion: "v1.8",
+      rulebookVersion: "v1-8",
       pddDeclaredMethodologyVersion: "VM0007, version 1.8",
     });
 
@@ -132,7 +132,7 @@ describe("VM0007 version lock", () => {
   it("recognizes a VM0007 v1.8 declaration written as 'REDD-MF, REDD Methodology Framework Version 1.8'", () => {
     const lock = buildMethodologyVersionLock({
       methodologyId: "VM0007",
-      rulebookVersion: "v1.8",
+      rulebookVersion: "v1-8",
       pddDeclaredMethodologyVersion: "REDD-MF, REDD Methodology Framework Version 1.8",
     });
 
@@ -142,7 +142,7 @@ describe("VM0007 version lock", () => {
 
   it("allows a v1.8 VM0007 PDD when the real text uses 'VM0007, version 1.8'", () => {
     const audit = auditVm0007(ENVIRA_V18_VERSION_TEXT, {
-      getContract: makeVersionedContract("v1.8"),
+      getContract: makeVersionedContract("v1-8"),
     });
 
     expect(audit.auditStatus).toBe("AUDITED");
@@ -153,12 +153,34 @@ describe("VM0007 version lock", () => {
 
   it("allows a v1.8 VM0007 PDD when the real text uses 'REDD-MF, REDD Methodology Framework Version 1.8'", () => {
     const audit = auditVm0007(ENVIRA_V18_FRAMEWORK_TEXT, {
-      getContract: makeVersionedContract("v1.8"),
+      getContract: makeVersionedContract("v1-8"),
     });
 
     expect(audit.auditStatus).toBe("AUDITED");
     expect(audit.versionMatch).toBe(true);
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
+  });
+
+  it("treats no declared version as blocked", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "",
+    });
+
+    expect(lock.versionMatch).toBe(false);
+    expect(lock.versionMismatchReason).toContain("missing");
+  });
+
+  it("treats multiple distinct declared versions as blocked", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "VM0007 v1.5 and VM0007 version 1.8",
+    });
+
+    expect(lock.versionMatch).toBe(false);
+    expect(lock.versionMismatchReason).toContain("ambiguous");
   });
 });

@@ -199,6 +199,17 @@ function normalizeVersionValue(value: string | null | undefined): string {
   return trimmed.startsWith("v") ? trimmed : `v${trimmed}`;
 }
 
+function normalizeVersionKey(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return "";
+  const withoutVersionPrefix = trimmed.replace(/^version\s+/i, "").replace(/^v\s*/i, "").trim();
+  const segments = withoutVersionPrefix.split(/[.-]/).map((segment) => segment.trim()).filter(Boolean);
+  if (segments.length === 0) {
+    return normalizeVersionValue(trimmed).toLowerCase();
+  }
+  return `v${segments.join(".")}`.toLowerCase();
+}
+
 function extractDeclaredMethodologyId(rawValue: string): string {
   const normalized = rawValue.trim().toUpperCase();
   const match = normalized.match(/\b(VM\d{4}|AMS-[A-Z0-9.]+|AR-[A-Z0-9.]+|ACM\d{4}|AM\d{4}|GS-[A-Z0-9.]+)\b/);
@@ -291,10 +302,15 @@ function buildVersionMismatchReason(input: {
 
   if (input.declaredRulebookVersions.length === 0) {
     problems.push("PDD-declared methodology version is missing");
-  } else if (input.declaredRulebookVersions.length > 1) {
-    problems.push(`PDD-declared methodology version is ambiguous: found ${input.declaredRulebookVersions.join(", ")}`);
-  } else if (normalizeVersionValue(input.declaredRulebookVersions[0] ?? "") !== normalizeVersionValue(input.rulebookVersion)) {
-    problems.push(`rulebook version mismatch: PDD declares ${normalizeVersionValue(input.declaredRulebookVersions[0] ?? "")}, loaded contract is ${normalizeVersionValue(input.rulebookVersion)}`);
+  } else {
+    const canonicalDeclaredRulebookVersions = Array.from(
+      new Set(input.declaredRulebookVersions.map((version) => normalizeVersionKey(version)).filter(Boolean)),
+    );
+    if (canonicalDeclaredRulebookVersions.length > 1) {
+      problems.push(`PDD-declared methodology version is ambiguous: found ${input.declaredRulebookVersions.join(", ")}`);
+    } else if (normalizeVersionKey(input.declaredRulebookVersions[0] ?? "") !== normalizeVersionKey(input.rulebookVersion)) {
+      problems.push(`rulebook version mismatch: PDD declares ${normalizeVersionValue(input.declaredRulebookVersions[0] ?? "")}, loaded contract is ${normalizeVersionValue(input.rulebookVersion)}`);
+    }
   }
 
   if (problems.length === 0) return "";
