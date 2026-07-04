@@ -10,7 +10,10 @@ import {
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
-import type { QuickCheckMethodologyIdentity } from "@/lib/quickCheckV2/methodologyIdentity";
+import {
+  buildQuickCheckMethodologyIdentity,
+  type QuickCheckMethodologyIdentity,
+} from "@/lib/quickCheckV2/methodologyIdentity";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/quick-check/v2");
 
@@ -115,13 +118,62 @@ function pickComparableMethodology(
   return comparable;
 }
 
+function buildComparableMethodology(
+  result: ReturnType<typeof validateAnswerResults>[number],
+): QuickCheckMethodologyIdentity | null {
+  if (result.checkName !== "methodology" || !result.evidence) return null;
+
+  const tableMethodology = extractMethodologyDetailsFromEvidence(result.evidence);
+  if (tableMethodology) {
+    return tableMethodology;
+  }
+
+  const evidenceMethodology = buildQuickCheckMethodologyIdentity(result.evidence);
+  const answerMethodology = result.answer
+    ? buildQuickCheckMethodologyIdentity({
+        ...result.evidence,
+        quote: result.answer,
+      })
+    : null;
+
+  const methodology = answerMethodology ?? evidenceMethodology ?? result.methodology ?? null;
+  if (!methodology) return null;
+
+  if (result.answer) {
+    return {
+      methodologyId: answerMethodology?.methodologyId ?? evidenceMethodology?.methodologyId ?? methodology.methodologyId,
+      methodologyName: answerMethodology?.methodologyName ?? evidenceMethodology?.methodologyName ?? methodology.methodologyName,
+      methodologyAlias:
+        (answerMethodology?.methodologyAlias?.trim() ? answerMethodology.methodologyAlias : null)
+        ?? evidenceMethodology?.methodologyAlias
+        ?? methodology.methodologyAlias,
+      pddDeclaredMethodologyVersion:
+        evidenceMethodology?.pddDeclaredMethodologyVersion
+        ?? answerMethodology?.pddDeclaredMethodologyVersion
+        ?? methodology.pddDeclaredMethodologyVersion,
+      versionStatus:
+        evidenceMethodology?.versionStatus
+        ?? answerMethodology?.versionStatus
+        ?? methodology.versionStatus,
+      evidencePage: result.evidence.page,
+      evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
+      evidenceQuote: result.evidence.quote,
+    };
+  }
+
+  return {
+    ...methodology,
+    evidencePage: result.evidence.page,
+    evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
+    evidenceQuote: result.evidence.quote,
+  };
+}
+
 function toGoldComparableRecord(
   result: ReturnType<typeof validateAnswerResults>[number],
   expected: GoldRecord,
 ): GoldRecord {
-  const methodology = result.checkName === "methodology"
-    ? extractMethodologyDetailsFromEvidence(result.evidence)
-    : null;
+  const methodology = buildComparableMethodology(result);
 
   const record: GoldRecord = {
     checkName: result.checkName,
