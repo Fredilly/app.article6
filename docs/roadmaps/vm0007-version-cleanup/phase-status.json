@@ -1,5 +1,5 @@
 {
-  "roadmap": "vm0007-version-cleanup",
+  "PR1": "done",
   "phase_meta": {
     "status": "active",
     "summary": "VM0007 internal review is using a temporary version-warning flow while hard blocking is deferred to issue #926.",
@@ -49,5 +49,6 @@
       "status": "planned",
       "summary": "Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet."
     }
-  }
+  },
+  "roadmap": "vm0007-version-cleanup"
 }
