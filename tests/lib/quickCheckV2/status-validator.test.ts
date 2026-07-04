@@ -138,15 +138,64 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
     expect(result.reason).toBe("answer_and_provenance_complete");
   });
 
+  it("includes a structured methodology identity on methodology rows", () => {
+    const methodology = statuses.find((result) => result.checkName === "methodology");
+    expect(methodology?.methodology?.methodologyId).toBe("VM0007");
+    expect(methodology?.methodology?.evidencePage).toBe(31);
+    expect(methodology?.methodology?.evidenceSection).toBeTruthy();
+    expect(methodology?.methodology?.evidenceQuote).toContain("VM0007");
+  });
+
+  it("keeps an explicit version when the methodology quote declares one", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "methodology",
+        answer: "VM0007: REDD Methodology Modules Version 1.3",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012.",
+          page: 15,
+          sectionHeading: "Title and Reference of Methodology",
+          sectionPath: ["2", "2.1"],
+          spanId: "synthetic-doc:p15:b1:methodology",
+        },
+      }),
+    );
+
+    expect(result.methodology?.methodologyId).toBe("VM0007");
+    expect(result.methodology?.pddDeclaredMethodologyVersion).toBe("v1.3");
+    expect(result.methodology?.versionStatus).toBe("DECLARED");
+  });
+
+  it("does not invent a version when the quote does not explicitly declare one", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "methodology",
+        answer: "VM0007: REDD Methodology Modules (REDD-MF)",
+        evidence: {
+          sourceType: "fact_contract",
+          quote: "The Envira Amazonia Project is utilizing the Avoided Deforestation Partners’ VCS REDD Methodology, entitled, “VM0007: REDD Methodology Modules (REDD-MF).”",
+          page: 31,
+          sectionHeading: "Title and Reference of Methodology",
+          sectionPath: ["2", "2.1"],
+          spanId: "synthetic-doc:p31:b0:methodology",
+        },
+      }),
+    );
+
+    expect(result.methodology?.methodologyId).toBe("VM0007");
+    expect(result.methodology?.pddDeclaredMethodologyVersion).toBeNull();
+    expect(result.methodology?.versionStatus).toBe("NOT_EXPLICITLY_DECLARED");
+  });
+
   it("returns only checkName, status, answer, evidence, and reason", () => {
     for (const result of statuses) {
-      expect(Object.keys(result)).toStrictEqual([
-        "checkName",
-        "status",
-        "answer",
-        "evidence",
-        "reason",
-      ]);
+      const keys = Object.keys(result).sort();
+      expect(keys).toEqual(
+        result.checkName === "methodology"
+          ? ["answer", "checkName", "evidence", "methodology", "reason", "status"]
+          : ["answer", "checkName", "evidence", "reason", "status"],
+      );
       expect(Object.keys(result)).not.toContain("score");
       expect(Object.keys(result)).not.toContain("router");
     }

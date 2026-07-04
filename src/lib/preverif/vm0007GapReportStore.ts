@@ -1,5 +1,13 @@
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
+import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
+import { parseExtractedText } from "@/lib/quickCheckV2/evidence";
+import { validateAnswerResults } from "@/lib/quickCheckV2/status";
+import {
+  buildQuickCheckMethodologyIdentity,
+  formatMethodologyDisplayLabel,
+  type QuickCheckMethodologyIdentity,
+} from "@/lib/quickCheckV2/methodologyIdentity";
 import {
   auditEvidence,
   type MethodologyEvidenceAuditRule,
@@ -16,6 +24,9 @@ export type Vm0007GapReportAuditRecord = {
   auditId: string;
   methodologyId: string;
   methodologyVersion: string;
+  loadedRulebookId: string;
+  loadedRulebookVersion: string;
+  methodology: QuickCheckMethodologyIdentity | null;
   generatedAt: string;
   evidenceFileName?: string;
   userAcceptedVersionWarning?: boolean;
@@ -33,6 +44,44 @@ function storageKey(auditId: string): string {
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function emptyAuditTotals(): MethodologyEvidenceAuditSummary["totals"] {
+  return {
+    supported_by_pdd: 0,
+    partially_supported: 0,
+    missing_evidence: 0,
+    not_applicable: 0,
+    manual_review_needed: 0,
+  };
+}
+
+function buildBlockedAuditSummary(input: {
+  methodologyId: string;
+  loadedRulebookVersion: string;
+  methodology: QuickCheckMethodologyIdentity;
+  totalRules: number;
+  userAcceptedVersionWarning?: boolean;
+}): MethodologyEvidenceAuditSummary {
+  const declaredVersion = input.methodology.pddDeclaredMethodologyVersion?.trim();
+  const declaredLabel = formatMethodologyDisplayLabel(input.methodology);
+  const versionLabel = declaredVersion || "an unknown version";
+  const loadedVersionLabel = input.loadedRulebookVersion.trim() || "an unknown version";
+
+  return {
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
+    methodologyId: input.methodologyId,
+    rulebookVersion: input.loadedRulebookVersion,
+    pddDeclaredMethodologyVersion: declaredVersion ?? "",
+    versionMatch: false,
+    versionMismatchReason: declaredVersion
+      ? `PDD declares ${declaredLabel} ${versionLabel}, but loaded rulebook is ${input.methodologyId} ${loadedVersionLabel}. Evidence judgment blocked.`
+      : `PDD does not explicitly declare a methodology version, but loaded rulebook is ${input.methodologyId} ${loadedVersionLabel}. Evidence judgment blocked.`,
+    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
+    results: [],
+    totals: emptyAuditTotals(),
+    totalRules: input.totalRules,
+  };
 }
 
 function mapRule(rule: RuleSummary): MethodologyEvidenceAuditRule {
@@ -75,7 +124,12 @@ export function loadVm0007GapReportAudit(auditId: string): Vm0007GapReportAuditR
       return null;
     }
     if (!parsed.audit || !Array.isArray(parsed.audit.results) || typeof parsed.audit.totalRules !== "number") return null;
-    return parsed;
+    return {
+      ...parsed,
+      loadedRulebookId: typeof parsed.loadedRulebookId === "string" ? parsed.loadedRulebookId : parsed.methodologyId,
+      loadedRulebookVersion: typeof parsed.loadedRulebookVersion === "string" ? parsed.loadedRulebookVersion : parsed.methodologyVersion,
+      methodology: parsed.methodology ?? null,
+    };
   } catch {
     return null;
   }
@@ -94,31 +148,60 @@ export function deriveVm0007ProjectName(evidenceFileName?: string): string {
 }
 
 export function buildAndSaveVm0007GapReportAudit(input: {
-  methodologyId: string;
-  methodologyVersion: string;
+  methodology: QuickCheckMethodologyIdentity;
+  loadedRulebookId: string;
+  loadedRulebookVersion: string;
   evidenceFileName?: string;
   rawPddText: string;
   rules: readonly RuleSummary[];
   userAcceptedVersionWarning?: boolean;
 }): Vm0007GapReportAuditRecord | null {
-  if (input.methodologyId.trim().toUpperCase() !== "VM0007") return null;
+  if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return null;
   if (!input.rawPddText.trim() || input.rules.length === 0) return null;
 
   const context = getStructuredQueryContext(input.rawPddText);
-  const audit = auditEvidence({
-    rules: input.rules.map(mapRule),
-    evidenceDocument: context.evidenceDocument,
-    getContract: getVm0007EvidenceContract,
-    normalizeRuleId: normalizeVm0007RuleId,
-    sections: context.documentStructure.sections,
-    rawText: input.rawPddText,
-    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
-  });
+  const parsedDocument = parseExtractedText(
+    input.rawPddText,
+    context.evidenceDocument.docId,
+    context.parsedDocument.adapterId ?? "quick-check-panel",
+  );
+  const methodologyResult = validateAnswerResults(
+    extractAnswersForAllChecks(parsedDocument),
+  ).find((result) => result.checkName === "methodology");
+  const methodology = methodologyResult?.methodology ?? buildQuickCheckMethodologyIdentity(methodologyResult?.evidence ?? null) ?? input.methodology;
+  const declaredVersion = methodology.pddDeclaredMethodologyVersion?.trim() || "";
+  const versionMatch = declaredVersion === input.loadedRulebookVersion.trim();
+  const audit =
+    !versionMatch
+      ? buildBlockedAuditSummary({
+          methodologyId: input.loadedRulebookId.trim(),
+          loadedRulebookVersion: input.loadedRulebookVersion.trim(),
+          methodology,
+          totalRules: input.rules.length,
+          userAcceptedVersionWarning: input.userAcceptedVersionWarning,
+        })
+      : auditEvidence({
+          rules: input.rules.map(mapRule),
+          evidenceDocument: context.evidenceDocument,
+          getContract: getVm0007EvidenceContract,
+          normalizeRuleId: normalizeVm0007RuleId,
+          sections: context.documentStructure.sections,
+          rawText: input.rawPddText,
+          versionContext: {
+            methodologyId: input.loadedRulebookId,
+            rulebookVersion: input.loadedRulebookVersion,
+            pddDeclaredMethodologyVersion: methodology.pddDeclaredMethodologyVersion ?? "",
+          },
+          userAcceptedVersionWarning: input.userAcceptedVersionWarning,
+        });
 
   const record: Vm0007GapReportAuditRecord = {
     auditId: createVm0007GapReportAuditId(),
-    methodologyId: input.methodologyId.trim(),
-    methodologyVersion: input.methodologyVersion.trim(),
+    methodologyId: input.loadedRulebookId.trim(),
+    methodologyVersion: input.loadedRulebookVersion.trim(),
+    loadedRulebookId: input.loadedRulebookId.trim(),
+    loadedRulebookVersion: input.loadedRulebookVersion.trim(),
+    methodology,
     generatedAt: nowIso(),
     evidenceFileName: input.evidenceFileName?.trim() || undefined,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,

@@ -38,6 +38,17 @@ function makeAudit(): MethodologyEvidenceAuditSummary {
   };
 }
 
+const METHODOLOGY_IDENTITY = {
+  methodologyId: "VM0007",
+  methodologyName: "REDD Methodology Modules",
+  methodologyAlias: "REDD-MF",
+  pddDeclaredMethodologyVersion: null,
+  versionStatus: "NOT_EXPLICITLY_DECLARED" as const,
+  evidencePage: 31,
+  evidenceSection: "Title and Reference of Methodology",
+  evidenceQuote: "VM0007: REDD Methodology Modules (REDD-MF)",
+};
+
 describe("Vm0007GapReportLaunchButton", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
@@ -62,6 +73,9 @@ describe("Vm0007GapReportLaunchButton", () => {
       auditId: "audit-1",
       methodologyId: "VM0007",
       methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      methodology: METHODOLOGY_IDENTITY,
       generatedAt: "2026-07-01T00:00:00Z",
       evidenceFileName: "envira.pdf",
       audit: makeAudit(),

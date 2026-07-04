@@ -21,6 +21,10 @@
 
 import type { AnswerResult } from "@/lib/quickCheckV2/answers";
 import type { RetrievedEvidence, StructuredCheckId } from "@/lib/quickCheckV2/evidence";
+import {
+  buildQuickCheckMethodologyIdentity,
+  type QuickCheckMethodologyIdentity,
+} from "@/lib/quickCheckV2/methodologyIdentity";
 
 export type QuickCheckStatus = "FOUND" | "UNCLEAR" | "MISSING";
 
@@ -37,6 +41,7 @@ export type StatusResult = {
   answer: string | null;
   evidence: RetrievedEvidence | null;
   reason: StatusReason;
+  methodology?: QuickCheckMethodologyIdentity | null;
 };
 
 function hasText(value: string | null | undefined): boolean {
@@ -63,6 +68,10 @@ function hasCompleteProvenance(evidence: RetrievedEvidence | null): boolean {
 }
 
 export function validateAnswerResult(result: AnswerResult): StatusResult {
+  const methodology = result.checkName === "methodology"
+    ? buildQuickCheckMethodologyIdentity(result.evidence)
+    : undefined;
+
   if (!result.evidence) {
     return {
       checkName: result.checkName,
@@ -80,6 +89,7 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: result.answer,
       evidence: result.evidence,
       reason: "answer_missing",
+      ...(methodology ? { methodology } : {}),
     };
   }
 
@@ -90,6 +100,7 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: result.answer,
       evidence: result.evidence,
       reason: "provenance_incomplete",
+      ...(methodology ? { methodology } : {}),
     };
   }
 
@@ -100,6 +111,7 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: result.answer,
       evidence: result.evidence,
       reason: "fallback_evidence_only",
+      ...(methodology ? { methodology } : {}),
     };
   }
 
@@ -109,6 +121,7 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
     answer: result.answer,
     evidence: result.evidence,
     reason: "answer_and_provenance_complete",
+    ...(methodology ? { methodology } : {}),
   };
 }
 

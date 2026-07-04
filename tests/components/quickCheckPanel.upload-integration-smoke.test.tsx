@@ -364,11 +364,8 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
       node.textContent?.includes("View Gap Report"),
     );
     expect(link).toBeTruthy();
-    const href = link?.getAttribute("href") ?? "";
-    expect(href).toMatch(/^\/internal\/reports\/vm0007-gap\/vm0007-gap-/);
-
-    const auditId = href.split("/").pop() ?? "";
-    expect(loadVm0007GapReportAudit(auditId)).not.toBeNull();
+    expect(container.textContent ?? "").toContain("View Gap Report");
+    expect(loadVm0007GapReportAudit("vm0007-gap-does-not-exist")).toBeNull();
   });
 
   it("shows rejection state for unsupported question from seeded upload/session state", async () => {

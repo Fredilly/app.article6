@@ -26,6 +26,9 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
   const auditStatus = (audit?.auditStatus ?? "AUDITED") as string;
   const isBlocked = auditStatus === "BLOCKED_VERSION_MISMATCH";
   const hasVersionWarning = auditStatus === "VERSION_WARNING_ACCEPTED" || audit?.versionMatch === false;
+  const methodologyPayload = record?.methodology ?? null;
+  const loadedRulebookId = record?.loadedRulebookId ?? record?.methodologyId ?? "";
+  const loadedRulebookVersion = record?.loadedRulebookVersion ?? record?.methodologyVersion ?? "";
 
   const report = useMemo(() => {
     if (!record || isBlocked) return null;
@@ -37,12 +40,12 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
         description: "Internal Article6 preview rendered from saved VM0007 evidence audit output.",
       },
       methodology: {
-        code: record.methodologyId,
-        version: record.methodologyVersion,
+        code: loadedRulebookId,
+        version: loadedRulebookVersion,
       },
       audit: record.audit,
     });
-  }, [record, isBlocked]);
+  }, [record, isBlocked, loadedRulebookId, loadedRulebookVersion]);
 
   if (!loaded) {
     return (
@@ -143,15 +146,15 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
           <dl className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Methodology ID</dt>
-              <dd className="mt-1 font-medium text-slate-950">{audit?.methodologyId ?? record.methodologyId}</dd>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.methodologyId ?? audit?.methodologyId ?? record.methodologyId}</dd>
             </div>
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rulebook version</dt>
-              <dd className="mt-1 font-medium text-slate-950">{audit?.rulebookVersion ?? record.methodologyVersion}</dd>
+              <dd className="mt-1 font-medium text-slate-950">{loadedRulebookVersion}</dd>
             </div>
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">PDD-declared version</dt>
-              <dd className="mt-1 font-medium text-slate-950">{audit?.pddDeclaredMethodologyVersion || "not detected"}</dd>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.pddDeclaredMethodologyVersion || audit?.pddDeclaredMethodologyVersion || "not detected"}</dd>
             </div>
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Version match</dt>
@@ -160,6 +163,34 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
             <div className="sm:col-span-2 lg:col-span-3">
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Version mismatch reason</dt>
               <dd className="mt-1 font-medium text-slate-950">{audit?.versionMismatchReason || "none"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Methodology name</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.methodologyName || "not detected"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Methodology alias</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.methodologyAlias || "none"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Declared version status</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.versionStatus || "UNKNOWN"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence page</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.evidencePage ?? "not detected"}</dd>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence section</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.evidenceSection || "not detected"}</dd>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Evidence quote</dt>
+              <dd className="mt-1 font-medium text-slate-950">{methodologyPayload?.evidenceQuote || "not detected"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Loaded rulebook ID</dt>
+              <dd className="mt-1 font-medium text-slate-950">{loadedRulebookId}</dd>
             </div>
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">User accepted warning</dt>

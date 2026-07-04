@@ -14,6 +14,13 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "AMS-II.E: Energy efficiency and fuel switching measures for buildings",
+    "expectedMethodology": {
+      "methodologyId": "AMS-II.E",
+      "methodologyName": "Energy efficiency and fuel switching measures for buildings",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": "v8",
+      "versionStatus": "DECLARED"
+    },
     "goldQuote": "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).",
     "page": 7,
     "sectionHeading": "Title and reference of the approved baseline methodology applied to the small-scale project",

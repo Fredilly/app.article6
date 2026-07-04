@@ -49,7 +49,7 @@ function buildBlockedAudit(): MethodologyEvidenceAuditSummary {
     rulebookVersion: "v1.8",
     pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
     versionMatch: false,
-    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
+    versionMismatchReason: "PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.",
     results: [],
     totals: {
       supported_by_pdd: 0,
@@ -77,6 +77,17 @@ function buildWarningAcceptedAudit(): MethodologyEvidenceAuditSummary {
   };
 }
 
+const METHODOLOGY_IDENTITY = {
+  methodologyId: "VM0007",
+  methodologyName: "REDD Methodology Modules",
+  methodologyAlias: "REDD-MF",
+  pddDeclaredMethodologyVersion: null,
+  versionStatus: "NOT_EXPLICITLY_DECLARED" as const,
+  evidencePage: 31,
+  evidenceSection: "Title and Reference of Methodology",
+  evidenceQuote: "VM0007: REDD Methodology Modules (REDD-MF)",
+};
+
 describe("Vm0007GapReportPreview", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
@@ -103,6 +114,9 @@ describe("Vm0007GapReportPreview", () => {
       auditId: "audit-preview",
       methodologyId: "VM0007",
       methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      methodology: METHODOLOGY_IDENTITY,
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       audit: buildAuditFromFullFixture(),
@@ -123,6 +137,8 @@ describe("Vm0007GapReportPreview", () => {
     expect(text).toContain("8");
     expect(text).toContain("3");
     expect(text).toContain("17");
+    expect(text).toContain("REDD Methodology Modules");
+    expect(text).toContain("Loaded rulebook ID");
     expect(text).toContain("Follow-up Action List");
     expect(text).toContain("Internal preview only. This report shows current audit output and has not been manually reviewed.");
   });
@@ -132,6 +148,9 @@ describe("Vm0007GapReportPreview", () => {
       auditId: "audit-preview-supported",
       methodologyId: "VM0007",
       methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      methodology: METHODOLOGY_IDENTITY,
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       audit: buildAllSupportedAudit(),
@@ -154,6 +173,14 @@ describe("Vm0007GapReportPreview", () => {
       auditId: "audit-blocked",
       methodologyId: "VM0007",
       methodologyVersion: "v1.8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1.8",
+      methodology: {
+        ...METHODOLOGY_IDENTITY,
+        pddDeclaredMethodologyVersion: "v1.5",
+        versionStatus: "DECLARED",
+        evidenceQuote: "REDD-MF / VM0007 v1.5",
+      },
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       audit: buildBlockedAudit(),
@@ -167,14 +194,14 @@ describe("Vm0007GapReportPreview", () => {
     });
 
     const text = container.textContent ?? "";
-    expect(text).toContain("Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.");
+    expect(text).toContain("PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.");
     expect(text).not.toContain("Print / Save PDF");
     expect(text).not.toContain(REPORT_FIXTURE.expectedReportTitle);
     expect(text).not.toContain("58 VM0007 rules assessed for validation readiness.");
     expect(text).not.toContain("Follow-up Action List");
     expect(text).not.toContain("Saved audit payload");
     expect(text).not.toContain("REDD-MF / VM0007 v1.5");
-    expect(text).toContain("rulebook version mismatch");
+    expect(text).toContain("PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.");
   });
 
   test("renders the full report with a warning banner when a mismatched audit is accepted", async () => {
@@ -182,6 +209,9 @@ describe("Vm0007GapReportPreview", () => {
       auditId: "audit-warning-accepted",
       methodologyId: "VM0007",
       methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      methodology: METHODOLOGY_IDENTITY,
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       userAcceptedVersionWarning: true,
@@ -210,6 +240,9 @@ describe("Vm0007GapReportPreview", () => {
       auditId: "audit-preview",
       methodologyId: "VM0007",
       methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      methodology: METHODOLOGY_IDENTITY,
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       audit: buildAuditFromFullFixture(),

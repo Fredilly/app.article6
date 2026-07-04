@@ -14,6 +14,13 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "ACM0002: “Consolidated baseline methodology for grid-connected electricity generation from renewable sources”",
+    "expectedMethodology": {
+      "methodologyId": "ACM0002",
+      "methodologyName": "Consolidated baseline methodology for grid-connected electricity generation from renewable sources",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": null,
+      "versionStatus": "NOT_EXPLICITLY_DECLARED"
+    },
     "goldQuote": "ACM0002: “Consolidated baseline methodology for grid-connected electricity generation from renewable sources”.",
     "page": 8,
     "sectionHeading": "Title and reference of the approved baseline methodology applied to the project activity:",
