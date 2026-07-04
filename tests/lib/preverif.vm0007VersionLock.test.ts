@@ -53,7 +53,7 @@ describe("VM0007 version lock", () => {
     expect(lock.versionMismatchReason).toContain("rulebook version");
   });
 
-  it("blocks Envira when the PDD-declared VM0007 version does not match the loaded v1.8 contract", () => {
+  it("blocks a VM0007 v1.5-only PDD against a loaded v1.8 contract", () => {
     const audit = auditVm0007(ENVIRA_TEXT, {
       getContract: makeVersionedContract("v1.8"),
       versionContext: {
@@ -69,6 +69,30 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toContain("v1.8");
     expect(audit.results).toEqual([]);
     expect(Object.values(audit.totals)).toEqual([0, 0, 0, 0, 0]);
+  });
+
+  it("blocks ambiguous VM0007 versions when both v1.5 and v1.8 are present", () => {
+    const ambiguousText = "REDD-MF / VM0007 v1.5 and later VM0007 v1.8";
+
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1.8",
+      pddDeclaredMethodologyVersion: ambiguousText,
+    });
+
+    expect(lock.versionMatch).toBe(false);
+    expect(lock.versionMismatchReason).toContain("ambiguous");
+    expect(lock.versionMismatchReason).toContain("v1.5");
+    expect(lock.versionMismatchReason).toContain("v1.8");
+
+    const audit = auditVm0007(ambiguousText, {
+      getContract: makeVersionedContract("v1.8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("ambiguous");
+    expect(audit.results).toEqual([]);
   });
 
   it("allows a matching VM0007 v1.8 PDD to proceed to normal evidence judgment", () => {
