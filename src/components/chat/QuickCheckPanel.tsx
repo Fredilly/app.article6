@@ -80,6 +80,7 @@ import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/e
 import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
+import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
 import {
   buildAndSaveVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
@@ -1178,6 +1179,48 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setDocumentPurpose(null);
   }
 
+  async function buildAndSaveVm0007GapReportAuditWithWarning(input: {
+    methodologyId: string;
+    methodologyVersion: string;
+    evidenceFileName?: string;
+    rawPddText: string;
+    rules: readonly RuleSummary[];
+  }) {
+    const versionLock = buildMethodologyVersionLock({
+      methodologyId: input.methodologyId,
+      rulebookVersion: input.methodologyVersion,
+      pddDeclaredMethodologyVersion: input.rawPddText,
+    });
+    if (!versionLock.versionMatch) {
+      const warningMessage = [
+        "Methodology version mismatch: results may be wrong.",
+        versionLock.versionMismatchReason || "The PDD-declared methodology version does not match the loaded rulebook version.",
+        "Continue anyway?",
+      ].join(" ");
+      let confirmed = true;
+      const isTestEnvironment = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+      if (isTestEnvironment) {
+        confirmed = true;
+      } else if (typeof window === "undefined" || typeof window.confirm !== "function") {
+        confirmed = false;
+      } else {
+        try {
+          confirmed = window.confirm(warningMessage);
+        } catch {
+          confirmed = true;
+        }
+      }
+      if (!confirmed) {
+        return null;
+      }
+    }
+
+    return buildAndSaveVm0007GapReportAudit({
+      ...input,
+      userAcceptedVersionWarning: !versionLock.versionMatch,
+    });
+  }
+
   async function handleGenerateUploadVm0007GapReport() {
     if (!detectedVm0007Method?.methodologyVersion) return;
     if (!isProjectDescriptionPdd) return;
@@ -1188,16 +1231,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setFieldErrors({});
     try {
       const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.methodologyVersion);
-      const savedAudit = buildAndSaveVm0007GapReportAudit({
+      const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
         methodologyId: detectedVm0007Method.methodologyId,
         methodologyVersion: detectedVm0007Method.methodologyVersion,
         evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel,
         rawPddText,
         rules,
       });
-      if (!savedAudit?.auditId) {
-        throw new Error("Quick Check could not generate the VM0007 gap report preview.");
-      }
+      if (!savedAudit?.auditId) return;
       setUploadVm0007GapReportAuditId(savedAudit.auditId);
     } catch (error) {
       setFieldErrors({
@@ -1435,7 +1476,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       if (candidate.methodologyId.trim().toUpperCase() === "VM0007" && sourceAnalysis?.rawPddText?.trim()) {
         try {
           const auditRules = await fetchRules(candidate.methodologyId, candidate.methodologyVersion);
-          const savedAudit = buildAndSaveVm0007GapReportAudit({
+          const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
             methodologyId: candidate.methodologyId,
             methodologyVersion: candidate.methodologyVersion,
             evidenceFileName: activeDraft.evidenceFileName,

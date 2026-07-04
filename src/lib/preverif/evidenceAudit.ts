@@ -18,6 +18,7 @@ export type MethodologyVersionLock = Readonly<{
   pddDeclaredMethodologyVersion: string;
   versionMatch: boolean;
   versionMismatchReason: string;
+  userAcceptedVersionWarning?: boolean;
 }>;
 
 export type MethodologyEvidenceContract = Readonly<{
@@ -60,6 +61,7 @@ export type MethodologyEvidenceAuditResult = {
   pddDeclaredMethodologyVersion?: string;
   versionMatch?: boolean;
   versionMismatchReason?: string;
+  userAcceptedVersionWarning?: boolean;
   status: EvidenceAuditStatus;
   bestEvidenceQuote: string | null;
   page: number | null;
@@ -73,12 +75,13 @@ export type MethodologyEvidenceAuditResult = {
 };
 
 export type MethodologyEvidenceAuditSummary = {
-  auditStatus?: "AUDITED" | "BLOCKED_VERSION_MISMATCH";
+  auditStatus?: "AUDITED" | "VERSION_WARNING_ACCEPTED" | "BLOCKED_VERSION_MISMATCH";
   methodologyId?: string;
   rulebookVersion?: string;
   pddDeclaredMethodologyVersion?: string;
   versionMatch?: boolean;
   versionMismatchReason?: string;
+  userAcceptedVersionWarning?: boolean;
   results: MethodologyEvidenceAuditResult[];
   totals: Record<EvidenceAuditStatus, number>;
   totalRules: number;
@@ -90,6 +93,7 @@ export type MethodologyEvidenceAuditInput = {
   getContract: (rule: MethodologyRuleLike | string) => MethodologyEvidenceContract;
   normalizeRuleId?: (ruleId: string) => string;
   versionContext?: Partial<Pick<MethodologyVersionLock, "methodologyId" | "rulebookVersion" | "pddDeclaredMethodologyVersion">>;
+  userAcceptedVersionWarning?: boolean;
   sections?: readonly Pick<
     DocumentStructure["sections"][number],
     "id" | "sectionNumber" | "titleRaw" | "titleClean" | "bodyRaw" | "bodyClean"
@@ -452,6 +456,7 @@ export function buildMethodologyVersionLock(input: {
   methodologyId: string;
   rulebookVersion: string;
   pddDeclaredMethodologyVersion: string;
+  userAcceptedVersionWarning?: boolean;
 }): MethodologyVersionLock {
   const methodologyId = normalizeMethodologyId(input.methodologyId);
   const rulebookVersion = normalizeVersionValue(input.rulebookVersion);
@@ -471,6 +476,7 @@ export function buildMethodologyVersionLock(input: {
     pddDeclaredMethodologyVersion,
     versionMatch: versionMismatchReason.length === 0,
     versionMismatchReason,
+    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
 }
 
@@ -544,6 +550,7 @@ function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): Methodol
     methodologyId,
     rulebookVersion,
     pddDeclaredMethodologyVersion,
+    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
 }
 
@@ -952,6 +959,7 @@ function resultFromCandidate(input: {
     pddDeclaredMethodologyVersion: input.versionLock.pddDeclaredMethodologyVersion,
     versionMatch: input.versionLock.versionMatch,
     versionMismatchReason: input.versionLock.versionMismatchReason,
+    userAcceptedVersionWarning: input.versionLock.userAcceptedVersionWarning,
     status: input.status,
     bestEvidenceQuote: input.candidate ? compactQuote(input.candidate.span.text) : null,
     page: input.candidate?.span.page ?? null,
@@ -967,7 +975,8 @@ function resultFromCandidate(input: {
 
 export function auditEvidence(input: MethodologyEvidenceAuditInput): MethodologyEvidenceAuditSummary {
   const versionLock = resolveAuditVersionLock(input);
-  if (!versionLock.versionMatch) {
+  const userAcceptedVersionWarning = Boolean(input.userAcceptedVersionWarning);
+  if (!versionLock.versionMatch && !userAcceptedVersionWarning) {
     return {
       auditStatus: "BLOCKED_VERSION_MISMATCH",
       methodologyId: versionLock.methodologyId,
@@ -975,6 +984,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
       versionMatch: false,
       versionMismatchReason: versionLock.versionMismatchReason,
+      userAcceptedVersionWarning: false,
       results: [],
       totals: {
         supported_by_pdd: 0,
@@ -986,6 +996,10 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       totalRules: input.rules.length,
     };
   }
+
+  const auditStatus = !versionLock.versionMatch && userAcceptedVersionWarning
+    ? "VERSION_WARNING_ACCEPTED"
+    : "AUDITED";
 
   const results = input.rules.map((rule) => {
     const contract = input.getContract(rule);
@@ -1034,12 +1048,13 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
   });
 
   return {
-    auditStatus: "AUDITED",
+    auditStatus,
     methodologyId: versionLock.methodologyId,
     rulebookVersion: versionLock.rulebookVersion,
     pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
-    versionMatch: true,
-    versionMismatchReason: "",
+    versionMatch: versionLock.versionMatch,
+    versionMismatchReason: versionLock.versionMismatchReason,
+    userAcceptedVersionWarning,
     results,
     totals,
     totalRules: input.rules.length,

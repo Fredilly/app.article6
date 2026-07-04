@@ -25,6 +25,7 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
   const audit = record?.audit ?? null;
   const auditStatus = (audit?.auditStatus ?? "AUDITED") as string;
   const isBlocked = auditStatus === "BLOCKED_VERSION_MISMATCH";
+  const hasVersionWarning = auditStatus === "VERSION_WARNING_ACCEPTED" || audit?.versionMatch === false;
 
   const report = useMemo(() => {
     if (!record || isBlocked) return null;
@@ -74,6 +75,9 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
   }
 
   const versionMatchLabel = audit?.versionMatch === false ? "false" : "true";
+  const warningMessage = hasVersionWarning
+    ? `Methodology version mismatch: results may be wrong. ${audit?.versionMismatchReason || "The PDD-declared methodology version does not match the loaded rulebook version."}`
+    : "";
 
   return (
     <main className="vm0007-gap-report-preview vm0007-gap-report-preview-page min-h-screen bg-slate-50 px-4 py-8">
@@ -118,10 +122,16 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
             Print / Save PDF
           </button>
         </div>
+        {warningMessage ? (
+          <div className="no-print mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900 shadow-sm">
+            {warningMessage}
+            {auditStatus === "VERSION_WARNING_ACCEPTED" ? " Version warning accepted before audit generation." : ""}
+          </div>
+        ) : null}
         <section className="no-print mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-slate-950">Saved audit payload</h2>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${auditStatus === "BLOCKED_VERSION_MISMATCH" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-900"}`}>
+            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${auditStatus === "BLOCKED_VERSION_MISMATCH" || auditStatus === "VERSION_WARNING_ACCEPTED" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-900"}`}>
               {auditStatus}
             </span>
           </div>
@@ -150,6 +160,10 @@ export default function Vm0007GapReportPreview({ auditId }: Vm0007GapReportPrevi
             <div className="sm:col-span-2 lg:col-span-3">
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Version mismatch reason</dt>
               <dd className="mt-1 font-medium text-slate-950">{audit?.versionMismatchReason || "none"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">User accepted warning</dt>
+              <dd className="mt-1 font-medium text-slate-950">{audit?.userAcceptedVersionWarning ? "true" : "false"}</dd>
             </div>
           </dl>
         </section>

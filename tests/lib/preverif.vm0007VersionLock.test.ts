@@ -57,6 +57,7 @@ function auditVm0007(
     versionContext?: {
       pddDeclaredMethodologyVersion: string;
     };
+    userAcceptedVersionWarning?: boolean;
     getContract?: (rule: (typeof VM0007_SYNCED_RULES)[number]) => MethodologyEvidenceContract;
   },
 ): MethodologyEvidenceAuditSummary {
@@ -69,6 +70,7 @@ function auditVm0007(
     sections: context.documentStructure.sections,
     rawText,
     versionContext: options?.versionContext,
+    userAcceptedVersionWarning: options?.userAcceptedVersionWarning,
   });
 }
 
@@ -79,6 +81,7 @@ function auditVm0007WithDocument(
     versionContext?: {
       pddDeclaredMethodologyVersion: string;
     };
+    userAcceptedVersionWarning?: boolean;
     getContract?: (rule: (typeof VM0007_SYNCED_RULES)[number]) => MethodologyEvidenceContract;
   },
 ): MethodologyEvidenceAuditSummary {
@@ -90,6 +93,7 @@ function auditVm0007WithDocument(
     sections: [],
     rawText,
     versionContext: options?.versionContext,
+    userAcceptedVersionWarning: options?.userAcceptedVersionWarning,
   });
 }
 
@@ -170,6 +174,24 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toContain("v1.8");
     expect(audit.results).toEqual([]);
     expect(Object.values(audit.totals)).toEqual([0, 0, 0, 0, 0]);
+  });
+
+  it("allows a mismatched VM0007 audit to proceed when the user accepts the warning", () => {
+    const audit = auditVm0007(ENVIRA_TEXT, {
+      getContract: makeVersionedContract("v1-8"),
+      versionContext: {
+        pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+      },
+      userAcceptedVersionWarning: true,
+    });
+
+    expect(audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
+    expect(audit.methodologyId).toBe("VM0007");
+    expect(audit.rulebookVersion).toBe("v1-8");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("v1.5");
+    expect(audit.results).toHaveLength(58);
+    expect(audit.results[0]?.userAcceptedVersionWarning).toBe(true);
   });
 
   it("blocks ambiguous VM0007 versions when both v1.5 and v1.8 are present", () => {

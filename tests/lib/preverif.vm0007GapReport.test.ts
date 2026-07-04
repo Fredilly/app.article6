@@ -113,6 +113,19 @@ function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
   };
 }
 
+function buildWarningAcceptedAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
+  return {
+    ...baseAudit,
+    auditStatus: "VERSION_WARNING_ACCEPTED",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1-8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1-8.",
+    userAcceptedVersionWarning: true,
+  };
+}
+
 function buildReport(audit: MethodologyEvidenceAuditSummary) {
   return buildVm0007GapReport({
     reportId: "VRGR-VM0007-001",
@@ -149,6 +162,15 @@ describe("buildVm0007GapReport", () => {
 
     expect(report.limitationBanner).toBe("Internal preview only. This report shows current audit output and has not been manually reviewed.");
     expect(report.executiveSummary.allSupportedWarning).toBe("All rules are currently marked supported. Review evidence quality before relying on this result.");
+  });
+
+  it("prepends the version warning to the report banner when the warning was accepted", () => {
+    const report = buildReport(buildWarningAcceptedAudit(auditText(ENVIRA_V18_TEXT)));
+
+    expect(report.limitationBanner).toContain("Methodology version mismatch:");
+    expect(report.limitationBanner).toContain("Evidence judgment may be wrong.");
+    expect(report.limitationBanner).toContain("Internal preview only. This report shows current audit output and has not been manually reviewed.");
+    expect(report.executiveSummary.limitations[0]).toContain("Methodology version mismatch:");
   });
 
   it("keeps client action guidance on every weak or missing rule", () => {

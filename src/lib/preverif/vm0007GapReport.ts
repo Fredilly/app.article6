@@ -149,6 +149,17 @@ function clientActionText(result: MethodologyEvidenceAuditResult): string {
   }
   return result.clientAction;
 }
+
+function buildVersionWarning(input: Vm0007GapReportInput): string | null {
+  if (input.audit.versionMatch !== false && !input.audit.userAcceptedVersionWarning) return null;
+
+  const declaredVersion = input.audit.pddDeclaredMethodologyVersion?.trim() || "an unknown version";
+  const loadedVersion = input.audit.rulebookVersion?.trim() || input.methodology.version;
+  const methodologyId = input.audit.methodologyId?.trim() || input.methodology.code;
+
+  return `Methodology version mismatch: PDD declares ${methodologyId} ${declaredVersion}, but loaded rulebook is ${methodologyId} ${loadedVersion}. Evidence judgment may be wrong.`;
+}
+
 function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFinding {
   return {
     ruleId: result.ruleId,
@@ -190,6 +201,7 @@ function makeHeadline(input: Vm0007GapReport["executiveSummary"]["totals"]): str
 }
 
 export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapReport {
+  const versionWarning = buildVersionWarning(input);
   const findings = input.audit.results.map(toFinding);
   const supported = findings.filter((finding) => finding.status === "supported");
   const weak = findings.filter((finding) => finding.status === "weak");
@@ -225,7 +237,10 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
     generatedAt: input.generatedAt,
     reportName: "Internal VM0007 Gap Report Preview",
     statementOfCoverage: `${input.audit.totalRules} VM0007 rules assessed for validation readiness.`,
-    limitationBanner: "Internal preview only. This report shows current audit output and has not been manually reviewed.",
+    limitationBanner: [
+      versionWarning,
+      "Internal preview only. This report shows current audit output and has not been manually reviewed.",
+    ].filter(Boolean).join(" "),
     executiveSummary: {
       headline: makeHeadline(totals),
       allSupportedWarning:
@@ -240,6 +255,7 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
         `${totals.notApplicable} rules are treated as not applicable only where the PDD itself supports that conclusion.`,
       ],
       limitations: [
+        ...(versionWarning ? [versionWarning] : []),
         "This preview summarizes current PDD support and evidence gaps for internal project-team follow-up.",
         "Evidence quotes are limited to the audit results already selected by the existing VM0007 evidence audit.",
         "Supported outcomes may still rely on broad methodology or project-description text and should be reviewed before reuse.",
