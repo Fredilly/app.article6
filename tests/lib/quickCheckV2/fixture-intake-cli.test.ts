@@ -125,13 +125,13 @@ describe("quickcheck fixture intake command", () => {
 
     expect(gold.find((record) => record.checkName === "methodology")).toEqual(expect.objectContaining({
       expectedStatus: "FOUND",
-      expectedAnswer: "VM0007 REDD+ Methodology Framework v1.8",
+      expectedAnswer: "VM0007: REDD+ Methodology Framework (REDD+MF) 1.8",
       expectedMethodology: expect.objectContaining({
         methodologyId: "VM0007",
-        methodologyName: "REDD+ Methodology Framework",
-        methodologyAlias: "REDD+MF",
-        pddDeclaredMethodologyVersion: "v1.8",
-        versionStatus: "DECLARED",
+        methodologyName: "REDD+ Methodology Framework (REDD+MF) 1.8",
+        methodologyAlias: null,
+        pddDeclaredMethodologyVersion: null,
+        versionStatus: "NOT_EXPLICITLY_DECLARED",
       }),
     }));
 
@@ -146,7 +146,7 @@ describe("quickcheck fixture intake command", () => {
     const review = await fs.readFile(path.join(fixtureDir, "REVIEW.md"), "utf-8");
     expect(review).toContain("Do not merge until `gold.json` has been reviewed against the source PDF");
     expect(review).toContain("weak evidence to reject");
-    expect(review).toContain("notes for method ID/version: VM0007 v1.8 (DECLARED)");
+    expect(review).toContain("notes for method ID/version: VM0007 UNKNOWN (NOT_EXPLICITLY_DECLARED)");
 
     await expect(readJson(path.join(fixtureRoot, "manifest.json"))).resolves.toStrictEqual({
       version: 1,
