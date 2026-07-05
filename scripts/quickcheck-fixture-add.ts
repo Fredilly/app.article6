@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "../src/lib/chat/quickCheckPdfPages";
 import { extractPdfPagesWithPdfParse } from "../src/lib/chat/quickCheckPdfExtractor";
@@ -370,8 +369,8 @@ export function parseFixtureAddArgs(argv: string[]): FixtureIntakeArgs {
 }
 
 function isDirectRun(): boolean {
-  const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
-  return invokedPath === fileURLToPath(import.meta.url);
+  const invokedScript = process.argv[1] ? path.basename(process.argv[1]) : "";
+  return invokedScript === "quickcheck-fixture-add.ts" || invokedScript === "quickcheck-fixture-add.js";
 }
 
 if (isDirectRun()) {
