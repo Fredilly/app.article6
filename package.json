@@ -14,6 +14,7 @@
     "quickcheck:eval:taisei": "npx tsx scripts/run-quickcheck-eval-corpus.ts --manifest tests/fixtures/quick-check/corpus/taisei-baseline-eval-corpus.json",
     "quickcheck:eval:messy": "npx tsx scripts/run-quickcheck-eval-corpus.ts --manifest tests/fixtures/quick-check/corpus/messy-carbon-doc-baseline-eval-corpus.json",
     "quickcheck:bakeoff": "npx tsx scripts/run-parser-bakeoff.ts",
+    "quickcheck:fixture:add": "npx tsx scripts/quickcheck-fixture-add.ts",
     "quickcheck:report": "npx tsx scripts/run-active-corpus-report.ts",
     "quickcheck:report:messy": "npx tsx scripts/run-active-corpus-report.ts --manifest tests/fixtures/quick-check/corpus/messy-carbon-doc-baseline-eval-corpus.json",
     "ci": "npm run guard:methodology-boundary && npm run lint && npm run typecheck && npm run check:docs-layout && npm run roadmap:validate-evidence && npm run quickcheck:eval && npm test && npm run build && npm run check:quick-check-pdf-trace && npm run roadmap:check",
