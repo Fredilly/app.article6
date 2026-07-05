@@ -9,7 +9,7 @@ export type QuickCheckMethodologyVersionStatus =
 export type QuickCheckMethodologyIdentity = Readonly<{
   methodologyId: string;
   methodologyName: string;
-  methodologyAlias: string | null;
+  methodologyAlias: string;
   pddDeclaredMethodologyVersion: string | null;
   versionStatus: QuickCheckMethodologyVersionStatus;
   evidencePage: number;
@@ -30,6 +30,10 @@ function normalizeDashCharacters(value: string): string {
 
 function stripWrappingQuotes(value: string): string {
   return value.replace(/^[“"'\(\[]+/, "").replace(/[”"'\)\]]+$/, "").trim();
+}
+
+function stripParentheticalGroups(value: string): string {
+  return value.replace(/\s*\([^)]*\)/g, " ");
 }
 
 function stripTrailingVersionAndApproval(value: string): string {
@@ -62,18 +66,51 @@ function extractVersionFromQuote(quote: string): string | null {
   return null;
 }
 
-function extractAlias(body: string): string | null {
+function extractAlias(body: string): string {
   const aliasMatch = normalizeDashCharacters(body).match(/\(([^)]+)\)\s*$/);
-  if (!aliasMatch?.[1]) return null;
+  if (!aliasMatch?.[1]) return "";
   const alias = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(aliasMatch[1])));
-  return alias || null;
+  return alias || "";
 }
 
 function extractMethodologyName(body: string): string {
-  const withoutAlias = normalizeDashCharacters(body).replace(/\s*\([^)]+\)\s*$/, "");
+  const withoutAlias = stripParentheticalGroups(normalizeDashCharacters(body));
   const cleaned = normalizeWhitespace(stripTrailingVersionAndApproval(withoutAlias))
-    .replace(/[.,;:]+$/g, "");
+    .replace(/[.,;:]+$/g, "")
+    .replace(/[“”]/g, "");
   return stripWrappingQuotes(cleaned).replace(/[.,;:]+$/g, "").trim();
+}
+
+function parseTabularMethodologyIdentity(
+  quote: string,
+): Pick<QuickCheckMethodologyIdentity, "methodologyId" | "methodologyName" | "methodologyAlias" | "pddDeclaredMethodologyVersion"> | null {
+  const normalized = normalizeWhitespace(normalizeDashCharacters(quote));
+  const rowMatch = normalized.match(
+    /\b(?:Applied\s+Methodology|Methodology)\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(.+?)\s+(?:v\.?\s*)?(\d+(?:[.-]\d+)*)\b(?=\s+(?:Module|Tool|Applied\s+Methodology|Methodology|$))/i,
+  );
+
+  if (!rowMatch) return null;
+
+  const methodologyId = rowMatch[1]!.toUpperCase();
+  const version = normalizeDeclaredMethodologyVersion(rowMatch[3]!) ?? null;
+  if (!version) return null;
+
+  const titleChunk = normalizeWhitespace(rowMatch[2]!)
+    .replace(new RegExp(`^(?:${methodologyId}\\b\\s+)+`, "i"), "")
+    .replace(/\s+(?:v\.?\s*)?\d+(?:[.-]\d+)*\s*$/i, "")
+    .trim();
+  const aliasMatch = titleChunk.match(/\((REDD[+-]?MF)\)/i);
+  const methodologyAlias = aliasMatch?.[1]?.toUpperCase() ?? "";
+  const methodologyName = normalizeWhitespace(
+    stripWrappingQuotes(stripParentheticalGroups(titleChunk)).replace(/[.,;:]+$/g, "").replace(/[“”]/g, ""),
+  );
+
+  return {
+    methodologyId,
+    methodologyName: methodologyName || methodologyId,
+    methodologyAlias,
+    pddDeclaredMethodologyVersion: version,
+  };
 }
 
 function versionStatusFromQuote(version: string | null, body: string): QuickCheckMethodologyVersionStatus {
@@ -86,6 +123,17 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
 
   const quote = normalizeWhitespace(evidence.quote);
   if (!quote) return null;
+
+  const tabularIdentity = parseTabularMethodologyIdentity(quote);
+  if (tabularIdentity) {
+    return {
+      ...tabularIdentity,
+      versionStatus: "DECLARED",
+      evidencePage: evidence.page,
+      evidenceSection: evidence.sectionHeading?.trim() || (evidence.sectionPath.length > 0 ? evidence.sectionPath.join(" / ") : ""),
+      evidenceQuote: evidence.quote,
+    };
+  }
 
   const methodologyId = extractMethodologyCode(quote);
   if (!methodologyId) return null;

@@ -83,6 +83,22 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     expect(result?.answer).toBe("Brazil");
   });
 
+  it("returns Belize for a Project location line", () => {
+    const evidence = {
+      sourceType: "fact_contract" as const,
+      quote: "Project location Belize, Belize and Cayo Districts",
+      page: 1,
+      sectionHeading: "Summary Description of the Project",
+      sectionPath: ["1", "1.1"],
+      spanId: "synthetic-doc:p1:b1:host",
+    };
+
+    expect(extractAnswerFromEvidence({
+      checkName: "host_country",
+      evidence,
+    }).answer).toBe("Belize");
+  });
+
   it("returns a methodology answer that includes VM0007", () => {
     const result = answers.find((item) => item.checkName === "methodology");
     expect(result?.answer).toContain("VM0007");
@@ -117,7 +133,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     expect(extractAnswerFromEvidence({
       checkName: "methodology",
       evidence,
-    }).answer).toBe("VM0007: REDD Methodology Modules Version 1.3");
+    }).answer).toBe("VM0007 REDD Methodology Modules v1.3");
   });
 
   it("extracts structured methodology metadata from the Marcondes table row", () => {
@@ -134,6 +150,35 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       evidencePage: 61,
       evidenceSection: "Title and Reference of Methodology (VCS, 3.1)",
       evidenceQuote: result?.evidence?.quote,
+    });
+  });
+
+  it("extracts structured methodology metadata from a bare-version methodology table row", () => {
+    const evidence = {
+      sourceType: "exact_section" as const,
+      quote: "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2",
+      page: 83,
+      sectionHeading: "Title and Reference of Methodology (VCS, 3.1)",
+      sectionPath: ["3", "3.1", "3.1.1"],
+      spanId: "synthetic-doc:p83:b1:methodology",
+    };
+
+    const result = extractAnswerFromEvidence({
+      checkName: "methodology",
+      evidence,
+    });
+    const methodology = extractMethodologyDetailsFromEvidence(result.evidence);
+
+    expect(result.answer).toBe("VM0007 REDD+ Methodology Framework v1.8");
+    expect(methodology).toStrictEqual({
+      methodologyId: "VM0007",
+      methodologyName: "REDD+ Methodology Framework",
+      methodologyAlias: "REDD+MF",
+      pddDeclaredMethodologyVersion: "v1.8",
+      versionStatus: "DECLARED",
+      evidencePage: 83,
+      evidenceSection: "Title and Reference of Methodology (VCS, 3.1)",
+      evidenceQuote: evidence.quote,
     });
   });
 

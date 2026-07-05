@@ -3,21 +3,19 @@
     "checkName": "host_country",
     "expectedStatus": "FOUND",
     "expectedAnswer": "Peru",
-    "goldQuote": "75°20’52.3” – 76°24’17.4” West. The park has an area of 1,353,190.85 hectares (ha) and an approximate perimeter of 974 km. within four Departments: San Martín, Ucayali, Huánuco and Loreto. A small amount of land within the park is privately owned, so the project area is 1,351,963.85 ha. The PNCAZ is managed by CIMA under a Total Management Contract with the Peru’s Natural Protected Areas Service (SERNANP).",
-    "page": 13,
-    "sectionHeading": "Project Location (G3.3)",
+    "goldQuote": "Project Location Peru",
+    "page": 1,
+    "sectionHeading": null,
     "sectionPath": [
-      "2",
-      "2.1",
-      "2.1.7"
+      "1"
     ],
-    "spanId": "monit-rep-985:p13:b756:62d548aa",
+    "spanId": "monit-rep-985:p1:b15:14143296",
     "sourceType": "fact_contract"
   },
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VM0007: REDD Methodology Modules Version 1.3",
+    "expectedAnswer": "VM0007 REDD Methodology Modules v1.3",
     "goldQuote": "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012.",
     "page": 15,
     "sectionHeading": "Title and Reference of Methodology",

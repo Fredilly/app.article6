@@ -168,6 +168,19 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
       return (
         findFirstBlock(
           blocks,
+          (block) => {
+            if (!/\bproject location\b/i.test(block.text) || block.page > 5) return false;
+            const projectLocationMatch = block.text.match(
+              /\bproject location\s+([A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*)(?=,|\b)/i,
+            );
+            return Boolean(
+              projectLocationMatch &&
+              !/\b(?:region|district|province|department|municipality|state|county|park|zone|area)\b/i.test(projectLocationMatch[1]!),
+            );
+          },
+        ) ??
+        findFirstBlock(
+          blocks,
           (block) =>
             /\bproject location\b/i.test(block.text) &&
             /\bBrazil\b/i.test(block.text) &&

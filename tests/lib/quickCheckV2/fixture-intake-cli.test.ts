@@ -128,8 +128,8 @@ describe("quickcheck fixture intake command", () => {
       expectedAnswer: "VM0007: REDD+ Methodology Framework (REDD+MF) 1.8",
       expectedMethodology: expect.objectContaining({
         methodologyId: "VM0007",
-        methodologyName: "REDD+ Methodology Framework (REDD+MF) 1.8",
-        methodologyAlias: null,
+        methodologyName: "REDD+ Methodology Framework 1.8",
+        methodologyAlias: "",
         pddDeclaredMethodologyVersion: null,
         versionStatus: "NOT_EXPLICITLY_DECLARED",
       }),

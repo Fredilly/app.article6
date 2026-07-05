@@ -16,7 +16,7 @@
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VM0004: Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1-0",
+    "expectedAnswer": "VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests v1.0",
     "goldQuote": "The methodology for this project follows the Approved VCS Methodology “VM0004 Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests, v1‐0”.",
     "page": 40,
     "sectionHeading": "Title and Reference of the VCS Methodology applied to the Project Activity and explanation of",

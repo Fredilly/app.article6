@@ -19,8 +19,8 @@ Do not merge until `gold.json` has been reviewed against the source PDF. Draft g
 - spanId: maya-forest-corridor-redd-belize-extracted:p18:b704:31802246
 - source type: fact_contract
 - strength: possibly strong, but still requires PDF truth review
-- suggested gold answer: Orange
-- suggested gold quote: Address Trinidad Village, Orange Walk District, Belize
+- suggested gold answer: Belize
+- suggested gold quote: Project location Belize, Belize and Cayo Districts
 - suggested expected status: FOUND
 - weak evidence to reject: TODO: add related-but-insufficient PDF text that must not pass
 - notes for method ID/version: N/A

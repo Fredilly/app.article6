@@ -26,7 +26,7 @@ import {
   type RetrievedEvidence,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
-import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import { buildQuickCheckMethodologyIdentity } from "@/lib/quickCheckV2/methodologyIdentity";
 
 const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
@@ -40,7 +40,7 @@ export type AnswerResult = {
 export type MethodologyExtraction = {
   methodologyId: string;
   methodologyName: string;
-  methodologyAlias: string | null;
+  methodologyAlias: string;
   pddDeclaredMethodologyVersion: string;
   versionStatus: "DECLARED";
   evidencePage: number | null;
@@ -107,42 +107,23 @@ function simplifyBaselineReference(value: string): string {
   return normalized.replace(/^conversion of [a-z ]+ to /i, "conversion to ");
 }
 
-function extractMethodologyTableDetails(evidence: RetrievedEvidence): MethodologyExtraction | null {
-  const rowText = normalizeWhitespace(evidence.quote);
-  const rowMatch = rowText.match(
-    /\bApplied(?:\s+Methodology)?\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(.+?)\s+(?:v\.?\s*)?(\d+(?:[.-]\d+)*)\b(?=\s+(?:Module|Tool|Applied\s+Methodology|$))/i,
-  );
-  if (rowMatch) {
-    const code = rowMatch[1]!.toUpperCase();
-    const titleChunk = rowMatch[2]!.replace(/\s+/g, " ").trim();
-    const version = normalizeDeclaredMethodologyVersion(rowMatch[3]!) ?? null;
-    if (!version) return null;
-
-    const nameMatch = titleChunk.match(/\b(REDD\+?\s+Methodology\s+Framework|REDD\s+Methodology\s+Modules)\b/i);
-    const methodologyName = nameMatch ? normalizeWhitespace(nameMatch[1]!) : titleChunk.replace(/\s*\([^)]*\)\s*$/g, "").trim();
-    const aliasMatch = titleChunk.match(/\((REDD[+-]?MF)\)/i);
-    const methodologyAlias = aliasMatch ? aliasMatch[1]!.toUpperCase() : null;
-
-    return {
-      methodologyId: code,
-      methodologyName,
-      methodologyAlias,
-      pddDeclaredMethodologyVersion: version,
-      versionStatus: "DECLARED",
-      evidencePage: evidence.page,
-      evidenceSection: evidence.sectionHeading,
-      evidenceQuote: evidence.quote,
-    };
-  }
-
-  return null;
-}
-
 export function extractMethodologyDetailsFromEvidence(
   evidence: RetrievedEvidence | null,
 ): MethodologyExtraction | null {
   if (!evidence) return null;
-  return extractMethodologyTableDetails(evidence);
+  const identity = buildQuickCheckMethodologyIdentity(evidence);
+  if (!identity?.pddDeclaredMethodologyVersion) return null;
+
+  return {
+    methodologyId: identity.methodologyId,
+    methodologyName: identity.methodologyName,
+    methodologyAlias: identity.methodologyAlias,
+    pddDeclaredMethodologyVersion: identity.pddDeclaredMethodologyVersion,
+    versionStatus: "DECLARED",
+    evidencePage: identity.evidencePage,
+    evidenceSection: identity.evidenceSection,
+    evidenceQuote: identity.evidenceQuote,
+  };
 }
 
 function formatMethodologyAnswer(methodology: MethodologyExtraction): string {
@@ -176,8 +157,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       return stateOfCountry[1]!;
     }
 
-    if (/\bProject location\s+Brazil\b/i.test(quote)) {
-      return "Brazil";
+    const projectLocationCountry = quote.match(/\bProject location\s+([A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*)(?=,|\b)/i);
+    if (projectLocationCountry) {
+      return projectLocationCountry[1]!;
     }
 
     const countryBeforeApproximation = quote.match(

@@ -2,22 +2,20 @@
   {
     "checkName": "host_country",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Orange",
-    "goldQuote": "Address Trinidad Village, Orange Walk District, Belize",
-    "page": 18,
-    "sectionHeading": "Other Entities Involved in the Project",
+    "expectedAnswer": "Belize",
+    "goldQuote": "Project location Belize, Belize and Cayo Districts",
+    "page": 1,
+    "sectionHeading": null,
     "sectionPath": [
-      "2",
-      "2.1",
-      "2.1.8"
+      "1"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p18:b704:31802246",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p1:b21:b1cbf7fb",
     "sourceType": "fact_contract"
   },
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VM0007: VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2",
+    "expectedAnswer": "VM0007 REDD+ Methodology Framework v1.8",
     "goldQuote": "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2",
     "page": 83,
     "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
@@ -30,10 +28,10 @@
     "sourceType": "exact_section",
     "expectedMethodology": {
       "methodologyId": "VM0007",
-      "methodologyName": "VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2",
-      "methodologyAlias": "",
-      "pddDeclaredMethodologyVersion": null,
-      "versionStatus": "NOT_EXPLICITLY_DECLARED",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": "REDD+MF",
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
       "evidencePage": 83,
       "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
       "evidenceQuote": "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2"
