@@ -83,7 +83,7 @@ const CALCULATION_CONTEXT_PATTERNS = [
   /default value/i,
 ];
 
-const VERSION_RE = /(?:version|v)\s*(?:(\d+(?:[\.-]\d+)*(?:[\.-]\d+)?))/i;
+const VERSION_RE = /(?:version|v\.?)\s*(?:(\d+(?:[\.-]\d+)*(?:[\.-]\d+)?))/i;
 
 const MODULE_CODE_RE = /^VMD\d{4}$|^VMR\d{3,4}$/;
 const ACTIVITY_CODE_RE = /^(?:APD|ARR|RWE|APWD)$/;

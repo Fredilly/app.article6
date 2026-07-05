@@ -1,4 +1,5 @@
 import type { DocumentStructure } from "@/lib/documentModel";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
 
 export const EVIDENCE_AUDIT_STATUSES = [
@@ -194,24 +195,11 @@ function normalizeMethodologyId(value: string | null | undefined): string {
 function normalizeVersionValue(value: string | null | undefined): string {
   const trimmed = (value ?? "").trim();
   if (!trimmed) return "";
-  if (trimmed.toLowerCase().startsWith("version ")) {
-    return `v${trimmed.slice(8).trim()}`;
-  }
-  if (trimmed.toLowerCase().startsWith("v")) {
-    return `v${trimmed.slice(1).trim().replace(/^\/+/, "")}`;
-  }
-  return trimmed.startsWith("v") ? trimmed : `v${trimmed}`;
+  return normalizeDeclaredMethodologyVersion(trimmed) ?? (trimmed.startsWith("v") ? trimmed : `v${trimmed}`);
 }
 
 function normalizeVersionKey(value: string | null | undefined): string {
-  const trimmed = (value ?? "").trim();
-  if (!trimmed) return "";
-  const withoutVersionPrefix = trimmed.replace(/^version\s+/i, "").replace(/^v\s*/i, "").trim();
-  const segments = withoutVersionPrefix.split(/[.-]/).map((segment) => segment.trim()).filter(Boolean);
-  if (segments.length === 0) {
-    return normalizeVersionValue(trimmed).toLowerCase();
-  }
-  return `v${segments.join(".")}`.toLowerCase();
+  return normalizeVersionValue(value).toLowerCase();
 }
 
 function extractDeclaredMethodologyId(rawValue: string): string {

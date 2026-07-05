@@ -187,7 +187,7 @@ describe("VM0007 version lock", () => {
 
     expect(audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
     expect(audit.methodologyId).toBe("VM0007");
-    expect(audit.rulebookVersion).toBe("v1-8");
+    expect(audit.rulebookVersion).toBe("v1.8");
     expect(audit.versionMatch).toBe(false);
     expect(audit.versionMismatchReason).toContain("v1.5");
     expect(audit.results).toHaveLength(58);
@@ -209,7 +209,7 @@ describe("VM0007 version lock", () => {
 
     expect(audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
     expect(audit.methodologyId).toBe("VM0007");
-    expect(audit.rulebookVersion).toBe("v1-8");
+    expect(audit.rulebookVersion).toBe("v1.8");
     expect(audit.versionMatch).toBe(false);
     expect(audit.versionMismatchReason).toContain("missing");
     expect(audit.results).toHaveLength(58);
@@ -250,12 +250,12 @@ describe("VM0007 version lock", () => {
 
     expect(audit.auditStatus).toBe("AUDITED");
     expect(audit.methodologyId).toBe("VM0007");
-    expect(audit.rulebookVersion).toBe("v1-8");
+    expect(audit.rulebookVersion).toBe("v1.8");
     expect(audit.versionMatch).toBe(true);
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
     expect(audit.results[0]?.methodologyId).toBe("VM0007");
-    expect(audit.results[0]?.rulebookVersion).toBe("v1-8");
+    expect(audit.results[0]?.rulebookVersion).toBe("v1.8");
     expect(audit.results[0]?.pddDeclaredMethodologyVersion).toBe("VM0007 Version 1.8");
     expect(audit.results.every((result) => result.versionMatch === true)).toBe(true);
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);

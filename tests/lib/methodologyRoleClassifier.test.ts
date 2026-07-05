@@ -79,7 +79,7 @@ describe("methodologyRoleClassifier", () => {
       const result = classifyMethodologyRoles(text);
       expect(primary(result)?.id).toBe("ACM0010");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
-      expect(primary(result)?.version).toBe("v03.0");
+      expect(primary(result)?.version).toBe("v3.0");
     });
 
     it("classifies VM0009 from Kariba-style PDD fixture", () => {
@@ -151,7 +151,7 @@ describe("methodologyRoleClassifier", () => {
       const result = classifyMethodologyRoles(text);
       expect(primary(result)).toBeNull();
       expect(monitoring(result)?.id).toBe("ACM0002");
-      expect(monitoring(result)?.version).toBe("v02.0");
+      expect(monitoring(result)?.version).toBe("v2.0");
       expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
     });
 
@@ -249,7 +249,7 @@ describe("methodologyRoleClassifier", () => {
       expect(primary(result)?.version).toBe("v1.0");
       expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
       expect(monitoring(result)?.id).toBe("ACM0002");
-      expect(monitoring(result)?.version).toBe("v02.0");
+      expect(monitoring(result)?.version).toBe("v2.0");
       expect(monitoring(result)?.role).toBe("MONITORING_METHODOLOGY");
     });
 

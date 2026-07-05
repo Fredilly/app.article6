@@ -238,7 +238,7 @@ describe("quick check ui helpers", () => {
     expect(view.detectedDocumentConfidence).toBeTruthy();
     expect(view.detectedDocumentEvidence?.length).toBeGreaterThan(0);
     expect(view.detectedDocumentEvidence?.length).toBeLessThanOrEqual(3);
-    expect(view.detectedMethodology).toBe("AR-ACM0003 v02.0");
+    expect(view.detectedMethodology).toBe("AR-ACM0003 v2.0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
     expect(view.signalsTitle).toBe("What the file appears to contain");
@@ -474,7 +474,7 @@ describe("quick check ui helpers", () => {
     expect(view.referencedMethods).toEqual([
       {
         id: "AMS-II.E",
-        version: "v8",
+        version: "v8.0",
         role: "REFERENCED_CALCULATION_METHOD",
         confidence: "high",
       },

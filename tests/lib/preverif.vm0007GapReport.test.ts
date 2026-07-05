@@ -118,10 +118,10 @@ function buildWarningAcceptedAudit(baseAudit: MethodologyEvidenceAuditSummary): 
     ...baseAudit,
     auditStatus: "VERSION_WARNING_ACCEPTED",
     methodologyId: "VM0007",
-    rulebookVersion: "v1-8",
+    rulebookVersion: "v1.8",
     pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
     versionMatch: false,
-    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1-8.",
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
     userAcceptedVersionWarning: true,
   };
 }

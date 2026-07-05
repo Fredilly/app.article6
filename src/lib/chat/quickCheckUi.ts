@@ -593,8 +593,8 @@ function detectMethodologyFromRecoveredText(rawText: string | undefined, mention
   const text = rawText ?? "";
   const escapedCode = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace("-", "[-\\s]?");
   const versionMatch =
-    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
-    text.match(new RegExp(`(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
+    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\.?\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
+    text.match(new RegExp(`(v\\.?\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
 
   const version = versionMatch?.[1] ? normalizeDeclaredMethodologyVersion(versionMatch[1]) : null;
   return {

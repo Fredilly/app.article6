@@ -48,7 +48,7 @@ function extractMethodologyCode(quote: string): string | null {
 function extractVersionFromQuote(quote: string): string | null {
   const normalized = normalizeWhitespace(normalizeDashCharacters(quote));
   const explicitVersion = normalized.match(
-    /\b(?:version|ver\.?|v)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i,
+    /\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i,
   );
   if (explicitVersion?.[1]) {
     return normalizeDeclaredMethodologyVersion(explicitVersion[0]);
@@ -105,7 +105,7 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
     versionStatus: versionStatusFromQuote(pddDeclaredMethodologyVersion, body),
     evidencePage: evidence.page,
     evidenceSection: evidence.sectionHeading?.trim() || (evidence.sectionPath.length > 0 ? evidence.sectionPath.join(" / ") : ""),
-    evidenceQuote: quote,
+    evidenceQuote: evidence.quote,
   };
 }
 

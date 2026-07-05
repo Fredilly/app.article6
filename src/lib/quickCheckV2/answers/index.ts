@@ -110,7 +110,7 @@ function simplifyBaselineReference(value: string): string {
 function extractMethodologyTableDetails(evidence: RetrievedEvidence): MethodologyExtraction | null {
   const rowText = normalizeWhitespace(evidence.quote);
   const rowMatch = rowText.match(
-    /\bApplied(?:\s+Methodology)?\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(.+?)\s+(v?\d+(?:[.-]\d+)*)\b(?=\s+(?:Module|Tool|Applied\s+Methodology|$))/i,
+    /\bApplied(?:\s+Methodology)?\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(.+?)\s+(?:v\.?\s*)?(\d+(?:[.-]\d+)*)\b(?=\s+(?:Module|Tool|Applied\s+Methodology|$))/i,
   );
   if (rowMatch) {
     const code = rowMatch[1]!.toUpperCase();
