@@ -141,6 +141,25 @@ describe("methodologyRoleClassifier", () => {
       expect(monitoring(result)?.confidence).toBe("high");
     });
 
+    it("keeps the declaration-section methodology primary in CDM/PDD text with later calculation references", () => {
+      const text = [
+        "B.1. Title and reference of the approved baseline methodology applied to the small-scale project activity:",
+        "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).",
+        "For the calculation of the baseline emission coefficient of the electricity displaced “AMS-II.E” remits to",
+        "“AMS-I.D – Grid connected renewable electricity generation” (version 10), which ultimately remits to",
+        "“ACM0002 – Consolidated baseline methodology for grid connected electricity generation from renewable sources” (version 6).",
+      ].join("\n");
+
+      const result = classifyMethodologyRoles(text);
+      expect(primary(result)?.id).toBe("AMS-II.E");
+      expect(primary(result)?.version).toBe("v8.0");
+      expect(primary(result)?.role).toBe("PRIMARY_PROJECT_METHODOLOGY");
+
+      const acm = referenced(result).find((entry) => entry.id === "ACM0002");
+      expect(acm?.role).toBe("REFERENCED_CALCULATION_METHOD");
+      expect(acm?.version).toBe("v6.0");
+    });
+
     it("classifies wrapped CDM monitoring methodology without inventing a primary methodology", () => {
       const text = [
         "D.1 Name and reference of approved monitoring methodology applied",

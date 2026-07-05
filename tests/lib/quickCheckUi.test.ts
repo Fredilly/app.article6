@@ -175,6 +175,51 @@ describe("quick check ui helpers", () => {
     expect(snapshot.methodologyMentions).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "VMD0006"]);
   });
 
+  it("shows the declaration-section methodology as primary for CDM/PDD text with later references", () => {
+    const rawPddText = [
+      "B.1. Title and reference of the approved baseline methodology applied to the small-scale project activity:",
+      "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).",
+      "For the calculation of the baseline emission coefficient of the electricity displaced “AMS-II.E” remits to",
+      "“AMS-I.D – Grid connected renewable electricity generation” (version 10), which ultimately remits to",
+      "“ACM0002 – Consolidated baseline methodology for grid connected electricity generation from renewable sources” (version 6).",
+    ].join("\n");
+    const analysis = {
+      facts: [],
+      parsedEvidenceLabels: ["mk-pdd-pda3.pdf"],
+      documentTypes: ["PDD / PDF"],
+      methodologyMentions: extractMethodologyMentions(rawPddText),
+      extractionConfidence: 0.86,
+      warnings: [],
+      rawPddText,
+    };
+    const extractionSnapshot = buildQuickCheckExtractionSnapshot({
+      claimText: "Methodology extraction preview invariant",
+      analysis,
+    });
+
+    const view = buildExtractionPreviewViewModel({
+      fileName: "mk-pdd-pda3.pdf",
+      analysis,
+      extractionSnapshot,
+    });
+
+    expect(view.primaryMethodology).toEqual({
+      id: "AMS-II.E",
+      version: "v8.0",
+      role: "PRIMARY_PROJECT_METHODOLOGY",
+      confidence: "high",
+    });
+    expect(view.referencedMethods).toEqual(expect.arrayContaining([
+      {
+        id: "ACM0002",
+        version: "v6.0",
+        role: "REFERENCED_CALCULATION_METHOD",
+        confidence: "high",
+      },
+    ]));
+    expect(view.referencedMethods?.some((method) => method.id === "ACM0002")).toBe(true);
+  });
+
   it("builds a grounded extraction preview view model from actual file output", () => {
     const view = buildExtractionPreviewViewModel({
       fileName: "fresh-monitoring-report.pdf",
