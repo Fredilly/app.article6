@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { addQuickCheckV2Fixture, parseFixtureAddArgs } from "@/lib/quickCheckV2/fixtureIntake";
+import { addQuickCheckV2Fixture, parseFixtureAddArgs } from "../../../scripts/lib/quickcheck-fixture-intake";
 
 const tempRoots: string[] = [];
 
