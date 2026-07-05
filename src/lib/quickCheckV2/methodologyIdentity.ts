@@ -1,4 +1,7 @@
-import type { RetrievedEvidence } from "@/lib/quickCheckV2/evidence";
+import type {
+  QuickCheckV2ExtractedDocument,
+  RetrievedEvidence,
+} from "@/lib/quickCheckV2/evidence";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type QuickCheckMethodologyVersionStatus =
@@ -9,7 +12,7 @@ export type QuickCheckMethodologyVersionStatus =
 export type QuickCheckMethodologyIdentity = Readonly<{
   methodologyId: string;
   methodologyName: string;
-  methodologyAlias: string | null;
+  methodologyAlias: string;
   pddDeclaredMethodologyVersion: string | null;
   versionStatus: QuickCheckMethodologyVersionStatus;
   evidencePage: number;
@@ -62,11 +65,11 @@ function extractVersionFromQuote(quote: string): string | null {
   return null;
 }
 
-function extractAlias(body: string): string | null {
+function extractAlias(body: string): string {
   const aliasMatch = normalizeDashCharacters(body).match(/\(([^)]+)\)\s*$/);
-  if (!aliasMatch?.[1]) return null;
+  if (!aliasMatch?.[1]) return "";
   const alias = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(aliasMatch[1])));
-  return alias || null;
+  return alias || "";
 }
 
 function extractMethodologyName(body: string): string {
@@ -79,6 +82,42 @@ function extractMethodologyName(body: string): string {
 function versionStatusFromQuote(version: string | null, body: string): QuickCheckMethodologyVersionStatus {
   if (version) return "DECLARED";
   return body.trim() ? "NOT_EXPLICITLY_DECLARED" : "UNKNOWN";
+}
+
+export function extractDeclaredMethodologyVersionFromDocument(
+  document: QuickCheckV2ExtractedDocument,
+  methodologyId: string,
+): string | null {
+  const needle = methodologyId.trim().toLowerCase();
+  if (!needle) return null;
+
+  for (let index = 0; index < document.blocks.length; index += 1) {
+    const block = document.blocks[index]!;
+    if (!block.text.toLowerCase().includes(needle)) {
+      continue;
+    }
+
+    for (let cursor = index; cursor < document.blocks.length; cursor += 1) {
+      const candidate = document.blocks[cursor]!;
+      const version = extractVersionFromQuote(candidate.text);
+      if (version) {
+        return version;
+      }
+
+      if (cursor > index) {
+        const candidateText = candidate.text.trim();
+        if (
+          candidate.blockType === "heading" ||
+          /^(\d+(?:\.\d+)*)\s+/.test(candidateText) ||
+          /^(?:section|table)\b/i.test(candidateText)
+        ) {
+          break;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence | null | undefined): QuickCheckMethodologyIdentity | null {
@@ -109,9 +148,27 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
   };
 }
 
+export function buildQuickCheckMethodologyIdentityFromDocument(
+  document: QuickCheckV2ExtractedDocument,
+  evidence: RetrievedEvidence | null | undefined,
+): QuickCheckMethodologyIdentity | null {
+  const identity = buildQuickCheckMethodologyIdentity(evidence);
+  if (!identity) return null;
+  if (identity.pddDeclaredMethodologyVersion) return identity;
+
+  const fallbackVersion = extractDeclaredMethodologyVersionFromDocument(document, identity.methodologyId);
+  if (!fallbackVersion) return identity;
+
+  return {
+    ...identity,
+    pddDeclaredMethodologyVersion: fallbackVersion,
+    versionStatus: "DECLARED",
+  };
+}
+
 export function formatMethodologyDisplayLabel(identity: Pick<
   QuickCheckMethodologyIdentity,
   "methodologyId" | "methodologyName" | "methodologyAlias"
 >): string {
-  return identity.methodologyAlias?.trim() || identity.methodologyName.trim() || identity.methodologyId.trim();
+  return identity.methodologyAlias.trim() || identity.methodologyName.trim() || identity.methodologyId.trim();
 }

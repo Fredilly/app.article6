@@ -77,13 +77,16 @@ import {
 import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
-import { extractAnswersForAllChecks, extractMethodologyDetailsFromEvidence, type MethodologyExtraction } from "@/lib/quickCheckV2/answers";
+import { extractAnswersForAllChecks, type MethodologyExtraction } from "@/lib/quickCheckV2/answers";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
 import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
 import {
   buildAndSaveVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
+import {
+  buildQuickCheckMethodologyIdentityFromDocument,
+} from "@/lib/quickCheckV2/methodologyIdentity";
 
 type MethodInventoryRecord = {
   code: string;
@@ -2122,7 +2125,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
             methodology:
               statusResult.checkName === "methodology"
-                ? extractMethodologyDetailsFromEvidence(evidence)
+                ? buildQuickCheckMethodologyIdentityFromDocument(parsedDocument, evidence)
                 : undefined,
           };
         })
@@ -2204,7 +2207,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
               methodology:
                 statusResult.checkName === "methodology"
-                  ? extractMethodologyDetailsFromEvidence(evidence)
+                  ? buildQuickCheckMethodologyIdentityFromDocument(parsedDocument, evidence)
                   : undefined,
             };
           })

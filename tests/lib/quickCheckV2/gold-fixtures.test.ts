@@ -13,6 +13,7 @@ import {
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
 import {
   buildQuickCheckMethodologyIdentity,
+  extractDeclaredMethodologyVersionFromDocument,
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
@@ -107,38 +108,6 @@ const methodologyComparisonKeys = [
 
 function normalizeMethodologyAlias(value: string | null | undefined): string {
   return value?.trim() ?? "";
-}
-
-function extractDeclaredMethodologyVersionFromText(text: string): string | null {
-  const normalized = text.replace(/[\u2010-\u2015]/g, "-").replace(/\s+/g, " ").trim();
-  if (!normalized) return null;
-  const match = normalized.match(/\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+)*)\b/i);
-  return match?.[0] ? normalizeDeclaredMethodologyVersion(match[0]) : null;
-}
-
-function extractDeclaredMethodologyVersionFromDocument(
-  document: QuickCheckV2ExtractedDocument,
-  methodologyId: string,
-): string | null {
-  const needle = methodologyId.toLowerCase();
-  const candidateIndices: number[] = [];
-
-  for (let index = 0; index < document.blocks.length; index += 1) {
-    if (document.blocks[index]!.text.toLowerCase().includes(needle)) {
-      candidateIndices.push(index);
-    }
-  }
-
-  for (const index of candidateIndices) {
-    const page = document.blocks[index]!.page;
-    for (let cursor = index; cursor < document.blocks.length; cursor += 1) {
-      if (document.blocks[cursor]!.page !== page) break;
-      const version = extractDeclaredMethodologyVersionFromText(document.blocks[cursor]!.text);
-      if (version) return version;
-    }
-  }
-
-  return null;
 }
 
 function pickComparableMethodology(

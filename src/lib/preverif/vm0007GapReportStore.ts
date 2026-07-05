@@ -4,7 +4,7 @@ import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
 import { parseExtractedText } from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
 import {
-  buildQuickCheckMethodologyIdentity,
+  buildQuickCheckMethodologyIdentityFromDocument,
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
 import {
@@ -129,7 +129,10 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   const methodologyResult = validateAnswerResults(
     extractAnswersForAllChecks(parsedDocument),
   ).find((result) => result.checkName === "methodology");
-  const methodology = methodologyResult?.methodology ?? buildQuickCheckMethodologyIdentity(methodologyResult?.evidence ?? null) ?? input.methodology;
+  const methodology =
+    methodologyResult?.methodology
+    ?? buildQuickCheckMethodologyIdentityFromDocument(parsedDocument, methodologyResult?.evidence ?? null)
+    ?? input.methodology;
   const audit = auditEvidence({
     rules: input.rules.map(mapRule),
     evidenceDocument: context.evidenceDocument,

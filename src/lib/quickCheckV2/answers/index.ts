@@ -40,9 +40,9 @@ export type AnswerResult = {
 export type MethodologyExtraction = {
   methodologyId: string;
   methodologyName: string;
-  methodologyAlias: string | null;
-  pddDeclaredMethodologyVersion: string;
-  versionStatus: "DECLARED";
+  methodologyAlias: string;
+  pddDeclaredMethodologyVersion: string | null;
+  versionStatus: "DECLARED" | "NOT_EXPLICITLY_DECLARED" | "UNKNOWN";
   evidencePage: number | null;
   evidenceSection: string | null;
   evidenceQuote: string;
@@ -121,7 +121,7 @@ function extractMethodologyTableDetails(evidence: RetrievedEvidence): Methodolog
     const nameMatch = titleChunk.match(/\b(REDD\+?\s+Methodology\s+Framework|REDD\s+Methodology\s+Modules)\b/i);
     const methodologyName = nameMatch ? normalizeWhitespace(nameMatch[1]!) : titleChunk.replace(/\s*\([^)]*\)\s*$/g, "").trim();
     const aliasMatch = titleChunk.match(/\((REDD[+-]?MF)\)/i);
-    const methodologyAlias = aliasMatch ? aliasMatch[1]!.toUpperCase() : null;
+    const methodologyAlias = aliasMatch ? aliasMatch[1]!.toUpperCase() : "";
 
     return {
       methodologyId: code,
@@ -146,7 +146,7 @@ export function extractMethodologyDetailsFromEvidence(
 }
 
 function formatMethodologyAnswer(methodology: MethodologyExtraction): string {
-  return `${methodology.methodologyId} ${methodology.methodologyName} ${methodology.pddDeclaredMethodologyVersion}`;
+  return `${methodology.methodologyId} ${methodology.methodologyName} ${methodology.pddDeclaredMethodologyVersion ?? ""}`.trim();
 }
 
 const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
