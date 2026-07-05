@@ -23,7 +23,7 @@
     "expectedMethodology": {
       "methodologyId": null,
       "methodologyName": null,
-      "methodologyAlias": null,
+      "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": null,
       "versionStatus": "NOT_EXPLICITLY_DECLARED",
       "evidencePage": null,

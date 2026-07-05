@@ -29,7 +29,7 @@
     "expectedMethodology": {
       "methodologyId": "VM0004",
       "methodologyName": "Methodology for Conservation Projects that Avoid Planned Land Use Conversion in Peat Swamp Forests",
-      "methodologyAlias": null,
+      "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": "v1.0",
       "versionStatus": "DECLARED",
       "evidencePage": 40,

@@ -7,6 +7,7 @@ import { extractPdfPagesWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 import {
   loadAndParseExtractedText,
   parseExtractedText,
+  type QuickCheckV2ExtractedDocument,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
@@ -104,6 +105,42 @@ const methodologyComparisonKeys = [
   "evidenceQuote",
 ] as const satisfies ReadonlyArray<keyof QuickCheckMethodologyIdentity>;
 
+function normalizeMethodologyAlias(value: string | null | undefined): string {
+  return value?.trim() ?? "";
+}
+
+function extractDeclaredMethodologyVersionFromText(text: string): string | null {
+  const normalized = text.replace(/[\u2010-\u2015]/g, "-").replace(/\s+/g, " ").trim();
+  if (!normalized) return null;
+  const match = normalized.match(/\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+)*)\b/i);
+  return match?.[0] ? normalizeDeclaredMethodologyVersion(match[0]) : null;
+}
+
+function extractDeclaredMethodologyVersionFromDocument(
+  document: QuickCheckV2ExtractedDocument,
+  methodologyId: string,
+): string | null {
+  const needle = methodologyId.toLowerCase();
+  const candidateIndices: number[] = [];
+
+  for (let index = 0; index < document.blocks.length; index += 1) {
+    if (document.blocks[index]!.text.toLowerCase().includes(needle)) {
+      candidateIndices.push(index);
+    }
+  }
+
+  for (const index of candidateIndices) {
+    const page = document.blocks[index]!.page;
+    for (let cursor = index; cursor < document.blocks.length; cursor += 1) {
+      if (document.blocks[cursor]!.page !== page) break;
+      const version = extractDeclaredMethodologyVersionFromText(document.blocks[cursor]!.text);
+      if (version) return version;
+    }
+  }
+
+  return null;
+}
+
 function pickComparableMethodology(
   methodology: QuickCheckMethodologyIdentity,
   goldMethodology: Partial<QuickCheckMethodologyIdentity>,
@@ -120,6 +157,7 @@ function pickComparableMethodology(
 }
 
 function buildComparableMethodology(
+  document: QuickCheckV2ExtractedDocument,
   result: ReturnType<typeof validateAnswerResults>[number],
 ): QuickCheckMethodologyIdentity | null {
   if (result.checkName !== "methodology" || !result.evidence) return null;
@@ -140,22 +178,24 @@ function buildComparableMethodology(
   const methodology = answerMethodology ?? evidenceMethodology ?? result.methodology ?? null;
   if (!methodology) return null;
 
+  const fallbackVersion =
+    methodology.pddDeclaredMethodologyVersion
+    ?? extractDeclaredMethodologyVersionFromDocument(document, methodology.methodologyId);
+  const methodologyAlias = normalizeMethodologyAlias(
+    answerMethodology?.methodologyAlias ?? evidenceMethodology?.methodologyAlias ?? methodology.methodologyAlias,
+  );
+
   if (result.answer) {
     return {
       methodologyId: answerMethodology?.methodologyId ?? evidenceMethodology?.methodologyId ?? methodology.methodologyId,
       methodologyName: answerMethodology?.methodologyName ?? evidenceMethodology?.methodologyName ?? methodology.methodologyName,
-      methodologyAlias:
-        (answerMethodology?.methodologyAlias?.trim() ? answerMethodology.methodologyAlias : null)
-        ?? evidenceMethodology?.methodologyAlias
-        ?? methodology.methodologyAlias,
-      pddDeclaredMethodologyVersion:
-        evidenceMethodology?.pddDeclaredMethodologyVersion
-        ?? answerMethodology?.pddDeclaredMethodologyVersion
-        ?? methodology.pddDeclaredMethodologyVersion,
-      versionStatus:
+      methodologyAlias,
+      pddDeclaredMethodologyVersion: fallbackVersion,
+      versionStatus: fallbackVersion ? "DECLARED" : (
         evidenceMethodology?.versionStatus
         ?? answerMethodology?.versionStatus
-        ?? methodology.versionStatus,
+        ?? methodology.versionStatus
+      ),
       evidencePage: result.evidence.page,
       evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
       evidenceQuote: result.evidence.quote,
@@ -163,7 +203,11 @@ function buildComparableMethodology(
   }
 
   return {
-    ...methodology,
+    methodologyId: methodology.methodologyId,
+    methodologyName: methodology.methodologyName,
+    methodologyAlias,
+    pddDeclaredMethodologyVersion: fallbackVersion,
+    versionStatus: fallbackVersion ? "DECLARED" : methodology.versionStatus,
     evidencePage: result.evidence.page,
     evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
     evidenceQuote: result.evidence.quote,
@@ -171,10 +215,11 @@ function buildComparableMethodology(
 }
 
 function toGoldComparableRecord(
+  document: QuickCheckV2ExtractedDocument,
   result: ReturnType<typeof validateAnswerResults>[number],
   expected: GoldRecord,
 ): GoldRecord {
-  const methodology = buildComparableMethodology(result);
+  const methodology = buildComparableMethodology(document, result);
 
   const record: GoldRecord = {
     checkName: result.checkName,
@@ -274,7 +319,7 @@ describe("Quick Check v2 gold fixtures", () => {
           bundle.meta.documentId,
         );
         const statuses = validateAnswerResults(extractAnswersForAllChecks(document));
-        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(document, result, bundle.gold[index]!));
         const methodologyComparisonFlags = comparableStatuses.map((record, index) =>
           shouldCompareMethodology(record, bundle.gold[index]!),
         );
@@ -309,7 +354,7 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
           const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
             shouldCompareMethodology(record, bundle.gold[index]!),
           );
@@ -348,7 +393,7 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
           const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
             shouldCompareMethodology(record, bundle.gold[index]!),
           );

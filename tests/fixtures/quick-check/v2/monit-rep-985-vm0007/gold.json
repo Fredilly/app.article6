@@ -31,7 +31,7 @@
     "expectedMethodology": {
       "methodologyId": "VM0007",
       "methodologyName": "REDD Methodology Modules",
-      "methodologyAlias": null,
+      "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": "v1.3",
       "versionStatus": "DECLARED",
       "evidencePage": 15,

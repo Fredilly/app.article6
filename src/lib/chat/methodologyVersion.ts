@@ -12,7 +12,7 @@ export function normalizeDeclaredMethodologyVersion(rawVersion: string | null | 
 
   if (!normalized) return null;
 
-  const explicitMatch = normalized.match(/\b(?:version|ver\.?|v)\s*([0-9]+(?:[.-][0-9]+)*)\b/i);
+  const explicitMatch = normalized.match(/\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+)*)\b/i);
   if (explicitMatch?.[1]) {
     return `v${explicitMatch[1].replace(/-/g, ".")}`;
   }

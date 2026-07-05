@@ -31,7 +31,7 @@
     "expectedMethodology": {
       "methodologyId": "AMS-II.E",
       "methodologyName": "Energy efficiency and fuel switching measures for buildings",
-      "methodologyAlias": null,
+      "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": "v8",
       "versionStatus": "DECLARED",
       "evidencePage": 7,

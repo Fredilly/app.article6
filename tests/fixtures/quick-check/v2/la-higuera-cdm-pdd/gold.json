@@ -31,9 +31,9 @@
     "expectedMethodology": {
       "methodologyId": "ACM0002",
       "methodologyName": "Consolidated baseline methodology for grid-connected electricity generation from renewable sources",
-      "methodologyAlias": null,
-      "pddDeclaredMethodologyVersion": null,
-      "versionStatus": "NOT_EXPLICITLY_DECLARED",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": "v4",
+      "versionStatus": "DECLARED",
       "evidencePage": 8,
       "evidenceSection": "Title and reference of the approved baseline methodology applied to the project activity:",
       "evidenceQuote": "ACM0002: “Consolidated baseline methodology for grid-connected electricity generation from renewable sources”."

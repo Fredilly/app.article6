@@ -29,7 +29,7 @@
     "expectedMethodology": {
       "methodologyId": "VM0009",
       "methodologyName": "Methodology for Avoided Mosaic Deforestation of Tropical Forests",
-      "methodologyAlias": null,
+      "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": null,
       "versionStatus": "NOT_EXPLICITLY_DECLARED",
       "evidencePage": 9,
