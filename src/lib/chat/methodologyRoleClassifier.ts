@@ -1,4 +1,5 @@
 import { extractMethodologyMentions } from "@/lib/chat/quickCheckEvidence";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type MethodologyRole =
   | "PRIMARY_PROJECT_METHODOLOGY"
@@ -82,7 +83,7 @@ const CALCULATION_CONTEXT_PATTERNS = [
   /default value/i,
 ];
 
-const VERSION_RE = /(?:version|v)\s*(?:(\d+(?:[\.-]\d+)*(?:[\.-]\d+)?))/i;
+const VERSION_RE = /(?:version|v\.?)\s*(?:(\d+(?:[\.-]\d+)*(?:[\.-]\d+)?))/i;
 
 const MODULE_CODE_RE = /^VMD\d{4}$|^VMR\d{3,4}$/;
 const ACTIVITY_CODE_RE = /^(?:APD|ARR|RWE|APWD)$/;
@@ -92,6 +93,7 @@ const LINE_WINDOW = 3;
 type RawMatch = {
   code: string;
   lineIndex: number;
+  startIndex: number;
 };
 
 function findMethodologyMatches(text: string): RawMatch[] {
@@ -118,13 +120,13 @@ function findMethodologyMatches(text: string): RawMatch[] {
       while ((m = pattern.exec(line)) !== null) {
         const fullMatch = m[0].replace(/\s+/g, "").toUpperCase();
         if (/^GS/.test(fullMatch)) {
-          matches.push({ code: fullMatch, lineIndex: i });
+          matches.push({ code: fullMatch, lineIndex: i, startIndex: m.index ?? 0 });
         } else if (fullMatch.startsWith("AMS")) {
           const suffix = fullMatch.replace(/^AMS-?/i, "");
-          if (suffix) matches.push({ code: `AMS-${suffix}`, lineIndex: i });
+          if (suffix) matches.push({ code: `AMS-${suffix}`, lineIndex: i, startIndex: m.index ?? 0 });
         } else {
           const raw = (m[1] ?? m[0]).replace(/\s+/g, "").toUpperCase();
-          matches.push({ code: raw, lineIndex: i });
+          matches.push({ code: raw, lineIndex: i, startIndex: m.index ?? 0 });
         }
       }
     }
@@ -133,12 +135,12 @@ function findMethodologyMatches(text: string): RawMatch[] {
 }
 
 function extractNearbyVersion(lines: string[], lineIndex: number): string | null {
-  const start = Math.max(0, lineIndex - 1);
-  const end = Math.min(lines.length, lineIndex + 2);
-  for (let i = start; i < end; i++) {
+  const order = [lineIndex, lineIndex + 1, lineIndex - 1];
+  for (const i of order) {
+    if (i < 0 || i >= lines.length) continue;
     const line = lines[i] ?? "";
     const m = VERSION_RE.exec(line);
-    if (m?.[1]) return m[1];
+    if (m?.[0]) return normalizeDeclaredMethodologyVersion(m[0]);
   }
   return null;
 }
@@ -166,6 +168,7 @@ function detectMethodologyRole(
   lines: string[],
   lineIndex: number,
   sectionTitles: string[],
+  matchStartIndex: number,
 ): { role: MethodologyRole; confidence: "high" | "medium" | "low"; evidenceSection?: string; reason?: string } {
   const normalized = code.toUpperCase();
 
@@ -175,6 +178,10 @@ function detectMethodologyRole(
 
   const windowLines = getLineWindow(lines, lineIndex, LINE_WINDOW);
   const windowText = windowLines.join("\n");
+  const lineText = lines[lineIndex] ?? "";
+  const lineMatches = findMethodologyMatches(lineText);
+  const firstMatchStart = lineMatches.length > 0 ? Math.min(...lineMatches.map((match) => match.startIndex)) : matchStartIndex;
+  const hasEarlierCodeInLine = matchStartIndex > firstMatchStart;
 
   const prevLine = lines[lineIndex - 1] ?? "";
   const nextLine = lines[lineIndex + 1] ?? "";
@@ -182,6 +189,7 @@ function detectMethodologyRole(
   const matchesMonitor = (line: string) => MONITORING_HEADING_PATTERNS.some((p) => p.test(line));
   const matchesDeclNotMonitor = (line: string) =>
     DECLARATION_HEADING_PATTERNS.some((p) => p.test(line)) && !matchesMonitor(line);
+  const currentSectionTitle = sectionTitles[0] ?? "";
 
   const nearDeclHeading =
     matchesDeclNotMonitor(prevLine) ||
@@ -192,10 +200,29 @@ function detectMethodologyRole(
     matchesMonitor(prevLine) ||
     matchesMonitor(nextLine);
 
-  const hasPrimarySection = sectionTitles.some((t) => matchesDeclNotMonitor(t));
-  const hasMonitoringSection = sectionTitles.some((t) => MONITORING_HEADING_PATTERNS.some((p) => p.test(t)));
+  // Only the immediate section heading should control role here. Ancestor
+  // headings like B.1 should not turn later B.2/B.5 calculation references
+  // into primary methodology evidence.
+  const hasPrimarySection = matchesDeclNotMonitor(currentSectionTitle);
+  const hasMonitoringSection = MONITORING_HEADING_PATTERNS.some((p) => p.test(currentSectionTitle));
 
   const inFootnote = isInFootnote(lines, lineIndex);
+  const isReferenceContext =
+    /\bremits to\b/i.test(windowText) ||
+    /\bultimately remits to\b/i.test(windowText) ||
+    /\bfor the calculation\b/i.test(windowText) ||
+    /\bcalculated using\b/i.test(windowText) ||
+    /\bcalculation of the\b/i.test(windowText) ||
+    /\baccording to\b/i.test(windowText) ||
+    /\bas per\b/i.test(windowText);
+
+  if (hasEarlierCodeInLine && isReferenceContext) {
+    return {
+      role: "REFERENCED_CALCULATION_METHOD",
+      confidence: "medium",
+      reason: "Mention appears later in a declaration paragraph that is referencing another methodology",
+    };
+  }
 
   if (nearMonitorHeading || hasMonitoringSection) {
     if (nearDeclHeading || hasPrimarySection) {
@@ -223,8 +250,6 @@ function detectMethodologyRole(
   if (isBackgroundNeg) {
     return { role: "BACKGROUND_MENTION", confidence: "low", reason: "Mentioned in background or supporting context" };
   }
-
-  const lineText = lines[lineIndex] ?? "";
 
   const isStandalone = /^\s*[A-Z][A-Z0-9-]{2,}\s*$/.test(lineText.trim());
 
@@ -298,6 +323,14 @@ function isJointAssessmentContext(lines: string[], lineIndex: number): boolean {
   return JOINT_ASSESSMENT_PATTERNS.some((p) => p.test(windowText));
 }
 
+function isCdmPddDocument(rawText: string): boolean {
+  return /\bCDM[-\s]SSC[-\s]PDD\b/i.test(rawText) ||
+    /\bCDM\s*[–-]\s*Executive Board\b/i.test(rawText) ||
+    /\bSECTION\s+B\.\s+Application of a baseline methodology\b/i.test(rawText) ||
+    /\bTitle and reference of the approved baseline methodology applied\b/i.test(rawText) ||
+    /\bTitle and reference of the approved baseline and monitoring methodology\b/i.test(rawText);
+}
+
 export function classifyMethodologyRoles(rawText: string): MethodologyClassification {
   if (!rawText?.trim()) {
     return { primaryMethodology: null, monitoringMethodology: null, referencedMethods: [] };
@@ -312,7 +345,7 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
       const idx = rawText.indexOf(mention);
       if (idx >= 0) {
         const lineIdx = rawText.slice(0, idx).split("\n").length - 1;
-        rawMatches.push({ code: mention, lineIndex: lineIdx });
+        rawMatches.push({ code: mention, lineIndex: lineIdx, startIndex: idx });
       }
     }
   }
@@ -334,6 +367,7 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
       lines,
       match.lineIndex,
       sectionTitles,
+      match.startIndex,
     );
 
     // CCBA/CCB document family override: VM methods in joint-assessment context
@@ -356,6 +390,21 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
     });
   }
 
+  if (isCdmPddDocument(rawText)) {
+    let primaryEstablished = false;
+    for (const entry of entries) {
+      if (entry.role !== "PRIMARY_PROJECT_METHODOLOGY") continue;
+      if (!primaryEstablished) {
+        primaryEstablished = true;
+        continue;
+      }
+      entry.role = "REFERENCED_CALCULATION_METHOD";
+      entry.reason = entry.reason
+        ? `${entry.reason}; later CDM declaration reference`
+        : "Later CDM declaration reference";
+    }
+  }
+
   const deduped = dedupeEntries(entries);
 
   let primary = deduped.find((e) => e.role === "PRIMARY_PROJECT_METHODOLOGY") ?? null;
@@ -375,7 +424,7 @@ export function classifyMethodologyRoles(rawText: string): MethodologyClassifica
     }
   }
 
-  if (primary && !monitoring) {
+  if (primary && !monitoring && !isCdmPddDocument(rawText)) {
     const maybeMonitor = deduped.find(
       (e) =>
         e.id !== primary!.id &&

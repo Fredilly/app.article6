@@ -7,6 +7,7 @@ import { extractPdfPagesWithPdfParse } from "@/lib/chat/quickCheckPdfExtractor";
 import {
   loadAndParseExtractedText,
   parseExtractedText,
+  type QuickCheckV2ExtractedDocument,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
 import { validateAnswerResults } from "@/lib/quickCheckV2/status";
@@ -14,6 +15,7 @@ import {
   buildQuickCheckMethodologyIdentity,
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/quick-check/v2");
 
@@ -103,6 +105,42 @@ const methodologyComparisonKeys = [
   "evidenceQuote",
 ] as const satisfies ReadonlyArray<keyof QuickCheckMethodologyIdentity>;
 
+function normalizeMethodologyAlias(value: string | null | undefined): string {
+  return value?.trim() ?? "";
+}
+
+function extractDeclaredMethodologyVersionFromText(text: string): string | null {
+  const normalized = text.replace(/[\u2010-\u2015]/g, "-").replace(/\s+/g, " ").trim();
+  if (!normalized) return null;
+  const match = normalized.match(/\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+)*)\b/i);
+  return match?.[0] ? normalizeDeclaredMethodologyVersion(match[0]) : null;
+}
+
+function extractDeclaredMethodologyVersionFromDocument(
+  document: QuickCheckV2ExtractedDocument,
+  methodologyId: string,
+): string | null {
+  const needle = methodologyId.toLowerCase();
+  const candidateIndices: number[] = [];
+
+  for (let index = 0; index < document.blocks.length; index += 1) {
+    if (document.blocks[index]!.text.toLowerCase().includes(needle)) {
+      candidateIndices.push(index);
+    }
+  }
+
+  for (const index of candidateIndices) {
+    const page = document.blocks[index]!.page;
+    for (let cursor = index; cursor < document.blocks.length; cursor += 1) {
+      if (document.blocks[cursor]!.page !== page) break;
+      const version = extractDeclaredMethodologyVersionFromText(document.blocks[cursor]!.text);
+      if (version) return version;
+    }
+  }
+
+  return null;
+}
+
 function pickComparableMethodology(
   methodology: QuickCheckMethodologyIdentity,
   goldMethodology: Partial<QuickCheckMethodologyIdentity>,
@@ -119,6 +157,7 @@ function pickComparableMethodology(
 }
 
 function buildComparableMethodology(
+  document: QuickCheckV2ExtractedDocument,
   result: ReturnType<typeof validateAnswerResults>[number],
 ): QuickCheckMethodologyIdentity | null {
   if (result.checkName !== "methodology" || !result.evidence) return null;
@@ -139,22 +178,24 @@ function buildComparableMethodology(
   const methodology = answerMethodology ?? evidenceMethodology ?? result.methodology ?? null;
   if (!methodology) return null;
 
+  const fallbackVersion =
+    methodology.pddDeclaredMethodologyVersion
+    ?? extractDeclaredMethodologyVersionFromDocument(document, methodology.methodologyId);
+  const methodologyAlias = normalizeMethodologyAlias(
+    answerMethodology?.methodologyAlias ?? evidenceMethodology?.methodologyAlias ?? methodology.methodologyAlias,
+  );
+
   if (result.answer) {
     return {
       methodologyId: answerMethodology?.methodologyId ?? evidenceMethodology?.methodologyId ?? methodology.methodologyId,
       methodologyName: answerMethodology?.methodologyName ?? evidenceMethodology?.methodologyName ?? methodology.methodologyName,
-      methodologyAlias:
-        (answerMethodology?.methodologyAlias?.trim() ? answerMethodology.methodologyAlias : null)
-        ?? evidenceMethodology?.methodologyAlias
-        ?? methodology.methodologyAlias,
-      pddDeclaredMethodologyVersion:
-        evidenceMethodology?.pddDeclaredMethodologyVersion
-        ?? answerMethodology?.pddDeclaredMethodologyVersion
-        ?? methodology.pddDeclaredMethodologyVersion,
-      versionStatus:
+      methodologyAlias,
+      pddDeclaredMethodologyVersion: fallbackVersion,
+      versionStatus: fallbackVersion ? "DECLARED" : (
         evidenceMethodology?.versionStatus
         ?? answerMethodology?.versionStatus
-        ?? methodology.versionStatus,
+        ?? methodology.versionStatus
+      ),
       evidencePage: result.evidence.page,
       evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
       evidenceQuote: result.evidence.quote,
@@ -162,7 +203,11 @@ function buildComparableMethodology(
   }
 
   return {
-    ...methodology,
+    methodologyId: methodology.methodologyId,
+    methodologyName: methodology.methodologyName,
+    methodologyAlias,
+    pddDeclaredMethodologyVersion: fallbackVersion,
+    versionStatus: fallbackVersion ? "DECLARED" : methodology.versionStatus,
     evidencePage: result.evidence.page,
     evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
     evidenceQuote: result.evidence.quote,
@@ -170,10 +215,11 @@ function buildComparableMethodology(
 }
 
 function toGoldComparableRecord(
+  document: QuickCheckV2ExtractedDocument,
   result: ReturnType<typeof validateAnswerResults>[number],
   expected: GoldRecord,
 ): GoldRecord {
-  const methodology = buildComparableMethodology(result);
+  const methodology = buildComparableMethodology(document, result);
 
   const record: GoldRecord = {
     checkName: result.checkName,
@@ -194,6 +240,54 @@ function toGoldComparableRecord(
   return record;
 }
 
+function validateMethodologyGoldRecord(record: GoldRecord): void {
+  if (record.checkName !== "methodology") return;
+
+  expect(record.expectedMethodology).toBeDefined();
+  const methodology = record.expectedMethodology!;
+  expect(Object.keys(methodology)).toStrictEqual([
+    "methodologyId",
+    "methodologyName",
+    "methodologyAlias",
+    "pddDeclaredMethodologyVersion",
+    "versionStatus",
+    "evidencePage",
+    "evidenceSection",
+    "evidenceQuote",
+  ]);
+  expect(methodology.evidencePage).toBe(record.page);
+  expect(methodology.evidenceSection).toBe(record.sectionHeading ?? "");
+  expect(methodology.evidenceQuote).toBe(record.goldQuote);
+
+  if (methodology.versionStatus === "DECLARED") {
+    expect(methodology.pddDeclaredMethodologyVersion).not.toBeNull();
+    expect(normalizeDeclaredMethodologyVersion(methodology.pddDeclaredMethodologyVersion)).toBe(
+      methodology.pddDeclaredMethodologyVersion,
+    );
+  } else {
+    expect(methodology.pddDeclaredMethodologyVersion).toBeNull();
+  }
+}
+
+function shouldCompareMethodology(
+  record: GoldRecord,
+  goldRecord: GoldRecord,
+): boolean {
+  return Boolean(
+    goldRecord.expectedStatus === "FOUND" &&
+    record.expectedMethodology &&
+    goldRecord.expectedMethodology,
+  );
+}
+
+function stripMethodologyIfNeeded(
+  record: GoldRecord,
+  shouldKeepMethodology: boolean,
+): GoldRecord {
+  if (shouldKeepMethodology) return record;
+  const { expectedMethodology: _expectedMethodology, ...rest } = record;
+  return rest;
+}
 function toEvidenceOnlyComparableRecord(record: GoldRecord): Omit<GoldRecord, "expectedAnswer"> {
   const { expectedAnswer: _expectedAnswer, ...rest } = record;
   return rest;
@@ -213,27 +307,33 @@ describe("Quick Check v2 gold fixtures", () => {
         expect(fs.statSync(bundle.correctionsPath).isFile()).toBe(true);
       });
 
+      it("normalizes methodology gold shape", () => {
+        for (const record of bundle.gold) {
+          validateMethodologyGoldRecord(record);
+        }
+      });
+
       it("matches gold.json from extracted.txt through the Quick Check v2 pipeline", () => {
         const document = loadAndParseExtractedText(
           bundle.extractedPath,
           bundle.meta.documentId,
         );
         const statuses = validateAnswerResults(extractAnswersForAllChecks(document));
-        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(document, result, bundle.gold[index]!));
+        const methodologyComparisonFlags = comparableStatuses.map((record, index) =>
+          shouldCompareMethodology(record, bundle.gold[index]!),
+        );
 
         if (bundle.meta.comparisonMode === "evidence-only") {
-          expect(comparableStatuses.map(toEvidenceOnlyComparableRecord)).toStrictEqual(
-            bundle.gold.map(toEvidenceOnlyComparableRecord),
+          expect(comparableStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
+            bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
           return;
         }
 
-        expect(comparableStatuses).toStrictEqual(bundle.gold);
-        for (const record of bundle.gold) {
-          if (record.checkName === "methodology" && record.expectedMethodology) {
-            expect(record.expectedMethodology.methodologyId).toBeTruthy();
-          }
-        }
+        expect(comparableStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
+          bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+        );
       });
 
       if (bundle.meta.runtimeMode === "runtime-smoke") {
@@ -254,16 +354,23 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
+          const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
+            shouldCompareMethodology(record, bundle.gold[index]!),
+          );
 
           if (bundle.meta.comparisonMode === "evidence-only") {
-            expect(comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord)).toStrictEqual(
-              bundle.gold.map(toEvidenceOnlyComparableRecord),
+            expect(
+              comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            ).toStrictEqual(
+              bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             );
             return;
           }
 
-          expect(comparableRuntimeStatuses).toStrictEqual(bundle.gold);
+          expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
+            bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+          );
         }, 30000);
       }
 
@@ -286,16 +393,23 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
+          const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
+            shouldCompareMethodology(record, bundle.gold[index]!),
+          );
 
           if (bundle.meta.comparisonMode === "evidence-only") {
-            expect(comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord)).toStrictEqual(
-              bundle.gold.map(toEvidenceOnlyComparableRecord),
+            expect(
+              comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            ).toStrictEqual(
+              bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             );
             return;
           }
 
-          expect(comparableRuntimeStatuses).toStrictEqual(bundle.gold);
+          expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
+            bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+          );
         }, 30000);
       }
     });

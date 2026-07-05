@@ -631,7 +631,7 @@ function confidenceBarTone(value: "high" | "medium" | "low" | "unknown" | undefi
 }
 
 function formatMethodLabel(id: string, version?: string | null): string {
-  return `${id}${version ? ` · ${version}` : ""}`;
+  return `${id}${version ? ` ${version}` : ""}`;
 }
 
 function renderMethodReferenceSummary(methods: Array<{ id: string; version: string | null }>): string {
@@ -2519,7 +2519,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 <div className="text-sm text-slate-500">Primary</div>
                                 <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
                                   {extractionPreviewView.primaryMethodology
-                                    ? `${extractionPreviewView.primaryMethodology.id}${extractionPreviewView.primaryMethodology.version ? ` \u00b7 ${extractionPreviewView.primaryMethodology.version}` : ""}`
+                                    ? formatMethodLabel(
+                                        extractionPreviewView.primaryMethodology.id,
+                                        extractionPreviewView.primaryMethodology.version,
+                                      )
                                     : extractionPreviewView.detectedMethodology && extractionPreviewView.detectedMethodology !== "Not confidently detected"
                                       ? extractionPreviewView.detectedMethodology
                                       : "Not detected"}
@@ -2527,11 +2530,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                               </div>
                               {extractionPreviewView.monitoringMethodology ? (
                                 <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">
-                                  <div className="text-sm text-slate-500">Monitoring</div>
-                                  <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
-                                    {extractionPreviewView.monitoringMethodology.id}{extractionPreviewView.monitoringMethodology.version ? ` \u00b7 ${extractionPreviewView.monitoringMethodology.version}` : ""}
-                                  </div>
+                                <div className="text-sm text-slate-500">Monitoring</div>
+                                <div className="min-w-0 break-words font-medium leading-5 text-slate-900">
+                                    {formatMethodLabel(
+                                      extractionPreviewView.monitoringMethodology.id,
+                                      extractionPreviewView.monitoringMethodology.version,
+                                    )}
                                 </div>
+                              </div>
                               ) : null}
                               {extractionPreviewView.referencedMethods && extractionPreviewView.referencedMethods.length > 0 ? (
                                 <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3">

@@ -8,6 +8,7 @@ import {
   quickCheckDocumentClassLabel,
   type QuickCheckDocumentClassification,
 } from "@/lib/documentClassification";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type QuickCheckUiStatus = "extraction_failed" | "no_reliable_match" | "preliminary_match_found";
 export type QuickCheckUiExtractionStateValue = "grounded" | "recovered" | "needs-review" | "weak" | "partial";
@@ -52,6 +53,110 @@ export type ClassificationDisplayItem = {
   role: string;
   confidence: string;
 };
+
+function confidenceRank(value: string): number {
+  return value === "high" ? 0 : value === "medium" ? 1 : 2;
+}
+
+function roleRank(value: string): number {
+  if (value === "PRIMARY_PROJECT_METHODOLOGY") return 0;
+  if (value === "MONITORING_METHODOLOGY") return 1;
+  if (value === "REFERENCED_CALCULATION_METHOD") return 2;
+  return 3;
+}
+
+function normalizeDisplayMethodologyVersion(version: string | null | undefined): string | null {
+  return normalizeDeclaredMethodologyVersion(version) ?? null;
+}
+
+function formatMethodologyDisplay(methodologyId: string, version: string | null | undefined): string {
+  const normalizedVersion = normalizeDisplayMethodologyVersion(version);
+  return normalizedVersion ? `${methodologyId} ${normalizedVersion}` : methodologyId;
+}
+
+function normalizeDisplayMethodologyItem(item: ClassificationDisplayItem): ClassificationDisplayItem {
+  return {
+    ...item,
+    version: normalizeDisplayMethodologyVersion(item.version),
+  };
+}
+
+function preferMethodologyDisplayItem(
+  current: ClassificationDisplayItem,
+  candidate: ClassificationDisplayItem,
+): ClassificationDisplayItem {
+  const currentHasVersion = Boolean(current.version);
+  const candidateHasVersion = Boolean(candidate.version);
+  if (candidateHasVersion !== currentHasVersion) {
+    return candidateHasVersion ? candidate : current;
+  }
+
+  const currentRoleRank = roleRank(current.role);
+  const candidateRoleRank = roleRank(candidate.role);
+  if (candidateRoleRank !== currentRoleRank) {
+    return candidateRoleRank < currentRoleRank ? candidate : current;
+  }
+
+  const currentConfidenceRank = confidenceRank(current.confidence);
+  const candidateConfidenceRank = confidenceRank(candidate.confidence);
+  if (candidateConfidenceRank !== currentConfidenceRank) {
+    return candidateConfidenceRank < currentConfidenceRank ? candidate : current;
+  }
+
+  return current;
+}
+
+function dedupeMethodologyDisplayRows(input: {
+  primaryMethodology?: ClassificationDisplayItem;
+  monitoringMethodology?: ClassificationDisplayItem;
+  referencedMethods?: ClassificationDisplayItem[];
+}): {
+  primaryMethodology?: ClassificationDisplayItem;
+  monitoringMethodology?: ClassificationDisplayItem;
+  referencedMethods?: ClassificationDisplayItem[];
+} {
+  const rows = [
+    input.primaryMethodology,
+    input.monitoringMethodology,
+    ...(input.referencedMethods ?? []),
+  ].filter(Boolean) as ClassificationDisplayItem[];
+
+  if (!rows.length) {
+    return {
+      primaryMethodology: input.primaryMethodology,
+      monitoringMethodology: input.monitoringMethodology,
+      referencedMethods: input.referencedMethods,
+    };
+  }
+
+  const deduped = new Map<string, ClassificationDisplayItem>();
+  for (const row of rows.map(normalizeDisplayMethodologyItem)) {
+    const existing = deduped.get(row.id);
+    deduped.set(row.id, existing ? preferMethodologyDisplayItem(existing, row) : row);
+  }
+
+  const allRows = Array.from(deduped.values()).sort((left, right) =>
+    roleRank(left.role) - roleRank(right.role) ||
+    confidenceRank(left.confidence) - confidenceRank(right.confidence) ||
+    left.id.localeCompare(right.id),
+  );
+
+  const primaryMethodology = allRows.find((row) => row.role === "PRIMARY_PROJECT_METHODOLOGY");
+  const monitoringMethodology = allRows.find((row) =>
+    row.role === "MONITORING_METHODOLOGY" && row.id !== primaryMethodology?.id
+  );
+  const referencedMethods = allRows.filter((row) =>
+    row.role === "REFERENCED_CALCULATION_METHOD" &&
+    row.id !== primaryMethodology?.id &&
+    row.id !== monitoringMethodology?.id
+  );
+
+  return {
+    primaryMethodology,
+    monitoringMethodology,
+    referencedMethods: compactReferencedMethods(referencedMethods),
+  };
+}
 
 export type ExtractionPreviewViewModel = {
   fileName?: string;
@@ -259,7 +364,6 @@ function compactReferencedMethods(referencedMethods: ClassificationDisplayItem[]
     .filter((method) => method.role !== "TOOL_OR_DEPENDENCY" && method.role !== "BACKGROUND_MENTION")
     .filter((method, index, collection) => collection.findIndex((candidate) => candidate.id === method.id && candidate.version === method.version) === index)
     .sort((left, right) => {
-      const confidenceRank = (value: string) => (value === "high" ? 0 : value === "medium" ? 1 : 2);
       return confidenceRank(left.confidence) - confidenceRank(right.confidence) || left.id.localeCompare(right.id);
     })
     .slice(0, 1);
@@ -480,12 +584,6 @@ function buildPreviewSignals(input: {
   return signals;
 }
 
-function normalizeDetectedVersion(rawVersion: string): string {
-  const compact = rawVersion.trim().replace(/\s+/g, "");
-  const normalized = compact.replace(/^version/i, "v").replace(/\./g, "-");
-  return normalized.toLowerCase().startsWith("v") ? normalized.toLowerCase() : `v${normalized.toLowerCase()}`;
-}
-
 function detectMethodologyFromRecoveredText(rawText: string | undefined, mentions: string[]): { label: string; confidence: ExtractionPreviewConfidence } | null {
   const prioritized = prioritizeMethodologyMentions(mentions);
   const methodCode = prioritized.find((mention) => /^(VM\d{4}|ACM\d{4}|AM\d{4}|AR-[A-Z]{2,}\d{4}|AMS-[A-Z0-9.]+|VMR\d{3,4}|GS-VER\d+)$/i.test(mention));
@@ -495,12 +593,12 @@ function detectMethodologyFromRecoveredText(rawText: string | undefined, mention
   const text = rawText ?? "";
   const escapedCode = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace("-", "[-\\s]?");
   const versionMatch =
-    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
-    text.match(new RegExp(`(v\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
+    text.match(new RegExp(`${escapedCode}[\\s\\S]{0,120}?(v\\.?\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})`, "i")) ??
+    text.match(new RegExp(`(v\\.?\\d+(?:[.-]\\d+){0,2}|version\\s*\\d+(?:[.-]\\d+){0,2})[\\s\\S]{0,120}?${escapedCode}`, "i"));
 
-  const version = versionMatch?.[1] ? normalizeDetectedVersion(versionMatch[1]) : null;
+  const version = versionMatch?.[1] ? normalizeDeclaredMethodologyVersion(versionMatch[1]) : null;
   return {
-    label: version ? `${normalizedCode} · ${version}` : normalizedCode,
+    label: formatMethodologyDisplay(normalizedCode, version),
     confidence: version ? "medium" : "low",
   };
 }
@@ -535,7 +633,7 @@ export function buildExtractionPreviewViewModel(input: {
 
   if (input.methodologyResolution?.status === "single") {
     const matched = input.methodologyResolution.matchedMethods[0];
-    detectedMethodology = `${matched.methodologyId} · ${matched.methodologyVersion}`;
+    detectedMethodology = formatMethodologyDisplay(matched.methodologyId, matched.methodologyVersion);
     methodologyConfidence = confidenceBucket(input.analysis.extractionConfidence) === "low" ? "medium" : confidenceBucket(input.analysis.extractionConfidence);
   } else if (input.methodologyResolution?.status === "multiple" || input.methodologyResolution?.status === "unsupported") {
     methodologyConfidence = "low";
@@ -555,7 +653,7 @@ export function buildExtractionPreviewViewModel(input: {
   const primaryMethodology = classification?.primaryMethodology
     ? {
         id: classification.primaryMethodology.id,
-        version: classification.primaryMethodology.version,
+        version: normalizeDisplayMethodologyVersion(classification.primaryMethodology.version),
         role: classification.primaryMethodology.role,
         confidence: classification.primaryMethodology.confidence,
       }
@@ -563,7 +661,7 @@ export function buildExtractionPreviewViewModel(input: {
   const monitoringMethodology = classification?.monitoringMethodology
     ? {
         id: classification.monitoringMethodology.id,
-        version: classification.monitoringMethodology.version,
+        version: normalizeDisplayMethodologyVersion(classification.monitoringMethodology.version),
         role: classification.monitoringMethodology.role,
         confidence: classification.monitoringMethodology.confidence,
       }
@@ -571,11 +669,16 @@ export function buildExtractionPreviewViewModel(input: {
   const referencedMethods = classification?.referencedMethods?.length
     ? classification.referencedMethods.map((m) => ({
         id: m.id,
-        version: m.version,
+        version: normalizeDisplayMethodologyVersion(m.version),
         role: m.role,
         confidence: m.confidence,
       }))
     : undefined;
+  const dedupedMethodologies = dedupeMethodologyDisplayRows({
+    primaryMethodology,
+    monitoringMethodology,
+    referencedMethods,
+  });
 
   return {
     fileName: input.fileName?.trim() || undefined,
@@ -584,9 +687,9 @@ export function buildExtractionPreviewViewModel(input: {
     detectedDocumentEvidence: compactDocumentEvidence(documentClassification.evidence),
     detectedMethodology,
     methodologyConfidence,
-    primaryMethodology,
-    monitoringMethodology,
-    referencedMethods: compactReferencedMethods(referencedMethods),
+    primaryMethodology: dedupedMethodologies.primaryMethodology,
+    monitoringMethodology: dedupedMethodologies.monitoringMethodology,
+    referencedMethods: dedupedMethodologies.referencedMethods,
     warning,
     signalsTitle: recoveredLocally ? "Recovered signals" : "What the file appears to contain",
     signalSummary:

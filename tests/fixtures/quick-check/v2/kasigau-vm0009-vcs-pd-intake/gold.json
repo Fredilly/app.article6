@@ -6,7 +6,10 @@
     "goldQuote": "The Kasigau Corridor REDD Project - Phase II is located in south-eastern Kenya, in the Marungu Sub location, Voi Division, Taita Taveta District, Coast Province, Kenya, approximately 150 kms northwest of Mombasa.",
     "page": 4,
     "sectionHeading": "Project location including geographic and physical",
-    "sectionPath": ["1", "1.5"],
+    "sectionPath": [
+      "1",
+      "1.5"
+    ],
     "spanId": "kasigau-proj-desc-612:p4:b63:e830bbe7",
     "sourceType": "fact_contract"
   },
@@ -14,19 +17,25 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests",
+    "goldQuote": "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.",
+    "page": 9,
+    "sectionHeading": "Title and reference of the VCS methodology applied to the",
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
+    "spanId": "kasigau-proj-desc-612:p9:b303:43760b00",
+    "sourceType": "fact_contract",
     "expectedMethodology": {
       "methodologyId": "VM0009",
       "methodologyName": "Methodology for Avoided Mosaic Deforestation of Tropical Forests",
       "methodologyAlias": "",
       "pddDeclaredMethodologyVersion": null,
-      "versionStatus": "NOT_EXPLICITLY_DECLARED"
-    },
-    "goldQuote": "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011.",
-    "page": 9,
-    "sectionHeading": "Title and reference of the VCS methodology applied to the",
-    "sectionPath": ["2", "2.1"],
-    "spanId": "kasigau-proj-desc-612:p9:b303:43760b00",
-    "sourceType": "fact_contract"
+      "versionStatus": "NOT_EXPLICITLY_DECLARED",
+      "evidencePage": 9,
+      "evidenceSection": "Title and reference of the VCS methodology applied to the",
+      "evidenceQuote": "This project has used the VM0009 Methodology for Avoided Mosaic Deforestation of Tropical Forests, approved by the VCS for sectoral scope 14 on January 11th, 2011."
+    }
   },
   {
     "checkName": "baseline_scenario",
@@ -35,7 +44,10 @@
     "goldQuote": "It was not difficult to identify the baseline scenario for this project: rapid deforestation due to unplanned slash and burn agricultural expansion by subsistence farmers. All the conditions for the project baseline were in place before the arrival of the project developer, Wildlife Works, and in fact even the project area itself was beginning to be cleared before project implementation. There is little need for speculation as to what would occur in the absence of the project if it ceased protection and the provision of alternative livelihoods for the community. The mosaic pattern of deforestation would continue where it left off, but most likely accelerated by a much larger population base than was present upon our arrival.",
     "page": 4,
     "sectionHeading": "Conditions prior to project initiation:",
-    "sectionPath": ["1", "1.7"],
+    "sectionPath": [
+      "1",
+      "1.7"
+    ],
     "spanId": "kasigau-proj-desc-612:p4:b82:471a61da",
     "sourceType": "raw_text_fallback"
   },
@@ -46,7 +58,10 @@
     "goldQuote": "The project is shown to be clearly additional (under the project financial additionality tool) and the baseline, far hypothetical, is an intelligent extrapolation of empirically measured deforestation that was occurring aggressively in the reference region immediately adjacent to the project area at the time Wildlife Works arrived in the area. This has been demonstrated clearly from historic satellite imagery analysis and the fitting of a logistical Cumulative Deforestation Model (CDM) which accounts for resource constraints typical in mosaic deforestation locales.",
     "page": 3,
     "sectionHeading": "A brief description of the project:",
-    "sectionPath": ["1", "1.4"],
+    "sectionPath": [
+      "1",
+      "1.4"
+    ],
     "spanId": "kasigau-proj-desc-612:p3:b48:a2246e8e",
     "sourceType": "raw_text_fallback"
   },
@@ -68,7 +83,9 @@
     "goldQuote": "Stakeholder comments were solicited via a public comment period on the internet, and by postings on local area notice boards. Copies of the public comments received were provided to the validator.",
     "page": 10,
     "sectionHeading": "Stakeholders comments:",
-    "sectionPath": ["6"],
+    "sectionPath": [
+      "6"
+    ],
     "spanId": "kasigau-proj-desc-612:p10:b366:59d2b54a",
     "sourceType": "exact_section"
   }

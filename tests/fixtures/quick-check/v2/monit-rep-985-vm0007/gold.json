@@ -18,13 +18,6 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0007: REDD Methodology Modules Version 1.3",
-    "expectedMethodology": {
-      "methodologyId": "VM0007",
-      "methodologyName": "REDD Methodology Modules",
-      "methodologyAlias": "",
-      "pddDeclaredMethodologyVersion": "v1.3",
-      "versionStatus": "DECLARED"
-    },
     "goldQuote": "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012.",
     "page": 15,
     "sectionHeading": "Title and Reference of Methodology",
@@ -34,7 +27,17 @@
       "2.1.8"
     ],
     "spanId": "monit-rep-985:p15:b788:ece2fffe",
-    "sourceType": "fact_contract"
+    "sourceType": "fact_contract",
+    "expectedMethodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD Methodology Modules",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": "v1.3",
+      "versionStatus": "DECLARED",
+      "evidencePage": 15,
+      "evidenceSection": "Title and Reference of Methodology",
+      "evidenceQuote": "The methodology used to quantify the avoided emissions is the framework and component modules of the modular REDD methodology VM0007 REDD Methodology Modules Version 1.3 approved 20 November 2012."
+    }
   },
   {
     "checkName": "baseline_scenario",

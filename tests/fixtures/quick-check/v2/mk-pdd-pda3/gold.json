@@ -6,7 +6,12 @@
     "goldQuote": "Brazil",
     "page": 3,
     "sectionHeading": "Host Party(ies):",
-    "sectionPath": ["A", "A.4", "A.4.1", "A.4.1.1"],
+    "sectionPath": [
+      "A",
+      "A.4",
+      "A.4.1",
+      "A.4.1.1"
+    ],
     "spanId": "mk-pdd-pda3:p3:b74:e3cfac7b",
     "sourceType": "fact_contract"
   },
@@ -14,19 +19,25 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "AMS-II.E: Energy efficiency and fuel switching measures for buildings",
+    "goldQuote": "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).",
+    "page": 7,
+    "sectionHeading": "Title and reference of the approved baseline methodology applied to the small-scale project",
+    "sectionPath": [
+      "B",
+      "B.1"
+    ],
+    "spanId": "mk-pdd-pda3:p7:b206:abc73bd9",
+    "sourceType": "fact_contract",
     "expectedMethodology": {
       "methodologyId": "AMS-II.E",
       "methodologyName": "Energy efficiency and fuel switching measures for buildings",
       "methodologyAlias": "",
-      "pddDeclaredMethodologyVersion": "v8",
-      "versionStatus": "DECLARED"
-    },
-    "goldQuote": "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8).",
-    "page": 7,
-    "sectionHeading": "Title and reference of the approved baseline methodology applied to the small-scale project",
-    "sectionPath": ["B", "B.1"],
-    "spanId": "mk-pdd-pda3:p7:b206:abc73bd9",
-    "sourceType": "fact_contract"
+      "pddDeclaredMethodologyVersion": "v8.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 7,
+      "evidenceSection": "Title and reference of the approved baseline methodology applied to the small-scale project",
+      "evidenceQuote": "“AMS-II.E – Energy efficiency and fuel switching measures for buildings” (version 8)."
+    }
   },
   {
     "checkName": "baseline_scenario",
@@ -35,7 +46,10 @@
     "goldQuote": "The baseline is defined independently for each component project activity (each store) as the electricity consumption in the year previous to project implementation.",
     "page": 15,
     "sectionHeading": "Details of the baseline and its development:",
-    "sectionPath": ["B", "B.5"],
+    "sectionPath": [
+      "B",
+      "B.5"
+    ],
     "spanId": "mk-pdd-pda3:p15:b542:ca467f66",
     "sourceType": "exact_section"
   },
@@ -46,7 +60,10 @@
     "goldQuote": "As showed above, the project activity faced several barriers to happen, while the alternative to the project activity was not prevented by them. Since the beginning of the project implementation, CDM incentives have been considered because they will alleviate the identified barriers, in the following manner:",
     "page": 12,
     "sectionHeading": "Description of how the anthropogenic emissions of GHG by sources are reduced below those",
-    "sectionPath": ["B", "B.3"],
+    "sectionPath": [
+      "B",
+      "B.3"
+    ],
     "spanId": "mk-pdd-pda3:p12:b411:1503de05",
     "sourceType": "exact_section"
   },
@@ -57,7 +74,12 @@
     "goldQuote": "There is no leakage to be considered. Hence, LE = 0",
     "page": 21,
     "sectionHeading": "Describe the formulae used to estimate leakage due to the project activity, where required,",
-    "sectionPath": ["E", "E.1", "E.1.2", "E.1.2.2"],
+    "sectionPath": [
+      "E",
+      "E.1",
+      "E.1.2",
+      "E.1.2.2"
+    ],
     "spanId": "mk-pdd-pda3:p21:b778:f63d48b2",
     "sourceType": "exact_section"
   },
@@ -68,7 +90,10 @@
     "goldQuote": "So far, no comments have been received from local stakeholders.",
     "page": 25,
     "sectionHeading": "Summary of the comments received:",
-    "sectionPath": ["G", "G.2"],
+    "sectionPath": [
+      "G",
+      "G.2"
+    ],
     "spanId": "mk-pdd-pda3:p25:b888:e80d74bf",
     "sourceType": "exact_section"
   }
