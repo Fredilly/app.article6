@@ -1,0 +1,10 @@
+{
+  "id": "maya-forest-corridor-redd-belize",
+  "title": "Maya Forest Corridor REDD Belize",
+  "documentId": "maya-forest-corridor-redd-belize-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "fixture_intake",
+  "registry": "VCS",
+  "documentType": "Project Description / PD"
+}
