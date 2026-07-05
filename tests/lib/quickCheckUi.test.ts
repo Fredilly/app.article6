@@ -1,12 +1,86 @@
 import fs from "fs";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
+import { extractMethodologyMentions } from "@/lib/chat/quickCheckEvidence";
 import {
   buildExtractionPreviewViewModel,
   buildQuickCheckExtractionSnapshot,
   deriveQuickCheckExtractionState,
   normalizeQuickCheckUiResult,
 } from "@/lib/chat/quickCheckUi";
+
+type QuickCheckFixtureManifest = {
+  version: number;
+  fixtures: Array<{
+    id: string;
+    directory: string;
+  }>;
+};
+
+function collectDisplayedMethodVersions(view: ReturnType<typeof buildExtractionPreviewViewModel>): Array<string | null> {
+  return [
+    view.primaryMethodology?.version ?? null,
+    view.monitoringMethodology?.version ?? null,
+    ...(view.referencedMethods?.map((method) => method.version ?? null) ?? []),
+  ];
+}
+
+function collectDisplayedMethodIds(view: ReturnType<typeof buildExtractionPreviewViewModel>): string[] {
+  return [
+    view.primaryMethodology?.id,
+    view.monitoringMethodology?.id,
+    ...(view.referencedMethods?.map((method) => method.id) ?? []),
+  ].filter((value): value is string => Boolean(value));
+}
+
+function loadQuickCheckV2FixtureViews(): Array<{
+  id: string;
+  view: ReturnType<typeof buildExtractionPreviewViewModel>;
+}> {
+  const root = path.join(process.cwd(), "tests/fixtures/quick-check/v2");
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(root, "manifest.json"), "utf8"),
+  ) as QuickCheckFixtureManifest;
+
+  return manifest.fixtures.map((fixture) => {
+    const rawPddText = fs.readFileSync(
+      path.join(root, fixture.directory, "extracted.txt"),
+      "utf8",
+    );
+    const methodologyMentions = extractMethodologyMentions(rawPddText);
+    const analysis = {
+      facts: [],
+      parsedEvidenceLabels: [`${fixture.id}.pdf`],
+      documentTypes: ["Document"],
+      methodologyMentions,
+      extractionConfidence: 0.8,
+      warnings: [],
+      rawPddText,
+    };
+    const extractionSnapshot = buildQuickCheckExtractionSnapshot({
+      claimText: "Methodology extraction preview invariant",
+      analysis,
+    });
+
+    return {
+      id: fixture.id,
+      view: buildExtractionPreviewViewModel({
+        fileName: `${fixture.id}.pdf`,
+        analysis,
+        extractionSnapshot,
+        methodologyResolution: {
+          status: "none",
+          rawMentions: methodologyMentions,
+          programSignals: [],
+          signals: [],
+          matchedMethods: [],
+          unsupportedCanonicalKeys: [],
+          primaryMethodology: null,
+        },
+      }),
+    };
+  });
+}
 
 describe("quick check ui helpers", () => {
   it("builds a claim-relevant extraction snapshot", () => {
@@ -164,7 +238,7 @@ describe("quick check ui helpers", () => {
     expect(view.detectedDocumentConfidence).toBeTruthy();
     expect(view.detectedDocumentEvidence?.length).toBeGreaterThan(0);
     expect(view.detectedDocumentEvidence?.length).toBeLessThanOrEqual(3);
-    expect(view.detectedMethodology).toBe("AR-ACM0003 · v02-0");
+    expect(view.detectedMethodology).toBe("AR-ACM0003 v02.0");
     expect(view.methodologyConfidence).toBe("high");
     expect(view.warning).toBeUndefined();
     expect(view.signalsTitle).toBe("What the file appears to contain");
@@ -315,7 +389,118 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.primaryMethodology?.version).toBe("v1.8");
-    expect(view.detectedMethodology).not.toContain("· 1.8");
+    expect(view.detectedMethodology).not.toContain(" · v");
+  });
+
+  it("merges duplicate methodology ids across primary, monitoring, and referenced rows", () => {
+    const view = buildExtractionPreviewViewModel({
+      fileName: "duplicate-methods.pdf",
+      analysis: {
+        facts: [],
+        parsedEvidenceLabels: ["duplicate-methods.pdf"],
+        documentTypes: ["Document"],
+        methodologyMentions: ["VM0007", "AMS-II.E"],
+        extractionConfidence: 0.8,
+        warnings: [],
+        rawPddText: "VM0007 Version 1.8 and AMS-II.E version 8",
+      },
+      extractionSnapshot: {
+        documentType: "Document",
+        extractedFacts: [],
+        methodologyMentions: ["VM0007", "AMS-II.E"],
+        methodologyClassification: {
+          primaryMethodology: {
+            id: "VM0007",
+            version: "1.8",
+            role: "PRIMARY_PROJECT_METHODOLOGY",
+            confidence: "high",
+          },
+          monitoringMethodology: {
+            id: "VM0007",
+            version: null,
+            role: "MONITORING_METHODOLOGY",
+            confidence: "medium",
+          },
+          referencedMethods: [
+            {
+              id: "VM0007",
+              version: "version 1.8",
+              role: "REFERENCED_CALCULATION_METHOD",
+              confidence: "high",
+            },
+            {
+              id: "AMS-II.E",
+              version: "8",
+              role: "REFERENCED_CALCULATION_METHOD",
+              confidence: "high",
+            },
+            {
+              id: "AMS-II.E",
+              version: null,
+              role: "REFERENCED_CALCULATION_METHOD",
+              confidence: "medium",
+            },
+          ],
+        },
+        warnings: [],
+        signals: {
+          parsedEvidenceCount: 1,
+          factCount: 0,
+          relevantFactCount: 0,
+          methodologyMentionCount: 2,
+          warningCount: 0,
+        },
+        extractionConfidence: 0.8,
+        recoveredLocally: false,
+      },
+      methodologyResolution: {
+        status: "none",
+        rawMentions: ["VM0007", "AMS-II.E"],
+        programSignals: [],
+        signals: [],
+        matchedMethods: [],
+        unsupportedCanonicalKeys: [],
+        primaryMethodology: null,
+      },
+    });
+
+    expect(view.primaryMethodology).toEqual({
+      id: "VM0007",
+      version: "v1.8",
+      role: "PRIMARY_PROJECT_METHODOLOGY",
+      confidence: "high",
+    });
+    expect(view.monitoringMethodology).toBeUndefined();
+    expect(view.referencedMethods).toEqual([
+      {
+        id: "AMS-II.E",
+        version: "v8",
+        role: "REFERENCED_CALCULATION_METHOD",
+        confidence: "high",
+      },
+    ]);
+  });
+
+  it("keeps displayed methodology versions canonical and deduped across fixture-backed previews", () => {
+    for (const fixture of loadQuickCheckV2FixtureViews()) {
+      const versions = collectDisplayedMethodVersions(fixture.view);
+      for (const version of versions) {
+        expect(version === null || /^v\d+(?:\.\d+)*$/.test(version)).toBe(true);
+      }
+
+      expect(fixture.view.detectedMethodology ?? "").not.toContain(" · v");
+
+      const displayedIds = collectDisplayedMethodIds(fixture.view);
+      expect(new Set(displayedIds).size).toBe(displayedIds.length);
+
+      const primaryOrMonitoringIds = new Set(
+        [fixture.view.primaryMethodology?.id, fixture.view.monitoringMethodology?.id]
+          .filter((value): value is string => Boolean(value)),
+      );
+      for (const referencedMethod of fixture.view.referencedMethods ?? []) {
+        expect(primaryOrMonitoringIds.has(referencedMethod.id)).toBe(false);
+      }
+    }
   });
 
   it("uses recovered-signals language and suppresses generic fallback chips", () => {
@@ -521,7 +706,7 @@ describe("quick check ui helpers", () => {
     });
 
     expect(view.detectedDocumentType).toBe("Project Description / PD");
-    expect(view.detectedMethodology).toBe("VM0004 · v1.0");
+    expect(view.detectedMethodology).toBe("VM0004 v1.0");
     expect(view.warning).toBe(
       "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.",
     );
