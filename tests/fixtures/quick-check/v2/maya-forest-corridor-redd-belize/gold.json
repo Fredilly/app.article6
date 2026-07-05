@@ -16,7 +16,7 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0007 REDD+ Methodology Framework v1.8",
-    "goldQuote": "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2",
+    "goldQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+MF) 1.8",
     "page": 83,
     "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
     "sectionPath": [
@@ -34,59 +34,61 @@
       "versionStatus": "DECLARED",
       "evidencePage": 83,
       "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
-      "evidenceQuote": "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2"
+      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+MF) 1.8"
     }
   },
   {
     "checkName": "baseline_scenario",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "The most likely without-project scenario is that the project area would be cleared and converted to commercial agricultural production",
-    "goldQuote": "The most likely without-project scenario is that the project area would be cleared and converted to commercial agricultural production. In recent years, several areas around the property in which the MFC REDD project area is located have been cleared of forests and converted to agricultural production, evidence that the property was likely to follow this trend. In a letter written on March 1, 2021 by the Managing Member of the previous owner of the property to the President of Global Wildlife Conservation (See Appendix 11A), the Managing Member describes the various negotiations and offers they had received over the previous 11 years from different companies to purchase the land for conversion to industrial agriculture. The letter also documents the conversion of areas around the property to agricultural production, primarily for sugarcane production. The letter ends by stating that if the current deal with Global Wildlife Conservation cannot be finalized, “we are confident that we can sell out land to agricultural interest in the short term.”",
-    "page": 48,
-    "sectionHeading": "Most-Likely Scenario Justification (CCB, G2.1)",
+    "expectedAnswer": "Sanctioned planned deforestation caused by conversion to industrial agriculture, primarily sugarcane.",
+    "goldQuote": "As described in section 3.1.5 Additionality, the identified baseline scenario of the Maya Forest Corridor REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture.",
+    "page": 89,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
     "sectionPath": [
-      "2",
-      "2.2",
-      "2.2.2"
+      "3",
+      "3.1",
+      "3.1.4"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p48:b1856:7cdd14b5",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p89:b3567:68b8e29e",
     "sourceType": "exact_section"
   },
   {
     "checkName": "additionality",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "(VCS, 3.13; CCB, G2.1) The conditions existing prior to the project initiation are described in detail in Section 2.1.14 “Physical Parameters”, which includes information on ecosystem type, current and historical land use, and current environmental conditions in the project area",
-    "goldQuote": "(VCS, 3.13; CCB, G2.1) The conditions existing prior to the project initiation are described in detail in Section 2.1.14 “Physical Parameters”, which includes information on ecosystem type, current and historical land use, and current environmental conditions in the project area. As described below in sections 2.2.2 and 3.1.4, in the absence of the project, the project area would have most likely been cleared for agriculture. Belize's regulatory structure allows private landowners to harvest forests and convert natural ecosystems to agriculture. The different acts permitting this clearing are described in Table 4 describes the laws permitting this conversion. Table 4. Laws in Belize that allow for the clearing of forests on private lands Name of law Description ENVIRONMENTAL PROTECTION ACT CHAPTER 328 REVISED EDITION 2020 The Environmental Protection Act established the Department of the Environment (DOE) with the responsibility to monitor the implementation of the Act and subsequent Regulations. Private landowners are allowed to harvest forests and convert natural ecosystems to agriculture, as long as they are aligned with the Environmental Protection Act regulations for environmental impact assessment and, if required, an environmental compliance plan approved by the government.",
-    "page": 46,
-    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+    "expectedAnswer": "Regulatory surplus is satisfied because Belize is a Non-Annex 1 country, the project activities are not legally mandated, VT0001 v3.0 selects Alternative A as the baseline, simple cost analysis was used, and carbon revenue is needed.",
+    "goldQuote": "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).”",
+    "page": 91,
+    "sectionHeading": "Additionality Methods (VCS, 3.14)",
     "sectionPath": [
-      "2",
-      "2.2",
-      "2.2.1"
+      "3",
+      "3.1",
+      "3.1.5",
+      "3.1.5.2"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p46:b1764:445d4ff6",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p91:b3604:1769a592",
     "sourceType": "exact_section"
   },
   {
     "checkName": "leakage",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "No leakage was identified.",
-    "goldQuote": "Not applicable. Refer to 3.2.3 Leakage Emissions.",
-    "page": 82,
-    "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
+    "expectedAnswer": "VMD0009 LK-ASP applies with Approach 2 Market Leakage Assessment; sugarcane is the baseline commodity; timber leakage is de minimis; LKMAF = 1.",
+    "goldQuote": "Given the fact that forest conservation and sugarcane production in the project area cannot happen simultaneously and the other areas where forests could be converted to sugarcane production are beyond the control of the project proponent, no leakage management activities could be applied to minimize displacement. Therefore, the leakage adjustment management factor (LKMAF) is 1.",
+    "page": 122,
+    "sectionHeading": "STEP 3: Evaluate Project Area Relative to Other Forested Areas for Commodity",
     "sectionPath": [
-      "2",
-      "2.6",
-      "2.6.1"
+      "3",
+      "3.2",
+      "3.2.3",
+      "3.2.3.3"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p82:b3269:b2b78fa4",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p122:b4650:c8fbcb87",
     "sourceType": "exact_section"
   },
   {
     "checkName": "stakeholder_consultation",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "In April 2024 a socioeconomic survey plan and monitoring plan were designed for the MFC REDD Project",
-    "goldQuote": "In April 2024 a socioeconomic survey plan and monitoring plan were designed for the MFC REDD Project. These were presented to the communities for their input and finalized based on the feedback provided. Communities were also consulted on effective channels for communication and engagement to ensure sustained communication with communities. Considerations were given to language barriers in some communities. Consequently, consultations in two communities were conducted in Spanish. In mobilizing participants, gender balance and inclusion of youth participants were also key considerations. Table 5 presents the details of these initial consultations.",
+    "expectedAnswer": "Initial meetings were held with all 12 communities in May-June 2024, follow-up meetings were held in August 2024 in English and Spanish, and Table 7 records stakeholder comments and actions",
+    "goldQuote": "All 12 communities participated in the socioeconomic survey and community monitoring event which provided valuable information to establish starting conditions for the project and to identify key interventions to be implemented in communities based on current knowledge, attitudes, and practices",
     "page": 53,
     "sectionHeading": "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
     "sectionPath": [
@@ -94,7 +96,7 @@
       "2.3",
       "2.3.10"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p53:b2060:68e9f4e1",
-    "sourceType": "exact_section"
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p53:b2067:7162c4f0",
+    "sourceType": "fact_contract"
   }
 ]

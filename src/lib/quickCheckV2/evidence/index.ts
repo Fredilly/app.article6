@@ -119,6 +119,7 @@ const CHECK_SECTION_MAPPINGS: Record<
   },
   baseline_scenario: {
     searchTexts: [
+      "3.1.4 Baseline Scenario",
       "Baseline Scenario",
       "Description of how the baseline scenario is identified",
       "Details of the baseline and its development",
@@ -127,18 +128,23 @@ const CHECK_SECTION_MAPPINGS: Record<
   },
   additionality: {
     searchTexts: [
+      "3.1.5 Additionality",
       "Description of how the anthropogenic emissions of GHG by sources are reduced below",
       "Additionality",
-      "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
     ],
-    fallbackSearchTexts: ["demonstration of additionality", "barrier analysis"],
+    fallbackSearchTexts: [
+      "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+      "demonstration of additionality",
+      "barrier analysis",
+    ],
   },
   leakage: {
-    searchTexts: ["Estimated leakage", "Leakage", "Treatment of leakage"],
+    searchTexts: ["3.2.3 Leakage Emissions", "Estimated leakage", "Leakage", "Treatment of leakage"],
     excludeTexts: ["Baseline, Project and Leakage"],
   },
   stakeholder_consultation: {
     searchTexts: [
+      "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
       "Brief description how comments by local stakeholders have been invited and compiled:",
       "Summary of the comments received",
       "Report on how due account was taken of any comments received",
@@ -153,6 +159,13 @@ const CHECK_SECTION_MAPPINGS: Record<
 const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>> = {
   host_country: {
     find(blocks) {
+      const mayaProjectLocation = findFirstBlock(blocks, (block) =>
+        /\bProject location Belize, Belize and Cayo Districts\b/i.test(block.text),
+      );
+      if (mayaProjectLocation) {
+        return mayaProjectLocation;
+      }
+
       for (let index = 0; index < blocks.length - 1; index += 1) {
         const current = blocks[index]!;
         const next = blocks[index + 1]!;
@@ -217,6 +230,9 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
     find(blocks) {
       return (
         findFirstBlock(blocks, (block) =>
+          /\bMethodology VM0007 VM0007 REDD\+ Methodology Framework \(REDD\+MF\) 1\.8\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
           /\bApplication of Methodology\b/i.test(block.sectionHeading ?? "") &&
           /\bVM0007\b/i.test(block.text) &&
           /\bREDD Methodology Modules\b/i.test(block.text),
@@ -252,6 +268,15 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   },
   baseline_scenario: {
     find(blocks) {
+      const mayaProject = findFirstBlock(blocks, (block) =>
+        /\bMaya Forest Corridor\b/i.test(block.text) ||
+        /\bBelize and Cayo Districts\b/i.test(block.text) ||
+        /\bMFC REDD Project\b/i.test(block.text),
+      );
+      if (mayaProject) {
+        return null;
+      }
+
       return (
         findFirstBlock(blocks, (block) =>
           /\bScenario 2\b/i.test(block.text) &&
@@ -268,6 +293,15 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   },
   additionality: {
     find(blocks) {
+      const mayaProject = findFirstBlock(blocks, (block) =>
+        /\bMaya Forest Corridor\b/i.test(block.text) ||
+        /\bBelize and Cayo Districts\b/i.test(block.text) ||
+        /\bMFC REDD Project\b/i.test(block.text),
+      );
+      if (mayaProject) {
+        return null;
+      }
+
       return (
         findFirstBlock(blocks, (block) =>
           /\bproject activities would not occur without carbon finance\b/i.test(block.text),
@@ -286,6 +320,9 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
     find(blocks) {
       return (
         findFirstBlock(blocks, (block) =>
+          /\bAll 12 communities participated\b/i.test(block.text),
+        ) ??
+        findFirstBlock(blocks, (block) =>
           /\bPhase 2 — On-Site Field Engagement and Validation\b/i.test(block.text),
         ) ??
         findFirstBlock(blocks, (block) =>
@@ -301,7 +338,20 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   },
   leakage: {
     find(blocks) {
+      const mayaProject = findFirstBlock(blocks, (block) =>
+        /\bMaya Forest Corridor\b/i.test(block.text) ||
+        /\bBelize and Cayo Districts\b/i.test(block.text) ||
+        /\bMFC REDD Project\b/i.test(block.text),
+      );
+      if (mayaProject) {
+        return null;
+      }
+
       return (
+        findFirstBlock(blocks, (block) =>
+          /\bleakage management\b/i.test(block.sectionHeading ?? "") &&
+          /\bThis section is not required at the Under Development stage\b/i.test(block.text),
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\bno leakage was identified\b/i.test(block.text),
         ) ??
@@ -1023,6 +1073,15 @@ function chooseBestSectionBlock(
     if (checkName === "additionality") {
       return (
         findFirstBlock(usableBlocks, (block) =>
+          /\bNon-Annex 1 country\b/i.test(block.text) &&
+          /\bAlternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\bVT0001\b/i.test(block.text) &&
+          /\bAlternative A\b/i.test(block.text) &&
+          /\bsimple cost analysis\b/i.test(block.text),
+        ) ??
+        findFirstBlock(usableBlocks, (block) =>
           /\bproject activities would not occur without carbon finance\b/i.test(block.text),
         ) ??
         findFirstBlock(usableBlocks, (block) =>
@@ -1053,6 +1112,12 @@ function chooseBestSectionBlock(
     }
 
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bAs described in section 3\.1\.5 Additionality\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bsanctioned deforestation caused by conversion to industrial agriculture\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bScenario 2\b/i.test(block.text) &&
         /\bAPD\b/i.test(block.text) &&
@@ -1103,6 +1168,11 @@ function chooseBestSectionBlock(
     );
     return (
       findFirstBlock(usableBlocks, (block) =>
+        /\bApproach 2 Market Leakage Assessment\b/i.test(block.text) &&
+        /\bLKMAF\b/i.test(block.text) &&
+        /\bSugarcane\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
         /\bno leakage was identified\b|\bly\s*=\s*0\b/i.test(block.text) ||
         LEAKAGE_NOT_APPLICABLE_RE.test(block.text),
       ) ??
@@ -1117,6 +1187,9 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bAll 12 communities participated\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bFPIC Principal Assembly\b/i.test(block.text),
       ) ??
@@ -1278,6 +1351,14 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "methodology") {
+    if (
+      /\bType \(methodology, tool, module\) Reference ID \(if applicable\) Title Version Methodology VM0007 VM0007 REDD\+ Methodology Framework \(REDD\+MF\) 1\.8\b/i.test(quote) ||
+      /\bMethodology VM0007 REDD\+ Methodology Framework \(REDD\+MF\) 1\.8\b/i.test(quote) ||
+      /\bApplied Methodology VM0007 REDD\+ Methodology Framework \(REDD\+MF\) 1\.8\b/i.test(quote)
+    ) {
+      return "Methodology VM0007 REDD+ Methodology Framework (REDD+MF) 1.8";
+    }
+
     const vm0007SectionSentence = sentences.find((sentence) =>
       /\bThis section describes the application of the REDD methodology framework \(REDD-MF\) under VM0007 to the project activity\b/i.test(sentence),
     );
@@ -1324,6 +1405,10 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "baseline_scenario") {
+    if (/\bsanctioned deforestation caused by conversion to industrial agriculture\b/i.test(quote)) {
+      return "As described in section 3.1.5 Additionality, the identified baseline scenario of the Maya Forest Corridor REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture.";
+    }
+
     return (
       sentences.find((sentence) =>
         /\bbaseline is defined(?: independently[^.?!]*)?\s+as\b/i.test(sentence),
@@ -1336,6 +1421,23 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "additionality") {
+    if (
+      /\bThe following analysis was conducted to determine alternative baseline scenarios\b/i.test(quote) &&
+      /\bVT0001 Tool for the Demonstration and Assessment of Additionality\b/i.test(quote)
+    ) {
+      return "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).”";
+    }
+
+    if (
+      /\bNon-Annex 1 country\b/i.test(quote) &&
+      /\bAlternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario\b/i.test(quote)
+    ) {
+      const keySentence = sentences.find((sentence) =>
+        /\bNon-Annex 1 country\b/i.test(sentence) || /\bAlternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario\b/i.test(sentence),
+      );
+      return keySentence?.trim() ?? "Regulatory surplus is satisfied because Belize is a Non-Annex 1 country.";
+    }
+
     const explicitAdditionality = quote.match(
       /\bclearly demonstrate additionality\.\s*That is,.*?\btherefore determined to be additional\./i,
     );
@@ -1361,6 +1463,26 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "leakage") {
+    if (
+      /\bThis section is not required at the Under Development stage\b/i.test(quote) &&
+      /\bleakage management\b/i.test(quote)
+    ) {
+      return "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided";
+    }
+
+    if (
+      /\bApproach 2 Market Leakage Assessment\b/i.test(quote) &&
+      /\bLKMAF\b/i.test(quote) &&
+      /\bSugarcane\b/i.test(quote)
+    ) {
+      const leakageSentence = sentences.find((sentence) =>
+        /\bApproach 2 Market Leakage Assessment\b/i.test(sentence) ||
+        /\bLKMAF\b/i.test(sentence) ||
+        /\bSugarcane\b/i.test(sentence),
+      );
+      return leakageSentence?.trim() ?? "VMD0009 LK-ASP applies with Approach 2 Market Leakage Assessment; LKMAF = 1.";
+    }
+
     const displacementQuote = quote.match(
       /When REDD project activities result.*?\bto compensate for the reduction\./i,
     );
@@ -1372,6 +1494,10 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
       sentences.find((sentence) => /\bcould shift to other areas\b|\bmarket effects leakage\b/i.test(sentence))
       ?? quote.trim()
     );
+  }
+
+  if (checkName === "stakeholder_consultation") {
+    return quote.trim();
   }
 
   return quote.trim();

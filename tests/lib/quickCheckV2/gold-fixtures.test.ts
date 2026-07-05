@@ -182,7 +182,9 @@ function buildComparableMethodology(
     methodology.pddDeclaredMethodologyVersion
     ?? extractDeclaredMethodologyVersionFromDocument(document, methodology.methodologyId);
   const methodologyAlias = normalizeMethodologyAlias(
-    answerMethodology?.methodologyAlias ?? evidenceMethodology?.methodologyAlias ?? methodology.methodologyAlias,
+    answerMethodology?.methodologyAlias?.trim()
+      || evidenceMethodology?.methodologyAlias?.trim()
+      || methodology.methodologyAlias,
   );
 
   if (result.answer) {

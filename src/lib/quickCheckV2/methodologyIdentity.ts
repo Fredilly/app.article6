@@ -67,7 +67,9 @@ function extractVersionFromQuote(quote: string): string | null {
 }
 
 function extractAlias(body: string): string {
-  const aliasMatch = normalizeDashCharacters(body).match(/\(([^)]+)\)\s*$/);
+  const aliasMatch = normalizeDashCharacters(body).match(
+    /\(([^)]+)\)(?:\s+(?:(?:version|ver\.?|v\.?)\s*)?\d+(?:[.-]\d+)*|\s+\d+(?:[.-]\d+)*)?\s*$/i,
+  );
   if (!aliasMatch?.[1]) return "";
   const alias = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(aliasMatch[1])));
   return alias || "";
