@@ -16,7 +16,7 @@
     "checkName": "methodology",
     "expectedStatus": "FOUND",
     "expectedAnswer": "VM0007 REDD+ Methodology Framework v1.8",
-    "goldQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+MF) 1.8",
+    "goldQuote": "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8",
     "page": 83,
     "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
     "sectionPath": [
@@ -34,14 +34,14 @@
       "versionStatus": "DECLARED",
       "evidencePage": 83,
       "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
-      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+MF) 1.8"
+      "evidenceQuote": "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8"
     }
   },
   {
     "checkName": "baseline_scenario",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Sanctioned planned deforestation caused by conversion to industrial agriculture, primarily sugarcane.",
-    "goldQuote": "As described in section 3.1.5 Additionality, the identified baseline scenario of the Maya Forest Corridor REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture.",
+    "expectedAnswer": "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture",
+    "goldQuote": "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture.",
     "page": 89,
     "sectionHeading": "Baseline Scenario (VCS, 3.13)",
     "sectionPath": [
@@ -49,14 +49,14 @@
       "3.1",
       "3.1.4"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p89:b3567:68b8e29e",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p89:b3568:bc966054",
     "sourceType": "exact_section"
   },
   {
     "checkName": "additionality",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Regulatory surplus is satisfied because Belize is a Non-Annex 1 country, the project activities are not legally mandated, VT0001 v3.0 selects Alternative A as the baseline, simple cost analysis was used, and carbon revenue is needed.",
-    "goldQuote": "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).”",
+    "expectedAnswer": "VT0001 v3.0 shows the project is not legally mandated because all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.",
+    "goldQuote": "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).” Because the project is private property, all alternatives presented in 1a are legal under Belizean law. Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs.",
     "page": 91,
     "sectionHeading": "Additionality Methods (VCS, 3.14)",
     "sectionPath": [
@@ -65,38 +65,37 @@
       "3.1.5",
       "3.1.5.2"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p91:b3604:1769a592",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p91:b3603:d73df7cc",
     "sourceType": "exact_section"
   },
   {
     "checkName": "leakage",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VMD0009 LK-ASP applies with Approach 2 Market Leakage Assessment; sugarcane is the baseline commodity; timber leakage is de minimis; LKMAF = 1.",
-    "goldQuote": "Given the fact that forest conservation and sugarcane production in the project area cannot happen simultaneously and the other areas where forests could be converted to sugarcane production are beyond the control of the project proponent, no leakage management activities could be applied to minimize displacement. Therefore, the leakage adjustment management factor (LKMAF) is 1.",
-    "page": 122,
-    "sectionHeading": "STEP 3: Evaluate Project Area Relative to Other Forested Areas for Commodity",
+    "expectedAnswer": "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the baseline commodity; timber leakage is excluded as de minimis.",
+    "goldQuote": "Leakage was determined following the steps described in module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP). Since a specific agent of deforestation is not identified, a class of deforestation is used to determine activity shifting leakage using approach 2 Market Leakage Assessment. As described in section 3.1.3, given the fact that harvested wood products are identified as de minimis, market effects leakage due to decreased timber harvest was excluded from the analysis. The most likely commodity for the class of deforestation agent is Sugarcane (Saccharum officinarum).",
+    "page": 116,
+    "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
     "sectionPath": [
       "3",
       "3.2",
-      "3.2.3",
-      "3.2.3.3"
+      "3.2.3"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p122:b4650:c8fbcb87",
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p116:b4525:41a8b234",
     "sourceType": "exact_section"
   },
   {
     "checkName": "stakeholder_consultation",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Initial meetings were held with all 12 communities in May-June 2024, follow-up meetings were held in August 2024 in English and Spanish, and Table 7 records stakeholder comments and actions",
-    "goldQuote": "All 12 communities participated in the socioeconomic survey and community monitoring event which provided valuable information to establish starting conditions for the project and to identify key interventions to be implemented in communities based on current knowledge, attitudes, and practices",
-    "page": 53,
+    "expectedAnswer": "Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.",
+    "goldQuote": "29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities to share information on the REDD proposal, secure commitment, and support from community leaders, identify key stakeholders and vulnerable groups within communities and channels for communication with communities, and discuss specific opportunities for community participation, including participation in the socioeconomic household survey to inform the REDD Proposal. Formal letters, in English and Spanish, were sent to community leaders. Letters were followed by in-person visits to each community leader to explain the purpose of the meeting and to solicit their participation. Notes from each meeting were documented (Appendix 18B) and follow-up actions were undertaken as necessary to address comments and concerns. Consultation outcome As per the Communication Outline developed for each community meeting, community members were provided with information on the Maya Forest Corridor and target communities of the MFC, utilizing a map of the area. The significance and use of the MFC by target communities was discussed. This was followed by a discussion on REDD Projects, what a REDD Project is, and plans to design a REDD Project for the MFC. Communities were informed of CCB Version 3.0, VCS Version 4.4 55 CCB v3.0, VCS v4.4 how the project intended to engage communities, the benefits to communities from the project, and the potential risks. Discussion was held on the Household Survey planned to gather socio-economic data and to collect monitoring information for the community monitoring report. Communities were informed of what to expect during the survey. Discussions were held on stakeholder groups within the community, and community leaders supported the identification of additional stakeholder/stakeholder groups, including vulnerable groups. Finally, discussions were held on the Monitoring Plan for the REDD Project Proposal Stakeholder input Communities expressed support for the project and asked that information be shared with the communities in a timely manner. Communities did not request any modification to the project information shared. The communities of Hattieville and Gracie Rock indicated that Freetown Sibun should be a part of the project. It was noted that Freetown Sibun does not fall within the MFC priority target communities. Community members provided valuable information on how to engage communities to secure maximum input in household surveys. They recommended using enumerators from the community to collect the data and also recommended that surveys be conducted during the evenings and weekends. These recommendations were implemented. Community members also assisted in mapping the communities based on existing clusters. Community recommendations and guidance on existing clusters were implemented during the household survey exercise. Table 6. Follow-up stakeholder consultations to present findings from the household survey, community monitoring report, and findings from the social impact assessment Date of stakeholder consultation 23 August 2024 to 28 August 2024 Stakeholder engagement process Four community meetings were held with 54 community leaders and community members from the 12 target communities to present the findings from the household survey, the community monitoring report, and findings from the Social Impact CCB Version 3.0, VCS Version 4.4 56 CCB v3.0, VCS v4.4 Assessment. Invitations were disseminated in English and Spanish through community leaders, mobilizers, and other established channels of communication with communities. Community leaders were asked to invite a careful balance of men, women, and youth. Three meetings were held in English and one meeting was held in Spanish to cater to the Spanish-speaking communities. Notes from each meeting were documented and follow-up actions were undertaken as necessary to address comments and concerns. Consultation outcome PowerPoint presentations were made in English and Spanish on the key findings from the household survey and community monitoring report as well as the social impact assessment (Appendices 18D-18G). Spaces were provided for community members to validate findings from the survey findings and community monitoring report findings. A booklet summarizing key information was also disseminated to community members to solidify the information shared. The communities agreed with the findings presented as well as with the social impact assessment. The key feedback from communities included: • A call from the CBSWCG for increased coordination with WCS in the implementation of livelihoods activities to avoid duplication of efforts • Community members in the Belize River Valley recommended including support for the establishment of a market in the river valley as part of the project. • Community members in La Democracia indicated that they will not benefit from agriculture activities planned as part of the project as community members do not have agricultural lands. Stakeholder input WCS has increased efforts to strengthen coordination with the CBSWCG in planning and implementing livelihood activities. The request for a market in the Belize River Valley is not currently within the scope of the project, however, can be considered in the future. For the community of La Democracia, applicable activities such as backyard gardens will be implemented. CCB Version 3.0, VCS Version 4.4 57 CCB v3.0, VCS v4.4 Table 7. Stakeholder comments received and actions taken Summary of comment received When comment was received Actions taken Request for inclusion of Freetown Sibun in the project June 6, 2024 Although near to two project communities, Freetown Sibun was not identified as a priority MFC target community. A call from the CBSWCG for increased coordination with WCS in the implementation of livelihoods activities to avoid duplication of efforts August 23, 2024 WCS has increased coordination with the CBSWCG as this organization is a key coordination body within the Belize River Valley communities. Community members in the Belize River Valley recommended including support for the establishment of a market in the river valley as part of the project. August 23, 2024 The project cannot accommodate this request within the short term but will consider inclusion in the long term. Community members in La Democracia indicated that they will not benefit from agriculture activities planned as part of the project as community members do not have agricultural lands. August 28, 2024 Activities planned for La Democracia will include backyard gardens in consideration of the lack of access to agriculture lands.",
+    "page": 54,
     "sectionHeading": "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
     "sectionPath": [
       "2",
       "2.3",
       "2.3.10"
     ],
-    "spanId": "maya-forest-corridor-redd-belize-extracted:p53:b2067:7162c4f0",
-    "sourceType": "fact_contract"
+    "spanId": "maya-forest-corridor-redd-belize-extracted:p54:b2088:ecd1bf86",
+    "sourceType": "exact_section"
   }
 ]

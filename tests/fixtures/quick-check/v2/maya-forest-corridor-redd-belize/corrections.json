@@ -13,7 +13,13 @@
     ],
     "spanId": "maya-forest-corridor-redd-belize-extracted:p18:b704:31802246",
     "sourceType": "fact_contract",
-    "reason": "answer_and_provenance_complete"
+    "reason": "answer_and_provenance_complete",
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "Belize",
+    "correctedQuote": "Project location Belize, Belize and Cayo Districts",
+    "correctedPage": 1,
+    "correctedSectionHeading": null,
+    "reviewNote": "Current extraction latched onto a district name instead of the project host country."
   },
   {
     "checkName": "methodology",
@@ -30,16 +36,12 @@
     "spanId": "maya-forest-corridor-redd-belize-extracted:p83:b3279:1a24fa3e",
     "sourceType": "exact_section",
     "reason": "answer_and_provenance_complete",
-    "methodology": {
-      "methodologyId": "VM0007",
-      "methodologyName": "VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2",
-      "methodologyAlias": null,
-      "pddDeclaredMethodologyVersion": null,
-      "versionStatus": "NOT_EXPLICITLY_DECLARED",
-      "evidencePage": 83,
-      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
-      "evidenceQuote": "Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2"
-    }
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "VM0007 REDD+ Methodology Framework v1.8",
+    "correctedQuote": "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8",
+    "correctedPage": 83,
+    "correctedSectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "reviewNote": "Current extraction dumps the full methodology table, including modules and tools, instead of the primary methodology row only."
   },
   {
     "checkName": "baseline_scenario",
@@ -55,7 +57,13 @@
     ],
     "spanId": "maya-forest-corridor-redd-belize-extracted:p48:b1856:7cdd14b5",
     "sourceType": "exact_section",
-    "reason": "answer_and_provenance_complete"
+    "reason": "answer_and_provenance_complete",
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture",
+    "correctedQuote": "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture.",
+    "correctedPage": 89,
+    "correctedSectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "reviewNote": "The current answer is directionally related, but the reviewed gold uses the formal baseline-scenario section and avoids unsupported sugarcane detail in the visible answer."
   },
   {
     "checkName": "additionality",
@@ -71,7 +79,13 @@
     ],
     "spanId": "maya-forest-corridor-redd-belize-extracted:p46:b1764:445d4ff6",
     "sourceType": "exact_section",
-    "reason": "answer_and_provenance_complete"
+    "reason": "answer_and_provenance_complete",
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "VT0001 v3.0 shows the project is not legally mandated because all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.",
+    "correctedQuote": "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).” Because the project is private property, all alternatives presented in 1a are legal under Belizean law. Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs.",
+    "correctedPage": 91,
+    "correctedSectionHeading": "Additionality Methods (VCS, 3.14)",
+    "reviewNote": "Page 46 section 2.2.1 is related context only. It must not satisfy additionality without the formal VT0001 analysis in section 3.1.5."
   },
   {
     "checkName": "leakage",
@@ -87,7 +101,13 @@
     ],
     "spanId": "maya-forest-corridor-redd-belize-extracted:p82:b3269:b2b78fa4",
     "sourceType": "exact_section",
-    "reason": "answer_and_provenance_complete"
+    "reason": "answer_and_provenance_complete",
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the baseline commodity; timber leakage is excluded as de minimis.",
+    "correctedQuote": "Leakage was determined following the steps described in module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP). Since a specific agent of deforestation is not identified, a class of deforestation is used to determine activity shifting leakage using approach 2 Market Leakage Assessment. As described in section 3.1.3, given the fact that harvested wood products are identified as de minimis, market effects leakage due to decreased timber harvest was excluded from the analysis. The most likely commodity for the class of deforestation agent is Sugarcane (Saccharum officinarum).",
+    "correctedPage": 116,
+    "correctedSectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+    "reviewNote": "The page 82 cross-reference is not leakage evidence. LKMAF = 1 is secondary support from pages 122-123, not the primary visible answer."
   },
   {
     "checkName": "stakeholder_consultation",
@@ -103,6 +123,12 @@
     ],
     "spanId": "maya-forest-corridor-redd-belize-extracted:p53:b2060:68e9f4e1",
     "sourceType": "exact_section",
-    "reason": "answer_and_provenance_complete"
+    "reason": "answer_and_provenance_complete",
+    "correctedStatus": "FOUND",
+    "correctedAnswer": "Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.",
+    "correctedQuote": "29 May 2024 to June 9, 2024 ... Eight Community-level meetings were held with 35 community leaders in the 12 target communities ... Formal letters, in English and Spanish, were sent to community leaders ... Table 6. Follow-up stakeholder consultations ... 23 August 2024 to 28 August 2024 ... Four community meetings were held with 54 community leaders and community members from the 12 target communities ... Invitations were disseminated in English and Spanish ... Three meetings were held in English and one meeting was held in Spanish ... Table 7. Stakeholder comments received and actions taken.",
+    "correctedPage": 54,
+    "correctedSectionHeading": "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
+    "reviewNote": "The current answer only reflects the section introduction. It omits the date ranges, follow-up consultations, English/Spanish delivery, and Table 7 actions."
   }
 ]
