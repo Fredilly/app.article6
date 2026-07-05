@@ -2,7 +2,7 @@
 import {
   addQuickCheckV2Fixture,
   parseFixtureAddArgs,
-} from "../src/lib/quickCheckV2/fixtureIntake";
+} from "./lib/quickcheck-fixture-intake";
 
 addQuickCheckV2Fixture(parseFixtureAddArgs(process.argv.slice(2)))
   .then((result) => {
