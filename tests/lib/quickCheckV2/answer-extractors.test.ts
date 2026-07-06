@@ -259,13 +259,13 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture",
     );
     expect(mayaAnswers.find((item) => item.checkName === "additionality")?.answer).toBe(
-      "The project is additional because it has no financial or economic benefits other than VCS-related income; simple cost analysis is used, and conversion to agriculture is selected as the baseline.",
+      "VT0001 v3.0 finds all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.",
     );
     expect(mayaAnswers.find((item) => item.checkName === "leakage")?.answer).toBe(
       "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the likely baseline commodity; timber leakage is excluded as de minimis.",
     );
     expect(mayaAnswers.find((item) => item.checkName === "stakeholder_consultation")?.answer).toBe(
-      "Table 7 records stakeholder comments and actions taken for Freetown Sibun, CBSWCG coordination, and La Democracia backyard gardens.",
+      "Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.",
     );
   });
 

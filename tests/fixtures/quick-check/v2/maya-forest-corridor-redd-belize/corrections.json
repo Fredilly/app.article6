@@ -81,11 +81,11 @@
     "sourceType": "exact_section",
     "reason": "answer_and_provenance_complete",
     "correctedStatus": "FOUND",
-    "correctedAnswer": "The project is additional because it has no financial or economic benefits other than VCS-related income; simple cost analysis is used, and conversion to agriculture is selected as the baseline.",
-    "correctedQuote": "Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected.",
-    "correctedPage": 92,
+    "correctedAnswer": "VT0001 v3.0 finds all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.",
+    "correctedQuote": "The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).” Because the project is private property, all alternatives presented in 1a are legal under Belizean law. Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs.",
+    "correctedPage": 91,
     "correctedSectionHeading": "Additionality Methods (VCS, 3.14)",
-    "reviewNote": "Draft answer used background context from section 2.2.1. Reviewed truth anchors the visible answer to the page 92 conclusion lines in section 3.1.5 so the quote and page provenance stay exact."
+    "reviewNote": "Draft answer used background context from section 2.2.1 instead of the formal VT0001 additionality analysis in section 3.1.5."
   },
   {
     "checkName": "leakage",
@@ -125,10 +125,10 @@
     "sourceType": "exact_section",
     "reason": "answer_and_provenance_complete",
     "correctedStatus": "FOUND",
-    "correctedAnswer": "Table 7 records stakeholder comments and actions taken for Freetown Sibun, CBSWCG coordination, and La Democracia backyard gardens.",
-    "correctedQuote": "Table 7. Stakeholder comments received and actions taken. Request for inclusion of Freetown Sibun in the project. June 6, 2024 Although near to two project communities, Freetown Sibun was not identified as a priority MFC target community. A call from the CBSWCG for increased coordination with WCS in the implementation of livelihoods activities to avoid duplication of efforts. August 23, 2024 WCS has increased coordination with the CBSWCG as this organization is a key coordination body within the Belize River Valley communities. Community members in La Democracia indicated that they will not benefit from agriculture activities planned as part of the project as community members do not have agricultural lands. August 28, 2024 Activities planned for La Democracia will include backyard gardens in consideration of the lack of access to agriculture lands.",
-    "correctedPage": 57,
+    "correctedAnswer": "Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.",
+    "correctedQuote": "29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities. Formal letters, in English and Spanish, were sent to community leaders. Table 6. Follow-up stakeholder consultations 23 August 2024 to 28 August 2024 Four community meetings were held with 54 community leaders and community members from the 12 target communities. Invitations were disseminated in English and Spanish. Three meetings were held in English and one meeting was held in Spanish. Table 7. Stakeholder comments received and actions taken.",
+    "correctedPage": 54,
     "correctedSectionHeading": "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
-    "reviewNote": "Draft answer stopped at the opening summary. Reviewed truth uses the page 57 Table 7 comment/action evidence instead of a broader four-page consultation summary."
+    "reviewNote": "Draft answer stopped at the opening summary and missed the dated consultation rounds, language split, and the recorded comments/actions."
   }
 ]

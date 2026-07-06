@@ -79,12 +79,10 @@ Do not merge until `gold.json` has been reviewed against the source PDF. Draft g
 - spanId: maya-forest-corridor-redd-belize-extracted:p46:b1764:445d4ff6
 - source type: exact_section
 - reviewed gold answer: VT0001 v3.0 finds all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.
-- reviewed gold answer: The project is additional because it has no financial or economic benefits other than VCS-related income; simple cost analysis is used, and conversion to agriculture is selected as the baseline.
-- reviewed gold quote: Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected.
+- reviewed gold quote: The following analysis was conducted to determine alternative baseline scenarios according to the procedure presented in “VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).” Because the project is private property, all alternatives presented in 1a are legal under Belizean law. Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs.
 - reviewed expected status: FOUND
-- reviewed page: 92
 - weak evidence to reject: page 46 section 2.2.1 must not satisfy additionality by itself
-- additional note: the broader 3.1.5 discussion spans pages 91-92, but the reviewed visible answer is intentionally anchored to the page 92 conclusion sentences rather than a multi-page quote
+- additional note: section 3.1.5 also states Belize is a Non-Annex 1 country and the project activities are not legally mandated
 
 ### leakage
 
@@ -110,12 +108,10 @@ Do not merge until `gold.json` has been reviewed against the source PDF. Draft g
 - section: Stakeholder Consultations (VCS, 3.18; CCB, G3.4)
 - spanId: maya-forest-corridor-redd-belize-extracted:p53:b2060:68e9f4e1
 - source type: exact_section
-- reviewed gold answer: Table 7 records stakeholder comments and actions taken for Freetown Sibun, CBSWCG coordination, and La Democracia backyard gardens.
-- reviewed gold quote: Table 7. Stakeholder comments received and actions taken. Request for inclusion of Freetown Sibun in the project. June 6, 2024 Although near to two project communities, Freetown Sibun was not identified as a priority MFC target community. A call from the CBSWCG for increased coordination with WCS in the implementation of livelihoods activities to avoid duplication of efforts. August 23, 2024 WCS has increased coordination with the CBSWCG as this organization is a key coordination body within the Belize River Valley communities. Community members in La Democracia indicated that they will not benefit from agriculture activities planned as part of the project as community members do not have agricultural lands. August 28, 2024 Activities planned for La Democracia will include backyard gardens in consideration of the lack of access to agriculture lands.
+- reviewed gold answer: Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.
+- reviewed gold quote: 29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities to share information on the REDD proposal, secure commitment, and support from community leaders, identify key stakeholders and vulnerable groups within communities and channels for communication with communities, and discuss specific opportunities for community participation, including participation in the socioeconomic household survey to inform the REDD Proposal. Formal letters, in English and Spanish, were sent to community leaders. Letters were followed by in-person visits to each community leader to explain the purpose of the meeting and to solicit their participation. Notes from each meeting were documented (Appendix 18B) and follow-up actions were undertaken as necessary to address comments and concerns. Table 6. Follow-up stakeholder consultations to present findings from the household survey, community monitoring report, and findings from the social impact assessment Date of stakeholder consultation 23 August 2024 to 28 August 2024 Four community meetings were held with 54 community leaders and community members from the 12 target communities. Invitations were disseminated in English and Spanish. Three meetings were held in English and one meeting was held in Spanish. Table 7. Stakeholder comments received and actions taken.
 - reviewed expected status: FOUND
-- reviewed page: 57
 - weak evidence to reject: the opening April 2024 summary alone is not enough for the reviewed answer
-- additional note: the broader consultation trail spans pages 54-57, but the reviewed visible answer is intentionally anchored to the page 57 Table 7 comment/action evidence instead of a broader four-page quote dump
 
 ## Corrections summary
 
@@ -124,6 +120,6 @@ All six generated draft checks disagreed with reviewed PDF truth.
 - `host_country`: draft pulled `Orange`; reviewed truth is `Belize`
 - `methodology`: draft dumped the full methodology/modules/tools row; reviewed truth is the primary methodology only with normalized version `v1.8`
 - `baseline_scenario`: draft used section 2.2.2; reviewed truth uses section 3.1.4
-- `additionality`: draft used section 2.2.1 background; reviewed truth uses the page 92 conclusion lines from section 3.1.5 instead of a broader multi-page quote
+- `additionality`: draft used section 2.2.1 background; reviewed truth uses section 3.1.5 VT0001 analysis
 - `leakage`: draft treated a cross-reference as substantive evidence; reviewed truth uses section 3.2.3
-- `stakeholder_consultation`: draft stopped at the opening summary; reviewed truth uses the page 57 Table 7 response trail instead of a four-page consultation dump
+- `stakeholder_consultation`: draft stopped at the opening summary; reviewed truth uses the dated consultation tables and Table 7 response trail
