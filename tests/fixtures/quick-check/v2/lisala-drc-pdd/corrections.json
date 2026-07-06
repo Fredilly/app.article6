@@ -1,0 +1,106 @@
+[
+  {
+    "checkName": "host_country",
+    "currentStatus": "FOUND",
+    "currentAnswer": "Mongala",
+    "currentQuote": "Project location The Democratic Republic of Congo, Mongala Province, Lisala territory",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p1:b20:1136c4a4",
+    "sourceType": "fact_contract",
+    "reason": "answer_and_provenance_complete"
+  },
+  {
+    "checkName": "methodology",
+    "currentStatus": "FOUND",
+    "currentAnswer": "VM0007 REDD+ Methodology Framework v1.8",
+    "currentQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+    "page": 46,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p46:b1874:bbda428e",
+    "sourceType": "exact_section",
+    "reason": "answer_and_provenance_complete",
+    "methodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
+      "evidencePage": 46,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "currentStatus": "FOUND",
+    "currentAnswer": "This section is under development",
+    "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 51,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.4"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p51:b2212:b29575cf",
+    "sourceType": "exact_section",
+    "reason": "answer_and_provenance_complete"
+  },
+  {
+    "checkName": "additionality",
+    "currentStatus": "FOUND",
+    "currentAnswer": "(VCS, 3.13; CCB, G2.1) The Lisala REDD+ Project was not implemented with the intent of artificially generating greenhouse gas (GHG) emissions for the purpose of their subsequent reduction, removal, or destruction",
+    "currentQuote": "(VCS, 3.13; CCB, G2.1) The Lisala REDD+ Project was not implemented with the intent of artificially generating greenhouse gas (GHG) emissions for the purpose of their subsequent reduction, removal, or destruction. All historical and ongoing deforestation observed within the project area results from prevailing socio-economic drivers, demographic pressures, and governance challenges, entirely independent of any project planning activities. The project area is located within the Congo Basin rainforest ecosystem, characterized by dense tropical moist broadleaf forests with high levels of biodiversity and significant carbon storage capacity. This ecosystem is globally recognized as a critical biodiversity hotspot and plays a vital role in both regional and global climate regulation. Historically, the Lisala concession was predominantly covered by intact and semi-intact tropical forests, utilized intermittently by local communities for subsistence activities such as hunting, gathering, and small- scale shifting agriculture. In past decades, the area was formally allocated as a commercial logging concession and underwent industrial-scale timber harvesting under regulated forestry operations. However, even during its tenure as a logging concession, the area faced increasing pressure from unplanned deforestation and forest degradation driven by local community activities. These pressures — notably slash-and-burn agriculture, charcoal production, and informal fuelwood extraction — have intensified in recent years, fueled by population growth and limited alternative livelihoods. Recognizing CCB Version 3.0, VCS Version 4.4 33 CCB v3.0, VCS v4.4 these growing threats, the concession was acquired and converted into a conservation concession to focus on reducing deforestation dynamics through collaborative efforts with local communities. Environmental conditions prior to project initiation reflect both the ecological richness of the region and the cumulative impacts of human activities. The area experiences a tropical humid climate with bimodal rainfall patterns, receiving an average of approximately 1,800 mm of rainfall annually, and mean annual temperatures ranging between 23.9°C and 25.4°C (Fick, S.E. and Hijmans, R.J., 2017. WorldClim 2: new 1 km spatial resolution climate surfaces for global land areas. International Journal of Climatology, 37(12): 4302-4315). Hydrologically, the landscape is interlaced with numerous small rivers and tributaries of the Congo River, resulting in seasonal flooding across some lowland zones. The terrain is moderately undulating, with elevations ranging from 300 to 500 meters above sea level, and an average elevation of approximately 400 meters (Copernicus DEM, ESA/European Commission, 2020). Soils are predominantly classified as Ferralsols (FRx) and Gleysols (Gle), typical of humid tropical forests, characterized by low fertility and high acidity, suitable only for short-term cultivation following forest clearing (Batjes NH 2007. SOTER-based soil parameter estimates for Central Africa - DR of Congo, Burundi and Rwanda(SOTWIScaf, version 1.0). Report 2007/02, ISRIC - World Soil Information, Wageningen). Vegetation within the project area comprises largely closed-canopy primary forest, while the surrounding landscapes include settlements, subsistence agriculture, and areas of secondary vegetation. In the absence of the Lisala REDD+ Project, unplanned deforestation and forest degradation would be expected to continue across the concession. The primary drivers of deforestation would remain the expansion of slash-and-burn agriculture, driven by population growth and land scarcity; increasing charcoal production to meet regional energy demands; informal timber extraction for local use and informal trade; and infrastructure development occurring without integrated land-use planning. Without intervention, these dynamics would be expected to lead to progressive forest loss, fragmentation resulting in significant reductions in carbon stocks and posing severe threats to local biodiversity. These baseline dynamics have been modeled and quantified in the baseline scenario, reflecting the continuation of the trends and conditions prevailing prior to project initiation. As the baseline scenario is consistent with the ongoing land-use dynamics existing prior to the start of the project, further details are provided in Section 3.1.4.",
+    "page": 32,
+    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p32:b1325:214c1bb8",
+    "sourceType": "exact_section",
+    "reason": "answer_and_provenance_complete"
+  },
+  {
+    "checkName": "leakage",
+    "currentStatus": "FOUND",
+    "currentAnswer": "This section is under development",
+    "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 52,
+    "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+    "sectionPath": [
+      "3",
+      "3.2",
+      "3.2.3"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p52:b2238:d0ffd4be",
+    "sourceType": "exact_section",
+    "reason": "answer_and_provenance_complete"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "currentStatus": "FOUND",
+    "currentAnswer": "This section is under development",
+    "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 34,
+    "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+    "sectionPath": [
+      "2",
+      "2.3",
+      "2.3.1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p34:b1391:3d277953",
+    "sourceType": "exact_section",
+    "reason": "answer_and_provenance_complete"
+  }
+]
