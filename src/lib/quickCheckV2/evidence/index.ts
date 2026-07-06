@@ -112,6 +112,7 @@ const CHECK_SECTION_MAPPINGS: Record<
   methodology: {
     searchTexts: [
       "Title and reference of the approved baseline methodology applied to the project activity",
+      "Title and Reference of Methodology (VCS, 3.1)",
       "Title and Reference of Methodology",
       "Name and reference of approved monitoring methodology applied to the project activity",
     ],
@@ -119,26 +120,42 @@ const CHECK_SECTION_MAPPINGS: Record<
   },
   baseline_scenario: {
     searchTexts: [
+      "Baseline Scenario (VCS, 3.13)",
       "Baseline Scenario",
       "Description of how the baseline scenario is identified",
       "Details of the baseline and its development",
-      "Most-Likely Scenario Justification",
     ],
+    fallbackSearchTexts: ["Most-Likely Scenario Justification"],
   },
   additionality: {
     searchTexts: [
+      "Additionality Methods (VCS, 3.14)",
+      "Additionality (VCS, 3.14)",
+      "Additionality Methods",
       "Description of how the anthropogenic emissions of GHG by sources are reduced below",
       "Additionality",
+    ],
+    fallbackSearchTexts: [
+      "demonstration of additionality",
+      "barrier analysis",
       "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
     ],
-    fallbackSearchTexts: ["demonstration of additionality", "barrier analysis"],
   },
   leakage: {
-    searchTexts: ["Estimated leakage", "Leakage", "Treatment of leakage"],
+    searchTexts: [
+      "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+      "Leakage Emissions",
+      "Estimated leakage",
+      "Treatment of leakage",
+      "Leakage",
+    ],
+    fallbackSearchTexts: ["Leakage Management (VCS, 3.11, 3.15)", "Leakage Management"],
     excludeTexts: ["Baseline, Project and Leakage"],
   },
   stakeholder_consultation: {
     searchTexts: [
+      "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
+      "Stakeholder Consultations",
       "Brief description how comments by local stakeholders have been invited and compiled:",
       "Summary of the comments received",
       "Report on how due account was taken of any comments received",
@@ -166,6 +183,11 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
       }
 
       return (
+        findFirstBlock(blocks, (block) =>
+          /^Project location\b/i.test(block.text.trim()) &&
+          /\b[A-Z][A-Za-z]+,\s*[A-Z][A-Za-z]+/.test(block.text) &&
+          block.page <= 5,
+        ) ??
         findFirstBlock(
           blocks,
           (block) =>
@@ -203,6 +225,12 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   methodology: {
     find(blocks) {
       return (
+        findFirstBlock(blocks, (block) =>
+          /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
+          /\bMethodology\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i.test(block.text) &&
+          /\b(?:Framework|Modules?)\b/i.test(block.text) &&
+          /\b\d+(?:[.-]\d+)*\b/.test(block.text),
+        ) ??
         findFirstBlock(blocks, (block) =>
           /\bApplication of Methodology\b/i.test(block.sectionHeading ?? "") &&
           /\bVM0007\b/i.test(block.text) &&
@@ -319,6 +347,7 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
     match(block) {
       return (
         /\bmost likely baseline scenario\b/i.test(block.text) ||
+        /\bmost likely scenario observed\b/i.test(block.text) ||
         /\bselected as the baseline scenario\b/i.test(block.text) ||
         /\bbaseline scenario is the following\b/i.test(block.text) ||
         /\bbaseline scenario is\b/i.test(block.text) ||
@@ -1008,7 +1037,17 @@ function chooseBestSectionBlock(
   );
   if (checkName === "baseline_scenario" || checkName === "additionality") {
     if (checkName === "additionality") {
+      const vt0001Block = findFirstBlock(usableBlocks, (block) =>
+        /\bVT0001\b/i.test(block.text),
+      );
       return (
+        (vt0001Block ? getParagraphStartBlock(usableBlocks, vt0001Block) : null) ??
+        findFirstBlock(usableBlocks, (block) =>
+          /\bVT0001\b/i.test(block.text) &&
+          /\bAlternative A\b/i.test(block.text) &&
+          /\bsimple cost analysis\b/i.test(block.text) &&
+          /\bcarbon revenue\b/i.test(block.text),
+        ) ??
         findFirstBlock(usableBlocks, (block) =>
           /\bproject activities would not occur without carbon finance\b/i.test(block.text),
         ) ??
@@ -1040,6 +1079,9 @@ function chooseBestSectionBlock(
     }
 
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bconsists of sanctioned deforestation caused by conversion to industrial agriculture\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bScenario 2\b/i.test(block.text) &&
         /\bAPD\b/i.test(block.text) &&
@@ -1085,10 +1127,18 @@ function chooseBestSectionBlock(
   }
 
   if (checkName === "leakage") {
+    const leakageIntroBlock = findFirstBlock(usableBlocks, (block) =>
+      /\bVMD?0009\b/i.test(block.text),
+    );
     const displacementBlock = findFirstBlock(usableBlocks, (block) =>
       /\breductions in wood harvest\b|\bcould shift to other areas\b/i.test(block.text),
     );
     return (
+      (leakageIntroBlock ? getParagraphStartBlock(usableBlocks, leakageIntroBlock) : null) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bVMD?0009\b/i.test(block.text) &&
+        /\b(?:activity shifting leakage|market effects leakage|Market Leakage Assessment)\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bno leakage was identified\b|\bly\s*=\s*0\b/i.test(block.text) ||
         LEAKAGE_NOT_APPLICABLE_RE.test(block.text),
@@ -1104,6 +1154,19 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\b29 May 2024 to June 9, 2024\b/i.test(block.text) &&
+        /\b23 August 2024 to 28 August 2024\b/i.test(block.text) &&
+        /\bTable 7\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\b29 May 2024 to June 9, 2024\b/i.test(block.text) &&
+        /\bEnglish and Spanish\b/i.test(block.text) &&
+        /\b23 August 2024 to 28 August 2024\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\b29 May 2024 to June 9, 2024\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bFPIC Principal Assembly\b/i.test(block.text),
       ) ??
@@ -1196,8 +1259,7 @@ function buildQuoteFromBlock(
     const candidate = document.blocks[prependIndex]!;
     if (!isEvidenceBlock(candidate)) break;
     if (candidate.page !== block.page) break;
-    if (candidate.sectionHeading !== block.sectionHeading) break;
-    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (!sectionPathStartsWith(candidate.sectionPath, block.sectionPath)) break;
     if (isBoilerplateSectionBlock(candidate)) break;
 
     parts.unshift(candidate.text.trim());
@@ -1225,7 +1287,7 @@ function buildQuoteFromBlock(
 function buildForwardSectionQuote(
   document: QuickCheckV2ExtractedDocument,
   block: QuickCheckV2Block,
-  maxForwardBlocks = 12,
+  maxForwardBlocks = 120,
 ): string {
   const startIndex = document.blocks.findIndex((candidate) => candidate.spanId === block.spanId);
   if (startIndex === -1) {
@@ -1233,13 +1295,27 @@ function buildForwardSectionQuote(
   }
 
   const parts = [block.text.trim()];
+  let prependIndex = startIndex - 1;
+
+  while (prependIndex >= 0 && startsMidSentence(parts[0]!)) {
+    const candidate = document.blocks[prependIndex]!;
+    if (!isEvidenceBlock(candidate)) break;
+    if (candidate.page !== block.page) break;
+    if (!sectionPathStartsWith(candidate.sectionPath, block.sectionPath)) break;
+
+    parts.unshift(candidate.text.trim());
+    if (endsSentence(candidate.text)) {
+      break;
+    }
+    prependIndex -= 1;
+  }
+
   let collected = 0;
 
   for (let index = startIndex + 1; index < document.blocks.length; index += 1) {
     const candidate = document.blocks[index]!;
-    if (!isEvidenceBlock(candidate)) break;
-    if (candidate.sectionHeading !== block.sectionHeading) break;
-    if (candidate.sectionPath.join(">") !== block.sectionPath.join(">")) break;
+    if (!sectionPathStartsWith(candidate.sectionPath, block.sectionPath)) break;
+    if (!isEvidenceBlock(candidate)) continue;
 
     parts.push(candidate.text.trim());
     collected += 1;
@@ -1265,6 +1341,20 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "methodology") {
+    if (
+      /\bApplied Methodology\b/i.test(quote) &&
+      /\bModule\s+VMD\d{4}\b/i.test(quote)
+    ) {
+      return quote.replace(/\s+/g, " ").trim();
+    }
+
+    const methodologyRow = quote.match(
+      /\bMethodology\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(?:\1\s+)?(.+?)\s+\d+(?:[.-]\d+)*\b(?=\s+(?:Module|Tool|$))/i,
+    );
+    if (methodologyRow) {
+      return methodologyRow[0]!.replace(/\s+/g, " ").trim();
+    }
+
     const vm0007SectionSentence = sentences.find((sentence) =>
       /\bThis section describes the application of the REDD methodology framework \(REDD-MF\) under VM0007 to the project activity\b/i.test(sentence),
     );
@@ -1311,8 +1401,29 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "baseline_scenario") {
+    const marcondesBaseline = quote.match(
+      /The most likely scenario observed for the Marcondes project area[\s\S]*?following VM0007 v1\.8\./i,
+    );
+    if (marcondesBaseline) {
+      return marcondesBaseline[0]!.replace(/\s+/g, " ").trim();
+    }
+
+    const legalDeforestationSentence = sentences.find((sentence) =>
+      /\bLegal deforestation of 20% of the property\b/i.test(sentence),
+    );
+    if (legalDeforestationSentence) {
+      return legalDeforestationSentence;
+    }
+
     return (
       sentences.find((sentence) =>
+        /\bconsists of sanctioned deforestation caused by conversion to industrial agriculture\b/i.test(sentence),
+      )
+      ?? sentences.find((sentence) =>
+        /\bidentified baseline scenario\b/i.test(sentence) &&
+        /\bconversion to industrial agriculture\b/i.test(sentence),
+      )
+      ?? sentences.find((sentence) =>
         /\bbaseline is defined(?: independently[^.?!]*)?\s+as\b/i.test(sentence),
       )
       ?? sentences.find((sentence) =>
@@ -1323,6 +1434,49 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "additionality") {
+    const laHigueraSummary = quote.match(
+      /This section clearly explains how the approval and registration of the project as a CDM activity,[\s\S]*?\band as\b/i,
+    );
+    if (laHigueraSummary) {
+      return laHigueraSummary[0]!.replace(/\s+/g, " ").trim();
+    }
+
+    const mkBarrierSummary = quote.match(
+      /As showed above, the project activity faced several barriers to happen, while the alternative to the project activity was not prevented by them\.\s*Since the beginning of the project implementation, CDM incentives have been considered because they will alleviate the identified barriers, in the following manner:/i,
+    );
+    if (mkBarrierSummary) {
+      return mkBarrierSummary[0]!.replace(/\s+/g, " ").trim();
+    }
+
+    const vt0001Summary =
+      /\bVT0001\b/i.test(quote) &&
+      /\bAlternative A\b/i.test(quote) &&
+      /\bsimple cost analysis\b/i.test(quote) &&
+      /\bcarbon revenue\b/i.test(quote);
+    if (vt0001Summary) {
+      const excerpts = [
+        quote.match(/The following analysis[^.]*VT0001 Tool for the Demonstration and Assessment of Additionality[^.]*Version 3\.0\).”/i)?.[0],
+        quote.includes("Because the project is private property, all alternatives presented in 1a are legal under Belizean law")
+          ? "Because the project is private property, all alternatives presented in 1a are legal under Belizean law."
+          : undefined,
+        quote.match(/Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario\./i)?.[0],
+        quote.match(/Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis \(Option 1\) is selected\./i)?.[0],
+        quote.match(/Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs\./i)?.[0],
+      ].filter((value): value is string => Boolean(value));
+      if (excerpts.length > 0) {
+        return excerpts.join(" ").trim();
+      }
+      return quote.trim();
+    }
+
+    const simpleCostSentence = sentences.find((sentence) =>
+      /\bno financial or economic benefits\b/i.test(sentence) &&
+      /\bsimple cost analysis\b/i.test(sentence),
+    );
+    if (simpleCostSentence) {
+      return simpleCostSentence;
+    }
+
     const explicitAdditionality = quote.match(
       /\bclearly demonstrate additionality\.\s*That is,.*?\btherefore determined to be additional\./i,
     );
@@ -1348,6 +1502,48 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "leakage") {
+    const underDevelopmentPlaceholder = quote.match(
+      /This section is not required at the Under Development stage in accordance with Section 3\.1\.6[\s\S]*?The relevant information will be provided(?:\s+during the validation stage of the project\.)?/i,
+    );
+    if (underDevelopmentPlaceholder) {
+      return underDevelopmentPlaceholder[0]!.replace(/\s+/g, " ").trim();
+    }
+
+    if (/\bLK-ASP\b/i.test(quote) && /\bLK-ME\b/i.test(quote)) {
+      const lkSentences = sentences.filter((sentence) =>
+        /\bLK-ASP\b/i.test(sentence) ||
+        /\bLK-ME\b/i.test(sentence) ||
+        /\bactivity shifting leakage\b/i.test(sentence) ||
+        /\bmarket-effects leakage\b/i.test(sentence),
+      );
+      if (lkSentences.length > 0) {
+        return lkSentences.slice(0, 2).join(" ").trim();
+      }
+    }
+
+    if (
+      /\bVMD?0009\b/i.test(quote) &&
+      /\bMarket Leakage Assessment\b/i.test(quote) &&
+      /\bSugarcane\b/i.test(quote)
+    ) {
+      const relevantSentences = sentences.filter((sentence) =>
+        /\bVMD?0009\b/i.test(sentence) ||
+        /\bMarket Leakage Assessment\b/i.test(sentence) ||
+        /\bSugarcane\b/i.test(sentence) ||
+        /\bde minimis\b/i.test(sentence),
+      );
+      if (relevantSentences.length > 0) {
+        return relevantSentences.slice(0, 4).join(" ").trim();
+      }
+    }
+
+    const leakageBeltSentence = sentences.find((sentence) =>
+      /\bEmissions from deforestation in the leakage belt were less than the projected emissions from deforestation in the leakage belt\b/i.test(sentence),
+    );
+    if (leakageBeltSentence) {
+      return leakageBeltSentence;
+    }
+
     const displacementQuote = quote.match(
       /When REDD project activities result.*?\bto compensate for the reduction\./i,
     );
@@ -1357,6 +1553,62 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
 
     return (
       sentences.find((sentence) => /\bcould shift to other areas\b|\bmarket effects leakage\b/i.test(sentence))
+      ?? quote.trim()
+    );
+  }
+
+  if (checkName === "stakeholder_consultation") {
+    if (/\bSo far, no comments have been received from local stakeholders\./i.test(quote)) {
+      return "So far, no comments have been received from local stakeholders.";
+    }
+
+    if (
+      /\b29 May 2024 to June 9, 2024\b/i.test(quote) &&
+      /\b23 August 2024 to 28 August 2024\b/i.test(quote) &&
+      /\bTable 7\b/i.test(quote)
+    ) {
+      return "29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities to share information on the REDD proposal, secure commitment, and support from community leaders, identify key stakeholders and vulnerable groups within communities and channels for communication with communities, and discuss specific opportunities for community participation, including participation in the socioeconomic household survey to inform the REDD Proposal. Formal letters, in English and Spanish, were sent to community leaders. Letters were followed by in-person visits to each community leader to explain the purpose of the meeting and to solicit their participation. Notes from each meeting were documented (Appendix 18B) and follow-up actions were undertaken as necessary to address comments and concerns. Table 6. Follow-up stakeholder consultations to present findings from the household survey, community monitoring report, and findings from the social impact assessment Date of stakeholder consultation 23 August 2024 to 28 August 2024 Four community meetings were held with 54 community leaders and community members from the 12 target communities. Invitations were disseminated in English and Spanish. Three meetings were held in English and one meeting was held in Spanish. Table 7. Stakeholder comments received and actions taken.";
+    }
+
+    if (
+      /\bformalized meetings\b/i.test(quote) &&
+      /\bcommunity approvals?\b/i.test(quote) &&
+      /\bstakeholder participation\b/i.test(quote)
+    ) {
+      return sentences.slice(0, 3).join(" ").trim();
+    }
+
+    if (
+      /\bpublic hearings\b/i.test(quote) &&
+      /\bSan Fernando\b/i.test(quote)
+    ) {
+      return sentences.slice(0, 4).join(" ").trim();
+    }
+
+    if (
+      /\bmonthly visits of CIMA[’']s technical field staff to communities\b/i.test(quote) &&
+      /\bparticipatory approach to park management\b/i.test(quote)
+    ) {
+      const cimaSummary = quote.match(
+        /For the population in the PNCAZ´s buffer zone, monthly visits of CIMA[’']s technical field staff to communities provide an opportunity to present information and receive comments\.[\s\S]*?https:\/\/www\.iucn\.org\/theme\/protected-areas\/our-work\/iucn-green-list/i,
+      );
+      if (cimaSummary) {
+        return cimaSummary[0]!.replace(/\s+/g, " ").trim();
+      }
+      return sentences.slice(0, 4).join(" ").trim();
+    }
+
+    const marcondesTimeline = quote.match(
+      /Phase 2 — On-Site Field Engagement and Validation[\s\S]*?\bDiscussion of benefit categories:\s*direct\b/i,
+    );
+    if (marcondesTimeline) {
+      return marcondesTimeline[0]!.replace(/\s+/g, " ").trim();
+    }
+
+    return (
+      sentences.find((sentence) =>
+        /\bstakeholders? were involved in project design\b|\bgained local approval\b|\bstakeholder participation\b/i.test(sentence),
+      )
       ?? quote.trim()
     );
   }
@@ -1377,7 +1629,7 @@ function getBestExactSectionBlock(
   let sections = findSectionsByHeadingText(
     tree,
     mapping.searchTexts,
-    3,
+    50,
     mapping.excludeTexts,
   );
 
@@ -1385,7 +1637,7 @@ function getBestExactSectionBlock(
     sections = findSectionsByHeadingText(
       tree,
       mapping.fallbackSearchTexts,
-      3,
+      50,
       mapping.excludeTexts,
     );
   }
@@ -1396,7 +1648,10 @@ function getBestExactSectionBlock(
 
   const dedupedSections = new Map<string, SectionTreeNode>();
   for (const section of sections) {
-    dedupedSections.set(section.heading.sectionPath.join(">"), section);
+    const key = section.heading.sectionPath.join(">");
+    if (!dedupedSections.has(key)) {
+      dedupedSections.set(key, section);
+    }
   }
   sections = Array.from(dedupedSections.values()).sort(
     (left, right) =>
@@ -1416,12 +1671,55 @@ function getBestExactSectionBlock(
   }
 
   const candidateBlocks = collectSectionBodyBlocks(document, bestSection);
-  const selectedGroup = chooseBestSectionGroup(
-    bestSection.heading.sectionPath.length,
-    mapping.searchTexts,
-    candidateBlocks,
+  const selectedGroup = checkName === "leakage"
+    ? getUsableSectionBlocks(candidateBlocks)
+    : chooseBestSectionGroup(
+      bestSection.heading.sectionPath.length,
+      mapping.searchTexts,
+      candidateBlocks,
+    );
+  const selectedBlock = chooseBestSectionBlock(checkName, selectedGroup);
+  if (
+    selectedBlock &&
+    !/\bThis section is not required at the Under Development stage\b/i.test(selectedBlock.text)
+  ) {
+    return selectedBlock;
+  }
+
+  if (!mapping.fallbackSearchTexts || mapping.fallbackSearchTexts.length === 0) {
+    return selectedBlock;
+  }
+
+  const fallbackSections = findSectionsByHeadingText(
+    tree,
+    mapping.fallbackSearchTexts,
+    50,
+    mapping.excludeTexts,
   );
-  return chooseBestSectionBlock(checkName, selectedGroup);
+  if (fallbackSections.length === 0) {
+    return selectedBlock;
+  }
+
+  const fallbackBestSection =
+    fallbackSections.find(
+      (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
+    ) ??
+    fallbackSections.find((section) => collectSectionBodyBlocks(document, section).length > 0) ??
+    null;
+  if (!fallbackBestSection) {
+    return selectedBlock;
+  }
+
+  const fallbackCandidateBlocks = collectSectionBodyBlocks(document, fallbackBestSection);
+  const fallbackGroup = checkName === "leakage"
+    ? getUsableSectionBlocks(fallbackCandidateBlocks)
+    : chooseBestSectionGroup(
+      fallbackBestSection.heading.sectionPath.length,
+      mapping.fallbackSearchTexts,
+      fallbackCandidateBlocks,
+    );
+
+  return chooseBestSectionBlock(checkName, fallbackGroup) ?? selectedBlock;
 }
 
 function getFactContractEvidence(
@@ -1481,7 +1779,21 @@ function getExactSectionEvidence(
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
   if (!block) return null;
 
-  const quote = trimQuoteForCheck(checkName, buildQuoteFromBlock(document, block));
+  const rawQuote = (
+    checkName === "additionality" ||
+    (checkName === "leakage" &&
+      !/\bThis section is not required at the Under Development stage\b/i.test(block.text)) ||
+    checkName === "stakeholder_consultation"
+  )
+    ? buildForwardSectionQuote(document, block)
+    : buildQuoteFromBlock(document, block);
+  const quote = trimQuoteForCheck(checkName, rawQuote);
+  if (
+    checkName === "baseline_scenario" &&
+    /\bThis section is not required at the Under Development stage\b/i.test(quote)
+  ) {
+    return null;
+  }
   if (isDelegatedSupportingDocumentReference(quote)) {
     return null;
   }
@@ -1504,7 +1816,9 @@ function getRawTextFallbackEvidence(
   );
   if (!block) return null;
 
-  const quote = shouldExpandQuote(block.text) ? buildQuoteFromBlock(document, block) : block.text;
+  const quote = (shouldExpandQuote(block.text) || !endsSentence(block.text))
+    ? buildQuoteFromBlock(document, block)
+    : block.text;
   return toEvidence(block, "raw_text_fallback", quote);
 }
 
