@@ -130,12 +130,11 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(baseline?.quote).toContain("sanctioned deforestation caused by conversion to industrial agriculture");
 
     expect(additionality).not.toBeNull();
-    expect(additionality?.page).toBe(91);
+    expect(additionality?.page).toBe(92);
     expect(additionality?.sectionHeading).toContain("Additionality Methods");
-    expect(additionality?.quote).toContain("VT0001 Tool for the Demonstration and Assessment of Additionality");
     expect(additionality?.quote).toContain("Alternative A - Clearing of Forest and Conversion to Agriculture");
-    expect(additionality?.sectionHeading).not.toContain("Community and Biodiversity Additionality");
-    expect(additionality?.quote).not.toContain("In the absence of the project, the tropical forests of the project area would have been lost");
+    expect(additionality?.quote).toContain("simple cost analysis (Option 1) is selected");
+    expect(additionality?.quote).not.toContain("The following analysis was conducted to determine alternative baseline scenarios");
 
     expect(leakage).not.toBeNull();
     expect(leakage?.page).toBe(116);
@@ -144,10 +143,106 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(leakage?.quote).not.toContain("Not applicable. Refer to 3.2.3 Leakage Emissions.");
 
     expect(stakeholder).not.toBeNull();
-    expect(stakeholder?.page).toBe(54);
-    expect(stakeholder?.quote).toContain("29 May 2024 to June 9, 2024");
-    expect(stakeholder?.quote).toContain("23 August 2024 to 28 August 2024");
-    expect(stakeholder?.quote).toContain("Table 7");
+    expect(stakeholder?.page).toBe(57);
+    expect(stakeholder?.quote).toContain("Table 7. Stakeholder comments received and actions taken");
+    expect(stakeholder?.quote).toContain("Request for inclusion of Freetown Sibun in the project");
+    expect(stakeholder?.quote).toContain("Activities planned for La Democracia will include backyard gardens");
+  });
+
+  it("prefers an additionality conclusion over an earlier VT0001 introduction", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:heading",
+        page: 1,
+        text: "3.1.5 Additionality Methods",
+        blockType: "heading",
+        sectionHeading: "Additionality Methods",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2:body",
+        page: 1,
+        text: "The following analysis was conducted to determine alternative baseline scenarios according to VT0001 Version 3.0.",
+        blockType: "body",
+        sectionHeading: "Additionality Methods",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b1:body",
+        page: 2,
+        text: "Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario.",
+        blockType: "body",
+        sectionHeading: "Additionality Methods",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b2:body",
+        page: 2,
+        text: "Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected.",
+        blockType: "body",
+        sectionHeading: "Additionality Methods",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(2);
+    expect(result.evidence!.quote).toContain("Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario.");
+    expect(result.evidence!.quote).toContain("simple cost analysis (Option 1) is selected.");
+    expect(result.evidence!.quote).not.toContain("The following analysis was conducted to determine alternative baseline scenarios");
+  });
+
+  it("prefers Table 7 comment-action evidence over an earlier consultation summary", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:body",
+        page: 1,
+        text: "29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b1:body",
+        page: 2,
+        text: "Table 7. Stakeholder comments received and actions taken",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b2:body",
+        page: 2,
+        text: "Request for inclusion of River Valley in the project. June 6, 2024 Although near to two project communities, River Valley was not identified as a priority target community.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b3:body",
+        page: 2,
+        text: "A call from the Community Board for increased coordination with WCS in the implementation of livelihoods activities to avoid duplication of efforts. August 23, 2024 WCS has increased coordination with the Community Board.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3", "2.3.10"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "stakeholder_consultation");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.page).toBe(2);
+    expect(result.evidence!.quote).toContain("Table 7. Stakeholder comments received and actions taken");
+    expect(result.evidence!.quote).toContain("Request for inclusion of River Valley in the project");
+    expect(result.evidence!.quote).not.toContain("29 May 2024 to June 9, 2024 Stakeholder engagement process");
   });
 
   it("prefers exact section evidence over an earlier raw-text fallback match", () => {

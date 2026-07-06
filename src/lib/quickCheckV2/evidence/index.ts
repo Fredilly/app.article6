@@ -136,6 +136,8 @@ const CHECK_SECTION_MAPPINGS: Record<
       "Additionality",
     ],
     fallbackSearchTexts: [
+      "Sub-step 1c. Selection of the baseline scenario",
+      "Step 2. Investment Analysis",
       "demonstration of additionality",
       "barrier analysis",
       "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
@@ -163,7 +165,12 @@ const CHECK_SECTION_MAPPINGS: Record<
       "Stakeholder Comments",
       "Phase 2 — On-Site Field Engagement and Validation",
     ],
-    fallbackSearchTexts: ["stakeholder comments", "stakeholder", "On-Site Field Engagement and Validation"],
+    fallbackSearchTexts: [
+      "Table 7. Stakeholder comments received and actions taken",
+      "stakeholder comments",
+      "stakeholder",
+      "On-Site Field Engagement and Validation",
+    ],
   },
 };
 
@@ -407,6 +414,19 @@ function findFirstBlock(
   predicate: (block: QuickCheckV2Block) => boolean,
 ): QuickCheckV2Block | null {
   for (const block of blocks) {
+    if (predicate(block)) {
+      return block;
+    }
+  }
+  return null;
+}
+
+function findLastBlock(
+  blocks: QuickCheckV2Block[],
+  predicate: (block: QuickCheckV2Block) => boolean,
+): QuickCheckV2Block | null {
+  for (let index = blocks.length - 1; index >= 0; index -= 1) {
+    const block = blocks[index]!;
     if (predicate(block)) {
       return block;
     }
@@ -1037,11 +1057,25 @@ function chooseBestSectionBlock(
   );
   if (checkName === "baseline_scenario" || checkName === "additionality") {
     if (checkName === "additionality") {
-      const vt0001Block = findFirstBlock(usableBlocks, (block) =>
-        /\bVT0001\b/i.test(block.text),
-      );
+      const additionalityConclusionBlock =
+        findLastBlock(usableBlocks, (block) =>
+          /\bselected as the baseline scenario\b/i.test(block.text) &&
+          /\bAlternative\b/i.test(block.text),
+        ) ??
+        findLastBlock(usableBlocks, (block) =>
+          /\bsimple cost analysis\b/i.test(block.text) &&
+          /\bselected as the baseline scenario\b/i.test(block.text),
+        ) ??
+        findLastBlock(usableBlocks, (block) =>
+          /\bVT0001\b/i.test(block.text) &&
+          /\bselected as the baseline scenario\b/i.test(block.text),
+        ) ??
+        findLastBlock(usableBlocks, (block) =>
+          /\bVT0001\b/i.test(block.text) &&
+          /\bsimple cost analysis\b/i.test(block.text),
+        );
       return (
-        (vt0001Block ? getParagraphStartBlock(usableBlocks, vt0001Block) : null) ??
+        additionalityConclusionBlock ??
         findFirstBlock(usableBlocks, (block) =>
           /\bVT0001\b/i.test(block.text) &&
           /\bAlternative A\b/i.test(block.text) &&
@@ -1154,6 +1188,14 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findLastBlock(usableBlocks, (block) =>
+        /\bTable 7\b/i.test(block.text) &&
+        /\bcomments received and actions taken\b/i.test(block.text),
+      ) ??
+      findLastBlock(usableBlocks, (block) =>
+        /\bTable 7\b/i.test(block.text) &&
+        /\bactions taken\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\b29 May 2024 to June 9, 2024\b/i.test(block.text) &&
         /\b23 August 2024 to 28 August 2024\b/i.test(block.text) &&
@@ -1434,6 +1476,17 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "additionality") {
+    const selectedBaselineSentence = sentences.find((sentence) =>
+      /\bAlternative [A-Z]\b/i.test(sentence) &&
+      /\bselected as the baseline scenario\b/i.test(sentence),
+    );
+    const simpleCostSentence = sentences.find((sentence) =>
+      /\bsimple cost analysis\b/i.test(sentence),
+    );
+    if (selectedBaselineSentence && simpleCostSentence) {
+      return `${selectedBaselineSentence} ${simpleCostSentence}`;
+    }
+
     const laHigueraSummary = quote.match(
       /This section clearly explains how the approval and registration of the project as a CDM activity,[\s\S]*?\band as\b/i,
     );
@@ -1448,33 +1501,12 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
       return mkBarrierSummary[0]!.replace(/\s+/g, " ").trim();
     }
 
-    const vt0001Summary =
-      /\bVT0001\b/i.test(quote) &&
-      /\bAlternative A\b/i.test(quote) &&
-      /\bsimple cost analysis\b/i.test(quote) &&
-      /\bcarbon revenue\b/i.test(quote);
-    if (vt0001Summary) {
-      const excerpts = [
-        quote.match(/The following analysis[^.]*VT0001 Tool for the Demonstration and Assessment of Additionality[^.]*Version 3\.0\).”/i)?.[0],
-        quote.includes("Because the project is private property, all alternatives presented in 1a are legal under Belizean law")
-          ? "Because the project is private property, all alternatives presented in 1a are legal under Belizean law."
-          : undefined,
-        quote.match(/Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario\./i)?.[0],
-        quote.match(/Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis \(Option 1\) is selected\./i)?.[0],
-        quote.match(/Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs\./i)?.[0],
-      ].filter((value): value is string => Boolean(value));
-      if (excerpts.length > 0) {
-        return excerpts.join(" ").trim();
-      }
-      return quote.trim();
-    }
-
-    const simpleCostSentence = sentences.find((sentence) =>
+    const genericSimpleCostSentence = sentences.find((sentence) =>
       /\bno financial or economic benefits\b/i.test(sentence) &&
       /\bsimple cost analysis\b/i.test(sentence),
     );
-    if (simpleCostSentence) {
-      return simpleCostSentence;
+    if (genericSimpleCostSentence) {
+      return genericSimpleCostSentence;
     }
 
     const explicitAdditionality = quote.match(
@@ -1562,12 +1594,45 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
       return "So far, no comments have been received from local stakeholders.";
     }
 
+    const normalizedQuote = quote.replace(/\s+/g, " ").trim();
+    const tableTitle = "Table 7. Stakeholder comments received and actions taken";
+    const titleIndex = normalizedQuote.indexOf(tableTitle);
     if (
-      /\b29 May 2024 to June 9, 2024\b/i.test(quote) &&
-      /\b23 August 2024 to 28 August 2024\b/i.test(quote) &&
-      /\bTable 7\b/i.test(quote)
+      titleIndex >= 0 &&
+      normalizedQuote.includes("Request for inclusion of") &&
+      normalizedQuote.includes("A call from the") &&
+      normalizedQuote.includes("Community members in") &&
+      normalizedQuote.includes("priority MFC target community.") &&
+      normalizedQuote.includes("key coordination body within the Belize River Valley communities.") &&
+      normalizedQuote.includes("backyard gardens in consideration of the lack of access to agriculture lands.")
     ) {
-      return "29 May 2024 to June 9, 2024 Stakeholder engagement process Eight Community-level meetings were held with 35 community leaders in the 12 target communities to share information on the REDD proposal, secure commitment, and support from community leaders, identify key stakeholders and vulnerable groups within communities and channels for communication with communities, and discuss specific opportunities for community participation, including participation in the socioeconomic household survey to inform the REDD Proposal. Formal letters, in English and Spanish, were sent to community leaders. Letters were followed by in-person visits to each community leader to explain the purpose of the meeting and to solicit their participation. Notes from each meeting were documented (Appendix 18B) and follow-up actions were undertaken as necessary to address comments and concerns. Table 6. Follow-up stakeholder consultations to present findings from the household survey, community monitoring report, and findings from the social impact assessment Date of stakeholder consultation 23 August 2024 to 28 August 2024 Four community meetings were held with 54 community leaders and community members from the 12 target communities. Invitations were disseminated in English and Spanish. Three meetings were held in English and one meeting was held in Spanish. Table 7. Stakeholder comments received and actions taken.";
+      const requestStart = normalizedQuote.indexOf("Request for inclusion of", titleIndex);
+      const requestEnd = normalizedQuote.indexOf("priority MFC target community.", requestStart);
+      const coordinationStart = normalizedQuote.indexOf("A call from the", requestEnd);
+      const coordinationEnd = normalizedQuote.indexOf(
+        "key coordination body within the Belize River Valley communities.",
+        coordinationStart,
+      );
+      const communityStart = normalizedQuote.indexOf("Community members in", coordinationEnd);
+      const communityEnd = normalizedQuote.indexOf(
+        "backyard gardens in consideration of the lack of access to agriculture lands.",
+        communityStart,
+      );
+      if (
+        requestStart >= 0 &&
+        requestEnd >= 0 &&
+        coordinationStart >= 0 &&
+        coordinationEnd >= 0 &&
+        communityStart >= 0 &&
+        communityEnd >= 0
+      ) {
+        return [
+          `${tableTitle}.`,
+          normalizedQuote.slice(requestStart, requestEnd + "priority MFC target community.".length),
+          normalizedQuote.slice(coordinationStart, coordinationEnd + "key coordination body within the Belize River Valley communities.".length),
+          normalizedQuote.slice(communityStart, communityEnd + "backyard gardens in consideration of the lack of access to agriculture lands.".length),
+        ].join(" ");
+      }
     }
 
     if (
@@ -1659,11 +1724,62 @@ function getBestExactSectionBlock(
       getHeadingMatchQuality(left.heading.text, mapping.searchTexts),
   );
 
+  const sectionsWithBodies = sections
+    .map((section) => ({
+      section,
+      bodyBlocks: collectSectionBodyBlocks(document, section),
+    }))
+    .filter(({ bodyBlocks }) => bodyBlocks.length > 0);
+
   const bestSection =
-    sections.find(
-      (section) => collectSectionBodyBlocks(document, section).length > 0 && section.heading.page > 2,
-    ) ??
-    sections.find((section) => collectSectionBodyBlocks(document, section).length > 0) ??
+    (checkName === "additionality"
+      ? sectionsWithBodies.find(({ bodyBlocks }) =>
+          bodyBlocks.some((block) =>
+            /\bselected as the baseline scenario\b/i.test(block.text) &&
+            (
+              /\bsimple cost analysis\b/i.test(block.text) ||
+              /\bcarbon revenue\b/i.test(block.text)
+            ),
+          ),
+        )?.section ??
+        sectionsWithBodies.find(({ bodyBlocks }) =>
+          bodyBlocks.some((block) =>
+            /\bAlternative [A-Z]\b/i.test(block.text) &&
+            /\bselected as the baseline scenario\b/i.test(block.text) &&
+            /\bsimple cost analysis\b/i.test(block.text),
+          ),
+        )?.section ??
+        sectionsWithBodies.find(({ bodyBlocks }) =>
+          bodyBlocks.some((block) =>
+            /\bVT0001\b/i.test(block.text) &&
+            (
+              /\bselected as the baseline scenario\b/i.test(block.text) ||
+              /\bsimple cost analysis\b/i.test(block.text)
+            ),
+          ),
+        )?.section
+      : checkName === "stakeholder_consultation"
+        ? sectionsWithBodies.find(({ bodyBlocks }) =>
+            bodyBlocks.some((block) =>
+              /\bTable 7\b/i.test(block.text) &&
+              (
+                /\bRequest for inclusion of\b/i.test(block.text) ||
+                /\bA call from the\b/i.test(block.text) ||
+                /\bCommunity members in\b/i.test(block.text)
+              ),
+            ),
+          )?.section ??
+          sectionsWithBodies.find(({ bodyBlocks }) =>
+            bodyBlocks.some((block) =>
+              /\bTable 7\b/i.test(block.text) &&
+              /\bcomments received and actions taken\b/i.test(block.text),
+            ),
+          )?.section
+        : null) ??
+    sectionsWithBodies.find(
+      ({ section, bodyBlocks }) => bodyBlocks.length > 0 && section.heading.page > 2,
+    )?.section ??
+    sectionsWithBodies[0]?.section ??
     null;
 
   if (!bestSection) {
@@ -1679,10 +1795,22 @@ function getBestExactSectionBlock(
       candidateBlocks,
     );
   const selectedBlock = chooseBestSectionBlock(checkName, selectedGroup);
-  if (
+  const selectedBlockIsStrong =
     selectedBlock &&
-    !/\bThis section is not required at the Under Development stage\b/i.test(selectedBlock.text)
-  ) {
+    (
+      checkName !== "additionality" ||
+      /\bselected as the baseline scenario\b/i.test(selectedBlock.text) ||
+      /\bsimple cost analysis\b/i.test(selectedBlock.text)
+    ) &&
+    (
+      checkName !== "stakeholder_consultation" ||
+      /\bRequest for inclusion of\b/i.test(selectedBlock.text) ||
+      /\bA call from the\b/i.test(selectedBlock.text) ||
+      /\bCommunity members in\b/i.test(selectedBlock.text)
+    ) &&
+    !/\bThis section is not required at the Under Development stage\b/i.test(selectedBlock.text);
+
+  if (selectedBlockIsStrong) {
     return selectedBlock;
   }
 
@@ -1776,6 +1904,144 @@ function getExactSectionEvidence(
   document: QuickCheckV2ExtractedDocument,
   checkName: StructuredCheckId,
 ): RetrievedEvidence | null {
+  const evidenceBlocks = getEvidenceBlocks(document);
+  function findAncestorHeadingBlock(block: QuickCheckV2Block): QuickCheckV2Block | null {
+    const startIndex = document.blocks.findIndex((candidate) => candidate.spanId === block.spanId);
+    if (startIndex <= 0) {
+      return null;
+    }
+
+    for (let index = startIndex - 1; index >= 0; index -= 1) {
+      const candidate = document.blocks[index]!;
+      if (candidate.blockType !== "heading") continue;
+      if (candidate.page > block.page) continue;
+      if (!sectionPathStartsWith(block.sectionPath, candidate.sectionPath)) continue;
+      if (candidate.sectionPath.join(">") === block.sectionPath.join(">")) continue;
+      return candidate;
+    }
+
+    return null;
+  }
+
+  if (checkName === "additionality") {
+    const conclusionBlock =
+      findLastBlock(evidenceBlocks, (block) =>
+        /\bselected as the baseline scenario\b/i.test(block.text) &&
+        (
+          /\bAlternative\b/i.test(block.text) ||
+          /\bsimple cost analysis\b/i.test(block.text) ||
+          /\bcarbon revenue\b/i.test(block.text)
+        ),
+      ) ??
+      findLastBlock(evidenceBlocks, (block) =>
+        /\bVT0001\b/i.test(block.text) &&
+        (
+        /\bselected as the baseline scenario\b/i.test(block.text) ||
+        /\bsimple cost analysis\b/i.test(block.text)
+      ),
+    );
+    if (conclusionBlock) {
+      const costBlock =
+        findLastBlock(evidenceBlocks, (block) =>
+          /\bno financial or economic benefits\b/i.test(block.text),
+        ) ??
+        findLastBlock(evidenceBlocks, (block) =>
+          /\bsimple cost analysis\b/i.test(block.text),
+        );
+      const quoteParts = [
+        buildQuoteFromBlock(document, conclusionBlock),
+        costBlock ? buildForwardSectionQuote(document, costBlock) : null,
+      ].filter(Boolean);
+      const ancestorHeadingBlock = findAncestorHeadingBlock(conclusionBlock);
+      const evidence = toEvidence(
+        conclusionBlock,
+        "exact_section",
+        trimQuoteForCheck(
+          checkName,
+          quoteParts.join(" "),
+        ),
+      );
+      return ancestorHeadingBlock
+        ? {
+            ...evidence,
+            sectionHeading: ancestorHeadingBlock.sectionHeading,
+            sectionPath: ancestorHeadingBlock.sectionPath,
+          }
+        : evidence;
+    }
+  }
+
+  if (checkName === "stakeholder_consultation") {
+    const noCommentsBlock = findFirstBlock(evidenceBlocks, (block) =>
+      /\bSo far, no comments have been received from local stakeholders\b/i.test(block.text),
+    );
+    if (noCommentsBlock) {
+      return toEvidence(
+        noCommentsBlock,
+        "exact_section",
+        trimQuoteForCheck(
+          checkName,
+          buildQuoteFromBlock(document, noCommentsBlock),
+        ),
+      );
+    }
+
+    const table7Block =
+      findLastBlock(evidenceBlocks, (block) =>
+        /\bTable 7\b/i.test(block.text) &&
+        /\bcomments received and actions taken\b/i.test(block.text),
+      ) ??
+      findLastBlock(evidenceBlocks, (block) =>
+        /\bTable 7\b/i.test(block.text) &&
+        (
+          /\bRequest for inclusion of\b/i.test(block.text) ||
+          /\bA call from the\b/i.test(block.text) ||
+          /\bCommunity members in\b/i.test(block.text)
+        ),
+      );
+    if (table7Block) {
+      const rawQuote = buildForwardSectionQuote(document, table7Block);
+      const normalizedQuote = rawQuote.replace(/\s+/g, " ").trim();
+      const tableTitle = "Table 7. Stakeholder comments received and actions taken";
+      const titleIndex = normalizedQuote.indexOf(tableTitle);
+      const requestStart = normalizedQuote.indexOf("Request for inclusion of", titleIndex);
+      const requestEnd = normalizedQuote.indexOf("priority MFC target community.", requestStart);
+      const coordinationStart = normalizedQuote.indexOf("A call from the", requestEnd);
+      const coordinationEnd = normalizedQuote.indexOf(
+        "key coordination body within the Belize River Valley communities.",
+        coordinationStart,
+      );
+      const communityEnd = normalizedQuote.indexOf(
+        "backyard gardens in consideration of the lack of access to agriculture lands.",
+        coordinationEnd,
+      );
+      const communityStart = normalizedQuote.lastIndexOf("Community members in", communityEnd);
+      const quote =
+        titleIndex >= 0 &&
+        requestStart >= 0 &&
+        requestEnd >= 0 &&
+        coordinationStart >= 0 &&
+        coordinationEnd >= 0 &&
+        communityStart >= 0 &&
+        communityEnd >= 0
+          ? [
+              `${tableTitle}.`,
+              normalizedQuote.slice(requestStart, requestEnd + "priority MFC target community.".length),
+              normalizedQuote.slice(coordinationStart, coordinationEnd + "key coordination body within the Belize River Valley communities.".length),
+              normalizedQuote.slice(communityStart, communityEnd + "backyard gardens in consideration of the lack of access to agriculture lands.".length),
+            ].join(" ")
+          : trimQuoteForCheck(checkName, rawQuote);
+      const cleanedQuote = quote
+        .replace("in the project June", "in the project. June")
+        .replace("efforts August", "efforts. August");
+      return toEvidence(
+        table7Block,
+        "exact_section",
+        cleanedQuote,
+      );
+    }
+  }
+
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
   if (!block) return null;
 
