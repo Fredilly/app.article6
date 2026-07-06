@@ -1938,30 +1938,6 @@ function getExactSectionEvidence(
   }
 
   if (checkName === "additionality") {
-    const underDevelopmentBlock = findFirstBlock(evidenceBlocks, (block) =>
-      /\bThis section is under development\b/i.test(block.text) &&
-      /\bAdditionality Methods\b/i.test(block.sectionHeading ?? "") &&
-      block.sectionPath[block.sectionPath.length - 1] === "3.1.5.2",
-    );
-    if (underDevelopmentBlock) {
-      const ancestorHeadingBlock = findAncestorHeadingBlock(underDevelopmentBlock);
-      const evidence = toEvidence(
-        underDevelopmentBlock,
-        "exact_section",
-        trimQuoteForCheck(
-          checkName,
-          buildQuoteFromBlock(document, underDevelopmentBlock),
-        ),
-      );
-      return ancestorHeadingBlock
-        ? {
-            ...evidence,
-            sectionHeading: ancestorHeadingBlock.sectionHeading,
-            sectionPath: ancestorHeadingBlock.sectionPath,
-          }
-        : evidence;
-    }
-
     const conclusionBlock =
       findLastBlock(evidenceBlocks, (block) =>
         /\bselected as the baseline scenario\b/i.test(block.text) &&

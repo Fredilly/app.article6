@@ -333,7 +333,7 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
     if (/\bThis section is under development\b/i.test(quote)) {
-      return "The PDD describes a without-project scenario of continued unplanned deforestation and degradation, but the formal Baseline Scenario section is under development.";
+      return "Baseline scenario is under development.";
     }
     const sanctionedDeforestationSentence = sentenceContaining(
       quote,
@@ -395,7 +395,7 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
     if (/\bThis section is under development\b/i.test(quote)) {
-      return "Additionality is under development.";
+      return "Additionality section is under development.";
     }
     if (
       /\b(?:without[- ]project|in the absence of|project was not implemented with the intent)\b/i.test(quote)
@@ -482,7 +482,7 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
     if (/\bThis section is under development\b/i.test(quote)) {
-      return "Leakage assessment is not provided. Leakage Management and Leakage Emissions sections are under development.";
+      return "Leakage section is under development.";
     }
     if (/\bThis section is not required at the Under Development stage\b/i.test(quote)) {
       return null;
@@ -525,7 +525,7 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
     if (/\bThis section is under development\b/i.test(quote)) {
-      return "The PDD makes a broad FPIC/stakeholder engagement claim, but the detailed stakeholder consultation sections are under development.";
+      return "Stakeholder consultation section is under development.";
     }
     const table7Summary = summarizeStakeholderCommentActions(quote);
     if (table7Summary) {
