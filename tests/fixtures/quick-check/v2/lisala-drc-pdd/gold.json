@@ -1,0 +1,100 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Democratic Republic of Congo",
+    "goldQuote": "Project location The Democratic Republic of Congo, Mongala Province, Lisala territory",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p1:b20:1136c4a4",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007 REDD+ Methodology Framework (REDD+ MF) v1.8",
+    "goldQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+    "page": 46,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p46:b1874:bbda428e",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
+      "evidencePage": 46,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "The PDD describes a without-project scenario of continued unplanned deforestation and degradation, but the formal Baseline Scenario section is under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 51,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.4"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p51:b2212:b29575cf",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Additionality is under development.",
+    "goldQuote": "This section is under development.",
+    "page": 52,
+    "sectionHeading": "Additionality (VCS, 3.14)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.5"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p52:b2235:6e0d8f18",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Leakage assessment is not provided. Leakage Management and Leakage Emissions sections are under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 52,
+    "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+    "sectionPath": [
+      "3",
+      "3.2",
+      "3.2.3"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p52:b2238:d0ffd4be",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "The PDD makes a broad FPIC/stakeholder engagement claim, but the detailed stakeholder consultation sections are under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 34,
+    "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+    "sectionPath": [
+      "2",
+      "2.3",
+      "2.3.1"
+    ],
+    "spanId": "lisala-drc-pdd-extracted:p34:b1391:3d277953",
+    "sourceType": "exact_section"
+  }
+]
