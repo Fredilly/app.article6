@@ -19,6 +19,9 @@ const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 const MARCONDES_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/marcondes-pdd/extracted.txt";
 const MARCONDES_DOCUMENT_ID = "marcondes-pdd-extracted";
+const MAYA_FIXTURE_PATH =
+  "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/extracted.txt";
+const MAYA_DOCUMENT_ID = "maya-forest-corridor-redd-belize-extracted";
 
 function answerIsGroundedInEvidence(
   answer: string | null,
@@ -57,9 +60,14 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     MARCONDES_FIXTURE_PATH,
     MARCONDES_DOCUMENT_ID,
   );
+  const mayaDocument = loadAndParseExtractedText(
+    MAYA_FIXTURE_PATH,
+    MAYA_DOCUMENT_ID,
+  );
   const selectedEvidence = retrieveEvidenceForAllChecks(document);
   const answers = extractAnswersForAllChecks(document);
   const marcondesAnswers = extractAnswersForAllChecks(marcondesDocument);
+  const mayaAnswers = extractAnswersForAllChecks(mayaDocument);
 
   it("returns answer results for all six structured checks", () => {
     expect(answers.map((result) => result.checkName)).toStrictEqual([
@@ -240,6 +248,25 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     const result = marcondesAnswers.find((item) => item.checkName === "stakeholder_consultation");
     expect(result?.answer).toContain("Exploratory visit");
     expect(result?.answer).toContain("FPIC Principal Assembly");
+  });
+
+  it("extracts the reviewed Maya answers from the stronger formal evidence", () => {
+    expect(mayaAnswers.find((item) => item.checkName === "host_country")?.answer).toBe("Belize");
+    expect(mayaAnswers.find((item) => item.checkName === "methodology")?.answer).toBe(
+      "VM0007 REDD+ Methodology Framework v1.8",
+    );
+    expect(mayaAnswers.find((item) => item.checkName === "baseline_scenario")?.answer).toBe(
+      "REDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture",
+    );
+    expect(mayaAnswers.find((item) => item.checkName === "additionality")?.answer).toBe(
+      "VT0001 v3.0 finds all alternatives are legal under Belizean law, selects Alternative A as the baseline scenario, and uses simple cost analysis because the project depends on carbon revenue.",
+    );
+    expect(mayaAnswers.find((item) => item.checkName === "leakage")?.answer).toBe(
+      "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the likely baseline commodity; timber leakage is excluded as de minimis.",
+    );
+    expect(mayaAnswers.find((item) => item.checkName === "stakeholder_consultation")?.answer).toBe(
+      "Initial consultations were held from 29 May 2024 to 9 June 2024, follow-up consultations were held from 23 August 2024 to 28 August 2024, engagement was conducted in English and Spanish, and Table 7 summarizes comments received and actions taken.",
+    );
   });
 
   it("returns null when evidence is missing", () => {

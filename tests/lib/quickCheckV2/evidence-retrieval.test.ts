@@ -10,6 +10,9 @@ import {
 const ENVIRA_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/envira/extracted.txt";
 const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
+const MAYA_FIXTURE_PATH =
+  "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/extracted.txt";
+const MAYA_DOCUMENT_ID = "maya-forest-corridor-redd-belize-extracted";
 
 function makeSyntheticDocument(
   blocks: QuickCheckV2ExtractedDocument["blocks"],
@@ -26,6 +29,10 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
   const enviraDoc = loadAndParseExtractedText(
     ENVIRA_FIXTURE_PATH,
     ENVIRA_DOCUMENT_ID,
+  );
+  const mayaDoc = loadAndParseExtractedText(
+    MAYA_FIXTURE_PATH,
+    MAYA_DOCUMENT_ID,
   );
   const allEvidence = retrieveEvidenceForAllChecks(enviraDoc);
 
@@ -97,6 +104,50 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
       expect(result.evidence!.sectionHeading).toContain(expectation.sectionText);
       expect(result.evidence!.page).toBe(expectation.page);
     }
+  });
+
+  it("routes Maya evidence to the formal truth sections", () => {
+    const hostCountry = retrieveEvidenceForCheck(mayaDoc, "host_country").evidence;
+    const methodology = retrieveEvidenceForCheck(mayaDoc, "methodology").evidence;
+    const baseline = retrieveEvidenceForCheck(mayaDoc, "baseline_scenario").evidence;
+    const additionality = retrieveEvidenceForCheck(mayaDoc, "additionality").evidence;
+    const leakage = retrieveEvidenceForCheck(mayaDoc, "leakage").evidence;
+    const stakeholder = retrieveEvidenceForCheck(mayaDoc, "stakeholder_consultation").evidence;
+
+    expect(hostCountry).not.toBeNull();
+    expect(hostCountry?.page).toBe(1);
+    expect(hostCountry?.quote).toContain("Project location Belize, Belize and Cayo Districts");
+
+    expect(methodology).not.toBeNull();
+    expect(methodology?.page).toBe(83);
+    expect(methodology?.quote).toContain("Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8");
+    expect(methodology?.quote).not.toContain("Tool AFOLU Non-Permanence Risk Tool");
+    expect(methodology?.quote).not.toContain("Module VMD0009");
+
+    expect(baseline).not.toBeNull();
+    expect(baseline?.page).toBe(89);
+    expect(baseline?.sectionHeading).toContain("Baseline Scenario");
+    expect(baseline?.quote).toContain("sanctioned deforestation caused by conversion to industrial agriculture");
+
+    expect(additionality).not.toBeNull();
+    expect(additionality?.page).toBe(91);
+    expect(additionality?.sectionHeading).toContain("Additionality Methods");
+    expect(additionality?.quote).toContain("VT0001 Tool for the Demonstration and Assessment of Additionality");
+    expect(additionality?.quote).toContain("Alternative A - Clearing of Forest and Conversion to Agriculture");
+    expect(additionality?.sectionHeading).not.toContain("Community and Biodiversity Additionality");
+    expect(additionality?.quote).not.toContain("In the absence of the project, the tropical forests of the project area would have been lost");
+
+    expect(leakage).not.toBeNull();
+    expect(leakage?.page).toBe(116);
+    expect(leakage?.sectionHeading).toContain("Leakage Emissions");
+    expect(leakage?.quote).toContain("VMD0009");
+    expect(leakage?.quote).not.toContain("Not applicable. Refer to 3.2.3 Leakage Emissions.");
+
+    expect(stakeholder).not.toBeNull();
+    expect(stakeholder?.page).toBe(54);
+    expect(stakeholder?.quote).toContain("29 May 2024 to June 9, 2024");
+    expect(stakeholder?.quote).toContain("23 August 2024 to 28 August 2024");
+    expect(stakeholder?.quote).toContain("Table 7");
   });
 
   it("prefers exact section evidence over an earlier raw-text fallback match", () => {
