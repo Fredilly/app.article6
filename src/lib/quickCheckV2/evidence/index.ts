@@ -652,7 +652,13 @@ function detectBlockType(
   if (isLikelyTableOfContentsLine(trimmed)) return "unknown";
   if (detectSectionHeading(trimmed).isHeading) return "heading";
   if (isTableLine(trimmed)) return "table";
-  if (isFirstContentLine && trimmed.length <= 180) return "heading";
+  if (
+    isFirstContentLine &&
+    trimmed.length <= 180 &&
+    !/\bthis section is under development\b/i.test(trimmed)
+  ) {
+    return "heading";
+  }
   return "body";
 }
 
@@ -1442,6 +1448,10 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
     return sentences.find((sentence) => /\b(VM\d{4}|VMD\d{4})\b/i.test(sentence)) ?? quote.trim();
   }
 
+  if (checkName === "additionality" && /\bThis section is under development\b/i.test(quote)) {
+    return "This section is under development.";
+  }
+
   if (checkName === "baseline_scenario") {
     const marcondesBaseline = quote.match(
       /The most likely scenario observed for the Marcondes project area[\s\S]*?following VM0007 v1\.8\./i,
@@ -1733,7 +1743,11 @@ function getBestExactSectionBlock(
 
   const bestSection =
     (checkName === "additionality"
-      ? sectionsWithBodies.find(({ bodyBlocks }) =>
+      ? sectionsWithBodies.find(({ section }) =>
+          /\bAdditionality\b/i.test(section.heading.text) &&
+          !/\bMethods?\b/i.test(section.heading.text),
+        )?.section ??
+        sectionsWithBodies.find(({ bodyBlocks }) =>
           bodyBlocks.some((block) =>
             /\bselected as the baseline scenario\b/i.test(block.text) &&
             (
@@ -1924,6 +1938,30 @@ function getExactSectionEvidence(
   }
 
   if (checkName === "additionality") {
+    const underDevelopmentBlock = findFirstBlock(evidenceBlocks, (block) =>
+      /\bThis section is under development\b/i.test(block.text) &&
+      /\bAdditionality Methods\b/i.test(block.sectionHeading ?? "") &&
+      block.sectionPath[block.sectionPath.length - 1] === "3.1.5.2",
+    );
+    if (underDevelopmentBlock) {
+      const ancestorHeadingBlock = findAncestorHeadingBlock(underDevelopmentBlock);
+      const evidence = toEvidence(
+        underDevelopmentBlock,
+        "exact_section",
+        trimQuoteForCheck(
+          checkName,
+          buildQuoteFromBlock(document, underDevelopmentBlock),
+        ),
+      );
+      return ancestorHeadingBlock
+        ? {
+            ...evidence,
+            sectionHeading: ancestorHeadingBlock.sectionHeading,
+            sectionPath: ancestorHeadingBlock.sectionPath,
+          }
+        : evidence;
+    }
+
     const conclusionBlock =
       findLastBlock(evidenceBlocks, (block) =>
         /\bselected as the baseline scenario\b/i.test(block.text) &&
