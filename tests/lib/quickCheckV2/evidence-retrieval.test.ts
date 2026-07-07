@@ -197,6 +197,66 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.quote).not.toContain("The following analysis was conducted to determine alternative baseline scenarios");
   });
 
+  it("prefers a formal additionality section over an earlier without-project narrative", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:heading",
+        page: 1,
+        text: "2.2 Without-project Land Use Scenario and Additionality",
+        blockType: "heading",
+        sectionHeading: "Without-project Land Use Scenario and Additionality",
+        sectionPath: ["2", "2.2"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2:heading",
+        page: 1,
+        text: "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+        blockType: "heading",
+        sectionHeading: "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+        sectionPath: ["2", "2.2", "2.2.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b3:body",
+        page: 1,
+        text: "The project area was historically under pressure from unplanned deforestation and forest degradation caused by local community activities.",
+        blockType: "body",
+        sectionHeading: "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+        sectionPath: ["2", "2.2", "2.2.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b1:heading",
+        page: 2,
+        text: "3.1.5 Additionality (VCS, 3.14)",
+        blockType: "heading",
+        sectionHeading: "Additionality (VCS, 3.14)",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b2:body",
+        page: 2,
+        text: "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+        blockType: "body",
+        sectionHeading: "Additionality (VCS, 3.14)",
+        sectionPath: ["3", "3.1", "3.1.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+    expect(result.evidence).not.toBeNull();
+    expect(result.evidence!.sourceType).toBe("exact_section");
+    expect(result.evidence!.page).toBe(2);
+    expect(result.evidence!.sectionHeading).toBe("Additionality (VCS, 3.14)");
+    expect(result.evidence!.quote).toBe(
+      "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    );
+    expect(result.evidence!.quote).not.toContain("unplanned deforestation");
+  });
+
   it("prefers Table 7 comment-action evidence over an earlier consultation summary", () => {
     const synthetic = makeSyntheticDocument([
       {

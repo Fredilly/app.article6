@@ -24,7 +24,7 @@ describe("Quick Check v2 — Lisala truth mismatches", () => {
 
     const additionality = byCheck.get("additionality");
     expect(additionality?.status).toBe("UNCLEAR");
-    expect(additionality?.answer).toMatch(/not implemented with the intent of artificially generating greenhouse gas/i);
+    expect(additionality?.answer).toBe("Additionality section is under development.");
 
     const leakage = byCheck.get("leakage");
     expect(leakage?.status).toBe("UNCLEAR");
