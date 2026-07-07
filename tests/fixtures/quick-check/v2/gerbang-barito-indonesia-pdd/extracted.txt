@@ -1,0 +1,1918 @@
+Page 1
+GERBANG BARITO REDD+ PROJECT
+Project title Gerbang Barito REDD+ Project
+Project ID 5799
+Crediting period 01-August-2023 to 31-July-2053
+Original date of issue 03-December-2025
+Most recent date of
+issue 03-December-2025
+Version 1.0
+VCS Standard Version VCS v4.7
+Prepared by
+Wildlife Works Carbon LLC
+495 Miller Avenue, Suite 100, Mill Valley, CA 94941 USA
+Emily Dangremond, Scientific Writing Manager
+Muhammad Diheim Biru, Technical Writer and Research Associate
+Contact Name: Jeremy Freund, Chief Climate Officer
+Email: jeremy@wildlifeworks.com
+Phone number: +1 (415) 332-8081
+
+Page 2
+CONTENTS
+1 PROJECT DETAILS ............................................................................................... 4
+1.1 Summary Description of the Project............................................................................. 4
+1.2 Audit History .................................................................................................................. 4
+1.3 Sectoral Scope and Project Type ................................................................................ 5
+1.4 Project Eligibility ............................................................................................................. 5
+1.5 Project Design ................................................................................................................ 7
+1.6 Project Proponent ......................................................................................................... 8
+1.7 Other Entities Involved in the Project ........................................................................... 8
+1.8 Ownership ...................................................................................................................... 9
+1.9 Project Start Date .........................................................................................................10
+1.10 Project Crediting Period ...............................................................................................10
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals ......................11
+1.12 Description of the Project Activity ...............................................................................12
+1.13 Project Location ...........................................................................................................14
+1.14 Conditions Prior to Project Initiation ............................................................................14
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks ......................19
+1.16 Double Counting and Participation under Other GHG Programs ............................22
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions .............................23
+1.18 Sustainable Development Contributions ....................................................................24
+1.19 Additional Information Relevant to the Project .........................................................25
+2 SAFEGUARDS AND STAKEHOLDER ENGAGEMENT .......................................... 25
+2.1 Stakeholder Engagement and Consultation .............................................................25
+2.2 Risks to Stakeholders and the Environment ................................................................27
+2.3 Respect for Human Rights and Equity.........................................................................27
+2.4 Ecosystem Health .........................................................................................................29
+3 APPLICATION OF METHODOLOGY .................................................................. 30
+3.1 Title and Reference of Methodology..........................................................................30
+3.2 Applicability of Methodology......................................................................................32
+3.3 Project Boundary ..........................................................................................................46
+
+Page 3
+3.4 Baseline Scenario .........................................................................................................47
+3.5 Additionality ..................................................................................................................47
+3.6 Methodology Deviations .............................................................................................47
+4 QUANTIFICATION OF ESTIMATED GHG EMISSION REDUCTIONS AND
+REMOVALS ....................................................................................................... 48
+4.1 Baseline Emissions .........................................................................................................48
+4.2 Project Emissions ...........................................................................................................48
+4.3 Leakage Emissions ........................................................................................................48
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals .....................48
+5 MONITORING ................................................................................................... 48
+5.1 Data and Parameters Available at Validation ..........................................................48
+5.2 Data and Parameters Monitored ................................................................................48
+5.3 Monitoring Plan.............................................................................................................48
+APPENDIX 1: COMMERCIALLY SENSITIVE INFORMATION ......................................... 49
+
+Page 4
+VCS Project Description Template, v4.4
+4
+1 PROJECT DETAILS
+1.1 Summary Description of the Project
+The Gerbang Barito REDD+ Project (hereinafter referred to as the GBRP), is a peat swamp forest
+ecosystem conservation, restoration, and livelihood development project under the United Nations’
+Reducing Emissions from Deforestation and Degradation (REDD+), located in the village forests of
+Batampang and Batilap within the administration of the Gerbang Barito Forest Management Unit (FMU)
+IX Protected Forest in South Barito District, Province of Central Kalimantan, Indonesia. The Project Area
+is 19,752 hectares, comprising 9,734 and 10,019 hectares for Batampang and Batilap Village Forests
+respectively. The two village forests are exclusive to and managed by the Village Forest Management
+Institution (LPHD or Lembaga Pengelola Hutan Desa) of each village (herein referred to as the project
+proponents) with regular supervision by the Gerbang Barito FMU. These peat swamp forests contain a
+specialized biodiversity that is adapted to the highly acidic and waterlogged area, which stores more
+carbon than other forest habitats in comparison to their small area.
+The communities of Batampang and Batilap Villages consist of approximately 2,477 individuals in total,
+where their livelihoods are largely dependent on the ecosystem services of the forests. The growing
+population in the region is one of the biggest threats towards the peat swamp forest natural
+ecosystem’s integrity. Many anthropogenic threats have manifested in the Project Area before 1990,
+including logging, wildlife hunting, and conventional fishing, all of which resulted in subsequent draining
+and drying of the peat, posing a risk of fires to the forests during dry seasons, with the addition of
+climate change exacerbating the risks. Meanwhile, the peat swamp forests are home to endangered
+umbrella and charismatic wildlife species such as Bornean orangutans and Proboscis monkeys.
+Increasing deforestation, occurrence of flooding, and unpredictable climate patterns have also
+threatened local river-based livelihoods and food security. The communities’ economic vulnerabilities
+and limited infrastructure, combined with the ongoing environmental threats pose significant risks to
+the sustainability of the peat forests.
+The project is expected to generate a climate benefit of 274,487 tCO2e annual average and total
+reductions and removals.
+1.2 Audit History
+Audit type Period Program Validation/verification
+body name
+Number of
+years
+Validation/
+verification
+Validation Date:
+Expected to be
+initiated by 01-
+February-2026
+VCS / CCB A qualified VVB will be
+contacted for the
+Project’s combined
+validation &
+verification prior to
+2.42 years
+
+Page 5
+VCS Project Description Template, v4.4
+5
+Initial
+Monitoring
+Period for
+Verification:
+01-August-2023
+- 31-December-
+2025
+submitting the Project
+for Listing “Under
+Validation” on the
+Verra Registry.
+1.3 Sectoral Scope and Project Type
+Sectoral scope 14 - AFOLU
+AFOLU project category1 REDD+, Wetlands Restoration and Conservation (WRC)
+Project activity type • Avoiding Unplanned Deforestation and/or Degradation
+(AUDD): Activities that reduce net greenhouse gas (“GHG”)
+emissions by stopping or reducing deforestation or
+degradation on forest lands that are not legally authorized
+and documented for conversion to other land use.
+• Conservation Intact Wetland (CIW): Activities that reduce
+GHG emissions by avoiding degradation and/or the
+conversion of wetlands that are intact or partially altered
+while still maintaining their natural functions.
+• Restoration of Wetlands Ecosystems (RWE): Activities that
+reduce GHG emissions by the restoration of wetlands that
+are drained by rewetting and returning them to their
+original natural functions.
+1.4 Project Eligibility
+General eligibility
+The project type falls under the AFOLU (Agriculture, Forestry and Other Land Uses) sector (VCS 14),
+within the category of Reduced Emissions from Deforestation and Degradation (REDD) and Wetlands
+Restoration and Conservation (WRC) according to the VCS Standard v4.7. The project Avoids Unplanned
+Deforestation and Degradation (AUDD) and more specifically, it avoids unplanned mosaic deforestation.
+REDD AUDD project activities in the AFOLU sector (VCS Scope 14) are eligible under the VCS Program.
+Under WRC, the project will implement wetland conservation (CIW) or avoid degradation and conversion
+of wetlands and restore parts of the peat forest (RWE) due to drainage canals.
+1 See Appendix 1 of the VCS Standard
+
+Page 6
+VCS Project Description Template, v4.4
+6
+The methodology used for the Project is the VCS methodology VM0007 (REDD+ Methodology
+Framework) v1.8 of 4th June 2024, along with the relevant modules to quantify RWE and CIW in the
+allocated portions of the Project Area. This methodology quantifies greenhouse gas emission
+reductions generated on peat forest ecosystems from avoiding either planned or unplanned (or both)
+deforestation as initiated by a variety of agents and drivers.
+The project is expected to meet all relevant deadlines, adhering to VCS Standard v4.7 of 16 April 2024.
+• Prior to submitting the full VCS / CCB PD & MR to Verra, the project will firstly request the
+approval of the Ministry of § Environment, as required by the new Presidential Regulation No.
+110 of 2025, which will take a minimum of five working days. After obtaining the approval, the
+project seeks to request public comment approval from Verra around January to February
+2026, submitting the full VCS / CCB PD & MR to listing “under validation” on the Verra Registry
+and subsequently initiate joint validation and verification with the contracted VVB. The public
+comment period will also be discreetly announced to relevant stakeholders of the project.
+• The project start date is stipulated in the same month as the first round of FPIC consultations
+with community members, i.e., August 2023. As an AFOLU project, the time range between the
+project start date and the project pipeline listing will be within three years from the start date
+(August 2023 to August 2026).
+• The project strives to conform with the relevant laws and regulations as defined in Section 2.5.
+AFOLU project eligibility
+The AFOLU project categories are eligible according to VCS Standard v4.7, i.e., REDD and WRC. AFOLU
+REDD activities principally comprise of Avoided Unplanned Deforestation and Degradation (AUDD),
+while AFOLU WRC activities consist of CIW and RWE. The Project will permanently protect the remaining
+secondary swamp forest areas from unplanned conversion to other land cover/use and reduce net GHG
+emissions by reducing deforestation and deforestation. Through CIW, the Project will permanently
+protect the peatland soil areas from unplanned conversion, and from existing and future peatland
+drainage due to unplanned activities, usually for access and transport. Through RWE, the project will
+reduce GHG emissions through the restoration of existing drained and degraded peatlands. Rewetting
+is planned to improve groundwater table through canal backfilling and blocking of mapped drainage
+canals as well as revegetation to restore their original natural functions if required.
+The GBRP area is mostly comprised of secondary peat swamp forest, in which the establishment of the
+Project Area corresponds to Gerbang Barito FMU’s protected forest landscape that has remained as
+forests throughout the period of 2009-2020. Therefore, for more than ten years prior to the project
+start date, there was no clearing or conversion within the Project Area, and no native ecosystems have
+been converted, cleared, drained, or degraded to generate GHG credits. This evidence of unchanged
+forest cover for more than ten years is shown in Figure 1.1.
+
+Page 7
+VCS Project Description Template, v4.4
+7
+Figure 1.1 Two maps showing that the Project Area (red line) was peat swamp forest for the last
+10 years from 2009 to 2020 and was not cleared or drained of existing natural ecosystems.
+Transfer project eligibility
+This section is not applicable, as this is not a transfer project.
+1.5 Project Design
+☒ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+
+Page 8
+VCS Project Description Template, v4.4
+8
+☐ Grouped project
+Grouped project design
+This is not a grouped project. Therefore, this section is not relevant.
+1.6 Project Proponent
+Provide contact information for the project proponent(s). Copy and paste the table as needed.
+Organization name Lembaga Pengelola Hutan Desa (LPHD) Batampang
+Contact person Mr. Samitro
+Title Chairman
+Address Batampang Village, Dusun Hilir Sub-District, South Barito District,
+Central Kalimantan Province 73762
+Telephone (+62) 853-9854-0295
+Email lphddesabatampang@gmail.com
+Organization name Lembaga Pengelola Hutan Desa (LPHD) Batilap
+Contact person Mr. Jumani
+Title Chairman
+Address Batilap Village, Dusun Hilir Sub-District, South Barito District, Central
+Kalimantan Province 73762
+Telephone (+62) 821-4875-1397
+Email lphdbatilap@gmail.com
+1.7 Other Entities Involved in the Project
+Organization name Wildlife Works
+Role in the project Project Developer
+Contact person Mr. Jeremy Freund
+Title Chief Climate Officer
+
+Page 9
+VCS Project Description Template, v4.4
+9
+Address 495 Miller Avenue, Suite 100, Mill Valley, CA 94941 USA
+Telephone +1 415 332 8081
+Email jeremy@wildlifeworks.com
+1.8 Ownership
+The project ownership belongs to Village Forest Management Institution (LPHD) of Batampang and
+Batilap Village, community-led organizations who are granted the rights by the government under the
+MoEF Regulation No. 83/2016 to manage village forests as Protected Forest or Hutan Lindung (HL).
+Under the Social Forestry regulation, village forests or Hutan Desa in the Indonesian language, are
+state-owned forests granted to the village to be managed by the village apparatus (LPHD) for the
+community members’ benefit. On 07 December 2017, the MoEF (now divided into two separate bodies,
+the Ministry of Environment and the Ministry of Forestry) legally granted these LPHDs a specific amount
+of forest area as village forest through an official decree of Village Forest Management Right (HPHD),
+after the village submitted its proposal to manage their forest to the MoEF and successfully underwent
+technical verification process. The decrees conform with VCS Standard’s Article 1 of Section 3.7.1 and
+CCB G5.7. With both grants issued on 07 December 2017, the Batampang and Batilap Village Forest
+licenses validity period will end by 17 December 2052.
+The following are the details of the granting of the official HPHD decrees.
+a. Batampang Village Forest, as granted by Social Forestry Approval SK.6663/MENLHK-
+PSKL/PKPS/PSL.0/12/2017 for 9,668 ha of protected forests area in Batampang Village for
+35 (thirty-five) years since 07 December 2017.
+b. Batilap Village Forest, as granted by SK.6661/MENLHK-PSKL/PKPS/PSL.0/12/2017 for 9,951
+ha of protected forests area in Batilap Village for 35 (thirty-five) years since 07 December 2017.
+Technically, these forest areas are under the jurisdiction of the Gerbang Barito Forest Management Unit
+(FMU) Unit IX Protected Forest with a total size of 92,429 hectares based on the Ministry of Forestry
+Decree No. SK.2/Menhut-II/2012. The FMUs are legally obligated bodies that are established to carry
+out some of the operational and/or supporting technical or field tasks of the Central Kalimantan
+Provincial and South Barito District Forestry Service. Therefore, the management of the forests will be
+conducted by the LPHD under the supervision and support of the FMU and in coordination with the
+MoF, particularly with the Directorate of Social Forestry. In relation to village forests, FMUs are tasked
+with facilitating the formulation of forest village management activities, enhancing the capacity of the
+Village Forest Management Institutions (LPHDs), and assisting strategic partners in the management
+and utilization of village forests. On the other hand, the MoF and its provincial office administer social
+forestry affairs, including business groups that utilize forest products, land rehabilitation, and
+community empowerment.
+
+Page 10
+VCS Project Description Template, v4.4
+10
+The decision-making process in LPHD is through a forum and deliberations for consensus among all
+members with some involvement and intervention from the village government. LPHD as a community-
+led organization can appoint and manage community members in the village in relation to the
+utilization and protection of the village forest, such as harvesting NTFPs and patrolling the area from
+illegal loggers and overharvesting. This indirectly gives the communities the management rights over
+the Project Area, in which according to both approval decrees, the management rights over the
+protected forests include environmental services and carbon stock management activities. More details
+on the roles and responsibilities of the LPHD as an organization are provided in Section Error!
+Reference source not found..
+In accordance with the above, the ownership of the project is supported by numeral 4 - Section 3.7.1 of
+the VCS Standard requirements, which states:
+“Project ownership arising by virtue of a statutory, property or contractual right in the land, vegetation or
+conservational or management process that generates GHG emission reductions and/or removals (where the project
+proponent has not been divested of such project ownership).”
+Therefore, during the origination and implementation of the project, the carbon rights lie with the
+communities under the management of their LPHD. Under the supervision and support of Gerbang
+Barito FMU and the MoF, Batampang and Batilap LPHDs will be the project proponent of this project.
+1.9 Project Start Date
+Project start date 01 August 2023
+Justification The project start date conforms with VCS Standard v4.7
+section 3.8. Before the start date, the project proponent had
+agreed upon a Memorandum of Understanding with Wildlife
+Works as the project partner, which shifted both LPHDs’
+management activities in the Project Area. Pre-FPIC activities
+were also done in the months prior, which led to the first
+round of FPIC consultation conducted at the same time as the
+start date. This start date conforms with the pipeline listing
+period of AFOLU projects within three years.
+1.10 Project Crediting Period
+Crediting period ☐ Seven years, twice renewable
+☐ Ten years, fixed
+☒ Other (state the selected crediting period and justify how it
+conforms with the VCS Program requirements)
+
+Page 11
+VCS Project Description Template, v4.4
+11
+The project’s first crediting period is 30 years (2023–2053),
+corresponding to the current forest village license validity period of
+35 years.
+The village forest license can potentially be renewed, allowing a
+second crediting period of 35 years. This results in a total intended
+crediting duration and project longevity of 64 years. This exceeds
+Verra’s minimum 40-year project longevity requirement as specified
+in VCS Standard v4.7.
+Start and end date of
+first or fixed crediting
+period
+01 August 2023 to 31 July 2053
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals
+☒ < 300,000 tCO2e/year (project)
+☐ ≥ 300,000 tCO2e/year (large project)
+Calendar year of crediting period Estimated GHG emission reductions or removals
+(tCO2e)
+01-August-2023 to 31-December-2023 48,422
+01-January-2024 to 31-December-2024 116,213
+01-January-2025 to 31-December-2025 130,342
+01-January-2026 to 31-December-2026 144,471
+01-January-2027 to 31-December-2027 158,600
+01-January-2028 to 31-December-2028 172,729
+01-January-2028 to 31-December-2029 186,858
+01-January-2030 to 31-December-2030 198,460
+01-January-2031 to 31-December-2031 207,744
+01-January-2032 to 31-December-2032 217,028
+01-January-2033 to 31-December-2033 226,312
+
+Page 12
+VCS Project Description Template, v4.4
+12
+01-January-2034 to 31-December-2034 235,596
+01-January-2035 to 31-December-2035 244,880
+01-January-2036 to 31-December-2036 254,164
+01-January-2037 to 31-December-2037 263,448
+01-January-2038 to 31-December-2038 272,732
+01-January-2039 to 31-December-2039 282,016
+01-January-2040 to 31-December-2040 291,300
+01-January-2041 to 31-December-2041 300,584
+01-January-2042 to 31-December-2042 309,868
+01-January-2043 to 31-December-2043 319,152
+01-January-2044 to 31-December-2044 328,436
+01-January-2045 to 31-December-2045 337,720
+01-January-2046 to 31-December-2046 347,004
+01-January-2047 to 31-December-2047 356,288
+01-January-2048 to 31-December-2048 365,572
+01-January-2049 to 31-December-2049 374,856
+01-January-2050 to 31-December-2050 384,140
+01-January-2051 to 31-December-2051 393,424
+01-January-2052 to 31-December-2052 402,708
+01-January-2053 to 31-July-2053 240,328
+Total estimated ERRs during the first or fixed
+crediting period 8,111,395
+Total number of years 30
+Average annual ERRs 270,379.83
+1.12 Description of the Project Activity
+
+Page 13
+VCS Project Description Template, v4.4
+13
+This is an AFOLU project, the main goal of which is to avoid emissions from deforestation and
+degradation (REDD+), in addition to wetlands rewetting and conservation (WRC). The project is not
+located within a jurisdiction covered by a jurisdictional REDD+ program.
+Through the SBIA workshop, the local stakeholders have designed and agreed on the following key
+project activities to be implemented in order to address the above focal issues. The formation of project
+activities also integrates customary knowledge where relevant and align with village development
+priorities. The project activities are listed and described in the following, which are:
+1. Sustainable fishing management: The project will improve existing and utilize suitable lands for
+the creation and improvement of beje ponds and keramba in the Project Zone by integrating the
+use of appropriate technologies and procedures for the communities to improve and maintain
+fish yields. In addition, the project will facilitate the marketing of fisheries along with exploring
+other possible income-generating options to improve the communities’ livelihood throughout
+the project lifetime. This activity will specifically address focal issue 3.
+2. Improved waste management and sanitation facilities: The carbon revenue of the project will be
+allocated for the construction of proper water filtration technologies such as bore wells and
+filtration systems, installation of sanitation facilities such as proper toilets, and placement of
+recycling and waste bins in easy-to-see designated places within the villages. This waste will
+then be scheduled periodically (monthly) to be picked up by boats or barges and processed into
+the town in coordination with the local Environmental Services Office. In tandem, consultation
+activities will also be conducted to educate the communities to increase their awareness and
+understanding regarding the importance of waste management – possibly collaborating with
+local educational institutions or NGOs. This activity will specifically address focal issue 3.
+3. Increasing education opportunities and facilities: The project has already developed a carbon
+school and reading club for children up to middle school and the tutors, which is implemented
+during weekends in both villages. The carbon school teaches community members regarding
+climate change and the importance of forests and the environment. With the carbon revenue,
+the project will provide scholarship funds for students to pursue education and build school
+facilities, as were urged during the FGDs – prioritizing to develop middle and high schools in
+Batilap village to even both communities’ access to schooling and education, cutting the
+expenses for fuel needs. The schools will also prioritize locals as teachers. This activity is
+related to focal issue 3.
+4. Improved electricity and healthcare: The project will provide access to electricity and lighting for
+households who have no access to electricity. In addition, the project will explore renewable
+energy possibilities if deemed suitable and necessary to be used, such as solar panels for
+houses. This activity will specifically address focal issue 3.
+5. Forest and biodiversity protection: To mitigate biodiversity loss, the project will investigate and
+monitor any possible illegal activities in the Project Area including places outside the Project
+Zone to monitor and identify leakages. Such activities include illegal logging, wildlife hunting
+
+Page 14
+VCS Project Description Template, v4.4
+14
+and trading. Any illegal cases will be confiscated and reported to the authorities, assuring that
+these cases are processed according to the law. The project will coordinate with the MoF and
+local authorities in implementing such conducts in the Project Zone. Furthermore, community
+members will be involved in assessing the biodiversity in the Project Area as the forest
+protection program is implemented. This activity will specifically address focal issues 1 and 2.
+6. Community training and capacity building: The project aims to empower village communities as
+key implementers and beneficiaries, enhancing their knowledge, skills, and participation in
+project oversight and implementation. This can be achieved by ensuring that community
+members, LPHD managers, and village governments understand their respective roles in the
+project cycle. Therefore, the project will implement many training activities for LPHD, village
+government, community groups and members by employing reliable experts according to the
+field of work, including vocational training, dissemination of infographics in Bakumpai
+language, patrolling, fire prevention, and the use of state-of-the-art technologies, effective
+organizational management, and financial literacy. This activity will specifically address all the
+focal issues.
+7. Alternative livelihood opportunities: As river-based livelihoods are dominant, increasing the
+livelihood resilience of the communities entails diversification and improvement from available
+resources. There are possible job creation opportunities to divert the behaviour of deforestation
+and poaching, such as the development of ecotourism, NTFP processing and marketing, and
+other possibilities that can be explored. Along with the LPHD, these activities will be integrated
+strategically to develop the communities’ livelihood capitals through social forestry business
+groups, which are open to community members in terms of decision-making and management.
+This activity will specifically address all the focal issues.
+8. Improved land tenure clarity and security: Based on the household survey, there is still lack of
+tenure security when it comes to home ownership, in which the project will provide them with
+better legalities. Furthermore, this activity will address any land conflict issues in the Project
+Zone that may arise during the project implementation as communities outside the Project
+Zone may be unaware of the village forest boundaries. This activity will specifically address
+focal issues 1 and 3.
+Presently, the communities have already implemented parts of the project activities since March 2024,
+such as Carbon School and Reading Club, and monthly forest patrols.
+1.13 Project Location
+This section is not used for a draft PD.
+1.14 Conditions Prior to Project Initiation
+
+Page 15
+VCS Project Description Template, v4.4
+15
+Ecosystem type: The GBRP area mainly consists of secondary peat swamp forests, interspersed with
+drainage canals, followed by a portion of shrublands and swamps – providing specialized habitat for
+unique wildlife and plant species, such as the Bornean orangutan and Ramin trees.
+Current and historical land-use: The region had been subject to unmonitored deforestation and
+degradation activities, such as the construction of artificial canals for the locals to gain easy access
+into the forest, wildlife hunting such as birds, and intensive logging due to the existence of high-valued
+timber species, such as Ramin. Even after the change of status to protected forests, there are
+unmonitored harvesting activities of timber and non-timber forest products conducted by communities
+in the Project Area, which can still harm the integrity of the peat forest ecosystem. Despite having the
+status of the land as Village Forest where the resources are to be utilized for the benefit of the
+communities, inadequate protection and regulation will result in harvesting of timber and hunting of
+wildlife throughout the Project Area and its surroundings.
+Present and prior environmental conditions of the Project Area:
+The GBRP Project Area is located in Dusun Hilir Sub-District of South Barito District, among the lowland
+areas of Central Kalimantan Province. Most of these areas are relatively flat in slope, including
+Batampang and Batilap Village Forests with 0 to 8% of slant and at a relatively even altitude at 0 – 20
+m asl. Meanwhile, canal topography measurements revealed a high elevation gradient in both
+Batampang and Batilap Village Forests.
+In terms of soil formation, the soils are dominated by undecomposed organic soil, accumulating from
+dead plant litters that are not completely decayed due to its anaerobic environment, a core
+characteristic of peat soils. Meanwhile, the soil types are mostly comprised of alluvial and organosol
+soils. According to BPDASHL Barito (Watershed and Protected Forest Management Agency) mapping
+data in 2013, parts of the Project Area are categorized as critical land for rehabilitation, especially in
+Batilap Village Forest, while most of the area in both village forests are categorized as potentially
+critical land. Critical land itself is defined as lands that are no longer functioning properly due to the
+degradation of its physical, chemical, or biological aspect.
+According to Schmidt-Ferguson climate classification based on monthly rainfall data, South Barito
+District falls into climate type C (slightly wet for tropical rainforest). On average, annual rainfall in the
+region is generally high and uneven throughout the year, which presumably has been the main cause of
+flooding in the two villages. In general, rainfall in South Barito Regency during the period 2010 – 2022,
+ranged from 2,349 – 3,490 mm per year (Figure 1.2). This gives an idea that almost all peat swamp
+forests in the area are almost always flooded, especially in the wet months (November – March),
+reinforcing the ecological uniqueness and hydrological sensitivity of the landscape.
+
+Page 16
+VCS Project Description Template, v4.4
+16
+Figure 1.2 Rainfall pattern in South Barito District (2010 – 2022). (a) Annual rainfall data; (b)
+Monthly rainfall data disaggregated.
+Barito River is the main river flowing across Gerbang Barito FMU area, the largest river that passes
+through 15 sub-districts from Central to South Kalimantan in the Barito Watershed. Many community
+members are using this river to transport logistics from Buntok Town to the villages. Both villages of
+Batampang and Batilap are located on the Puning River, one of the tributaries of the Barito River. Both
+villages rely on water from the nearby river and its surrounding water bodies for their daily livelihood
+activities, which is indirectly connected with the surrounding peatland forests and shrublands to
+regulate the quality of these waters.
+Within the Barito Watershed, the village forest areas of Batampang and Batilap are hydraulically
+connected to the Keranen River, a sub-tributary river which flows out to the larger Puning River that
+passes through the two villages. Keranen River has two sub-rivers that branch depending on the route
+chosen to the two village forests, which community members call Keranen Lama (to Batampang Village
+Forest) and Keranen Baru (to Batilap Village Forest). These sub-rivers directly border the village forests’
+boundaries. The community members go to the forests through these river channels using their
+automated wooden boats.
+However, the natural water balance and drainage pattern of the Project Area have been significantly
+affected by a network of drainage canals within the village forests, accelerating peat decomposition
+and carbon emissions. These canals were primarily built to facilitate timber transport and agricultural
+
+Page 17
+VCS Project Description Template, v4.4
+17
+expansion before the status change of the forests to Protected Forest. These artificial drainage canals
+have cut the peat domes into smaller domes, which leads to uncontrolled and rapid water drainage.
+In the Project Area, there are a total of 11 active drainage canals consisting of primary canals, with five
+canals in Batampang and six in Batilap Village Forest. In total, these canals exceed 26 kilometres in
+length, taking an estimated peatland area of 800 hectares. The total mapped canal length is 26.6 km,
+with an average length of 2.7 km in Batilap Village Forest and 2.1 km in Batampang Village Forest.
+Canal length distribution highlights the longest canal to be 6 km in Batilap, while the shortest is
+measured at 0.4 km. They accelerate belowground water flow due to the increased in-water discharge
+from the peatland system and lower the average water table depth to become 12.5 cm lower, with
+fluctuations ranging from 1 to 40 cm in depth below peat surface. There are also a few secondary
+canals branching off from primary canals, serving as drainage pathways. Most canals drain into
+Keranen River, while two canals in Batilap Village Forest flow into Puning River channels. Overall, the
+canal sizes vary, with widths averaging 1.8 meters in length and differing significantly between sites.
+Figure 1.3 below shows the canal distribution in the village forests.
+Drainage canals continuously facilitate water loss from peatlands, particularly during dry months when
+water table depth falls below the soil surface. Without proper intervention, these drainage canals will
+result in peat subsidence through the reduction of peat water level. Peat subsidence exposes organic
+materials to oxidation, which would lead to higher CO2 emissions. Therefore, this will result in long-term
+peat carbon loss, as the alteration gradually depletes the peat carbon stock overtime. Furthermore, the
+presence of these canals exacerbates the risks of fire due to the accelerated water loss during dry
+seasons. The drainage canals have increased flooding occurrences during rainy days and quickness of
+drying during dry seasons – the two villages have been subject to occasional flooding from heavy
+rainfall, with 4 flooding events recorded in 2020.
+In terms of peat depth, the peat in Batampang and Batilap Village Forests are predominantly classified
+as deep peat (3-5 meters), with some zones containing shallower peat (1-3 meters) according to
+Indonesian Government maps. However, field observations and measurements conducted in April 2023
+revealed that peat depth can exceed 9 meters, covering the entirety of both village forests. A total of 28
+sites were surveyed for peat soil sampling, with 11 sites in Batilap and 17 Batampang, which is shown
+in Table 1.1 below.
+Table 1.1 Peat depth classes and their area in the Project Area.
+No. Peat Depth Area (Ha)
+1 0 – 50 cm 102.58
+2 50 – 300 cm 126.52
+3 300 – 500 cm 246.59
+4 500 – 600 cm 433.41
+
+Page 18
+VCS Project Description Template, v4.4
+18
+5 600 – 700 cm 506.06
+6 700 – 800 cm 681.47
+7 800 – 900 cm 7,872.19
+8 900 – 1000 cm 7,220.92
+9 1000 – 1200 cm 2,148.45
+The following are key highlights of the peat depth mapping results:
+• Shallow peat (0-300 cm): these areas, covering 229.1 hectares, are likely to be transitional
+zones between mineral soils and deeper peat deposits. They may indicate locations of past
+disturbances or natural peat formation gradients.
+• Moderate peat depth (300-700 cm): found in 1,186.1 hectares, these depths are typical of
+secondary peat swamp forests and are essential for carbon storage and water retention.
+• Deep peat (700-900 cm): this depth class dominates the landscape, covering 7,872.19
+hectares, suggesting that the region has well-developed and intact peat swamp formations.
+• Very deep peat (>900 cm): peat depth exceeding 900 cm cover approximately 9,600 hectares,
+confirming that the area holds significant long-term carbon stocks.
+The peat depth mapping in both village forests revealed a wide range of peat depths, from shallow
+layers (0-50 cm) to exceptionally deep deposits exceeding 12 meters. According to field measurement
+and spatial interpolation, the majority of the Project Area is dominated by peat depths between 800 cm
+and 1000 cm, covering a combined area of approximately 15,000 hectares. Figure 1.3 below depicts
+the peat depth distribution in the Project Area.
+
+Page 19
+VCS Project Description Template, v4.4
+19
+Figure 1.3 Peat depth distribution in Batampang and Batilap Village Forests.
+The village forests mostly consist of a mix of intact and disturbed secondary peat swamp forests,
+interspersed with drainage canals, followed by shrubland, and swamps, with a tiny portion of the area
+being open land in Batilap Village Forest. Peat forests are naturally dense – therefore, secondary peat
+swamp forests are more vulnerable to disturbance, such as strong wind currents that can easily fall
+trees. The vegetation in the area mostly comprises of species that can adapt to the environment of the
+acidic and watery bodies of the peat swamp forest, including high value timber species such as Ramin
+(Gonystylus bancanus – Critically Endangered), Gemor (Nothaphoebe coriacea), and Belangiran
+(Shorea balangeran – Vulnerable).
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks
+The following is a list of laws and regulations relevant to the implementation of REDD+ carbon projects
+in a village forest and the project activities in Indonesia:
+• Law No. 6/2014 on Village Government establishes the legal framework for the recognition,
+governance, and empowerment of villages (desa) in Indonesia. This law stipulates that villages
+must prioritize social justice and environmental sustainability, use of local knowledge and labor,
+and customary land and resource rights. This law serves as the basis for supporting village-
+based natural resource management, including forestry, agriculture, and local enterprises. This
+
+Page 20
+VCS Project Description Template, v4.4
+20
+law also allows the use of village funds to develop programs for vulnerable or informal working
+community members.
+• Minister of Environment and Forestry (MoEF) Regulation No. 70/2017 on Procedures for
+Implementing Reducing Emissions from Deforestation and Forest Degradation, Role of
+Conservation, Sustainable Management of Forest and Enhancement of Forest Carbon Stocks
+provides the official framework and guidance for implementing REDD+ activities in Indonesia,
+aligning with international climate commitments and national forest governance. It
+operationalizes REDD+ as a measurable, reportable, and verifiable (MRV) mechanism within
+Indonesia’s forestry and climate strategy. This regulation applies to government, private sector,
+and communities involved in REDD+ at the project or jurisdictional level.
+This regulation also stipulates that REDD+ initiatives and transactions must be registered
+through the National Registry System for Climate Change known as SRN PPI (Sistem Registri
+Nasional Pengendalian Perubahan Iklim) to avoid double counting and ensure transparency.
+SRN PPI (https://srn.menlhk.go.id/) is a management system that provides data and web-
+based information about actions and resources for Climate Change Mitigation, Climate Change
+Adaptation and Carbon Economic Value (Nilai Ekonomi Karbon or NEK) in Indonesia. It operates
+under the Directorate General of Climate Change Control and Carbon Economic Value
+Governance, Ministry of Environment. All climate-based project activities in Indonesia must be
+registered and recorded in this system, including validation and verification processes.
+• Law No. 7/2021 on Tax Regulation Harmonization establishes Indonesia’s carbon tax
+framework, setting a floor price of IDR 30 (~USD 0.0020) per kilogram of CO2 equivalent. It
+serves as the foundation for future carbon pricing mechanisms, ensuring that carbon emissions
+are properly accounted for within Indonesia’s economic and environmental policies.
+• Minister of Environment and Forestry (MoEF) Regulation No. 9/2021 on Social Forestry
+provides the legal framework and technical guidance for managing Perhutanan Sosial (Social
+Forestry), ensuring community access to forest areas while promoting sustainability, legal
+certainty, and livelihood improvement. The regulation formalizes five schemes under the social
+forestry program, including Hutan Desa or Village Forest. Each scheme targets different
+community contexts but shares the goal of empowering local management of forest resources.
+For Village Forest, the implementing institution is LPHD, which must be formally established
+and recognized by the village government.
+• Government Regulation No. 23/2021 on the Administration of Forestry governs the entire
+forestry sector in Indonesia, restructuring the legal framework in line with the Omnibus Law that
+was first imposed in 2020. It replaces and simplifies earlier regulations, aiming to promote
+investment, community access, environmental protection, and sustainable forest management.
+This regulation also supports community-based and environmental uses and enables carbon
+projects and ecosystem services within a national legal framework.
+
+Page 21
+VCS Project Description Template, v4.4
+21
+• Minister of Environment and Forestry (MoEF) Regulation No. 21/2022 on Procedures for the
+Implementation of Carbon Economic Value is a crucial regulation as it is aimed at providing
+detailed guidance on cross-sectoral carbon management, carbon trading policy through
+domestic or foreign trade, as well as guidelines for results-based payment; monitoring,
+reporting, and verification (MRV); and certification issuance under the SRN PPI. This regulation
+also states that carbon emission reduction projects must be registered under the national
+registry or SRN PPI.
+• Law No. 6/2023 in lieu of Law No. 11/2020 on Job Creation, commonly known as Omnibus
+Law, overhauls over 80 regulations. After the enactment of Omnibus Law, all permits
+concerning Work Permits for Utilization of both Protected Forests and Production Forests
+regarding Area Utilization, Environmental Services, and Utilization or Collection of Timber and
+Non-Timber Forest Products are to be obtained using Business Permit from the Central
+Government.
+• Law No. 4/2023 on Development and Strengthening of Financial Sector, often considered an
+Omnibus Law for the economic sector, this law formally mandates the Financial Services
+Authority (OJK) to regulate carbon as a financial instrument. It classifies carbon trading through
+a carbon exchange as a financial transaction within Indonesia’s capital market framework,
+providing legal certainty for carbon market operations and establishing a structured financial
+system for domestic carbon trading.
+• Minister of Environment and Forestry (MoEF) Regulation No. 07/2023 on Procedures for Forest
+Carbon Trading specifically governs carbon trading in the forestry sector and recognizes REDD+
+activities, such as deforestation and degradation reduction, as eligible mechanisms for
+generating carbon credits. Additionally, it stipulates the type of area eligible for carbon quotas
+for international carbon trading, including privately owned forest concessions, areas granted to
+communities under social forestry scheme, and conservation area.
+• Indonesian Financial Services Authority (Otoritas Jasa Keuangan or OJK) Regulation No.
+14/2023 on Carbon Trading through Carbon Exchange regulates the implementation of
+Indonesia’s carbon exchange. The regulation covers some key aspects, including (1) the
+requirements of the carbon exchange operator; (2) carbon market operator – operational and
+internal control, licensing requirements and procedures, annual work plans, budgets and
+reports; (3) supervision of the carbon exchange; and (4) sanctions. Subsequent to the issuance
+of this regulation, the national carbon trading/exchange platform (IDX Carbon) was officially
+launched on 26 September 2023 and now operates under OJK’s supervision.
+• Minister of Environment and Forestry (MoEF) Regulation No. 12/2024 on Procedures for
+Carbon Trading through the Carbon Economic Value Mechanism specifies carbon trading via
+the national carbon exchange platform under the Carbon Economic Value framework as
+mandated by Presidential Regulation No. 98/2021, which is coordinated with the Financial
+Services Authority (OJK) and IDX Carbon. This includes VCUs to be listed and traded on the
+exchange platform, with prior registration in SRN-PPI and meet technical approval
+
+Page 22
+VCS Project Description Template, v4.4
+22
+requirements. The credits can be designated for domestic use, international offsetting, or
+Results-Based Payments depending on their classification.
+• Presidential Regulation No. 110/2025 on Implementation of Carbon Economic Value
+Instruments and National Greenhouse Gas Emission Control, superseding Presidential
+Regulation No. 98/2021 on Carbon Economic Value, mandates the implementation and
+coordination of various types of carbon dioxide emission reduction mechanism, i.e., emission
+reduction certificate issuance, project registration under the national carbon registry (SRUK),
+etc. This regulation serves as the basis for the upcoming complementary ministerial regulations
+and technical guidelines to manage the carbon emissions reduction ecosystem in Indonesia,
+including the forestry sector.
+The GBRP adheres to the above regulations as relevant national and local government stakeholders
+have been continuously being consulted with and engaged by the project team during the project
+development. The project team ensures that every initiative and phases in the project are conducted
+according to national and regional regulations.
+In undertaking the utilization and business development of their village forests, the LPHDs compose
+two key documents: RKT (Rencana Kerja Tahunan or annual work plan) pertaining to yearly village
+forest management activities; and RKPS (Rencana Kelola Perhutanan Sosial or Social Forestry
+Management Plan) comprising a 10-year village forest management plan from 2022 to 2031. Based on
+these key documents, the performance of LPHD as an organization is evaluated regularly by Gerbang
+Barito FMU and the regional office for Social Forestry in Central Kalimantan, as stipulated in the MoEF
+Regulation No. 9/2021 on Social Forestry. This includes the annual reporting of activities, financial
+expenditures, and achievements.
+1.16 Double Counting and Participation under Other GHG Programs
+No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity
+under another GHG program?
+☐ Yes ☒ No
+Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+Is the project active under the other program?
+☐ Yes ☐ No
+Projects Rejected by Other GHG Programs
+
+Page 23
+VCS Project Description Template, v4.4
+23
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions
+No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+Are project reductions and removals or project activities also included in an emissions trading
+program or binding emission limit? See the VCS Program Definitions for definitions of
+emissions trading program and binding emission limit.
+☐ Yes
+☒ No
+If yes, provide all required evidence of no double claiming as outlined by the VCS Standard.
+No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-
+related environmental credit system? See the VCS Program Definitions for definition of GHG-
+related environmental credit system.
+☐ Yes
+☒ No
+If yes, provide all required evidence of no double claiming as outlined by the VCS Standard.
+Supply Chain (Scope 3) Emissions
+Do the project activities specified in Section 1.12 affect the emissions footprint of any
+product(s) (goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+If yes:
+Is the project proponent(s) or authorized representative a buyer or seller of the product(s)
+(goods or services) that are part of a supply chain?
+☐ Yes ☐ No
+If yes:
+Has the project proponent(s) or authorized representative posted a public statement on their
+website saying, “Carbon credits may be issued through Verified Carbon Standard project
+[project ID] for the greenhouse gas emission reductions or removals associated with [project
+
+Page 24
+VCS Project Description Template, v4.4
+24
+proponent or authorized representative organization name(s)] [name of product(s) whose
+emissions footprint is changed by the project activities].”
+☐ Yes ☐ No
+1.18 Sustainable Development Contributions
+Indonesia’s adaptation of the global Sustainable Development Goals to the village level (SDGs Desa) is
+regulated under Minister of Villages, Development of Disadvantaged Regions, and Transmigration
+Regulation (former) No. 21 of 2020, in which the SDGs Desa consist of 18 goals, closely aligned with
+the global 17 SDGs. In the context of the project, almost all of the project activities fall under the 18
+goals, but for clarity, the project will focus on nine goals, which are:
+1. Villages without poverty (Goal 1) – This goal is closely related to the improvement of the
+communities’ livelihood capital. The project will prioritize the livelihood improvement of poor
+households, with emphasis and proper consideration of female-headed households.
+2. Quality village education (Goal 4) – This goal is closely related with the increase of students’
+enrollment, pursuing higher education, and increase of school facilities, which will support early
+childhood development, and reducing disparities in access to schooling.
+3. Villages with clean water and sanitation (Goal 6) – This goal is closely related with the villages’
+water quality, hygiene, and sanitation facilities, which are critical for the communities’ quality of
+health and productivity.
+4. Villages with decent work and economic growth (Goal 8) – This goal is closely related with the
+provision of livelihood opportunities by strengthening the rural economy by encouraging
+entrepreneurship, expanding employment opportunities, and promoting fair labor conditions to
+improve livelihood conditions. The project activities will support existing fisheries and providing
+other income-generating activities, working closely with the local stakeholders and poor
+households, with the aim of eliminating any deforestation and degradation of the forests
+committed by the communities.
+5. Villages without inequality (Goal 10) – This goal ensures that marginalized and vulnerable
+communities have equitable access to project benefits, decision-making processes, and
+livelihood opportunities. It promotes social inclusion and reduces economic disparities through
+fair benefit-sharing and capacity-building initiatives.
+6. Environmentally conscious consumption and production in villages (Goal 12) – This goal
+focuses on promoting waste reduction and management, and sustainable local and natural
+resource use in daily activities.
+7. Villages that are responsive to climate change (Goal 13) – This goal emphasizes the
+importance of building climate resilience, disaster preparedness, and community adaptation
+strategies in the face of increasing environmental risks.
+
+Page 25
+VCS Project Description Template, v4.4
+25
+8. Villages with land ecosystems that are sustainable (Goal 15) – This goal works to preserve
+forests, biodiversity, and land health, promoting conservation, and sustainable fisheries and
+agriculture. Activities such as patrols and forest protection are closely related to this goal.
+9. Peaceful, just, and inclusive villages (Goal 16) – This goal is closely related to the capacity
+building of people and organization in the villages in order to support strong village governance,
+dispute resolution mechanisms, and community participation to ensure social harmony and
+accountability. This includes LPHD as both the community-led organization and project
+proponent, and the village governments.
+1.19 Additional Information Relevant to the Project
+These sections are not used for the draft PD.
+Leakage Management
+Commercially Sensitive Information
+Further Information
+2 SAFEGUARDS AND STAKEHOLDER
+ENGAGEMENT
+These sections are not used for the draft PD.
+2.1 Stakeholder Engagement and Consultation
+Stakeholder Identification
+Stakeholder
+Identification
+Legal or customary
+tenure/access rights
+Stakeholder diversity
+and changes over time
+
+Page 26
+VCS Project Description Template, v4.4
+26
+Expected changes in
+well-being
+Location of
+stakeholders
+Location of resources
+Stakeholder Consultation and Ongoing Communication
+Date of stakeholder
+consultation
+Stakeholder
+engagement process
+Consultation outcome
+Ongoing
+communication
+Stakeholder input
+Free Prior and Informed Consent
+Obtaining consent
+Outcome of FPIC
+Grievance Redress Procedure
+Development process
+Grievance redress
+procedure
+Public Comments
+
+Page 27
+VCS Project Description Template, v4.4
+27
+Comments received Actions taken
+… ….
+2.2 Risks to Stakeholders and the Environment
+Management Experience
+Risk Assessment
+Risks identified Mitigation or preventative
+measure(s) taken
+Natural and human-
+induced risks to
+stakeholders’
+wellbeing
+Risks to stakeholder
+participation
+Working conditions
+Safety of women and
+girls
+Safety of minority
+and marginalized
+groups, including
+children
+Pollutants (air, noise,
+discharges to water,
+generation of waste,
+and release of
+hazardous materials
+and chemical
+pesticides and
+fertilizers)
+2.3 Respect for Human Rights and Equity
+Labor and Work
+
+Page 28
+VCS Project Description Template, v4.4
+28
+Risks identified2 Mitigation or preventative
+measure(s) taken
+Discrimination
+Sexual harassment
+Equal pay for equal
+work
+Gender equity in
+labor and work
+Forced labor
+Child labor
+Human trafficking
+Human Rights
+Risks identified Mitigation or preventative measure(s) taken
+Indigenous Peoples and Cultural Heritage
+Risks identified Mitigation(s) or preventative measure taken
+Property Rights
+Risks identified Mitigation or preventative measure(s) taken
+Benefit Sharing
+Process used to
+design the benefit
+sharing plan
+2 The identified risks and commensurate mitigation or preventative measure(s) for forced labor, child labor, and human
+trafficking, must be inclusive of staff and contracted workers employed by third parties.
+
+Page 29
+VCS Project Description Template, v4.4
+29
+Summary of the
+benefit sharing
+plan
+Approval and
+dissemination of
+benefit sharing
+plan
+.
+2.4 Ecosystem Health
+Risks identified Mitigation or preventative
+measure(s) taken
+Impacts on biodiversity
+and ecosystems
+Soil degradation and soil
+erosion
+Water consumption and
+stress
+Rare, Threatened, and Endangered Species
+Is the project located in or adjacent to habitats for rare, threatened, or endangered species?
+☐ Yes ☐ No
+Species and habitat
+Areas needed for habitat
+connectivity
+… …
+Risks identified Mitigation or preventative
+measure(s) taken
+
+Page 30
+VCS Project Description Template, v4.4
+30
+Habitats for rare,
+threatened, and
+endangered species
+Areas for habitat
+connectivity
+Introduction of Species
+Species introduced Classification Justification for use Adverse effects and
+mitigation
+Existing invasive species Mitigation measures to prevent the spread or continued
+existence of invasive species
+Risks identified Mitigation or preventative
+measure(s) taken
+Invasive species
+Ecosystem Conversion
+Risks identified Mitigation or preventative
+measure(s) taken
+Ecosystem conversion
+3 APPLICATION OF METHODOLOGY
+3.1 Title and Reference of Methodology
+
+Page 31
+VCS Project Description Template, v4.4
+31
+Type
+(methodology,
+tool or module).
+Reference ID, if
+applicable
+Title Version
+Methodology VM0007 VM0007 REDD+ Methodology Framework
+(REDD+MF),
+1.8
+Module (Carbon
+pool)
+VMD0001 Estimation of carbon stocks in the above-
+and belowground biomass in live tree and
+non-tree pools (CP-AB)
+1.2
+Module (Carbon
+pool)
+VMD0002 Estimation of carbon stocks in the dead-
+wood pool (CP-D)
+1.1
+Module (Carbon
+pool)
+VMD0004 Estimation of carbon stocks in the soil
+organic carbon pool (CP-S)
+1.1
+Module
+(Baseline)
+VMD0007 Estimation of baseline carbon stock
+changes and greenhouse gas emissions
+from unplanned deforestation and
+unplanned wetland degradation (BL-UP)
+3.3
+Module
+(Baseline)
+VMD0042 Estimation of baseline soil carbon stock
+changes and greenhouse gas emissions
+in peatland rewetting and conservation
+project activities (BL-PEAT)
+1.1
+Module
+(Baseline)
+VMD0016 Methods for stratification of the PA (X-
+STR)
+1.3
+Module
+(Baseline)
+VMD0017 Methods for determining estimates of
+uncertainty in REDD and WRC activities
+(X-UNC)
+2.2
+Module
+(Emissions)
+VMD0010 Estimation of emission from activity
+shifting for avoiding unplanned
+deforestation and avoiding unplanned
+wetland degradation (LK-ASU)
+1.2
+Module
+(Emissions)
+VMD0013 Estimation of greenhouse gas emissions
+from biomass and peat burning (E-BPB)
+1.3
+Module
+(Emissions)
+VMD0044 Estimation of emissions from ecological
+leakage (LK-ECO)
+1.1
+
+Page 32
+VCS Project Description Template, v4.4
+32
+Module
+(Monitoring)
+VMD0015 Methods for monitoring GHG emissions
+and removals in REDD and CIW projects
+(M-REDD)
+2.3
+Module
+(Monitoring)
+VMD0046 Methods for monitoring soil carbon stock
+changes and greenhouse gas emissions
+and removals in peatland rewetting and
+conservation project activities (M-PEAT)
+1.1
+Tool VT0001 Additionality
+Tool T-SIG Tool for testing the significance of GHG
+emissions in A/R CDM project activities
+01
+3.2 Applicability of Methodology
+Methodology ID Applicability condition Justification of compliance
+VM0007 – REDD-MF –
+Section 4.2.1 – All REDD
+Activity Types
+Land in the Project Area has
+qualified as forest (following
+the definition used by VCS)
+for at least 10 years prior to
+project start date.
+Condition met. The PA meets
+the qualification of forest
+(secondary forest) as defined
+by Indonesia’s FREL
+submission in 2022, i.e., a
+land area of more than 6.25
+ha with trees higher than 5
+meters at maturity and a
+canopy cover of more than
+30 percent.
+Since 2012, there has been
+no significant clearing or
+conversion of the PA. This
+evidence is presented in
+Section Error! Reference
+source not found..
+VM0007 – REDD-MF –
+Section 4.2.1 – All REDD
+Activity Types
+Where land within the project
+area is peatland or tidal
+wetlands and emissions from
+the SOC pool are deemed
+significant, the relevant WRC
+modules are applied
+Condition met. The PA is
+categorized as secondary
+peat swamp forest (peatland)
+according to VCS definition.
+WRC modules are applied in
+this project.
+
+Page 33
+VCS Project Description Template, v4.4
+33
+alongside other relevant
+modules. Peatland: An area with a
+layer of naturally
+accumulated organic
+material (peat) that meets an
+internationally accepted
+threshold (e.g., host-country,
+FAO, or IPCC) for the depth of
+the peat layer and the
+percentage of organic
+material composition. Peat
+originates because of water
+saturation. Peat soil is either
+saturated with water for long
+periods or artificially drained.
+VM0007 – REDD-MF –
+Section 4.2.1 – All REDD
+Activity Types
+Baseline deforestation in the
+project area falls within
+either of the following
+categories:
+1. Unplanned deforestation
+(VCS category AUDef)
+2. Planned
+deforestation/degradation
+(VCS category APDef)
+Condition met. Baseline
+drivers of deforestation and
+degradation show unplanned
+deforestation activities such
+as timber harvesting in
+several areas.
+Unplanned deforestation:
+Unplanned or unsanctioned
+deforestation generally
+occurs as a result of
+socioeconomic forces that
+promote alternative uses of
+forested land, and the
+inability of institutions to
+control these activities.
+Examples include population
+growth, road expansion, and
+other infrastructure
+developments often lead to
+subsistence food production
+and fuel wood gathering
+taking place on lands not
+designated for such
+activities.
+
+Page 34
+VCS Project Description Template, v4.4
+34
+VM0007 – REDD-MF –
+Section 4.2.1 – All REDD
+Activity Types
+Leakage prevention activities
+include:
+1. Flooding agricultural
+lands to increase
+production (e.g., rice
+paddies); and/or
+Intensifying livestock
+production through use of
+feed-lots and/or manure
+lagoons
+Condition met. The project
+does not include flooded
+agricultural lands and
+intensified livestock
+production areas to avoid
+leakage.
+VM0007 – REDD-MF –
+Section 4.2.2 – AUD
+Avoiding Unplanned
+Deforestation activities are
+applicable under the
+following conditions:
+Baseline agents of
+deforestation meet all of the
+following criteria:
+1. Clear the land for tree
+harvesting, settlements,
+crop production
+(agriculturalist), ranching
+or aquaculture, where
+such clearing for crop
+production, ranching or
+aquaculture does not
+amount to large scale
+industrial agriculture or
+aquaculture activities;
+2. Have no documented
+and uncontested legal
+right to deforest the land
+for these purposes; and
+3. Are either residents in
+the reference region for
+deforestation or
+immigrants.
+Condition met. Current
+deforestation activities
+mostly occur due to
+settlement needs (housing)
+of communities. With the
+status of PA as village forest
+(protected forest), timber
+harvesting is prohibited,
+while NTFP harvesting is
+allowed. Harvesters are
+either residents from the
+beneficiary villages or other
+nearby villages within the
+Project Zone.
+
+Page 35
+VCS Project Description Template, v4.4
+35
+Under any other condition
+this methodology must not
+be used.
+VM0007 – REDD-MF –
+Section 4.2.2 – AUD
+Avoiding Unplanned
+Deforestation activities are
+not applicable under the
+following condition:
+Post-deforestation land use
+in the baseline scenario
+constitutes reforestation.
+Condition met. The current
+land use in the PA does not
+include reforestation
+activities.
+VM0007 – REDD-MF –
+Section 4.3.1 – All WRC
+Activity Types
+WRC activities are not
+eligible under the following
+conditions:
+1. Project activities lower
+the water table, unless
+the project converts open
+water to tidal wetlands,
+or improves the
+hydrological connection
+to impounded waters.
+2. Changes in hydrology do
+not result in the
+accumulation or
+maintenance of SOC
+stock, noting that a) this
+pertains to projects that
+intend to sequester
+carbon through
+sedimentation and/or
+vegetation development
+and b) this does not
+pertain to projects that
+increase salinity to
+reduce CH4 emissions.
+Projects that aim to
+decrease CH4 emissions
+through increased
+salinity must account for
+Condition met. Project
+activities in the PA are
+designed to restore and
+maintain the natural peat
+water table. The project does
+not allow activities that result
+in GHG emissions in the PA,
+such as the burning of
+organic soil and use of
+nitrogen fertilizers.
+
+Page 36
+VCS Project Description Template, v4.4
+36
+any changes in SOC
+stocks.
+3. Hydrological connectivity
+of the project area with
+adjacent areas leads to a
+significant increase in
+GHG emissions outside
+the project area.
+4. Project activities include
+the burning of organic
+soil
+Nitrogen fertilizer(s), such as
+chemical fertilizer or manure,
+are applied in the project
+area during the project
+crediting period.
+VM0007 – REDD-MF –
+Section 4.3.2 – RWE Project
+Activities
+RWE project activities are
+applicable under the
+following conditions:
+Prior to the project start
+date, the project area meets
+one of the following criteria:
+a) The project area is free of
+any land use that may be
+displaced outside the
+project area, as
+demonstrated by at least
+one of the following,
+where relevant:
+i. The project area
+has been
+abandoned for two
+or more years prior
+to the project start
+date; or
+ii. Use of the project
+area for
+Condition c) is met. The
+baseline scenario of the PA
+projected increasing
+activities of deforestation,
+construction of drainage
+canals, commercial fishing,
+and possibly, conversion of
+land for agricultural uses due
+to community needs and
+climate change. Proof of
+documents for verification of
+this land use condition can
+be found as Annex
+
+Page 37
+VCS Project Description Template, v4.4
+37
+commercial
+purposes (i.e.,
+trade) is not
+profitable as a
+result of salinity
+intrusion, market
+forces or other
+factors. In addition,
+timber harvesting
+in the baseline
+scenario within the
+project area does
+not occur; or
+iii. Degradation of
+additional wetlands
+for new
+agricultural/aquac
+ultural sites within
+the country will not
+occur or is
+prohibited by
+enforced law.
+OR
+b) The area is under a land
+use that may be
+displaced outside the
+project area, although in
+such case, baseline
+emissions from this land
+use must not be
+accounted for, and where
+degradation of additional
+wetlands for new
+agricultural/aquacultural
+sites within the country
+will not occur or is
+prohibited by enforced
+law.
+OR
+
+Page 38
+VCS Project Description Template, v4.4
+38
+c) The area is under land
+use that will continue at a
+similar or greater level of
+service of production
+during the project
+crediting period (e.g.,
+reed or hay harvesting,
+collection of fuelwood,
+subsistence harvesting,
+commercial fishing).
+The project proponent must
+demonstrate (a), (b) or (c)
+above, based on verifiable
+information such as laws and
+bylaws, management plans,
+annual reports, annual
+accounts, market studies,
+government studies or land
+use planning reports and
+documents.
+VM0007 – REDD-MF –
+Section 4.3.2 – RWE Project
+Activities
+Peatland Rewetting:
+Rewetting drained peatland
+(RDP) activities occur on
+project areas that meet the
+VCS definition for peatland.
+Condition met. The project
+area is defined as peatland
+according to VCS definitions
+(peat depth, percentage of
+organic material). See
+Section Error! Reference
+source not found..
+VM0007 – REDD-MF –
+Section 4.3.2 – RWE Project
+Activities
+Tidal Wetland Restoration:
+Project activities restoring
+tidal wetlands include any of
+the following, or a
+combination of the following:
+a) Creating, restoring,
+and/or managing
+hydrological conditions
+(e.g., removing tidal
+barriers, improving
+hydrological connectivity,
+restoring tidal flow to
+Condition met. In terms of
+restoration, project activities
+will include a), b), and e).
+
+Page 39
+VCS Project Description Template, v4.4
+39
+wetlands or lowering
+water levels on
+impounded wetlands)
+b) Altering sediment supply
+(e.g., beneficial use of
+dredge material or
+diverting river sediments
+to sediment-starved
+areas)
+c) Changing salinity
+characteristics (e.g.,
+restoring tidal flow to
+tidally restricted areas)
+d) Improving water quality
+(e.g., reducing nutrient
+loads leading to improved
+water clarity to expand
+seagrass meadows,
+recovering tidal and other
+hydrologic flushing and
+exchange or reducing
+nutrient residence time)
+e) (Re-)introducing native
+plant communities (e.g.,
+reseeding or replanting)
+f) Improving management
+practice(s) (e.g., removing
+invasive species, reduced
+grazing)
+Prescribed burning of
+herbaceous and shrub
+aboveground biomass (cover
+burns)
+VM0007 – REDD-MF –
+Section 4.3.3 – CIW Project
+Activities
+Conservation of undrained
+and partially drained
+peatland (CUPP) activities
+are applicable under the
+following conditions:
+Condition met. Baseline
+deforestation and
+degradation activities occur
+in PA, which is peatland as
+defined by VCS. Project
+
+Page 40
+VCS Project Description Template, v4.4
+40
+1. Activities occur on project
+areas that meet the VCS
+definition of peatland.
+2. Project activities
+conserving tidal wetlands
+include:
+a. Protecting at-risk
+wetlands (e.g.,
+establishing
+conservation
+easements,
+establishing
+community
+supported
+management
+agreements,
+establishing
+protective
+government
+regulations, and
+preventing disruption
+of water and/or
+sediment supply to
+wetland areas)
+b. Improving water
+management on
+drained wetlands
+c. Maintaining or
+improving water
+quality for seagrass
+meadows
+d. Recharging sediment
+to avoid drowning of
+coastal wetlands
+Creating accommodation
+space for wetlands migrating
+with sea-level rise
+activities will also include
+protecting wetlands,
+maintaining and restoring
+the peat water table through
+normalizing drainage canals,
+and other measures to
+restore the natural
+hydrological state of the
+swamp forest.
+
+Page 41
+VCS Project Description Template, v4.4
+41
+VM0007 – REDD-MF –
+Section 4.3.3 – CIW Project
+Activities
+Avoiding Unplanned Wetland
+Degradation (AUWD):
+Baseline agents of wetland
+degradation in avoiding
+unplanned wetland
+degradation activities meet
+all of the following criteria:
+a) Cause an alteration in the
+hydrology of the project
+area (involving drainage,
+interrupted sediment
+supply or both) and/or a
+loss of soil organic
+carbon
+b) Have no documented and
+uncontested legal right to
+degrade the wetland, and
+c) Are either residents in the
+reference region for
+wetland degradation or
+immigrants.
+Under any other condition,
+this methodology is not
+applicable for avoiding
+unplanned wetland
+degradation activities.
+All of the criteria are met in
+the baseline scenario. The PA
+is subject to construction of
+drainage canals and there
+are no documents legalizing
+the degradation of wetlands
+in the area. Agents of
+deforestation and
+degradation of wetlands are
+mostly communities who
+reside in the Project Zone.
+VMD0001 (CP-AB) This module is applicable to
+all forest types and age
+classes.
+This module is applicable as
+the Project Area is a peat
+swamp forest. Aboveground
+biomass of large trees is
+included in the project
+carbon accounting as it is
+mandatory for REDD under
+VM0007.
+VMD0002 (CP-D) This module is applicable to
+all forest types and age
+classes.
+Condition met.
+
+Page 42
+VCS Project Description Template, v4.4
+42
+VMD0004 (CP-S) This module is applicable to
+non-organic soils under all
+forest types and age classes.
+The Project Area is classified
+as peatland according to VCS
+definitions, containing
+organic matter or SOC in
+waterlogged conditions. SOC
+or soil in this case is
+included in the carbon pool
+for project accounting.
+VMD0007 (BL-UP) The module is applicable for
+estimating baseline
+emissions from unplanned
+deforestation (conversion of
+forest land to non-forest land
+in the baseline case. The
+forest landscape
+configuration can be mosaic,
+transition, or frontier.
+The conditions of unplanned
+deforestation under VM0007
+must be met.
+Condition met (VM0007
+unplanned deforestation
+criteria). Baseline emission
+estimates do not include
+fuelwood collection.
+Therefore, inclusion of
+baseline estimates only
+includes unplanned
+deforestation activities.
+VMD0010 (LK-ASU) This module is applicable for
+estimating carbon stock
+changes and greenhouse gas
+emissions related to the
+displacement of activities
+that cause deforestation of
+lands or wetland degradation
+outside the project area due
+to avoiding unplanned
+deforestation or avoiding
+unplanned wetland
+degradation in the project
+area.
+Activities subject to potential
+displacement are conversion
+of forest land to grazing
+lands, crop lands, and other
+land uses, or conversion of
+intact or partially degraded
+This module is mandatory as
+it is applied along with
+VMD0007. Potential
+displaced activities in the
+project match the criteria as
+provided in the module.
+
+Page 43
+VCS Project Description Template, v4.4
+43
+wetlands to drained or
+degraded wetlands.
+The module is mandatory if
+module BL-UP has been used
+to define the baseline and
+the applicability conditions in
+module BL-UP must be
+complied with in full.
+VMD0016 (X-STR) Mandatory module for
+project activities based on
+VM0007 – REDD-MF v1.8
+Single stratum of pre-
+deforestation in the PA was
+defined according to the X-
+STR module. The module is
+used in PA land cover
+assessment to determine
+treatment of project
+activities, quantification of
+baseline emissions, and
+carbon stock estimates.
+Stratum of peat
+VMD0017 (X-UNC) Used to determine the
+uncertainty of emission and
+removal estimates of CO2
+generated from REDD and
+WRC activities. The X-UNC
+module focuses on the
+following sources of
+uncertainty:
+1. Determining rates of
+deforestation and
+degradation
+2. Uncertainty regarding
+estimates of stocks in
+carbon pools and
+changes in carbon stocks
+3. Uncertainty regarding
+peat emissions
+This module is applicable as
+the GBRP consists of REDD
+and WRC activities. This
+module is used to estimate
+the uncertainty of CO2
+emissions generated from
+project activities.
+
+Page 44
+VCS Project Description Template, v4.4
+44
+Uncertainty regarding project
+emissions
+VMD0042 (BL-PEAT) This module is applicable to
+RDP and CUPP activities on
+project areas that meet the
+VCS definition for peatland.
+The scope of this module is
+limited to domed peatlands
+in the tropical climate zone.
+The following applicability
+conditions apply:
+• It must be demonstrated
+by using the latest
+version of T-SIG that N2O
+emissions in the project
+scenario are not
+significant, or that N2O
+emissions will not
+increase in the project
+scenario compared to the
+baseline scenario, and
+therefore N2O emissions
+need not be accounted
+for.
+In the baseline scenario, the
+peatland must be drained or
+partially drained. At the start
+of the project, the peatland
+may still be undrained.
+This module is applicable as
+the Project Area is defined as
+peatland in a tropical climate
+region, including domed
+peatland, and was partially
+drained with the construction
+of several artificial drainage
+canals. [Insert T-SIG
+projection of N20 emissions]
+VMD0013 (E-BPB) This module is applicable to
+REDD project activities with
+emissions from biomass
+burning and REDD-WRC
+project activities with
+emissions from biomass
+and/or peat burning. This
+module is also applicable to
+RWE and ARR-RWE project
+The project encompasses
+REDD and WRC activities.
+Emissions from burning may
+occur during project
+implementation, which are
+included in the GHG
+emissions accounting.
+
+Page 45
+VCS Project Description Template, v4.4
+45
+activities with emissions
+from peat burning.
+VMD0015 (M-REDD) The module is mandatory for
+REDD, CIW-REDD, RWE-
+REDD and stand-alone CIW
+project activities.
+This module is used as the
+project encompasses REDD
+and WRC (CIW and RWE)
+activities.
+VMD0044 (LK-ECO) This module is applicable
+under the following
+condition:
+Leakage caused by
+hydrological connectivity is
+avoided by project design
+and site selection, as set out
+in Section 5 (Procedure) of
+the module.
+Through RWE activities, the
+project ensures that GHG
+emissions outside the Project
+Area do not result from
+artificial alteration of
+hydrological aspects or
+ecological leakage.
+VMD0046 (M-PEAT) This module is applicable to
+RDP and CUPP activities as
+defined in the VCS Standard.
+The project area must meet
+the VCS definition for
+peatland. This module is
+limited to domed peatlands
+in the tropical climate zone.
+The following applicability
+conditions apply:
+• It must be demonstrated
+using tool T-SIG that N2O
+emissions in the project
+scenario are not
+significant, or it must be
+demonstrated that N2O
+emissions will not
+increase in the project
+scenario compared to the
+baseline scenario, and
+therefore N2O emissions
+need not be accounted
+for.
+This module is applicable as
+the Project Area is defined as
+peatland in a tropical climate
+region, including domed
+peatland, and was partially
+drained with the construction
+of several artificial drainage
+canals. [Insert T-SIG
+projection of N20 emissions]
+
+Page 46
+VCS Project Description Template, v4.4
+46
+• In the baseline scenario,
+the peatland must be
+drained or partially
+drained.
+• At project start, the
+peatland may still be
+undrained.
+• It must be demonstrated
+using module LK-ECO
+that ecological leakage
+must not occur.
+T-SIG tool [Fill in details] This tool is used to
+demonstrate that N20
+emissions in the project
+scenario are not significant
+compared to the baseline
+scenario and justify its
+omission from GHG sources
+inclusion in the project.
+VCS AFOLU Non-Permanence
+Risk Tool v4.2
+[Fill in details] Mandatory tool to be used in
+order to determine the
+number of buffer credits
+deposited into the AFOLU
+pooled buffer account, based
+on the determined project
+activities.
+3.3 Project Boundary
+This section is not used for the draft PD.
+Source Gas Included? Justification/Explanation
+Baseline
+Source 1
+CO2
+CH4
+N2O
+Other
+Source 2 CO2
+
+Page 47
+VCS Project Description Template, v4.4
+47
+Source Gas Included? Justification/Explanation
+CH4
+N2O
+Other
+Project
+Source 1
+CO2
+CH4
+N2O
+Other
+Source 2
+CO2
+CH4
+N2O
+Other
+3.4 Baseline Scenario
+This section is not used for the draft PD.
+3.5 Additionality
+This section is not used for the draft PD.
+Regulatory Surplus
+Is the project located in an UNFCCC Annex 1 or Non-Annex 1 country?
+☐ Annex 1 country ☐ Non-Annex 1 country
+Are the project activities mandated by any law, statute, or other regulatory framework?
+☐ Yes ☐ No
+If the project is located inside a Non-Annex 1 country and the project activities are mandated by
+a law, statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks
+systematically enforced?
+☐ Yes ☐ No
+Additionality Methods
+3.6 Methodology Deviations
+
+Page 48
+VCS Project Description Template, v4.4
+48
+This section is not used for the draft PD.
+4 QUANTIFICATION OF ESTIMATED GHG
+EMISSION REDUCTIONS AND
+REMOVALS
+These sections are not used for the draft PD.
+4.1 Baseline Emissions
+4.2 Project Emissions
+4.3 Leakage Emissions
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals
+5 MONITORING
+These sections are not used for the draft PD.
+5.1 Data and Parameters Available at Validation
+5.2 Data and Parameters Monitored
+5.3 Monitoring Plan
+
+Page 49
+APPENDIX 1: COMMERCIALLY SENSITIVE
+INFORMATION
+Section Information Justification
+
+Page 50
+VCS Project Description Template, v4.4
+50

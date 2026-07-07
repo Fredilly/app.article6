@@ -1,0 +1,96 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Bangala",
+    "goldQuote": "- The Sector: Djamba, Bangala and Ndobo;",
+    "page": 19,
+    "sectionHeading": "Project Location",
+    "sectionPath": [
+      "1",
+      "1.13"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p19:b580:8484a40b",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007: (version 1.8)",
+    "goldQuote": "The Makanza project applies the latest version of VCS Methodology VM0007 (version 1.8).",
+    "page": 44,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "3",
+      "3.1"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p44:b1169:90e42db8",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "VM0007",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
+      "evidencePage": 44,
+      "evidenceSection": "Title and Reference of Methodology",
+      "evidenceQuote": "The Makanza project applies the latest version of VCS Methodology VM0007 (version 1.8)."
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "goldQuote": "This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "page": 51,
+    "sectionHeading": "Baseline Scenario",
+    "sectionPath": [
+      "3",
+      "3.4"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p51:b1542:ce9e76eb",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Additionality Methods This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "goldQuote": "Additionality Methods This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "page": 52,
+    "sectionHeading": "Additionality",
+    "sectionPath": [
+      "3",
+      "3.5"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p52:b1552:93d81d5a",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VMD016 For peatland rewetting and conservation project activities this module must be used to delineate non-peat versus peat and to stratify the peat according to peat depth and soil emission characteristics, unless it can be demonstrated that the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is de minimis",
+    "goldQuote": "VMD016 For peatland rewetting and conservation project activities this module must be used to delineate non-peat versus peat and to stratify the peat according to peat depth and soil emission characteristics, unless it can be demonstrated that the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is de minimis. In the case of WRC project activities, the project boundary must be designed such that the negative effect of drainage activities that occur outside the project area on the project GHG benefits are minimized. Condition met. The project area comprises forest on undrained peatland within the Cuvette Centrale Peatland Complex, characterized by hydromorphic and permanently waterlogged substrates and deep peat deposits; therefore, expected emissions from the SOC pool are not de minimis and SOC is included as a major carbon pool. Accordingly, VMD016 (X-STR) is applied to delineate peat vs. non-peat areas and stratify peat by peat depth and soil emission characteristics. The project boundary follows the Makanza conservation concession and excludes the rural development area; given the strongly marshy hydrological context, the boundary design aims to minimize potential negative effects of 49 any drainage activities occurring outside the project area. VMD017 This module is mandatory when using the methodology REDD+ MF. It is applicable for estimating the uncertainty of estimates of emissions and removals of CO2-e generated from REDD and WRC project activities. Where an uncertainty value is not known or cannot be simply calculated, a project must justify that it is using an indisputably conservative number and an uncertainty of 0% may be used for this component. Guidance on uncertainty – a precision target of a 95% confidence interval half-width equal to or less than 15% of the recorded value must be targeted. This is especially important in terms of project planning for the measurement of carbon stocks; sufficient measurement plots should be included to achieve this precision level across the measured stocks. Condition met. VMD017 is mandatory under REDD+-MF and will be applied to quantify and report uncertainty of project emissions/removals (REDD & CIW). Results TBD in the final PD once carbon stock/activity data are finalized.",
+    "page": 48,
+    "sectionHeading": "(Leakage Emissions).",
+    "sectionPath": [
+      "4",
+      "4.3"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p48:b1375:71693965",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Stakeholder Identification This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Stakeholder Consultation and Ongoing Communication This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Free Prior and Informed Consent This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Grievance Redress Procedure This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Public Comments This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "goldQuote": "Stakeholder Identification This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Stakeholder Consultation and Ongoing Communication This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Free Prior and Informed Consent This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Grievance Redress Procedure This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of Public Comments This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of",
+    "page": 42,
+    "sectionHeading": "Stakeholder Engagement and Consultation",
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
+    "spanId": "makanza-congo-pdd-extracted:p42:b1113:d9b64cf1",
+    "sourceType": "exact_section"
+  }
+]

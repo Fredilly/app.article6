@@ -1,0 +1,11 @@
+{
+  "id": "makanza-congo-pdd",
+  "title": "Makanza Congo PDD",
+  "documentId": "makanza-congo-pdd-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "fixture_intake",
+  "registry": "UNKNOWN",
+  "documentType": "PDD / Project Description",
+  "adjudicationStatus": "pending"
+}

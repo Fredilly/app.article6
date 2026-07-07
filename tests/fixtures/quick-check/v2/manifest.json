@@ -40,6 +40,41 @@
     {
       "id": "maya-forest-corridor-redd-belize",
       "directory": "maya-forest-corridor-redd-belize"
+    },
+    {
+      "id": "lukolela-drc-pdd",
+      "directory": "lukolela-drc-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "grande-sun-gabon-pdd",
+      "directory": "grande-sun-gabon-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "gerbang-barito-indonesia-pdd",
+      "directory": "gerbang-barito-indonesia-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "gunung-lumut-indonesia-pdd",
+      "directory": "gunung-lumut-indonesia-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "lamantin-guinea-pdd",
+      "directory": "lamantin-guinea-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "ebuta-congo-pdd",
+      "directory": "ebuta-congo-pdd",
+      "adjudicationStatus": "pending"
+    },
+    {
+      "id": "makanza-congo-pdd",
+      "directory": "makanza-congo-pdd",
+      "adjudicationStatus": "pending"
     }
   ]
 }

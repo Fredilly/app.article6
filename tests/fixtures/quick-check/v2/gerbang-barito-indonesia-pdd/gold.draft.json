@@ -1,0 +1,83 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Dusun",
+    "goldQuote": "Address Batilap Village, Dusun Hilir Sub-District, South Barito District, Central",
+    "page": 8,
+    "sectionHeading": "Project Proponent",
+    "sectionPath": [
+      "1",
+      "1.6"
+    ],
+    "spanId": "gerbang-barito-indonesia-pdd-extracted:p8:b209:d68d28f",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Type (methodology, tool or module)",
+    "goldQuote": "Type (methodology, tool or module).",
+    "page": 31,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "3",
+      "3.1"
+    ],
+    "spanId": "gerbang-barito-indonesia-pdd-extracted:p31:b898:7b2a000c",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "This section is not used for the draft PD",
+    "goldQuote": "This section is not used for the draft PD.",
+    "page": 47,
+    "sectionHeading": "Baseline Scenario",
+    "sectionPath": [
+      "3",
+      "3.4"
+    ],
+    "spanId": "gerbang-barito-indonesia-pdd-extracted:p47:b1784:5b968c7f",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Additionality Methods",
+    "goldQuote": "Additionality Methods",
+    "page": 47,
+    "sectionHeading": "Additionality",
+    "sectionPath": [
+      "3",
+      "3.5"
+    ],
+    "spanId": "gerbang-barito-indonesia-pdd-extracted:p47:b1796:899a4d3b",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Stakeholder Identification Stakeholder Identification Legal or customary tenure/access rights Stakeholder diversity and changes over time 26 Expected changes in well-being Location of stakeholders Location of resources Stakeholder Consultation and Ongoing Communication Date of stakeholder consultation Stakeholder engagement process Consultation outcome Ongoing communication Stakeholder input Free Prior and Informed Consent Obtaining consent Outcome of FPIC Grievance Redress Procedure Development process Grievance redress procedure Public Comments 27 Comments received Actions taken … …",
+    "goldQuote": "Stakeholder Identification Stakeholder Identification Legal or customary tenure/access rights Stakeholder diversity and changes over time 26 Expected changes in well-being Location of stakeholders Location of resources Stakeholder Consultation and Ongoing Communication Date of stakeholder consultation Stakeholder engagement process Consultation outcome Ongoing communication Stakeholder input Free Prior and Informed Consent Obtaining consent Outcome of FPIC Grievance Redress Procedure Development process Grievance redress procedure Public Comments 27 Comments received Actions taken … ….",
+    "page": 25,
+    "sectionHeading": "Stakeholder Engagement and Consultation",
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
+    "spanId": "gerbang-barito-indonesia-pdd-extracted:p25:b758:d4c8b357",
+    "sourceType": "exact_section"
+  }
+]

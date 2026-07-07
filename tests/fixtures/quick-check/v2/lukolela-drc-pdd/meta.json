@@ -1,0 +1,11 @@
+{
+  "id": "lukolela-drc-pdd",
+  "title": "Lukolela DRC PDD",
+  "documentId": "lukolela-drc-pdd-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "fixture_intake",
+  "registry": "UNKNOWN",
+  "documentType": "PDD / Project Description",
+  "adjudicationStatus": "pending"
+}

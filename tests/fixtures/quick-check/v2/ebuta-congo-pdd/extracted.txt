@@ -1,0 +1,1810 @@
+Page 1
+VCS Project Description Template, v4.4
+1
+EBUTA PEATLAND CONSERVATION
+PROJECT, DEMOCRATIC REPUBLIC OF
+CONGO
+Project title Ebuta Peatland Conservation Project, Democratic Republic of Congo
+Project ID 6004
+Crediting period 01-January-2027 to 31-December-2066
+Original date of issue 27-January-2026
+Most recent date of
+issue 20-May-2026
+Version Version 1.1
+VCS Standard Version Version 5.0
+Prepared by FRM Ingénierie (FRMi)
+
+Page 2
+VCS Project Description Template, v4.4
+2
+CONTENTS
+1 PROJECT DETAILS................................................................................................. 4
+1.1 Summary Description of the Project ................................................................................ 4
+1.2 Audit History......................................................................................................................... 5
+1.3 Sectoral Scope and Project Type .................................................................................... 5
+1.4 Project Eligibility .................................................................................................................. 5
+1.5 Project Design ..................................................................................................................... 8
+1.6 Project Proponent .............................................................................................................. 8
+1.7 Other Entities Involved in the Project ............................................................................... 8
+1.8 Ownership.......................................................................................................................... 10
+1.9 Project Start Date ............................................................................................................. 11
+1.10 Project Crediting Period .................................................................................................. 12
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals ...................... 12
+1.12 Description of the Project Activity .................................................................................. 15
+1.13 Project Location ............................................................................................................... 19
+1.14 Conditions Prior to Project Initiation ............................................................................... 22
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks ....................... 33
+1.16 Double Counting and Participation under Other GHG Programs ............................ 38
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions .............................. 39
+1.18 Sustainable Development Contributions ...................................................................... 39
+1.19 Additional Information Relevant to the Project ........................................................... 41
+2 SAFEGUARDS AND STAKEHOLDER ENGAGEMENT .......................................... 42
+2.1 Stakeholder Engagement and Consultation................................................................ 42
+2.2 Risks to Stakeholders and the Environment ................................................................... 42
+2.3 Respect for Human Rights and Equity ........................................................................... 43
+2.4 Ecosystem Health ............................................................................................................. 43
+3 APPLICATION OF METHODOLOGY................................................................... 44
+3.1 Title and Reference of Methodology ............................................................................ 44
+3.2 Applicability of Methodology ......................................................................................... 46
+3.3 Project Boundary .............................................................................................................. 49
+3.4 Baseline Scenario ............................................................................................................. 51
+
+Page 3
+VCS Project Description Template, v4.4
+3
+3.5 Additionality ...................................................................................................................... 52
+3.6 Methodology Deviations ................................................................................................. 52
+4 QUANTIFICATION OF ESTIMATED GHG EMISSION REDUCTIONS AND
+REMOVALS ......................................................................................................... 53
+4.1 Baseline Emissions ............................................................................................................. 53
+4.2 Project Emissions ............................................................................................................... 53
+4.3 Leakage Emissions ............................................................................................................ 53
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals ...................... 53
+5 MONITORING .................................................................................................... 56
+5.1 Data and Parameters Available at Validation ............................................................ 56
+5.2 Data and Parameters Monitored ................................................................................... 56
+5.3 Monitoring Plan ................................................................................................................. 56
+
+Page 4
+VCS Project Description Template, v4.4
+4
+1 PROJECT DETAILS
+1.1 Summary Description of the Project
+Located in the north-western part of the of the Democratic Republic of Congo, in the heart of the “Cuvette
+Centrale” peatland complex, the Ebuta Peatland Conservation Project is designed to protect 238,065 ha
+of intact peatland and swamp forest ecosystems. The Project is situated within the Forest Concession
+n°007/25 du 31 juillet 2025 – Ebuta, hereinafter referred to as the Ebuta Concession. This concession,
+unassigned until July 2025, is now assigned and managed by Congo Nature Tourbières to promote
+sustainable land use and protect the unique ecological and climatic functions of Congo Basin peatlands.
+The concession is currently being developed into a long-term REDD+ conservation project under the
+Verified Carbon Standard (VCS) framework. The Ebuta project aims to protect and sustainably manage
+peatland and forest ecosystems that remain largely undisturbed but are increasingly threatened by
+agricultural expansion, population growth, and unsustainable resource extraction. By doing so, the
+project will prevent the release of massive quantities of carbon stored in peat soils and forest biomass
+accumulated over thousands of years.
+In the baseline scenario, the area would progressively face unplanned deforestation and degradation
+driven by subsistence agriculture, fuelwood collection, and population growth along river axes. This
+process would lead to the oxidation of peat deposits and substantial greenhouse gas (GHG) emissions.
+The main activity of the Ebuta Peatland Conservation Project is to avoid these unplanned emissions by
+establishing a protected peatland management system, including conservation and surveillance of intact
+peatland and forest zones, participatory zoning defining development and conservation areas, promotion
+of alternative livelihoods and sustainable resource management, environmental awareness campaigns
+for local communities, monitoring and research on peatland ecological components.
+By ceasing and preventing destructive land-use activities observed in the baseline, the project aims to
+avoid emissions from forest clearance, drainage, burning, and soil decomposition.
+By avoiding unplanned deforestation and peat degradation and by maintaining the ecological integrity of
+these carbon-dense landscapes, the project will prevent substantial GHG emissions and contribute to
+long-term carbon sequestration through natural peat accumulation and forest growth.
+A further advantage of the project area is the proximity of the Triangle de la Ngiri Reserve, which includes,
+among other species, bonobo, forest elephant, Congolese peacock or Bongo antelope, and the Ngiri-
+Tumba - Maï Ndombe cross-border Ramsar Site, the world’s largest Ramsar Site1.
+The project applies the VCS VM0007 methodology, using VMD0042 (BL-PEAT) for the peatland
+component and VMD007 for aboveground biomass, to quantify the emission reductions resulting from
+conservation activities. It will generate carbon credits for the voluntary market under the VCS Standard.
+The first crediting period is 40 years. Gross avoided GHG emissions (prior to leakage deductions) are
+estimated at 30,045,510 tCO₂-e (i.e. 751,188 tCO₂-e/year). Leakage will be assessed and deducted in
+accordance with the applied VCS methodology. A portion of the issued VCUs will be allocated to the AFOLU
+VCS buffer account.
+1 https://rsis.ramsar.org/ris/1784
+
+Page 5
+VCS Project Description Template, v4.4
+5
+1.2 Audit History
+This section is not applicable because the project is not currently being renewed or validated; it is under
+development.
+1.3 Sectoral Scope and Project Type
+Sectoral scope Sectoral scope 14 (Agriculture, Forestry and Other Land Use)
+AFOLU project category2 Reduced Emissions from Deforestation and Degradation (REDD)
+Project activity type Avoiding Unplanned Deforestation and/or Degradation (AUDD)
+Conservation of intact wetlands (CIW), which includes avoiding
+unplanned wetland degradation (AUWD)
+1.4 Project Eligibility
+General eligibility
+The project is eligible under the scope of the VCS Program (see details in Table 1 below).
+Table 1: Reason for the Project's eligibility for the VCS program – General eligibility
+CRITERION FULFILLED?
+(YES/NO) JUSTIFICATION / EXPLANATION
+The project should not be part of the
+ineligible project activities (see Table 1
+in VCS Standard v5)
+Yes No, REDD projects are included in this list of
+ineligible project activities.
+The project meets requirements
+related to the pipeline listing deadline,
+the opening meeting with the
+validation/verification body, and the
+validation deadline.
+Yes
+Project proponents shall submit a pipeline listing
+request within one year of the start date of the initial
+crediting period. As the initial crediting period starts
+on 01 January 2027, the pipeline listing request
+must be submitted no later than 01 January 2028.
+Regarding the opening meeting with the
+validation/verification body: the project is under
+development and the validation process has not yet
+begun, so no opening meeting was held with the
+VVB.
+Regarding the registration deadline, AFOLU projects
+shall submit an initial registration request within five
+years of the start date of the initial crediting period.
+As the initial crediting period starts on 01 January
+2027, the initial registration request must be
+submitted no later than 01 January 2032.
+2 See Appendix 1 of the VCS Standard v5
+
+Page 6
+VCS Project Description Template, v4.4
+6
+CRITERION FULFILLED?
+(YES/NO) JUSTIFICATION / EXPLANATION
+The applied methodology is eligible
+under the VCS Program. Yes
+The methodology applied as part of this project is
+the VM0007 methodology, version 1.8 approved on
+June 04, 2024 by the VCS Program3.
+According to VCS Methodology Requirements v5
+(section 3.2) there are currently seven AFOLU
+project categories under the VCS Program, as
+further described in Appendix 1 Eligible AFOLU
+Project Categories. Proposed AFOLU methodologies
+shall fall within one or more of these AFOLU project
+categories: the VM0007 methodology falls into the
+REDD category.
+AFOLU project eligibility
+The project is eligible under the scope of the VCS Program (see details in Table 2 below).
+Table 2: Reason for the Project's eligibility for the VCS program – AFOLU project eligibility
+CRITERION FULFILLED?
+(YES/NO) JUSTIFICATION / EXPLANATION
+According to the VCS Standard v5 and
+the VCS Methodology Requirements
+(Appendix 1: Eligible AFOLU Project
+Categories), eligible REDD activities
+reduce net GHG emissions by reducing
+deforestation and/or degradation of
+forests. Deforestation is the direct,
+human-induced conversion of forest
+land to non-forest land. Degradation is
+the persistent reduction in canopy
+cover and/or carbon stocks in a forest
+due to human activities such as animal
+grazing, fuelwood extraction, timber
+removal, or other such activities, but
+which does not result in the conversion
+of forest to non-forest land (which
+would be classified as deforestation)
+and qualifies as forests remaining as
+forests, such as set out in the IPCC
+2003 Good Practice Guidance for Land
+Use, Land-Use Change and Forestry.
+Yes
+The project is eligible under the REDD category by
+virtue of the fact that it prevents emissions by
+reducing deforestation and degradation of forests in
+the Ebuta Conservation Concession (Forest
+Concession n°007/25) which is an area that could
+be affected by deforestation or degradation due to
+the absence of effective prior protection measures.
+3 https://verra.org/methodologies/vm0007-redd-methodology-framework-redd-mf-v1-8/
+
+Page 7
+VCS Project Description Template, v4.4
+7
+CRITERION FULFILLED?
+(YES/NO) JUSTIFICATION / EXPLANATION
+As set out in REDD methodologies, the
+project area must qualify as forest for a
+minimum of 10 years before the project
+start date. In the VCS Program,
+secondary forests are considered to be
+forests that have been cleared and
+have recovered naturally and that are
+at least 10 years old and meet the
+lower bound of forest threshold
+parameters at the start of the project.
+Forested wetlands, such as floodplain
+forests, peatland forests, and
+mangrove forests, are also eligible
+provided they meet forest definition
+requirements.
+Yes
+The project comprises tropical primary forest over
+peat soils. Such forests are eligible provided they
+meet the applicable forest definition requirements.
+To demonstrate eligibility, a GIS-based cartographic
+assessment was conducted using multi-temporal
+remote sensing and available reference layers to
+confirm that the selected areas (i) meet the forest
+threshold parameters at the project start date and
+(ii) remained forested throughout the 10-year pre-
+project period. Areas showing evidence of
+clearing/conversion, non-forest cover, or not
+meeting the forest definition were excluded from the
+final project boundary. The final delineated project
+area therefore includes only forested land that
+satisfies the VCS REDD eligibility criterion and the
+forest definition requirements.
+REDD activities are designed to stop
+planned (designated and sanctioned)
+deforestation or unplanned
+(unsanctioned) deforestation and/or
+degradation. Avoided planned
+degradation is classified as IFM.
+Yes
+The project targets unplanned (unsanctioned)
+deforestation and/or degradation within the project
+area. The main drivers are small-scale agricultural
+encroachment and small-scale resource extraction,
+which lead to forest clearance and/or persistent
+reductions in canopy and carbon stocks. Therefore,
+the project activities are consistent with the REDD
+category under the VCS Program.
+Activities that stop unsanctioned
+deforestation and/or illegal
+degradation (e.g., removal of fuelwood
+or timber extracted by non-
+concessionaires) on lands that are
+legally sanctioned for timber
+production are eligible as REDD
+activities.
+No
+Not applicable. The project area is not located on
+lands legally sanctioned for timber production (i.e.,
+it does not overlap with timber concessions or other
+areas designated for legal timber harvesting).
+Consequently, the eligibility provision related to
+stopping unsanctioned deforestation and/or illegal
+degradation by non-concessionaires on timber-
+production lands does not apply to this project.
+Transfer project eligibility
+This section does not apply since the proposed project isn’t a transfer project or a Component Project
+Activity (CPA).
+
+Page 8
+VCS Project Description Template, v4.4
+8
+1.5 Project Design
+☒ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+☐ Grouped project
+Grouped project design
+This section does not apply since the proposed project isn’t a grouped project.
+1.6 Project Proponent
+Organization name Congo Nature Tourbières (CNT)
+Contact person Morgan CASSAGNE
+Title Project Manager
+Address Immeuble Infinity Center Bureau 602, 17 avenue Pierre Mulele,
+C/Gombe, V/Kinshasa, P/Kinshasa, République Démocratique du
+Congo
+Telephone +243 810 544 462
+Email morgan.cassagne@frm-france.com
+1.7 Other Entities Involved in the Project
+Organization name FRM Ingénierie (FRMi)
+Role in the project Consultant
+Technical Lead in Project Development
+Technical support for calculation of emission reductions
+Redaction of the PDD
+Subsidiary of the FRM Group
+Contact person Flore HIRSCH
+Title Forest Management and Carbon Specialist
+Address 60 rue Henri Fabre,
+34 130 Mauguio, FRANCE
+
+Page 9
+VCS Project Description Template, v4.4
+9
+Telephone +33 (0)4 67 20 08 09
+Email fhirsch@frm-france.com
+frm@frm-france.com
+Organization name FRM RDC
+Role in the project Consultant
+Technical Lead in Project Development
+Contact person Jean-Gaël JOURGET
+Title Representative of the Manager
+Address Immeuble Infinity Center Bureau 602, 17 avenue Pierre Mulele,
+C/Gombe, V/Kinshasa, P/Kinshasa, République Démocratique du
+Congo
+Telephone +243 810 544 462
+Email jjourget@frm-france.com
+Organization name NGO, to be selected
+Role in the project Technical Operator for community development
+Contact person
+Title Coordinator
+Address
+Telephone
+Email
+
+Page 10
+VCS Project Description Template, v4.4
+10
+1.8 Ownership
+Land ownership
+According to the “Contrat de Concession Forestière de Conservation n°007/25 du 31 juillet 2025”
+between the Congolese Government and CNT (available upon request) the Ebuta forest concession, of
+264,580 ha, became a conservation forest concession in favor of the CNT company.
+Conservation forest concessions are, as much as timber exploitation concessions, regulated by Law No.
+011/2002 of August 29, 2002 on the Forest Code4 (art. 82 to 95 and art. 119) and its application
+measures (Decree No. 011/27 of May 20, 2011 setting the specific rules for the allocation of
+conservation forest concessions5). Based on these texts, the regulations in force have clearly provided
+for specific conditions to be met by any individual or legal entity wishing to enter into a forestry concession
+contract for timber exploitation or conservation as well as the procedure to be followed by the public
+administration for this purpose.
+In addition, the Democratic Republic of Congo wishes to ensure that the activities implemented within
+the framework of the REDD+ mechanism develop in coherence with the international agreements and
+treaties ratified by the State and with the policies and measures in force, in accordance with the decisions
+of the XVI Conference of the Parties to the United Nations Framework Convention on Climate Change. In
+this perspective, any project intended to promote its reductions in greenhouse gas emissions linked to
+REDD+ on the carbon markets or with international institutional buyers, as the Ebuta Project, must be
+subject to prior approval by the Democratic Republic of Congo6.
+The national approval procedure contributes, on the one hand, to the concretization of the commitments
+made by the DRC within the framework of international agreements and conventions and, on the other
+hand, to the consistency of REDD+ projects with the existing national framework, in particular the policies
+and measures, law, eligibility criteria and social and environmental safeguards. The approval of a REDD+
+project attests to the legitimacy of the promoter of this REDD+ project with regard to the Congolese State
+and constitutes a right to promote REDD+ performance on the carbon markets or with any buyer of
+REDD+ performance from a project located within the borders of the DRC.
+As part of the approval, the land rights of CNT in the project area, and the means of obtaining these
+rights, are verified. In fact, according to the article 10 of the « Arrêté Ministériel
+n°47/CAB/MIN/EDD/AAN/MML/05/2018 fixant la procédure d’homologation des investissements
+REDD+ en République Démocratique du Congo (J.O.RDC., 1er juillet 2018, n°13, col. 58)7 » : in the event
+that the implementation of the REDD+ investment requires the occupation of any land whatsoever,
+whether forest land or not, the existence in the file of a deed of commitment by the bearer of the
+investment to obtain the prior agreement of the holder(s) of the pre-existing land rights, individual or
+4 http://www.droit-afrique.com/upload/doc/rdc/RDC-Code-2002-forestier.pdf
+5 https://faolex.fao.org/docs/pdf/cng111044.pdf
+6https://www.forestcarbonpartnership.org/sites/fcp/files/2015/March/Annexe%20I%20Manuel_Proc%C3%A9dure_Homologa
+tion_r%C3%A9vision_version_finale_24f%C3%A9vrier.pdf
+7 https://faolex.fao.org/docs/pdf/Cng189387.pdf
+
+Page 11
+VCS Project Description Template, v4.4
+11
+collective, given in full knowledge of the facts and without moral or physical constraint; in this case, the
+deed of engagement conforms to the model set out in the manual.
+Project ownership
+Carbon credits generated by the project will be shared among the State, local communities, and the
+project proponent (i.e., FRM Commitment), in accordance with the sharing clause in the conservation
+concession contract.
+1.9 Project Start Date
+Project start date 01-January-2027
+Requirements 3.7.1 The project start date shall:
+1) be consistent with the definition of project start date in
+the VCS Program Definitions.
+2) conform to any criteria set out in the applied
+methodology.
+3) be established based on implementation of the earliest
+of the first significant actions,
+where the project includes multiple project activities.
+4) be no later than the initial crediting period start date.
+3.7.2 The project start date shall not be determined based on
+either of the following:
+1) Pilot testing in the project area that:
+a) is limited to research (e.g., feasibility studies or trials),
+b) comprises activities that are not monitored as part of
+the project, or
+c) does not introduce permanent changes in land use
+2) Stakeholder engagement activities that are required to
+occur prior to the project start date.
+Justification Activities leading to the generation of GHG emission reductions
+or removals have not yet started.
+
+Page 12
+VCS Project Description Template, v4.4
+12
+1.10 Project Crediting Period
+Crediting period ☐ Seven years, twice renewable
+☐ Ten years, fixed
+☒ Other: 40 years
+Start and end date of
+first or fixed crediting
+period
+01-January-2027 to 31-Decembre-2066, i.e. 40 years. This crediting
+period conforms with the VCS Program requirements as the initial
+project crediting period for an AFOLU project shall be a minimum of
+20 years up to a maximum of 100 years.
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals
+The estimated annual GHG emission reductions/removals (ERRs) of the project are:
+☐ < 300,000 tCO2e/year (project)
+☒ ≥ 300,000 tCO2e/year (large project)
+The calculation of emission reductions for Reduced Emissions from Deforestation and Degradation
+follows the VCS Standard v5 and the VM0007 Methodology, with additional modules such as VMD0007.
+The estimated GHG emission reductions and removals for the entire project crediting period are outlined
+in the table below. These estimates do not account for the buffer.
+
+Page 13
+VCS Project Description Template, v4.4
+13
+Table 3: Estimated reductions or removals
+Calendar year of crediting period Estimated GHG emission reductions or
+removals (tCO2e)
+1 January 2027 to 31 December 2027 335,725
+1 January 2028 to 31 December 2028 357,843
+1 January 2029 to 31 December 2029 379,897
+1 January 2030 to 31 December 2030 401,888
+1 January 2031 to 31 December 2031 423,817
+1 January 2032 to 31 December 2032 445,683
+1 January 2030 to 33 December 2033 467,487
+1 January 2034 to 31 December 2034 489,229
+1 January 2035 to 31 December 2035 510,909
+1 January 2036 to 31 December 2036 532,526
+1 January 2037 to 31 December 2037 554,082
+1 January 2038 to 31 December 2038 575,576
+1 January 2039 to 31 December 2039 597,009
+1 January 2040 to 31 December 2040 618,381
+1 January 2041 to 31 December 2041 639,691
+1 January 2042 to 31 December 2042 660,940
+1 January 2043 to 31 December 2043 682,128
+1 January 2044 to 31 December 2044 703,256
+1 January 2045 to 31 December 2045 724,323
+1 January 2046 to 31 December 2046 745,330
+1 January 2047 to 31 December 2047 766,276
+
+Page 14
+VCS Project Description Template, v4.4
+14
+1 January 2048 to 31 December 2048 787,162
+1 January 2049 to 31 December 2049 807,988
+1 January 2050 to 31 December 2050 828,755
+1 January 2051 to 31 December 2051 849,461
+1 January 2052 to 31 December 2052 870,108
+1 January 2053 to 31 December 2053 890,696
+1 January 2054 to 31 December 2054 911,225
+1 January 2055 to 31 December 2055 931,694
+1 January 2056 to 31 December 2056 952,104
+1 January 2057 to 31 December 2057 972,456
+1 January 2058 to 31 December 2058 992,749
+1 January 2059 to 31 December 2059 1,012,983
+1 January 2060 to 31 December 2060 1,033,159
+1 January 2061 to 31 December 2061 1,053,276
+1 January 2062 to 31 December 2062 1,073,336
+1 January 2063 to 31 December 2063 1,093,338
+1 January 2064 to 31 December 2064 1,113,281
+1 January 2065 to 31 December 2065 1,125,019
+1 January 2066 to 31 December 2066 1,136,722
+Total estimated ERRs during the first or fixed
+crediting period 30,047,510
+Total number of years 40
+Average annual ERRs 751,188
+
+Page 15
+VCS Project Description Template, v4.4
+15
+1.12 Description of the Project Activity
+The project area is entirely within the Ebuta Concession (264,580 ha) in the north-west of the Democratic
+Republic of Congo. To successfully protect a significant portion of the swamp forests within the
+concession, the concession must be divided into two areas: a rural development area (see § 1.13 for
+more details) not included in the project, and a project area where ecosystem protection will be
+implemented.
+The main objective of the Project is to protect peatland and swamp forest ecosystems by stopping
+deforestation and/or forest degradation (i.e., AUDD). AUDD activities will maintain and protect
+ecosystems inside the project area (238,065 ha).
+Community activities will also be developed in the rural development area, but their impacts will not be
+accounted for in emission reductions, as they occur outside the project area.
+This project is not located within a REDD+ jurisdictional program.
+Project development and beginning
+2025 and the beginning of 2026 were, and will be, devoted to the technical and socio-environmental
+feasibility studies of the Project, as well as studies of opportunity and economic feasibility.
+It was at the end of 2025 that the project took its first steps with:
+- According to the “Contrat de Concession Forestière de Conservation n°007/25 du 31 juillet
+2025” between the Congolese Government and CNT (available upon request) the Ebuta forest
+concession, of 264,580 ha, became at this date a conservation forest concession in favor of the
+CNT company (see § 1.8 for more details on the procedure).
+- A first exploratory mission with the aim of apprehending the ecosystems and approaching and
+gathering support for the project from local communities
+Exploration of ecosystems
+
+Page 16
+VCS Project Description Template, v4.4
+16
+Meeting with local communities and authorities
+Other missions will follow in order to obtain Free, Prior, and Informed Consent (FPIC) and define the zoning
+of the concessions, in particular to delimit and distinguish between the rural development area and the
+project area.
+AUDD activities
+This project aims to prevent the GHG emission by stopping deforestation and/or degradation of the
+forests that would have occurred in any forest configuration.
+Forest degradatrion
+By stopping these destructive activities, the project will also reduce disturbance to the fauna in this area,
+which is very rich and varied, thanks to its proximity to the Triangle de la Ngiri Reserve, which includes,
+among other species, bonobos (Pan paniscus), forest elephants (Loxodonta cyclotis), Congolese
+
+Page 17
+VCS Project Description Template, v4.4
+17
+peacocks (Afropavo congensis), and bongo antelope (Tragelaphus eurycerus)8. The lack of infrastructure
+development will also deter illegal activities, making them more difficult to carry out.
+Because of the intrinsic conservation nature of this REDD project, there are no specific technologies,
+services or products involved in its implementation. The activities of the AUDD focus on the supervision
+and monitoring of the concession forests. In order to monitor any disturbances that may affect the whole
+forest, a permanent control team that monitors the state of the forest with regard to hunting, fires etc.
+will be installed.
+Other activities
+To conserve forests, the project will help maintain and improve local development, environmental, and
+social services for communities and indigenous peoples across the Ebuta Concession. In fact, the project
+area includes High Conservation Value (HCV) areas, including swamp forests associated with some of the
+largest peatland complexes in the world, the “Cuvette Centrale” and the Congo Basin peatland areas.
+These peatlands are essential for carbon storage, as peatlands store more carbon than any other natural
+terrestrial system: 6,300 tons of CO₂ per hectare in peat soils, compared to 250 tons of CO₂ per hectare
+in the soils of non-peat tropical forests (Crezee et al, 20229).
+The desired outcome is to provide people with income opportunities that are not destructive to the
+rainforest, as they have traditionally done. To this end, several activities will be developed in close
+collaboration with local communities (through their Free, Prior and Informed Consent; see § 2.1.3). The
+implementation of these activities and their impact on emission reductions will not be accounted for in
+this carbon project. However, a portion of the revenue from the sale of carbon credits generated by the
+AUDD project will directly support the development and sustainability of these activities.
+These activities are, for example:
+- Monitoring of illegal activities (logging, poaching) in the whole concession and, in case of
+flagrante offence, working with the local authorities in order to carry out conciliation missions to
+deter criminal behavior. The objective is not to repress and punish but to get in touch with people
+engaged in illegal activities in order to be able to raise their awareness as a priority on the
+consequences of their actions and to offer them priority alternative income-generating activities
+and non-destructive of the environment;
+- Sensitization of local populations about the impact of deforestation and the importance of
+preserving forests;
+- Sensitization of local populations about the impact of poaching and the importance of preserving
+animal biodiversity in partnership with the Triangle de la Ngiri Reserve. The region where the
+rainforest we protect is located is home to wildlife found nowhere else. This is particularly true
+for endangered species such as the bonobo. We plan to both carefully protect their natural
+habitats and to work with the local wildlife protection groups;
+8 https://rsis.ramsar.org/es/ris/1784
+9 Crezee, B., Dargie, G.C., Ewango, C.E.N. et al. Mapping peat thickness and carbon stocks of the central Congo
+Basin using field data. Nat. Geosci. 15, 639–644 (2022).
+
+Page 18
+VCS Project Description Template, v4.4
+18
+- Sensitization of local populations to the limits of the rural development zone, the objective being
+to make them understand that their activities must be confined to this zone, which is dedicated
+to them and that they must not extend into the conservation zones. This sensitization will be
+accompanied by a reflection, in consultation with the local populations, on the means to optimize
+and sustain their food and income-generating activities in this rural development zone (see the
+activities that will be proposed below);
+- Development of sustainable agriculture with three main objectives: food security, local income
+generation and sedentarisation/stabilization of slash-and-burn agriculture. Several activities will
+then be possible:
+o Sensitization and training in sustainable agricultural practices with agronomists;
+o Agroforestry: combining the usual food crops of local populations (cassava, peanuts, etc.)
+with tree plantations, such as Acacia trees, which will fertilize the soil (because they are
+nitrogen fixers), and thus increase yields, and which can also be used to produce
+charcoal, as a substitute of the firewood supply in natural forests;
+o Planting of oil palms and/or cash crops in order to develop new income-generating
+sectors. These activities will be accompanied by the installation of processing units (e.g.,
+oil mills), packaging and transport;
+o Provision of improved seeds to local populations;
+o NTFPs gathering, such as honey (installation of beehives in Acacia agroforestry
+plantations) or caterpillars;
+o Livestock: support for local populations in terms of veterinary services and marketing of
+animal products to the capital.
+For the realization of some of these activities, and to guarantee their success, CNT will request the
+technical support an environmental civil society organization (to be determined) that supports community
+development and sustainable management of natural resources. If necessary, other technical
+partnerships could be set up to oversee and support the planned community activities.
+In addition to the specific items mentioned above, we are continuously searching - in close collaboration
+with local communities - for new, innovative, more efficient, environmentally friendly methods to achieve
+our goal of maximizing the improvement of living conditions for the population in the DRC while having
+long lasting positive effects on the economy of the region.
+
+Page 19
+VCS Project Description Template, v4.4
+19
+1.13 Project Location
+The Ebuta Concession is located in the north-west of the Democratic Republic of Congo, in the "Cuvette
+centrale”. It is located between the Ngiri River to the west, the Ebuta River to the north-est and the Congo
+River to the south-east. This forest massif extends between latitudes 190,000 and 220,000 North and
+longitudes 220,000 and 340,000 East (see Figure 1).
+Administratively, the Ebuta Concession is entirely located in:
+- The Province: Equateur;
+- The Territories: Bomongo and Makanza;
+- The Sector: Djamba, Bangala and Mweko;
+- The Malunza, Lunsengo, Makanza, Mabembe, Mbenga, Bombenga, Mobusi and Molanga
+Groups.
+Makanza, chief town of the Makanza territory
+According to the conservation concession contract, the Ebuta Concession covers a total area of
+264,580 ha. To provide rural populations with a land reserve of 26,515 ha for future agricultural
+activities, an area allocated to rural development, including the existing clearings, was identified during
+Project development. This area is to be excluded from the limits of the Project, and no VCUs will be issued
+from it.
+The project area corresponds to the remainder of the concession and represents 238,065 ha.
+The Figure 2 presents the spatial organization of the Ebuta Concession. The project area is located within
+the Ebuta Concession (Figure 2)
+
+Page 20
+VCS Project Description Template, v4.4
+20
+Figure 1: Location of the Ebuta Concession
+
+Page 21
+VCS Project Description Template, v4.4
+21
+Figure 2: Spatial organization of the Ebuta Concession with the project area
+
+Page 22
+VCS Project Description Template, v4.4
+22
+1.14 Conditions Prior to Project Initiation
+The conditions existing prior to project initiation are the same as the baseline scenario (i.e. non assigned
+peatland forest), please refer to § 3.4.
+Climate
+The Ebuta Concession is located in the north-west of the Democratic Republic of Congo, in the "Cuvette
+centrale”, one of the region's wettest areas.
+The available rainfall data for the city of Makanza (
+Figure 3), in the north-eastern part of the concession indicates an absence of a real dry season, with
+periods of heavy rainfall (“peaks”) being concentrated in April-May and September-October. Total average
+annual rainfall is high, around 1,650 mm/year10.
+Figure 3: Rainfall curve on Makanza 10
+Own elaboration.
+10 Funk, C., Peterson, P., Landsfeld, M. et al. (2015). The climate hazards infrared precipitation with stations—a new
+environmental record for monitoring extremes. Sci Data 2, 150066. https://doi.org/10.1038/sdata.2015.66
+
+Page 23
+VCS Project Description Template, v4.4
+23
+Hydrology
+The Ebuta Concession is bordered by major watercourses, including the Ngiri River (a tributary of the
+Ubangi River) to the west and the Congo River to the east. The concession is located in the Cuvette
+Centrale Peatland Complex. These conditions give the area a strongly marshy context (see Figure 4). The
+concession is characterised by a dense hydrographic network largely composed of channels that, during
+the rainy season, connect the Ngiri and Congo River11.
+Various waterways on the project area
+Topography
+The relief is, on the whole, very little marked on the whole of the concession; the variations in altitude
+are weak and spread out between 290 and 355 m (see Figure 4). The most significant elevation changes
+are observed in the north-eastern part of the Concession. The slopes are quite low on the concession
+(rarely exceeding 10%)12.
+Geology and Pedology
+The project area is located within the central part of the Congo Basin “Cuvette”, where extensive
+swamp forests and deep peat deposits dominate the landscape13. Unlike the terra firme forests, the
+soils within this concession consist almost entirely of hydromorphic and permanently waterlogged
+substrates. The surface horizon is characterized by peat layers of Holocene to Late Pleistocene origin,
+formed under persistent anoxic and saturated conditions that limit decomposition and allow the
+accumulation of organic matter over millennia. These peat soils typically overlie fine alluvial or
+11 Moukandi N’kaya, G. D., Laraque, A., Paturel, J.-E., Gulemvuga Guzanga, G., Mahé, G., & Tshimanga, R. M. (2022). A New
+Look at Hydrology in the Congo Basin, Based on the Study of Multi-Decadal Time Series. En R. M. Tshimanga, G. D. Moukandi
+N’kaya, & D. Alsdorf (Eds.), Congo Basin Hydrology, Climate, and Biogeochemistry: A Foundation for the Future
+12 Georgiou, S., et al. (2023). Mapping Water Levels across a Region of the Cuvette Centrale Peatland Complex. Remote
+Sensing, 15(12), 3099.
+13 Crezee, B., Dargie, G. C., Ewango, C. E. N., et al. (2022). Mapping peat thickness and carbon stocks of the central Congo
+Basin using field data. Nature Geoscience, 15, 639–644. https://doi.org/10.1038/s41561-022-00966-7
+
+Page 24
+VCS Project Description Template, v4.4
+24
+lacustrine sediments, reflecting the long-term stability of the inundated environment. The almost
+continuous waterlogging and the absence of well-drained upland soils define the ecological functioning
+of the landscape and play a central role in its carbon storage potential14.
+Peat swamp forest
+Beneath the peat and Quaternary alluvial sediments, the concession lies within the broader Congo Basin
+intracratonic depression, which contains a thick sequence of continental and lacustrine deposits of
+Cenozoic and Mesozoic age. These layers comprise alternating sandstones, siltstones, and clay-rich
+formations deposited during successive phases of subsidence and sedimentation. At greater depth, this
+sedimentary package rests on the Precambrian crystalline basement of the Congo Craton. Although
+concealed today by swamp forests and peatlands, this geological structure influences the region’s low-
+relief topography and the hydrological conditions that favor the long-term development and persistence
+of peat-forming wetlands15.
+14 Dargie, G. C., Lewis, S. L., Lawson, I. T., Mitchard, E. T. A., Page, S. E., Bocko, Y. E., & Ifo, S. A. (2017). Age, extent an d carbon
+storage of the central Congo Basin peatland complex. Nature, 542, 86–90. https://doi.org/10.1038/nature21048
+15 Dargie, G. C., Gulliver, P., Lawson, I., Morris, P. J., Crezee, B., et al. (2025). Timing of peat initiation across the central Congo
+Basin. Environmental Research Letters, 20, 084080. https://doi.org/10.1088/1748-9326/ade905
+
+Page 25
+VCS Project Description Template, v4.4
+25
+Figure 4: Topography and hydrography of the Ebuta Concession
+
+Page 26
+VCS Project Description Template, v4.4
+26
+Ecosystems and vegetation
+Flora and land use
+The Ebuta Concession is characterized by several forest types (see Table 4 and Figure 6), which, in
+combination with the area's topographic characteristics, form distinct landscapes. The peatland
+formations show two main types of forest16:
+- Hardwood-dominated peat swamp forest: This ecosystem type is characterized by the dominance
+of high-stem, hardwood species such as Carapa sp, Grossera sp, Cleistopholis sp. and Uapaca
+sp, a relatively high and closed canopy. These forests play a major role in carbon storage and
+serve as essential habitats for numerous forest species.
+- Palm-dominated peat swamp forest: This forest, where the undergrowth tends to be noticeably
+denser, is dominated by the palm Raphia laurentii, which has a low stature (less than 10m), and
+a non-continuous tree canopy. These areas host specialized fauna and are often located in the
+basin's wettest or most poorly drained sectors.
+These peatland formations are periodically or permanently flooded but do not always lie on peaty soils16.
+The forest landscape of the Concession is influenced by various anthropogenic disturbances, including
+agricultural activities (slash-and-burn agriculture and oil palm plantations)17 and human infrastructure,
+which account for 2,4% of the Concession's area18. Changes to the forest landscape caused by human
+activities result in the appearance of degraded forests or savannahs, young forests, forest regrowth, etc.
+There are also areas of periodically flooded savannah, mainly located along the banks of watercourses.
+Table 4,
+Figure 5 and Figure 6 summarize these different plant formations as well as their areas measured within
+the limits of the Ebuta Concession.
+Table 4: Distribution of area by plant formation on the Ebuta Concession and project aerea
+Strata Concession Project area
+Surface (ha) % Surface (ha) %
+Forest
+formation
+s on terra
+firma
+that can
+be
+exploited
+Hardwood-dominated peat swamp forest 232,620 88% 229,654 97%
+Palm-dominated peat swamp forest 12,212 4.5% 7,830 3%
+Terra Firme Dense Evergreen Forest 6,555 2.5% 570 0%
+Total forest formations 251,386 95% 238,065 100%
+Non
+-
+forest
+forma
+tions
+Periodically Flooded Savannah 7,379 3.8% 0 0%
+Crop and Housing Complex 2,099 0.8% 0 0%
+Open water 3,716 1.4% 0 0%
+16 Nesha, K., Herold, M., Reiche, J., Masolele, R. N., Hergoualc’h, K., Swails, E., Murdiyarso, D., & Ewango, C. E. N. (2024). An
+assessment of recent peat forest disturbances and their drivers in the Cuvette Centrale, Africa. Environmental Research
+Letters, 19(10), 104031. https://doi.org/10.1088/1748-9326/ad6679
+17 Author’s own elaboration from field observations
+18 Author’s own elaboration based on google earth images
+
+Page 27
+VCS Project Description Template, v4.4
+27
+Strata Concession Project area
+Surface (ha) % Surface (ha) %
+Non-forest formations 13,994 5% 0 0%
+TOTAL 264,580 100% 238,065 100%
+Figure 5: Ecosystems of the Ebuta Concession (Outside the Project Area)
+
+Page 28
+VCS Project Description Template, v4.4
+28
+Fauna
+The Ebuta Concession is close (70 km) to the Triangle de la Ngiri Reserve (see Figure 7), and the Ngiri-
+Tumba - Maï Ndombe cross-border Ramsar Site, the world’s largest Ramsar Site.
+The Ngiri Triangle Nature Reserve was officially established in March 2011 by a decree of the Democratic
+Republic of the Congo's Ministry of Environment. It is managed by the Congolese Institute for Nature
+Conservation (ICCN), in collaboration with international partners such as WWF. Located at the confluence
+of the Congo and Ubangi rivers in Equateur province, the reserve covers 1,000 square kilometers. The
+Ngiri Reserve is mostly covered by swamp forest, seasonally flooded woodlands, and marshy grassland-
+savanna mosaics. It is an important breeding ground for numerous water birds—such as purple herons,
+reed cormorants, and African darters—and is home to threatened species including Allen’s swamp
+monkey and the elephant. The reserve was created as part of the transboundary Lake Télé–Lake Tumba
+Landscape conservation initiative19.
+19 https://rsis.ramsar.org/ris/1784
+
+Page 29
+VCS Project Description Template, v4.4
+29
+Figure 6: Land cover of the Ebuta Concession
+
+Page 30
+VCS Project Description Template, v4.4
+30
+Figure 7: Location of protected areas near the Ebuta Concession
+
+Page 31
+VCS Project Description Template, v4.4
+31
+Anthropogenic activities and the evolution of forest cover
+In the area, two broad population groups can be distinguished:
+- Indigenous or historically settled populations, living in officially recognized villages and holding
+customary land rights.
+- Allochthonous populations, who have migrated over the past decade and settled in fishing
+camps built on stilts along the Congo River. These camps are not recognized as villages, and
+their occupants do not hold customary rights.
+Both groups rely primarily on fishing, supplemented by small-scale subsistence agriculture. However, the
+forest-use rights differ sharply. Migrant populations residing in fishing camps do not possess customary
+rights and therefore have very limited access to forest resources. Their use of the forest is generally
+restricted to collecting dead wood and cultivating small plots near their camps when water levels permit
+it.
+Indigenous populations, by contrast, possess full customary access rights to the forest. They practice
+small-scale slash-and-burn agriculture, which relies heavily on fire during land preparation. They also use
+forest resources for pirogue construction, timber extraction (mostly for local use), and fuelwood
+collection. Some illegal logging also occurs, with timber occasionally transported by raft to Kinshasa.
+Most of their use of the forest and peatland areas is related to gathering, particularly the harvesting of
+non-timber forest products
+
+Page 32
+VCS Project Description Template, v4.4
+32
+Economic activities of local communities
+
+Page 33
+VCS Project Description Template, v4.4
+33
+The DRC is the second-largest tropical forest country in the world, with 152 million hectares of forest.
+Nearly 70% of the country's land area is covered by forests, representing 60% of the Congo Basin's forest
+area. In 2018, the national forest cover was 61.5%, with a deforestation rate of 0.17%20. The main drivers
+of deforestation and forest degradation are slash-and-burn agriculture, logging and charcoal
+production21. This situation is further exacerbated by the combined effects of rapid population growth
+and deteriorating living conditions. As a result, demand for charcoal, energy wood, and timber, and the
+area of cultivable land required for traditional agricultural practices (slash-and-burn agriculture), continue
+to grow in the country, placing forests under extreme pressure and leading to their gradual decline.
+Within the Ebuta concession, the population’s traditional lifestyle, the region’s isolation, and seasonal
+flooding of forests have helped preserve forest cover. However, increasing population density, the scarcity
+of terra firme combined with declining fish stocks—due to the growing number of fishermen and the
+evolution of fishing techniques—is now placing this ecosystem at significant risk.
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks
+According to the “Contrat de Concession Forestière de Conservation n°007/25 du 31 juillet 2025”
+between the Congolese Government and CNT (available upon request), this area, of 264,580 ha, became
+a conservation forest concession in favor of the CNT company.
+The project proponent, CNT, is a private company under Congolese law. The registration documents are
+available on request. This entity will comply with all applicable local, regional and national laws,
+regulations and standards. Within the project area, none of the proposed Project Activities violates any
+laws or regulations. The development of the Project is based on the country's environmental regulations
+and laws.
+Conservation forest concessions are, as much as timber exploitation concessions, regulated by Law No.
+011/2002 of August 29, 2002 on the Forest Code22 (art. 82 to 95 and art. 119) and its application
+measures (Decree No. 011/27 of May 20, 2011 setting the specific rules for the allocation of
+conservation forest concessions23). Based on these texts, the regulations in force have clearly provided
+for specific conditions to be met by any individual or legal entity wishing to enter into a forestry concession
+contract for timber exploitation or conservation as well as the procedure to be followed by the public
+administration for this purpose.
+Conservation forest concessions in the Democratic Republic of the Congo may be established either by
+converting former logging or by direct allocation of land that had not previously been brought under
+concession status. For newly attributed concessions, this process is defined in Decree No. 011/27 of
+May 20, 2011, which permits any natural or legal person to acquire a conservation concession through
+20 https://www.un-redd.org/post/la-republique-democratique-du-congo-franchit-une-nouvelle-etape-vers-la-finalisation-de-
+son#:~:text=En%202018%2C%20le%20couvert%20forestier,production%20de%20charbon%20de%20bois
+21 Nesha, K., Herold, M., Reiche, J., Masolele, R. N., Hergoualc’h, K., Swails, E., Murdiyarso, D., & Ewango, C. E. N. (2024). A n
+assessment of recent peat forest disturbances and their drivers in the Cuvette Centrale, Africa. Environmental Research
+Letters, 19(10), 104031. https://doi.org/10.1088/1748-9326/ad6679
+22 http://www.droit-afrique.com/upload/doc/rdc/RDC-Code-2002-forestier.pdf
+23 https://faolex.fao.org/docs/pdf/cng111044.pdf
+
+Page 34
+VCS Project Description Template, v4.4
+34
+a formal application to the granting authority, without prior logging activity. After thorough examination of
+the application, the Minister—acting as the granting authority—must transmit the file within eight days of
+receipt to the central forest administration via the Secretary General, accompanied by the relevant
+technical and administrative documentation provided by the provincial forest administration, or
+requested urgently from the provincial governor if missing. The central administration then undertakes
+all necessary technical and financial reviews. When all requirements have been fulfilled, the Minister
+notifies the applicant in writing to complete any outstanding obligations, and the concession is awarded
+through Ministerial Order, followed by the signature of the concession contract within seven days. The
+awarding order is published in the Official Journal, and copies are distributed to relevant government
+offices, as stipulated by law. This direct allocation mechanism enables the establishment of new
+conservation concessions on non-previously allocated territory, supporting the expansion of protected
+areas and sustainable forest management in the DRC.
+In addition, the Democratic Republic of Congo wishes to ensure that the activities implemented within
+the framework of the REDD+ mechanism develop in coherence with the international agreements and
+treaties ratified by the State and with the policies and measures in force, in accordance with the decisions
+of the XVI Conference of the Parties to the United Nations Framework Convention on Climate Change. In
+this perspective, any project intended to promote its reductions in greenhouse gas emissions linked to
+REDD+ on the carbon markets or with international institutional buyers, such as the Ebuta Peatland
+Project, must be subject to prior approval by the Democratic Republic of Congo24.
+The national approval procedure contributes, on the one hand, to the concretization of the commitments
+made by the DRC within the framework of international agreements and conventions and on the other
+hand, to the consistency of REDD+ projects with the existing national framework, in particular the policies
+and measures, law, eligibility criteria and social and environmental safeguards. The approval of a REDD+
+project attests to the legitimacy of the promoter of this REDD+ project with regard to the Congolese State
+and constitutes a right to promote REDD+ performance on the carbon markets or with any buyer of
+REDD+ performance from a project located within the borders of the DRC.
+Within the framework of the approval, the compliance of the project proponent and the project with a
+certain number of legal and regulatory requirements are checked, such as for example the regularity of
+the documents relating to the quality of the project proponent and its partners, the regularity of payment
+of tax obligations, the land rights of the project promoter in the project area and the means of obtaining
+these rights, the presence of an environmental certificate issued by the Congolese Environment Agency
+according to the mechanisms, etc25.
+Before the implementation of project activities, an Environmental and Social Impact Assessment (ESIA)
+will be conducted so the project can comply with:
+24
+https://www.forestcarbonpartnership.org/sites/fcp/files/2015/March/Annexe%20I%20Manuel_Proc%C3%A9dure_Homologat
+ion_r%C3%A9vision_version_finale_24f%C3%A9vrier.pdf
+25 See the article 10 of the « Arrêté Ministériel n°47/CAB/MIN/EDD/AAN/MML// fixant la procédure d’homologation des
+investissements REDD+ en République démocratique du Congo (J.O.RDC., 1er juillet 2018, n°13, col. 58) :
+https://faolex.fao.org/docs/pdf/Cng189387.pdf
+
+Page 35
+VCS Project Description Template, v4.4
+35
+- The « Loi n°11/009 du 09 juillet 2011 portant principes fondamentaux relatifs à la protection
+de l’environnement »26 which in its article 21 "subjects any development, infrastructure or
+exploitation project of any industrial, commercial, agricultural, forestry, mining,
+telecommunications or other activity likely to have an impact on the environment to a prior
+environmental and social impact assessment, together with its management plan, duly approved"
+- The « Décret n°13/015 du 29 mai 2013 portant réglementation des installations classées »27
+which in its article 11, paragraph 2, conditions the issue of any license to operate a classified
+installation on the prior completion of an environmental and social impact study in accordance
+with article 21 of the « Loi n°11/009 du 09 juillet 2011 portant principes fondamentaux relatifs
+à la protection de l’environnement ».
+- The « Décret n°14/019 du 02 août 2014 fixant les règles de fonctionnement des mécanismes
+procéduraux de la protection de l'environnement »28 stipulating in Article 18 that "is obligatorily
+and previously submitted to an environmental and social impact assessment, together with its
+management plan, any project for the development, infrastructure or operation of any industrial,
+commercial, agricultural, forestry, mining, hydrocarbons, cement, telecommunications or other
+likely to have an impact on the environment".
+- The « Loi n°22/030 du 15 juillet 2022 portant protection et promotion des droits des peuples
+autochtones pygmées »29 which stipulates in its Article 3 that « The indigenous Pygmy peoples
+are free and equal in dignity and rights as Congolese citizens. All forms of discrimination against
+them are prohibited. ».
+The ESIA will also establish the list of local, regional and national laws, statutes and regulatory
+frameworks to which the project complies.
+The DRC has signed and ratified or acceded to several international and regional legal instruments aimed
+at environmental protection and sustainable management of forest and wildlife resources. This signature
+not only confers benefits, but also obligations and the duty to internalize them. Among these instruments,
+those applicable to the Ebuta Project activities are listed in the Table 5 below.
+26 https://dgrad.gouv.cd/wp-content/uploads/2022/01/Loi-011-009-du-09-juillet-2011_principe-fondamentaux-protection-
+environnement.pdf
+27 https://www.droitcongolais.info/files/72.05.13-Decret-du-29-mai-2013_Installations-classees.pdf
+28 https://www.leganet.cd/Legislation/Droit%20administratif/Environnement/D.19.019.02.08.214.htm
+29 https://www.leganet.cd/Legislation/Droit%20Public/DH/Loi%2022.030%20du%2015%20juillet%202022.html
+
+Page 36
+VCS Project Description Template, v4.4
+36
+Table 5: International and regional conventions ratified by the DRC applicable to the Ebuta
+project activities
+CONVENTION COUNTRY/CITY AND DATE
+OF ADOPTION
+RATIFICATION
+DATE
+Convention concerning the Protection of the World Cultural
+and Natural Heritage
+Paris, France
+15 November 1972
+23 September
+197430
+Convention on International Trade of Endangered Species
+(CITES)
+Washington, USA
+3 March 1973
+18 October
+197631
+African Convention on the Conservation of Nature and
+Natural Resources
+Algiers, Algeria
+15 September 1968 29 May 197632
+Convention on the Conservation of Migratory Species Wildlife
+(Bonn Convention)
+Bonn, Germany
+23 June 1979
+1st September
+199033
+Vienna Convention on the Protection of the Ozone Layer Vienna, Austria
+22 March 1985
+30 November
+199430
+Convention on Biological Diversity Rio de Janeiro, Brazil
+5 June 1992
+3 December
+199430
+United Nations Convention on Climate Change New-York, USA
+9 May 1992
+9 January
+199530
+Convention on Wetlands of International Importance
+especially as Waterfowl Habitat (Ramsar)
+Ramsar, Iran
+2 February 1971
+18 January
+199634
+United Nations Convention to Combat Desertification in
+Those Countries Experiencing Serious Drought and/or
+Desertification, particularly in Africa
+Paris, France
+16 June 1994
+12 September
+199730
+Kyoto Protocol to the United Nations Framework Convention
+on Climate Change
+Kyoto, Japan
+10 December 1997
+23 March
+200530
+30 https://www.wipo.int/wipolex/fr/treaties/members/profile/CD
+31 https://www.leganet.cd/Legislation/Droit%20administratif/Environnement/A.056.28.03.2000.htm
+32 https://au.int/en/treaties/african-convention-conservation-nature-and-natural-resources
+33 https://www.cms.int/sites/default/files/document/Inf_12_17_NationalReport_DRO_Congo_F_0.pdf
+34 https://www.unesco.org/fr/countries/cd/conventions
+
+Page 37
+VCS Project Description Template, v4.4
+37
+Rotterdam Convention on the Prior Informed Consent
+Procedure for Certain Hazardous Chemicals and Pesticides in
+International Trade
+Rotterdam,
+Netherlands
+10 September 1998
+23 March
+200535
+Stockholm Convention on Persistent Organic Pollutants
+(POPs)
+Stockholm, Sweden
+22 May 2001
+23 March
+200536
+Declaration on the Rights of Indigenous Peoples New York, USA
+13 September 2007
+13 September
+200737
+Nagoya Protocol on Access to Genetic Resources and the Fair
+and Equitable Sharing of Benefits Arising from their
+Utilization to the Convention on Biological Diversity
+Nagoya, Japan
+28 October 2010
+4 February
+201530
+International Plant Protection Convention Rome, Italy
+5 December 1951 4 May 201530
+Paris Agreement Paris, France
+11 December 2015
+13 December
+201730
+The DRC has not ratified the ILO Convention C169 on Indigenous and Tribal Peoples38.
+Since 2011, the DRC has had an improved legal and regulatory arsenal for the environment and the
+sustainable management of forest and wildlife resources. An evolution of the legislative and regulatory
+framework for environmental management and nature conservation has marked the last decade (2010-
+2020). These legal documents, which constitute the legal basis for sustainable environmental
+management, include:
+- Legal texts:
+o « Loi n°11/022 du 24 décembre 2011 portant principes fondamentaux relatifs à
+l’agriculture » ;
+o « Loi n°011/2002 du 29 août 2002 portant Code forestier » ;
+o « Loi n°82/002 du 28 mai 1982 portant réglementation de la chasse » ;
+o « Loi n°11/009 du 09 juillet 2011 portant principes fondamentaux relatifs à la protection
+de l’environnement telle que modifiée et complétée ce jour par l’Ordonnance-Loi
+n°23/007 du 03 mars 2023 » ;
+o « Loi n°14/003 du 11 février 2014 relative à la Conservation de la Nature » ;
+o « Loi n°15/026 du 31 décembre 2015 relative à l’eau » ;
+35 https://treaties.un.org/pages/ViewDetails.aspx?src=TREATY&mtdsg_no=XXVII-14&chapter=27&clang=_fr
+36 https://treaties.un.org/pages/ViewDetails.aspx?src=TREATY&mtdsg_no=XXVII-15&chapter=27&clang=_fr
+37 https://digitallibrary.un.org/record/609197?ln=en
+38 https://normlex.ilo.org/dyn/nrmlx_en/f?p=NORMLEXPUB:11300:0::NO::P11300_INSTRUMENT_ID:312314
+
+Page 38
+VCS Project Description Template, v4.4
+38
+- Regulatory texts:
+o « Décret n°14/030 du 18 novembre 2014 fixant les règles de fonctionnement des
+mécanismes procéduraux de la protection de l’environnement ».
+Finally, the Project is also required to comply with the following legal/regulatory texts:
+- « Loi n°16/010 du 15 juillet 2016 modifiant et complétant la Loi n°015-2002 portant Code du
+travail » ;
+- « Loi n°14/011 du 17 juin 2014 qui régit le secteur de l’électricité en RDC » ;
+- « Décret-loi 081 du 02 juillet 1998 portant organisation territoriale et administrative de la
+République Démocratique du Congo » ;
+- « Décret n°13/015 du 29 mai 2013 portant réglementation des installations classées ».
+1.16 Double Counting and Participation under Other GHG Programs
+No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity under
+another GHG program?
+☐Yes ☒No
+Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐Yes ☒No
+Is the project active under the other program?
+☐Yes ☒No
+Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐Yes ☒No
+
+Page 39
+VCS Project Description Template, v4.4
+39
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions
+No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+Are project reductions and removals or project activities also included in an emissions trading program
+or binding emission limit? See the VCS Program Definitions for definitions of emissions trading program
+and binding emission limit.
+☐ Yes ☒ No
+No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-related
+environmental credit system? See the VCS Program Definitions for definition of GHG-related
+environmental credit system.
+☐ Yes ☒ No
+Supply Chain (Scope 3) Emissions
+Do the project activities specified in Section 1.12 affect the emissions footprint of any product(s)
+(goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+Is the project proponent(s) or authorized representative a buyer or seller of the product(s) (goods or
+services) that are part of a supply chain?
+☐ Yes ☒ No
+Has the project proponent(s) or authorized representative posted a public statement on their website
+saying, “Carbon credits may be issued through Verified Carbon Standard project [project ID] for the
+greenhouse gas emission reductions or removals associated with [project proponent or authorized
+representative organization name(s)] [name of product(s) whose emissions footprint is changed by the
+project activities].”
+☐ Yes ☒ No
+1.18 Sustainable Development Contributions
+Since the adoption of the 2030 Agenda, several stakeholders in the DRC have mobilized around this
+ambitious program and its 17 SDGs (see Figure 8).
+On the social front, reforms have expanded social protection coverage, increased budgetary resources
+for the health sector, and initiated steps toward universal health care. The Government has also taken a
+strategic direction to combat hunger and malnutrition. Access to water and electricity, however, remains
+
+Page 40
+VCS Project Description Template, v4.4
+40
+a major challenge, and the energy supply is still insufficient despite considerable national potential.
+Additional efforts aim to reduce extreme poverty and inequality. To promote access to education for all,
+the Government has made basic education free of charge, set up a quality assurance scheme, and
+reformed the teacher recruitment system. Gender equality is one of the DRC's priorities, and reforms to
+the legal framework on women's rights have led to the revision of the Family Code.
+On the environmental front, several climate change mitigation and adaptation projects have been
+initiated, although greater sectoral synergies remain necessary. Conservation and biodiversity protection
+efforts, including the management of parks and nature reserves, are regularly undertaken.
+The project contributes to national sustainable development priorities in various ways:
+- SDG 13 & 15: The project directly supports climate change mitigation by conserving a large forest
+and soil carbon stock that was previously unallocated and therefore exposed to degradation or
+destruction;
+- SDG 1, 2, 5, 8, 9, 10 & 12: by creating jobs (supervisory staff, awareness-raising agents) and
+establishing sustainable agricultural or economic activities, the project helps combat rural
+exodus and brings significant, lasting improvements to local communities. These jobs and
+activities will be accessible to all without gender inequality or discrimination. Salaries and income
+from agricultural production will be an effective tool for poverty reduction and a driver of local
+development
+- SDG 3,4 & 6 with the construction or renovations of infrastructures;
+- SDG 14 & 15: the project conserves and enhances biodiversity by:
+o Protecting the Concession from destructive and illegal anthropogenic activities such as
+recurrent and uncontrolled burning (for slash-and-burn agriculture) or the anarchic
+collection of wood (energy or timber);
+o the drainage of wetlands and the preservation of aquatic species
+o The introduction of awareness-raising and training programs for sustainable and
+environmentally friendly activities in order to change the habits (often harmful to forests
+and biodiversity) of local communities.
+The climate, environmental and community benefits provided by the project all contribute to the
+achievement of global and national sustainable development goals. These contributory services will be
+monitored as part of the approval procedure for REDD+ investments in the DRC. During the
+implementation of a REDD+ investment, the proponent is required to send a report every 12 months to
+the regulator (i.e. the CN-REDD39) to report on the progress of the implementation of its REDD+
+investment. The CN-REDD will also be responsible for carrying out control audits in the field40.
+39 https://medd.gouv.cd/coordination-nationale-redd-cn-redd/
+40 See the articles 23 and 27 of the « Arrêté Ministériel n°47/CAB/MIN/EDD/AAN/MML// fixant la procédure d’homologation
+des investissements REDD+ en République démocratique du Congo (J.O.RDC., 1er juillet 2018, n°13, col.
+58) » https://faolex.fao.org/docs/pdf/Cng189387.pdf
+
+Page 41
+VCS Project Description Template, v4.4
+41
+Figure 8: SDGs in Democratic Republic of Congo41
+1.19 Additional Information Relevant to the Project
+Leakage Management
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, December 2025).
+Commercially Sensitive Information
+No commercially sensitive information has been excluded from the public version of the project
+description.
+Further Information
+The Ebuta Project is part of an integrated development strategy and aims to promote social and
+environmental practices.
+41 https://drcongo.un.org/fr/sdgs
+
+Page 42
+VCS Project Description Template, v4.4
+42
+2 SAFEGUARDS AND STAKEHOLDER
+ENGAGEMENT
+2.1 Stakeholder Engagement and Consultation
+Stakeholder Identification
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Stakeholder Consultation and Ongoing Communication
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Free Prior and Informed Consent
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Grievance Redress Procedure
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Public Comments
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+2.2 Risks to Stakeholders and the Environment
+Management Experience
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Risk Assessment
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+
+Page 43
+VCS Project Description Template, v4.4
+43
+2.3 Respect for Human Rights and Equity
+Labor and Work
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Human Rights
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Indigenous Peoples and Cultural Heritage
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Property Rights
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Benefit Sharing
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+2.4 Ecosystem Health
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Rare, Threatened, and Endangered Species
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Introduction of Species
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Ecosystem Conversion
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+
+Page 44
+VCS Project Description Template, v4.4
+44
+3 APPLICATION OF METHODOLOGY
+3.1 Title and Reference of Methodology
+The Ebuta project applies the latest version of VCS Methodology VM0007 (version 1.8). Applicable
+modules are listed in Table 6
+Table 6: The title, reference and version number for the methodology, tools and modules
+applied to the project
+Type
+(methodology,
+tool or module).
+Reference ID, if
+applicable
+Title Version
+Methodology VM0007
+Methodology for Reducing Emissions
+from Deforestation and Forest
+Degradation
+1.842
+Tool VT0001
+Tool for the Demonstration and
+Assessment of Additionality in VCS
+Agriculture, Forestry and Other Land Use
+(AFOLU) Project Activities
+3.043
+Methodology - VCS Program Guide 544
+Methodology - VCS Standard 545
+Methodology - VCS Methodology Requirements 546
+Methodology - Registration and Issuance Process
+guidance 547
+42 https://verra.org/wp-content/uploads/2023/11/VM0048-Reducing-Emissions-from-Deforestation-and-Forest-
+Degradation-v1.0-1-1.pdf
+43 https://verra.org/wp-content/uploads/imported/methodologies/VT0001v3.0.pdf
+44 https://verra.org/wp-content/uploads/2025/12/VCS-Program-Guide-v5.0.pdf
+45 https://verra.org/wp-content/uploads/2025/12/VCS-Standard-v5.0.pdf
+46 https://verra.org/wp-content/uploads/2025/12/VCS-Methodology-Requirements-v5.0.pdf
+47 https://verra.org/wp-content/uploads/2025/12/Registration-and-Issuance-Process-v5.0.pdf
+
+Page 45
+VCS Project Description Template, v4.4
+45
+Tool - AFOLU Non-Permanence Risk Tool 4.248
+Module VMD0001
+Estimation of carbon stocks in the above-
+and below-ground biomass in live tree
+and non-tree pools (CP-AB)
+1.149
+Module VMD0042
+Estimation of baseline soil carbon stock
+changes and greenhouse gas emissions
+in peatland rewetting and conservation
+project activities (BL-PEAT)
+2.250
+Module VMD0007
+Estimation of baseline carbon stock
+changes and greenhouse gas emissions
+from unplanned deforestation and
+unplanned wetland degradation (BL-UP)
+3.351
+Module VMD010
+Estimation of emissions from activity
+shifting for avoided unplanned
+deforestation and avoiding unplanned
+deforestation and avoiding planned
+wetland degradation (LK-ASU)
+1.252
+Module VMD016 Methods for stratification of the project
+area (X-STR) 1.253
+Module VMD017 Estimation of uncertainty for REDD
+project activities (X-UNC) 2.254
+48 https://verra.org/wp-content/uploads/2023/10/AFOLU-Non-Permanence-Risk-Tool-v4.2-FINAL.pdf
+49 https://verra.org/wp-content/uploads/2023/11/VMD0001-Estimation-of-Carbon-Stocks-in-Above-and-Belowground-
+Biomass-in-Live-Tree-and-Non-tree-Pools-CP-AB-v1.2.pdf
+50 https://verra.org/wp-content/uploads/imported/methodologies/VMD0042-BL-PEAT-v1.1.pdf
+51 https://verra.org/wp-content/uploads/imported/methodologies/VMD0007-BL-UP_v3.3.pdf
+52 https://verra.org/wp-content/uploads/imported/methodologies/VMD0010-LK-ASU-v1.2.pdf
+53 https://verra.org/wp-content/uploads/2023/11/VMD0016-Methods-for-Stratification-of-the-Project-Area-X-STR-
+v1.3.pdf
+54 https://verra.org/wp-content/uploads/imported/methodologies/VMD0017-X-UNC_v2.2.pdf
+
+Page 46
+VCS Project Description Template, v4.4
+46
+3.2 Applicability of Methodology
+Applicability Conditions of VM0007 – REDD+
+The VCS VM0007 methodology “Methodology for Reducing Emissions from Deforestation and Forest
+Degradation” (Version 1.8) is applicable under the following conditions.
+1. Land in the project area has qualified as forest for at least 10 years before the project start date.
+2. Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool
+are deemed significant, the relevant WRC modules are applied alongside other relevant modules
+3. Baseline deforestation in the project area falls within either of the following categories:
+ Unplanned deforestation (VCS category AUDef)
+ Planned deforestation (VCS category APDef)
+REDD activity types are not applicable under the following conditions:
+4. Leakage prevention activity conditions include:
+ Flooding agricultural lands to increase production (e.g., rice paddies); and/or
+ Intensifying livestock production through the use of feedlots and/or manure lagoons
+Avoiding unplanned deforestation activities are applicable under the following conditions:
+5. Baseline agents of deforestation meet all of the following criteria:
+ Clear the land for tree harvesting, settlements, crop production (agriculturalist), ranching or
+aquaculture, where such clearing for crop production, ranching or aquaculture does not
+amount to large-scale industrial agriculture or aquaculture activities
+ Have no documented and uncontested legal right to deforest the land for these purposes; and
+ Are either residents in the reference region for deforestation or immigrants.
+Avoiding unplanned deforestation activities are not applicable under the following conditions.
+6. Post-deforestation land use in the baseline scenario constitutes reforestation.
+The Ebuta project meets these conditions as:
+1. The project area has been forested for at least 10 years prior to the project start date
+2. The project Area is a forest located on an undrained peatland; therefore, it has been considered as CIW
++ REDD.
+3. The baseline deforestation in the project is classified as unplanned deforestation per the selected
+baseline scenario.
+4. The Project does not plan to either flood agricultural lands to increase production or intensify livestock
+production through the use of feedlots and/or manure lagoons.
+5. The baseline agents of deforestation clear the land for tree harvesting or crop production and have no
+documented or uncontested legal right to deforest the land for these purposes.
+6. The post-deforestation land use in the baseline scenario does not constitute reforestation.
+
+Page 47
+VCS Project Description Template, v4.4
+47
+Methodology
+ID Applicability condition Justification of compliance
+VM0007 See Section 3.2.1
+Condition met.
+See Section 3.2
+VT0001
+AFOLU activities the same or similar to the
+proposed project activity on the land within
+the proposed project boundary performed
+with or without being registered as the VCS
+AFOLU project shall not lead to violation of
+any applicable law even if the law is not
+enforced
+The Ebuta Project does not violate any laws
+as demonstrated in section 1.15
+VMD0007
+Applicable for estimating baseline emissions
+from unplanned deforestation (conversion of
+forest land to non-forest land) where the
+forest landscape configuration is mosaic,
+transition or frontier, and where baseline
+agents of deforestation: (i) clear land for
+settlements, crop production, ranching or
+aquaculture (non-industrial scale); (ii) have no
+documented and uncontested legal right to
+deforest for these purposes; and (iii) are
+resident in the reference region or
+immigrants. Where pre-project unsustainable
+fuelwood collection occurs within project
+boundaries, Modules BL-DFW and LK-DFW
+must be applied to assess potential leakage.
+Condition met. Baseline deforestation is
+classified as unplanned deforestation (AUDef)
+and is driven by non-industrial agents clearing
+land mainly for smallholder crop
+production/settlements (and associated
+activities). Based on the legal and contextual
+assessment, these agents do not hold a
+documented and uncontested legal right to
+deforest for these purposes. Baseline agents
+are residents of the reference region and/or
+immigrants. Pre-project unsustainable
+fuelwood collection is not identified as
+occurring within the project boundary;
+therefore BL-DFW and LK-DFW are not
+applicable
+VMD0042
+BL-PEAT
+This module is applicable to RDP and CUPP
+activities on project areas that meet the VCS
+definition for peatland. The scope of this
+module is limited to domed peatlands in the
+tropical climate zone.
+Condition met. The project &rea comprises
+undrained peatland within the Cuvette
+Centrale Peatland Complex, with
+hydromorphic and permanently waterlogged
+substrates and peat layers/deep peat
+deposits, consistent with the VCS definition of
+peatland. The concession lies in the tropical
+climate zone (high annual rainfall and no
+marked dry season). The project area is
+located between the Ngiri River and the
+Congo River and exhibits very low-relief
+topography (approx. 290–355 m), with an
+interfluvial, gently elevated interior relative to
+the river margins, consistent with domed
+
+Page 48
+VCS Project Description Template, v4.4
+48
+peatland morphology (Figure 4). (See
+Sections 1.14:
+Climate/Hydrology/Topography/Geology &
+Pedology; Figure 4).
+VMD010
+This module is applicable for estimating
+carbon stock changes and greenhouse gas
+emissions related to the displacement of
+activities that cause deforestation of lands or
+wetland degradation outside the project area
+due to avoiding unplanned deforestation or
+avoiding unplanned wetland degradation in
+the project area.
+Activities subject to potential displacement
+are conversion of forest land to grazing lands,
+croplands, and other land uses, or conversion
+of intact or partially degraded wetlands to
+drained or degraded wetlands.
+The module is mandatory if module BL-UP has
+been used to define the baseline and the
+applicability conditions in module BL-UP must
+be complied with in full.
+Condition met. VMD010 is applicable and
+mandatory (baseline defined with BL-UP).
+Leakage assessment/quantification TBD in
+Section 4.3 (Leakage Emissions).
+VMD016
+For peatland rewetting and conservation
+project activities this module must be used to
+delineate non-peat versus peat and to stratify
+the peat according to peat depth and soil
+emission characteristics, unless it can be
+demonstrated that the expected emissions
+from the soil organic carbon pool or change in
+the soil organic carbon pool in the project
+scenario is de minimis.
+In the case of WRC project activities, the
+project boundary must be designed such that
+the negative effect of drainage activities that
+occur outside the project area on the project
+GHG benefits are minimized.
+Condition met. The project area comprises
+forest on undrained peatland within the
+Cuvette Centrale Peatland Complex,
+characterized by hydromorphic and
+permanently waterlogged substrates and
+deep peat deposits; therefore, expected
+emissions from the SOC pool are not de
+minimis, and SOC is included as a major
+carbon pool. Accordingly, VMD016 (X-STR) is
+applied to delineate peat vs. non-peat areas
+and stratify peat by peat depth and soil
+emission characteristics. The project
+boundary follows the Ebuta conservation
+concession and excludes the rural
+development area; given the strongly marshy
+hydrological context, the boundary design
+aims to minimize potential negative effects of
+
+Page 49
+VCS Project Description Template, v4.4
+49
+any drainage activities occurring outside the
+project area.
+VMD017
+This module is mandatory when using the
+methodology REDD+ MF. It is applicable for
+estimating the uncertainty of estimates of
+emissions and removals of CO2-e generated
+from REDD and WRC project activities.
+Where an uncertainty value is not known or
+cannot be simply calculated, a project must
+justify that it is using an indisputably
+conservative number and an uncertainty of
+0% may be used for this component.
+Guidance on uncertainty – a precision target
+of a 95% confidence interval half-width equal
+to or less than 15% of the recorded value
+must be targeted. This is especially important
+in terms of project planning for the
+measurement of carbon stocks; sufficient
+measurement plots should be included to
+achieve this precision level across the
+measured stocks.
+Condition met. VMD017 is mandatory under
+REDD+-MF and will be applied to quantify and
+report uncertainty of project
+emissions/removals (REDD & CIW). Results
+TBD in the final PD once carbon stock/activity
+data are finalized.
+3.3 Project Boundary
+Geographical boundaries
+Figure 1 in §0 shows the location of concession Ebuta, the concession in which the project area is
+located. The Ebuta Concession is located in the Democratic Republic of Congo, in the Equateur Province
+and has a total area of 264,580 ha.
+Figure 2, also in §0, shows the different areas of the Ebuta Concession. The project area is 238,065 ha.
+The geographical boundaries may evolve before the launching of the project and the commencement of
+activities but then will not change over the project lifetime.
+Temporal boundaries
+The temporal boundaries are defined by the project start date and the length of the project crediting
+period. The project activity directly leading to the sequestration of CO2 will start on January 01, 2027,
+with the launching of the project (see §1.8 for more details). The project's crediting period is 40 years.
+
+Page 50
+VCS Project Description Template, v4.4
+50
+Carbon pools
+The carbon pools included or excluded from the project boundary are shown in the table below.
+Carbon pools Included? Justification/Explanation of choice
+Aboveground tree
+biomass Included
+Major pool; expected to decrease in baseline due to
+deforestation/degradation; included to avoid
+underestimation.
+Belowground tree
+biomass Included
+Major carbon pool that will significantly decrease in the
+baseline scenario in the case of deforestation or forest
+degradation
+Aboveground non-tree
+biomass Excluded Insignificant and exclusion is conservative.
+Belowground non-tree
+biomass Excluded Potential emissions are negligible.
+Dead wood Excluded Exclusion is conservative.
+Litter Excluded Insignificant and exclusion is conservative.
+Peat soil carbon pool Included
+Soil organic carbon (including peat) is a major pool in
+forested peatlands and may decrease substantially under
+drainage/fire associated with baseline land-use change
+Harvested wood
+products Excluded
+No long-lived harvested wood products are expected. Any
+wood extraction is for short-lived energy uses
+(fuelwood/charcoal) and is treated as oxidized in the
+biomass loss accounting (therefore HWP pool not
+applicable)
+Greenhouse Gases
+The emission sources included in or excluded from the project boundary are shown in the table below.
+Source Gas Included? Justification/Explanation
+Baseline
+
+Combustion of
+fossil fuels
+CO2 No Only included if tested as significant. Otherwise
+excluded, which is deemed conservative, as
+emissions will be greater in the baseline
+scenario than in the project scenario. The
+project proponent has chosen to exclude to
+account for GHG emissions related to the
+combustion of fossil fuels, which is conservative.
+CH4 No
+N2O No
+CO2 Yes
+
+Page 51
+VCS Project Description Template, v4.4
+51
+Source Gas Included? Justification/Explanation
+Burning of woody
+biomass
+CH4 Yes CH4 emissions included as CO2 equivalent
+emissions
+N2O potential emissions are negligible	N2O No
+Use of fertilizers
+CO2 No Potential emissions are negligible.
+Following the VCS update to the Tool for AFOLU
+Methodological Issues and Guidance for AFOLU
+Projects, emissions through the use of fertilizer
+are considered insignificant and are not
+considered here.
+CH4 No
+N2O No
+Project
+Combustion of
+fossil fuels
+CO2 No Only included if tested as significant. Otherwise
+excluded, which is deemed conservative, as
+emissions will be greater in the baseline
+scenario than in the project scenario.
+Not applicable in the project scenario.
+CH4 No
+N2O No
+Burning of woody
+biomass
+CO2 Yes
+Major emission sources	CH4 Yes
+N2O Yes
+Use of fertilizers
+CO2 No Potential emissions are negligible.
+Following the VCS update to the Tool for AFOLU
+Methodological Issues and Guidance for AFOLU
+Projects, emissions through the use of fertilizer
+are considered insignificant and are not
+considered here.
+CH4 No
+N2O No
+3.4 Baseline Scenario
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+
+Page 52
+VCS Project Description Template, v4.4
+52
+3.5 Additionality
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Regulatory Surplus
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+Additionality Methods
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+3.6 Methodology Deviations
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+
+Page 53
+VCS Project Description Template, v4.4
+53
+4 QUANTIFICATION OF ESTIMATED GHG
+EMISSION REDUCTIONS AND
+REMOVALS
+4.1 Baseline Emissions
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+4.2 Project Emissions
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+4.3 Leakage Emissions
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals
+In the following table, we present the initial ex ante estimates of the VCUs that could be generated by
+the concession’s REDD+ project. These figures will be refined and adjusted in the final version of the
+PDD.
+Vintage period
+Estimated
+baseline
+emissions
+(tCO2e)
+Estimated
+project
+emissions
+(tCO2e)
+Estimated leakage
+emissions (tCO2e)
+Estimated
+reduction VCUs
+(tCO2e)
+Estimated
+removal
+VCUs
+(tCO2e)
+Estimated
+total VCUs
+(tCO2e)
+01 January 2027 to
+31 December 2027 419 657 83 931 67 145 268 580 - 268 580
+01 January 2028 to
+31 December 2028 447 501 89 659 71 569 286 274 - 286 274
+1 January 2029 to 31
+December 2029 475 280 95 383 75 979 303 918 - 303 918
+1 January 2030 to 31
+December 2030 502 994 101 105 80 378 321 511 - 321 511
+1 January 2031 to 31
+December 2031 530 642 106 825 84 763 339 054 - 339 054
+1 January 2032 to 31
+December 2032 558 225 112 541 89 137 356 547 - 356 547
+1 January 2030 to 33
+December 2033 585 742 118 255 93 497 373 990 - 373 990
+
+Page 54
+VCS Project Description Template, v4.4
+54
+1 January 2034 to 31
+December 2034 613 195 123 966 97 846 391 383 - 391 383
+1 January 2035 to 31
+December 2035 640 583 129 675 102 182 408 727 - 408 727
+1 January 2036 to 31
+December 2036 667 907 135 380 106 505 426 021 - 426 021
+1 January 2037 to 31
+December 2037 695 166 141 084 110 816 443 266 - 443 266
+1 January 2038 to 31
+December 2038 722 360 146 784 115 115 460 461 - 460 461
+1 January 2039 to 31
+December 2039 749 491 152 482 119 402 477 607 - 477 607
+1 January 2040 to 31
+December 2040 776 557 158 177 123 676 494 704 - 494 704
+1 January 2041 to 31
+December 2041 803 560 163 869 127 938 511 753 - 511 753
+1 January 2042 to 31
+December 2042 830 499 169 559 132 188 528 752 - 528 752
+1 January 2043 to 31
+December 2043 857 374 175 246 136 426 545 703 - 545 703
+1 January 2044 to 31
+December 2044 884 186 180 930 140 651 562 605 - 562 605
+1 January 2045 to 31
+December 2045 910 935 186 612 144 865 579 458 - 579 458
+1 January 2046 to 31
+December 2046 937 620 192 290 149 066 596 264 - 596 264
+1 January 2047 to 31
+December 2047 964 243 197 967 153 255 613 021 - 613 021
+1 January 2048 to 31
+December 2048 990 802 203 640 157 432 629 730 - 629 730
+1 January 2049 to 31
+December 2049 1 017 299 209 311 161 598 646 391 - 646 391
+1 January 2050 to 31
+December 2050 1 043 734 214 979 165 751 663 004 - 663 004
+1 January 2051 to 31
+December 2051 1 070 106 220 645 169 892 679 569 - 679 569
+1 January 2052 to 31
+December 2052 1 096 416 226 308 174 022 696 087 - 696 087
+1 January 2053 to 31
+December 2053 1 122 664 231 968 178 139 712 557 - 712 557
+1 January 2054 to 31
+December 2054 1 148 850 237 625 182 245 728 980 - 728 980
+1 January 2055 to 31
+December 2055 1 174 974 243 280 186 339 745 355 - 745 355
+1 January 2056 to 31
+December 2056 1 201 037 248 932 190 421 761 683 - 761 683
+
+Page 55
+VCS Project Description Template, v4.4
+55
+1 January 2057 to 31
+December 2057 1 227 038 254 582 194 491 777 965 - 777 965
+1 January 2058 to 31
+December 2058 1 252 977 260 229 198 550 794 199 - 794 199
+1 January 2059 to 31
+December 2059 1 278 856 265 873 202 597 810 386 - 810 386
+1 January 2060 to 31
+December 2060 1 304 673 271 514 206 632 826 527 - 826 527
+1 January 2061 to 31
+December 2061 1 330 430 277 153 210 655 842 621 - 842 621
+1 January 2062 to 31
+December 2062 1 356 126 282 789 214 667 858 669 - 858 669
+1 January 2063 to 31
+December 2063 1 381 761 288 423 218 668 874 670 - 874 670
+1 January 2064 to 31
+December 2064 1 407 335 294 054 222 656 890 625 - 890 625
+1 January 2065 to 31
+December 2065 1 422 664 297 645 225 004 900 015 - 900 015
+1 January 2066 to 31
+December 2066 1 437 957 301 234 227 344 909 378 - 909 378
+Total estimated ERRs
+during the first or fixed
+crediting period 37 839 415 7 791 905 6 009 502 24 038 008 24 038 008
+Total number of years 40 - - -
+Average annual ERRs 945 985 - - 600 950 600 950
+
+Page 56
+VCS Project Description Template, v4.4
+56
+5 MONITORING
+5.1 Data and Parameters Available at Validation
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+5.2 Data and Parameters Monitored
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
+5.3 Monitoring Plan
+This section has been omitted in accordance with the Pipeline Listing Process defined in section 3.1.3 of
+VERRA’s Registration and Issuance Process guidance (v5, 16 December 2025).
