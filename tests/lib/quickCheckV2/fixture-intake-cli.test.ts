@@ -79,7 +79,6 @@ describe("quickcheck fixture intake command", () => {
       "source.pdf",
       "extracted.txt",
       "gold.draft.json",
-      "gold.json",
       "meta.json",
       "corrections.json",
       "REVIEW.md",
@@ -90,10 +89,10 @@ describe("quickcheck fixture intake command", () => {
     await expect(fs.stat(path.join(fixtureDir, "source.pdf"))).resolves.toBeTruthy();
     await expect(fs.stat(path.join(fixtureDir, "extracted.txt"))).resolves.toBeTruthy();
     await expect(fs.stat(path.join(fixtureDir, "gold.draft.json"))).resolves.toBeTruthy();
-    await expect(fs.stat(path.join(fixtureDir, "gold.json"))).resolves.toBeTruthy();
     await expect(fs.stat(path.join(fixtureDir, "meta.json"))).resolves.toBeTruthy();
     await expect(fs.stat(path.join(fixtureDir, "corrections.json"))).resolves.toBeTruthy();
     await expect(fs.stat(path.join(fixtureDir, "REVIEW.md"))).resolves.toBeTruthy();
+    await expect(fs.stat(path.join(fixtureDir, "gold.json"))).rejects.toThrow();
 
     await expect(fs.readFile(path.join(fixtureDir, "source.pdf"), "utf-8")).resolves.toBe("%PDF-1.4\nfixture\n");
     const extractedText = await fs.readFile(path.join(fixtureDir, "extracted.txt"), "utf-8");
@@ -109,13 +108,12 @@ describe("quickcheck fixture intake command", () => {
       phase: "fixture_intake",
       registry: "UNKNOWN",
       documentType: "PDD / Project Description",
+      adjudicationStatus: "pending",
     });
 
-    const gold = await readJson<Array<Record<string, unknown>>>(path.join(fixtureDir, "gold.json"));
     const draftGold = await readJson<Array<Record<string, unknown>>>(path.join(fixtureDir, "gold.draft.json"));
-    expect(draftGold).toStrictEqual(gold);
-    expect(gold).toHaveLength(6);
-    for (const record of gold) {
+    expect(draftGold).toHaveLength(6);
+    for (const record of draftGold) {
       expect(record).toEqual(expect.objectContaining({
         checkName: expect.any(String),
         expectedStatus: expect.stringMatching(/^(FOUND|UNCLEAR|MISSING)$/),
@@ -123,7 +121,7 @@ describe("quickcheck fixture intake command", () => {
       }));
     }
 
-    expect(gold.find((record) => record.checkName === "methodology")).toEqual(expect.objectContaining({
+    expect(draftGold.find((record) => record.checkName === "methodology")).toEqual(expect.objectContaining({
       expectedStatus: "FOUND",
       expectedAnswer: "VM0007 REDD+ Methodology Framework v1.8",
       expectedMethodology: expect.objectContaining({
@@ -135,22 +133,21 @@ describe("quickcheck fixture intake command", () => {
       }),
     }));
 
-    const corrections = await readJson<Array<Record<string, unknown>>>(path.join(fixtureDir, "corrections.json"));
-    expect(corrections).toHaveLength(6);
-    expect(corrections[0]).toEqual(expect.objectContaining({
-      checkName: expect.any(String),
-      currentStatus: expect.stringMatching(/^(FOUND|UNCLEAR|MISSING)$/),
-      reason: expect.any(String),
-    }));
+    const corrections = await readJson<{ status: string; corrections: [] }>(path.join(fixtureDir, "corrections.json"));
+    expect(corrections).toStrictEqual({
+      status: "PENDING_ADJUDICATION",
+      corrections: [],
+    });
 
     const review = await fs.readFile(path.join(fixtureDir, "REVIEW.md"), "utf-8");
-    expect(review).toContain("Do not merge until `gold.json` has been reviewed against the source PDF");
-    expect(review).toContain("weak evidence to reject");
-    expect(review).toContain("notes for method ID/version: VM0007 v1.8 (DECLARED)");
+    expect(review).toContain("Adjudication not done.");
+    expect(review).toContain("compare `gold.draft.json` against the PDF");
+    expect(review).toContain("verify quotes");
+    expect(review).toContain("write `corrections.json` only for real corrections");
 
     await expect(readJson(path.join(fixtureRoot, "manifest.json"))).resolves.toStrictEqual({
       version: 1,
-      fixtures: [{ id: "example-pdd", directory: "example-pdd" }],
+      fixtures: [{ id: "example-pdd", directory: "example-pdd", adjudicationStatus: "pending" }],
     });
   });
 
@@ -191,7 +188,7 @@ describe("quickcheck fixture intake command", () => {
     await expect(readJson(path.join(fixtureDir, "meta.json"))).resolves.toMatchObject({ title: "Second Title" });
     await expect(readJson(path.join(fixtureRoot, "manifest.json"))).resolves.toStrictEqual({
       version: 1,
-      fixtures: [{ id: "example-pdd", directory: "example-pdd" }],
+      fixtures: [{ id: "example-pdd", directory: "example-pdd", adjudicationStatus: "pending" }],
     });
   });
 
