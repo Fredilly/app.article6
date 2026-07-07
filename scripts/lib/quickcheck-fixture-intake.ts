@@ -26,6 +26,7 @@ type FixtureMeta = {
   phase: string;
   registry: string;
   documentType: string;
+  adjudicationStatus?: "pending" | "reviewed";
 };
 
 type Manifest = {
@@ -33,6 +34,7 @@ type Manifest = {
   fixtures: Array<{
     id: string;
     directory: string;
+    adjudicationStatus?: "pending" | "reviewed";
   }>;
 };
 
@@ -49,18 +51,9 @@ type GoldRecord = {
   expectedMethodology?: Partial<QuickCheckMethodologyIdentity>;
 };
 
-type CorrectionRecord = {
-  checkName: StructuredCheckId;
-  currentStatus: "FOUND" | "UNCLEAR" | "MISSING";
-  currentAnswer: string | null;
-  currentQuote: string | null;
-  page: number | null;
-  sectionHeading: string | null;
-  sectionPath: string[];
-  spanId: string | null;
-  sourceType: EvidenceSourceType | null;
-  reason: StatusResult["reason"];
-  methodology?: Partial<QuickCheckMethodologyIdentity>;
+type PendingCorrections = {
+  status: "PENDING_ADJUDICATION";
+  corrections: [];
 };
 
 type PdfPageExtractionResult = {
@@ -172,81 +165,37 @@ function toGoldRecord(result: StatusResult): GoldRecord {
   return record;
 }
 
-function toCorrectionRecord(result: StatusResult): CorrectionRecord {
-  const record: CorrectionRecord = {
-    checkName: result.checkName,
-    currentStatus: result.status,
-    currentAnswer: result.answer,
-    currentQuote: result.evidence?.quote ?? null,
-    page: result.evidence?.page ?? null,
-    sectionHeading: result.evidence?.sectionHeading ?? null,
-    sectionPath: result.evidence?.sectionPath ?? [],
-    spanId: result.evidence?.spanId ?? null,
-    sourceType: result.evidence?.sourceType ?? null,
-    reason: result.reason,
-  };
-  const methodology = buildMethodologyExpectation(result);
-  if (methodology) {
-    record.methodology = methodology;
-  }
-  return record;
-}
-
-function strengthLabel(result: StatusResult): string {
-  if (result.status === "FOUND" && result.evidence?.sourceType !== "raw_text_fallback") {
-    return "possibly strong, but still requires PDF truth review";
-  }
-  if (result.status === "MISSING") {
-    return "missing or not detected; requires PDF truth review";
-  }
-  return "weak/unclear; requires PDF truth review";
-}
-
 function buildReviewMarkdown(input: {
   id: string;
   title: string;
   pdfPath: string;
-  results: StatusResult[];
 }): string {
-  const lines = [
-    `# Quick Check v2 fixture review: ${input.title}`,
+  return [
+    `# Quick Check v2 fixture intake: ${input.title}`,
     "",
     "This fixture was created by the intake command.",
-    "",
-    "Do not merge until `gold.json` has been reviewed against the source PDF. Draft gold is current Quick Run output, not verified truth.",
+    "Adjudication not done.",
     "",
     `- Fixture id: ${input.id}`,
     `- Source PDF: ${input.pdfPath}`,
     "",
-    "## Review checklist",
+    "## Later review checklist",
     "",
-  ];
+    "- compare `gold.draft.json` against the PDF",
+    "- verify each answer",
+    "- verify page numbers",
+    "- verify quotes",
+    "- write final `gold.json`",
+    "- write `corrections.json` only for real corrections",
+    "",
+  ].join("\n");
+}
 
-  for (const result of input.results) {
-    const methodology = buildMethodologyExpectation(result);
-    lines.push(
-      `### ${result.checkName}`,
-      "",
-      `- current answer: ${result.answer ?? "null"}`,
-      `- current status: ${result.status}`,
-      `- current quote: ${result.evidence?.quote ?? "null"}`,
-      `- page: ${result.evidence?.page ?? "null"}`,
-      `- section: ${result.evidence?.sectionHeading ?? result.evidence?.sectionPath.join(" > ") ?? "null"}`,
-      `- spanId: ${result.evidence?.spanId ?? "null"}`,
-      `- source type: ${result.evidence?.sourceType ?? "null"}`,
-      `- strength: ${strengthLabel(result)}`,
-      `- suggested gold answer: ${result.answer ?? "null"}`,
-      `- suggested gold quote: ${result.evidence?.quote ?? "null"}`,
-      `- suggested expected status: ${result.status}`,
-      "- weak evidence to reject: TODO: add related-but-insufficient PDF text that must not pass",
-      methodology
-        ? `- notes for method ID/version: ${methodology.methodologyId ?? "UNKNOWN"} ${methodology.pddDeclaredMethodologyVersion ?? "UNKNOWN"} (${methodology.versionStatus ?? "UNKNOWN"})`
-        : "- notes for method ID/version: N/A",
-      "",
-    );
-  }
-
-  return `${lines.join("\n").trim()}\n`;
+function buildPendingCorrections(): PendingCorrections {
+  return {
+    status: "PENDING_ADJUDICATION",
+    corrections: [],
+  };
 }
 
 async function loadManifest(manifestPath: string): Promise<Manifest> {
@@ -258,7 +207,7 @@ async function loadManifest(manifestPath: string): Promise<Manifest> {
 
 async function writeManifest(manifestPath: string, manifest: Manifest, id: string): Promise<void> {
   const fixtures = manifest.fixtures.filter((fixture) => fixture.id !== id && fixture.directory !== id);
-  fixtures.push({ id, directory: id });
+  fixtures.push({ id, directory: id, adjudicationStatus: "pending" });
   await fs.writeFile(manifestPath, toJson({ ...manifest, fixtures }));
 }
 
@@ -294,7 +243,6 @@ export async function addQuickCheckV2Fixture(args: FixtureIntakeArgs): Promise<F
     const document = parseExtractedText(extractedText, documentId, "pdf-parse");
     const results = validateAnswerResults(extractAnswersForAllChecks(document));
     const gold = results.map(toGoldRecord);
-    const corrections = results.map(toCorrectionRecord);
     const meta: FixtureMeta = {
       id,
       title: args.title.trim(),
@@ -304,15 +252,15 @@ export async function addQuickCheckV2Fixture(args: FixtureIntakeArgs): Promise<F
       phase: "fixture_intake",
       registry: "UNKNOWN",
       documentType: "PDD / Project Description",
+      adjudicationStatus: "pending",
     };
 
     await fs.writeFile(path.join(tempDir, "meta.json"), toJson(meta));
     await fs.writeFile(path.join(tempDir, "gold.draft.json"), toJson(gold));
-    await fs.writeFile(path.join(tempDir, "gold.json"), toJson(gold));
-    await fs.writeFile(path.join(tempDir, "corrections.json"), toJson(corrections));
+    await fs.writeFile(path.join(tempDir, "corrections.json"), toJson(buildPendingCorrections()));
     await fs.writeFile(
       path.join(tempDir, "REVIEW.md"),
-      buildReviewMarkdown({ id, title: args.title.trim(), pdfPath, results }),
+      buildReviewMarkdown({ id, title: args.title.trim(), pdfPath }),
     );
 
     if (args.force) {
@@ -329,7 +277,6 @@ export async function addQuickCheckV2Fixture(args: FixtureIntakeArgs): Promise<F
         "source.pdf",
         "extracted.txt",
         "gold.draft.json",
-        "gold.json",
         "meta.json",
         "corrections.json",
         "REVIEW.md",

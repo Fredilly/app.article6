@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
 import { extractAnswersForAllChecks, extractMethodologyDetailsFromEvidence } from "@/lib/quickCheckV2/answers";
@@ -26,6 +27,7 @@ type Manifest = {
   fixtures: Array<{
     id: string;
     directory: string;
+    adjudicationStatus?: "pending" | "reviewed";
   }>;
 };
 
@@ -38,6 +40,7 @@ type FixtureMeta = {
   phase: string;
   registry: string;
   documentType: string;
+  adjudicationStatus?: "pending" | "reviewed";
 };
 
 type GoldRecord = {
@@ -53,6 +56,11 @@ type GoldRecord = {
   expectedMethodology?: Partial<QuickCheckMethodologyIdentity>;
 };
 
+type PendingGoldDraft = {
+  status: "PENDING_ADJUDICATION";
+  message: string;
+};
+
 type FixtureBundle = {
   directory: string;
   extractedPath: string;
@@ -61,7 +69,8 @@ type FixtureBundle = {
   correctionsPath: string;
   sourcePdfPath: string;
   meta: FixtureMeta;
-  gold: GoldRecord[];
+  gold: GoldRecord[] | PendingGoldDraft | null;
+  pending: boolean;
 };
 
 function loadManifest(): Manifest {
@@ -74,13 +83,25 @@ function loadJsonFile<T>(filePath: string): T {
   return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
 }
 
-function loadFixtureBundle(directory: string): FixtureBundle {
-  const fixtureDir = path.join(FIXTURE_ROOT, directory);
+function isPendingGoldDraft(value: unknown): value is PendingGoldDraft {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && (value as PendingGoldDraft).status === "PENDING_ADJUDICATION",
+  );
+}
+
+function loadFixtureBundle(directory: string, fixtureRoot = FIXTURE_ROOT): FixtureBundle {
+  const fixtureDir = path.join(fixtureRoot, directory);
   const extractedPath = path.join(fixtureDir, "extracted.txt");
   const goldPath = path.join(fixtureDir, "gold.json");
   const metaPath = path.join(fixtureDir, "meta.json");
   const correctionsPath = path.join(fixtureDir, "corrections.json");
   const sourcePdfPath = path.join(fixtureDir, "source.pdf");
+  const meta = loadJsonFile<FixtureMeta>(metaPath);
+  const goldExists = fs.existsSync(goldPath);
+  const gold = goldExists ? loadJsonFile<GoldRecord[] | PendingGoldDraft>(goldPath) : null;
+  const pending = meta.adjudicationStatus === "pending" || !goldExists || isPendingGoldDraft(gold);
 
   return {
     directory,
@@ -89,8 +110,9 @@ function loadFixtureBundle(directory: string): FixtureBundle {
     metaPath,
     correctionsPath,
     sourcePdfPath,
-    meta: loadJsonFile<FixtureMeta>(metaPath),
-    gold: loadJsonFile<GoldRecord[]>(goldPath),
+    meta,
+    gold: pending ? null : (gold as GoldRecord[]),
+    pending,
   };
 }
 
@@ -293,6 +315,61 @@ function toEvidenceOnlyComparableRecord(record: GoldRecord): Omit<GoldRecord, "e
   return rest;
 }
 
+it("blocks pending adjudication fixtures from strict gold truth loading", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "qcv2-pending-"));
+  try {
+    const fixtureRoot = path.join(root, "tests/fixtures/quick-check/v2");
+    const fixtureDir = path.join(fixtureRoot, "pending-fixture");
+    fs.mkdirSync(fixtureDir, { recursive: true });
+
+    fs.writeFileSync(
+      path.join(fixtureRoot, "manifest.json"),
+      JSON.stringify({
+        version: 1,
+        fixtures: [
+          {
+            id: "pending-fixture",
+            directory: "pending-fixture",
+            adjudicationStatus: "pending",
+          },
+        ],
+      }, null, 2),
+    );
+    fs.writeFileSync(
+      path.join(fixtureDir, "meta.json"),
+      JSON.stringify({
+        id: "pending-fixture",
+        title: "Pending Fixture",
+        documentId: "pending-fixture-extracted",
+        runtimeMode: "static",
+        comparisonMode: "full",
+        phase: "fixture_intake",
+        registry: "UNKNOWN",
+        documentType: "PDD / Project Description",
+        adjudicationStatus: "pending",
+      }, null, 2),
+    );
+    fs.writeFileSync(path.join(fixtureDir, "gold.draft.json"), JSON.stringify([], null, 2));
+    fs.writeFileSync(
+      path.join(fixtureDir, "corrections.json"),
+      JSON.stringify({ status: "PENDING_ADJUDICATION", corrections: [] }, null, 2),
+    );
+    fs.writeFileSync(
+      path.join(fixtureDir, "REVIEW.md"),
+      "# Quick Check v2 fixture intake: Pending Fixture\n\nAdjudication not done.\n",
+    );
+    fs.writeFileSync(path.join(fixtureDir, "extracted.txt"), "Page 1\nPending fixture\n");
+    fs.writeFileSync(path.join(fixtureDir, "source.pdf"), "%PDF-1.4\npending\n");
+
+    const bundle = loadFixtureBundle("pending-fixture", fixtureRoot);
+    expect(bundle.pending).toBe(true);
+    expect(bundle.gold).toBeNull();
+    expect(bundle.meta.adjudicationStatus).toBe("pending");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 const manifest = loadManifest();
 
 describe("Quick Check v2 gold fixtures", () => {
@@ -300,6 +377,20 @@ describe("Quick Check v2 gold fixtures", () => {
     const bundle = loadFixtureBundle(fixtureRef.directory);
 
     describe(bundle.meta.title, () => {
+      if (bundle.pending) {
+        it("remains pending adjudication and is skipped from strict gold truth", () => {
+          expect(bundle.meta.adjudicationStatus).toBe("pending");
+          expect(bundle.gold).toBeNull();
+          expect(fs.existsSync(bundle.goldPath)).toBe(false);
+        });
+        return;
+      }
+
+      const gold = bundle.gold;
+      if (!gold) {
+        throw new Error(`Expected reviewed gold for fixture ${bundle.directory}`);
+      }
+
       it("keeps fixture files in the v2 layout", () => {
         expect(fs.statSync(bundle.extractedPath).isFile()).toBe(true);
         expect(fs.statSync(bundle.goldPath).isFile()).toBe(true);
@@ -308,7 +399,7 @@ describe("Quick Check v2 gold fixtures", () => {
       });
 
       it("normalizes methodology gold shape", () => {
-        for (const record of bundle.gold) {
+        for (const record of gold) {
           validateMethodologyGoldRecord(record);
         }
       });
@@ -319,20 +410,20 @@ describe("Quick Check v2 gold fixtures", () => {
           bundle.meta.documentId,
         );
         const statuses = validateAnswerResults(extractAnswersForAllChecks(document));
-        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(document, result, bundle.gold[index]!));
+        const comparableStatuses = statuses.map((result, index) => toGoldComparableRecord(document, result, gold[index]!));
         const methodologyComparisonFlags = comparableStatuses.map((record, index) =>
-          shouldCompareMethodology(record, bundle.gold[index]!),
+          shouldCompareMethodology(record, gold[index]!),
         );
 
         if (bundle.meta.comparisonMode === "evidence-only") {
           expect(comparableStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
           return;
         }
 
         expect(comparableStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-          bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+          gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
         );
       });
 
@@ -354,22 +445,22 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, gold[index]!));
           const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
-            shouldCompareMethodology(record, bundle.gold[index]!),
+            shouldCompareMethodology(record, gold[index]!),
           );
 
           if (bundle.meta.comparisonMode === "evidence-only") {
             expect(
               comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             ).toStrictEqual(
-              bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+              gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             );
             return;
           }
 
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
         }, 120000);
       }
@@ -393,22 +484,22 @@ describe("Quick Check v2 gold fixtures", () => {
           const runtimeStatuses = validateAnswerResults(
             extractAnswersForAllChecks(runtimeDocument),
           );
-          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, bundle.gold[index]!));
+          const comparableRuntimeStatuses = runtimeStatuses.map((result, index) => toGoldComparableRecord(runtimeDocument, result, gold[index]!));
           const methodologyComparisonFlags = comparableRuntimeStatuses.map((record, index) =>
-            shouldCompareMethodology(record, bundle.gold[index]!),
+            shouldCompareMethodology(record, gold[index]!),
           );
 
           if (bundle.meta.comparisonMode === "evidence-only") {
             expect(
               comparableRuntimeStatuses.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             ).toStrictEqual(
-              bundle.gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+              gold.map(toEvidenceOnlyComparableRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
             );
             return;
           }
 
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
         }, 30000);
       }
