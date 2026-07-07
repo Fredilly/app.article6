@@ -1449,6 +1449,12 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "additionality" && /\bThis section is under development\b/i.test(quote)) {
+    const placeholderMatch = quote.match(
+      /This section is under development\. In accordance with the VCS Registration and Issuance Process v4\.6,/i,
+    );
+    if (placeholderMatch) {
+      return placeholderMatch[0]!;
+    }
     return "This section is under development.";
   }
 
@@ -1741,60 +1747,91 @@ function getBestExactSectionBlock(
     }))
     .filter(({ bodyBlocks }) => bodyBlocks.length > 0);
 
-  const bestSection =
-    (checkName === "additionality"
-      ? sectionsWithBodies.find(({ section }) =>
-          /\bAdditionality\b/i.test(section.heading.text) &&
-          !/\bMethods?\b/i.test(section.heading.text),
-        )?.section ??
-        sectionsWithBodies.find(({ bodyBlocks }) =>
-          bodyBlocks.some((block) =>
-            /\bselected as the baseline scenario\b/i.test(block.text) &&
-            (
-              /\bsimple cost analysis\b/i.test(block.text) ||
-              /\bcarbon revenue\b/i.test(block.text)
-            ),
+  const formalAdditionalitySection =
+    checkName === "additionality"
+      ? (() => {
+          const preferredFormalAdditionalityHeadingPatterns = [
+            /^(?:\d+(?:\.\d+)*\s+)?Additionality(?:\s*\(|\b|$)/i,
+            /^(?:\d+(?:\.\d+)*\s+)?Regulatory Surplus(?:\s*\(|\b|$)/i,
+            /^(?:\d+(?:\.\d+)*\s+)?Additionality Methods(?:\s*\(|\b|$)/i,
+            /^(?:\d+(?:\.\d+)*\s+)?Community and Biodiversity Additionality(?:\s*\(|\b|$)/i,
+          ];
+
+          for (const pattern of preferredFormalAdditionalityHeadingPatterns) {
+            const section = sectionsWithBodies.find(({ section }) =>
+              pattern.test(section.heading.text),
+            )?.section;
+            if (section) {
+              return section;
+            }
+          }
+
+          return null;
+        })()
+      : null;
+
+  let bestSection: SectionTreeNode | null = null;
+  if (checkName === "additionality") {
+    bestSection =
+      formalAdditionalitySection ??
+      sectionsWithBodies.find(({ section }) =>
+        /\bAdditionality\b/i.test(section.heading.text) &&
+        !/\bMethods?\b/i.test(section.heading.text),
+      )?.section ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bselected as the baseline scenario\b/i.test(block.text) &&
+          (
+            /\bsimple cost analysis\b/i.test(block.text) ||
+            /\bcarbon revenue\b/i.test(block.text)
           ),
-        )?.section ??
-        sectionsWithBodies.find(({ bodyBlocks }) =>
-          bodyBlocks.some((block) =>
-            /\bAlternative [A-Z]\b/i.test(block.text) &&
-            /\bselected as the baseline scenario\b/i.test(block.text) &&
-            /\bsimple cost analysis\b/i.test(block.text),
+        ),
+      )?.section ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bAlternative [A-Z]\b/i.test(block.text) &&
+          /\bselected as the baseline scenario\b/i.test(block.text) &&
+          /\bsimple cost analysis\b/i.test(block.text),
+        ),
+      )?.section ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bVT0001\b/i.test(block.text) &&
+          (
+            /\bselected as the baseline scenario\b/i.test(block.text) ||
+            /\bsimple cost analysis\b/i.test(block.text)
           ),
-        )?.section ??
-        sectionsWithBodies.find(({ bodyBlocks }) =>
-          bodyBlocks.some((block) =>
-            /\bVT0001\b/i.test(block.text) &&
-            (
-              /\bselected as the baseline scenario\b/i.test(block.text) ||
-              /\bsimple cost analysis\b/i.test(block.text)
-            ),
+        ),
+      )?.section ??
+      null;
+  } else if (checkName === "stakeholder_consultation") {
+    bestSection =
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bTable 7\b/i.test(block.text) &&
+          (
+            /\bRequest for inclusion of\b/i.test(block.text) ||
+            /\bA call from the\b/i.test(block.text) ||
+            /\bCommunity members in\b/i.test(block.text)
           ),
-        )?.section
-      : checkName === "stakeholder_consultation"
-        ? sectionsWithBodies.find(({ bodyBlocks }) =>
-            bodyBlocks.some((block) =>
-              /\bTable 7\b/i.test(block.text) &&
-              (
-                /\bRequest for inclusion of\b/i.test(block.text) ||
-                /\bA call from the\b/i.test(block.text) ||
-                /\bCommunity members in\b/i.test(block.text)
-              ),
-            ),
-          )?.section ??
-          sectionsWithBodies.find(({ bodyBlocks }) =>
-            bodyBlocks.some((block) =>
-              /\bTable 7\b/i.test(block.text) &&
-              /\bcomments received and actions taken\b/i.test(block.text),
-            ),
-          )?.section
-        : null) ??
-    sectionsWithBodies.find(
-      ({ section, bodyBlocks }) => bodyBlocks.length > 0 && section.heading.page > 2,
-    )?.section ??
-    sectionsWithBodies[0]?.section ??
-    null;
+        ),
+      )?.section ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bTable 7\b/i.test(block.text) &&
+          /\bcomments received and actions taken\b/i.test(block.text),
+        ),
+      )?.section ??
+      null;
+  }
+  if (!bestSection) {
+    bestSection =
+      sectionsWithBodies.find(
+        ({ section, bodyBlocks }) => bodyBlocks.length > 0 && section.heading.page > 2,
+      )?.section ??
+      sectionsWithBodies[0]?.section ??
+      null;
+  }
 
   if (!bestSection) {
     return null;
@@ -1809,6 +1846,21 @@ function getBestExactSectionBlock(
       candidateBlocks,
     );
   const selectedBlock = chooseBestSectionBlock(checkName, selectedGroup);
+  if (checkName === "additionality" && formalAdditionalitySection) {
+    const formalSectionPath = formalAdditionalitySection.heading.sectionPath.join(">");
+    const formalSectionBlocks = candidateBlocks.filter((block) =>
+      block.page === formalAdditionalitySection.heading.page &&
+      block.sectionHeading === formalAdditionalitySection.heading.sectionHeading &&
+      block.sectionPath.join(">") === formalSectionPath,
+    );
+    const formalSectionBlock = chooseBestSectionBlock(
+      checkName,
+      getUsableSectionBlocks(formalSectionBlocks),
+    );
+    if (formalSectionBlock && /\bThis section is under development\b/i.test(formalSectionBlock.text)) {
+      return formalSectionBlock;
+    }
+  }
   const selectedBlockIsStrong =
     selectedBlock &&
     (

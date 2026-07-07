@@ -1,0 +1,100 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Democratic Republic of Congo",
+    "goldQuote": "Project location The Democratic Republic of Congo, Equateur Province, Lukolela territory",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p1:b19:fc6894b9",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007 REDD+ Methodology Framework (REDD+ MF) v1.8",
+    "goldQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+    "page": 44,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p44:b1806:98e0d520",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
+      "evidencePage": 44,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Baseline scenario is under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 49,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.4"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p49:b2141:e52e2376",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Additionality section is under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 49,
+    "sectionHeading": "Additionality (VCS, 3.14)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.5"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p49:b2144:d66dcb1d",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Leakage section is under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 50,
+    "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+    "sectionPath": [
+      "3",
+      "3.2",
+      "3.2.3"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p50:b2167:ab124fd4",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Stakeholder consultation section is under development.",
+    "goldQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+    "page": 33,
+    "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+    "sectionPath": [
+      "2",
+      "2.3",
+      "2.3.1"
+    ],
+    "spanId": "lukolela-drc-pdd-extracted:p33:b1354:893dee18",
+    "sourceType": "exact_section"
+  }
+]
