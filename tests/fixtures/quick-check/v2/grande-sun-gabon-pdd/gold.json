@@ -1,0 +1,100 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Gabon",
+    "goldQuote": "Project location Gabon, I'Ogooué-Ivindo, Ivindo",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p1:b21:1bd26ee9",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0048: Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable",
+    "goldQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable.",
+    "page": 82,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p82:b3971:6368d6e7",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0048",
+      "methodologyName": "Reducing Emissions from Deforestation and Forest Degradation",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 82,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable."
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Prior to the project, the forest was slated for scheduled logging; without the project, ongoing logging near accessible areas and road expansion would continue.",
+    "goldQuote": "Prior to the launch of the Grande Sun project, this forest area was slated for clearance as part of a scheduled logging operation. The most likely outcome in the absence of the Grande Sun project is ongoing logging near accessible areas, followed by the expansion of the road system deep into the interior and upwards of the mountains.",
+    "page": 46,
+    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p46:b2302:789966d7",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "No active initiatives are in place to reduce deforestation in the area, and the proposed project activity meets the additionality requirement.",
+    "goldQuote": "At present, no active initiatives are in place to reduce deforestation in the area, owing to limited governmental and local resources. Although the government of Gabon has implemented regulations banning the export of roundwood to curb illegal logging and harvesting, industrial logging continues to expand rapidly and shows a growing trend. To the best of our knowledge, there are no other ongoing projects aimed at halting deforestation or promoting sustainable land management in the region. These factors clearly demonstrate that the proposed project activity meets the additionality requirement.",
+    "page": 47,
+    "sectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.3"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p47:b2326:9903bb37",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "A 15% community-use buffer zone is designated to reduce leakage and pressure on surrounding forests.",
+    "goldQuote": "To mitigate potential leakage, a community-use buffer zone has been designated. It accounts for 15% of the project area (equivalent to 21,950 hectares). This area allows local communities to continue their daily livelihood activities while reducing pressure on surrounding forests.",
+    "page": 81,
+    "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
+    "sectionPath": [
+      "2",
+      "2.6",
+      "2.6.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p81:b3810:63f45f25",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "The project obtained consent through public consultations and ongoing FPIC with customary landowners.",
+    "goldQuote": "Necessary consent for the Grande Sun project’s development was obtained from local communities through public consultations, which were conducted only after the project was fully disclosed and all doubts from the communities were clarified.",
+    "page": 76,
+    "sectionHeading": "Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)",
+    "sectionPath": [
+      "2",
+      "2.5",
+      "2.5.7"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p76:b3726:4caff61b",
+    "sourceType": "exact_section"
+  }
+]
