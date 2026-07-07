@@ -1,4 +1,129 @@
 {
-  "status": "PENDING_ADJUDICATION",
-  "corrections": []
+  "status": "REVIEWED",
+  "corrections": [
+    {
+      "checkName": "host_country",
+      "currentStatus": "FOUND",
+      "currentAnswer": "Democratic Republic of Congo",
+      "currentQuote": "Project location The Democratic Republic of Congo, Equateur Province, Lukolela territory",
+      "page": 1,
+      "sectionHeading": null,
+      "sectionPath": [
+        "1"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p1:b19:fc6894b9",
+      "sourceType": "fact_contract",
+      "correctedStatus": "FOUND",
+      "correctedAnswer": "Democratic Republic of Congo",
+      "correctedQuote": "Project location The Democratic Republic of Congo, Equateur Province, Lukolela territory",
+      "correctedPage": 1,
+      "correctedSectionHeading": null,
+      "reviewNote": "Reviewed truth matches the page 1 project-location line."
+    },
+    {
+      "checkName": "methodology",
+      "currentStatus": "FOUND",
+      "currentAnswer": "VM0007 REDD+ Methodology Framework (REDD+ MF) v1.8",
+      "currentQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+      "page": 44,
+      "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+      "sectionPath": [
+        "3",
+        "3.1",
+        "3.1.1"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p44:b1806:98e0d520",
+      "sourceType": "exact_section",
+      "correctedStatus": "FOUND",
+      "correctedAnswer": "VM0007 REDD+ Methodology Framework (REDD+ MF) v1.8",
+      "correctedQuote": "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+      "correctedPage": 44,
+      "correctedSectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+      "reviewNote": "Reviewed truth matches the methodology row on page 44."
+    },
+    {
+      "checkName": "baseline_scenario",
+      "currentStatus": "UNCLEAR",
+      "currentAnswer": "Baseline scenario is under development.",
+      "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "page": 49,
+      "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+      "sectionPath": [
+        "3",
+        "3.1",
+        "3.1.4"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p49:b2141:e52e2376",
+      "sourceType": "exact_section",
+      "correctedStatus": "UNCLEAR",
+      "correctedAnswer": "Baseline scenario is under development.",
+      "correctedQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "correctedPage": 49,
+      "correctedSectionHeading": "Baseline Scenario (VCS, 3.13)",
+      "reviewNote": "The formal 3.1.4 section is under development, so the reviewed status remains UNCLEAR."
+    },
+    {
+      "checkName": "additionality",
+      "currentStatus": "UNCLEAR",
+      "currentAnswer": "(VCS, 3.13; CCB, G2.1) The Lukolela REDD+ Project was not implemented with the intent of artificially generating greenhouse gas (GHG) emissions for the purpose of their subsequent reduction, removal, or destruction. All historical and ongoing deforestation observed within the project area results from prevailing socio-economic drivers, demographic pressures, entirely independent of any project planning activities. The project area is situated within the Congo Basin rainforest ecosystem, characterized by dense tropical moist broadleaf forests exhibiting high biodiversity levels and significant carbon storage potential. This ecosystem is globally recognized as a critical biodiversity hotspot. Historically, the Lukolela concession was predominantly covered by intact and semi-intact tropical forests, which were used intermittently by local communities for subsistence activities, such as hunting, gathering, and small-scale shifting agriculture. Over previous decades, the area was formally allocated as a commercial logging concession and was subject to industrial-scale timber harvesting under regulated forestry operations. Nonetheless, even during its tenure as a logging concession, the area was under increasing pressure from unplanned deforestation and forest degradation caused by local community activities. These pressures - including slash-and-burn agriculture, charcoal production, and informal fuelwood extraction - have intensified in recent years, driven by rapid population growth and the lack of alternative livelihoods. Recognizing these escalating threats, the concession was acquired and converted into a conservation concession, shifting the focus toward mitigating deforestation dynamics in collaboration with local communities. Environmental conditions prior to project initiation reflect both the ecological richness of the region and the cumulative impacts of human activities. The project zone experiences a tropical humid climate with bimodal rainfall patterns, receiving an average annual precipitation of approximately 1,725 mm, and mean annual temperatures ranging from 24.3°C to 25.7°C (Fick, S.E. and Hijmans, R.J., 2017. WorldClim 2: new 1 km spatial resolution climate surfaces for global land areas. International Journal of Climatology, 37(12): 4302-4315). Hydrologically, the landscape is interlaced with numerous small rivers and tributaries of the Congo River, causing seasonal flooding in certain lowland areas. The terrain is moderately undulating, with elevations between 295 and 463 meters above sea level, averaging approximately 350 meters (Copernicus DEM, ESA/European Commission, 2020). Soils are predominantly classified as Ferralsols (FRx), typical of humid tropical forest regions. They are characterized by low fertility and high acidity, making them suitable only for short-term cultivation following forest clearing (Batjes NH 2007. SOTER-based soil parameter estimates for Central Africa - DR of Congo, Burundi and Rwanda (SOTWIScaf, version 1.0). Report 2007/02, ISRIC - World Soil Information, Wageningen). CCB Version 3.0, VCS Version 4.4 33 CCB v3.0, VCS v4.4 Vegetation within the project area consists largely of closed-canopy primary forest, while the surrounding landscapes include villages and subsistence agricultural plots. In the absence of the Lukolela REDD+ Project, unplanned deforestation would be expected to continue across the concession. The primary drivers would remain the expansion of slash-and-burn agriculture due to increasing population pressure and land scarcity; growing charcoal production to satisfy regional energy demands; informal timber extraction for local consumption and small-scale trade; and infrastructure development proceeding without integrated land-use planning. Without intervention, these trends are anticipated to result in progressive forest loss and fragmentation, leading to significant declines in carbon stocks and threatening biodiversity. These baseline dynamics have been modeled and quantified in the baseline scenario, capturing the continuation of the conditions existing prior to the project start. As the baseline scenario aligns with the ongoing land-use dynamics existing prior to the start of the project, further details are provided in Section 3.1.4.",
+      "currentQuote": "(VCS, 3.13; CCB, G2.1) The Lukolela REDD+ Project was not implemented with the intent of artificially generating greenhouse gas (GHG) emissions for the purpose of their subsequent reduction, removal, or destruction. All historical and ongoing deforestation observed within the project area results from prevailing socio-economic drivers, demographic pressures, entirely independent of any project planning activities. The project area is situated within the Congo Basin rainforest ecosystem, characterized by dense tropical moist broadleaf forests exhibiting high biodiversity levels and significant carbon storage potential. This ecosystem is globally recognized as a critical biodiversity hotspot. Historically, the Lukolela concession was predominantly covered by intact and semi-intact tropical forests, which were used intermittently by local communities for subsistence activities, such as hunting, gathering, and small-scale shifting agriculture. Over previous decades, the area was formally allocated as a commercial logging concession and was subject to industrial-scale timber harvesting under regulated forestry operations. Nonetheless, even during its tenure as a logging concession, the area was under increasing pressure from unplanned deforestation and forest degradation caused by local community activities. These pressures — including slash-and-burn agriculture, charcoal production, and informal fuelwood extraction — have intensified in recent years, driven by rapid population growth and the lack of alternative livelihoods. Recognizing these escalating threats, the concession was acquired and converted into a conservation concession, shifting the focus toward mitigating deforestation dynamics in collaboration with local communities. Environmental conditions prior to project initiation reflect both the ecological richness of the region and the cumulative impacts of human activities. The project zone experiences a tropical humid climate with bimodal rainfall patterns, receiving an average annual precipitation of approximately 1,725 mm, and mean annual temperatures ranging from 24.3°C to 25.7°C (Fick, S.E. and Hijmans, R.J., 2017. WorldClim 2: new 1 km spatial resolution climate surfaces for global land areas. International Journal of Climatology, 37(12): 4302-4315). Hydrologically, the landscape is interlaced with numerous small rivers and tributaries of the Congo River, causing seasonal flooding in certain lowland areas. The terrain is moderately undulating, with elevations between 295 and 463 meters above sea level, averaging approximately 350 meters (Copernicus DEM, ESA/European Commission, 2020). Soils are predominantly classified as Ferralsols (FRx), typical of humid tropical forest regions. They are characterized by low fertility and high acidity, making them suitable only for short-term cultivation following forest clearing (Batjes NH 2007. SOTER-based soil parameter estimates for Central Africa - DR of Congo, Burundi and Rwanda (SOTWIScaf, version 1.0). Report 2007/02, ISRIC - World Soil Information, Wageningen). CCB Version 3.0, VCS Version 4.4 33 CCB v3.0, VCS v4.4 Vegetation within the project area consists largely of closed-canopy primary forest, while the surrounding landscapes include villages and subsistence agricultural plots. In the absence of the Lukolela REDD+ Project, unplanned deforestation would be expected to continue across the concession. The primary drivers would remain the expansion of slash-and-burn agriculture due to increasing population pressure and land scarcity; growing charcoal production to satisfy regional energy demands; informal timber extraction for local consumption and small-scale trade; and infrastructure development proceeding without integrated land-use planning. Without intervention, these trends are anticipated to result in progressive forest loss and fragmentation, leading to significant declines in carbon stocks and threatening biodiversity. These baseline dynamics have been modeled and quantified in the baseline scenario, capturing the continuation of the conditions existing prior to the project start. As the baseline scenario aligns with the ongoing land-use dynamics existing prior to the start of the project, further details are provided in Section 3.1.4.",
+      "page": 32,
+      "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+      "sectionPath": [
+        "2",
+        "2.2",
+        "2.2.1"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p32:b1294:6d950ad6",
+      "sourceType": "exact_section",
+      "correctedStatus": "UNCLEAR",
+      "correctedAnswer": "Additionality section is under development.",
+      "correctedQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "correctedPage": 49,
+      "correctedSectionHeading": "Additionality (VCS, 3.14)",
+      "reviewNote": "The formal page 49 additionality section is under development. The page 32 without-project narrative is related background only and is rejected as weak evidence."
+    },
+    {
+      "checkName": "leakage",
+      "currentStatus": "UNCLEAR",
+      "currentAnswer": "Leakage section is under development.",
+      "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "page": 50,
+      "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+      "sectionPath": [
+        "3",
+        "3.2",
+        "3.2.3"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p50:b2167:ab124fd4",
+      "sourceType": "exact_section",
+      "correctedStatus": "UNCLEAR",
+      "correctedAnswer": "Leakage section is under development.",
+      "correctedQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "correctedPage": 50,
+      "correctedSectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+      "reviewNote": "The leakage section is explicitly under development, so it remains UNCLEAR."
+    },
+    {
+      "checkName": "stakeholder_consultation",
+      "currentStatus": "UNCLEAR",
+      "currentAnswer": "Stakeholder consultation section is under development.",
+      "currentQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "page": 33,
+      "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+      "sectionPath": [
+        "2",
+        "2.3",
+        "2.3.1"
+      ],
+      "spanId": "lukolela-drc-pdd-extracted:p33:b1354:893dee18",
+      "sourceType": "exact_section",
+      "correctedStatus": "UNCLEAR",
+      "correctedAnswer": "Stakeholder consultation section is under development.",
+      "correctedQuote": "This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,",
+      "correctedPage": 33,
+      "correctedSectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+      "reviewNote": "The stakeholder sections are under development, so the reviewed status remains UNCLEAR."
+    }
+  ]
 }
