@@ -1,0 +1,11 @@
+{
+  "id": "gerbang-barito-indonesia-pdd",
+  "title": "Gerbang Barito Indonesia PDD",
+  "documentId": "gerbang-barito-indonesia-pdd-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "fixture_intake",
+  "registry": "UNKNOWN",
+  "documentType": "PDD / Project Description",
+  "adjudicationStatus": "pending"
+}

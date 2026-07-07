@@ -1,0 +1,95 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": null,
+    "goldQuote": "The proposed project site is located along the northern coasts of Guinea, adjacent to the border with Guinea-Bissau. The project site lies within the administrative regions of Boké.",
+    "page": 22,
+    "sectionHeading": "Project Location",
+    "sectionPath": [
+      "1",
+      "1.13"
+    ],
+    "spanId": "lamantin-guinea-pdd-extracted:p22:b821:7fd13664",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0033 Methodology for Tidal Wetland and Seagrass Restoration v2.1",
+    "goldQuote": "Methodology VM0033 VM0033 Methodology for Tidal Wetland and Seagrass Restoration 2.1",
+    "page": 48,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "3",
+      "3.1"
+    ],
+    "spanId": "lamantin-guinea-pdd-extracted:p48:b1731:4c91429",
+    "sourceType": "fact_contract",
+    "expectedMethodology": {
+      "methodologyId": "VM0033",
+      "methodologyName": "Methodology for Tidal Wetland and Seagrass Restoration",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v2.1",
+      "versionStatus": "DECLARED",
+      "evidencePage": 48,
+      "evidenceSection": "Title and Reference of Methodology",
+      "evidenceQuote": "Methodology VM0033 VM0033 Methodology for Tidal Wetland and Seagrass Restoration 2.1"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Section to be completed in the PDD submitted for validation",
+    "goldQuote": "Section to be completed in the PDD submitted for validation.",
+    "page": 62,
+    "sectionHeading": "Baseline Scenario",
+    "sectionPath": [
+      "3",
+      "3.4"
+    ],
+    "spanId": "lamantin-guinea-pdd-extracted:p62:b2361:29664344",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "The additionality procedure as per module VMD0052 consists of two steps",
+    "goldQuote": "The additionality procedure as per module VMD0052 consists of two steps. Step 1 consists in demonstrating regulatory surplus (see Section 3.5.1), and Step 2 requires the project to meet the applicability conditions of the module. The proposed project is compliant with such conditions as project activities restoring tidal wetlands include the following: - restoring hydrological conditions (e.g., removing tidal barriers, improving hydrological connectivity, restoring tidal flow to wetlands) to assist natural recovery of vegetation; - re-introducing native mangrove communities by means of replanting, where natural recovery is not possible; - improving management practices by means of removing invasive species. Furthermore, project activities conserving tidal wetlands include protecting at-risk mangrove forests from degradation and deforestation by means of conservation programmes, community awareness campaigns, and promotion of alternative livelihoods and sustainable wood uses to reduce pressure on mangroves. Therefore, the proposed project can be considered additional.",
+    "page": 64,
+    "sectionHeading": "Additionality Methods",
+    "sectionPath": [
+      "3",
+      "3.5",
+      "3.5.2"
+    ],
+    "spanId": "lamantin-guinea-pdd-extracted:p64:b2400:bf970f19",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "40 Stakeholder Identification Stakeholders identification will take place following FAO’s FPIC principles and CCB guidelines",
+    "goldQuote": "40 Stakeholder Identification Stakeholders identification will take place following FAO’s FPIC principles and CCB guidelines. Blue Coast Carbon will carry out a thorough stakeholder mapping and analysis before the project starts, to identify who has rights and interests over the project area, and how every stakeholder relates to each other and to the project. We will seek to map both primary and secondary stakeholders. Primary stakeholders include individuals or groups with statutory or customary rights to land or resources within the project area, e.g. Indigenous Peoples and Local Communities, residents in the area, smallholder farmers, and businesses operating in the project area. Secondary stakeholders are local, regional, and national authorities or organizations involved in the region's conservation, restoration, or development initiatives, e.g., Government agencies and traditional or customary power structures, Non-Governmental Organizations (NGOs), Academic or research institutions, non-local businesses operating around the site or in relevant industries, other local carbon project proponents or developers. Once all the relevant stakeholders are identified, Blue Coast Carbon together with the local partner will analyse living standards, health, access to infrastructures and facilities, climate change adaptation of each group. Each stakeholder will be prioritised and selected based on their importance and influence over the project, to categorise those to be involved, consulted or informed during each project phase. The potential impact of the project on the different groups will also be assessed. The stakeholders analysis will also include a gender analysis, assessing the relative positions of women and men in terms of representation and influence, and the benefits and disincentives associated with the allocation of tasks to women and men. Blue Coast Carbon has been working on the ground in Guinea since March 2025. Since then, the Company has carried out a preliminary stakeholder mapping, meeting Government representatives and potential partners. These include the following: ● National government: Ministry of Environment and Sustainable Development (MEDD), Ministry of Agriculture and Livestock, National Parks Directorate (OGPNRF) 41 ● Public agencies: French Embassy, Service de Coopération et d’Action Culturelle (SCAC), Agence Francaise de Development ● NGOs: Biotope, United Nation Development Programme, Charente-Maritime Coopération Section to be completed and updated in the PD submitted for validation. Legal or customary tenure/access rights Under Articles 53 and 54 of the Maritime Code (2019), all Guinean mangroves fall within the Maritime Public Domain (DPM). This domain is inalienable and includes a 100-meter coastal strip and all areas up to the limit of water salinity. Consequently, while Article 17 of the Forestry Code allows landowners to own forest products, the inalienability of the DPM ensures that mangrove land and its biological resources remain the exclusive property of the State. Despite State ownership, Articles 46–50 of the Forestry Code recognize \"usage rights\" for local communities. These rights permit subsistence activities, including artisanal fishing, salt production, and domestic wood collection. To bridge the gap between statutory State ownership and customary use, the project will secure tenure through: Temporary occupation permits, legalising project activities within the DPM. Community management agreements, formalising traditional usage rights into sustainable management contracts under Forestry Administration oversight. Stakeholder diversity and changes over time Expected changes in well-being Location of stakeholders 42 Location of resources Section to be completed in the PD submitted for validation.",
+    "page": 40,
+    "sectionHeading": "Stakeholder Identification",
+    "sectionPath": [
+      "2",
+      "2.1",
+      "2.1.1"
+    ],
+    "spanId": "lamantin-guinea-pdd-extracted:p40:b1455:8026c5e6",
+    "sourceType": "exact_section"
+  }
+]

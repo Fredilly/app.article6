@@ -1,0 +1,2608 @@
+Page 1
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+1
+CCB v3.0, VCS v4.4
+LUKOLELA REDD+ PROJECT
+Project title Lukolela REDD+ Project
+Project ID 5672
+Crediting period 01 March 2025 to 28 February 2115
+Project lifetime 01 March 2025 - 28 February 2115; 90-year lifetime
+(CCB) GHG accounting
+period
+01 March 2025 - 28 February 2115; 90-year total period
+Original date of issue 22-July- 2025
+Most recent date of
+issue
+22-July- 2025
+Version Version 1.0
+VCS Standard version VCS standard 4.7
+CCB Standards version CCB standard 3.1
+Project location The Democratic Republic of Congo, Equateur Province, Lukolela territory
+Project proponent(s) Taranis Operations Limited
+8 Hanover Square, London, United Kingdom, W1S 1HQ.
+Bruno Visconti (Corporate investment manager).
+nbs@taranis.eu
+Validation/verification
+body
+To be determined.
+History of CCB status Issuance date(s) of earlier validation statements, dates of previous attempts at
+validation, etc.
+Gold Level criteria Climate : The Project is expected to reduce emissions by an average of
+385’254 tCO2/year, and a total of 11,6 million tCO2 during the 30-year
+first crediting period. The project activities aim to promote community
+
+Page 2
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+2
+CCB v3.0, VCS v4.4
+adaptation to climate change while supporting economic development in
+the territories through resource management planning and the
+development of sustainable agricultural activities.
+Community : The Project benefits community members in an area of high
+poverty. The Project fully integrates community consultation and
+participation in project activities aimed at improving their living conditions
+and well-being. Activities include capacity building, support for resource
+management planning, and the development of sustainable agricultural
+activities.
+Biodiversity : The project aims to promote habitat and biodiversity
+protection. Forest conservation and the reduction of pressure on forest
+resources through community activities will help preserve the remarkable
+biodiversity of these ecosystems.
+Expected verification
+schedule
+Initial verification December 31, 2027
+Prepared by The Shared Wood Company SAS
+
+Page 3
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+3
+CCB v3.0, VCS v4.4
+CONTENTS
+1 SUMMARY OF PROJECT BENEFITS ........................................................................... 4
+1.1 Unique Project Benefits ........................................................................................................ 4
+1.2 Standardized Benefit Metrics .............................................................................................. 4
+2 PROJECT DETAILS ..................................................................................................... 5
+2.1 Project Goals, Design and Long-Term Viability ................................................................ 5
+2.2 Without-project Land Use Scenario and Additionality .................................................. 32
+2.3 Safeguards and Stakeholder Engagement .................................................................... 33
+2.4 Management Capacity .................................................................................................... 35
+2.5 Legal Status and Property Rights ...................................................................................... 36
+2.6 Additional Information Relevant to the Project ............................................................. 44
+3 CLIMATE ................................................................................................................. 44
+3.1 Application of Methodology ............................................................................................ 44
+3.2 Quantification of Estimated GHG Emission Reductions and Removals ...................... 50
+3.3 Monitoring ........................................................................................................................... 50
+3.4 Optional Criterion: Climate Change Adaptation Benefits ........................................... 51
+4 COMMUNITY .......................................................................................................... 51
+4.1 Without-Project Community Scenario ............................................................................. 51
+4.2 Net Positive Community Impacts ..................................................................................... 52
+4.3 Other Stakeholder Impacts ............................................................................................... 52
+4.4 Community Impact Monitoring ........................................................................................ 53
+4.5 Optional Criterion: Exceptional Community Benefits .................................................... 53
+5 BIODIVERSITY ......................................................................................................... 54
+5.1 Without-Project Biodiversity Scenario .............................................................................. 54
+5.2 Net Positive Biodiversity Impacts ...................................................................................... 54
+5.3 Offsite Biodiversity Impacts................................................................................................ 55
+5.4 Biodiversity Impact Monitoring ......................................................................................... 55
+5.5 Optional Criterion: Exceptional Biodiversity Benefits ..................................................... 56
+APPENDIX 1: STAKEHOLDER DESCRIPTION TABLE ....................................................... 57
+APPENDIX 2: PROJECT ACTIVITIES AND THEORY OF CHANGE TABLE ....................... 58
+APPENDIX 3: PROJECT RISKS TABLE ............................................................................ 59
+APPENDIX 4: COMMERCIALLY SENSITIVE INFORMATION.......................................... 62
+APPENDIX X: <TITLE OF APPENDIX> ............................................................................ 63
+
+Page 4
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+4
+CCB v3.0, VCS v4.4
+1 SUMMARY OF PROJECT BENEFITS
+1.1 Unique Project Benefits
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+Outcome or impact estimated by the end of project lifetime
+Section
+referenc
+e
+1)
+2)
+3)
+4)
+5)
+1.2 Standardized Benefit Metrics
+This section is under development. In accordance with the VCS Registration and Issuance
+Process v4.6, all information will be finalized and included prior to the validation.
+
+Page 5
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+5
+CCB v3.0, VCS v4.4
+2 PROJECT DETAILS
+2.1 Project Goals, Design and Long-Term Viability
+2.1.1 Summary Description of the Project (VCS, 3.2, 3.6, 3.10, 3.11, 3.13, 3.14; CCB,
+G1.2)
+The Lukolela REDD+ Project (hereinafter “the Project”) is a REDD+ initiative that aims to implement an
+integrated and comprehensive approach designed to reduce carbon emissions by addressing the drivers
+of deforestation and forest degradation in the DRC, namely slash-and-burn agriculture and charcoal
+production. The overall objective of the Lukolela REDD+ Project is to draw inspiration from the approaches
+of the PIREDD Mai-Ndombe (supported by the Forest Investment Program (FIP) and the Central African
+Forest Initiative (CAFI) with the World Bank as the executing agency), to improve community livelihoods and
+forest landscape management, thereby reducing greenhouse gas emissions from deforestation and forest
+degradation in the concession.
+The activities of the Lukolela REDD+ Project will be implemented within the conservation concession No.
+03/24 (hereinafter “the concession”), located in the Lukolela territory of the province of Equateur, in the
+Democratic Republic of Congo (DRC). The Project zone encompasses the entire surface of the concession,
+covering an area of 217’929 hectares, primarily covered by forests (210’634 hectares) and rural
+development areas (7’295 hectares). The forests in the concession that were previously intended for
+logging have been converted to conservation areas.
+Situated in the heart of the Congo Basin forests, the concession comprises approximately 22 villages with
+a growing population of around 34k people, mainly located along its outer boundaries. The Project also
+acknowledges the presence of Indigenous populations within the concession area, whose rights and
+interests will be fully respected and integrated into its development. Human activities in the region,
+particularly agriculture, are causing deforestation that is progressing towards the heart of the concession.
+The Lukolela REDD+ project aims to combat deforestation by identifying its various drivers and working
+closely with local authorities as well as all relevant stakeholders. To this end, it will implement a coherent
+and coordinated territorial approach, drawing on the different pillars of the Democratic Republic of Congo’s
+National REDD+ Strategy. The project’s operational framework includes the following strategic action areas:
+i) Local authorities with enhanced powers will organize land use planning exercises within village
+communities;
+ii) Trained and motivated technical extension services will monitor and support community forest
+management;
+iii) Support will be provided for the development of management plans that are adapted to the region's
+agricultural environment;
+iv) Training and supervision of small-scale foresters will be provided, alongside the dissemination of
+agricultural techniques to increase yields and incomes for the rural population;
+v) Family planning initiatives will be considered to manage population growth over the medium term;
+
+Page 6
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+6
+CCB v3.0, VCS v4.4
+vi) Rehabilitation of public infrastructure (school and health center) will be supported through Local
+Development Funds.
+As described above, the project's activities aim to achieve ambitious goals in restoring and preserving
+biodiversity, strengthening communities' capacity for action and supporting their economic development,
+as well as promoting climate change mitigation. This will result in reduced pressure on forests, which will
+lead to a reduction in unplanned deforestation and the restoration of forest ecosystems, the development
+of sustainable and profitable agricultural activities for communities, the establishment of a system that
+integrates the various communities in an inclusive and participatory manner in the management of
+concession resources, and the rehabilitation of public infrastructure (schools, health centers, roads, and
+water sources) that will reduce poverty and the isolation of villages.
+The Project is aligned with the national REDD+ strategy, established in 2012, which aims to stabilize forest
+cover at 63.5% by 2030. It will fully comply with all applicable DRC legislation for REDD+ project
+development, including submission to the national REDD+ approval process, the securing of Free, Prior and
+Informed Consent (FPIC) from local communities, and the completion of a social and environmental impact
+assessment.
+The Project applies the VCS approved VM0007 (V.1.8) Methodology Framework and is expected to reduce
+emissions by an average of 385’254 tCO2/year, and a total of 11’6 million tCO2 during the 30-year first
+crediting period.
+The Project is not located within a jurisdiction covered by a jurisdictional REDD+ program.
+2.1.2 Audit History (VCS, 4.1)
+Audit type Period Program Validation/verification
+body name
+Number
+of years
+Validation This Project is
+under
+development and
+has not yet
+undergone
+validation or
+verification. The
+audit history table
+will be completed
+prior to validation.
+VCS To be determined N/A
+2.1.3 Sectoral Scope and Project Type (VCS, 3.2)
+Sectoral scope 14: Agriculture, forestry, and other land use (AFOLU)
+
+Page 7
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+7
+CCB v3.0, VCS v4.4
+AFOLU project category 1
+REDD+ (Reducing Emissions from Deforestation and forest
+Degradation)
+Project activity type Avoiding Unplanned Deforestation (AUD)
+2.1.4 Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)
+The Lukolela REDD+ Project is eligible to participate under both the Verified Carbon Standard (VCS)
+Program and the Climate, Community & Biodiversity (CCB) Standards, as demonstrated below.
+Under the VCS Program, the project complies with all applicable program rules, including legal compliance,
+the use of eligible and approved methodologies, and adherence to the latest version of the standard
+(currently v4.7). The Project respects national laws, regulations, and customary rights in accordance with
+Congolese legislation, as further detailed in Section 2.5.1.
+The Project applies the VCS-approved VM0007 REDD+ Methodology Framework (REDD-MF), version 1.8,
+which is currently eligible and active under the VCS Program. All relevant modules and tools required by
+this methodology, including the AFOLU Non-Permanence Risk Tool and modules for baseline determination
+and leakage accounting, will be implemented. The project uses standardized approaches for demonstrating
+additionality and establishing baselines and applies all default parameters and factors in full compliance
+with the VCS Methodology Requirements.
+The Lukolela REDD+ Project falls under VCS Scope 14 (Agriculture, Forestry and Other Land Use) and is
+classified as an Avoided Unplanned Deforestation (AUD) activity. It aims to reduce GHG emissions primarily
+associated with slash-and-burn agriculture, charcoal production, and other unsustainable resource uses
+within the Lukolela conservation concession in Équateur Province. The concession encompasses
+approximately 217,929 hectares, of which 210,634 hectares are forested lands and designated as the
+project area. It is designed as a single-location project and does not incorporate grouped project elements
+that would involve adding new activity instances after validation.
+The project start date is 1 March 2025. It will be listed on the Verra Registry within the same year, and
+validation will occur within the five-year timeframe required for large-scale AFOLU projects under the VCS
+Program. Prior to validation, the project will complete the required 30-day public comment period, and the
+validation report and statement will be submitted within one year following the close of this period, in
+compliance with VCS requirements.
+The Lukolela REDD+ Project is also eligible under the CCB Standards. It delivers significant benefits for
+climate, communities, and biodiversity. Beyond reducing emissions by avoiding deforestation, the project
+also supports sustainable development through participatory land-use planning, sustainable agricultural
+practices, family planning initiatives, and investments in infrastructure such as schools, health centers, and
+roads, contributing to improved livelihoods and social welfare for local communities. In terms of biodiversity,
+1 See Appendix 1 of the VCS Standard
+
+Page 8
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+8
+CCB v3.0, VCS v4.4
+the project aims to preserve 210 634 hectares of tropical forest within the Congo Basin, recognized as one
+of the world’s most critical biodiversity hotspots.
+Stakeholder engagement was conducted through inclusive, culturally appropriate consultations, ensuring
+that Free, Prior, and Informed Consent (FPIC) is obtained from all relevant communities. A grievance redress
+mechanism is in place to manage potential conflicts and ensure ongoing dialogue with stakeholders.
+Legal rights over the concession are secured through a formal conservation concession contract signed on
+5 December 2024 between Equaforest SARLU (now Taranis Congo) and the Government of the Democratic
+Republic of Congo. Taranis Operations Limited, as the project proponent, is undergoing the REDD+
+investment homologation process required under Ministerial Order No.
+047/CAB/MIN/EDD/AAN/MMUOS/2018, which, once completed, will secure exclusive rights over the
+Emission Reductions generated by the project.
+The project does not conflict with any existing VCS or other GHG program rules, and all validation and
+verification activities will be conducted in accordance with ISO 14064-3 and ISO 17029, ensuring
+compliance with the VCS Program requirements for third-party validation and verification.
+2.1.5 Transfer Project Eligibility (VCS, 3.23, Appendix 2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.6 Project Design (VCS, 3.6)
+Indicate if the project has been designed as:
+☒ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+☐ Grouped project
+The following sub-section is only required for grouped projects. If not applicable, indicate so
+and delete instruction and headings for sub-section 2.1.6.1 below.
+2.1.6.1 Eligibility Criteria for Grouped Projects (VCS, 3.6; CCB, G1.14)
+2.1.7 Project Proponent (VCS, 3.7; CCB, G1.1)
+Organization name Taranis Operations Limited
+Contact person Bruno Visconti
+
+Page 9
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+9
+CCB v3.0, VCS v4.4
+Title Corporate investment manager
+Address 8 Hanover Square, London, United Kingdom, W1S 1HQ.
+Telephone +44 7436 800857
+Email nbs@taranis.eu
+2.1.8 Other Entities Involved in the Project
+Organization name Taranis Congo
+Role in the project Project Owner - Congolese subsidiary of Taranis Operations Limited,
+holder of the Lukolela conservation concession rights No. 03/24
+Contact person
+Title
+Address
+Telephone
+Email
+Organization name The Shared Wood Company SAS (sWc)
+Role in the project Technical partner for the project
+Project Manager appointed by Taranis Operations Limited
+Contact person
+Title
+Address 16 rue de l’Arcade, 75008 Paris France
+Telephone
+Email
+
+Page 10
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+10
+CCB v3.0, VCS v4.4
+Organization name The Shared Wood Company Kongo (sWc Kongo)
+Role in the project Congolese subsidiary of sWc registered in the DRC
+Technical operator
+Contact person
+Title
+Address
+Telephone
+Email
+2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8)
+Land Ownership
+The concession rights to the conservation concession No. 03/24 have been granted to Equaforest, later
+renamed Taranis Congo, subsidiary of Taranis Operations Limited (Project Proponent), pursuant to the
+signing of a conservation concession agreement on December 5, 2024, between the Democratic
+Republic of Congo, represented by the Ministry of Environment and Sustainable Development and
+Equaforest (now Taranis Congo), for a duration of 25 years.
+Project Ownership
+The Lukolela REDD+ Project is led by Taranis Operations Limited, acting as the Project Proponent. In
+accordance with Article 3 of Ministerial Decree No. 047/CAB/MIN/EDD/AAN/MMUOS/2018 of May 9,
+2018 2, which defines the procedure for approving REDD+ investments in the Democratic Republic of
+Congo, the State has exclusive ownership rights over Congolese Emission Reductions Units (ERUs) and
+may transfer them to the REDD+ investment holder, if and only if the latter validates the legal
+homologation procedure imposed by Article 3 of Ministerial Decree No.
+047/CAB/MIN/EDD/AAN/MMUOS/2018 of May 9, 2018.
+An irrevocable and enforceable collaboration agreement between Taranis Congo, acting on behalf of
+Taranis Operations Limited, and the Democratic Republic of Congo represented by the Ministry of
+Environment and Sustainable Development has been signed. This agreement sets out the terms and
+conditions of cooperation between the Parties and their respective rights and obligations in connection
+with the implementation of the Project. This agreement confirms the government's approval of the Project
+and acknowledges Taranis Operations Limited's exclusive ownership rights over the carbon credits
+2 « Arrêté ministériel n° 047/CAB/MIN/EDD/AAN/MML/05/2019 du 9 mai 2018 fixant la procédure
+d’homologation des investissements REDD+ en République démocratique du Congo. | FAOLEX ».
+
+Page 11
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+11
+CCB v3.0, VCS v4.4
+generated by the Project, subject to the legal homologation process stipulated in Article 3 of Ministerial
+Decree No. 047/CAB/MIN/EDD/AAN/MMUOS/2018 dated May 9, 2018.
+2.1.10 Project Start Date (VCS, 3.8)
+Project start date 01/03/2025
+Justification Date of signature of the contract between the project proponent,
+Taranis Operations Limited, and the project operator sWc.
+Launch of public consultation activities (awareness and FPIC) and
+recruitment of project teams.
+The Project will be listed during the three-year period following the
+start of the project for validation within five years.
+2.1.11 Benefits Assessment and Project Crediting Period (VCS, 3.9; CCB, G1.9)
+Crediting
+period
+The project crediting period is 90 years, in line with VCS Standard v4.7
+requirements for AFOLU projects, consisting of an initial 30-year period
+renewable up to three times to reach 90 years.
+Start date of
+first or fixed
+crediting
+period
+The project has a first crediting period of 30 years from March 3, 2025, to
+February 28, 2055.
+CCB benefits
+assessment
+period
+The CCB benefits assessment period is 90 years, matching the project
+crediting period, during which climate, biodiversity, and community well-
+being outcomes will be monitored.
+2.1.12 Differences in Assessment/Project Crediting Periods (CCB, G1.9)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.13 Project Scale and Estimated Reductions or Removals (VCS, 3.10)
+☐ < 300,000 tCO2e/year (project)
+☒ ≥ 300,000 tCO2e/year (large project)
+Complete the table below for the first (if renewable) or fixed crediting period:
+
+Page 12
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+12
+CCB v3.0, VCS v4.4
+Calendar year of crediting period Estimated reductions or removals (tCO2e)
+01-March-2025 to 31-December-2025 378 417
+01-january-2026 to 31-December-2026 426 483
+01-january-2027 to 31-December-2027 408 476
+01-january-2028 to 31-December-2028 402 666
+01-january-2029 to 31-December-2029 375 535
+01-january-2030 to 31-December-2030 364 806
+01-january-2031 to 31-December-2031 371 215
+01-january-2032 to 31-December-2032 377 624
+01-january-2033 to 31-December-2033 384 032
+01-january-2034 to 31-December-2034 390 441
+01-january-2035 to 31-December-2035 387 916
+01-january-2036 to 31-December-2036 386 111
+01-january-2037 to 31-December-2037 384 821
+01-january-2038 to 31-December-2038 383 798
+01-january-2039 to 31-December-2039 383 454
+01-january-2040 to 31-December-2040 383 454
+01-january-2041 to 31-December-2041 383 454
+01-january-2042 to 31-December-2042 383 454
+01-january-2043 to 31-December-2043 383 454
+01-january-2044 to 31-December-2044 383 454
+01-january-2045 to 31-December-2045 383 454
+01-january-2046 to 31-December-2046 383 454
+01-january-2047 to 31-December-2047 383 454
+
+Page 13
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+13
+CCB v3.0, VCS v4.4
+01-january-2048 to 31-December-2048 383 454
+01-january-2049 to 31-December-2049 383 454
+01-january-2050 to 31-December-2050 383 454
+01-january-2051 to 31-December-2051 383 454
+01-january-2052 to 31-December-2052 383 454
+01-january-2053 to 31-December-2053 383 454
+01-january-2054 to 31-December-2054 383 454
+Total estimated ERRs during the first or
+fixed crediting period 11 557 605
+Total number of years 30
+Average annual ERRs 385 254
+2.1.14 Physical Parameters (CCB, G1.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.15 Social Parameters (VCS, 3.18; CCB, G1.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.16 Project Zone Map and Project Location (VCS, 3.11, 3.18; CCB, G1.4-7, G1.13,
+CM1.2, B1.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8)
+The Project aims to implement various activities within the concession by helping communities shift
+towards activities that reconcile natural resource and forest protection with economic viability, thereby
+promoting a win-win system. At the same time, previously exploited areas of the concession will be set
+aside for conservation purposes to ensure their preservation.
+
+Page 14
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+14
+CCB v3.0, VCS v4.4
+The Project targets all populations living within the concession. The Project therefore plans to support
+community activities in the 22 villages identified in the concession, ensuring that inclusive and
+representative actions are promoted, with a particular focus on women and indigenous peoples.
+The Project is based on eight main areas of action:
+- Component A: Establishment of a governance framework,
+- Component B: Institutional support,
+- Component C: Implementation of planned investments, as identified in the strategic
+management plans,
+- Component D: Other investments in Local Development Committees (LDCs),
+- Component E: Development of value chains based on perennial crops,
+- Component F: Investments in infrastructure of common interest to restore connectivity between
+territories,
+- Component G: Support for the most vulnerable communities,
+- Component H: Support for family planning.
+Component A: Establishment of a governance framework.
+The formation of Local Development Committees (LDCs) at the village level is essential to the success
+of the Lukolela REDD+ Project. The Agriculture Act (December 2011), supplemented by an enabling act
+published in December 2013, describes how all villages located within concessions can be organized
+into LDCs. Each LDC can represent groups of two to four villages whose territory is under the authority
+of the same traditional leader (land chief). These LDCs will form councils for agriculture and rural
+management (CARGs) for each sector and zone (sectoral and zonal CARGs), and it is planned that they
+will use mapping tools for natural resource and land management.
+The basic methodology of the Lukolela REDD+ Project is to strengthen the organizational structure of
+territorial areas and Decentralized Territorial Entities (DTEs) based on the model of local development
+committees (LDCs) and agriculture and rural management councils (CARGs) recommended by the
+Ministry of Rural Development. This strengthening will be achieved through the creation or regeneration
+of these institutions and their eventual official legal recognition. Traditional political structures, such as
+the elected members of future DTEs, will work closely with these institutions. The training of the LDCs
+will be organized and delivered by the Congolese NGO AMAR, which will be responsible for informing
+and encouraging communities to join the LDCs and then supporting the creation of these LDCs in each
+territory.
+These institutions will be responsible for formulating Natural Resource Management Plans (NRMPs) for
+village territories. These plans, which will be launched at the level of cultivated village territories up to
+sectors (DTEs), groupings (based on customary organization) and LCDs, will lead to a collective analysis
+of the evolution of natural resources and the factors of deforestation and forest degradation. They
+
+Page 15
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+15
+CCB v3.0, VCS v4.4
+result in the planning of appropriate measures to ensure that this evolution is sustainable over time
+while improving the living conditions of the populations.
+The methodology for implementing the Natural Resource Management Plans (NRMPs) includes:
+(i) The delimitation of the main types of vegetation cover using satellite images, validated in a
+participatory manner;
+(ii) Inventory of land use and tenure patterns;
+(iii) Creation of a mapped inventory of biodiversity and associated threats;
+(iv) Estimation of local communities' agricultural land needs and identification of expansion
+areas;
+(v) Participatory definition of actions to be taken in the areas concerned (savannah, forests,
+non-timber forest products, fisheries, flooded forests, infrastructure).
+These elements will be developed in a participatory manner to ensure that qualified representatives of
+all relevant groups participate in program meetings and that their specific interests are understood and
+addressed separately and specifically in the program. This includes women, youth, indigenous peoples,
+and vulnerable groups.
+The Project takes into account ongoing initiatives on georeferenced village lands, including the
+Rainforest Foundation UK's “Mapping for Rights” project.
+To achieve these results, it will be necessary to:
+a. Establish Councils for Agriculture and Rural Management (CARGs);
+b. Engage Local Implementing Agencies (LIAs), which will be local NGOs, to establish (or re-
+establish and georeference the boundaries of village cultivated plots;
+c. Train and equip these LIAs;
+d. Create Local Development Committees (LDCs), demarcate their plots and register them;
+e. Verify the socio-environmental compliance of these plans and conduct the necessary socio-
+environmental studies;
+f. Monitor and evaluate implementation.
+Benefits for the community:
+Strengthening community structures reinforces community organization and promote inclusive
+representation in institutions and the project. These LDCs also enable communities to create a
+forum for discussion on the development of their land. This will strengthen the representation
+of vulnerable groups and reduce discrimination and inequality.
+Climate and biodiversity:
+
+Page 16
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+16
+CCB v3.0, VCS v4.4
+The development of NRMPs will ensure the sustainable and efficient use of resources, enabling
+the protection and restoration of forest ecosystems and biodiversity by reducing pressure on
+their resources.
+In the long term, these measures will promote carbon storage and climate change mitigation.
+Component B: Institutional support.
+Decentralized government services need effective organization and adequate resources to fulfill their
+mission. The validation of management plans and, above all, the smooth implementation of
+agreements between LDCs are essential to improve the coordination and effectiveness of the teams
+from the three ministries responsible for village territories (agriculture, environment/forests, rural
+development).
+To implement this component, the Project plans to:
+a. Support the drafting and promulgation of regulations relating to the Agricultural Law of
+December 24, 2011, which provides for the creation of land advisory councils and their
+territorial entities at the primary level, implement the draft law recognizing CARG areas, support
+local development committees (LDCs), organize their functioning and provide support for the
+implementation of legal provisions relating to the creation and implementation (by the Ministry
+of Rural Development) of CARGs and LDCs;
+b. Align existing structures with the new regulations, for example by adopting recommendations
+based on the new law and providing training on the new responsibilities and functions arising
+from the law, particularly in the land sector;
+c. The Ministry of Environment needs assistance to improve its capacity to supervise forest
+management activities. Units within the Ministry of Rural Development and the provincial
+Ministry of Agriculture need to be able to register the status of relevant organizations (i.e.,
+LDCs) and provide relevant registration documents to interested parties;
+d. Establish a complaint and appeal mechanism, either by facilitating access to the courts or by
+improving the supervision of employees by their superiors;
+e. Strengthen decentralized services through training and the provision of equipment;
+f. Facilitate field missions in villages.
+Benefits for the community:
+Component B will strengthen public institutions, particularly in the agricultural sector. This
+strengthening will help preserve the long-term benefits of the project.
+Climate and biodiversity:
+The creation of LDCs promotes a local and sustainable governance framework for resource management.
+
+Page 17
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+17
+CCB v3.0, VCS v4.4
+Component C: Implementation of planned investments, as identified in the strategic management
+plans.
+This component is implemented through various means, including:
+(i) various forms of training (initial training, field schools, etc.);
+(ii) initial investment and provision of inputs;
+(iii) payment for results or Payment for Environmental Services (PES).
+Investments targets traditional smallholders who can benefit from the project on areas ranging from 5
+to 20 hectares for plantations and 50 to 100 hectares for protected areas. These farmers must have
+secure land rights and their land must be located in areas approved by the LDCs.
+Various investments are possible, including the development of agriculture in savannah areas
+(plantations, agroforestry, firebreaks), improving the sustainability of agroforestry, and protecting
+biodiversity-rich forests.
+Benefits for communities:
+Component C promotes community economic development by strengthening agricultural activities and
+infrastructure. These investments aim to improve the quality of life in villages and reduce poverty.
+Climate and biodiversity:
+Some of the planned activities have significant environmental benefits, including the development of
+agroforestry and the protection of savannahs against fires. These actions promote the return of
+biodiversity to areas severely degraded by fire. They also reduce pressure on forests by developing
+agricultural activities in the savannah.
+Component D: Other investments in LDCs
+LDCs can receive support in various areas such as co-management of fisheries, creation of fish ponds,
+and small-scale processing equipment.
+Biodiversity:
+Component D supports sustainable fishing practices and rational management of fish stocks. Fish
+stocks are now seriously threatened by population growth, which is putting severe pressure on stock
+renewal.
+Community:
+NGOs will provide support for the development of sustainable fishing activities.
+Component E: Development of value chains from perennial crops.
+The objective of this component is to strengthen or revitalize value chains for local products, particularly
+rubber, palm oil, coffee, and cocoa. This includes support and assistance to producers to improve the
+
+Page 18
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+18
+CCB v3.0, VCS v4.4
+value of their products, to facilitate the purchase of equipment, to support local processing centers, to
+promote trade routes, and to develop of fair trade certification. To achieve these objectives, the Project
+will sign agreements with downstream operators in the sector. These agreements will aim at identifying
+professional operators willing working at fair prices. These operators are: (i) cooperatives or producer
+associations, such as the one operating in the cocoa sector (see below); (ii) large private operators
+already present in the region (forest concessionaires or livestock farmers) who wish to diversify their
+activities; or (iii) private companies already established in the DRC and wishing to invest in the provinces
+of Équateur. The Project provides the necessary resources to identify these operators and co-finance their
+establishment in the region.
+Benefits for the community:
+The revitalization of the agricultural sectors and value chains will enable sustainable agricultural
+economic development for the populations.
+Climate and biodiversity:
+The development of more sustainable agricultural chains reduces pressure on resources and forests.
+Component F: Investments in infrastructure of common interest to restore connectivity between
+territories.
+Despite its extensive river network and the significant progress made since 2010 in terms of
+commercial vessel profitability and substantial investment in this area, entire provinces remain isolated
+because river boats remain a dangerous and slow means of transport, and trucks have difficulty
+accessing the province of Equateur. The following priorities have been identified in the area of
+transport:
+• Stricter regulation of river passenger transport and the equipment of these boats (spare
+engines, night lighting), as well as load control;
+• Completion and maintenance of commercial roads within concessions, including the
+reconstruction of wooden bridges where necessary;
+• Maintenance of the most important rural tracks leading to waterways and connecting the
+main towns in the Lukolela territory.
+Benefits for communities:
+The economic development of villages is severely hampered by their isolation. Restoring
+communication links would promote strong economic development and improve access to healthcare
+and education.
+Component G: Support for the most vulnerable communities.
+The Lukolela REDD+ Project will support microprojects for indigenous populations within the
+concession. The Project will ensure respect for the culture and traditions of Indigenous populations
+through a participatory and inclusive approach.
+
+Page 19
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+19
+CCB v3.0, VCS v4.4
+Benefits for the community:
+This component aims to support the most vulnerable communities while avoiding any negative impact
+on their way of life and traditions.
+Component H: Support for family planning
+The Project will support the permanent recruitment of local NGOs (one per territory) to promote, in close
+collaboration with the Ministry of Health, the following activities among the 4,000 farming households
+in the concession:
+• Information/awareness-raising on family planning methods with the support of opinion
+leaders (political, traditional and religious), combined with access to contraceptive methods.
+These family planning methods will also be extended to the prevention of Ebola and HIV/AIDS;
+• Education for young people, particularly girls, to promote access to employment and the
+setting of reasonable targets for the number of children per family.
+Benefits for the community:
+This aspect aims to reduce poverty and improve the health of populations through awareness and
+prevention.
+Benefits for climate and biodiversity :
+Awareness of family planning aims to prevent excessive population growth, which would increase
+pressure on forests.
+Based on Social and Biodiversity Impact Assessment Manual recommendations, the following change
+theories were developed :
+
+Page 20
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+20
+CCB v3.0, VCS v4.4
+Figure 2: Theory of change for communities - Lukolela REDD+ Project
+Figure 1: Theory of change for biodiversity - Lukolela REDD+ Project
+
+Page 21
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+21
+CCB v3.0, VCS v4.4
+2.1.18 Sustainable Development Contributions (VCS, 3.17)
+The DRC is committed to sustainable development within the framework of the 2030 Agenda for
+Sustainable Development and has adapted the Sustainable Development Goals (SDGs) established at
+the United Nations Conference on Sustainable Development (Rio+20 Conference). This 2030 Agenda
+comprises 17 global goals with 169 targets, measured using 232 specific indicators, which address the
+social, economic and environmental dimensions of sustainable development. In 2016, the DRC
+established the Congolese Observatory for Sustainable Development, a framework that monitors,
+evaluates and reports on the implementation of the SDGs. The DRC's strategy is based on an approach
+that integrates stakeholder awareness and the implementation of public policies with a strong focus on
+SDGs that incorporate the social dimension. The country also prioritizes the environmental dimension
+with a commitment to preserving its natural resources. The Lukolela REDD+ Project aims to contribute
+to these national priorities by promoting the achievement of SDGs that incorporate social and
+environmental dimensions.
+All SDGs integrated into the project are listed in the table below.
+Table 1: Sustainable Development Contributions
+Row number
+SDG target
+Net impact on SDG indicator Project’s indicators
+Sequential row
+number
+SDG Target number
+Indicate the project’s contribution to the SDG
+Indicator (implemented activities to increase or
+decrease)
+Brief description of the
+quantifiable impact of
+the project’s activities
+related to the SDG
+indicator, during the
+monitoring period.
+
+Page 22
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+22
+CCB v3.0, VCS v4.4
+1) 1.1. By 2030, eradicate extreme
+poverty for all people everywhere,
+currently measured as people
+living on less than $1.25 per day
+1.2. 1.2 By 2030, reduce at least by
+half the proportion of men,
+women and children of all ages
+living in poverty in all its
+dimensions as defined by each
+country
+1.3. 1.5 By 2030, enhance the
+resilience of the poor and other
+people in vulnerable situations to,
+and reduce their exposure to,
+extreme weather events and other
+economic, social and
+environmental shocks and
+disasters
+Reducing poverty is one of the DRC's key
+national priorities. The project contributes to
+this objective by promoting the development
+and diversification of economic activities,
+particularly in the agricultural sector. The
+development of these sustainable activities
+will strengthen community resilience to
+climate change through (i) the adoption of
+improved practices to increase food
+production and (ii) capacity building via
+trainings.
+By fostering income-generating
+opportunities, improving territorial
+connectivity, and supporting local
+governance through the creation of LDCs, the
+project enhances both the economic
+empowerment and social inclusion of
+isolated communities.
+- Number of ha of
+agroforest plantations
+(acacias-manioc);
+- Number of ha of
+perennial crops
+(coffee, cacao, rubber
+trees, palm oil) in
+forest areas ;
+- Number of woodland
+parcs developed
+- Number of trainings
+and technical support
+for the development of
+agricultural activities.
+- Number of LDCs
+created/rehabilitated
+in the villages of the
+concession
+
+Page 23
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+23
+CCB v3.0, VCS v4.4
+2)
+2.1 By 2030, end hunger and ensure that
+everyone, especially the poor and
+vulnerable, including infants, has access
+to safe, nutritious, and sufficient food all
+year round.
+2.3 By 2030, double the agricultural
+productivity and incomes of smallholder
+producers, in particular women,
+indigenous peoples, family farmers,
+pastoralists and fishers, including through
+ensuring equal access to land, other
+productive resources and inputs,
+knowledge, financial services, markets
+and opportunities for value addition and
+non-farm employment.
+2.4 By 2030, ensure sustainable food
+production systems and implement
+resilient agricultural practices that
+increase productivity and production,
+contribute to the preservation of
+ecosystems, strengthen resilience to
+climate change, extreme weather,
+drought, flooding and other disasters, and
+progressively improve land and soil
+quality.
+Reducing malnutrition is one of the DRC's
+priorities. Cases of malnutrition are
+particularly prevalent in isolated areas of the
+DRC where food supplies are unstable.
+The project aims to develop a sustainable
+food system for communities in the Lukolela
+concession. To achieve this, the project will
+work to support communities in developing
+sustainable and resilient agricultural
+systems. The project will target small-scale
+producers and provide them with access to
+training and technical support (provision of
+resistant varieties, development of nurseries)
+and PESs that will increase yields and
+income while promoting forest conservation.
+The project will support the development of
+agricultural value chains (training, provision
+of processing units, etc.) and thus enable the
+development of agricultural sectors and
+reduce hunger.
+The development of NRMPs will encourage
+reflection on land and resource use and the
+introduction of measures to make these
+actions more sustainable, such as the
+implementation of hunting management
+plans.
+Finally, the Project also aims to promote
+sustainable fishing by supporting NGOs. This
+will make fishing activities more sustainable
+and allow fish stocks to regenerate while
+meeting food needs.
+- Number of ha of
+agroforest plantations
+(acacias-manioc);
+- Number of ha of
+perennial crops
+(coffee, cacao, rubber
+trees, palm oil) in
+forest area;
+- Number of processing
+units installed and
+trainings organized;
+- Number of NRMPs
+developed;
+- Number of km of
+roads rehabilitated and
+bridges built to
+enhance connectivity.
+
+Page 24
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+24
+CCB v3.0, VCS v4.4
+3)
+3.1 By 2030, reduce the global maternal
+mortality ratio to less than 70 per
+100,000 live births
+3.2 By 2030, end preventable deaths of
+newborns and children under 5 years of
+age, with all countries striving to reduce
+neonatal mortality to no more than 12 per
+1,000 live births and under-5 mortality to
+no more than 25 per 1,000 live births
+3.3 By 2030, end the AIDS, tuberculosis
+and malaria epidemics, and combat
+hepatitis, water-borne diseases and other
+communicable diseases
+3.4 By 2030, reduce by one-third, through
+prevention and treatment, the premature
+mortality rate from non-communicable
+diseases and promote mental health and
+well-being
+The project aims to achieve this goal by
+working with local NGOs to run awareness
+campaigns on family planning and the
+prevention of communicable diseases (HIV,
+Ebola, etc.).
+In addition, the project plans to set up
+annual Local Development Funds that will be
+made available to communities, which will be
+able to decide how to use these funds,
+particularly for the renovation or construction
+of health infrastructure.
+-Number of households
+who have benefited
+from awareness
+programs on family
+planning, as well as
+the prevention of Ebola
+and HIV/AIDS;
+-Number of public
+infrastructure (health
+centers) financed by
+local development
+funds.
+
+Page 25
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+25
+CCB v3.0, VCS v4.4
+4)
+4.1 By 2030, ensure that all girls and
+boys complete a full cycle of free and
+quality primary and secondary education
+that is relevant and effective for learning
+4.2 By 2030, ensure that all girls and
+boys have access to quality early
+childhood development, care and pre-
+primary education that is inclusive and
+preparatory to primary education
+4.4 By 2030, substantially increase the
+number of youth and adults who have
+relevant skills, including technical and
+vocational skills, for employment, decent
+work, and entrepreneurship
+4.5 By 2030, eliminate gender disparities
+in education and ensure equal access for
+vulnerable persons, including persons
+with disabilities, indigenous peoples and
+children in vulnerable situations, to all
+levels of education and vocational
+training.
+The local development funds mentioned
+above will also enable the construction of
+schools at village levels.
+Throughout the project, particular attention
+will be paid to the integration of women and
+indigenous peoples in decision-making and
+participation in project activities.
+-Number of
+schools financed
+by local
+development
+funds;
+- Number of
+trainings
+organized.
+
+Page 26
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+26
+CCB v3.0, VCS v4.4
+5)
+5.1 End all forms of discrimination against
+women and girls worldwide
+5.2 Eliminate all forms of violence against
+women and girls, including trafficking and
+sexual exploitation, and other types of
+exploitation, in public and private life
+5.4 Recognize and value unpaid care and
+domestic work through public services,
+infrastructure, and social protection
+policies, and promote the sharing of
+responsibilities within the household and
+the family, in accordance with national
+contexts
+5.5 Ensure women’s full and equal
+participation and access to leadership
+positions at all levels of decision-making
+in political, economic, and public life
+Throughout the project, special attention will
+be paid to gender equality. The project aims
+to encourage inclusive representation,
+particularly of women and indigenous
+peoples. Thus, when the LDCs are created,
+the project will take care to include women in
+the committees to ensure their participation
+in the project's decision-making processes
+and activities. Special discussion time will be
+set aside for women so that they can express
+themselves.
+An impact assessment will be carried out by
+the project and will include an important
+dimension on women's safety, which will
+enable measures to be put in place to
+mitigate the risk of violence.
+The project will prioritize training for women
+and support gender equality and women's
+empowerment.
+- Number of LDCs
+created;
+7)
+7.2 By 2030, significantly increase the
+share of renewable energy in the global
+energy supply
+The Project provides support for the
+establishment of woodlots in villages. These
+woodlots aim to ensure a sustainable supply
+of charcoal, the main source of energy in the
+region, and to reduce pressure on natural
+forests.
+The Project will install bases in the
+concession which will be equipped with solar
+panels to provide electricity for basic needs.
+- Number of woodland
+parcs created;
+- Number of bases
+electrified.
+
+Page 27
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+27
+CCB v3.0, VCS v4.4
+8)
+8.2 Achieve high levels of economic
+productivity through diversification,
+technological upgrading and innovation,
+particularly in high value-added and labor-
+intensive sectors.
+8.3 Promote development policies that
+foster productive activities, decent job
+creation, entrepreneurship, creativity and
+innovation, and stimulate the growth of
+micro, small and medium-sized
+enterprises and facilitate their integration
+into the formal sector, including through
+access to financial services.
+8.4 By 2030, progressively improve global
+resource efficiency in consumption and
+production and strive for economic growth
+that does not cause environmental
+degradation, as set out in the 10-year
+framework of programs on sustainable
+consumption and production, with
+developed countries taking the lead.
+8.5 By 2030, achieve full and productive
+employment and decent work for all
+women and men, including young people
+and persons with disabilities, with equal
+pay for work of equal value.
+8.6 By 2020, significantly reduce the
+proportion of youth not in employment, in
+education or in training.
+The Project will create jobs in Lukolela with a
+team including experts and operational staff.
+In addition, the Project will provide training to
+strengthen community capacities while
+ensuring that discrimination is reduced.
+The Project will also support the
+development of agricultural value chains,
+which will lead to job creation in the long
+term.
+Finally, through community structuring
+activities, the project will support the
+development of representative and inclusive
+community governance structures that are
+conducive to community development and
+job creation in the long term.
+- Number of jobs
+created ;
+- Number of trainings
+in value chain and
+agricultural
+development.
+
+Page 28
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+28
+CCB v3.0, VCS v4.4
+10) 10.1 By 2030, through progressive
+measures, ensure that the income of the
+poorest 40 percent of the population
+increases more rapidly than the national
+average income, in a sustainable manner
+10.2 By 2030, empower all people and
+promote their social, economic and
+political inclusion, regardless of age,
+gender, disability, race, ethnicity, origin,
+religion or economic or other status
+The Project will aim to integrate all
+populations into activities and decision-
+making processes, with a particular focus on
+women, young people, and indigenous
+peoples.
+The creation of representative and inclusive
+LDC will enable vulnerable groups to be
+included in governance discussions.
+In addition, the Project plans to finance
+micro-projects reserved for indigenous
+populations.
+- Number of LDC
+created which include
+women, young and
+indigenous;
+-Number of micro-
+project financed.
+11)
+11.4 Strengthen efforts to protect and
+preserve the world's cultural and natural
+heritage.
+11.b By 2020, significantly increase the
+number of cities and human settlements
+adopting and implementing integrated
+policies and action plans toward
+inclusiveness, resource efficiency, climate
+change adaptation, mitigation and
+resilience, and develop and implement, in
+accordance with the Sendai Framework
+for Disaster Risk Reduction (2015-2030),
+comprehensive disaster risk management
+at all levels.
+The Project activities aim to preserve the
+natural heritage of the concession. This will
+notably enable a reduction in deforestation
+and the preservation of biodiversity in the
+forests of the Congo Basin.
+Furthermore, through its inclusive approach,
+the project also aims to protect the cultural
+heritage of local populations, with a
+particular focus on the traditions of
+indigenous peoples.
+The structuring of the environment will
+enable the establishment of an inclusive and
+representative governance framework that
+respects natural resources.
+- Number of LDCs
+created;
+- Number of NRMPs
+implemented ;
+- Number of ha of
+forests under
+conservation;
+- Number of hectares
+of High Conservation
+Value (HCV) areas
+protected.
+12) 12.2 By 2030, achieve sustainable
+consumption and production patterns
+12.8 By 2030, ensure that all people
+everywhere have knowledge and
+awareness of sustainable development
+and lifestyles that are in harmony with
+nature
+The creation of natural resource
+management plans with communities will
+promote sustainable and rational land and
+resource planning.
+In addition, training and structuring activities
+will incorporate an environmental dimension
+to raise awareness among local populations
+about global warming and the importance of
+forests.
+- Number of NRMPs
+implemented with the
+communities.
+
+Page 29
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+29
+CCB v3.0, VCS v4.4
+13)
+13.1 Strengthen resilience and adaptive
+capacity to climate-related hazards and
+natural disasters in all countries
+13.2 Integrate climate change measures
+into national policies, strategies, and
+planning
+13.3 Enhance education, awareness-
+raising and the capacity of individuals and
+institutions on climate change adaptation,
+mitigation, impact reduction and early
+warning systems
+13.b Promote capacity-building
+mechanisms for least developed countries
+and small island developing States to
+develop effective planning and
+management capabilities to address
+climate change, with a focus on women,
+youth, local communities and
+marginalized groups
+As demonstrated by the DRC's REDD+
+strategy developed in 2012, combating
+global warming and protecting its natural
+resources are priorities for the DRC.
+The Lukolela REDD+ Project will contribute to
+the implementation of measures to combat
+climate change and deforestation by
+reducing the main causes of unplanned
+deforestation and degradation. In addition, it
+will support the development of resilient and
+sustainable agricultural systems that will
+enable adaptation to climate change.
+The Project will also promote sustainable
+fishing and hunting to preserve biodiversity
+and its regeneration.
+All of the activities and training provided will
+also raise awareness among local
+communities about the importance of
+protecting forests and developing a
+sustainable and resilient system for the long
+term.
+The Project will also implement savannah
+protection activities that will enable the
+protection of savannahs and their
+biodiversity from fire and allow natural
+regeneration.
+- Number of ha of
+forest under
+conservation ;
+- Number of ha of
+savannah protected
+from fire;
+- Number of tons of
+carbon dioxide
+emissions avoided.
+
+Page 30
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+30
+CCB v3.0, VCS v4.4
+15) 15.1 By 2020, ensure the conservation,
+restoration and sustainable use of
+terrestrial and inland water ecosystems
+and their services, in particular forests,
+wetlands, mountains and arid lands, in
+accordance with international agreements
+15.2 By 2020, promote the sustainable
+management of all types of forests, end
+deforestation, restore degraded forests
+and significantly increase global
+afforestation and reforestation
+15.3 By 2030, combat desertification,
+restore degraded land and soil, including
+land affected by desertification, drought
+and floods, and strive to achieve land
+degradation neutrality.
+15.5 Take urgent action to reduce
+environmental degradation, halt
+biodiversity loss and, by 2020, protect
+threatened species and prevent their
+extinction
+15.9 By 2020, integrate the protection of
+ecosystems and biodiversity into national
+planning, development mechanisms,
+poverty reduction strategies and
+accounting
+15.a Mobilize financial resources from all
+sources and significantly increase them to
+preserve biodiversity and ecosystems and
+use them sustainably
+In the long term, the Project will help combat
+the factors driving deforestation and thus
+restore degraded ecosystems and their
+biodiversity. Preserving these rich, carbon-
+rich ecosystems effectively mitigates the
+effects of climate change. It promotes the
+resilience of ecosystems and their resources.
+The concession, located near the Tumba-
+Lediima reserve, has ecosystems rich in
+biodiversity (peat bogs, dense forest, etc.)
+that are vital to preserve.
+The Project is part of a long-term, sustainable
+vision that will enable the implementation of
+viable, sustainable systems that respect the
+forests and their resources. Agricultural
+activities developed in the savannahs will
+restore land degraded by fire. Forest
+conservation will enable the restoration of
+ecosystems and the return of biodiversity.
+-Number of ha under
+conservation ;
+-Number of ha of
+savannah protected
+from fire;
+-Number of hectares
+under HCV status
+protected.
+
+Page 31
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+31
+CCB v3.0, VCS v4.4
+16) 16.6 Build effective, accountable, and
+transparent institutions at all levels
+16.7 Ensure that decision-making is
+characterized by dynamism, openness,
+participation, and representation at all
+levels
+16.10 Ensure public access to information
+and protect fundamental freedoms, in
+accordance with national law and
+international agreements
+The core of the Lukolela REDD+ Project
+methodology consists of strengthening the
+organizational structure of local communities
+and decentralized territorial entities (DTEs)
+based on the model of LDCs and councils for
+agriculture and rural management (CARGs)
+recommended by the Ministry of Rural
+Development. This strengthening will be
+achieved through the establishment or
+organizational regeneration of these
+institutions and their eventual official legal
+recognition. These participatory governance
+models will be representative and inclusive,
+ensuring that there is no gender or ethnic
+discrimination.
+In addition, all stages will be accompanied by
+prior awareness-raising sessions and the
+obtaining of FPIC in order to guarantee the
+transparency of activities and the consent of
+the populations concerned.
+-Number of FPIC
+obtained
+-Number of LDC
+created
+-Number of
+institutional support of
+the CARG
+17) 17.1 Improve, in particular through
+international assistance to developing
+countries, the mobilization of domestic
+resources to strengthen national capacity
+for tax collection and other revenues
+The Project contributes to this objective by
+generating new fiscal revenues for the DRC
+through taxes, fees, and other contributions
+linked to carbon finance and land use. It
+supports the mobilization of domestic
+resources by contracting with local
+entrepreneurs, local NGOs, formalizing value
+chains, increasing taxable activities in rural
+areas, and strengthening national and local
+government capacity to capture revenue from
+forest and land-based sectors.
+-Amount of taxes paid
+to National
+Government.
+2.1.19 Implementation Schedule (CCB, G1.9)
+2.1.20 Risks to the Project (CCB, G1.10)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.1.21 Benefit Permanence (CCB, G1.11)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 32
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+32
+CCB v3.0, VCS v4.4
+2.1.22 Financial Sustainability (CCB, G1.12)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.2 Without-project Land Use Scenario and Additionality
+2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project
+(VCS, 3.13; CCB, G2.1)
+The Lukolela REDD+ Project was not implemented with the intent of artificially generating greenhouse
+gas (GHG) emissions for the purpose of their subsequent reduction, removal, or destruction. All historical
+and ongoing deforestation observed within the project area results from prevailing socio-economic
+drivers, demographic pressures, entirely independent of any project planning activities.
+The project area is situated within the Congo Basin rainforest ecosystem, characterized by dense tropical
+moist broadleaf forests exhibiting high biodiversity levels and significant carbon storage potential. This
+ecosystem is globally recognized as a critical biodiversity hotspot.
+Historically, the Lukolela concession was predominantly covered by intact and semi-intact tropical forests,
+which were used intermittently by local communities for subsistence activities, such as hunting,
+gathering, and small-scale shifting agriculture. Over previous decades, the area was formally allocated
+as a commercial logging concession and was subject to industrial-scale timber harvesting under
+regulated forestry operations. Nonetheless, even during its tenure as a logging concession, the area was
+under increasing pressure from unplanned deforestation and forest degradation caused by local
+community activities. These pressures — including slash-and-burn agriculture, charcoal production, and
+informal fuelwood extraction — have intensified in recent years, driven by rapid population growth and
+the lack of alternative livelihoods. Recognizing these escalating threats, the concession was acquired
+and converted into a conservation concession, shifting the focus toward mitigating deforestation
+dynamics in collaboration with local communities.
+Environmental conditions prior to project initiation reflect both the ecological richness of the region and
+the cumulative impacts of human activities. The project zone experiences a tropical humid climate with
+bimodal rainfall patterns, receiving an average annual precipitation of approximately 1,725 mm, and
+mean annual temperatures ranging from 24.3°C to 25.7°C (Fick, S.E. and Hijmans, R.J., 2017. WorldClim
+2: new 1 km spatial resolution climate surfaces for global land areas. International Journal of Climatology,
+37(12): 4302-4315). Hydrologically, the landscape is interlaced with numerous small rivers and
+tributaries of the Congo River, causing seasonal flooding in certain lowland areas. The terrain is
+moderately undulating, with elevations between 295 and 463 meters above sea level, averaging
+approximately 350 meters (Copernicus DEM, ESA/European Commission, 2020). Soils are predominantly
+classified as Ferralsols (FRx), typical of humid tropical forest regions. They are characterized by low
+fertility and high acidity, making them suitable only for short-term cultivation following forest clearing
+(Batjes NH 2007. SOTER-based soil parameter estimates for Central Africa - DR of Congo, Burundi and
+Rwanda (SOTWIScaf, version 1.0). Report 2007/02, ISRIC - World Soil Information, Wageningen).
+
+Page 33
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+33
+CCB v3.0, VCS v4.4
+Vegetation within the project area consists largely of closed-canopy primary forest, while the surrounding
+landscapes include villages and subsistence agricultural plots.
+In the absence of the Lukolela REDD+ Project, unplanned deforestation would be expected to continue
+across the concession. The primary drivers would remain the expansion of slash-and-burn agriculture
+due to increasing population pressure and land scarcity; growing charcoal production to satisfy regional
+energy demands; informal timber extraction for local consumption and small-scale trade; and
+infrastructure development proceeding without integrated land-use planning. Without intervention, these
+trends are anticipated to result in progressive forest loss and fragmentation, leading to significant
+declines in carbon stocks and threatening biodiversity. These baseline dynamics have been modeled and
+quantified in the baseline scenario, capturing the continuation of the conditions existing prior to the
+project start.
+As the baseline scenario aligns with the ongoing land-use dynamics existing prior to the start of the
+project, further details are provided in Section 3.1.4.
+2.2.2 Most-Likely Scenario Justification (CCB, G2.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.2.3 Community and Biodiversity Additionality (CCB, G2.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.2.4 Benefits to be used as Offsets (CCB, G2.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3 Safeguards and Stakeholder Engagement
+2.3.1 Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.2 Stakeholder Descriptions (VCS, 3.18, 3.19; CCB, G1.6, G1.13)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.3 Stakeholder Access to Project Documents (VCS, 3.18, 3.19; CCB, G3.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 34
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+34
+CCB v3.0, VCS v4.4
+2.3.4 Dissemination of Summary Project Documents (VCS, 3.18, 3.19; CCB, G3.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.5 Informational Meetings with Stakeholders (VCS, 3.18, 3.19; CCB, G3.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.6 Risks from the Project and No Net Harm (VCS, 3.18, 3.19)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.7 Community Costs, Risks, and Benefits (CCB, G3.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.8 Information to Stakeholders on Validation and Verification Process (VCS, 3.18.6,
+3.19; CCB, G3.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.9 Site Visit Information and Opportunities to Communicate with Auditor (VCS,
+3.18.6; CCB, G3.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.10 Stakeholder Consultations (VCS, 3.18; CCB, G3.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.11 Continued Consultation and Adaptive Management (VCS, 3.18; CCB, G3.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.12 Stakeholder Consultation Channels (CCB, G3.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 35
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+35
+CCB v3.0, VCS v4.4
+2.3.13 Stakeholder Participation in Decision-Making and Implementation (VCS, 3.18,
+3.19; CCB, G3.6)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.14 Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.15 Feedback and Grievance Redress Procedure (VCS, 3.18.4; CCB, G3.8)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.16 Accessibility of the Feedback and Grievance Redress Procedure (VCS, 3.19;
+CCB, G3.8)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.17 Worker Training (VCS, 3.19; CCB, G3.9)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.18 Community Employment Opportunities (VCS, 3.19.13; CCB, G3.10)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.3.19 Occupational Safety Assessment (VCS, 3.19; CCB, G3.12)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4 Management Capacity
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.1 Project Governance Structures (CCB, G4.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.2 Required Technical Skills (VCS, 3.19; CCB, G4.2)
+
+Page 36
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+36
+CCB v3.0, VCS v4.4
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.3 Management Team Experience (VCS, 3.19; CCB, G4.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.4 Project Management Partnerships and Team Development (VCS, 3.19; CCB,
+G4.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.5 Financial Health of Implementing Organization(s) (CCB, G4.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.6 Avoidance of Corruption and Other Unethical Behavior (VCS, 3.19; CCB, G4.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.4.7 Commercially Sensitive Information (VCS, 3.5.2 – 3.5.4; CCB Rules, 3.5.13 – 3.5.14)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5 Legal Status and Property Rights
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.1 National and Local Laws (VCS, 3.1, 3.6. 3.7, 3.14, 3.18, 3.19; CCB, G5.6)
+The DRC has been committed to and has supported the REDD+ process since 2008, as evidenced by its
+early selection in the Forest Investment Program (FIP). The FIP is part of the national REDD+ process and
+serves as the primary source of funding to enable the country to enter an investment phase, undertake
+the large-scale operational deployment of REDD+, and launch the first sectoral transformation program
+in 2015. In 2012, the government adopted a national REDD+ strategy 3, which outlines how it can meet
+its long-term development aspirations through a green economy. This strategy aims to stabilize forest
+cover across two-thirds of the country’s area by 2030 and maintain it thereafter. More recently, the
+government has developed a large-scale REDD+ program for results-based payments in the Mai Ndombe
+3 « Stratégie-cadre Nationale REDD+_RDC_Résumé pr Décideurs_2012.pdf ».
+
+Page 37
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+37
+CCB v3.0, VCS v4.4
+province, with the goal of having a significant impact on the climate and delivering crucial development
+benefits, while generating unprecedented learning for the FCPF Carbon Fund.
+The Project is aligned with the ambitious goals of the FIP and draws inspiration from the actions
+implemented in Mai Ndombe aimed at establishing a green development program.
+Throughout the Project period, Taranis Operations Limited (Project Proponent), Taranis Congo
+(concession owner) and The Shared Wood Company Kongo (Project operator) will ensure that the Project
+and an all the activities are carried out in accordance with national and international regulations. The
+Lukolela REDD+ Project complies with all applicable local, district, and national laws, regulations, and
+standards. Within the project area, none of the proposed project activities violates any law.
+Sector Laws and legal text Project compliance
+Local governance Legal text:
+- Law No. 08/012 of July 31, 2008, on fundamental
+principles relating to the free administration of the
+provinces;
+Regulatory text:
+- Ministerial Decree No. 034/CAB/MIN/ECNEF/2006 of
+October 2, 2006, on the composition, organization, and
+functioning of Provincial Forest Advisory Councils;
+The Project learned about the
+structure of local governance and
+presented its future activities to
+provincial authorities.
+Concession right Legal text :
+- Law No. 011/2002, of 29 August 2002, sets forth the rules
+applicable to the conservation, exploitation and
+development of forestry resources in all national territory
+(Forestry Code)
+- Law No. 73-021 of July 20, 1973, on the general regime
+governing property, land and real estate, and the regime
+governing securities, as amended and supplemented by Law
+No. 80-008 of July 18, 1980.
+Regulatory text :
+- Decree No. 011/27 of May 20, 2011, establishing specific
+rules for the allocation of conservation forest concessions;
+- Decree No. 14/018 of August 2, 2014, establishing the terms
+and conditions for the allocation of forest concessions to
+local communities;
+Taranis Congo has obtained the
+rights to conservation concession
+No. 03/24 in accordance with the
+legal procedure for the transfer of
+conservation rights and the
+signing of the conservation
+concession agreement with the
+DRC government.
+In addition, Taranis Congo
+undertakes to pay all taxes
+related to the concession.
+
+Page 38
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+38
+CCB v3.0, VCS v4.4
+- Decree No. 09/08, of 8 April 2008 setting out the
+procedure for the award of exploitation, conservation and
+other concessions amended by Decree No. 011/25 of May
+20, 2011;
+- Ministerial Order No. 008/CAB/MIN/ECN-T/2008 and No.
+082/CAB/MIN/FINANCES/2008 setting the rates of duties,
+taxes, and fees to be levied on forestry activities at the
+initiative of the Ministry of the Environment, Nature
+Conservation, and Tourism;
+- Ministerial Order No. 022/CAB/MIN/ECN-T/15/Jeb/2008,
+of 7 August 2008, as amended by Ministerial Order No.
+083/CAB/MIN/ECN-T/11/BNME/2013, of 30 September
+2013, setting out the procedure of authorization for the
+transfer, lease, assignment and donation of forestry
+concessions (Ministerial Order 022/CAB/MIN/ECN-
+T/15/Jeb/2008).
+REDD+ and
+environmental
+project in DRC
+Legal text :
+- Law No. 011/2002, of 29 August 2002, sets forth the rules
+applicable to the conservation, exploitation and
+development of forestry resources in all national territory
+(Forestry Code).
+- Law No. 11/009 of July 9, 2011, on fundamental principles
+relating to environmental protection, modified and completed
+by the Ordinance-Law No.23/007 of March 3, 2023;
+- Law No. 14/003 of February 11, 2014, on nature
+conservation modified and completed by the Law No.24/020
+of December 30, 2024.
+Regulatory text :
+- Decree No. 14/019 of August 2, 2014, establishing the rules
+for the operation of procedural mechanisms for
+environmental protection;
+- Decree No. 13/015 of 29 May 2013 regulating classified
+installations," which in its Article 11, paragraph 2, makes the
+issuance of any license to operate a classified installation
+conditional on the prior completion of an Environmental and
+Social Impact Assessment, in accordance with Article 21 of
+"Law No. 11/009 of 9 July 2011 laying down the fundamental
+principles relating to environmental protection;
+Taranis Congo and sWc Kongo,
+acting on behalf of Taranis
+Operations Limited, will ensure
+that the project complies with the
+legal framework for REDD+
+projects in the DRC. The Project
+will be subject to the
+homologation process and the
+necessary studies will be carried
+out, including the approval and
+implementation of REDD+
+projects with the obtention of the
+“FPIC” of local communities and
+an environmental and social
+impact assessment, which will be
+validated by the Congolese
+environmental agency in order to
+obtain environmental
+certification.
+In addition, the terms for
+distributing the State's share of
+the proceeds from the sale of
+carbon credits were set out in the
+collaboration agreement signed
+
+Page 39
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+39
+CCB v3.0, VCS v4.4
+- Decree 09/40 of November 26, 2009, on the creation,
+composition, and organization of the structure for
+implementing the process of reducing emissions from
+deforestation and forest degradation, abbreviated as
+“REDD”;
+- Ministerial Order No.
+047/CAB/MIN/EDD/AA/MML/05/2018, of 9 May 2018 on
+the homologation process of the REDD+ investments
+(REDD+ Homologation Regulations);
+- Interministerial Decree No. 006/CAB/MINETAT-
+MIN/EDD/EBM/TSB/02/2023 and No. 120/CAB/MIN.
+FINANCES/2023 of September 15, 2023, establishing the
+distribution of the State's share of the profits from the sale
+of carbon credits;
+- Ministerial Decree number 043/CAB/MIN/ECN-EF/2006 of
+December 8, 2006 bearing provisions related to
+environmental and social assessment obligations of projects
+in the DRC;
+- Ministerial Decree number 044/CAB/MIN/ECN-EF/2006 of
+December 8, 2006 creating the organization and functioning
+of the Groupe d'études environnementales du Congo (GEEC)
+[the Environmental Studies Group of the Congo].
+- Interministerial Decree No. 006/CAB/MIN/EDD/2020 and
+No. CAB/MIN/FINANCES/2020/069 of July 24, 2020,
+setting the rates of duties, taxes, and fees to be collected
+on the initiative of the Ministry of Environment and
+Sustainable Development in relation to fauna and flora.
+between Taranis Congo and the
+Democratic Republic of Congo in
+accordance with Interministerial
+Decree No. 006/CAB/MINETAT-
+MIN/EDD/EBM/TSB/02/2023
+and No. 120/CAB/MIN.
+FINANCES/2023 of September
+15, 2023.
+Biodiversity,
+hunting and
+agriculture
+Biodiversity and hunting :
+- Law No. 82-002 of May 28, 1982, regulating hunting;
+- Ministerial Order No. 020/CAB/MIN/ECN-EF/2006 of May
+23, 2006, approving the list of protected animal species in
+the Democratic Republic of Congo;
+- Decree No. 014/CAB/MIN/ENV/2004 of April 29, 2004 on
+measures to implement Law No. 82-002 of May 28, 1982
+regulating hunting;
+The Project will ensure
+compliance with laws relating to
+hunting, agriculture, and
+biodiversity for all related
+activities carried out in the
+concessions.
+
+Page 40
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+40
+CCB v3.0, VCS v4.4
+- Ministerial Order No. CAB/MIN/AFFET/276/2002, of 5
+November 2002 listing protected species.
+- Agriculture :
+- Law number 11/022 of December 24, 2011 bearing
+fundamental principles related to agriculture gives rise to the
+Agricultural Code.
+Others The Lukolela REDD+ Project is also required to comply with the
+following legal and regulatory texts:
+- Law No. 14/011 of 17 June 2014 regulating the electricity
+sector in the Democratic Republic of Congo.
+- "Law No. 15/026 of 31 December 2015 concerning water
+management.
+- Decree-Law No. 081 of 2 July 1998 on the territorial and
+administrative organization of the Democratic Republic of
+Congo.
+The Project will ensure
+compliance with all other laws
+applicable to the activities carried
+out in the concession.
+Other multilateral environmental agreements have been signed or ratified by the DRC, and the Project
+will also ensure compliance with the following provisions:
+- The Convention on Biological Diversity (June 5, 1992); - The United Nations Framework
+Convention on Climate Change (June 4, 1992);
+- The United Nations Convention to Combat Desertification (October 17, 1995);
+- The Convention on International Trade in Endangered Species (CITES) (March 3, 1973);
+- The Convention on Wetlands of International Importance, especially as Waterfowl Habitat, or
+RAMSAR (February 2, 1971);
+- The Convention Concerning the Protection of the World's Cultural and Natural Heritage
+(November 23, 1972);
+- The Convention on the Conservation of Migratory Species of Wild Animals, Bonn, June 23,
+1979;
+- The International Plant Protection Convention, signed in Rome on December 6, 1951;
+- The African Convention on the Conservation of Nature and Natural Resources, Algiers,
+September 15, 1968;
+- The Cartagena Protocol on Biosafety to the Convention on Biological Diversity (2000);
+
+Page 41
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+41
+CCB v3.0, VCS v4.4
+- The Vienna Convention for the Protection of the Ozone Layer and the Montreal Protocol on
+Substances that Deplete the Ozone Layer (1987) as amended;
+- The Phyto-Sanitary Convention for Africa, signed Kinshasa, on September 13, 1975;
+- The Stockholm Convention on Persistent Organic Pollutants (2001);
+- The Rotterdam Convention on the Prior Informed Consent Procedure for Certain Hazardous
+Chemicals and Pesticides in International Trade (1999);
+- The Vienna Convention for the Protection of the Ozone Layer and the Montreal Protocol on
+Substances that Deplete the Ozone Layer (1987) as amended;
+- The Kyoto Protocol to the United Nations Framework Convention on Climate Change, Kyoto,
+Japan (1997);
+- The Paris Agreement, Paris, Fance (2015).
+2.5.2 Relevant Laws and Regulations Related to Worker’s Rights (VCS, 3.18.2; CCB,
+G3.11)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.3 Human Rights (VCS, 3.19)
+2.5.4 Indigenous Peoples and Cultural Heritage (VCS, 3.18, 3.19)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.5 Statutory and Customary Property Rights (VCS, 3.18, 3.19; CCB, G5.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.6 Recognition of Property Rights (VCS, 3.7, 3.18, 3.19; CCB, G5.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.7 Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.8 Benefit Sharing Mechanisms (VCS, 3.18, 3.19;)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 42
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+42
+CCB v3.0, VCS v4.4
+2.5.9 Property Rights Protection (VCS, 3.18, 3.19; CCB, G5.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.10 Illegal Activity Identification (VCS, 3.19; CCB, G5.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.11 Ongoing Disputes (VCS, 3.18, 3.19; CCB, G5.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.12 Approvals (CCB, G5.7)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.13 Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB
+G5.9)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.5.13.1 No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity
+under another GHG program, or any other form of community, social, or biodiversity unit or
+credit?
+☐ Yes ☒ No
+If yes, provide required evidence of no double issuance as outlined by the VCS Standard and
+the CCB Standards. Include all relevant information about the community, social, or biodiversity
+credit.
+2.5.13.2 Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+If yes, provide the registration number and the date of project inactivity under the other GHG
+program.
+Is the project active under the other program?
+
+Page 43
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+43
+CCB v3.0, VCS v4.4
+☐ Yes ☒ No
+Project proponents, or their authorized representative, must attest that the project is no longer
+active in the other GHG program in the Registration Representation.
+2.5.13.3 Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+If yes, provide the program name(s), reason(s) and date for the rejection, justification of
+eligibility under the VCS Program, and any other relevant information.
+2.5.14 Double Claiming, Other Forms of Credit, and Scope 3 Emissions (VCS, 3.24)
+2.5.14.1 No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+Are project reductions and removals or project activities also included in an emissions trading
+program or binding emission limit? See the VCS Program Definitions for definitions of
+emissions trading program and binding emission limit.
+☐ Yes ☒ No
+If yes, provide all required evidence of no double claiming as outlined by the VCS Standard.
+2.5.14.2 No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-
+related environmental credit system? See the VCS Program Definitions for definition of GHG-
+related environmental credit system.
+☐ Yes ☒ No
+If yes, provide all required evidence of no double claiming as outlined by the VCS Standard.
+2.5.14.3 Supply Chain (Scope 3) Emissions
+Do the project activities affect the emissions footprint of any product(s) (goods or services) that
+are part of a supply chain?
+☐ Yes ☒ No
+If yes:
+Is the project proponent(s) or authorized representative a buyer or seller of the product(s)
+(goods or services) that are part of a supply chain?
+☐ Yes ☐ No
+
+Page 44
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+44
+CCB v3.0, VCS v4.4
+If yes:
+Has the project proponent(s) or authorized representative posted a public statement on their
+website saying, “Carbon credits may be issued through Verified Carbon Standard project
+[project ID] for the greenhouse gas emission reductions or removals associated with [project
+proponent or authorized representative organization name(s)] [name of product(s) whose
+emissions footprint is changed by the project activities].”?
+☐ Yes ☐ No
+If yes to all:
+Provide evidence of the public statement. Evidence must be provided in this section or in an
+appendix.
+2.6 Additional Information Relevant to the Project
+2.6.1 Leakage Management (VCS, 3.11, 3.15)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+2.6.2 Further Information
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3 CLIMATE
+3.1 Application of Methodology
+3.1.1 Title and Reference of Methodology (VCS, 3.1)
+Type (methodology, tool,
+module)
+Reference ID (if
+applicable) Title Version
+Methodology VM0007 REDD+ Methodology Framework (REDD+
+MF) 1.8
+Tool VT0001
+Tool for the Demonstration and Assessment
+of Additionality in VCS Agriculture, Forestry
+and Other Land Use (AFOLU) Project
+Activities
+3.0
+
+Page 45
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+45
+CCB v3.0, VCS v4.4
+Module VMD0001
+Estimation of carbon stocks in the above-
+and belowground biomass in live tree and
+non-tree pools (CP-AB)
+1.1
+Module VMD0007
+Estimation of baseline carbon stock
+changes and GHG emissions from
+unplanned deforestation and unplanned
+wetland degradation (BL-UP)
+3.3
+Module VMD0010
+Estimation of emissions from activity
+shifting for avoided unplanned
+deforestation and avoiding unplanned
+wetland degradation (LK-ASU)
+1.2
+Module VMD0013 Estimation of GHG emissions from biomass
+and peat burning (E–BPB) 1.2
+Module VMD0015 Methods for monitoring of GHG emissions
+and removals (M-REDD) 2.2
+Module VMD0016 Methods for stratification of the project
+area (X-STR) 1.2
+Module VMD0017 Estimation of uncertainty for REDD project
+activities (X-UNC) 2.2
+Tool NPRT AFOLU Non-Permanence Risk Tool 4.2
+3.1.2 Applicability of Methodology (VCS, 3.1)
+Reference
+ID/Title Applicability condition Justification of conformance
+VM0007 [1]
+Land in the project area has
+qualified as forest for at least
+the 10 years prior to the
+project start date. Mangroves
+excluded from height
+requirement.
+Land in the project area has qualified as forest
+for at least the 10 years (i.e. before 2014) prior
+to the project start date (2025), as confirmed by
+the Joint Research Centre (JRC) Tropical Moist
+Forest (TMF) dataset4, which serves as the
+forest benchmark map. No mangroves are
+present in the project area.
+4 C. Vancutsem, F. Achard, J.-F. Pekel, G. Vieilledent, S. Carboni, D. Simonetti, J. Gallego,
+L.E.O.C. Aragão, R. Nasi. Long-term (1990-2019) monitoring of forest cover changes in the
+humid tropics. Science Advances 2021
+
+Page 46
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+46
+CCB v3.0, VCS v4.4
+VM0007 [2]
+Where land within the project
+area is peatland or tidal
+wetlands and emissions from
+the SOC pool are deemed
+significant, the relevant WRC
+modules are applied alongside
+other relevant modules
+Peatlands have been identified in portions of the
+project area using peat thickness and extent
+data provided by Crezee et al. (2022)5. In
+accordance with VM0007 requirements, a
+significance assessment of potential Soil
+Organic Carbon (SOC) emissions from these
+peat areas has been conducted using the test
+described in Annex 1 of VM0007. The results
+demonstrated that the anticipated SOC
+emissions are deemed not significant (de
+minimis). As a result, the Wetlands Restoration
+and Conservation (WRC) modules are not
+applied
+VM0007 [3]
+Baseline deforestation is
+unplanned (AUDef) or planned
+(APDef).
+The baseline deforestation is unplanned
+(AUDef), primarily driven by shifting agriculture,
+charcoal production, and fuelwood collection.
+VM0007 [4]
+Flooding agricultural lands or
+intensifying livestock
+production via feed-lots or
+manure lagoons for leakage
+prevention is not allowed.
+Project activities do not involve flooding
+agricultural lands or livestock intensification.
+Proposed land uses include agroforestry and
+low-intensity subsistence agriculture.
+VM0007 [5]
+Baseline agents of
+deforestation: clear land for
+tree harvesting or small-scale
+ag., lack legal right to deforest,
+and are residents or
+immigrants.
+Baseline agents are local households practicing
+slash-and-burn agriculture without formal land
+tenure.
+VM0007 [6] Post-deforestation land use is
+reforestation
+Not applicable. The baseline post-deforestation
+land use is agricultural expansion, not
+reforestation.
+VT0001 [1]
+AFOLU activities same or
+similar to the proposed activity
+must not violate any
+applicable law, even if not
+enforced.
+All AFOLU activities implemented in the project
+comply with national and provincial laws of the
+Democratic Republic of Congo, including
+forestry, land tenure, and environmental
+regulations. Legal compliance has been
+assessed and documented in the legal
+compliance section.
+VT0001 [2]
+Use of this tool requires the
+baseline methodology to justify
+the most plausible baseline
+scenario with a stepwise
+approach.
+The REDD baseline scenario has been
+developed following the stepwise approach
+outlined in the VCS guidance and REDD-MF
+methodology, where multiple alternatives were
+evaluated before selecting the most plausible
+baseline scenario.
+VMD0001 [1] This module is applicable to all
+forest types and age classes.
+The module is applicable as the project area
+comprises tropical moist forests.
+5 Crezee, B., Dargie, G.C., Ewango, C.E.N. et al. Mapping peat thickness and carbon stocks of
+the central Congo Basin using field data. Nat. Geosci. 15, 639–644 (2022)
+
+Page 47
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+47
+CCB v3.0, VCS v4.4
+VMD0007 [1]
+Applicable for estimating
+baseline emissions from
+unplanned deforestation in
+forest land converting to non-
+forest land. Landscape can be
+mosaic, transition, or frontier.
+The module applies as the project baseline
+includes unplanned deforestation with patterns
+matching transition configurations, as evidenced
+by historical spatial analysis of deforestation.
+VMD0007 [2]
+Baseline agents: (i) clear land
+for settlements, agriculture,
+ranching or aquaculture (not
+large-scale); (ii) lack legal right
+to deforest; (iii) are residents
+or immigrants in the reference
+region.
+Baseline deforestation agents in the reference
+region are primarily smallholder farmers and
+charcoal producers. They operate without legal
+rights to clear land and are either local residents
+or migrants.
+VMD0010 [1]
+Applicable for estimating
+carbon stock changes and
+GHG emissions from displaced
+activities causing
+deforestation or wetland
+degradation outside the
+project area.
+The project applies this module to estimate
+carbon stock changes and GHG emissions from
+potential displacement of deforestation
+activities outside the project area.
+VMD0010 [2]
+Activities subject to
+displacement include
+conversion of forest land to
+grazing/cropland/other land
+uses, or conversion of
+intact/partially degraded
+wetlands to drained/degraded
+wetlands.
+Potential displaced activities include primarily
+the conversion of forest land to cropland, driven
+by local agricultural expansion pressures.
+VMD0010 [3]
+Mandatory if module BL-UP is
+used to define the baseline ;
+full compliance with BL-UP
+applicability conditions
+required.
+Module BL-UP is used in this project. All
+associated applicability conditions are met.
+VMD0013 [1]
+Applicable to REDD project
+activities with emissions from
+biomass burning.
+Biomass burning could occur in the baseline
+due to slash-and-burn agriculture and
+occasional uncontrolled fires. Inclusion of fire
+emissions in the baseline is optional under this
+module. The project is evaluating whether to
+include these emissions in baseline accounting
+or conservatively exclude them.
+VMD0015 [1]
+Strata as defined in baseline
+modules are fixed and may not
+be changed without baseline
+revision.
+Baseline strata differentiating mineral soils and
+peatlands have been established during initial
+project design under the REDD+ MF
+methodology. No changes will occur unless a
+formal baseline revision is undertaken.
+VMD0015 [2] Requirements for logging
+activities
+Not applicable. No logging activities are planned
+within the project boundary.
+VMD0016 [1] Module must be used to
+delineate peat vs non-peat
+Peat vs. non-peat zones have been delineated
+using peat thickness and extent data from
+
+Page 48
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+48
+CCB v3.0, VCS v4.4
+and stratify peat by depth and
+emission characteristics
+unless SOC emissions are de
+minimis.
+Crezee et al. (2022). An assessment of the
+significance of SOC emissions was conducted
+following the test described in Annex 1 of
+VM0007, which determined that anticipated
+SOC emissions are de minimis in the context of
+the methodology.
+VMD0017 [1]
+Mandatory module when using
+REDD+ MF methodology,
+applicable for estimating
+uncertainty in
+emissions/removals from
+REDD and WRC activities.
+The project uses the REDD+ MF methodology,
+therefore application of VMD0017 is mandatory.
+The project complies with this requirement.
+VMD0017 [2]
+Covers uncertainties in
+deforestation/degradation
+rates, carbon pool stock
+estimates and changes, peat
+emissions, and project
+emissions.
+The project’s uncertainty assessment includes
+deforestation rates, carbon stock estimates, and
+project emissions, ensuring that all parameters
+required by the module are covered.
+VMD0017 [3]
+If uncertainty value is
+unknown or not easily
+calculable, a justified
+conservative estimate can be
+used, including 0% if
+indisputable.
+Where field data is not available, the project
+uses conservative estimates based on peer-
+reviewed literature and IPCC defaults.
+VMD0017 [4]
+A 95% confidence interval with
+a half-width ≤ 15% of the
+recorded value must be
+targeted, particularly for
+carbon stock measurements.
+The sampling design for forest carbon stocks
+inventory and estimation targets a 95%
+confidence level and ≤15% relative precision.
+Random sampling, sample size optimization,
+and QA/QC procedures support this objective, in
+accordance with REDD+ MF requirements.
+3.1.3 Project Boundary (VCS, 3.12)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+Define the project boundary and identify the relevant GHG sources, sinks, and reservoirs for
+the project and baseline scenarios (including leakage if applicable). Add rows as needed.
+Source Gas Included? Justification/explanation
+Baseline
+Source 1
+CO2
+CH4
+N2O
+
+Page 49
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+49
+CCB v3.0, VCS v4.4
+Source Gas Included? Justification/explanation
+Other
+Source 2
+CO2
+CH4
+N2O
+Other
+Project
+Source 1
+CO2
+CH4
+N2O
+Other
+Source 2
+CO2
+CH4
+N2O
+Other
+Provide a diagram or map of the project boundary, showing clearly the physical locations of the
+various installations or management activities taking place as part of the project activity based
+on the description provided in Section 2.1.1 (Description of the Project Activity) above.
+Include in the diagram or map the locations of where the various measures are taking place,
+and any reference areas and leakage belts.
+3.1.4 Baseline Scenario (VCS, 3.13)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.1.5 Additionality (VCS, 3.14)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.1.5.1 Regulatory Surplus (VCS, 3.14)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 50
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+50
+CCB v3.0, VCS v4.4
+3.1.5.2 Additionality Methods (VCS, 3.14)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.1.6 Methodology Deviations (VCS, 3.20)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.2 Quantification of Estimated GHG Emission Reductions and Removals
+3.2.1 Baseline Emissions (VCS, 3.15)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.2.2 Project Emissions (VCS, 3.15)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.2.3 Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15,
+4.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.3 Monitoring
+3.3.1 Data and Parameters Available at Validation (VCS, 3.16)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.3.2 Data and Parameters Monitored (VCS, 3.16)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.3.3 Monitoring Plan (VCS, 3.16, 3.20)
+
+Page 51
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+51
+CCB v3.0, VCS v4.4
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.3.4 Dissemination of Monitoring Plan and Results (VCS, 3.18; CCB, CL4.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.4 Optional Criterion: Climate Change Adaptation Benefits
+3.4.1 Regional Climate Change Scenarios (CCB, GL1.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.4.2 Climate Change Impacts (CCB, GL1.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+3.4.3 Measures Needed and Designed for Adaptation (CCB, GL1.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4 COMMUNITY
+4.1 Without-Project Community Scenario
+4.1.1 Descriptions of Communities at Project Start (CCB, CM1.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.1.2 Interactions between Communities and Community Groups (VCS, 3.19; CCB,
+CM1.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.1.3 High Conservation Values (CCB, CM1.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 52
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+52
+CCB v3.0, VCS v4.4
+4.1.4 Without-Project Scenario: Community (CCB, CM1.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.2 Net Positive Community Impacts
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.2.1 Expected Community Impacts (CCB, CM2.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.2.2 Negative Community Impact Mitigation (VCS, 3.19; CCB, CM2.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.2.3 Net Positive Community Well-Being (VCS, 3.19; CCB, CM2.3, GL1.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.2.4 High Conservation Values Protected (CCB, CM2.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.3 Other Stakeholder Impacts
+4.3.1 Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB, CM3.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.3.2 Mitigation of Negative Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB,
+CM3.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.3.3 Net Impacts on Other Stakeholders (VCS, 3.18, 3.19; CCB, CM3.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 53
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+53
+CCB v3.0, VCS v4.4
+4.4 Community Impact Monitoring
+4.4.1 Community Monitoring Plan (CCB, CM4.1, CM4.2, GL1.4, GL2.2, GL2.3, GL2.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.4.2 Monitoring Plan Dissemination (CCB, CM4.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5 Optional Criterion: Exceptional Community Benefits
+4.5.1 Exceptional Community Criteria (CCB, GL2.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.2 Short-term and Long-term Community Benefits (CCB, GL2.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.3 Community Participation Risks (CCB, GL2.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.4 Marginalized and/or Vulnerable Community Groups (CCB, GL2.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.5 Net Impacts on Women (CCB, GL2.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.6 Benefit Sharing Mechanisms (CCB, GL2.6)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.7 Benefits, Costs, and Risks Communication (VCS, 3.18; CCB, GL2.7)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 54
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+54
+CCB v3.0, VCS v4.4
+4.5.8 Governance and Implementation Structures (CCB, GL2.8)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+4.5.9 Smallholders/Community Members Capacity Development (CCB, GL2.9)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5 BIODIVERSITY
+5.1 Without-Project Biodiversity Scenario
+5.1.1 Existing Conditions (VCS, 3.19; CCB, B1.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.1.2 High Conservation Values (CCB, B1.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.1.3 Without-project Scenario: Biodiversity (CCB, B1.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2 Net Positive Biodiversity Impacts
+5.2.1 Expected Biodiversity Changes (VCS, 3.19; CCB, B2.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.2 Mitigation Measures (VCS, 3.19; CCB, B2.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.3 Net Positive Biodiversity Impacts (CCB, B2.2, GL1.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+
+Page 55
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+55
+CCB v3.0, VCS v4.4
+5.2.4 High Conservation Values Protected (CCB, B2.4)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.5 Species Used (VCS, 3.19; CCB, B2.5, B2.6)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.6 Invasive Species (VCS, 3.19; CCB, B2.5)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.7 GMO Exclusion (CCB, B2.7)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.8 Inputs Justification (VCS, 3.19; CCB, B2.8)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.2.9 Waste Products (VCS, 3.19; CCB, B2.9)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.3 Offsite Biodiversity Impacts
+5.3.1 Negative Offsite Biodiversity Impacts (CCB, B3.1) and Mitigation Measures (CCB,
+B3.2)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.3.2 Net Offsite Biodiversity Benefits (VCS, 3.19; CCB, B3.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.4 Biodiversity Impact Monitoring
+5.4.1 Biodiversity Monitoring Plan (CCB, B4.1, B4.2, GL1.4, GL3.4)
+
+Page 56
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+56
+CCB v3.0, VCS v4.4
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.4.2 Biodiversity Monitoring Plan Dissemination (CCB, B4.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.5 Optional Criterion: Exceptional Biodiversity Benefits
+5.5.1 High Biodiversity Conservation Priority Status (CCB, GL3.1)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+5.5.2 Trigger Species Population Trends (CCB, GL3.2, GL3.3)
+This section is under development. In accordance with the VCS Registration and Issuance Process v4.6,
+all information will be finalized and included prior to the validation.
+Bibliography :
+1. CAFI (2012), « STRATÉGIE-CADRE NATIONALE REDD+ DE LA RÉPUBLIQUE DÉMOCRATIQUE DU
+CONGO », République Démocratique du Congo, https://www.cafi.org/sites/default/files/2022-
+04/Strate%CC%81gie-
+cadre%20Nationale%20REDD%2B_RDC_Re%CC%81sume%CC%81%20pr%20De%CC%81cide
+urs_2012.pdf , consulté le 19/03/2025
+
+Page 57
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+57
+CCB v3.0, VCS v4.4
+APPENDIX 1: STAKEHOLDER DESCRIPTION TABLE
+Use this appendix, if necessary, to identify stakeholders and fulfill Section 2.3.2 above. Modify the table, if necessary, to suit the project
+activities, or delete if not used.
+Stakeholder Rights, interest, and overall relevance to the project
+Identify communities and any
+community groups within them,
+any cross-cutting community
+groups, and list other
+stakeholders.
+
+Page 58
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+58
+CCB v3.0, VCS v4.4
+APPENDIX 2: PROJECT ACTIVITIES AND THEORY OF
+CHANGE TABLE
+Use this appendix, if applicable, to identify project activities and fulfill the requirements of Section 2.1.17 above. This is an example of just one
+method of representing the theory of change. Results chains/flow diagrams are another effective way to represent the theory o f change.
+Modify the table, if necessary, to suit the project activities, or delete if not used.
+Activity description Expected climate, community, and/or biodiversity Relevance to project’s
+objectives
+Outputs
+(short term)
+Outcomes
+(medium term)
+Impacts
+(long term)
+
+Page 59
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+59
+CCB v3.0, VCS v4.4
+APPENDIX 3: PROJECT RISKS TABLE
+Use this appendix to identify and summarize the project risks and fulfill the requirements of Sections 2.3.6, 2.3.17, 2.5, and 5.2.1– 5.2.9,
+above. Where no risk is identified, write ‘No risk identified’ and provide justification in the third column. Add rows as needed.
+Identified risk(s) Potential impact of risk on
+stakeholders, ecosystem health,
+and biodiversity
+Mitigation or preventative measure(s) taken
+Natural and human
+induced risks to
+stakeholders’ wellbeing
+Risks to stakeholder
+participation
+Working conditions
+Safety of women and girls
+Safety of minority and
+marginalized groups,
+including children
+Pollutants (air, noise,
+discharges to water,
+generation of waste, and
+release of hazardous
+materials and chemical
+pesticides and fertilizers)
+Discrimination
+
+Page 60
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+60
+CCB v3.0, VCS v4.4
+Sexual harassment
+Equal pay for equal work
+Gender equity in labor
+and work
+Forced labor6
+Child labor
+Human trafficking
+Recognition of, respect
+of, and promotion of the
+rights to IPs, LCs and
+customary rights holders
+Preserving and protecting
+cultural heritage
+Protecting and preserving
+property rights, customary
+rights, or protecting legal
+or customary
+tenure/access rights to
+territories, property, and
+resources, including
+collective and/or
+conflicting rights
+6 The identified risks and commensurate mitigation or preventative measure(s) for forced labor, child labor, and human trafficking, must be inclusive of staff and
+contracted workers employed by third parties.
+
+Page 61
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+61
+CCB v3.0, VCS v4.4
+Impacts on biodiversity
+and ecosystems
+Soil degradation and soil
+erosion
+Water consumption and
+stress
+Habitats (and areas
+needed for habitat
+connectivity) for rare,
+threatened, and
+endangered species
+Areas needed for habitat
+connectivity
+Invasive species
+Ecosystem conversion
+[Additional risk identified]
+
+Page 62
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+62
+CCB v3.0, VCS v4.4
+APPENDIX 4: COMMERCIALLY SENSITIVE INFORMATION
+Use the table below to describe the commercially sensitive information included in the project description to be excluded in the public version.
+Section Information Justification
+
+Page 63
+CCB & VCS Project Description Template
+CCB Version 3.0, VCS Version 4.4
+63
+CCB v3.0, VCS v4.4
+APPENDIX X: <TITLE OF APPENDIX>
+Use appendices for supporting information. Delete this appendix (title and instructions) where no
+appendix is required.

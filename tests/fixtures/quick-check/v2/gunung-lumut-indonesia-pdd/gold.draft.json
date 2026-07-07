@@ -1,0 +1,92 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "East Kalimantan Province",
+    "goldQuote": "Project location East Kalimantan Province, Indonesia",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "gunung-lumut-indonesia-pdd-extracted:p1:b24:4b23f94c",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0007 REDD+ Methodology Framework v1.1",
+    "goldQuote": "Methodology VM0007 REDD+ Methodology Framework 1.8 Methodology VM0010 Improved Forest Management: Conversion From Logged To Protected Forest 1.4 Methodology VM0048 Reducing Emissions From Deforestation And Forest Degradation 1.0 Methodology VM0047 Afforestation, Reforestation, And Revegetation 1.1",
+    "page": 70,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "gunung-lumut-indonesia-pdd-extracted:p70:b2975:1a6375fd",
+    "sourceType": "fact_contract",
+    "expectedMethodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.1",
+      "versionStatus": "DECLARED",
+      "evidencePage": 70,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "Methodology VM0007 REDD+ Methodology Framework 1.8 Methodology VM0010 Improved Forest Management: Conversion From Logged To Protected Forest 1.4 Methodology VM0048 Reducing Emissions From Deforestation And Forest Degradation 1.0 Methodology VM0047 Afforestation, Reforestation, And Revegetation 1.1"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Forest management in the baseline scenario is planned selective logging",
+    "goldQuote": "Forest management in the baseline scenario is planned selective logging.",
+    "page": 73,
+    "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.2"
+    ],
+    "spanId": "gunung-lumut-indonesia-pdd-extracted:p73:b3135:171879bf",
+    "sourceType": "raw_text_fallback"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "(VCS, 3.13; CCB, G2.1) Before the GLLP, the project area was designated for production forest and protected forest area. The production forest area (Unit I) has been logged since the mid-1990s. As a result, it is a complex mosaic forest area with full until very degraded state (see figure 14) The supposed land use without project scenario that is most possible for Unit I area is forest management activities for logging/wood production. With the project, this area will be converted from a production forest area to a protected area. This shows that the project will not generate GHG emissions, yet rather it will reduce or further eliminate emissions. In addition, according to the applicable laws and regulations, the Ministry of Environment and Forestry (“KLHK”) has the right to grant lease-to-use forest area (“PPKH”) permits for legal mining companies to conduct operational mining activities up to 10% of the total forest area. The PPKH issuance triggers legal mining operation activities. However, it is also known that the people within and surrounding the project area have also carried out illegal mining activities within the project area. With the GLLP project activities, a review on and further rejection proposal to the submission of PPKH proposals can be submitted to KLHK, as well as prevention measures regarding illegal mining activities can be implemented, therefore mining activities in the project area can be monitored and reduced in intensity. Figure 14. Various Forest Cover Condition in GLLP For the protected forest area (Unit II) without the project, the management of the protected forest was previously carried out by the provincial government, which then had a policy change. Currently, it is carried out by a site-level management unit known as the Forest Management Unit (“KPH”). The management of the Gunung Lumut protected forest is included in the management area of KPH Telake. In the Long Term Forest Management Plan (RPJHP), the protected forest area of CCB Version 3.0, VCS Version 4.4 53 CCB v3.0, VCS v4.4 Gunung Lumut is included in the utilization zone. Without the project, Gunung Lumut’s protected forest is only managed as a preservation area without the function of utilizing environmental services that could allow development to optimize area utilization as stipulated in Government Regulation of the Republic of Indonesia No. 23 of 2021 regarding Forestry Management. Currently, management constraints are occurring so that it is not optimally managed. KPH Telake has a vast management area with a limited budget and human resources. This causes the monitoring, protection, and security of the area, especially for Unit II to be very vulnerable. Meanwhile, in terms of benefits the limited budget and human resources resulted in less optimal management making less impact from an economic and social perspective29. This and other possible scenarios are further discussed in sections 3.",
+    "goldQuote": "(VCS, 3.13; CCB, G2.1) Before the GLLP, the project area was designated for production forest and protected forest area. The production forest area (Unit I) has been logged since the mid-1990s. As a result, it is a complex mosaic forest area with full until very degraded state (see figure 14) The supposed land use without project scenario that is most possible for Unit I area is forest management activities for logging/wood production. With the project, this area will be converted from a production forest area to a protected area. This shows that the project will not generate GHG emissions, yet rather it will reduce or further eliminate emissions. In addition, according to the applicable laws and regulations, the Ministry of Environment and Forestry (“KLHK”) has the right to grant lease-to-use forest area (“PPKH”) permits for legal mining companies to conduct operational mining activities up to 10% of the total forest area. The PPKH issuance triggers legal mining operation activities. However, it is also known that the people within and surrounding the project area have also carried out illegal mining activities within the project area. With the GLLP project activities, a review on and further rejection proposal to the submission of PPKH proposals can be submitted to KLHK, as well as prevention measures regarding illegal mining activities can be implemented, therefore mining activities in the project area can be monitored and reduced in intensity. Figure 14. Various Forest Cover Condition in GLLP For the protected forest area (Unit II) without the project, the management of the protected forest was previously carried out by the provincial government, which then had a policy change. Currently, it is carried out by a site-level management unit known as the Forest Management Unit (“KPH”). The management of the Gunung Lumut protected forest is included in the management area of KPH Telake. In the Long Term Forest Management Plan (RPJHP), the protected forest area of CCB Version 3.0, VCS Version 4.4 53 CCB v3.0, VCS v4.4 Gunung Lumut is included in the utilization zone. Without the project, Gunung Lumut’s protected forest is only managed as a preservation area without the function of utilizing environmental services that could allow development to optimize area utilization as stipulated in Government Regulation of the Republic of Indonesia No. 23 of 2021 regarding Forestry Management. Currently, management constraints are occurring so that it is not optimally managed. KPH Telake has a vast management area with a limited budget and human resources. This causes the monitoring, protection, and security of the area, especially for Unit II to be very vulnerable. Meanwhile, in terms of benefits the limited budget and human resources resulted in less optimal management making less impact from an economic and social perspective29. This and other possible scenarios are further discussed in sections 3.",
+    "page": 52,
+    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.1"
+    ],
+    "spanId": "gunung-lumut-indonesia-pdd-extracted:p52:b1925:1e017aaf",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "MISSING",
+    "expectedAnswer": null,
+    "goldQuote": null,
+    "page": null,
+    "sectionHeading": null,
+    "sectionPath": [],
+    "spanId": null,
+    "sourceType": null
+  }
+]

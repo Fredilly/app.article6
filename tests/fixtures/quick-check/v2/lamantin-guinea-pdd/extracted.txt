@@ -1,0 +1,2565 @@
+Page 1
+LAMANTIN
+COMMUNITY-BASED MANGROVE
+CONSERVATION AND RESTORATION IN
+GUINEA
+Project title Lamantin – Community-based mangrove conservation and restoration in Guinea
+Project ID 5922
+Original date of issue 09 February 2026
+Version 1.0
+VCS Standard Version 4.7
+Prepared by Blue Coast Carbon
+
+Page 2
+CONTENTS
+1. Project Details ..................................................................................................................................... 5
+1.1. Summary Description of the Project........................................................................................ 5
+1.2. Audit History ............................................................................................................................... 6
+1.3. Sectoral Scope and Project Type............................................................................................ 6
+1.4. Project Eligibility ......................................................................................................................... 6
+1.4.1. General eligibility .............................................................................................................. 6
+1.4.2. AFOLU project eligibility ................................................................................................... 7
+1.4.3. Transfer project eligibility ................................................................................................ 11
+1.5. Project Design .......................................................................................................................... 11
+1.5.1. Grouped project design ................................................................................................ 12
+1.6. Project Proponent ................................................................................................................... 16
+1.7. Other Entities Involved in the Project .................................................................................... 17
+1.8. Ownership ................................................................................................................................ 17
+1.9. Project Start Date .................................................................................................................... 18
+1.10. Project Crediting Period ..................................................................................................... 18
+1.11. Project Scale and Estimated GHG Emission Reductions or Removals ......................... 18
+1.12. Description of the Project Activity ..................................................................................... 18
+1.13. Project Location .................................................................................................................. 22
+1.14. Conditions Prior to Project Initiation .................................................................................. 23
+1.15. Compliance with Laws, Statutes and Other Regulatory Frameworks .......................... 34
+1.16. Double Counting and Participation under Other GHG Programs ................................ 37
+1.16.1. No Double Issuance ....................................................................................................... 37
+1.16.2. Registration in Other GHG Programs ............................................................................ 37
+1.16.3. Projects Rejected by Other GHG Programs ................................................................ 37
+
+Page 3
+1.17. Double Claiming, Other Forms of Credit, and Scope 3 Emissions ................................. 37
+1.17.1. No Double Claiming with Emissions Trading Programs or Binding Emission Limits ... 37
+1.17.2. No Double Claiming with Other Forms of Environmental Credit .............................. 37
+1.17.3. Supply Chain (Scope 3) Emissions................................................................................. 37
+1.18. Sustainable Development Contributions ......................................................................... 38
+1.19. Additional Information Relevant to the Project .............................................................. 39
+1.19.1. Leakage Management ................................................................................................. 39
+1.19.2. Commercially Sensitive Information ............................................................................. 39
+1.19.3. Further Information ......................................................................................................... 39
+2. Safeguards and Stakeholder engagement ............................................................................. 39
+2.1. Stakeholder Engagement and Consultation ....................................................................... 39
+2.1.1. Stakeholder Identification ............................................................................................. 39
+2.1.2. Stakeholder Consultation and Ongoing Communication ........................................ 42
+2.1.3. Free Prior and Informed Consent .................................................................................. 43
+2.1.4. Grievance Redress Procedure ...................................................................................... 44
+2.1.5. Public Comments ........................................................................................................... 44
+2.2. Risks to Stakeholders and the Environment .......................................................................... 44
+2.2.1. Management Experience ............................................................................................. 44
+2.2.2. Risk Assessment ............................................................................................................... 44
+2.3. Respect for Human Rights and Equity .................................................................................. 44
+2.3.1. Labor and Work .............................................................................................................. 45
+2.3.2. Human Rights .................................................................................................................. 45
+2.3.3. Indigenous Peoples and Cultural Heritage ................................................................. 45
+2.3.4. Property Rights ................................................................................................................ 45
+2.3.5. Benefit Sharing ................................................................................................................ 45
+
+Page 4
+2.4. Ecosystem Health .................................................................................................................... 45
+2.4.1. Rare, Threatened, and Endangered Species ............................................................. 45
+2.4.2. Introduction of Species .................................................................................................. 46
+2.4.3. Ecosystem Conversion ................................................................................................... 47
+3. Application of Methodology ...................................................................................................... 47
+3.1. Title and Reference of Methodology .................................................................................... 47
+3.2. Applicability of Methodology ................................................................................................ 49
+3.3. Project Boundary ..................................................................................................................... 60
+3.4. Baseline Scenario .................................................................................................................... 62
+3.5. Additionality ............................................................................................................................. 63
+3.5.1. Regulatory Surplus .......................................................................................................... 63
+3.5.2. Additionality Methods .................................................................................................... 64
+3.6. Methodology Deviations ........................................................................................................ 64
+4. Quantification of Estimated GHG Emission Reductions and Removals ................................ 64
+4.1. Baseline Emissions .................................................................................................................... 64
+4.2. Project Emissions ...................................................................................................................... 64
+4.3. Leakage Emissions ................................................................................................................... 65
+4.4. Estimated GHG Emission Reductions and Carbon Dioxide Removals.............................. 65
+5. Monitoring ..................................................................................................................................... 65
+5.1. Data and Parameters Available at Validation .................................................................... 65
+5.2. Data and Parameters Monitored .......................................................................................... 65
+5.3. Monitoring Plan ........................................................................................................................ 65
+
+Page 5
+VCS Project Description Template, v4.4
+5
+1. PROJECT DETAILS
+1.1. Summary Description of the Project
+Lamantin mangrove restoration and conservation project, developed by Blue Coast Carbon, is a community-
+based large-scale mangrove conservation project in Guinea, West Africa.
+The project will be located in an area along the northern coasts of Guinea, covering a total of 73,751
+hectares of mangrove forests.
+Mangroves are coastal forests that grow where ocean water, freshwater, and land meet. They are amongst
+the planet’s most productive and complex ecosystems, and are recognized for their superior carbon
+sequestration capabilities compared to terrestrial forests. Throughout West Africa, the livelihoods of coastal
+populations depend heavily on access to natural resources. Mangroves are integral to many of those
+resources, providing wood and non-wood forest products, coastal protection, conservation of biological
+diversity, provision of habitat, spawning grounds and nutrients for a variety of fish and shellfish, and salt
+production. West Africa’s coastlines have some of the highest and most rapidly growing populations. Many
+communities rely on mangrove wood as a primary fuel source for curing fish and other purposes, and urban
+expansion and intensifying demands for charcoal, fuel wood, and land for agriculture are growing drivers
+of mangrove deforestation and degradation1. These factors, combined with rising sea levels, erosion from
+extreme weather, and more intense storm surges, represent significant and growing threats to mangroves2.
+The overall project objective is to generate high-quality carbon credits based on greenhouse gases (GHGs)
+emission reduction and avoidance, that will sustainably finance the project and result in economic benefits
+for the local communities. GHGs emission reductions are expected to be generated by avoiding unplanned
+deforestation by providing alternative income to local communities through the implementation of a series
+of activities, including those supporting the use of efficient cookstoves, solar salt production systems,
+education campaigns, and supporting the development of apiculture, aquaculture and ecotourism.
+Carbon dioxide (CO2) removals will be generated by restoring areas of degraded mangrove forests with the
+involvement of local communities, supporting local livelihoods and alleviating poverty. An ecosystem-based
+approach will be used for habitat restoration, aiming at improving hydrology and environmental conditions,
+with minimal need for re-planting.
+The project will restore a total of 2,725 hectares of degraded mangrove forests and protect a total of
+73,751 hectares from deforestation, contributing to the protection of coastal communities from climate
+change, the conservation of the world’s biodiversity and to mitigating climate change.
+1 USAID, 2014, Workshop Report: West Africa Regional Mangroves and Climate Change, U.S. Agency for
+International Development
+2 Corcoran, E., Ravilious, C., and Skuja, M., 2007, Mangroves of western and central Africa: UNEP/Earthprint 26
+
+Page 6
+VCS Project Description Template, v4.4
+6
+The project’s climate benefits over the crediting period include the sequestration and avoided emission of
+3,374,658 tCO2e.
+1.2. Audit History
+The project does not have an audit history yet. The first audit will be completed at the time of project
+validation and initial verification.
+1.3. Sectoral Scope and Project Type
+Sectoral scope 14 Agriculture, forestry, and other land use (AFOLU)
+AFOLU project category3 Wetlands Restoration and Conservation (WRC)
+Project activity type Restoring wetland ecosystem (RWE) combined with ARR
+Conservation of intact wetlands (CIW) – Avoiding Unplanned
+Wetland Degradation – combined with REDD+
+1.4. Project Eligibility
+1.4.1. General eligibility
+The project is eligible under the scope of the VCS Program, as it aims at enhancing the sequestration and
+avoiding the emission of carbon dioxide (CO2), methane (CH4) and nitrous oxide (N2O) by mangrove forest
+conservation and ecosystem restoration.
+Project activities are supported by the VCS methodologies VM0033 and VM0007. Furthermore, the project
+does not involve any of the activity listed in Table 1 of the VCS Standard v4.7.
+The project will initiate the pipeline listing process within three years of the project start date and complete
+validation within eight years of the project start date.
+The applied methodologies VM0033 and VM0007 are applicable to WRC and REDD+ projects under the
+VCS Program.
+3 See Appendix 1 of the VCS Standard
+
+Page 7
+VCS Project Description Template, v4.4
+7
+1.4.2. AFOLU project eligibility
+The project falls under the AFOLU project categories WRC, ARR, and REDD+ as defined in Appendix 1
+Eligible AFOLU project categories of the VCS Standard v4.7. Table 1, Table 2 and Table 3 present the VCS
+Standard’s requirements and how the project will comply with them.
+Table 1 Compliance with eligibility conditions of WRC projects (from Appendix 1 of the VCS Standard V4.7).
+Eligibility condition Compliance
+Eligible WRC activities are those that increase net
+GHG removals by restoring wetland ecosystems or
+that reduce GHG emissions by rewetting or
+avoiding the degradation of wetlands.
+The project activities will increase net GHG
+removals by restoring degraded mangrove forests
+and will reduce GHG emissions by avoiding
+additional degradation and deforestation.
+The project area shall meet an internationally
+accepted definition of wetland, such as from the
+IPCC, Ramsar Convention on Wetlands, those
+established by law or national policy, or those with
+broad agreement in the peer-reviewed scientific
+literature for specific countries or types of
+wetlands.
+‘Wetlands include any land that is covered or
+saturated by water for all or part of the year, and
+that does not fall into the Forest Land, Cropland, or
+Grassland categories’(IPCC)4.
+The project involves areas of mangrove forests in
+coastal wetlands, i.e. daily affected by
+astronomical tides and saline water.
+Common wetland types include peatland, salt
+marsh, tidal freshwater marsh, mangroves, wet
+floodplain forests, prairie potholes and seagrass
+meadows.
+The project area is mainly covered by mangrove
+forests.
+Activities that generate net reductions of GHG
+emissions from wetlands are eligible as WRC
+projects or combined category projects (such as
+REDD on peatland).
+The project will increase net GHG removals by
+restoring the mangrove ecosystem, combined with
+conservation of existing mangrove forests.
+4 Chapter 7 Wetlands, Volume 4, 2006 IPCC Guidelines
+
+Page 8
+VCS Project Description Template, v4.4
+8
+Activities that actively lower the water table depth
+in wetlands are not eligible.
+Project activities will not lower the water table
+depth.
+Eligible WRC activities include Restoring Wetland
+Ecosystems (RWE): This category includes
+activities that reduce GHG emissions or increase
+carbon sequestration in a degraded wetland
+through restoration conditions, sediment supply,
+salinity characteristics, water quality and/or native
+plant communities. For the purpose of these
+requirements, restoration activities are those that
+result in the reestablishment of ecological
+processes, functions, and biotic and/or abiotic
+linkages that lead to persistent, resilient systems
+integrated within the landscape.
+The project will restore degraded wetlands by
+means of activities aimed at restoring natural
+conditions to allow for spontaneous habitat
+recovery, such as removal of pollution and
+restoration of natural hydrological conditions to
+allow for optimum mangrove growth.
+The abiotic conditions will be carefully assessed
+before the start of the activities to identify the most
+suitable interventions.
+Conservation of Intact Wetlands (CIW): This
+category includes activities that reduce GHG
+emissions by avoiding degradation and/or the
+conversion of wetlands that are intact or partially
+altered while still maintaining their natural
+functions, including hydrological conditions,
+sediment supply, salinity characteristics, water
+quality and/or native plant communities.
+The project involves activities aimed at protecting
+intact wetlands thus reducing GHGs emissions by
+avoiding degradation of mangrove forests. These
+include the promotion of sustainable systems for
+salt production and efficient cook stoves, together
+with education and awareness programmes.
+Avoiding Planned Wetland Degradation (APWD):
+This activity reduces GHG emissions by avoiding
+degradation of wetlands, or further degradation in
+partially drained wetlands that are legally
+authorized and documented for conversion.
+Avoiding Unplanned Wetland Degradation (AUWD):
+This activity reduces GHG emissions by avoiding
+unplanned degradation of wetlands, or by avoiding
+further degradation in partially degraded wetlands.
+The activities of this project fall under the scope of
+Avoiding Unplanned Deforestation and/or
+Degradation, as there are no set plans for any
+activity that would cause wetland degradation.
+Activities where drainage is continued or
+maintained are not eligible. This includes, for
+example, projects that require the maintenance of
+drainage channels to maintain the pre-project
+drainage level on a partially drained peatland (e.g.,
+Drainage will not be performed.
+
+Page 9
+VCS Project Description Template, v4.4
+9
+where periodic deepening may be needed to
+counteract peat subsidence).
+Projects that allow selective harvesting that results
+in a lowering of the water table depth (e.g., by
+extracting timber using drainage canals) or affects
+the ability of vegetation to act as a major
+hydrological regulation device (e.g., extracting
+trees which support the peat body) are not eligible.
+This project will not allow selective harvesting.
+Activities that generate net GHG emission
+reductions by combining other AFOLU project
+activities with wetlands restoration or conservation
+activities are eligible as WRC combined projects.
+RWE may be implemented without further
+conversion of land use, or it may be combined with
+ARR, ALM, IFM, REDD or ACoGS activities, referred
+to as ARR+RWE, ALM+RWE, IFM+RWE,
+REDD+RWE or ACoGS+RWE, respectively. CIW may
+be implemented on non-forest land or combined
+with IFM, REDD or ACoGS activities, referred to as
+IFM+CIW, REDD+CIW or ACoGS+CIW, respectively.
+The baseline scenario in this project is degraded
+wetland and forest with deforestation and
+degradation as the main land use. Project activities
+include restoration of wetlands (mangroves) and
+revegetation. There is no further conversion of land
+use. Therefore, this project is a WRC project
+combining ARR and RWE.
+Combined category projects shall use the relevant
+WRC requirements and the respective AFOLU
+project category requirements for quantifying GHG
+emissions/removals unless the former may be
+deemed de minimis or conservatively excluded.
+See section 3
+Table 2 Compliance with eligibility conditions of ARR projects (from Appendix 1 of the VCS Standard V4.7).
+Eligibility condition Compliance
+Eligible ARR activities are those that increase
+carbon sequestration and/or reduce GHG
+emissions by establishing, increasing, or restoring
+vegetative cover (forest or non-forest) through the
+The project will increase carbon sequestration and
+reduce GHG emissions by restoring mangrove
+forest cover through assisting natural regeneration
+of vegetation and planting where necessary. This
+will increase biomass production and soil carbon
+
+Page 10
+VCS Project Description Template, v4.4
+10
+planting, sowing, or human-assisted natural
+regeneration of woody vegetation.
+sequestration, while conserving the established
+forests.
+Eligible ARR projects may include timber
+harvesting in their management plan.
+The project activities do not include timber
+harvesting.
+Table 3 Compliance with eligibility conditions of REDD+ projects (from Appendix 1 of the VCS Standard V4.7).
+Eligibility condition Compliance
+The project area shall meet an internationally
+accepted definition of forest, such as those based
+on UNFCCC host-country thresholds or FAO
+definitions and shall qualify as forest for a
+minimum of 10 years before the project start date.
+The definition of forest may include mature forests,
+secondary forests, and degraded forests. Under
+the VCS Program, secondary forests are
+considered to be forests that have been cleared
+and have recovered naturally and that are at least
+10 years old and meet the lower bound of the
+forest threshold parameters at the start of the
+project.
+According to the UNFCCC, a forest is defined as an
+area of land spanning more than 0.05-1.0 hectares
+with tree crown cover (or equivalent stocking level)
+of more than 10-30% with trees having the
+potential to reach a minimum height of 2-5 meters
+at maturity in situ.
+The mangrove forests in the project area have met
+such requirements over the last 10 years.
+Activities covered under the REDD project category
+are those that are designed to stop planned
+(designated and sanctioned) deforestation or
+unplanned (unsanctioned) deforestation and/or
+degradation. Avoided planned degradation is
+classified as IFM.
+Activities for this project are designed to stop
+unplanned deforestation and/or degradation.
+Activities that stop unsanctioned deforestation
+and/or illegal degradation (such as removal of
+fuelwood or timber extracted by non-
+concessionaires) on lands that are legally
+sanctioned for timber production are eligible as
+REDD activities. However, activities that reduce or
+stop logging only, followed by protection, on forest
+lands legally designated or sanctioned for forestry
+The activities do not stop logging and are not on
+the IFM scope. They stop unsanctioned
+deforestation and unplanned degradation.
+
+Page 11
+VCS Project Description Template, v4.4
+11
+activities are included within IFM. Projects that
+include both avoided unplanned deforestation
+and/or degradation as well as stopping sanctioned
+logging activities, shall follow the REDD guidelines
+for the unplanned deforestation and/or
+degradation and the IFM guidelines for the
+sanctioned logging activities, and shall follow the
+requirements set out in Section 3.6.2.
+Eligible REDD activities include:
+1) Avoiding Planned Deforestation (APD): This
+category includes activities that reduce net GHG
+emissions by permanently stopping or reducing
+deforestation on forest lands that are legally
+authorized and documented for conversion.
+Planned deforestation encompasses activities
+where a forest system would have been cleared
+and replaced by a different forest system with a
+lower carbon stock and where the recovery of
+timber was not the primary objective of the initial
+forest clearance.
+2) Avoiding Unplanned Deforestation and/or
+Degradation (AUDD): This category includes
+activities that reduce net GHG emissions by
+stopping deforestation and/or degradation of
+degraded to mature forests that would have
+occurred in any forest configuration.
+The activities of this project fall under the scope of
+Avoiding Unplanned Deforestation and/or
+Degradation
+1.4.3. Transfer project eligibility
+N/A. The present project is not a transfer project
+1.5. Project Design
+Indicate if the project has been designed as:
+☐ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+
+Page 12
+VCS Project Description Template, v4.4
+12
+✓ Grouped project
+1.5.1. Grouped project design
+This is a grouped project with the following eligibility criteria for the inclusion of new project activity
+instances:
+Eligibility condition Compliance
+Baseline
+scenario and
+additionality
+Grouped projects shall specify one or
+more clearly defined geographic
+areas within which project activity
+instances may be developed. Such
+geographic areas shall be specified
+using geodetic polygons as set out in
+Section 3.11 below. Geographic
+areas with no initial project activity
+instances shall not be included in the
+project unless it can be
+demonstrated that the same (or at
+least as conservative) baseline
+scenario and rationale for the
+demonstration of additionality is
+applicable to such an area as a
+geographic area that does include
+initial project activity instances.
+The grouped project area as well as the
+first instance are detailed in the
+“Project Location” section below.
+The future instances will soon be
+defined but the baseline scenario is the
+same in the entire grouped project area
+as well as the additionality
+demonstration (see below).
+Determination of baseline scenario
+and demonstration of additionality
+are based upon the initial project
+activity instances. The initial project
+activity instances are those that are
+included in the project description at
+validation and shall include all
+project activity instances currently
+implemented on the issue date of the
+project description. The initial project
+activity instances may also include
+any instances of the project activity
+that have been planned and
+developed to a sufficient level of
+At the present stage, only the first
+instance will be included in the PDD.
+The baseline scenario and
+demonstration of additionality are the
+same for the entire grouped project
+area as for the initial project activity
+instance.
+
+Page 13
+VCS Project Description Template, v4.4
+13
+detail to enable their assessment at
+validation
+As with non-grouped projects,
+grouped projects may incorporate
+multiple project activities. Where a
+grouped project includes multiple
+project activities, the project
+description shall designate which
+project activities may occur in each
+geographic area.
+Project activities are detailed in the
+“Description of the Project Activities”
+section below, while their geographic
+location is reported in section 3.3.
+The baseline scenario for a project
+activity shall be determined for each
+designated geographic area, in
+accordance with the methodology
+applied to the project. Where a single
+baseline scenario cannot be
+determined for a project activity over
+the entirety of a geographic area, the
+geographic area shall be redefined
+or divided such that a single baseline
+scenario can be determined for the
+revised geographic area or areas.
+The grouped project area is considered
+one project area, with one same
+baseline scenario for the entire
+grouped project.
+The additionality of the initial project
+activity instances shall be
+demonstrated for each designated
+geographic area, in accordance with
+the methodology applied to the
+project. Where the additionality of
+the initial project activity instances
+within a particular geographic area
+cannot be demonstrated for the
+entirety of that geographic area, the
+geographic area shall be redefined
+or divided such that the additionality
+of the instances occurring in the
+revised geographic area or areas can
+be demonstrated.
+The grouped project area is considered
+one project area, with the same
+additionality demonstration for the
+entire grouped project.
+
+Page 14
+VCS Project Description Template, v4.4
+14
+Where factors relevant to the
+determination of the baseline
+scenario or demonstration of
+additionality require assessment
+across a given area, the area shall
+be, at a minimum, the grouped
+project geographic area. Examples of
+such factors include, inter alia,
+common practice; laws, statutes,
+regulatory frameworks, or policies
+relevant to demonstration of
+regulatory surplus; determination of
+regional grid emission factors; and
+historical deforestation and
+degradation rates.
+The grouped project area is considered
+one single project area, with one
+baseline scenario and one additionality
+demonstration for the entire grouped
+project. More details on the baseline
+scenario and the additionality
+demonstration are provided in the
+relevant sections.
+New project
+activity
+instance
+Grouped projects shall include one or
+more sets of eligibility criteria for the
+inclusion of new project activity
+instances. At least one set of
+eligibility criteria for the inclusion of
+new project activity instances shall
+be provided for each combination of
+project activity and geographic area
+specified in the project description.
+Where grouped projects include
+multiple baseline scenarios or
+demonstrations of additionality, such
+projects will require at least one set
+of eligibility criteria for each
+combination of baseline scenario
+and demonstration of additionality
+specified in the project description.
+As the grouped project area is one
+single project area with the same
+additionality demonstration and
+baseline scenario, as well as the same
+activities, only one set of eligibility
+criteria is needed for all instances, and
+they are defined in the relevant
+sections above.
+New project activity instances shall:
+1) Occur within one of the designated
+geographic areas specified in the
+project description.
+2) Conform with at least one
+complete set of eligibility criteria for
+the inclusion of new project activity
+1) Future project activity instances will
+be within the grouped project
+boundaries, as defined in the “Project
+location” section.
+2) New instances will follow the set of
+eligibility criteria described above.
+
+Page 15
+VCS Project Description Template, v4.4
+15
+instances. Partial conformance with
+multiple sets of eligibility criteria is
+insufficient.
+3) Be included in the monitoring
+report with sufficient technical,
+financial, geographic, and other
+relevant information to demonstrate
+conformance with the applicable set
+of eligibility criteria and enable
+evidence gathering by the
+validation/verification body.
+4) Be included in an updated project
+description, with updated project
+location information, which shall be
+validated at the time of verification
+against the applicable set of
+eligibility criteria.
+5) Have evidence of project
+ownership, in respect of each project
+activity instance, held by the project
+proponent from the respective start
+date of each project activity instance
+(i.e., the date upon which the project
+activity instance began reducing or
+removing GHG emissions).
+6) Have a start date that is the same
+as or later than the grouped project
+start date.
+7) Be eligible for crediting from the
+start date of the project activity
+instance through to the end of the
+project crediting period (only).
+8) Only eligible for crediting from the
+start of the verification period in
+which they were added to the
+grouped project.
+9) Not be or have been enrolled in
+another VCS project.
+3) Future instances will be included in
+the monitoring report.
+4) Future instances will be included in
+an updated project description
+document.
+5) The project ownership will be the
+same for future instances as it is for the
+first instance.
+6) The future instances will have a later
+start date than the start of the grouped
+project.
+7) The future instances will only be
+eligible for crediting from the start date
+of the project activity instance through
+to the end of the project crediting
+period.
+8) The future instances will only be
+eligible for crediting from the start of
+the verification period in which they
+were added to the grouped project.
+9) Future instances will not/have not
+been enrolled in other VCS projects.
+10) Yes.
+
+Page 16
+VCS Project Description Template, v4.4
+16
+10) Adhere to the clustering and
+capacity limit requirements for
+multiple project activity instances set
+out in 3.6.8 - 3.6.9.
+Where inclusion of a new project
+activity instance necessitates the
+addition of a new project proponent
+to the project, such instances shall
+be included in the grouped project
+description within five years of the
+project activity instance start date,
+where the project activity is an
+AFOLU activity.
+The project proponent do not foresee
+the addition of a new proponent to the
+project. However, if the inclusion of a
+new instance requires that, such
+instances shall be included in the
+grouped project description within five
+years of the project activity instance
+start date.
+1.6. Project Proponent
+Organization name Blue Coast Carbon
+Contact person James Harrison
+Title President
+Address 100 Avenue de L’Adour
+Centre Olatu, Anglet, 64600
+France
+Telephone +33 (0)7 75 73 79 07
+Email james@bluecoastcarbon.com
+
+Page 17
+VCS Project Description Template, v4.4
+17
+1.7. Other Entities Involved in the Project
+Organization name Ministère de l'Environnement et du Développement Durable
+Role in the project Partner
+Contact person Dr Karim SAMOURA
+Title Secretary General
+Address Coléya Lanséboungny, BP 761
+Guinea
+Telephone (+224) 629 02 04 46
+Email sg.medd@gouvernment.gov.gn
+1.8. Ownership
+To manage the project and legally secure ownership over the carbon credits generated by the project, Blue
+Coast Carbon is seeking a concession agreement with the government. The Ministry of Environment and
+Sustainable Development (MEDD) issued Blue Coast Carbon a letter on the 16th December 2025 approving
+the development and finalisation of this project. The letter gives Blue Coast Carbon the right to list the
+project as under development.
+Mangrove forests in Guinea are classified as public property under the public maritime domain. This means
+they are owned by the State and cannot be privately owned or transferred. The primary challenges for
+obtaining ownership of mangroves include:
+● Inalienability: the public maritime domain is inalienable, imprescriptible, and unseizable,
+meaning the state cannot cede ownership or allow private acquisition through occupation.
+● Legal restrictions: existing laws, such as the Environmental Code and Maritime Code,
+explicitly state that mangroves are part of the public domain, preventing any form of private
+ownership or long-term leases.
+According to the Environmental Code, the State of Guinea can conduct conventions with third parties that
+can contribute to the protection of the environment. Entities can obtain temporary occupation permits or
+
+Page 18
+VCS Project Description Template, v4.4
+18
+concessions from the state, allowing them to manage or exploit mangrove areas without transferring
+ownership.
+This section will be appropriately updated in the PDD submitted for validation.
+1.9. Project Start Date
+Project start date 1st April 2026
+Justification The project start date marks the launch of project activities after
+the completion of the first step of the FPIC process in the first
+project instance, which is expected to be completed before the
+end of March 2026.
+1.10. Project Crediting Period
+Crediting period ☐ Seven years, twice renewable
+☐ Ten years, fixed
+☒ Other:40 years, renewable up to 100 years
+This is compliant with VCS Program (v4.7) requirements for AFOLU
+projects, i.e. minimum 20 years and maximum 100 years
+Start and end date of
+first or fixed crediting
+period
+To be completed in the PDD version submitted for validation
+1.11. Project Scale and Estimated GHG Emission Reductions or Removals
+✓ < 300,000 tCO2e/year (project)
+≥ 300,000 tCO2e/year (large project)
+1.12. Description of the Project Activity
+The overall project objective is to generate high-quality carbon credits based on greenhouse gases (GHGs)
+emission reduction and removal, that will sustainably finance the project and result in economic benefits
+
+Page 19
+VCS Project Description Template, v4.4
+19
+for the local communities. GHGs emission reductions are expected to be generated by avoiding unplanned
+deforestation by providing alternative income to local communities through the implementation of a series
+of activities, including ecotourism, beekeeping, aquaculture, and education campaigns. Alternatives to the
+current cooking methods and salt production systems will be also introduced to reduce pressure on
+mangrove forests.
+Carbon dioxide (CO2) removals will be generated by restoring areas of degraded mangrove forests and
+recovering mangrove vegetation cover with the involvement of local communities, supporting local
+livelihoods and alleviating poverty.
+The project will protect a total of 73,751 hectares from deforestation, contributing to the protection of
+coastal communities from climate change, the conservation of floral and faunal diversity and climate
+change mitigation.
+The project’s climate benefits over the crediting period include the net avoided emissions of 3,374,658
+tCO2e.
+Blue Coast Carbon will deploy large scale reforestation with community participation through the following
+strategic blue carbon conservation activities:
+1. Mangrove conservation awareness and education, and training of communities in sustainable
+forest management;
+2. Mangrove restoration and sustainable mangrove forest management with community-led
+monitoring and surveillance;
+3. Promoting the adoption of fuel-efficient small wood cookstoves and sustainable solutions for fish
+smoking and salt production;
+4. Promoting the adoption of sustainable alternative livelihoods, such as ecotourism, beekeeping and
+aquaculture, for income diversification.
+Blue Coast Carbon will conduct research, engage with community partners, and pilot different project
+activities during the early stages of project implementation (i.e., in 2026). The most successful project
+activities will be piloted through continuous community consultation. Community engagement will be
+carried out following the guidelines established by FPIC. A community consultation plan and protocols to
+ensure FPIC of indigenous peoples and local communities (IPLCs) living in and around the project area will
+be developed with the collaboration of local partners.
+The identified income diversification activities will be piloted in collaboration with experts following thorough
+research to determine best practices and learn from the experiences of other projects around the world.
+Blue Coast Carbon has been actively working on the feasibility study in Guinea since September 2024. The
+project proponent has been active on the ground in Guinea since March 2025. Project activities in Guinea
+started with stakeholder mapping, partner selection and the appointment of representatives in Conakry,
+Guinea.
+The project activities undertaken so far include:
+
+Page 20
+VCS Project Description Template, v4.4
+20
+● the full assessment of the Guinea coastline using Blue Coast Carbon’s proprietary data pipeline
+and ESA and NASA Earth Observation imagery;
+● assessment of the carbon sequestration potential of the restoration of degraded mangrove forest
+areas and estimation of the emissions potentially avoided by the conservation of pristine mangrove
+forests within the proposed project areas. The quantification of carbon stocks of the proposed
+project areas was performed by estimating above- and belowground mangrove biomass and soil
+organic carbon;
+● Specific project area analyses and full country analysis necessary to confirm the technical and
+financial feasibility of the project;
+● Briefing of government stakeholders on our company and project approach;
+● Financial file and evidence submitted to the Ministry of Finance;
+● A Memorandum of Understanding for the development of blue carbon projects in the project area
+was signed by the Ministry of The Environment and Sustainable Development (MEDD).
+Activity plan
+The proposed project activities include the following components:
+1. Site preparation:
+This step involves carrying out all survey and data collection activities necessary to complete the baseline
+assessment. In particular:
+- ground survey and mapping of mangrove extension and degradation areas
+- in-situ validation of remotely-sensed data
+- forest inventory, e.g. map distribution of species in the project area, identification of endangered
+species and baseline biodiversity assessment, mangrove propagules supply assessment
+- identification of activities needed for ecosystem restoration, e.g. hydrological intervention, pollution
+removal. Planting will be carried out only if needed, as the priority will be given to habitat restoration,
+because this is known to have higher success rates and faster recovery times.
+Seven species of mangrove are found in Guinea: Acrostichum aureum, Avicennia germinans, Conocarpus
+erectus, Laguncularia racemosa, Rhizophora harrisonii, Rhizophora mangle, and Rhizophora racemosa.
+The species distribution of woody mangroves varies by location. Avicennia spp. needs greater substrate
+stability, and is generally found in the shallows along the channels going inland, whereas Rhizophora spp
+and Laguncularia prefer convex banks prone to high sedimentation. In-situ surveys will help mapping the
+species distribution and selecting the most suitable for planting, if and where needed.
+2. Capacity building:
+The activities included in this component aim at building capacity amongst local communities and
+stakeholders, by training and empowering people in the participation and management of several project
+aspects. These include:
+- training programmes for local communities on community-based Natural Resource Management
+system
+- improving the capacity of project staff and government partners on Project Cycle Management
+
+Page 21
+VCS Project Description Template, v4.4
+21
+- extending awareness programmes amongst local communities on biodiversity and mangrove
+ecosystems
+- coordinating implementation of livelihoods/ sustainable community projects with special focus on
+women
+3. Mangrove restoration and conservation
+- Establishment of local management and monitoring committees
+- Regular monitoring of field activities, biodiversity, plant re-growth and surveillance
+- Set up permanent sample plots for the carbon monitoring
+- Identification of leakage areas
+4. Community development
+- Baseline survey of local communities on their livelihood systems based on Sustainable Development
+Goals (SDGs). Conducting socio-economic surveys with regular monitoring in the proposed area, to
+collect data on number of people in households, occupation, living condition, education level, income,
+fuel-wood consumption, commercial fish harvesting, etc. These data will serve the purpose of setting a
+baseline to monitor project impacts on livelihood standard of the community
+- Formulating potential sustainable energy, fishery and agriculture practices for local community,
+including also sustainable cookstove and salt production
+- Developing income generation activities to secure local livelihood improvements
+5. Project management, monitoring and evaluation
+- Day-to-day technical and financial project management
+- Project plan implementation monitoring and adjustment
+- Monitoring, verification and reporting
+There is not currently any compliance market, such as an Emissions Trading System (ETS) or cap-and-trade
+system, nor any Article 6 Framework in force or under development in Guinea5.
+The project will not operate in an area covered under a Jurisdictional REDD+ (Reducing Emissions from
+Deforestation and Forest Degradation in Developing Countries), as the Guinean government has not
+submitted any programme (REDD+ Web Platform accessed on the 3rd February 2026).
+Guinea is a signatory to the Paris Agreement, and has presented its revised Nationally Determined
+Contribution in 2025 (3rd revision), which covers the forestry sector. Guinea has expressed its willingness
+to engage in the voluntary carbon market, but it has not provided specific information about how it plans
+to do so. Nonetheless, the Government of Guinea has committed to create a Carbon Market Office (Cellule
+5 International Carbon Action, 2025 https://icapcarbonaction.com/en/ets
+
+Page 22
+VCS Project Description Template, v4.4
+22
+Nationale Carbone) which oversees projects, deals with Corresponding Adjustments and other
+requirements related to the Carbon Market (e.g. BTRs).
+1.13. Project Location
+The proposed project site is located along the northern coasts of Guinea, adjacent to the border with
+Guinea-Bissau. The project site lies within the administrative regions of Boké.
+Blue Coast Carbon has identified two suitable areas for the implementation of a mangrove conservation
+project (Figure 1), which were selected based on the forest maturity and the level of deforestation threat.
+Figure 1 Areas proposed for Blue Coast Carbon project implementation
+Site 1 – North-Frontier and Site 2 – Centre-North are located in the north of the Country, next to the border
+with Guinea-Bissau, and south from Kamsar, respectively (Figure 2). These sites include the Marine
+Protected Areas of Iles Tristao and Rio Kapatchez, designated Ramsar Wetlands of International
+importance (see Section 1.1). Site 1 has a total of 62,683 ha of mangrove forests, while mangroves cover
+a total of 11,068 ha in Site 2.
+In total, the proposed project sites include 73,751 ha of mangrove forests.
+
+Page 23
+VCS Project Description Template, v4.4
+23
+Figure 2 Sites proposed for mangrove conservation Lamantin project. From left to right: Site 1 (North-Frontier),
+Site 2 (Centre-North).
+1.14. Conditions Prior to Project Initiation
+Avoided mangrove deforestation:
+Ecosystem type: Mangrove forests encompassing pristine mangrove areas and degraded/deforested
+mangrove areas along Guinea’s coast over a coastal mud substrate.
+Current and historical land use: The current and historical land use is mangrove forests with areas that
+have been degrading rapidly due to unsustainable overharvesting of mangrove wood.
+Mangrove restoration:
+Ecosystem type: Degraded/deforested mangrove forests, abandoned mangrove rice fields and areas used
+for solar salt no longer operated
+Current and historical land use: The area used to be covered by mangrove forests that have been
+deforested for fuelwood and charcoal, especially for fish-smoking and salt production, and for mangrove
+rice cultivation. These are currently abandoned degraded areas.
+Analysis of satellite imagery shows that targeted restoration areas have been cleared of mangroves more
+than 10 years from the project start date.
+Environmental conditions of the project area
+Topography: The coast of Guinea is approximately 300 km long and is featured by sand and mud, estuaries
+rich in mangroves, and a wide continental shelf favouring the amplification of the tides. The coast is
+
+Page 24
+VCS Project Description Template, v4.4
+24
+indented, with rias (drowned river valleys) that form inlets, tidal marshes, mangrove forests, and estuaries.
+The continental shelf of Guinea extends 300 km along the coast, and covers an area of 47,400 km2, making
+it the largest continental shelf in West Africa6.
+Climate: The West African coast has a subtropical to tropical climate, primarily influenced by the Atlantic
+Ocean and the Sahara Desert7. The West African monsoon, a seasonal low-level atmospheric circulation
+pattern, represents, along with the Harmattan system, the primary driver of climate variability in the region.
+The coasts of Guinea are located within the Guineo-Congolian bioclimatic region, which is the wettest in
+West Africa, with average annual rainfall between 2,200 and 5,000 mm. The rainfall can be distributed
+across most of the year, or in two rainy seasons with short drier periods between the rains.
+Figure 3 Mean annual rainfall 1981–2014, with the number of months of 50 mm or more of rainfall (Adapted
+from CILSS, 2016).
+Hydrology & hydrodynamics: The most important rivers originate in the Guinea highlands and include the
+Niger, Volta, and Senegal rivers 89. For hydroelectric power generation, irrigation, and flood control
+purposes, most of these large rivers as well as smaller ones have been dammed in recent decades,
+6 UNEP. 2007. “Mangroves of Western and Central Africa.” UNEP-Regional Seas Programme/UNEP-WCMC.
+7 Lewis K, Buontempo C (2016) Climate impacts in the Sahel and West Africa: the role of climate science in
+policy making”, https://doi.org/10.1787/5jlsmktwjcd0-enresilient coasts (worldbank.org)
+8 Diop S, Fabres J, Pravettoni R, Barusseau JP, Descamps C, Ducrotoy JP (2014) The western and central africa
+land–sea interface: a vulnerable, threatened, and important coastal zone within a changing environment. In: The
+land/ocean interactions in the coastal zone of west and Central Africa (pp. 1–8). Springer, Cham
+9 Anthony EJ (2015) Patterns of sand spit development and their management implications on deltaic, drift
+aligned coasts: the cases of the Senegal and Volta River delta spits, West Africa. In: Randazzo G, Cooper JAG
+(eds) Sand and gravel spits coastal research library series 12. Springer, Berlin, pp 21–36
+
+Page 25
+VCS Project Description Template, v4.4
+25
+significantly altering their hydrology and sediment flows, accelerating coastal erosion downstream8910. The
+West African coast is generally considered a storm-free environment, dominated by North Atlantic distant
+swells1112 with their interannual fluctuation described by the North Atlantic Oscillation8. The wave regime
+in the Gulf of Guinea area is mainly driven by extratropical storms, and their variability is modulated by the
+South Atlantic Annular Mode (SAM)1314. The evolution of the sandy coast is controlled by strong longshore
+sediment drift resulting from oblique waves1115. Tidal amplitude is typically micro- to meso-tidal, with the
+highest amplitudes recorded in Guinea, Guinea-Bissau and Sierra Leone (2.8–4.7 m)8.
+Biodiversity, ecosystems & vegetation: The richness of estuaries, deltas, coastal lagoons, and nutrient-rich
+cold water upwelling contributes greatly to the biodiversity in West Africa. These habitats include (1)
+wetlands, particularly those surrounding mangroves in a succession of deltas and estuaries, providing key
+habitats for migratory birds16; (2) coastal freshwater lagoons, deltas and estuaries, and a wide range of
+tidal marshes and seasonal swamps, also counting with seagrass beds located off some estuaries,
+archipelagos and deltas; (3) sandy beaches, considered important nesting ecosystems, especially for sea
+turtles. The dominant factor affecting the waters of the continental shelf is coastal upwelling, which is the
+source of the rich fish production of the region.
+Guinea’s coastal and marine areas are characterised by the presence of still-preserved ecosystems,
+including large mangrove zones and rich natural-resource waters that are habitats for important plant and
+animal species, including the endangered West African manatee, pygmy hippos, a variety of Cetacea, and
+critically endangered migratory birds.
+In western Guinea, two ecoregions characterize some 300 km of Atlantic coastline and coastal plains — the
+Plaines Côtières (PC – Coastal Plains) and Zones de mangroves (ZM – Mangrove Zones).
+10 Abessolo GO, Larson M, Almar R (2021) Modeling the Bight of Benin (Gulf of Guinea, West Africa) coastline
+response to natural and anthropogenic forcing. Regional Stud Marine Sci 48:101995
+11 Almar R, Kestenare E, Boucharel J (2019) On the key influence of remote climate variability from Tropical
+Cyclones, North and South Atlantic mid-latitude storms on the Senegalese coast (West Africa). Environ Res
+Commun 1:071001
+12 Ndour A, et al. (2020) On the natural and anthropogenic drivers of the Senegalese (West Africa) low coast
+evolution: Saint Louis Beach 2016 COASTVAR experiment and 3D modeling of short term coastal protection
+measures. In: Malvárez, G. and Navas, F. (eds.), Global Coastal Issues of 2020. J Coastal Res, Special Issue No.
+95, pp. 583–587. Coconut Creek (Florida), ISSN 0749–0208.
+13 Almar R, et al. (2015) Response of the Bight of Benin (Gulf of Guinea, West Africa) coastline to
+anthropogenic and natural forcing. Part 1: Wave Climate variability and impacts on the longshore sediment
+transport. J Cont Shelf Res 110:48–59
+14 Abessolo GO, Almar R, Jouanno J, Bonou F, Castelle B, Larson M (2020) Beach adaptation to
+intraseasonal sea level changes. Environ Res Commun 2:051003
+15 Anthony EJ, Almar R, Besset M et al (2019) Response of the Bight of Benin (Gulf of Guinea, West Africa)
+coastline to anthropogenic and natural forcing, Part 2: sources and patterns of sediment supply, sediment
+cells, and recent shoreline change. Cont Shelf Res 173:93–103
+16 Diop S, Fabres J, Pravettoni R, Barusseau JP, Descamps C, Ducrotoy JP (2014) The western and central
+africa land–sea interface: a vulnerable, threatened, and important coastal zone within a changing
+environment. In: The land/ocean interactions in the coastal zone of west and Central Africa (pp. 1–8).
+Springer, Cham
+
+Page 26
+VCS Project Description Template, v4.4
+26
+Figure 4 Ecoregions of Guinea (Source: CILSS, 2016).
+Mangroves are found all along the Guinean coast except for Cape Verga and Kaloum Island. The topography
+of the coastal area facilitates the deposition of sediment and submersion of the mouths of the rivers. There
+is a long tidal reach up the estuaries, which causes flooding of the rivers, leaving raised bars. It is here that
+mangroves can develop, within the bay of the estuary. Mangroves extend more than 10 km inland and,
+along the widest rivers, they can be found up to 40 km inland from the coast17.
+The maximum possible area suitable for mangroves in Guinea, based on geomorphology, is estimated to
+be around 4,000 km2 18. Of these, approximately 1,300 m2 of land currently do not have any mangrove
+cover because these areas have been cleared for agriculture, salt production, or for increased urbanization,
+including the building of ports. Others are simply lying abandoned. The remaining 2,700 km2 currently
+under mangrove cover also faces various levels of degradation.
+17 Profile, C. 2005. “Global Forest Resources Assessment 2005: Thematic Study on Mangroves.”
+18 Based on the conversion of an estimated 1,400 km2 of mangrove swamp being converted to rice fields,
+of which 620 km2 lay abandoned in 1993. (Spaulding 1997)
+
+Page 27
+VCS Project Description Template, v4.4
+27
+Common mangrove species found in Guinea: Seven species of mangrove are found in Guinea: Acrostichum
+aureum, Avicennia germinans, Conocarpus erectus, Laguncularia racemosa, Rhizophora harrisonii,
+Rhizophora mangle, and Rhizophora racemosa. The species distribution of woody mangroves varies by
+location. Avicennia needs greater substrate stability, and is generally found in the shallows along the
+channels going inland, whereas Rhizophora and Laguncularia prefer convex banks prone to high
+sedimentation.
+All Guinean species are listed as ‘least concern’ on the IUCN Red List of threatened species19.
+The non-woody mangroves of Guinea tend to be located in degraded areas20. In denuded areas, Avicennia
+and Rhizophora are found in mixed settlements along the banks of the channels. More developed “forest
+cathedrals” are found along the Konkouré River where there is fresh water from inland. Avicennia
+germinans and grassy species often colonize the deforested areas intended for rice growing. Rhizophora
+racemosa can reach 25 m in height in Kakounsou and in the Bay of Sangaréya, but in other areas the trees
+seldom exceed 8 m and are often much smaller. In the same zone, Avicennia germinans grows up to 15
+m, and Conocarpus erectus can also be found here21.
+Mangrove species Characteristics Occurrence Propagation
+Avicennia germinans
+(Black Mangrove)
+Develops
+pneumatophores (aerial
+roots), which protrude
+from the soil around the
+tree’s trunk.
+Occurs at higher
+elevations inland than
+the red mangrove.
+Reproduces by vivipary,
+with sprouting seeds
+that drop into the soft
+bottom around the base
+of the trees. The seeds
+can also be transported
+by currents and tides to
+other suitable locations.
+Laguncularia racemosa
+(White Mangrove)
+Does not develop visible
+pneumatophores, and
+has elliptical light
+yellow-green leaves.
+Occurs at even higher
+elevations farther
+upland than either the
+red or black
+mangroves.
+Sprouting seeds that
+drop into the soft
+bottom around the base
+of the trees. The seeds
+can also be transported
+by currents and tides to
+other suitable locations.
+19 https://www.iucnredlist.org/
+20 UNEP. 2007. “Mangroves of Western and Central Africa.” UNEP-Regional Seas Programme/UNEP-WCMC.
+21 Profile, C. 2005. “Global Forest Resources Assessment 2005: Thematic Study on Mangroves.”
+
+Page 28
+VCS Project Description Template, v4.4
+28
+Conocarpus erectus
+(Silver-leaved
+Buttonwood)
+Belongs to the same
+family as the white
+mangrove, but has a
+different appearance,
+with dense, rounded
+flowerheads that grow
+in a branched cluster,
+and purplish-green,
+round, conelike fruit.
+Grows in brackish areas
+and alkaline soils,
+thriving in the broken
+shade and wet soils.
+The seed heads burst
+when ripe, and the
+seeds are dispersed by
+water.
+Acrostichum aureum
+(Golden Leather Fern)
+Does not have any
+pneumatophores;
+instead has fibrous,
+fernlike roots. It can
+grow up to 1.5 m high
+and have leaves that
+can be up to 1 m long
+and 4 cm wide.
+Grows in swamps and
+mangrove forests, salt
+marshes, and on river
+banks; is tolerant of
+raised salinity levels.
+Mature fronds become
+sporophyllous, diffuse
+sporangia at the abaxial
+surface, mixed
+sporangia on both sides
+of the mid-vein, brown
+sporangia stalked,
+upper globose.
+Rhizophora harrisonii A hybrid of R. mangle
+and R. racemosa;
+shares morphological
+characteristics with
+both species and is
+recognized by FAO as a
+distinct species.
+Mostly found in the
+estuaries of river
+systems with more
+continuous freshwater
+flows.
+Creates a propagule
+that is a fully-grown
+propagule on the
+mangrove and is
+capable of rooting and
+producing a new tree.
+Rhizophora mangle
+(Red Mangrove)
+Usually grows to 10–20
+m in height and has a
+10–30 cm diameter at
+breast height (DBH); in
+some sites has been
+observed to exceed 40
+m in height and 70 cm
+DBH.
+Generally found
+growing along the
+water’s edge.
+Sprouting seeds that
+drop into the soft
+bottom around the base
+of the trees. The seeds
+can also be transported
+by currents and tides to
+other suitable locations.
+Rhizophora racemosa Grows up to 30 m tall,
+often with aerial stilt
+roots; in more marginal
+habitats is shorter,
+more branched, and
+It is a pioneering
+species, being the first
+mangrove to appear in
+mud flats. It primarily
+occurs in the open
+The fruit produces
+propagules that may fall
+into the water and be
+
+Page 29
+VCS Project Description Template, v4.4
+29
+scrubby. The leaves
+grow in opposite pairs,
+each pair with two
+interlocking stipules.
+The leaves are simple
+and entire, with elliptical
+hairless blades and
+slightly down-rolled
+margins.
+lagoon systems in
+areas along the
+coastlines.
+dispersed by wind and
+currents.
+One of the specificities of the mangrove areas of Guinea is the existence of three specific types of plains:
+● Estuarine plains. These border the estuaries of the mouths of coastal rivers. They are very
+submersible, and are naturally occupied by Rhizophora mudflats (which are dominant).
+● The seafront plains. These are located in sectors further from the mouths of rivers. They are much
+less submersible than the estuarine plains, but with salty soils. They were originally occupied by
+Avicennia; since the 1950s they have been used for rice cultivation.
+● The back mangrove plains. These are floodable (especially during the rainy seasons). They are
+found in the transition between continental (non‑salty) brackish and salty environments, and are
+partially colonized by hydrophytes with drainage constraints.
+Mangroves in Guinea provide habitats and feeding grounds for several migratory shorebird species,
+offshore fisheries, and important marine species. The common bird species include the African spoonbill
+(Platalea alba), common pratincole (Glareola nuchaltis), the near threatened curlew (Numenius arquata)
+and the vulnerable Rufus fishing owl (Scotopelia ussheri)2223.
+Vertebrate faunae include the threatened West African manatee (Trichechus senegalensis), the Water
+Chevrotain (Hyemoschus aquaticus) and the common Bottlenose dolphin (Tursiops truncatus). The
+Konkouré and Tristao Ramsar sites are home to the vulnerable African dwarf crocodile (Osteolaemus
+tetraspis), the Nile crocodile (Crocodylus niloticus), and the African sharp-nosed crocodile (Mecistops
+cataphractus). Other reptile species include the common Senegal mabuya (Trachylepis affinis), the rare
+Nimba snake-eyed skink (Panaspis tristaoi), the half-toed gecko (Hemidactylus albivertebralis) and the
+African rock python (Python sebae).
+Primates including the endangered Red Colobus monkey (Procolobus badius), the small green monkey
+(Cercopithecus sabeus) and the common patas monkey (Erytrocebus patas) can also be spotted in the
+mangroves of Guinea. Guinea’s beaches are breeding grounds for leatherback (Dermochelys coriacea),
+loggerhead (Caretta caretta), green (Chelonia mydas), and olive ridley (Lepidochelys olivacea) sea turtles
+22 Thiollay, JM. Important Bird Areas in Africa and Associated Islands. Priority Sites for Conservation.
+2001. Biodiversity and Conservation 11, 1697–1698 (2002). https://doi.org/10.1023/A:1016864606424
+23 Guinea - BirdLife Country Profile, accessed on the 29th September 2025
+https://datazone.birdlife.org/country/factsheet/guinea
+
+Page 30
+VCS Project Description Template, v4.4
+30
+and the mangroves provide important nursery areas for juvenile sea turtles and fish. Fish species of
+commercial importance found in Guinea’s mangroves include the Tilapia spp, the endangered Senegalese
+otolith (Pseudotolithus senegalensis), the near threatened Sea banana (Albula vulpes), and mullets (Mugil
+cephalus), shrimp (Palaemon hastatus) and crabs (Portunus validus)24.
+Land-use pressures on mangrove forests: The country’s coastal areas are subject to a number of
+environmental impacts arising from population growth and development within the country’s key economic
+sectors (agriculture, fisheries, mining, and infrastructure). Rapid population growth has resulted in
+increased exploitation of coastal resources like mangroves and fisheries, many of which raise issues of
+sustainability.
+The most common use of mangroves in Guinea is as fuelwood and charcoal, especially for fish-smoking
+and salt production. Mangrove wood is also used for construction purposes, including the roofing of houses.
+Currently the conversion of mangrove wetlands for salt production, and the expansion of towns and villages
+are major destructive threats to mangroves in Guinea25.
+In West Africa, including Guinea, salt is either produced by cooking (i.e. evaporation using heat generated
+by firewood) or by sun-dried crystallization. The cooked salt consumes a considerable amount of wood from
+the mangrove while the sun-dried salt is less productive in the local communities. In Guinea, it is estimated
+that the production of 1 kg of salt requires 3.1 kg mangrove wood26.
+To produce salt, the mangrove vegetation is removed in selected areas and the underlying soils are dug up
+to a depth of around 10 cm to facilitate evaporation. After a few days, the upper crusts are raked and
+scraped and, finally, collected into heaps for processing. These soils are leached several times with the
+same water and the saline solution is then boiled to obtain crystallized salt. The firewood requirement is
+met by the neighbouring mangroves. The environmental consequences of such salt production include the
+formation of barren depressions in which the hydrological regime is modified, destruction of mangroves for
+firewood, compaction of the surface soil by repeated raking and trampling, and the creation of ecological
+conditions unsuitable for the recolonization of mangroves.
+Current estimates indicate that approximately 220,000 tonnes of mangrove cuttings is in direct use each
+year for salt manufacturing, fish curing, and as fuelwood and timber in Conakry and in rural areas of the
+country. However, the annual natural mangrove wood growth per year in the 1,000 km2 of commercially
+suitable area is only 80,000–150,000 tonnes, depending on the type of mangroves. This clearly
+demonstrates a reason for the loss of mangrove cover from overexploitation. However, it also shows that if
+24 Beth A. Polidoro et al., “The Status of Marine Biodiversity in the Eastern Central Atlantic (West and Central
+Africa),” Aquatic Conservation: Marine and Freshwater Ecosystems 27, no. 5 (October 2017): 1021–34,
+https://doi.org/10.1002/aqc.2744
+25 International Bank for Reconstruction and Development (2023). West Africa Coastal Areas High-Level Platform
+Benefits of Mangrove Afforestation and Restoration Programs in Guinea-Conakry.
+26 Siddighi, Balde & Kobayashi, Hajime & Nohmi, Makoto & Ishida, Akira & Matsumura, Ichizen & Esham,
+Mohamed & Tolno, Emmanuel. (2013). SOCIO-ECONOMIC ANALYSIS OF SMALL-SCALE SALT PRODUCTION
+TECHNIQUES IN THE COASTAL AREA OF GUINEA: AS AN ALTERNATIVE FOR IMPROVING LIVELIHOOD STATUS AND
+SUSTAINABLE MANGROVE FOREST MANAGEMENT. International Journal of Research in Engineering, IT and
+Social Sciences. Volume 3. 1-23.
+
+Page 31
+VCS Project Description Template, v4.4
+31
+all 2,700 km2 can be made commercially suitable, the annual sustainable yield would range from
+210,000–410,000 tonnes, and could help to arrest the degradation of mangrove areas.
+The clearing of mangroves for fuelwood and charcoal, timber, and salt extraction has resulted in mangrove
+degradation, and expansion of the port of Kamsar in the Bay of Sangaréya has resulted in the loss of
+700,000 m2 of mangroves. Fortunately, reforestation of the same area using the Rhizophora and Avicennia
+species was undertaken between 1993 and 1998 to help mitigate these effects27.
+The extractive industry is also increasingly space-consuming in Guinea. The extraction of bauxite, an ore
+needed to manufacture aluminium, is on the rise since 201428. In 2020, Guinea was the world's second-
+largest producer of bauxite and has the largest reserves in the world (25%)29. Most of the production (80%)
+is located in the Boké region in the north of the Country. The processing and transport of bauxite that takes
+place in the coastal zone has also affected the coastal ecosystem, although the extent of the impact has
+not been studied extensively.
+Losses of mangrove areas have also been caused by the reclamation of land for agriculture. Mangrove rice
+cultivation is widespread in Guinea. It is made possible by mangrove bunds that protect the land from
+flooding. Most of the land used for rice cultivation has been obtained over time by clearing erstwhile
+mangrove plantations.
+Twenty-three percent of the national rice production in Guinea is from mangrove areas, and it provides
+livelihoods for more than 50,000 rice farmers, the majority of whom are women. Shifting to agriculture also
+occurs where salt inundation is low. Mangrove rice is a flood-fed crop requiring two flooding cycles, one
+with freshwater and one with saltwater. The saltwater is needed to eliminate weeds, regulate soil pH, and
+deposit organic matter and nutrients. Freshwater is necessary for soil desalination prior to cultivation, and
+maintenance of the water table throughout the cycle.
+In ideal conditions, mangrove rice farming produces higher yields than other rice farming techniques used
+in the interior of the country. Annual mangrove rice production averages around 376,000 tonnes; it
+represents 16% of rice farmland in the country, and 23% of national production30.
+Of an estimated 1,400 km2 of mangrove that had been converted to rice fields in Guinea by 1993, 620
+km2 had been abandoned31. The accelerated rate of conversion of mangrove forests to rice in Guinea has
+resulted in irreversible damage to these forests.
+Sea level rise & erosion: In addition to mangroves being cut to support subsistence rural livelihoods and
+conversion to rice fields, sea-level rise and other climatic phenomena are also contributing toward
+27 UNEP. 2007. “Mangroves of Western and Central Africa.” UNEP-Regional Seas Programme/UNEP-WCMC.
+28 Initiative pour la transparence dans les industries extractives en Guinée. Rapport Assoupli 2019-2020.
+https://www.itie-guinee.org/rapport-assoupli-exercices-2019-2020/"
+29 https://pubs.usgs.gov/periodicals/mcs2021/mcs2021-bauxite-alumina.pdf
+30 Agence Franç aise de Developpement 2016
+31 Spalding M. , F. Biasco, C Field 1997. Word Mangrove Atlas. International Society or Mangrove Ecosystems.
+Okinawa, Japan.
+
+Page 32
+VCS Project Description Template, v4.4
+32
+mangrove degradation in Guinea. These occur through the loss of coastal and intertidal habitats, including
+changes in geomorphological processes, and the increased vulnerability of woody formations (UNDP 2019).
+Studies also reveal that sea-level rise is a major potential threat to mangrove ecosystems due to their
+sensitivity to the duration and frequency of flooding, and salinity levels that may exceed the physiological
+threshold of mangrove-specific tolerance. Additionally, the failure to maintain dikes built in previous
+decades, and the lack of planning and integration of climate risks in construction activities on the coast
+have contributed to the coastal zone’s vulnerability to erosion, and have affected the mangroves. Sea-level
+rise will increase the direct inundation of low-lying areas, facilitate rapid erosion of the soft shores, and
+increase offshore loss of sediment as well as flooding.
+The projected total sea level is expected to raise by 0.78 m by 2100, based on the sea level projections
+relative to the period 1995-2014 for the West African region for Shared Socioeconomic Pathway (SSP)
+scenario SSP5-8.5 (very high GHG emissions), as defined by the 6th Assessment Report from the IPCC32.
+Figure 5 Sea level projections relative to the period 1995-2014 for the West African region32.
+It is estimated that a 1 m increase in sea level will inundate a significant portion of the coastal areas,
+causing major problems for mangrove rice cultivation.
+Mangrove deforestation trends: Estimates show that Guinea currently has a little over 2,000 km2 of
+mangrove forests, down from 4,000 in 19573334. Between 1980 and 2006, it is estimated that the
+mangrove area in Guinea fell from 2,992 to 2,039 km2, representing a loss of 32 %2735. A 2019 survey by
+NASA estimated the mangrove area to be 2,076 km2.
+32 Data accessed through the NASA Sea Level Projection Tool
+33 Diallo M. et al. 2019: Model of Criteria Taking into Account Halieutic Biodiversity in Strategic Port Planning in
+Guinea.” Vertigo: The electronic journal in environmental sciences, vol.19 n° 3.
+34 Rouanet 1957, cited in Kaba, B. 2001
+35 Ajonina, G., A. Diamé, and J. Kairo. 2008. “Current Status and Conservation of Mangroves in Africa: An
+Overview.” World Rainforest Movement Bulletin 133: 1–6.
+
+Page 33
+VCS Project Description Template, v4.4
+33
+According to the Global Mangrove Watch, in 2020 the area of mangrove habitat in Guinea was 2,211.45
+km2, with a deforestation rate between 2010 and 2020 of 1.9% 36. Estimates reveal that only about 1,000
+km2 of this total area is in a good enough state that it could allow for commercial exploitation of mangroves
+if done on a sustainable basis37.
+Socio-economic situation: Despite its abundant natural resources, growing population, and privileged
+geographic location, 52% of Guineans live below the international poverty line of $3.65 a-day, with the
+poverty rate increasing by 7% between 2019 and 202438. This limited poverty reduction is due to weak
+productivity growth resulting from low levels of physical and human capital, declining competitiveness of
+non-mining sectors, and significant structural inequalities in income, education, and infrastructure.
+Figure 6 Contribution to inflation in Guinea (left) and poverty rates and real GDP per capita (right)36.
+Food inflation is elevated and is the main driver of inflation in Guinea, contributing 3.3% to the national
+annual inflation rate of 5.1% in 2024. The increase in food prices disproportionately affects the poor, with
+low-income populations being particularly vulnerable as they spend a larger share of their income on food.
+Persistent food inflation could exacerbate food insecurity in Guinea where the prevalence of severe food
+insecurity among the total population is already high, estimated at 50%. In fact, despite real GDP per capita
+increasing by 3.1% in 2024, the poverty rate (<$3.65-a-day in 2017) increased by 0.3ppts to 52% due to
+slightly higher annual inflation and insufficient non-mining sector job creation38.
+36 www.globalmangrovewatch.org (accessed on 6th November 2025)
+37 RUË O. (1998): The development of the coast of Guinea - Memories of mangroves - ed. The Harmattan
+38 World Bank. 2025. Guinea Economic Update: Domestic Resource Mobilization and Management for Inclusive
+and Sustainable Development, DC: World Bank.
+
+Page 34
+VCS Project Description Template, v4.4
+34
+Female-headed households are more vulnerable to poverty due to lower educational attainment. Women
+aged 25-35 are 19% more likely to live in poverty compared to men (43.4% vs. 24.4%). This is exacerbated
+by the school enrolment gap for girls, which widens at the secondary level. The lack of investment in
+women’s human capital increases their poverty risk and limits their economic participation. Limited
+intergenerational mobility in education perpetuates poverty across generations. Nationally, 73% of adults
+whose fathers lacked formal education also lack formal education, with the share rising to 84% in rural
+areas. This suggests persistent income disparities and inequality unless access to education is expanded38.
+Women living in coastal areas are heavily dependent on mangrove products, further highlighting their
+vulnerability39.
+1.15. Compliance with Laws, Statutes and Other Regulatory Frameworks
+The project will be in line with all laws and statutory requirements of Guinea such as the Civil Code (2019)
+and the ones regarding :
+Labour: Guinea Labor Code (Loi N°L/2014/072/CNT portant Code du travail) especially the articles about
+working conditions and presidential decree of 1st June 2022 regarding the new Guinean Minimum Salary;
+Land ownership: Land law in Guinea is governed by the following texts:
+• Constitution of 2010, which guarantees its citizens the right to private property.
+• The Guinea Land Code of 1992 (Code Foncier et Domanial), which stipulates that the owner is the
+person who provides proof of the occupation of a plot of land through its use (creation of value) or through
+a public inquiry40. This law establishes access to individual property for individuals and legal entities, while
+maintaining the presumption of State ownership of vacant and unowned land. This reform also creates land
+commissions in each prefecture of Guinea41. This law was essentially designed to address urban
+specificities: only Article 92 addresses the issue of rural land tenure, albeit in a very vague manner.
+• The Rural Land Policy of 2001 (Déclaration de la Politique Foncière en Milieu Rural) acknowledges
+specific customary land rights and encourages the creation of laws to formalize these rights with an
+increase of local participation. However, this policy was not accompanied by implementation measures.
+39 WACA (2023). Technical Report: Understanding the Nexus of Mangroves and Women in Guinea-Conakry.
+https://www.wacaprogram.org/knowledge/technical-report-understanding-nexus-mangroves-and-women-
+guinea-conakry
+40 Article 39: The following are owners within the meaning of this Code: 1° - natural or legal persons holding a
+land title; 2° - occupants, natural or legal persons, holders of a land register, residence permit or occupation
+permit; 3° - occupants, natural or legal persons, who can prove that they have occupied a building peacefully,
+personally, continuously and in good faith and as owner. If necessary, proof of good faith shall be provided by all
+means, in particular by payment of property taxes relating to the said building, by the development of the building
+in accordance with local customs or by a public and adversarial inquiry.
+41 Diop, Moustapha. 2017. Réformes foncières et gestion des ressources naturelles en Guinée : enjeux de
+patrimonialité et de propriété dans le Timbi au Fouta Djalon. Paris: Karthala.
+https://landportal.org/library/resources/9782845868564/r%C3%A9formes-fonci%C3%A8res-et-gestion-des-
+ressources-naturelles-en-guin%C3%A9e.
+
+Page 35
+VCS Project Description Template, v4.4
+35
+The process of revising the land laws, which began in 2012, has still not been completed 10 years after its
+launch42.
+• The Pastoral Rights Law of 1995 (Loi L/95/51/CTRN portant Code Pastoral) provides herders with
+open and unrestricted access to pastoral areas and the natural resources within them, with the condition
+of avoiding overuse and respecting the customary rights of other users.
+Forests and restoration:
+- Guinea’s Forestry Code (Loi ordinaire U2017/060/AN du 12 décembre 2017, portant code forestier de
+la République de Guinée) especially articles 51, 67, 124, 128, 137 and 142 which encourage forest
+restoration.
+- Guinea’s Environmental Code (Decret D/2019/221/PRG/SGG portant promulgation de la loi L/2019/00
+34/AN du 04 juillet 2019) especially article 38 and 39.
+-Wildlife Protection Code and Hunting Regulations (Loi Ordinaire N° 2018/0049/AN Portant Code de
+protection de la faune sauvage et réglementation de la chasse and Arrêté A/2020/1591/MEEF/CAAB/SGG
+Portant protection des espèces de faune et de flore sauvages en République de Guinée).
+Water:
+- Code Maritime regulates the maritime waters under the jurisdiction or sovereignty of the Republic of
+Guinea, vessels registered in the Republic of Guinea, their crews, and passengers on board, the crews and
+passengers of foreign vessels, and floating platforms located in waters under national jurisdiction.
+- Code de la Pêche maritime, regulating maritime fishing in the Republic of Guinea, defines the rules
+applicable to fishing in the maritime zones under Guinean sovereignty or jurisdiction, as well as the rules
+applicable to Guinean fishing vessels operating beyond these zones.
+- Code de l’Eau regulates water resources, including a set of measures to be taken to ensure their
+permanent quantitative and qualitative inventory, protection, enhancement, and optimal use, taking into
+account the social, economic, and cultural needs of the nation.
+In addition, Guinea is a signatory to the African Forest Landscape Restoration Initiative (AFR100) which is
+a pan-African effort aimed at restoring 100 million hectares of deforested and degraded landscapes across
+the African continent by 2030. This ambitious initiative seeks to address critical issues such as land
+degradation, climate change mitigation, and biodiversity conservation. AFR100 brings together a diverse
+range of stakeholders, including governments, local communities, non-governmental organizations, and
+42 https://data.landportal.org/book/narratives/2022/guinea#ref7
+
+Page 36
+VCS Project Description Template, v4.4
+36
+private sector partners, to collaborate on large-scale restoration projects. Within this framework, Guinea
+aims to restore 55% of degraded land and restrict the loss of undegraded land to 1% before 203043.
+There is currently no specific legislation for mangrove forests in Guinea. However, the importance of
+mangroves for the climate, biodiversity, and society is recognized by state actors, and policy frameworks
+are being developed at the national and regional levels for this habitat.
+The Ministry of Environment and Sustainable Development is responsible for:
+● developing the Mangrove Management Master Plan;
+● consulting with communities in mangrove areas affected by high deforestation rates;
+● proposing solutions to mangrove degradation.
+However, Guinea has not yet established dedicated coastal protected areas, and mangrove forests are only
+partially included in protected areas.
+Other weaknesses related to the protection of mangrove forests include a limited capacity of government
+institutions to reform, weak academic training, and a lack of resources to monitor and enforce regulations
+on the ground.
+Furthermore, the laws governing protected areas are sometimes contradictory. For example, the Ministry
+of the Environment is legally responsible for the management of classified forests, but in practice, the
+prefect is also authorized to grant occupancy permits to individuals, without taking mangroves into account
+in the absence of a clear legal framework.
+Protected areas are poorly defined; they include classified forests, national parks, etc., but this definition
+is not unanimous, and a protected areas code is currently being finalized.
+The proposed activities fall within a regulatory framework that is evolving favorably, but conservation
+frameworks still lack rigorous enforcement in coastal areas, demonstrating the regulatory overhang of the
+project's activities.
+43 https://afr100.org/country/guinea#section-projects
+
+Page 37
+VCS Project Description Template, v4.4
+37
+1.16. Double Counting and Participation under Other GHG Programs
+1.16.1. No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity under another
+GHG program?
+☐ Yes ☒ No
+1.16.2. Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+Is the project active under the other program?
+☐ Yes ☒ No
+1.16.3. Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+1.17. Double Claiming, Other Forms of Credit, and Scope 3 Emissions
+1.17.1. No Double Claiming with Emissions Trading Programs or Binding Emission
+Limits
+Are project reductions and removals or project activities also included in an emissions trading program or
+binding emission limit? See the VCS Program Definitions for definitions of emissions trading program and
+binding emission limit.
+☐ Yes
+☒ No
+1.17.2. No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-related
+environmental credit system? See the VCS Program Definitions for definition of GHG-related environmental
+credit system.
+☐ Yes
+☒ No
+1.17.3. Supply Chain (Scope 3) Emissions
+
+Page 38
+VCS Project Description Template, v4.4
+38
+Do the project activities specified in Section 1.12 affect the emissions footprint of any product(s) (goods or
+services) that are part of a supply chain?
+☐ Yes ☒ No
+1.18. Sustainable Development Contributions
+The proposed project will contribute to the achievement of the following five sustainable development goals
+(SDGs) of the United Nations’ Agenda 2030:
+SDG 5: Gender equality (medium priority)
+Monitoring, restoration, and surveillance activities will be carried out directly employing local communities
+for the whole duration of the project. Men and women will be involved in equal measure in all project
+activities, including stakeholder consultations, ensuring women’s full and effective participation and equal
+opportunities at all levels.
+This will be monitored by assessing the proportion of work positions held by women in project
+implementation and stakeholders consultation, including managerial positions.
+The project will oversee the development of side economic activities owned by women, e.g. beekeeping,
+aquaculture projects, ecotourism.
+SDG 8: Decent work and economic growth (medium priority)
+The project will provide direct employment as well as development and entrepreneurship opportunities for
+local communities, including through training and professional development, to ensure long-term impact.
+The project is also designed to provide alternative livelihoods for the local community by testing and
+generating income streams from the project area through carbon, agroforestry, and other economic
+activities. Community initiatives will increase incomes and promote sustainable agricultural and fishing
+practices to improve living conditions. The protection, restoration and reduction of pollution in mangroves
+will also help to enhance food security by protecting fish nurseries and improving them for future fish stocks.
+SDG 13: Climate action
+The project will restore degraded mangrove forests, aiming at contributing to climate change mitigation by
+removing greenhouse gases from the atmosphere through mangrove forest restoration and planting. The
+new mangrove growth will enhance carbon stocks in biomass and soil. Restoring degraded ecosystems will
+capture more than 1,900,000 tonnes of CO2e.
+Mangroves provide long-term coastal protection from extreme weather and climate-related events, as they
+mitigate erosion and stabilize soil. Their intricate and expansive crown-root systems entrap sediments and
+dissipate turbulent kinetic energy which also enhances sediment deposition. Mangroves are also crucial in
+mitigating the impact of tropical cyclones and storm surges, and offer substantial protection against wind
+
+Page 39
+VCS Project Description Template, v4.4
+39
+damage during storms. Restoring mangroves will thus strengthen coastal resilience to sea level rise and
+more intense storms.
+SDG 14 Life below water (low priority)
+This project aims at establishing a new coastal protected area managed by an ecosystem-based approach,
+thus contributing to the achievement of SDG 14. The project area covers threatened coastal habitat that is
+under pressure from encroachment, development and pollution.
+Furthermore, the high productivity and physical complexity of mangrove ecosystems make them important
+nursery grounds for many commercial and non-commercial fish and invertebrate species. The restoration
+and conservation activities foreseen will thus contribute to the restoration of fish stocks in Guinea. The
+project's restoration activities will promote the recovery of the natural ecosystem, species richness, and
+contribute to the reduction of nutrient pollution, thanks to the natural capability of mangroves to filter
+organic pollution.
+SDG 15: Life on land (deforestation) (low priority)
+This project will promote the implementation of sustainable management of mangrove forests, halt
+deforestation, restore degraded forests and increase reforestation in Guinea.
+1.19. Additional Information Relevant to the Project
+1.19.1. Leakage Management
+Section to be completed in the PD submitted for validation.
+1.19.2. Commercially Sensitive Information
+No commercially sensitive information has been excluded from this document.
+1.19.3. Further Information
+No further information needs to be provided at this time.
+2. SAFEGUARDS AND STAKEHOLDER ENGAGEMENT
+2.1. Stakeholder Engagement and Consultation
+2.1.1. Stakeholder Identification
+
+Page 40
+VCS Project Description Template, v4.4
+40
+Stakeholder
+Identification
+Stakeholders identification will take place following FAO’s FPIC
+principles and CCB guidelines.
+Blue Coast Carbon will carry out a thorough stakeholder mapping and
+analysis before the project starts, to identify who has rights and
+interests over the project area, and how every stakeholder relates to
+each other and to the project.
+We will seek to map both primary and secondary stakeholders.
+Primary stakeholders include individuals or groups with statutory or
+customary rights to land or resources within the project area, e.g.
+Indigenous Peoples and Local Communities, residents in the area,
+smallholder farmers, and businesses operating in the project area.
+Secondary stakeholders are local, regional, and national authorities
+or organizations involved in the region's conservation, restoration, or
+development initiatives, e.g., Government agencies and traditional or
+customary power structures, Non-Governmental Organizations
+(NGOs), Academic or research institutions, non-local businesses
+operating around the site or in relevant industries, other local carbon
+project proponents or developers.
+Once all the relevant stakeholders are identified, Blue Coast Carbon
+together with the local partner will analyse living standards, health,
+access to infrastructures and facilities, climate change adaptation of
+each group. Each stakeholder will be prioritised and selected based
+on their importance and influence over the project, to categorise
+those to be involved, consulted or informed during each project
+phase. The potential impact of the project on the different groups will
+also be assessed.
+The stakeholders analysis will also include a gender analysis,
+assessing the relative positions of women and men in terms of
+representation and influence, and the benefits and disincentives
+associated with the allocation of tasks to women and men.
+Blue Coast Carbon has been working on the ground in Guinea since
+March 2025. Since then, the Company has carried out a preliminary
+stakeholder mapping, meeting Government representatives and
+potential partners. These include the following:
+● National government: Ministry of Environment and
+Sustainable Development (MEDD), Ministry of Agriculture
+and Livestock, National Parks Directorate (OGPNRF)
+
+Page 41
+VCS Project Description Template, v4.4
+41
+● Public agencies: French Embassy, Service de Coopération et
+d’Action Culturelle (SCAC), Agence Francaise de
+Development
+● NGOs: Biotope, United Nation Development Programme,
+Charente-Maritime Coopération
+Section to be completed and updated in the PD submitted for
+validation.
+Legal or customary
+tenure/access rights
+Under Articles 53 and 54 of the Maritime Code (2019), all Guinean
+mangroves fall within the Maritime Public Domain (DPM). This domain
+is inalienable and includes a 100-meter coastal strip and all areas up
+to the limit of water salinity. Consequently, while Article 17 of the
+Forestry Code allows landowners to own forest products, the
+inalienability of the DPM ensures that mangrove land and its
+biological resources remain the exclusive property of the State.
+Despite State ownership, Articles 46–50 of the Forestry Code
+recognize "usage rights" for local communities. These rights permit
+subsistence activities, including artisanal fishing, salt production, and
+domestic wood collection.
+To bridge the gap between statutory State ownership and customary
+use, the project will secure tenure through:
+Temporary occupation permits, legalising project activities within the
+DPM.
+Community management agreements, formalising traditional usage
+rights into sustainable management contracts under Forestry
+Administration oversight.
+Stakeholder diversity
+and changes over time
+Section to be completed in the PD submitted for validation.
+Expected changes in
+well-being
+Section to be completed in the PD submitted for validation.
+Location of
+stakeholders
+Section to be completed in the PD submitted for validation.
+
+Page 42
+VCS Project Description Template, v4.4
+42
+Location of resources Section to be completed in the PD submitted for validation.
+2.1.2. Stakeholder Consultation and Ongoing Communication
+Stakeholder consultation has begun at the national level, with multiple meetings throughout 2025 and into
+2026 with the Ministry of Environment and Sustainable Development (MEDD). Blue Coast Carbon has also
+consulted with numerous other stakeholders and potential partners including National Parks Directorate
+(OGPNRF), Biotope, United Nation Development Programme, Charente-Maritime Coopération.
+A local stakeholder consultation will be carried out before the implementation of project activities, to make
+sure all the stakeholders identified will be involved.
+The consultations will be conducted in a manner that is inclusive and respectful of local knowledge.
+The full participation of stakeholders in both project design and implementation is key to the project’s
+success. Therefore, the local community will be involved in all project stages, from planning to design and
+implementation. A stakeholder engagement plan customised to all groups identified, will be co-defined with
+key stakeholders. It will include at least the following steps:
+● introduction of project to all primary stakeholders, discussing project goals and objectives, outlining
+expected outcomes and the project timeline, and introducing the project team
+● gathering feedback from all stakeholders through consultations customised to each target group.
+At least 2 focus groups will be held separately with only women.
+● collection of information necessary for the project development, e.g. traditional uses of mangroves,
+sacred sites, history of degradation, historical presence of wildlife on the project site, etc.
+● obtaining agreement on project design and activities, by means of co-designing activities.
+A grievance management procedure will also be designed to deal with any grievance during the
+engagement process and project implementation.
+The project proponent will develop a procedure for monitoring and evaluation of decision-making and
+engagement processes to allow periodic reviews of the agreement with the community and the engagement
+process.
+All stakeholders engagement activities will be regularly reported throughout the project duration.
+Date of stakeholder
+consultation
+Section to be completed in the PD submitted for validation.
+
+Page 43
+VCS Project Description Template, v4.4
+43
+Stakeholder
+engagement process
+Section to be completed in the PD submitted for validation.
+Consultation outcome Section to be completed in the PD submitted for validation.
+Ongoing
+communication
+Section to be completed in the PD submitted for validation.
+Stakeholder input Section to be completed in the PD submitted for validation.
+2.1.3. Free Prior and Informed Consent
+Obtaining consent Blue Coast Carbon is committed to obtain free, prior and informed
+consent before starting project activities. To achieve this goal, the
+following steps will be included in the stakeholder engagement plan:
+● Identify Indigenous Peoples with customary rights and
+interests over the project area, and engage their
+representatives, making sure that both men and women are
+considered
+● Design a participatory communication plan
+● Meet with relevant stakeholders and agree on a process for
+consultation and obtaining consent, respecting traditional
+and customary protocols and dynamics
+● Establish a process for dealing with disputes and complaints
+● arrange meetings with the representative body to introduce
+team members, explain the proposed carbon project, provide
+information and negotiate details about the project, confirm
+the project area, and agree on a process and timeframe for
+engagement and decision-making.
+● Gathering consent on the restrictions to activities in the
+project areas
+Outcome of FPIC Section to be completed in the PD submitted for validation.
+Section to be completed and updated in the PD submitted for validation.
+
+Page 44
+VCS Project Description Template, v4.4
+44
+2.1.4. Grievance Redress Procedure
+A grievance mechanism will be established to address concerns related to the project in the project area.
+This mechanism will align with international best practices and will include steps to identify potential risks,
+concerns, and conflicts associated with the project. The system will be designed to enable Indigenous
+Peoples and local communities to express their concerns and grievances effectively. An appropriate
+grievance mechanism will be drafted to respond to grievances and integrate feedback during the project's
+design and implementation phases. A grievance register will be maintained to document all complaints and
+how they have been addressed and solved. The information collected will be used to introduce changes in
+the project to reduce dispute-related risks and to learn for future projects, and to improve FPIC processes
+as the project progresses.
+Section to be completed and updated in the PD submitted for validation.
+2.1.5. Public Comments
+Section to be completed in the PD submitted for validation.
+2.2. Risks to Stakeholders and the Environment
+2.2.1. Management Experience
+Blue Coast Carbon was founded to develop the most reliable nature-based projects for high-integrity carbon
+credits. The company’s mission is exploiting carbon markets to support the sustainable development of
+low-income Countries. The company specialises in blue carbon projects to contribute to the protection of
+marine environments while mitigating climate change and support community development.
+The management team has extensive expertise in geospatial data analysis and remote sensing, marine
+ecology and cooperative development projects. The team all have over 15 years of experience delivering
+advanced remote sensing projects using satellite and drone data across more than 40 countries. We
+leverage proprietary data-driven analysis, coastal ecosystem expertise, and industry-standard verification
+to originate high-integrity blue carbon credits backed by real-world impact and future resilience. The skill
+set within Blue Coast Carbon covers finance, project management, environmental science, carbon offset
+projects, community development, technology, and many other areas, including on-ground experience
+managing projects and operations in Guinea.
+Additional local partners are being identified to support community engagement, rural development, and
+project activity implementation.
+2.2.2. Risk Assessment
+Section to be completed in the PD submitted for validation.
+2.3. Respect for Human Rights and Equity
+
+Page 45
+VCS Project Description Template, v4.4
+45
+2.3.1. Labor and Work
+Section to be completed in the PD submitted for validation.
+2.3.2. Human Rights
+Section to be completed in the PD submitted for validation
+2.3.3. Indigenous Peoples and Cultural Heritage
+Section to be completed in the PD submitted for validation.
+2.3.4. Property Rights
+Section to be completed in the PD submitted for validation.
+2.3.5. Benefit Sharing
+Process used to
+design the benefit
+sharing plan
+Section to be completed in the PD submitted for validation.
+Summary of the
+benefit sharing plan
+Section to be completed in the PD submitted for validation.
+Approval and
+dissemination of
+benefit sharing plan
+Section to be completed in the PD submitted for validation.
+2.4. Ecosystem Health
+Section to be completed in the PD submitted for validation.
+2.4.1. Rare, Threatened, and Endangered Species
+
+Page 46
+VCS Project Description Template, v4.4
+46
+Section to be completed in the PD submitted for validation.
+2.4.2. Introduction of Species
+Only native species of mangroves will be considered for any activity of replanting, based on the natural
+species composition in the specific site.
+Species introduced Classification Justification for use Adverse effects and
+mitigation
+Avicennia germinans Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Laguncularia racemosa Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Conocarpus erectus Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Acrostichum aureum Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Rhizophora harrisonii Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+
+Page 47
+VCS Project Description Template, v4.4
+47
+Rhizophora mangle Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Rhizophora racemosa Native Naturally occurring in the
+project area - to be
+completed in a later version
+of PD
+to be completed in a
+later version of PD
+Existing invasive species Mitigation measures to prevent the spread or continued
+existence of invasive species
+to be completed in a later version of
+the PDD
+to be completed in a later version of the PDD
+Section to be updated and completed in the PDD submitted for validation.
+2.4.3. Ecosystem Conversion
+The project area has been extensively analysed by means of historical datasets and satellite images. Such
+evidence suggests that degradation and clearing of the degraded areas within the project boundaries took
+place at least 10 years ago.
+The section will be completed in the PDD submitted for validation.
+3. APPLICATION OF METHODOLOGY
+3.1. Title and Reference of Methodology
+Type
+(methodology,
+tool or module).
+Reference ID, if
+applicable
+Title Version
+
+Page 48
+VCS Project Description Template, v4.4
+48
+Methodology VM0007 VM0007 REDD+ Methodology Framework
+(REDD+MF),
+1.8
+Methodology VM0033 VM0033 Methodology for Tidal Wetland
+and Seagrass Restoration
+2.1
+Module VMD0055 VMD0055 – Estimation of Emission
+Reductions from Avoiding Unplanned
+Deforestation
+1.1
+Module VMD0019 Methods to Project Future Conditions 1.0
+Tool AFOLU Non-Permanence Risk Assessment
+Calculation Tool
+4.2
+Module VMD0051 Methods for Monitoring of Carbon Stock
+Changes and Greenhouse Gas Emissions
+and Removals in Tidal Wetland Restoration
+and Conservation Project Activities (M-TW)
+1.1
+Module VMD0052 Demonstration of Additionality of Tidal
+Wetland Restoration and Conservation
+project activities
+2.0
+Module VMD0007 Estimation of baseline carbon stock
+changes and greenhouse gas emissions
+from unplanned deforestation and
+unplanned wetland degradation (BL-UP)
+3.3
+Tool CDM AR Tool 1 CDM AR Tool for testing significance of GHG
+emissions in A/R CDM project activities
+1.0
+Tool CDM AR Tool 2 Combined tool to identify the baseline
+scenario and demonstrate additionality for
+A/R CDM project activities
+1.0
+
+Page 49
+VCS Project Description Template, v4.4
+49
+CDM Module CDM AR Tool 3 Calculation of the number of sample plots
+for measurements within A/R CDM project
+activities
+2.1
+CDM Module CDM AR Tool 14 Estimation of carbon stocks and change in
+carbon stocks of trees and shrubs in A/R
+CDM project activities
+4.2
+3.2. Applicability of Methodology
+Table 4 All REDD+ activity types
+Methodology ID Applicability condition Justification of compliance
+VM0007 Land in the project area has qualified
+as forest for at least the 10 years prior
+to the project start date. Mangrove
+forests are excluded from any tree
+height requirement in a forest
+definition, as they consist of 95 %
+mangrove species, which often do not
+reach the same height as other tree
+species. Mangroves occupy contiguous
+areas and their functioning as a forest
+is independent of tree height.
+The forests in the project area
+are mangrove forests and are
+thus excluded from any tree
+height requirements.
+VM0007 Where land within the project area is
+peatland or tidal wetlands and
+emissions from the SOC pool are
+deemed significant, the relevant WRC
+modules are applied alongside other
+relevant modules
+The relevant WRC modules to
+account for the SOC pool have
+been applied.
+VM0007 Baseline deforestation in the project
+area falls within either of the following
+categories:
+The baseline deforestation in
+the project area falls within
+the unplanned deforestation
+(VCS category AUDef) category
+
+Page 50
+VCS Project Description Template, v4.4
+50
+a) Unplanned deforestation (VCS
+category AUDef)
+b) Planned deforestation (VCS category
+APDef)
+VM0007 REDD activity types are not applicable
+when leakage prevention activities
+include:
+a) Flooding agricultural lands to
+increase production (e.g., rice paddies);
+and/or
+b) Intensifying livestock production
+through use of feed-lots and/or manure
+lagoons
+Leakage prevention activities
+will not include flooded
+agricultural lands nor
+intensifying livestock
+production through use of
+feed-lots and/or manure
+lagoons.
+Table 5 Avoiding unplanned deforestation
+Methodology ID Applicability condition Justification of compliance
+VM0007 Baseline agents of deforestation meet all
+of the following criteria:
+a) Clear the land for tree harvesting,
+settlements, crop production
+(agriculturalist), ranching or aquaculture,
+where such clearing for crop production,
+ranching or aquaculture does not
+amount to large scale industrial
+agriculture or aquaculture activities;
+b) Have no documented and
+uncontested legal right to deforest the
+land for these purposes; and
+c) Are either residents in the reference
+region for deforestation or immigrants.
+Baseline agents of
+deforestation have:
+a) Cleared the land for
+tree harvesting for
+firewood and to convert
+land for rice and salt
+production.
+b) no documented and
+uncontested legal right
+to deforest the land for
+these purposes
+c) Are residents in the
+reference region for
+deforestation
+
+Page 51
+VCS Project Description Template, v4.4
+51
+VM0007 Avoiding unplanned deforestation
+activities are not applicable under the
+following condition:
+Post-deforestation land use in the
+baseline scenario constitutes
+reforestation.
+Post deforestation land uses do
+not include reforestation
+Table 6 Applicability conditions for WRC activities
+Methodology ID Applicability condition Justification of compliance
+VM0007 WRC activities are not eligible under the
+following conditions:
+● Project activities lower the water
+table, unless the project converts
+open water to tidal wetlands, or
+improves the hydrological
+connection to impounded waters.
+● Changes in hydrology do not result
+in the accumulation or
+maintenance of SOC stock, noting
+that a) this pertains to projects
+that intend to sequester carbon
+through sedimentation and/or
+vegetation development and b)
+this does not pertain to projects
+that increase salinity to reduce
+CH4 emissions. Projects that aim
+to decrease CH4 emissions
+through increased salinity must
+account for any changes in SOC
+stocks.
+● Hydrological connectivity of the
+project area with adjacent areas
+leads to a significant increase in
+GHG emissions outside the project
+area.
+Project activities will not lower
+the water table in the project
+conservation areas.
+The hydrological restoration
+will be designed so that zones
+outside the project restoration
+areas are not affected.
+The changes in hydrology that
+could happen will not result in
+accumulation of SOC by
+themselves.
+Project activities do not
+include the burning of soil.
+Nitrogen fertilizers will not be
+used.
+
+Page 52
+VCS Project Description Template, v4.4
+52
+● Project activities include the
+burning of organic soil.
+● Nitrogen fertilizer(s), such as
+chemical fertilizer or manure, are
+applied in the project area during
+the project crediting period.
+Table 7 Applicability conditions for RWE activities
+Methodology ID Applicability condition Justification of compliance
+VM0007 Prior to the project start date,
+the project area meets one of
+the following criteria:
+a) The project area is free of
+any land use that may be
+displaced outside the project
+area, as demonstrated by at
+least one of the following,
+where relevant:
+i) The project area has been
+abandoned for two or more
+years prior to the project start
+date; or
+ii) Use of the project area for
+commercial purposes (i.e.,
+trade) is not profitable as a
+result of salinity intrusion,
+market forces or other factors.
+In addition, timber harvesting
+in the baseline scenario within
+the project area does not
+occur; or
+iii) Degradation of additional
+wetlands for new
+agricultural/aquacultural
+sites within the country will
+not occur or is prohibited by
+enforced law.
+Section to be completed in the PD submitted
+for validation.
+
+Page 53
+VCS Project Description Template, v4.4
+53
+OR
+b)The area is under a land use
+that may be displaced outside
+the project area, although in
+such case, baseline
+emissions from this land use
+must not be accounted for,
+and where degradation of
+additional wetlands for new
+agricultural/aquacultural
+sites within the country will
+not occur or is prohibited by
+enforced law.
+OR
+c)The area is under land use
+that will continue at a similar
+or greater level of service or
+production during the project
+crediting period (e.g., reed or
+hay harvesting, collection of
+fuelwood, subsistence
+harvesting, commercial
+fishing).
+The project proponent must
+demonstrate (a), (b) or (c)
+above, based on verifiable
+information such as laws and
+bylaws, management plans,
+annual reports, annual
+accounts, market studies,
+government studies or land
+use planning reports and
+documents.
+VM0007 Project activities restoring
+tidal wetlands include any of
+the following, or a
+combination of the following:
+a) Creating, restoring and/or
+managing hydrological
+conditions (e.g., removing
+The restoration project activities include:
+- Restoration of hydrological conditions to
+allow for natural vegetation re-colonisation
+- Re-introducing native plant communities,
+where natural re-colonisation is not possible.
+
+Page 54
+VCS Project Description Template, v4.4
+54
+tidal barriers, improving
+hydrological connectivity,
+restoring tidal flow to
+wetlands or lowering water
+levels on impounded
+wetlands)
+b) Altering sediment supply
+(e.g., beneficial use of dredge
+material or diverting river
+sediments to sediment-
+starved areas)
+c) Changing salinity
+characteristics (e.g., restoring
+tidal flow to tidally restricted
+areas)
+d) Improving water quality
+(e.g., reducing nutrient loads
+leading to improved water
+clarity to expand seagrass
+meadows, recovering tidal
+and other hydrologic flushing
+and exchange or reducing
+nutrient residence time)
+e) (Re-)introducing native
+plant communities (e.g.,
+reseeding or replanting)
+f) Improving management
+practice(s) (e.g., removing
+invasive species, reduced
+grazing)
+g) Prescribed burning of
+herbaceous and shrub
+aboveground biomass (cover
+burns)
+This section will be completed in the PD
+submitted for validation.
+
+Page 55
+VCS Project Description Template, v4.4
+55
+Table 8 Applicability conditions for CIW activities
+Methodology ID Applicability condition Justification of compliance
+VM0007 Project activities conserving tidal wetlands
+include:
+a) Protecting at-risk wetlands (e.g.,
+establishing conservation easements,
+establishing community supported
+management agreements, establishing
+protective government regulations, and
+preventing disruption of water and/or
+sediment supply to wetland areas)
+b) Improving water management on
+drained wetlands
+c) Maintaining or improving water quality
+for seagrass meadows
+d) Recharging sediment to avoid drowning
+of coastal wetlands
+e) Creating accommodation space for
+wetlands migrating with sea-level rise
+Project activities aimed at
+conserving mangrove forests
+on tidal wetlands. All the
+necessary activities to protect
+at-risk mangrove forests will
+be undertaken.
+This section will be completed
+in the PD submitted for
+validation.
+VM0007 Baseline agents of wetland degradation in
+avoiding unplanned wetland degradation
+activities meet all of the following criteria:
+● Cause an alteration in the hydrology of
+the project area (involving drainage,
+interrupted sediment supply or both)
+and/or a loss of soil organic carbon
+● Have no documented and
+uncontested legal right to degrade the
+wetland, and
+● Are either residents in the reference
+region for wetland degradation or
+immigrants.
+Section to be completed in the
+PD submitted for validation.
+
+Page 56
+VCS Project Description Template, v4.4
+56
+Table 9 Applicability conditions for tidal wetland restoration activities
+Methodology ID Applicability condition Justification of compliance
+VM0033 Project activities which restore tidal
+wetlands are eligible
+Project activities aim at
+restoring degraded tidal
+wetlands with mangrove
+forests.
+The project area qualifies as a
+tidal wetland as defined in
+VM0033. It is subject to
+regular tidal inundation and
+characterised by saline and
+brackish water conditions.
+
+Page 57
+VCS Project Description Template, v4.4
+57
+VM0033 Project activities may include any of the
+following, or combinations of the
+following:
+a) Creating, restoring and/or
+managing hydrological conditions
+(e.g., removing tidal barriers,
+improving hydrological
+connectivity, restoring tidal flow
+to wetlands or lowering water
+levels on impounded wetlands)
+b) Altering sediment supply (e.g.,
+beneficial use of dredge material
+or diverting river sediments to
+sediment starved areas)
+c) Changing salinity characteristics
+(e.g., restoring tidal flow to tidally
+restricted areas)
+d) Improving water quality (e.g.,
+reducing nutrient loads leading to
+improved water clarity to expand
+seagrass meadows, recovering
+tidal and other hydrologic flushing
+and exchange, or reducing
+nutrient residence time)
+e) (Re-)introducing native plant
+communities (e.g., reseeding or
+replanting)
+f) Improving management
+practice(s) (e.g., removing
+invasive species, reduced
+grazing)
+Prior to the project start date, the project
+area:
+a) Is free of any land use that could
+be displaced outside the project
+area, as demonstrated by at least
+one of the following, where
+relevant:
+i)The project area has been abandoned
+for two or more years prior to the project
+start date; or
+Project activities will restore
+hydrological conditions and
+tidal flow to help the natural
+recolonisation of the area by
+endemic mangrove species.
+Replanting will be carried out
+only where natural
+recolonisation is not possible.
+Prior to the start date, the
+project area is free of any land
+use as its use is not profitable
+as it includes remote areas
+and land that is difficult to
+farm.
+
+Page 58
+VCS Project Description Template, v4.4
+58
+ii)Use of the project area for commercial
+purposes (i.e., trade) is not profitable as a
+result of salinity intrusion, market forces
+or other factors. In addition, timber
+harvesting in the baseline scenario within
+the project area does not occur; or
+iii)Degradation of additional wetlands for
+new agricultural sites within the country
+will not occur or is prohibited by enforced
+law.
+OR
+b) Is under a land use that could be
+displaced outside the project
+area), although in such case
+baseline emissions from this land
+use must not be accounted for,
+and where degradation of
+additional wetlands for new
+agricultural/aquacultural sites
+within the country will not occur or
+is prohibited by enforced law.
+OR
+c) Is under a land use that will
+continue at a similar level of
+service or production during the
+project crediting period (e.g., reed
+or hay harvesting, collection of
+fuelwood, subsistence
+harvesting).
+
+Page 59
+VCS Project Description Template, v4.4
+59
+VM0033 Live tree vegetation may be present in the
+project area and may be subject to carbon
+stock changes (e.g., due to harvesting) in
+both the baseline and project scenarios.
+Mangrove vegetation is
+present in the project area
+and is subject to carbon stock
+changes. Project activities are
+aimed at reducing mangrove
+harvesting by providing
+alternative income to local
+communities.
+VM0033 The prescribed burning of herbaceous
+and shrub aboveground biomass (cover
+burns) as a project activity may occur.
+The project activities do not
+include the prescribed
+burning of biomass
+VM0033 Where the project proponent intends to
+claim emission reductions from reduced
+frequency of peat fires, project activities
+must include a combination of rewetting
+and fire management.
+The project area does not
+include peatlands
+VM0033 Where the project proponent intends to
+claim emission reductions from reduced
+frequency of peat fires, it must be
+demonstrated that a threat of frequent on
+site fires exists, and the overwhelming
+cause of ignition of the organic soil is
+anthropogenic (e.g., drainage of the peat,
+arson).
+The project area does not
+include peatlands
+VM0033 In strata with organic soil, afforestation,
+reforestation, and revegetation (ARR)
+activities must be combined with
+rewetting.
+The project area is not
+featured by organic soil
+VM0033 Project activities do not qualify as IFM or
+REDD.
+Project activities do not
+qualify as IFM, as the project
+area is not a managed forest,
+and no harvesting will
+happen.
+
+Page 60
+VCS Project Description Template, v4.4
+60
+REDD project activities take
+place in combination with
+WRC and ARR, therefore both
+VM0033 and VM0007 are
+applicable.
+VM0033 Baseline activities do not include
+commercial forestry.
+No commercial forestry is
+undertaken in the project area
+nor in the baseline area.
+VM0033 Project activities do not lower the water
+table, unless the project converts open
+water to tidal wetlands, or improves the
+hydrological connection to impounded
+waters.
+Project activities will not lower
+the water table
+VM0033 Hydrological connectivity of the project
+area with adjacent areas does not lead to
+a significant increase in GHG emissions
+outside the project area.
+The project activities do not
+cause any alteration of the
+hydrology of the project area.
+VM0033 Project activities do not include the
+burning of organic soil.
+Project activities do not
+include the burning of organic
+soil.
+VM0033 Nitrogen fertilizer(s), such as chemical
+fertilizer or manure, are not applied in the
+project area during the project crediting
+period.
+The project activities do not
+foresee the use of any
+fertiliser
+3.3. Project Boundary
+Source Gas Included? Justification/Explanation
+Basel
+ine
+Above-
+ground
+tree
+biomass
+CO2 Yes AGB in the baseline scenario is considered only in
+tree-covered strata and is not expected to change
+due to forest maturity.
+
+Page 61
+VCS Project Description Template, v4.4
+61
+Source Gas Included? Justification/Explanation
+Above-
+ground
+non-tree
+biomass
+CO2 No The project's baseline scenario is characterized by
+mangrove forests and degraded wet lands, where
+the aboveground non-tree biomass carbon pool is
+not present in a significant or quantifiable manner.
+Furthermore, following the implementation of
+restoration activities, this pool is projected to
+continue making a negligible contribution to the
+overall ecosystem carbon stocks.
+Below-
+ground
+biomass
+CO2 Yes Belowground biomass in the baseline scenario is
+considered in the tree-covered strata, and it is not
+expected to change.
+Deadwo
+od and
+litter
+CO2 No This pool is optional
+Soil
+organic
+carbon
+CO2 Yes SOC in the baseline scenario is considered and it is
+not expected to change.
+Burning
+of woody
+biomass
+CO2 No No biomass burning is anticipated to take place in
+the baseline scenario. The project does not include
+the burning of biomass for soil preparation.
+Proje
+ct
+Above-
+ground
+tree
+biomass
+CO2 Yes ABG in the project scenario is expected to increase
+Above-
+ground
+non-tree
+biomass
+CO2 No To maintain a conservative approach and to align
+with the baseline accounting, the aboveground
+non-tree biomass pool has been excluded from the
+quantification of emission reductions for this
+project.
+
+Page 62
+VCS Project Description Template, v4.4
+62
+Source Gas Included? Justification/Explanation
+Deadwo
+od and
+litter
+CO2 No This pool is optional
+Soil
+organic
+carbon
+CO2 Yes SOC in the project is considered and it is expected
+to change. The implementation of project activities
+is expected to enhance soil organic carbon stocks.
+Burning
+of woody
+biomass
+CO2 No No biomass burning is anticipated to take place in
+the project scenario. The project does not include
+the burning of biomass for soil preparation.
+The project boundaries of the first project instance include a total of 73,751 ha of stable mangrove forests.
+The location of conservation and restoration project areas currently under consideration are presented in
+Figure 7, shaded in green and orange respectively.
+Figure 7 Project boundaries of the first instance showing restoration (orange) and conservation (green) areas.
+3.4. Baseline Scenario
+Section to be completed in the PDD submitted for validation.
+
+Page 63
+VCS Project Description Template, v4.4
+63
+3.5. Additionality
+Tidal wetland restoration and conservation projects shall apply module VMD0052 ‘Demonstration of
+additionality of tidal wetland restoration and conservation project activities’. According to the module, a
+project is additional if it meets the requirements for regulatory surplus, and the applicability conditions
+(positive list).
+3.5.1. Regulatory Surplus
+Is the project located in an UNFCCC Annex 1 or Non-Annex 1 country?
+☐ Annex 1 country ☒ Non-Annex 1 country
+Are the project activities mandated by any law, statute, or other regulatory framework?
+☐ Yes ☒ No
+If the project is located inside a Non-Annex 1 country and the project activities are mandated by a law,
+statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks systematically
+enforced?
+☐ Yes ☒ No
+There are no specific legislations for mangrove forests in Guinea. Nonetheless, mangrove’s importance for
+climate, biodiversity and society is recognized by state actors and policy frameworks are being designed
+both at national and regional levels for this habitat.
+The Ministry of Environment, Water and Forestry is in charge of:
+● The Master Plan for the Development of Mangroves;
+● consultations with communities in mangrove areas affected by a high rate of deforestation;
+● Proposing solutions for mangrove degradation.
+However, Guinea has not established dedicated coastal protected areas yet, and mangrove forests are only
+partially included in the existing protected areas. This is mostly due to the following:
+● Lack of capacity of governmental institutions, limited training, lack of enforcement, lack of
+resources.
+● Laws governing protected areas are often ambiguous. For example, the Ministry of Environment is
+legally responsible for managing classified forests, yet in practice the préfet is also allowed to grant
+extraction rights to individuals, although not for mangrove extraction.
+● Protected areas are poorly defined; they include classified forests, national parks, etc. but not
+everyone agrees with this definition.
+
+Page 64
+VCS Project Description Template, v4.4
+64
+The proposed project activities are not specifically mandated by any regulatory framework and the more
+generalist conservation frameworks are not currently being enforced in the coastal areas, which
+demonstrates the regulatory surplus of the project activities.
+3.5.2. Additionality Methods
+The additionality procedure as per module VMD0052 consists of two steps. Step 1 consists in
+demonstrating regulatory surplus (see Section 3.5.1), and Step 2 requires the project to meet the
+applicability conditions of the module.
+The proposed project is compliant with such conditions as project activities restoring tidal wetlands include
+the following:
+- restoring hydrological conditions (e.g., removing tidal barriers, improving hydrological connectivity,
+restoring tidal flow to wetlands) to assist natural recovery of vegetation;
+- re-introducing native mangrove communities by means of replanting, where natural recovery is not
+possible;
+- improving management practices by means of removing invasive species.
+Furthermore, project activities conserving tidal wetlands include protecting at-risk mangrove forests from
+degradation and deforestation by means of conservation programmes, community awareness campaigns,
+and promotion of alternative livelihoods and sustainable wood uses to reduce pressure on mangroves.
+Therefore, the proposed project can be considered additional.
+3.6. Methodology Deviations
+Section to be completed in the PD submitted for validation.
+4. QUANTIFICATION OF ESTIMATED GHG
+EMISSION REDUCTIONS AND REMOVALS
+4.1. Baseline Emissions
+Section to be completed in the PD submitted for validation.
+4.2. Project Emissions
+Section to be completed in the PD submitted for validation.
+
+Page 65
+VCS Project Description Template, v4.4
+65
+4.3. Leakage Emissions
+Section to be completed in the PD submitted for validation.
+4.4. Estimated GHG Emission Reductions and Carbon Dioxide
+Removals
+Section to be completed in the PD submitted for validation.
+5. MONITORING
+5.1. Data and Parameters Available at Validation
+Section to be completed in the PD submitted for validation.
+5.2. Data and Parameters Monitored
+Section to be completed in the PD submitted for validation.
+5.3. Monitoring Plan
+Section to be completed in the PD submitted for validation.

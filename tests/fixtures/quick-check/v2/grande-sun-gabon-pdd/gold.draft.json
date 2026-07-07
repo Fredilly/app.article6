@@ -1,0 +1,100 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Gabon",
+    "goldQuote": "Project location Gabon, I'Ogooué-Ivindo, Ivindo",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p1:b21:1bd26ee9",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0048: Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable",
+    "goldQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable.",
+    "page": 82,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p82:b3971:6368d6e7",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0048",
+      "methodologyName": "Reducing Emissions from Deforestation and Forest Degradation",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v1.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 82,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable."
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Section not required for the Under Development stage in accordance to Verra’s Registration",
+    "goldQuote": "Section not required for the Under Development stage in accordance to Verra’s Registration",
+    "page": 88,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.4"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p88:b4367:9ef68897",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "CCB, G2.1) The Grande Sun Project is in Gabon’s Ogooué-Ivindo Province within a tropical rainforest ecosystem. This environment is marked by high levels of biodiversity, dense vegetation cover, CCB Version 3.0, VCS Version 4.4 46 CCB v3.0, VCS v4.4 and substantial rainfall-all characteristic of the equatorial climate zone. The forest sustains a wide variety of plant and animal life, including numerous endemic species. The Grande Sun Project area has long existed as a natural forest, remaining largely undisturbed by human activity, and retaining its forest cover over time. It currently continues to be predominantly wooded, providing essential habitat for native biodiversity while playing a key role in carbon storage and watershed conservation. The project area exhibits a tropical rainforest climate, characterized by high humidity, stable temperatures, and substantial annual rainfall-averaging 1,680.6 mm. The region’s terrain is part of the northern Gabon massif with geological formations including crystalline facies, associated pegmatites, and intrusions of basic and ultra-basic rocks. In terms of soils, there are deep ferralitic and kaolinitic soils, shallow stony soils formed on erosion-rejuvenated surfaces, and notable summit cuirasses (resistant to erosion) that contain exploitable iron ore; meanwhile, the soils are generally yellow and clayey (dominated by kaolinite) with fine structure ensuring good permeability but being quite fragile. The hydrology is complex, featuring a dense network of major rivers and their tributaries, specifically the Ivindo and Zadiérivers. The vegetation is not uniformly diverse but is overwhelmingly dominated by swamp forest. This single forest type constitutes 55.67% of the total area, defining the region's primary ecosystem. Please refer to 2.1.14 section for further details. Based on the Provisional Convention on Development, Exploitation, and Transformation (CPAET) signed between ENB and the Gabonese Water and Forest Administration, ENB has obtained the rights for the industrial development of forest resources within the concession area. ENB is required to formulate a management plan and carry out related industrial development activities. Prior to the launch of the Grande Sun project, this forest area was slated for clearance as part of a scheduled logging operation. The project's mitigation measures to prevent planned deforestation will be implemented through enhanced local monitoring, partnerships with educational and research institutions, and providing benefits to neighboring communities. These efforts aim to minimize deforestation by offering alternative livelihoods, improved social services and infrastructure, education, and vocational training. For more details, please refer to Section 3.1.4. Potential logging exploitation poses a threat to these woods, the biodiversity they contain, and the local population. The most likely outcome in the absence of the Grande Sun project is ongoing logging near accessible areas, followed by the expansion of the road system deep into the interior and upwards of the mountains. As of 2000, 93% of Ganbon land cover was >30% tree cover. From 2000 to 2020, Gabon experienced a net change of -99 kha (-0.41%) in tree cover (Global Forest Watch)13. For present and prior environmental conditions of the project area, please refer to section",
+    "goldQuote": "CCB, G2.1) The Grande Sun Project is in Gabon’s Ogooué-Ivindo Province within a tropical rainforest ecosystem. This environment is marked by high levels of biodiversity, dense vegetation cover, CCB Version 3.0, VCS Version 4.4 46 CCB v3.0, VCS v4.4 and substantial rainfall—all characteristic of the equatorial climate zone. The forest sustains a wide variety of plant and animal life, including numerous endemic species. The Grande Sun Project area has long existed as a natural forest, remaining largely undisturbed by human activity, and retaining its forest cover over time. It currently continues to be predominantly wooded, providing essential habitat for native biodiversity while playing a key role in carbon storage and watershed conservation. The project area exhibits a tropical rainforest climate, characterized by high humidity, stable temperatures, and substantial annual rainfall—averaging 1,680.6 mm. The region’s terrain is part of the northern Gabon massif with geological formations including crystalline facies, associated pegmatites, and intrusions of basic and ultra-basic rocks. In terms of soils, there are deep ferralitic and kaolinitic soils, shallow stony soils formed on erosion-rejuvenated surfaces, and notable summit cuirasses (resistant to erosion) that contain exploitable iron ore; meanwhile, the soils are generally yellow and clayey (dominated by kaolinite) with fine structure ensuring good permeability but being quite fragile. The hydrology is complex, featuring a dense network of major rivers and their tributaries, specifically the Ivindo and Zadiérivers. The vegetation is not uniformly diverse but is overwhelmingly dominated by swamp forest. This single forest type constitutes 55.67% of the total area, defining the region's primary ecosystem. Please refer to 2.1.14 section for further details. Based on the Provisional Convention on Development, Exploitation, and Transformation (CPAET) signed between ENB and the Gabonese Water and Forest Administration, ENB has obtained the rights for the industrial development of forest resources within the concession area. ENB is required to formulate a management plan and carry out related industrial development activities. Prior to the launch of the Grande Sun project, this forest area was slated for clearance as part of a scheduled logging operation. The project's mitigation measures to prevent planned deforestation will be implemented through enhanced local monitoring, partnerships with educational and research institutions, and providing benefits to neighboring communities. These efforts aim to minimize deforestation by offering alternative livelihoods, improved social services and infrastructure, education, and vocational training. For more details, please refer to Section 3.1.4. Potential logging exploitation poses a threat to these woods, the biodiversity they contain, and the local population. The most likely outcome in the absence of the Grande Sun project is ongoing logging near accessible areas, followed by the expansion of the road system deep into the interior and upwards of the mountains. As of 2000, 93% of Ganbon land cover was >30% tree cover. From 2000 to 2020, Gabon experienced a net change of -99 kha (-0.41%) in tree cover (Global Forest Watch)13. For present and prior environmental conditions of the project area, please refer to section",
+    "page": 45,
+    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13;",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p45:b2273:b44513bf",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Section not required for the Under Development stage in accordance to Verra’s Registration",
+    "goldQuote": "Section not required for the Under Development stage in accordance to Verra’s Registration",
+    "page": 89,
+    "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+    "sectionPath": [
+      "3",
+      "3.2",
+      "3.2.3"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p89:b4393:7e5a6aa7",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "CCB Version 3.0, VCS Version 4.4 15 CCB v3.0, VCS v4.4 5) The expected changes in well-being and other stakeholder characteristics under the baseline scenario, including impacts on resources identified as important to stakeholders; 6) The location of stakeholders, Indigenous Peoples (IPs), local communities (LCs), customary rights holders, and areas outside the project area that are predicted to be impacted by the project; 7) The location of territories and resources which stakeholders own or to which they have customary access; and 8) Any barriers to stakeholder engagement such as literacy and location or connection to electricity and how the project proponent will address such barriers",
+    "goldQuote": "thorough assessment of the stakeholders that will be impacted by the project activities. In identifying stakeholders, the project proponent must consider the significance of user populations and how deeply affected they may be by the project activities, such that distant or intermittent user groups who will be affected in very limited ways by the project need not be defined as stakeholders. The project description shall include information on stakeholders at the start of the project, including: 1) The process(es) used to identify stakeholders likely impacted by the project and a list of such stakeholders; 2) Identification of any legal or customary tenure/access rights to territories and resources, including collective and/or conflicting rights, held by stakeholders; 3) A description of the social, economic and cultural diversity within stakeholders and the differences and interactions between the stakeholders; 4) Any significant changes in the makeup of stakeholders over time; The project applies all the requirement on stakeholders. Please refer to section 2.3 of the PD. CCB Version 3.0, VCS Version 4.4 15 CCB v3.0, VCS v4.4 5) The expected changes in well-being and other stakeholder characteristics under the baseline scenario, including impacts on resources identified as important to stakeholders; 6) The location of stakeholders, Indigenous Peoples (IPs), local communities (LCs), customary rights holders, and areas outside the project area that are predicted to be impacted by the project; 7) The location of territories and resources which stakeholders own or to which they have customary access; and 8) Any barriers to stakeholder engagement such as literacy and location or connection to electricity and how the project proponent will address such barriers.",
+    "page": 14,
+    "sectionHeading": "The project proponent shall conduct a",
+    "sectionPath": [
+      "3",
+      "3.18",
+      "3.18.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p14:b714:99293d77",
+    "sourceType": "exact_section"
+  }
+]
