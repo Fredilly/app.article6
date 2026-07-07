@@ -255,6 +255,8 @@ function isTableLine(line: string): boolean {
   return false;
 }
 
+const UNDER_DEVELOPMENT_PLACEHOLDER_RE = /\bthis section is under development\b/i;
+
 // ---------------------------------------------------------------------------
 // Block type detection
 // ---------------------------------------------------------------------------
@@ -280,7 +282,9 @@ function detectBlockType(
   if (headingCheck.isHeading) return "heading";
 
   // First non-empty content line with short text → likely a title
-  if (isFirstContentLine && trimmed.length <= 180) return "heading";
+  if (isFirstContentLine && trimmed.length <= 180 && !UNDER_DEVELOPMENT_PLACEHOLDER_RE.test(trimmed)) {
+    return "heading";
+  }
 
   return "body";
 }

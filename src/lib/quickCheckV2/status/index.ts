@@ -33,6 +33,8 @@ export type StatusReason =
   | "answer_missing"
   | "fallback_evidence_only"
   | "provenance_incomplete"
+  | "under_development_stub"
+  | "without_project_narrative_not_additionality_proof"
   | "answer_and_provenance_complete";
 
 export type StatusResult = {
@@ -64,6 +66,18 @@ function hasCompleteProvenance(evidence: RetrievedEvidence | null): boolean {
     evidence.page > 0 &&
     hasSectionProvenance(evidence) &&
     hasText(evidence.spanId)
+  );
+}
+
+function hasUnderDevelopmentStub(evidence: RetrievedEvidence): boolean {
+  return /\bthis section is under development\b/i.test(evidence.quote);
+}
+
+function hasWithoutProjectNarrative(evidence: RetrievedEvidence): boolean {
+  return (
+    /\bwithout[- ]project\b/i.test(evidence.quote) ||
+    /\bin the absence of\b/i.test(evidence.quote) ||
+    /\bproject was not implemented with the intent\b/i.test(evidence.quote)
   );
 }
 
@@ -100,6 +114,39 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: result.answer,
       evidence: result.evidence,
       reason: "provenance_incomplete",
+      ...(methodology ? { methodology } : {}),
+    };
+  }
+
+  if (
+    result.checkName === "baseline_scenario" ||
+    result.checkName === "additionality" ||
+    result.checkName === "leakage" ||
+    result.checkName === "stakeholder_consultation"
+  ) {
+    if (hasUnderDevelopmentStub(result.evidence)) {
+      return {
+        checkName: result.checkName,
+        status: "UNCLEAR",
+        answer: result.answer,
+        evidence: result.evidence,
+        reason: "under_development_stub",
+        ...(methodology ? { methodology } : {}),
+      };
+    }
+  }
+
+  if (
+    result.checkName === "additionality" &&
+    !/additionality/i.test(result.evidence.sectionHeading ?? "") &&
+    hasWithoutProjectNarrative(result.evidence)
+  ) {
+    return {
+      checkName: result.checkName,
+      status: "UNCLEAR",
+      answer: result.answer,
+      evidence: result.evidence,
+      reason: "without_project_narrative_not_additionality_proof",
       ...(methodology ? { methodology } : {}),
     };
   }

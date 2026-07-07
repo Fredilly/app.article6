@@ -38,6 +38,12 @@ const METHODOLOGY_PREAMBLE = [
   "this methodology applies to",
   "the methodology is based on",
 ];
+const WITHOUT_PROJECT_NARRATIVE = [
+  "without-project",
+  "without project",
+  "in the absence of",
+  "project was not implemented with the intent",
+];
 const METHODOLOGY_CITATION = /according to\s+(?:the\s+)?(?:methodology|vcs|cdm|gs|verra|v\d{2}|acm\d+|vm\d+|ams[-.]|ar[-.])/i;
 
 // ── Individual validators ─────────────────────────────────────────────────
@@ -76,6 +82,19 @@ function validateAdditionality(input: SufficiencyInput): EvidenceSufficiencyResu
       sufficient: false,
       reason: "Additionality evidence is methodology preamble, not project-specific",
       warnings: ["methodology_preamble_evidence"],
+      downgradeTo: "unclear",
+    };
+  }
+
+  if (
+    WITHOUT_PROJECT_NARRATIVE.some((term) => lower.includes(term)) &&
+    !/\badditionality\b/i.test(lower) &&
+    !/\badditional\b/i.test(lower)
+  ) {
+    return {
+      sufficient: false,
+      reason: "Additionality evidence is without-project narrative, not formal additionality proof",
+      warnings: ["without_project_narrative_evidence"],
       downgradeTo: "unclear",
     };
   }

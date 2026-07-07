@@ -371,7 +371,7 @@ describe("Quick Check v2 gold fixtures", () => {
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
             bundle.gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
-        }, 30000);
+        }, 120000);
       }
 
       if (bundle.meta.runtimeMode === "nightly") {

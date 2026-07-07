@@ -27,6 +27,7 @@ import {
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import { buildQuickCheckMethodologyIdentity } from "@/lib/quickCheckV2/methodologyIdentity";
 
 const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
@@ -65,6 +66,10 @@ function stripTrailingPunctuation(value: string): string {
 function ensurePeriod(value: string): string {
   const trimmed = stripTrailingPunctuation(value);
   return trimmed ? `${trimmed}.` : trimmed;
+}
+
+function stripLeadingArticle(value: string): string {
+  return value.replace(/^the\s+/i, "").trim();
 }
 
 function capitalizeFirst(value: string): string {
@@ -186,8 +191,15 @@ export function extractMethodologyDetailsFromEvidence(
   return extractMethodologyTableDetails(evidence);
 }
 
-function formatMethodologyAnswer(methodology: MethodologyExtraction): string {
-  return `${methodology.methodologyId} ${methodology.methodologyName} ${methodology.pddDeclaredMethodologyVersion}`;
+function formatMethodologyAnswer(
+  methodology: MethodologyExtraction,
+  evidence: RetrievedEvidence,
+): string {
+  const aliasValue = evidence.sourceType === "exact_section"
+    ? methodology.methodologyAlias ?? buildQuickCheckMethodologyIdentity(evidence)?.methodologyAlias
+    : methodology.methodologyAlias;
+  const alias = aliasValue && /\s/.test(aliasValue) ? ` (${aliasValue})` : "";
+  return `${methodology.methodologyId} ${methodology.methodologyName}${alias} ${methodology.pddDeclaredMethodologyVersion}`;
 }
 
 const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
@@ -200,6 +212,13 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     );
     if (explicitField) {
       return explicitField[1]!;
+    }
+
+    const projectLocationLead = quote.match(
+      /\bProject location\s+(?:The\s+)?([^,]+?)(?=,|$)/i,
+    );
+    if (projectLocationLead) {
+      return stripLeadingArticle(projectLocationLead[1]!);
     }
 
     const possessiveCountry = quote.match(/\b([A-Z][A-Za-z]*(?:[ -][A-Z][A-Za-z]*)*)[’']s\b/);
@@ -254,7 +273,7 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (!evidence) return null;
     const tableMethodology = extractMethodologyDetailsFromEvidence(evidence);
     if (tableMethodology) {
-      return formatMethodologyAnswer(tableMethodology);
+      return formatMethodologyAnswer(tableMethodology, evidence);
     }
     const quote = normalizeAnswerText(evidence.quote);
 
@@ -313,6 +332,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   baseline_scenario(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bThis section is under development\b/i.test(quote)) {
+      return "Baseline scenario is under development.";
+    }
     const sanctionedDeforestationSentence = sentenceContaining(
       quote,
       /\bREDD project area consists of sanctioned deforestation caused by conversion to industrial agriculture\b/i,
@@ -372,6 +394,14 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   additionality(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bThis section is under development\b/i.test(quote)) {
+      return "Additionality section is under development.";
+    }
+    if (
+      /\b(?:without[- ]project|in the absence of|project was not implemented with the intent)\b/i.test(quote)
+    ) {
+      return quote;
+    }
     const selectedBaseline = quote.match(
       /Alternative [A-Z]\s*-\s*(.+?)\s*-\s*is selected as the baseline scenario/i,
     );
@@ -451,6 +481,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   leakage(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bThis section is under development\b/i.test(quote)) {
+      return "Leakage section is under development.";
+    }
     if (/\bThis section is not required at the Under Development stage\b/i.test(quote)) {
       return null;
     }
@@ -491,6 +524,9 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
   stakeholder_consultation(evidence) {
     if (!evidence) return null;
     const quote = normalizeAnswerText(evidence.quote);
+    if (/\bThis section is under development\b/i.test(quote)) {
+      return "Stakeholder consultation section is under development.";
+    }
     const table7Summary = summarizeStakeholderCommentActions(quote);
     if (table7Summary) {
       return table7Summary;
