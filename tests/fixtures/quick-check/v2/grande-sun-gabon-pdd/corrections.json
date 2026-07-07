@@ -60,7 +60,7 @@
       "correctedQuote": "Prior to the launch of the Grande Sun project, this forest area was slated for clearance as part of a scheduled logging operation. The most likely outcome in the absence of the Grande Sun project is ongoing logging near accessible areas, followed by the expansion of the road system deep into the interior and upwards of the mountains.",
       "correctedPage": 46,
       "correctedSectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
-      "reviewNote": "Rejected the under-development placeholder on page 88; page 46 contains the actual without-project scenario."
+      "reviewNote": "Baseline-like narrative appears on page 46, and page 86 says the baseline assumes large-scale deforestation for commercial crop production. The formal page 88 VCS Baseline Scenario section is explicitly not required at the Under Development stage, so the final adjudication stays UNCLEAR."
     },
     {
       "checkName": "additionality",
@@ -81,7 +81,7 @@
       "correctedQuote": "At present, no active initiatives are in place to reduce deforestation in the area, owing to limited governmental and local resources. Although the government of Gabon has implemented regulations banning the export of roundwood to curb illegal logging and harvesting, industrial logging continues to expand rapidly and shows a growing trend. To the best of our knowledge, there are no other ongoing projects aimed at halting deforestation or promoting sustainable land management in the region. These factors clearly demonstrate that the proposed project activity meets the additionality requirement.",
       "correctedPage": 47,
       "correctedSectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
-      "reviewNote": "Rejected the page 45 without-project narrative as weak evidence for additionality; page 47 directly states that the project activity meets the additionality requirement."
+      "reviewNote": "Page 47 provides the strongest CCB additionality evidence. The page 88 VCS additionality sections are not required at the Under Development stage, so they are caveat evidence rather than the primary basis for the final answer."
     },
     {
       "checkName": "leakage",
@@ -102,7 +102,7 @@
       "correctedQuote": "To mitigate potential leakage, a community-use buffer zone has been designated. It accounts for 15% of the project area (equivalent to 21,950 hectares). This area allows local communities to continue their daily livelihood activities while reducing pressure on surrounding forests.",
       "correctedPage": 81,
       "correctedSectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
-      "reviewNote": "Rejected the under-development leakage-emissions placeholder on page 89; page 81 contains the actual leakage-management measure."
+      "reviewNote": "Page 81/82 contains the actual leakage-management measure, while page 89 says the formal leakage-emissions section is not required at the Under Development stage."
     },
     {
       "checkName": "stakeholder_consultation",
@@ -123,7 +123,7 @@
       "correctedQuote": "Necessary consent for the Grande Sun project’s development was obtained from local communities through public consultations, which were conducted only after the project was fully disclosed and all doubts from the communities were clarified.",
       "correctedPage": 76,
       "correctedSectionHeading": "Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)",
-      "reviewNote": "Rejected the generic stakeholder policy language on page 14; page 76 documents actual public consultations and consent."
+      "reviewNote": "Page 76 documents actual public consultations and consent. Page 54 says the formal 2.3.10 stakeholder consultations section is not required at the Under Development stage, and page 56 describes formal consent from a large majority of community members."
     }
   ]
 }

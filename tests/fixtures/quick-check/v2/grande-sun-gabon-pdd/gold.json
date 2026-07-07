@@ -15,7 +15,7 @@
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "VM0048: Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable",
+    "expectedAnswer": "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.",
     "goldQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable.",
     "page": 82,
     "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
@@ -39,23 +39,23 @@
   },
   {
     "checkName": "baseline_scenario",
-    "expectedStatus": "FOUND",
-    "expectedAnswer": "Prior to the project, the forest was slated for scheduled logging; without the project, ongoing logging near accessible areas and road expansion would continue.",
-    "goldQuote": "Prior to the launch of the Grande Sun project, this forest area was slated for clearance as part of a scheduled logging operation. The most likely outcome in the absence of the Grande Sun project is ongoing logging near accessible areas, followed by the expansion of the road system deep into the interior and upwards of the mountains.",
-    "page": 46,
-    "sectionHeading": "Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Baseline-like narrative exists, but the formal VCS Baseline Scenario section is not completed because it is not required at the Under Development stage.",
+    "goldQuote": "Section not required for the Under Development stage in accordance with Verra's Registration and Issuance Process v4.7.",
+    "page": 88,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
     "sectionPath": [
-      "2",
-      "2.2",
-      "2.2.1"
+      "3",
+      "3.1",
+      "3.1.4"
     ],
-    "spanId": "grande-sun-gabon-pdd-extracted:p46:b2302:789966d7",
+    "spanId": "grande-sun-gabon-pdd-extracted:p88:b4367:9ef68897",
     "sourceType": "exact_section"
   },
   {
     "checkName": "additionality",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "No active initiatives are in place to reduce deforestation in the area, and the proposed project activity meets the additionality requirement.",
+    "expectedAnswer": "CCB additionality evidence exists: no active initiatives or other projects are reducing deforestation, and the project claims it meets additionality; caveat that formal VCS additionality sections are not completed at this stage.",
     "goldQuote": "At present, no active initiatives are in place to reduce deforestation in the area, owing to limited governmental and local resources. Although the government of Gabon has implemented regulations banning the export of roundwood to curb illegal logging and harvesting, industrial logging continues to expand rapidly and shows a growing trend. To the best of our knowledge, there are no other ongoing projects aimed at halting deforestation or promoting sustainable land management in the region. These factors clearly demonstrate that the proposed project activity meets the additionality requirement.",
     "page": 47,
     "sectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
@@ -70,7 +70,7 @@
   {
     "checkName": "leakage",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "A 15% community-use buffer zone is designated to reduce leakage and pressure on surrounding forests.",
+    "expectedAnswer": "Leakage management evidence exists through a 15% community-use buffer zone, but formal VCS leakage-emissions accounting is not completed/not required at the Under Development stage.",
     "goldQuote": "To mitigate potential leakage, a community-use buffer zone has been designated. It accounts for 15% of the project area (equivalent to 21,950 hectares). This area allows local communities to continue their daily livelihood activities while reducing pressure on surrounding forests.",
     "page": 81,
     "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
@@ -85,7 +85,7 @@
   {
     "checkName": "stakeholder_consultation",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "The project obtained consent through public consultations and ongoing FPIC with customary landowners.",
+    "expectedAnswer": "Stakeholder consultation / FPIC evidence exists: consent was obtained through public consultations and formal consent is described; caveat that formal 2.3.10 Stakeholder Consultations is not completed/not required at this stage.",
     "goldQuote": "Necessary consent for the Grande Sun project’s development was obtained from local communities through public consultations, which were conducted only after the project was fully disclosed and all doubts from the communities were clarified.",
     "page": 76,
     "sectionHeading": "Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)",
