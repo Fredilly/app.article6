@@ -144,6 +144,28 @@ function summarizeStakeholderCommentActions(quote: string): string | null {
   return null;
 }
 
+function extractDisplayMethodologyAlias(quote: string): string | null {
+  const normalized = normalizeAnswerText(quote);
+  const rowBoundary = normalized.match(/\b(?:Module|Tool)\b/i);
+  const rowBody = rowBoundary?.index != null ? normalized.slice(0, rowBoundary.index).trim() : normalized;
+  const withoutLeadingCode = rowBody.replace(
+    /^(?:Applied(?:\s+Methodology)?|Methodology)\s+(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+/i,
+    "",
+  );
+  const withoutVersion = stripTrailingPunctuation(
+    withoutLeadingCode.replace(/\s*(?:,|\()?\s*(?:version|v)\s*\d+(?:[.-]\d+){0,2}.*$/i, "").trim(),
+  );
+
+  for (const match of withoutVersion.matchAll(/\(([^)]+)\)/g)) {
+    const candidate = normalizeWhitespace(match[1] ?? "");
+    if (candidate && !/[a-z]/.test(candidate) && /^[A-Z0-9][A-Z0-9+./\-\s]*$/.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
 function extractMethodologyTableDetails(evidence: RetrievedEvidence): MethodologyExtraction | null {
   const rowText = normalizeWhitespace(evidence.quote);
   const rowStart = rowText.match(
@@ -195,10 +217,11 @@ function formatMethodologyAnswer(
   methodology: MethodologyExtraction,
   evidence: RetrievedEvidence,
 ): string {
-  const aliasValue = evidence.sourceType === "exact_section"
-    ? methodology.methodologyAlias ?? buildQuickCheckMethodologyIdentity(evidence)?.methodologyAlias
+  const displayAlias = evidence.sourceType === "exact_section"
+    ? extractDisplayMethodologyAlias(evidence.quote) ?? methodology.methodologyAlias ?? buildQuickCheckMethodologyIdentity(evidence)?.methodologyAlias
     : methodology.methodologyAlias;
-  const alias = aliasValue && /\s/.test(aliasValue) ? ` (${aliasValue})` : "";
+  const aliasValue = displayAlias && /\s/.test(displayAlias) ? displayAlias : null;
+  const alias = aliasValue ? ` (${aliasValue})` : "";
   return `${methodology.methodologyId} ${methodology.methodologyName}${alias} ${methodology.pddDeclaredMethodologyVersion}`;
 }
 

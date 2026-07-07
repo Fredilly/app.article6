@@ -19,6 +19,8 @@ export type QuickCheckMethodologyIdentity = Readonly<{
 
 const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
+const METHODOLOGY_ROW_BOUNDARY_RE = /\b(?:Module|Tool)\b/i;
+const LIKELY_ALIAS_RE = /^[A-Z0-9][A-Z0-9+./-]*$/;
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
@@ -38,6 +40,34 @@ function stripTrailingVersionAndApproval(value: string): string {
     .replace(/\s*(?:,|\()?\s*(?:version|v)\s*\d+(?:[.-]\d+){0,2}.*$/i, "")
     .replace(/\s*approved.*$/i, "")
     .trim();
+}
+
+function stripLeadingMethodologyCode(value: string): string {
+  return normalizeDashCharacters(value).replace(
+    /^(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+/i,
+    "",
+  );
+}
+
+function isolateMethodologyRowBody(body: string): string {
+  const normalized = normalizeWhitespace(normalizeDashCharacters(body));
+  const boundary = normalized.match(METHODOLOGY_ROW_BOUNDARY_RE);
+  return boundary?.index != null ? normalized.slice(0, boundary.index).trim() : normalized;
+}
+
+function isLikelyMethodologyAlias(value: string): boolean {
+  return LIKELY_ALIAS_RE.test(value.trim());
+}
+
+function findLikelyAliasMatch(body: string): RegExpMatchArray | null {
+  const matches = body.matchAll(/\(([^)]+)\)/g);
+  for (const match of matches) {
+    const candidate = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(match[1] ?? "")));
+    if (candidate && isLikelyMethodologyAlias(candidate)) {
+      return match;
+    }
+  }
+  return null;
 }
 
 function extractMethodologyCode(quote: string): string | null {
@@ -77,20 +107,22 @@ function extractVersionFromQuote(quote: string): string | null {
 }
 
 function extractAlias(body: string): string | null {
-  const aliasMatch = normalizeDashCharacters(body).match(/\(([^)]+)\)(?:\s*(?:version|v\.?)\s*\d+(?:[.-]\d+){0,2}|\s*\d+(?:[.-]\d+){0,2})?\s*$/i);
+  const aliasMatch = findLikelyAliasMatch(
+    stripTrailingVersionAndApproval(stripLeadingMethodologyCode(isolateMethodologyRowBody(body))),
+  );
   if (!aliasMatch?.[1]) return null;
   const alias = stripWrappingQuotes(normalizeWhitespace(normalizeDashCharacters(aliasMatch[1])));
   return alias || null;
 }
 
 function extractMethodologyName(body: string): string {
-  const withoutLeadingDuplicateCode = normalizeDashCharacters(body).replace(
-    /^(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+/i,
-    "",
-  );
-  const withoutAlias = withoutLeadingDuplicateCode.replace(/\s*\([^)]+\)(?:\s*(?:version|v\.?)\s*\d+(?:[.-]\d+){0,2}|\s*\d+(?:[.-]\d+){0,2})?\s*$/i, "");
-  const cleaned = normalizeWhitespace(stripTrailingVersionAndApproval(withoutAlias))
-    .replace(/[.,;:]+$/g, "");
+  const withoutLeadingCode = stripLeadingMethodologyCode(isolateMethodologyRowBody(body));
+  const withoutVersion = stripTrailingVersionAndApproval(withoutLeadingCode);
+  const aliasMatch = findLikelyAliasMatch(withoutVersion);
+  const nameSource = aliasMatch?.index != null
+    ? withoutVersion.slice(0, aliasMatch.index)
+    : withoutVersion.replace(/\s*\([^()]*\)\s*$/g, "");
+  const cleaned = normalizeWhitespace(nameSource).replace(/[.,;:]+$/g, "");
   return stripWrappingQuotes(cleaned).replace(/[.,;:]+$/g, "").trim();
 }
 
