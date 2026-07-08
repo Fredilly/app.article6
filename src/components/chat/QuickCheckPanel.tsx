@@ -82,7 +82,10 @@ import {
   buildQuickCheckEvidenceStackDisplay,
   type QuickCheckEvidenceStackDisplayItem,
 } from "@/lib/quickCheckV2/evidenceStackAdapter";
-import { buildStructuredCheckDowngradeReason } from "@/lib/quickCheckV2/structuredCheckDisplay";
+import {
+  buildCompactQuickCheckEvidenceStackDisplay,
+  buildStructuredCheckDowngradeReason,
+} from "@/lib/quickCheckV2/structuredCheckDisplay";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
 import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
@@ -143,13 +146,7 @@ type StructuredEvidenceCheckResult = {
   pages: number[];
   sections: string[];
   evidenceSpanIds: string[];
-  evidenceDetails: Array<{
-    role: string;
-    roleLabel: string;
-    page: number;
-    quote: string;
-    sectionLabel: string | null;
-  }>;
+  evidenceDetails: QuickCheckEvidenceStackDisplayItem[];
   methodology?: MethodologyExtraction | null;
 };
 
@@ -2120,12 +2117,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               answer: statusResult.answer,
               reason: statusResult.reason,
               checkId: statusResult.checkName,
-              evidenceDetails,
+                evidenceDetails,
             }),
             downgradeReason: buildStructuredCheckDowngradeReason({
               checkId: statusResult.checkName,
               reason: statusResult.reason,
-              evidenceDetails,
+                evidenceDetails,
             }),
             quotes: evidence?.quote ? [evidence.quote] : [],
             pages: typeof evidence?.page === "number" ? [evidence.page] : [],
@@ -2230,7 +2227,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     ? evidence.sectionPath
                     : [],
               evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
-              evidenceDetails,
+            evidenceDetails,
               methodology:
                 statusResult.checkName === "methodology"
                   ? extractMethodologyDetailsFromEvidence(evidence)
@@ -2773,6 +2770,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     const statusColors = result.status === "found" ? "bg-emerald-500" : result.status === "missing" ? "bg-rose-400" : "bg-amber-400";
                     const badgeColors = result.status === "found" ? "bg-emerald-100 text-emerald-700" : result.status === "missing" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
                     const statusLabel = result.status === "found" ? "Found" : result.status === "missing" ? "Missing" : "Unclear";
+                    const visibleEvidenceDetails = buildCompactQuickCheckEvidenceStackDisplay(result.evidenceDetails);
                     return (
                       <details key={result.checkId} className="group rounded-xl border border-slate-100 bg-white/80">
                         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm">
@@ -2782,7 +2780,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                           <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${badgeColors}`}>{statusLabel}</span>
                         </summary>
                         <div className="border-t border-slate-100 px-3 py-2 text-sm">
-                          {result.status === "found" || (result.status === "unclear" && result.evidenceDetails.length > 0) ? (
+                          {result.status === "found" || (result.status === "unclear" && visibleEvidenceDetails.length > 0) ? (
                             <>
                               <div className="text-xs text-slate-700">{result.answerText}</div>
                               {result.checkId === "methodology" && result.methodology ? (
@@ -2812,13 +2810,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 {result.sections.length > 0 ? <span>{result.sections.join(" \u203a ")}</span> : null}
                                 {result.evidenceSpanIds.length > 0 ? <span>{result.evidenceSpanIds.length} span(s)</span> : null}
                               </div>
-                              {result.evidenceDetails.length > 0 ? (
+                              {visibleEvidenceDetails.length > 0 ? (
                                 <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-2 text-[10px] text-slate-600">
                                   <div className="font-semibold uppercase tracking-wide text-slate-500">Evidence details</div>
                                   <div className="mt-1 space-y-2">
                                     {(result.status === "found"
-                                      ? result.evidenceDetails.slice(1)
-                                      : result.evidenceDetails
+                                      ? visibleEvidenceDetails.slice(1)
+                                      : visibleEvidenceDetails
                                     ).map((detail, index) => (
                                       <div
                                         key={`${result.checkId}-${detail.role}-${detail.page}-${index}`}

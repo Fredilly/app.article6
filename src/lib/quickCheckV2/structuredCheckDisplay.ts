@@ -18,6 +18,35 @@ function getCheckLabel(checkId: StructuredCheckId): string {
   return CHECK_LABELS[checkId] ?? "this check";
 }
 
+function prioritizeCompanionRole(role: EvidenceStackRole): number {
+  switch (role) {
+    case "blocker":
+      return 0;
+    case "caveat":
+      return 1;
+    case "supporting":
+      return 2;
+    case "primary":
+      return 3;
+  }
+}
+
+export function buildCompactQuickCheckEvidenceStackDisplay(
+  stack: QuickCheckEvidenceStackDisplayItem[],
+  companionLimit = 3,
+): QuickCheckEvidenceStackDisplayItem[] {
+  const primary = stack.find((item) => item.role === "primary");
+  const companions = stack.filter((item) => item.role !== "primary");
+
+  const prioritizedCompanions = [
+    ...companions.filter((item) => prioritizeCompanionRole(item.role) === 0),
+    ...companions.filter((item) => prioritizeCompanionRole(item.role) === 1),
+    ...companions.filter((item) => prioritizeCompanionRole(item.role) === 2),
+  ].slice(0, companionLimit);
+
+  return primary ? [primary, ...prioritizedCompanions] : prioritizedCompanions;
+}
+
 export function buildStructuredCheckDowngradeReason(input: {
   checkId: StructuredCheckId;
   reason: StatusReason;
