@@ -281,6 +281,21 @@ describe("VM0007 version lock", () => {
     expect(audit.results.every((result) => result.versionMismatchReason === "")).toBe(true);
   });
 
+  it("allows a matching VM0007 v1.8 audit when versionContext already provides 'v1.8'", () => {
+    const audit = auditVm0007(ENVIRA_TEXT, {
+      getContract: makeVersionedContract("v1-8"),
+      versionContext: {
+        pddDeclaredMethodologyVersion: "v1.8",
+      },
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(audit.versionMismatchReason).toBe("");
+    expect(audit.results).toHaveLength(58);
+  });
+
   it("allows a Maya-style flattened methodology block with a VM0007 v1.8 row and other module/tool versions", () => {
     const audit = auditVm0007(MAYA_FLATTENED_TEXT, {
       getContract: makeVersionedContract("v1-8"),
@@ -430,6 +445,42 @@ describe("VM0007 version lock", () => {
       methodologyId: "VM0007",
       rulebookVersion: "v1-8",
       pddDeclaredMethodologyVersion: "VM0007, version 1.8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("accepts a standalone declared version written as 'v1.8'", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "v1.8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("accepts a standalone declared version written as 'v1-8'", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "v1-8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("accepts a standalone declared version written as '1.8'", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "1.8",
     });
 
     expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
