@@ -1,16 +1,15 @@
-# Quick Check v2 fixture intake: Grande Sun Gabon PDD
+# Quick Check v2 fixture review: Grande Sun Gabon PDD
 
-This fixture was created by the intake command.
-Adjudication not done.
+Adjudication is complete.
 
-- Fixture id: grande-sun-gabon-pdd
-- Source PDF: /Users/stphen/Desktop/vm0007_v18_pdds/5763-Grande-Sun-Gabon-pdd.pdf
+- Fixture id: `grande-sun-gabon-pdd`
+- Source PDF: `tests/fixtures/quick-check/v2/grande-sun-gabon-pdd/source.pdf`
 
-## Later review checklist
+## Review Notes
 
-- compare `gold.draft.json` against the PDF
-- verify each answer
-- verify page numbers
-- verify quotes
-- write final `gold.json`
-- write `corrections.json` only for real corrections
+- `host_country`: `FOUND` from page 1.
+- `methodology`: `FOUND` from page 82, preserving the VM0048 primary / VM0007 fallback split.
+- `baseline_scenario`: `UNCLEAR` from page 88. Supporting narrative exists on page 46, and page 86 says the baseline assumes large-scale deforestation for commercial crop production, but the formal VCS Baseline Scenario section is not completed at the Under Development stage.
+- `additionality`: `FOUND` from page 47. The page 88 VCS Additionality / Regulatory Surplus / Additionality Methods sections are not completed at the Under Development stage.
+- `leakage`: `FOUND` from page 81. The page 89 formal Leakage Emissions section is not completed at the Under Development stage.
+- `stakeholder_consultation`: `FOUND` from page 76. The page 54 2.3.10 stakeholder consultations section is not completed at the Under Development stage, while page 56 describes formal consent from a large majority of community members.

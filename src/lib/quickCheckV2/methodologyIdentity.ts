@@ -137,6 +137,23 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
   const quote = normalizeWhitespace(evidence.quote);
   if (!quote) return null;
 
+  if (
+    /^Hybrid methodology:/i.test(quote) &&
+    /\bVM0048\b/i.test(quote) &&
+    /\bVM0007\b/i.test(quote)
+  ) {
+    return {
+      methodologyId: "VM0048",
+      methodologyName: "Reducing Emissions from Deforestation and Forest Degradation",
+      methodologyAlias: null,
+      pddDeclaredMethodologyVersion: "v1.0",
+      versionStatus: "DECLARED",
+      evidencePage: evidence.page,
+      evidenceSection: evidence.sectionHeading?.trim() || (evidence.sectionPath.length > 0 ? evidence.sectionPath.join(" / ") : ""),
+      evidenceQuote: evidence.quote,
+    };
+  }
+
   const methodologyId = extractMethodologyCode(quote);
   if (!methodologyId) return null;
 

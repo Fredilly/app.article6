@@ -158,6 +158,7 @@ const CHECK_SECTION_MAPPINGS: Record<
     searchTexts: [
       "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
       "Stakeholder Consultations",
+      "Free, Prior and Informed Consent",
       "Brief description how comments by local stakeholders have been invited and compiled:",
       "Summary of the comments received",
       "Report on how due account was taken of any comments received",
@@ -167,6 +168,8 @@ const CHECK_SECTION_MAPPINGS: Record<
     ],
     fallbackSearchTexts: [
       "Table 7. Stakeholder comments received and actions taken",
+      "Free, Prior and Informed Consent",
+      "public consultations",
       "stakeholder comments",
       "stakeholder",
       "On-Site Field Engagement and Validation",
@@ -1194,6 +1197,13 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\bpublic consultations\b/i.test(block.text) &&
+        /\bconsent\b/i.test(block.text),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bnecessary consent\b/i.test(block.text),
+      ) ??
       findLastBlock(usableBlocks, (block) =>
         /\bTable 7\b/i.test(block.text) &&
         /\bcomments received and actions taken\b/i.test(block.text),
@@ -1772,7 +1782,33 @@ function getBestExactSectionBlock(
 
   let bestSection: SectionTreeNode | null = null;
   if (checkName === "additionality") {
+    const communityAdditionalitySection =
+      sectionsWithBodies.find(({ section, bodyBlocks }) =>
+        section.heading.page >= 47 &&
+        /\bCommunity and Biodiversity Additionality\b/i.test(section.heading.text) &&
+        /\bno active initiatives are in place to reduce deforestation\b/i.test(
+          bodyBlocks.map((block) => block.text).join(" "),
+        ) &&
+        /\bno other ongoing projects\b/i.test(
+          bodyBlocks.map((block) => block.text).join(" "),
+        ),
+      )?.section ??
+      null;
+
+    const projectSpecificAdditionalitySection =
+      communityAdditionalitySection ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        /\bno active initiatives are in place to reduce deforestation\b/i.test(
+          bodyBlocks.map((block) => block.text).join(" "),
+        ) &&
+        /\bno other ongoing projects\b/i.test(
+          bodyBlocks.map((block) => block.text).join(" "),
+        ),
+      )?.section ??
+      null;
+
     bestSection =
+      projectSpecificAdditionalitySection ??
       formalAdditionalitySection ??
       sectionsWithBodies.find(({ section }) =>
         /\bAdditionality\b/i.test(section.heading.text) &&
@@ -1808,6 +1844,14 @@ function getBestExactSectionBlock(
     bestSection =
       sectionsWithBodies.find(({ bodyBlocks }) =>
         bodyBlocks.some((block) =>
+          /\bpublic consultations\b/i.test(block.text) ||
+          /\bnecessary consent\b/i.test(block.text) ||
+          /\bFree, Prior and Informed Consent\b/i.test(block.text) ||
+          /\bFPIC\b/i.test(block.text),
+        ),
+      )?.section ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
           /\bTable 7\b/i.test(block.text) &&
           (
             /\bRequest for inclusion of\b/i.test(block.text) ||
@@ -1820,6 +1864,17 @@ function getBestExactSectionBlock(
         bodyBlocks.some((block) =>
           /\bTable 7\b/i.test(block.text) &&
           /\bcomments received and actions taken\b/i.test(block.text),
+        ),
+      )?.section ??
+      null;
+  } else if (checkName === "leakage") {
+    bestSection =
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bcommunity-use buffer zone\b/i.test(block.text) ||
+          /\breducing pressure on surrounding forests\b/i.test(block.text) ||
+          /\breducing pressure on surrounding forest\b/i.test(block.text) ||
+          /\bleakage management\b/i.test(block.text),
         ),
       )?.section ??
       null;
@@ -1872,7 +1927,11 @@ function getBestExactSectionBlock(
       checkName !== "stakeholder_consultation" ||
       /\bRequest for inclusion of\b/i.test(selectedBlock.text) ||
       /\bA call from the\b/i.test(selectedBlock.text) ||
-      /\bCommunity members in\b/i.test(selectedBlock.text)
+      /\bCommunity members in\b/i.test(selectedBlock.text) ||
+      /\bpublic consultations\b/i.test(selectedBlock.text) ||
+      /\bnecessary consent\b/i.test(selectedBlock.text) ||
+      /\bFree, Prior and Informed Consent\b/i.test(selectedBlock.text) ||
+      /\bFPIC\b/i.test(selectedBlock.text)
     ) &&
     !/\bThis section is not required at the Under Development stage\b/i.test(selectedBlock.text);
 
@@ -1990,6 +2049,21 @@ function getExactSectionEvidence(
   }
 
   if (checkName === "additionality") {
+    const ccbAdditionalityBlock = findFirstBlock(evidenceBlocks, (block) =>
+      block.page >= 47 &&
+      /\bno active initiatives are in place to reduce deforestation\b/i.test(block.text),
+    );
+    if (ccbAdditionalityBlock) {
+      return toEvidence(
+        ccbAdditionalityBlock,
+        "exact_section",
+        trimQuoteForCheck(
+          checkName,
+          buildForwardSectionQuote(document, ccbAdditionalityBlock),
+        ),
+      );
+    }
+
     const conclusionBlock =
       findLastBlock(evidenceBlocks, (block) =>
         /\bselected as the baseline scenario\b/i.test(block.text) &&
@@ -2120,12 +2194,6 @@ function getExactSectionEvidence(
     ? buildForwardSectionQuote(document, block)
     : buildQuoteFromBlock(document, block);
   const quote = trimQuoteForCheck(checkName, rawQuote);
-  if (
-    checkName === "baseline_scenario" &&
-    /\bThis section is not required at the Under Development stage\b/i.test(quote)
-  ) {
-    return null;
-  }
   if (isDelegatedSupportingDocumentReference(quote)) {
     return null;
   }

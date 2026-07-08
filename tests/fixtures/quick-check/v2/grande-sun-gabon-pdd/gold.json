@@ -1,0 +1,100 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Gabon",
+    "goldQuote": "Project location Gabon, I'Ogooué-Ivindo, Ivindo",
+    "page": 1,
+    "sectionHeading": null,
+    "sectionPath": [
+      "1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p1:b21:1bd26ee9",
+    "sourceType": "fact_contract"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.",
+    "goldQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable.",
+    "page": 82,
+    "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p82:b3971:6368d6e7",
+    "sourceType": "exact_section",
+    "expectedMethodology": {
+      "methodologyId": "VM0048",
+      "methodologyName": "Reducing Emissions from Deforestation and Forest Degradation",
+      "methodologyAlias": "",
+      "pddDeclaredMethodologyVersion": "v1.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 82,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable."
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": "Baseline-like narrative exists, but the formal VCS Baseline Scenario section is not completed because it is not required at the Under Development stage.",
+    "goldQuote": "Section not required for the Under Development stage in accordance to Verra’s Registration",
+    "page": 88,
+    "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+    "sectionPath": [
+      "3",
+      "3.1",
+      "3.1.4"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p88:b4367:9ef68897",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "CCB additionality evidence exists: no active initiatives or other projects are reducing deforestation, and the project claims it meets additionality; caveat that formal VCS additionality sections are not completed at this stage.",
+    "goldQuote": "At present, no active initiatives are in place to reduce deforestation in the area, owing to limited governmental and local resources. Although the government of Gabon has implemented regulations banning the export of roundwood to curb illegal logging and harvesting, industrial logging continues to expand rapidly and shows a growing trend14. To the best of our knowledge, there are no other ongoing projects aimed at halting deforestation or promoting sustainable land management in the region. These factors clearly demonstrate that the proposed project activity meets the additionality requirement. For more detail on community and biodiversity without project scenario, please refer to section 4.1 and 5.1.",
+    "page": 47,
+    "sectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
+    "sectionPath": [
+      "2",
+      "2.2",
+      "2.2.3"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p47:b2326:9903bb37",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Leakage management evidence exists through a 15% community-use buffer zone, but formal VCS leakage-emissions accounting is not completed/not required at the Under Development stage.",
+    "goldQuote": "Negative leakage poses a significant risk to regional forest conservation by redirecting pressures on ecosystems from one area to another. This occurs when activity shifting—such as the displacement of people, technology, or capital from a newly protected or REDD+-covered zone to an unprotected region—triggers deforestation elsewhere. Additionally, market leakage can result when reduced timber or agricultural output within the project area leads to increased extraction or land conversion in other locations, further undermining conservation outcomes. To mitigate leakage, following actions are planned to address the leakage issues: To mitigate potential leakage, a community-use buffer zone has been designated. It accounts for 15% of the project area (equivalent to 21,950 hectares). This area allows local communities to continue their daily livelihood activities while reducing pressure on surrounding forests. The buffer zone supports environmental stewardship at the landscape level and helps prevent conflicts by accommodating traditional community uses. Conservation interventions are integrated with livelihood improvements, including co-management of protected areas by communities and conservation agencies to enhance ecological outcomes. The selection of the buffer zone followed specific, multi-dimensional criteria to maximize its effectiveness, with each criterion reflecting meticulous consideration of both community needs and conservation goals. To minimize the need for communities to travel long distances—and thus discourage potential forest encroachment in other areas—priority was first given to areas near existing villages and community facilities. Meanwhile, to respect local traditions and ensure the buffer zone aligns with daily livelihood practices, zones with historical and customary uses (such as gardening, hunting, and wild resource gathering) were carefully identified through participatory land-use planning, ensuring the buffer zone integrates naturally with community life. In terms of conservation impact, areas with lower carbon stocks—including secondary forests and degraded forests—were preferred, as this choice significantly reduces the risk of \"leakage\" (the displacement of deforestation pressures to non-project areas). To safeguard ecological integrity, ecologically sensitive regions and critical habitats for endangered species were explicitly excluded from buffer zone eligibility, preventing any compromise to high- priority conservation targets. Finally, to ensure the entire selection process is inclusive and legitimate, the final delineation of the buffer zone was fully endorsed by local communities and CCB Version 3.0, VCS Version 4.4 82 CCB v3.0, VCS v4.4 clans through the Free, Prior, and Informed Consent (FPIC) procedures, ensuring their voices and interests are central to the decision-making.",
+    "page": 81,
+    "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
+    "sectionPath": [
+      "2",
+      "2.6",
+      "2.6.1"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p81:b3930:7630b938",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Stakeholder consultation / FPIC evidence exists: consent was obtained through public consultations and formal consent is described; caveat that formal 2.3.10 Stakeholder Consultations is not completed/not required at this stage.",
+    "goldQuote": "Necessary consent for the Grande Sun project’s development was obtained from local communities through public consultations, which were conducted only after the project was fully disclosed and all doubts from the communities were clarified. To ensure the effectiveness of these consultations, the project adhered to established commitments, striving to make the process more participatory and open to the communities. The outcome of the FPIC process with local communities, particularly extractives, stemmed from sustained participatory engagement and negotiations. During this process, it was confirmed that the subsistence means relied on by extractives are closely linked to forest use and their in- depth understanding of the area; crucially, the project guaranteed no displacement of extractive activities, which laid the foundation for the communities to give their consent. All four core elements of FPIC were fully fulfilled with the local communities in the project area: the process was free of any coercion, intimidation, or manipulation; consent was obtained in advance; all necessary and requested information was provided to ensure the communities were fully informed; and the process was rooted in genuine consultation and active community participation. Notably, the Grande Sun project will not encroach on any private, community, or government property. It will neither displace local communities nor cause the displacement or prohibition of traditional extractives and hunting activities. Additionally, the project’s FPIC process does not treat consent as a one-time event that grants a permanent social license for development. Instead, the process is designed to be CCB Version 3.0, VCS Version 4.4 77 CCB v3.0, VCS v4.4 recurring and continuous throughout the project lifecycle. As outlined in the FPIC process description, the project first sought community consent to discuss the concept of a project affecting community forests, then invited community participation in developing a detailed forest plan and will continue to engage the community in project implementation. This ongoing, participatory approach will be maintained for the duration of the project. To ensure the disclosure and transparency of the consultation process, detailed minutes were prepared, containing records of discussed matters, attendance lists, and meeting photos. These minutes were signed by community members. Furthermore, the minutes, attendance lists, and individual signatures confirming acceptance of the project will be available for review by the validation and verification body, reinforcing the transparency of the entire agreement process.",
+    "page": 76,
+    "sectionHeading": "Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)",
+    "sectionPath": [
+      "2",
+      "2.5",
+      "2.5.7"
+    ],
+    "spanId": "grande-sun-gabon-pdd-extracted:p76:b3726:4caff61b",
+    "sourceType": "exact_section"
+  }
+]
