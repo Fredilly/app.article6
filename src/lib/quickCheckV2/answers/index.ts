@@ -26,11 +26,14 @@ import {
   type RetrievedEvidence,
   type StructuredCheckId,
 } from "@/lib/quickCheckV2/evidence";
-import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 import { buildQuickCheckMethodologyIdentity } from "@/lib/quickCheckV2/methodologyIdentity";
-
-const PRIMARY_METHODOLOGY_CODE_RE =
-  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
+import {
+  formatHybridMethodologyAnswer,
+  formatMethodologyReference,
+  PRIMARY_METHODOLOGY_CODE_RE,
+  type MethodologyReference,
+} from "@/lib/quickCheckV2/methodologyParsing";
+import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 
 export type AnswerResult = {
   checkName: StructuredCheckId;
@@ -217,21 +220,28 @@ function formatMethodologyAnswer(
   methodology: MethodologyExtraction,
   evidence: RetrievedEvidence,
 ): string {
-  if (
-    /\bVM0048\b/i.test(evidence.quote) &&
-    /\bVM0007\b/i.test(evidence.quote) &&
-    /\bmaterially applicable\b/i.test(evidence.quote) &&
-    /\bnot materially applicable\b/i.test(evidence.quote)
-  ) {
-    return "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.";
+  const hybridAnswer = formatHybridMethodologyAnswer(evidence.quote);
+  if (hybridAnswer) {
+    return hybridAnswer;
   }
 
   const displayAlias = evidence.sourceType === "exact_section"
     ? extractDisplayMethodologyAlias(evidence.quote) ?? methodology.methodologyAlias ?? buildQuickCheckMethodologyIdentity(evidence)?.methodologyAlias
     : methodology.methodologyAlias;
   const aliasValue = displayAlias && /\s/.test(displayAlias) ? displayAlias : null;
-  const alias = aliasValue ? ` (${aliasValue})` : "";
-  return `${methodology.methodologyId} ${methodology.methodologyName}${alias} ${methodology.pddDeclaredMethodologyVersion}`;
+  return formatMethodologyReference(
+    {
+      methodologyId: methodology.methodologyId,
+      methodologyName: methodology.methodologyName,
+      methodologyAlias: aliasValue,
+      pddDeclaredMethodologyVersion: methodology.pddDeclaredMethodologyVersion,
+    } satisfies MethodologyReference,
+    {
+      includeAlias: Boolean(aliasValue),
+      includeName: true,
+      includeVersion: true,
+    },
+  );
 }
 
 const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
@@ -303,20 +313,16 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
 
   methodology(evidence) {
     if (!evidence) return null;
+    const hybridAnswer = formatHybridMethodologyAnswer(evidence.quote);
+    if (hybridAnswer) {
+      return hybridAnswer;
+    }
+
     const tableMethodology = extractMethodologyDetailsFromEvidence(evidence);
     if (tableMethodology) {
       return formatMethodologyAnswer(tableMethodology, evidence);
     }
     const quote = normalizeAnswerText(evidence.quote);
-
-    if (
-      /\bVM0048\b/i.test(quote) &&
-      /\bVM0007\b/i.test(quote) &&
-      /\bmaterially applicable\b/i.test(quote) &&
-      /\bnot materially applicable\b/i.test(quote)
-    ) {
-      return "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.";
-    }
 
     const conciseMethodology = quote.match(
       /\b((?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s*[:\s-]+\s*Methodology\s+for\s+[^,.;]+?)(?=,\s*approved\b|\s+approved\b|$)/i,

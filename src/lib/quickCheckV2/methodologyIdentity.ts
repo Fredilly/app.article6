@@ -1,5 +1,11 @@
 import type { RetrievedEvidence } from "@/lib/quickCheckV2/evidence";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import {
+  extractMethodologyReferencesFromQuote,
+  normalizeDashCharacters,
+  normalizeWhitespace,
+  PRIMARY_METHODOLOGY_CODE_RE,
+} from "@/lib/quickCheckV2/methodologyParsing";
 
 export type QuickCheckMethodologyVersionStatus =
   | "DECLARED"
@@ -17,18 +23,8 @@ export type QuickCheckMethodologyIdentity = Readonly<{
   evidenceQuote: string;
 }>;
 
-const PRIMARY_METHODOLOGY_CODE_RE =
-  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
 const METHODOLOGY_ROW_BOUNDARY_RE = /\b(?:Module|Tool)\b/i;
 const LIKELY_ALIAS_RE = /^[A-Z0-9][A-Z0-9+./-]*$/;
-
-function normalizeWhitespace(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
-
-function normalizeDashCharacters(value: string): string {
-  return value.replace(/[\u2010-\u2015]/g, "-");
-}
 
 function stripWrappingQuotes(value: string): string {
   return value.replace(/^[“"'\(\[]+/, "").replace(/[”"'\)\]]+$/, "").trim();
@@ -137,17 +133,19 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
   const quote = normalizeWhitespace(evidence.quote);
   if (!quote) return null;
 
-  if (
-    /^Hybrid methodology:/i.test(quote) &&
-    /\bVM0048\b/i.test(quote) &&
-    /\bVM0007\b/i.test(quote)
-  ) {
+  const references = extractMethodologyReferencesFromQuote(quote);
+  const primaryReference = references[0] ?? null;
+  if (primaryReference) {
+    const versionStatus = primaryReference.pddDeclaredMethodologyVersion
+      ? "DECLARED"
+      : "NOT_EXPLICITLY_DECLARED";
+
     return {
-      methodologyId: "VM0048",
-      methodologyName: "Reducing Emissions from Deforestation and Forest Degradation",
-      methodologyAlias: null,
-      pddDeclaredMethodologyVersion: "v1.0",
-      versionStatus: "DECLARED",
+      methodologyId: primaryReference.methodologyId,
+      methodologyName: primaryReference.methodologyName,
+      methodologyAlias: primaryReference.methodologyAlias,
+      pddDeclaredMethodologyVersion: primaryReference.pddDeclaredMethodologyVersion,
+      versionStatus,
       evidencePage: evidence.page,
       evidenceSection: evidence.sectionHeading?.trim() || (evidence.sectionPath.length > 0 ? evidence.sectionPath.join(" / ") : ""),
       evidenceQuote: evidence.quote,
