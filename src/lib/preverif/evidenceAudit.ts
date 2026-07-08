@@ -285,6 +285,22 @@ function extractDeclaredVersionTokens(text: string): string[] {
   return contextualVersion ? [contextualVersion] : [];
 }
 
+function extractDeclaredVersionTokensFromContinuation(input: {
+  line: string;
+  nextLine?: string;
+}): string[] {
+  const currentLineVersions = extractDeclaredVersionTokens(input.line);
+  if (currentLineVersions.length > 0) return currentLineVersions;
+
+  const nextLine = input.nextLine?.trim() ?? "";
+  if (!nextLine || isTableBoundaryLine(nextLine)) return [];
+
+  const combinedVersions = extractDeclaredVersionTokens(`${input.line} ${nextLine}`.trim());
+  if (combinedVersions.length > 0) return combinedVersions;
+
+  return extractDeclaredVersionTokens(nextLine);
+}
+
 function extractMethodologyBlock(rawText: string): string {
   const lines = rawText.split(/\n+/);
   const startIndex = lines.findIndex((line) =>
@@ -336,17 +352,15 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
       || METHODOLOGY_DECLARATION_ANCHORS.some((pattern) => pattern.test(line));
     if (!hasExplicitMethodologyAnchor) continue;
 
-    const lineVersions = extractDeclaredVersionTokens(line);
+    const nextLine = lines[index + 1]?.trim();
+    const lineVersions = extractDeclaredVersionTokensFromContinuation({
+      line,
+      nextLine,
+    });
     if (lineVersions.length > 0) {
       declaredVersions.push(...lineVersions);
       continue;
     }
-
-    const nextLine = lines[index + 1]?.trim();
-    if (!nextLine || isTableBoundaryLine(nextLine)) continue;
-    const nextLineVersions = extractDeclaredVersionTokens(nextLine);
-    if (nextLineVersions.length === 0) continue;
-    declaredVersions.push(...nextLineVersions);
   }
 
   return Array.from(new Set(declaredVersions));

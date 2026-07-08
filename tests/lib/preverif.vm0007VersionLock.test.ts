@@ -50,6 +50,15 @@ const LISALA_PROSE_TEXT = [
   "The project applies VM0007 (v.1.8) for avoided deforestation.",
   "3.1.2 Applicability of Methodology",
 ].join("\n");
+const SPLIT_DECLARATION_TEXT = [
+  "3.1 Application of Methodology",
+  "3.1.1 Title and Reference of Methodology",
+  "Methodology VM0007 REDD+ Methodology Framework (REDD+",
+  "MF) 1.8",
+  "Tool VT0001",
+  "Additionality Tool 3.0",
+  "3.1.2 Applicability of Methodology",
+].join("\n");
 
 function auditVm0007(
   rawText: string,
@@ -312,6 +321,17 @@ describe("VM0007 version lock", () => {
     expect(audit.versionMismatchReason).toBe("");
   });
 
+  it("allows a real-like split VM0007 v1.8 declaration from upload text", () => {
+    const audit = auditVm0007(SPLIT_DECLARATION_TEXT, {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
   it("blocks a methodology row for VM0007 v1.5 even when the flattened block also contains module and tool versions", () => {
     const document = makeTableEvidenceDocument([
       ["Type", "Reference ID", "Version"],
@@ -434,6 +454,18 @@ describe("VM0007 version lock", () => {
       methodologyId: "VM0007",
       rulebookVersion: "v1-8",
       pddDeclaredMethodologyVersion: "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) 1.8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("normalizes a split methodology declaration to v1.8 instead of reporting it missing", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "Methodology VM0007 REDD+ Methodology Framework (REDD+\nMF) 1.8",
     });
 
     expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
