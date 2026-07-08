@@ -1,4 +1,9 @@
-import { sortEvidenceStack, type EvidenceStackItem, type EvidenceStackRole } from "@/lib/evidence/evidenceStack";
+import {
+  sortEvidenceStack,
+  validateEvidenceStack,
+  type EvidenceStackItem,
+  type EvidenceStackRole,
+} from "@/lib/evidence/evidenceStack";
 import { buildQuickCheckEvidenceStack } from "@/lib/quickCheckV2/evidenceStackAdapter";
 import type {
   QuickCheckV2Block,
@@ -84,7 +89,6 @@ function getRelevantText(block: QuickCheckV2Block): string {
 
 function isValidCompanionBlock(block: QuickCheckV2Block): boolean {
   return (
-    block.page > 0 &&
     normalizeText(block.text).length > 0 &&
     block.blockType !== "header" &&
     block.blockType !== "footer"
@@ -147,14 +151,15 @@ function collectIncompleteCompanions(
       const relevantText = getRelevantText(block);
       return isIncompleteText(block.text) && matchesAny(relevantText, profile.contextPatterns);
     })
-    .map((block) =>
-      toCompanionItem(
+    .flatMap((block) => {
+      const item = toCompanionItem(
         block,
         profile.incompleteRole(block),
         profile.incompleteLabel,
         profile.incompleteReason,
-      ),
-    );
+      );
+      return validateEvidenceStack([item]).valid ? [item] : [];
+    });
 }
 
 function collectStakeholderSupportingCompanions(
@@ -172,14 +177,15 @@ function collectStakeholderSupportingCompanions(
         matchesAny(relevantText, profile.supportingPatterns ?? [])
       );
     })
-    .map((block) =>
-      toCompanionItem(
+    .flatMap((block) => {
+      const item = toCompanionItem(
         block,
         "supporting",
         "Supporting stakeholder evidence",
         "Related consultation, consent, approval, assembly, meeting, or follow-up evidence.",
-      ),
-    );
+      );
+      return validateEvidenceStack([item]).valid ? [item] : [];
+    });
 }
 
 export function buildQuickCheckEvidenceStackWithCompanions(
