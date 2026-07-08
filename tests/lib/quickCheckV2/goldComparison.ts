@@ -40,3 +40,16 @@ export function buildComparableQuickCheckRecord(
 
   return record;
 }
+
+export function normalizeExpectedQuickCheckGoldRecord(
+  record: QuickCheckGoldComparableRecord,
+): QuickCheckGoldComparableRecord {
+  if (!record.evidenceStack) {
+    return record;
+  }
+
+  return {
+    ...record,
+    evidenceStack: normalizeEvidenceStack(record.evidenceStack),
+  };
+}

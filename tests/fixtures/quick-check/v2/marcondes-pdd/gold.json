@@ -39,7 +39,7 @@
   },
   {
     "checkName": "baseline_scenario",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "Legal deforestation of 20% of the property (APD), where land use conversion is allowed by law, i.e., forest suppression for pasture (livestock), is considered the most plausible baseline scenario.",
     "goldQuote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
     "page": 42,
@@ -50,11 +50,56 @@
       "2.2.2"
     ],
     "spanId": "marcondes-pdd-extracted:p42:b1863:ac664bd3",
-    "sourceType": "exact_section"
+    "sourceType": "exact_section",
+    "evidenceStack": [
+      {
+        "role": "primary",
+        "page": 42,
+        "quote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
+        "sectionHeading": "Most-Likely Scenario Justification (CCB, G2.1)",
+        "sectionPath": [
+          "2",
+          "2.2",
+          "2.2.2"
+        ],
+        "spanId": "marcondes-pdd-extracted:p42:b1863:ac664bd3",
+        "sourceType": "exact_section"
+      },
+      {
+        "role": "blocker",
+        "page": 67,
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+        "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+        "sectionPath": [
+          "3",
+          "3.1",
+          "3.1.4"
+        ],
+        "spanId": "marcondes-pdd-extracted:p67:b2878:17bea5a7",
+        "sourceType": "exact_section",
+        "label": "Formal baseline section incomplete",
+        "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+      },
+      {
+        "role": "blocker",
+        "page": 68,
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+        "sectionHeading": "Baseline Emissions (VCS, 3.15)",
+        "sectionPath": [
+          "3",
+          "3.2",
+          "3.2.1"
+        ],
+        "spanId": "marcondes-pdd-extracted:p68:b2903:a3454d9f",
+        "sourceType": "exact_section",
+        "label": "Formal baseline section incomplete",
+        "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+      }
+    ]
   },
   {
     "checkName": "additionality",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "The project activities would not occur without carbon finance due to substantial financial barriers",
     "goldQuote": "The project activities would not occur without carbon finance due to substantial financial barriers.",
     "page": 43,
@@ -84,7 +129,7 @@
   },
   {
     "checkName": "stakeholder_consultation",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "Exploratory visit, formal presentation, benefit-sharing negotiation, follow-up meetings, and the 6 May 2025 FPIC Principal Assembly were conducted with community participation.",
     "goldQuote": "Phase 2 — On-Site Field Engagement and Validation Field visits and community engagement for the Marcondes REDD+ project have been conducted as follows: 1. November/December 2022 — Exploratory visit: First visit by the project team to the Comunidade São Tomé do Mocambo do Arari. Initial presentation of the REDD+ concept to community leaders, identification of community structure and representatives, and preliminary assessment of community interest and needs. 2. February 2023 — Formal presentation: Formal presentation of the Marcondes REDD+ project to the community association (Associação comunitária local). Detailed explanation of the REDD+ mechanism, voluntary carbon market, VCU generation process, and the role of VCS v4.4/CCB v3.0 certification standards. 3. April 2023 — Benefit-sharing negotiation: Presentation and negotiation of the Benefit-Sharing Plan (Plano de Repartição de Benefícios — PRB). Discussion of benefit categories: direct",
     "page": 46,

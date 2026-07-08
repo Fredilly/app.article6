@@ -232,4 +232,90 @@ describe("Quick Check v2 evidence stack adapter", () => {
       },
     ]);
   });
+
+  it("keeps opt-in evidenceStack comparison strict when roles, pages, quotes, or blockers do not match", () => {
+    const comparable = buildComparableQuickCheckRecord(
+      {
+        checkName: "additionality",
+        status: "UNCLEAR",
+        answer: "Additionality evidence exists but remains qualified.",
+        evidence,
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 17,
+            quote: "Primary quote from the project description.",
+            sectionHeading: "Additionality",
+            sectionPath: ["3", "3.2"],
+            spanId: "synthetic-doc:p17:b1",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 18,
+            quote: "Formal VCS section is still incomplete.",
+            sectionHeading: "Additionality caveat",
+            sectionPath: ["3", "3.3"],
+            spanId: "synthetic-doc:p18:b1",
+            sourceType: "exact_section",
+          },
+        ],
+        reason: "provenance_incomplete",
+      },
+      {
+        checkName: "additionality",
+        expectedStatus: "UNCLEAR",
+        expectedAnswer: "Additionality evidence exists but remains qualified.",
+        goldQuote: "Primary quote from the project description.",
+        page: 17,
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.2"],
+        spanId: "synthetic-doc:p17:b1",
+        sourceType: "exact_section",
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 17,
+            quote: "Primary quote from the project description.",
+            sectionHeading: "Additionality",
+            sectionPath: ["3", "3.2"],
+            spanId: "synthetic-doc:p17:b1",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 19,
+            quote: "Formal VCS section is still incomplete.",
+            sectionHeading: "Additionality caveat",
+            sectionPath: ["3", "3.3"],
+            spanId: "synthetic-doc:p19:b1",
+            sourceType: "exact_section",
+          },
+        ],
+      },
+    );
+
+    expect(comparable.evidenceStack).not.toStrictEqual([
+      {
+        role: "primary",
+        page: 17,
+        quote: "Primary quote from the project description.",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.2"],
+        spanId: "synthetic-doc:p17:b1",
+        sourceType: "exact_section",
+        label: undefined,
+        reason: undefined,
+      },
+      {
+        role: "blocker",
+        page: 19,
+        quote: "Formal VCS section is still incomplete.",
+        sectionHeading: "Additionality caveat",
+        sectionPath: ["3", "3.3"],
+        spanId: "synthetic-doc:p19:b1",
+        sourceType: "exact_section",
+      },
+    ]);
+  });
 });

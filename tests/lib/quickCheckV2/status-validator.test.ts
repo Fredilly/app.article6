@@ -177,6 +177,166 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
     expect(result.reason).toBe("provenance_incomplete");
   });
 
+  it("returns UNCLEAR for baseline evidence when a blocker stack item marks the formal section incomplete", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "baseline_scenario",
+        answer: "The baseline is defined as continuation of grazing without the project.",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "The baseline is defined as continuation of grazing without the project.",
+          page: 2,
+          sectionHeading: "Most-Likely Scenario Justification",
+          sectionPath: ["2", "2.4"],
+          spanId: "synthetic-doc:p2:b1:baseline",
+        },
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 2,
+            quote: "The baseline is defined as continuation of grazing without the project.",
+            sectionHeading: "Most-Likely Scenario Justification",
+            sectionPath: ["2", "2.4"],
+            spanId: "synthetic-doc:p2:b1:baseline",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 4,
+            quote: "This section is under development.",
+            sectionHeading: "Baseline Scenario",
+            sectionPath: ["3", "3.13"],
+            spanId: "synthetic-doc:p4:b1:baseline",
+            sourceType: "exact_section",
+            label: "Formal baseline section incomplete",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("under_development_stub");
+  });
+
+  it("returns UNCLEAR for additionality when blocker evidence is present", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "additionality",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "The project clearly demonstrates additionality.",
+          page: 7,
+          sectionHeading: "Additionality Methods",
+          sectionPath: ["3", "3.2"],
+          spanId: "synthetic-doc:p7:b1:additionality",
+        },
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 7,
+            quote: "The project clearly demonstrates additionality.",
+            sectionHeading: "Additionality Methods",
+            sectionPath: ["3", "3.2"],
+            spanId: "synthetic-doc:p7:b1:additionality",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 9,
+            quote: "The formal VCS section is not required at the Under Development stage.",
+            sectionHeading: "Additionality",
+            sectionPath: ["3", "3.3"],
+            spanId: "synthetic-doc:p9:b1:additionality",
+            sourceType: "exact_section",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("provenance_incomplete");
+  });
+
+  it("returns UNCLEAR for leakage when blocker evidence is present", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "leakage",
+        answer: "Leakage emissions are managed.",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "Leakage emissions are managed.",
+          page: 11,
+          sectionHeading: "Leakage Emissions",
+          sectionPath: ["4", "4.3"],
+          spanId: "synthetic-doc:p11:b1:leakage",
+        },
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 11,
+            quote: "Leakage emissions are managed.",
+            sectionHeading: "Leakage Emissions",
+            sectionPath: ["4", "4.3"],
+            spanId: "synthetic-doc:p11:b1:leakage",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 12,
+            quote: "This section is not required at the Under Development stage.",
+            sectionHeading: "Leakage Management",
+            sectionPath: ["4", "4.4"],
+            spanId: "synthetic-doc:p12:b1:leakage",
+            sourceType: "exact_section",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("provenance_incomplete");
+  });
+
+  it("returns UNCLEAR for stakeholder consultation when blocker evidence is present", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "stakeholder_consultation",
+        answer: "Stakeholder consultation is documented.",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "Stakeholder consultation is documented.",
+          page: 13,
+          sectionHeading: "Stakeholder Consultations",
+          sectionPath: ["2", "2.3.10"],
+          spanId: "synthetic-doc:p13:b1:stakeholder",
+        },
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 13,
+            quote: "Stakeholder consultation is documented.",
+            sectionHeading: "Stakeholder Consultations",
+            sectionPath: ["2", "2.3.10"],
+            spanId: "synthetic-doc:p13:b1:stakeholder",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 14,
+            quote: "The formal consultation section is not required at the Under Development stage.",
+            sectionHeading: "Stakeholder Consultations",
+            sectionPath: ["2", "2.3.11"],
+            spanId: "synthetic-doc:p14:b1:stakeholder",
+            sourceType: "exact_section",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("provenance_incomplete");
+  });
+
   it("includes a structured methodology identity on methodology rows", () => {
     const methodology = statuses.find((result) => result.checkName === "methodology");
     expect(methodology?.methodology?.methodologyId).toBe("VM0007");
