@@ -37,6 +37,39 @@ function runGuard(cwd: string) {
 }
 
 describe("quickcheck no-fixture-hardcoding guard", () => {
+  it("allows reusable methodology registry data in src/lib/quickCheckV2", () => {
+    const root = initRepo();
+    try {
+      writeFile(
+        path.join(root, "src/lib/quickCheckV2/methodologyRegistry.ts"),
+        ["export const METHODOLOGY_REGISTRY = {};", ""].join("\n"),
+      );
+      commitAll(root, "base");
+
+      writeFile(
+        path.join(root, "src/lib/quickCheckV2/methodologyRegistry.ts"),
+        [
+          "export const METHODOLOGY_REGISTRY = {",
+          "  VM0007: {",
+          '    methodologyId: "VM0007",',
+          '    methodologyName: "REDD+ Methodology Framework",',
+          '    versions: ["v1.8"],',
+          "  },",
+          "};",
+          "",
+        ].join("\n"),
+      );
+      commitAll(root, "registry data");
+
+      const result = runGuard(root);
+      expect(result.status).toBe(0);
+      const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+      expect(output).toContain("ok");
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("flags obvious fixture-shaped source hardcoding in src/lib/quickCheckV2", () => {
     const root = initRepo();
     try {

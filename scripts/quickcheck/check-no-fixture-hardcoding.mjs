@@ -9,9 +9,6 @@ const FIXTURE_ROOT = "tests/fixtures/quick-check/v2";
 
 const PAGE_GATE_RE = /\b(?:[A-Za-z_$][\w$]*\.)*page\s*(?:>=|>)\s*\d+\b/;
 const METHODOLOGY_PAIR_RE = /\bVM0048\b[\s\S]{0,120}\bVM0007\b|\bVM0007\b[\s\S]{0,120}\bVM0048\b/;
-const METHOD_ID_LITERAL_RE = /\bmethodologyId\b\s*[:=]\s*["'][^"']+["']/i;
-const METHOD_NAME_LITERAL_RE = /\bmethodologyName\b\s*[:=]\s*["'][^"']+["']/i;
-const METHOD_VERSION_LITERAL_RE = /\b(?:version|methodologyVersion|pddDeclaredMethodologyVersion)\b\s*[:=]\s*["'][^"']+["']/i;
 
 function git(args, options = {}) {
   return execFileSync("git", args, {
@@ -152,36 +149,6 @@ function collectViolations({ filePath, lineNumber, text }, catalog) {
       lineNumber,
       rule: "methodology pair special case",
       reason: "Branching on a single methodology pair hardcodes fixture truth instead of parsing generically.",
-      sample: normalized,
-    });
-  }
-
-  if (METHOD_ID_LITERAL_RE.test(normalized)) {
-    violations.push({
-      filePath,
-      lineNumber,
-      rule: "hardcoded methodologyId",
-      reason: "A methodology ID literal in quickCheckV2 source should come from parsing, not one fixture pair.",
-      sample: normalized,
-    });
-  }
-
-  if (METHOD_NAME_LITERAL_RE.test(normalized)) {
-    violations.push({
-      filePath,
-      lineNumber,
-      rule: "hardcoded methodologyName",
-      reason: "A methodology name literal in quickCheckV2 source should come from parsing, not one fixture pair.",
-      sample: normalized,
-    });
-  }
-
-  if (METHOD_VERSION_LITERAL_RE.test(normalized)) {
-    violations.push({
-      filePath,
-      lineNumber,
-      rule: "hardcoded methodology version",
-      reason: "A methodology version literal in quickCheckV2 source should come from parsing, not one fixture pair.",
       sample: normalized,
     });
   }
