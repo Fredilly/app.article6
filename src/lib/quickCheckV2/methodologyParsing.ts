@@ -1,5 +1,4 @@
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
-import { lookupCanonicalMethodologyVersion } from "@/lib/quickCheckV2/canonicalMethodologyVersions";
 
 export const PRIMARY_METHODOLOGY_CODE_RE =
   /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i;
@@ -275,18 +274,16 @@ export function formatHybridMethodologyAnswer(quote: string): string | null {
   const fallback = references.find((reference) => reference.methodologyId !== primary.methodologyId) ?? null;
   if (!fallback) return null;
 
-  const primaryVersion = primary.pddDeclaredMethodologyVersion ?? lookupCanonicalMethodologyVersion(primary.methodologyId) ?? "";
+  const primaryVersion = primary.pddDeclaredMethodologyVersion ?? "";
   const primaryLabel = primaryVersion ? `${primary.methodologyId} ${primaryVersion}` : primary.methodologyId;
-  const fallbackVersion = fallback.pddDeclaredMethodologyVersion ?? lookupCanonicalMethodologyVersion(fallback.methodologyId) ?? "";
   const fallbackLabel = formatMethodologyReference(
     {
       ...fallback,
-      pddDeclaredMethodologyVersion: fallbackVersion || fallback.pddDeclaredMethodologyVersion,
     },
     {
-    includeAlias: false,
-    includeName: true,
-      includeVersion: Boolean(fallbackVersion || fallback.pddDeclaredMethodologyVersion),
+      includeAlias: false,
+      includeName: true,
+      includeVersion: Boolean(fallback.pddDeclaredMethodologyVersion),
     },
   );
 

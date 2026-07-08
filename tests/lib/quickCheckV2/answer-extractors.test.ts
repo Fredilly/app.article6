@@ -156,7 +156,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
   it("formats the Grande Sun hybrid methodology from the selected evidence", () => {
     const result = grandeSunAnswers.find((item) => item.checkName === "methodology");
     expect(result?.answer).toBe(
-      "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.",
+      "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework where VM0048 is not materially applicable.",
     );
     expect(result?.evidence?.quote).toContain("where it is materially applicable");
     expect(result?.evidence?.quote).toContain("where VM0048 is not materially applicable");

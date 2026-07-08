@@ -15,7 +15,7 @@
   {
     "checkName": "methodology",
     "expectedStatus": "FOUND",
-    "expectedAnswer": "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework v1.8 where VM0048 is not materially applicable.",
+    "expectedAnswer": "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework where VM0048 is not materially applicable.",
     "goldQuote": "The project utilizes VM0048 Reducing Emissions from Deforestation and Forest Degradation Version 1.0 (VM0048, Reducing Emissions from Deforestation and Degradation, v1.0 (verra.org)) in instances where it is materially applicable and employs VM0007 REDD+ Methodology Framework (REDD-MF) where VM0048 is not materially applicable.",
     "page": 82,
     "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
