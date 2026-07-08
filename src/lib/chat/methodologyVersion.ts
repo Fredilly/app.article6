@@ -2,6 +2,9 @@ function normalizeDashCharacters(value: string): string {
   return value.replace(/[\u2010-\u2015]/g, "-");
 }
 
+const METHODOLOGY_DECLARATION_SUFFIX_RE =
+  /(?:\bmethodology\s+)?(?:\bVM\d{4}\b(?:\s+REDD\+?\s+Methodology\s+Framework)?|\bREDD(?:\+\s*|[-\s]+)?MF\b|\bREDD\+?\s+Methodology\s+Framework\b)(?:\s*\([^)]*\))?\s+([0-9]+(?:[.-][0-9]+)+)\s*$/i;
+
 function canonicalizeVersionSegments(rawSegments: string[]): string | null {
   const normalizedSegments: string[] = [];
 
@@ -24,7 +27,7 @@ function canonicalizeVersionSegments(rawSegments: string[]): string | null {
   return `v${normalizedSegments.join(".")}`;
 }
 
-export function normalizeDeclaredMethodologyVersion(rawVersion: string | null | undefined): string | null {
+export function normalizeMethodologyVersion(rawVersion: string | null | undefined): string | null {
   if (typeof rawVersion !== "string") return null;
 
   const normalized = normalizeDashCharacters(rawVersion)
@@ -44,5 +47,12 @@ export function normalizeDeclaredMethodologyVersion(rawVersion: string | null | 
     return canonicalizeVersionSegments(bareMatch[1].split(/[.-]/));
   }
 
+  const methodologyDeclarationSuffixMatch = normalized.match(METHODOLOGY_DECLARATION_SUFFIX_RE);
+  if (methodologyDeclarationSuffixMatch?.[1]) {
+    return canonicalizeVersionSegments(methodologyDeclarationSuffixMatch[1].split(/[.-]/));
+  }
+
   return null;
 }
+
+export const normalizeDeclaredMethodologyVersion = normalizeMethodologyVersion;
