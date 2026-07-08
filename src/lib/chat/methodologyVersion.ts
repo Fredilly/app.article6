@@ -2,8 +2,8 @@ function normalizeDashCharacters(value: string): string {
   return value.replace(/[\u2010-\u2015]/g, "-");
 }
 
-const METHODOLOGY_VERSION_CONTEXT_RE =
-  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-[A-Z0-9.-]+|GS-[A-Z0-9.-]+|VT\d{4}|methodology|framework|redd(?:\+\s*|[-\s]+)?mf)\b/i;
+const METHODOLOGY_DECLARATION_SUFFIX_RE =
+  /(?:\bmethodology\s+)?(?:\bVM\d{4}\b(?:\s+REDD\+?\s+Methodology\s+Framework)?|\bREDD(?:\+\s*|[-\s]+)?MF\b|\bREDD\+?\s+Methodology\s+Framework\b)(?:\s*\([^)]*\))?\s+([0-9]+(?:[.-][0-9]+)+)\s*$/i;
 
 function canonicalizeVersionSegments(rawSegments: string[]): string | null {
   const normalizedSegments: string[] = [];
@@ -47,9 +47,9 @@ export function normalizeMethodologyVersion(rawVersion: string | null | undefine
     return canonicalizeVersionSegments(bareMatch[1].split(/[.-]/));
   }
 
-  const contextualTrailingMatch = normalized.match(/([0-9]+(?:[.-][0-9]+)+)\s*$/);
-  if (contextualTrailingMatch?.[1] && METHODOLOGY_VERSION_CONTEXT_RE.test(normalized)) {
-    return canonicalizeVersionSegments(contextualTrailingMatch[1].split(/[.-]/));
+  const methodologyDeclarationSuffixMatch = normalized.match(METHODOLOGY_DECLARATION_SUFFIX_RE);
+  if (methodologyDeclarationSuffixMatch?.[1]) {
+    return canonicalizeVersionSegments(methodologyDeclarationSuffixMatch[1].split(/[.-]/));
   }
 
   return null;

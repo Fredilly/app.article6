@@ -441,6 +441,34 @@ describe("VM0007 version lock", () => {
     expect(lock.versionMismatchReason).toBe("");
   });
 
+  it("does not accept a trailing module version as the VM0007 methodology declaration", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1-8",
+      pddDeclaredMethodologyVersion: "The project applies VM0007 and module VMD0001 1.8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("The project applies VM0007 and module VMD0001 1.8");
+    expect(lock.versionMatch).toBe(false);
+    expect(lock.versionMismatchReason).toContain("missing");
+  });
+
+  it("blocks a line where VM0007 is present but only a module version trails at the end", () => {
+    const audit = auditVm0007([
+      "3.1 Application of Methodology",
+      "3.1.1 Title and Reference of Methodology",
+      "The project applies VM0007 and module VMD0001 1.8",
+      "3.1.2 Applicability of Methodology",
+    ].join("\n"), {
+      getContract: makeVersionedContract("v1-8"),
+    });
+
+    expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("missing");
+    expect(audit.results).toEqual([]);
+  });
+
   it("allows a v1.8 VM0007 PDD when the real text uses 'VM0007, version 1.8'", () => {
     const audit = auditVm0007(ENVIRA_V18_VERSION_TEXT, {
       getContract: makeVersionedContract("v1-8"),
