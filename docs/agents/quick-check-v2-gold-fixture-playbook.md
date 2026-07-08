@@ -21,6 +21,10 @@ A valid gold fixture contains:
 - Draft output is not truth.
 - Empty corrections are not proof of correctness.
 - Quote and page provenance are part of truth.
+- No fixture-shaped source fixes.
+- Gold, corrections, and review files may be document-specific.
+- Extractor, selector, status, answer, and methodology identity source code must be pattern-specific and reusable.
+- Do not fix a failing fixture by adding source logic tied to one project name, project ID, fixture ID, exact page number, exact gold answer string, or one methodology pair.
 
 ## PR Taxonomy
 

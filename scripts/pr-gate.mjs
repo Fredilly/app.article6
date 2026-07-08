@@ -51,6 +51,7 @@ async function main() {
   if (hasScript("test")) run("npm run test");
   if (hasScript("lint")) run("npm run lint");
   if (hasScript("quickcheck:eval:corpus")) run("npm run quickcheck:eval:corpus -- --strict");
+  if (hasScript("quickcheck:guard:no-fixture-hardcoding")) run("npm run quickcheck:guard:no-fixture-hardcoding");
 
   const port = process.env.PORT || "3000";
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
