@@ -34,11 +34,14 @@ import {
   type MethodologyReference,
 } from "@/lib/quickCheckV2/methodologyParsing";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import type { EvidenceStackItem } from "@/lib/evidence/evidenceStack";
+import { buildQuickCheckEvidenceStack } from "@/lib/quickCheckV2/evidenceStackAdapter";
 
 export type AnswerResult = {
   checkName: StructuredCheckId;
   answer: string | null;
   evidence: RetrievedEvidence | null;
+  evidenceStack?: EvidenceStackItem[];
 };
 
 export type MethodologyExtraction = {
@@ -668,6 +671,7 @@ export function extractAnswerFromEvidence(
     checkName: selectedEvidence.checkName,
     answer: extractor(selectedEvidence.evidence),
     evidence: selectedEvidence.evidence,
+    evidenceStack: buildQuickCheckEvidenceStack(selectedEvidence.evidence),
   };
 }
 

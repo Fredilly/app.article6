@@ -17,7 +17,7 @@ const STATUS_SOURCE_PATH = path.resolve("src/lib/quickCheckV2/status/index.ts");
 function makeAnswerResult(
   overrides: Partial<AnswerResult>,
 ): AnswerResult {
-  return {
+  const result: AnswerResult = {
     checkName: "additionality",
     answer: "Additionality is demonstrated.",
     evidence: {
@@ -28,8 +28,25 @@ function makeAnswerResult(
       sectionPath: ["3", "3.2"],
       spanId: "synthetic-doc:p38:b0:add",
     },
+    evidenceStack: [
+      {
+        role: "primary",
+        page: 38,
+        quote: "Additionality is demonstrated.",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.2"],
+        spanId: "synthetic-doc:p38:b0:add",
+        sourceType: "exact_section",
+      },
+    ],
     ...overrides,
   };
+
+  if (result.evidence === null && overrides.evidenceStack === undefined) {
+    result.evidenceStack = [];
+  }
+
+  return result;
 }
 
 describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
@@ -136,6 +153,28 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
 
     expect(result.status).toBe("FOUND");
     expect(result.reason).toBe("answer_and_provenance_complete");
+    expect(result.evidenceStack?.[0]?.role).toBe("primary");
+  });
+
+  it("returns UNCLEAR when the evidence stack has no primary citation", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        evidenceStack: [
+          {
+            role: "supporting",
+            page: 38,
+            quote: "Supporting evidence only.",
+            sectionHeading: "Additionality",
+            sectionPath: ["3", "3.2"],
+            spanId: "synthetic-doc:p38:b0:add",
+            sourceType: "exact_section",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("provenance_incomplete");
   });
 
   it("includes a structured methodology identity on methodology rows", () => {
@@ -193,8 +232,8 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
       const keys = Object.keys(result).sort();
       expect(keys).toEqual(
         result.checkName === "methodology"
-          ? ["answer", "checkName", "evidence", "methodology", "reason", "status"]
-          : ["answer", "checkName", "evidence", "reason", "status"],
+          ? ["answer", "checkName", "evidence", "evidenceStack", "methodology", "reason", "status"]
+          : ["answer", "checkName", "evidence", "evidenceStack", "reason", "status"],
       );
       expect(Object.keys(result)).not.toContain("score");
       expect(Object.keys(result)).not.toContain("router");

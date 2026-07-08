@@ -22,9 +22,15 @@
 import type { AnswerResult } from "@/lib/quickCheckV2/answers";
 import type { RetrievedEvidence, StructuredCheckId } from "@/lib/quickCheckV2/evidence";
 import {
+  hasPrimaryEvidence,
+  validateEvidenceStackForStatus,
+  type EvidenceStackItem,
+} from "@/lib/evidence/evidenceStack";
+import {
   buildQuickCheckMethodologyIdentity,
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
+import { normalizeQuickCheckEvidenceCarrier } from "@/lib/quickCheckV2/evidenceStackAdapter";
 
 export type QuickCheckStatus = "FOUND" | "UNCLEAR" | "MISSING";
 
@@ -42,6 +48,7 @@ export type StatusResult = {
   status: QuickCheckStatus;
   answer: string | null;
   evidence: RetrievedEvidence | null;
+  evidenceStack?: EvidenceStackItem[];
   reason: StatusReason;
   methodology?: QuickCheckMethodologyIdentity | null;
 };
@@ -85,93 +92,108 @@ function hasWithoutProjectNarrative(evidence: RetrievedEvidence): boolean {
 }
 
 export function validateAnswerResult(result: AnswerResult): StatusResult {
-  const methodology = result.checkName === "methodology"
-    ? buildQuickCheckMethodologyIdentity(result.evidence)
+  const normalizedResult = normalizeQuickCheckEvidenceCarrier(result);
+  const methodology = normalizedResult.checkName === "methodology"
+    ? buildQuickCheckMethodologyIdentity(normalizedResult.evidence)
     : undefined;
+  const evidenceStackProps = normalizedResult.evidenceStack.length > 0
+    ? { evidenceStack: normalizedResult.evidenceStack }
+    : {};
 
-  if (!result.evidence) {
+  if (!normalizedResult.evidence) {
     return {
-      checkName: result.checkName,
+      checkName: normalizedResult.checkName,
       status: "MISSING",
-      answer: result.answer,
-      evidence: result.evidence,
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
       reason: "evidence_missing",
+      ...evidenceStackProps,
     };
   }
 
-  if (!hasText(result.answer)) {
+  if (!hasText(normalizedResult.answer)) {
     return {
-      checkName: result.checkName,
+      checkName: normalizedResult.checkName,
       status: "UNCLEAR",
-      answer: result.answer,
-      evidence: result.evidence,
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
       reason: "answer_missing",
       ...(methodology ? { methodology } : {}),
-    };
-  }
-
-  if (!hasCompleteProvenance(result.evidence)) {
-    return {
-      checkName: result.checkName,
-      status: "UNCLEAR",
-      answer: result.answer,
-      evidence: result.evidence,
-      reason: "provenance_incomplete",
-      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
     };
   }
 
   if (
-    result.checkName === "baseline_scenario" ||
-    result.checkName === "additionality" ||
-    result.checkName === "leakage" ||
-    result.checkName === "stakeholder_consultation"
+    !hasPrimaryEvidence(normalizedResult.evidenceStack) ||
+    !validateEvidenceStackForStatus("FOUND", normalizedResult.evidenceStack).valid ||
+    !hasCompleteProvenance(normalizedResult.evidence)
   ) {
-    if (hasUnderDevelopmentStub(result.evidence)) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "provenance_incomplete",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (
+    normalizedResult.checkName === "baseline_scenario" ||
+    normalizedResult.checkName === "additionality" ||
+    normalizedResult.checkName === "leakage" ||
+    normalizedResult.checkName === "stakeholder_consultation"
+  ) {
+    if (hasUnderDevelopmentStub(normalizedResult.evidence)) {
       return {
-        checkName: result.checkName,
+        checkName: normalizedResult.checkName,
         status: "UNCLEAR",
-        answer: result.answer,
-        evidence: result.evidence,
+        answer: normalizedResult.answer,
+        evidence: normalizedResult.evidence,
         reason: "under_development_stub",
         ...(methodology ? { methodology } : {}),
+        ...evidenceStackProps,
       };
     }
   }
 
   if (
-    result.checkName === "additionality" &&
-    !/additionality/i.test(result.evidence.sectionHeading ?? "") &&
-    hasWithoutProjectNarrative(result.evidence)
+    normalizedResult.checkName === "additionality" &&
+    !/additionality/i.test(normalizedResult.evidence.sectionHeading ?? "") &&
+    hasWithoutProjectNarrative(normalizedResult.evidence)
   ) {
     return {
-      checkName: result.checkName,
+      checkName: normalizedResult.checkName,
       status: "UNCLEAR",
-      answer: result.answer,
-      evidence: result.evidence,
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
       reason: "without_project_narrative_not_additionality_proof",
       ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
     };
   }
 
-  if (result.evidence.sourceType === "raw_text_fallback") {
+  if (normalizedResult.evidence.sourceType === "raw_text_fallback") {
     return {
-      checkName: result.checkName,
+      checkName: normalizedResult.checkName,
       status: "UNCLEAR",
-      answer: result.answer,
-      evidence: result.evidence,
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
       reason: "fallback_evidence_only",
       ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
     };
   }
 
   return {
-    checkName: result.checkName,
+    checkName: normalizedResult.checkName,
     status: "FOUND",
-    answer: result.answer,
-    evidence: result.evidence,
+    answer: normalizedResult.answer,
+    evidence: normalizedResult.evidence,
     reason: "answer_and_provenance_complete",
     ...(methodology ? { methodology } : {}),
+    ...evidenceStackProps,
   };
 }
 
