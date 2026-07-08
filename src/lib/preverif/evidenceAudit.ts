@@ -211,6 +211,13 @@ function normalizeVersionKey(value: string | null | undefined): string {
   return normalizeVersionValue(value).toLowerCase();
 }
 
+function isStandaloneDeclaredVersion(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  return normalizeMethodologyVersion(trimmed) !== null
+    && /^(?:version\s+|ver\.?\s*|v\.?\s*)?\d+(?:[.-]\d+)*$/i.test(trimmed);
+}
+
 function extractDeclaredMethodologyId(rawValue: string): string {
   const normalized = rawValue.trim().toUpperCase();
   const match = normalized.match(/\b(VM\d{4}|AMS-[A-Z0-9.]+|AR-[A-Z0-9.]+|ACM\d{4}|AM\d{4}|GS-[A-Z0-9.]+)\b/);
@@ -285,6 +292,22 @@ function extractDeclaredVersionTokens(text: string): string[] {
   return contextualVersion ? [contextualVersion] : [];
 }
 
+function extractDeclaredVersionTokensFromContinuation(input: {
+  line: string;
+  nextLine?: string;
+}): string[] {
+  const currentLineVersions = extractDeclaredVersionTokens(input.line);
+  if (currentLineVersions.length > 0) return currentLineVersions;
+
+  const nextLine = input.nextLine?.trim() ?? "";
+  if (!nextLine || isTableBoundaryLine(nextLine)) return [];
+
+  const combinedVersions = extractDeclaredVersionTokens(`${input.line} ${nextLine}`.trim());
+  if (combinedVersions.length > 0) return combinedVersions;
+
+  return extractDeclaredVersionTokens(nextLine);
+}
+
 function extractMethodologyBlock(rawText: string): string {
   const lines = rawText.split(/\n+/);
   const startIndex = lines.findIndex((line) =>
@@ -336,17 +359,15 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
       || METHODOLOGY_DECLARATION_ANCHORS.some((pattern) => pattern.test(line));
     if (!hasExplicitMethodologyAnchor) continue;
 
-    const lineVersions = extractDeclaredVersionTokens(line);
+    const nextLine = lines[index + 1]?.trim();
+    const lineVersions = extractDeclaredVersionTokensFromContinuation({
+      line,
+      nextLine,
+    });
     if (lineVersions.length > 0) {
       declaredVersions.push(...lineVersions);
       continue;
     }
-
-    const nextLine = lines[index + 1]?.trim();
-    if (!nextLine || isTableBoundaryLine(nextLine)) continue;
-    const nextLineVersions = extractDeclaredVersionTokens(nextLine);
-    if (nextLineVersions.length === 0) continue;
-    declaredVersions.push(...nextLineVersions);
   }
 
   return Array.from(new Set(declaredVersions));
@@ -467,10 +488,18 @@ export function buildMethodologyVersionLock(input: {
   const rulebookVersionRaw = input.rulebookVersion.trim();
   const rulebookVersion = normalizeVersionValue(rulebookVersionRaw);
   const pddDeclaredMethodologyVersionRaw = input.pddDeclaredMethodologyVersion.trim();
-  const declaredReference = extractDeclaredMethodologyReferenceFromText(pddDeclaredMethodologyVersionRaw, methodologyId);
+  const standaloneDeclaredVersion = isStandaloneDeclaredVersion(pddDeclaredMethodologyVersionRaw)
+    ? normalizeMethodologyVersion(pddDeclaredMethodologyVersionRaw)
+    : null;
+  const declaredReference = standaloneDeclaredVersion
+    ? {
+      declaredMethodologyId: methodologyId,
+      declaredRulebookVersions: [standaloneDeclaredVersion],
+    }
+    : extractDeclaredMethodologyReferenceFromText(pddDeclaredMethodologyVersionRaw, methodologyId);
   const pddDeclaredMethodologyVersion = declaredReference.declaredRulebookVersions.length === 1
     ? normalizeVersionValue(declaredReference.declaredRulebookVersions[0] ?? "")
-    : normalizeMethodologyVersion(pddDeclaredMethodologyVersionRaw) ?? pddDeclaredMethodologyVersionRaw;
+    : standaloneDeclaredVersion ?? pddDeclaredMethodologyVersionRaw;
   const versionMismatchReason = buildVersionMismatchReason({
     methodologyId,
     rulebookVersion,
