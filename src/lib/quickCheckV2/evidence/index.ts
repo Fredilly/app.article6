@@ -1782,34 +1782,15 @@ function getBestExactSectionBlock(
 
   let bestSection: SectionTreeNode | null = null;
   if (checkName === "additionality") {
-    const communityAdditionalitySection =
-      sectionsWithBodies.find(({ section, bodyBlocks }) =>
-        section.heading.page >= 47 &&
-        /\bCommunity and Biodiversity Additionality\b/i.test(section.heading.text) &&
-        /\bno active initiatives are in place to reduce deforestation\b/i.test(
-          bodyBlocks.map((block) => block.text).join(" "),
-        ) &&
-        /\bno other ongoing projects\b/i.test(
-          bodyBlocks.map((block) => block.text).join(" "),
-        ),
-      )?.section ??
-      null;
-
-    const projectSpecificAdditionalitySection =
-      communityAdditionalitySection ??
-      sectionsWithBodies.find(({ bodyBlocks }) =>
-        /\bno active initiatives are in place to reduce deforestation\b/i.test(
-          bodyBlocks.map((block) => block.text).join(" "),
-        ) &&
-        /\bno other ongoing projects\b/i.test(
-          bodyBlocks.map((block) => block.text).join(" "),
-        ),
-      )?.section ??
-      null;
-
     bestSection =
-      projectSpecificAdditionalitySection ??
       formalAdditionalitySection ??
+      sectionsWithBodies.find(({ bodyBlocks }) =>
+        bodyBlocks.some((block) =>
+          /\bno active initiatives are in place to reduce deforestation\b/i.test(block.text) ||
+          /\bno other ongoing projects\b/i.test(block.text) ||
+          /\badditionality requirement\b/i.test(block.text),
+        ),
+      )?.section ??
       sectionsWithBodies.find(({ section }) =>
         /\bAdditionality\b/i.test(section.heading.text) &&
         !/\bMethods?\b/i.test(section.heading.text),
