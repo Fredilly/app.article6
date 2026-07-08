@@ -253,6 +253,15 @@ describe("Quick Check v2 evidence stack producer", () => {
         sectionPath: ["2", "2.3.11"],
         source: "primary",
       },
+      {
+        spanId: "synthetic-doc:p3:b1",
+        page: 3,
+        text: "A community assembly approved the consultation outcomes.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        source: "primary",
+      },
     ]);
 
     const stack = buildQuickCheckEvidenceStackWithCompanions(
@@ -267,8 +276,75 @@ describe("Quick Check v2 evidence stack producer", () => {
       }),
     );
 
-    expect(stack.map((item) => item.role)).toStrictEqual(["primary", "supporting", "supporting"]);
+    expect(stack.map((item) => item.role)).toStrictEqual(["primary", "supporting", "supporting", "supporting"]);
     expect(stack.slice(1).every((item) => item.label === "Supporting stakeholder evidence")).toBe(true);
+    expect(stack.slice(1).map((item) => item.page)).toStrictEqual([1, 2, 3]);
+  });
+
+  it("caps stakeholder supporting companions at three after dedupe", () => {
+    const document = makeDocument([
+      {
+        spanId: "synthetic-doc:p1:b1",
+        page: 1,
+        text: "Public consultations were held with community representatives.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2",
+        page: 1,
+        text: "Formal consent was obtained during the FPIC Principal Assembly.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p2:b1",
+        page: 2,
+        text: "Follow-up meetings recorded approvals and actions taken.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Comments",
+        sectionPath: ["2", "2.3.11"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b1",
+        page: 3,
+        text: "A community assembly approved the consultation outcomes.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p4:b1",
+        page: 4,
+        text: "The community approved the revised plan at a meeting.",
+        blockType: "body",
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        source: "primary",
+      },
+    ]);
+
+    const stack = buildQuickCheckEvidenceStackWithCompanions(
+      document,
+      makeSelectedEvidence("stakeholder_consultation", {
+        sourceType: "exact_section",
+        quote: "Public consultations were held with community representatives.",
+        page: 1,
+        sectionHeading: "Stakeholder Consultations",
+        sectionPath: ["2", "2.3.10"],
+        spanId: "synthetic-doc:p1:b1",
+      }),
+    );
+
+    expect(stack.map((item) => item.role)).toStrictEqual(["primary", "supporting", "supporting", "supporting"]);
+    expect(stack).toHaveLength(4);
+    expect(stack.slice(1).map((item) => item.page)).toStrictEqual([1, 2, 3]);
   });
 
   it("deduplicates companions that point to the same span as the primary evidence", () => {

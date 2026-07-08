@@ -164,6 +164,23 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
   }
 
   if (
+    (normalizedResult.checkName === "additionality" ||
+      normalizedResult.checkName === "leakage" ||
+      normalizedResult.checkName === "stakeholder_consultation") &&
+    groupEvidenceStackByRole(normalizedResult.evidenceStack).blocker.length > 0
+  ) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "provenance_incomplete",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (
     normalizedResult.checkName === "baseline_scenario" &&
     groupEvidenceStackByRole(normalizedResult.evidenceStack).blocker.some((item) =>
       hasUnderDevelopmentStubText(item.quote),

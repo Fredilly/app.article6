@@ -99,7 +99,7 @@
   },
   {
     "checkName": "additionality",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "The project activities would not occur without carbon finance due to substantial financial barriers",
     "goldQuote": "The project activities would not occur without carbon finance due to substantial financial barriers.",
     "page": 43,
@@ -129,7 +129,7 @@
   },
   {
     "checkName": "stakeholder_consultation",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "Exploratory visit, formal presentation, benefit-sharing negotiation, follow-up meetings, and the 6 May 2025 FPIC Principal Assembly were conducted with community participation.",
     "goldQuote": "Phase 2 — On-Site Field Engagement and Validation Field visits and community engagement for the Marcondes REDD+ project have been conducted as follows: 1. November/December 2022 — Exploratory visit: First visit by the project team to the Comunidade São Tomé do Mocambo do Arari. Initial presentation of the REDD+ concept to community leaders, identification of community structure and representatives, and preliminary assessment of community interest and needs. 2. February 2023 — Formal presentation: Formal presentation of the Marcondes REDD+ project to the community association (Associação comunitária local). Detailed explanation of the REDD+ mechanism, voluntary carbon market, VCU generation process, and the role of VCS v4.4/CCB v3.0 certification standards. 3. April 2023 — Benefit-sharing negotiation: Presentation and negotiation of the Benefit-Sharing Plan (Plano de Repartição de Benefícios — PRB). Discussion of benefit categories: direct",
     "page": 46,

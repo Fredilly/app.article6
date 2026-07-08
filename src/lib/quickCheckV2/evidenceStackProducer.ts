@@ -208,7 +208,7 @@ export function buildQuickCheckEvidenceStackWithCompanions(
     case "stakeholder_consultation":
       companions = [
         ...collectIncompleteCompanions(document, selectedEvidence.checkName),
-        ...collectStakeholderSupportingCompanions(document),
+        ...dedupeEvidenceStack(collectStakeholderSupportingCompanions(document)).slice(0, 3),
       ];
       break;
     default:
