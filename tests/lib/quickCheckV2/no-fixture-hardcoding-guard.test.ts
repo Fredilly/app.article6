@@ -120,7 +120,7 @@ describe("quickcheck no-fixture-hardcoding guard", () => {
         path.join(root, "src/lib/quickCheckV2/guard-target.ts"),
         [
           "export function demoGuard(block: { page: number }, quote: string) {",
-          '  if (block.page >= 47) return "The project activities would not occur without carbon finance due to substantial financial barriers.";',
+          '  if (block.page === 47) return "The project activities would not occur without carbon finance due to substantial financial barriers.";',
           '  if (quote.includes("VM0048") && quote.includes("VM0007")) return "VM0007 REDD+ Methodology Framework v1.8";',
           '  return "demo-fixture";',
           "}",

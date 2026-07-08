@@ -7,7 +7,7 @@ import process from "node:process";
 const SOURCE_ROOT = "src/lib/quickCheckV2";
 const FIXTURE_ROOT = "tests/fixtures/quick-check/v2";
 
-const PAGE_GATE_RE = /\b(?:[A-Za-z_$][\w$]*\.)*page\s*(?:>=|>)\s*\d+\b/;
+const PAGE_GATE_RE = /\b(?:[A-Za-z_$][\w$]*\.)*page\s*(?:===|==|!==|!=|>=|>|<=|<)\s*\d+\b/;
 const METHODOLOGY_PAIR_RE = /\bVM0048\b[\s\S]{0,120}\bVM0007\b|\bVM0007\b[\s\S]{0,120}\bVM0048\b/;
 
 function git(args, options = {}) {
