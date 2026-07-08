@@ -17,6 +17,11 @@ import {
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import type { EvidenceStackItem } from "@/lib/evidence/evidenceStack";
+import {
+  buildComparableQuickCheckRecord,
+  type QuickCheckGoldComparableRecord,
+} from "./goldComparison";
 
 const FIXTURE_ROOT = path.resolve("tests/fixtures/quick-check/v2");
 
@@ -43,17 +48,9 @@ type FixtureMeta = {
   adjudicationStatus?: "pending" | "reviewed";
 };
 
-type GoldRecord = {
-  checkName: StructuredCheckId;
-  expectedStatus: "FOUND" | "UNCLEAR" | "MISSING";
-  expectedAnswer: string | null;
-  goldQuote: string | null;
-  page: number | null;
-  sectionHeading: string | null;
-  sectionPath: string[];
-  spanId: string | null;
-  sourceType: "fact_contract" | "exact_section" | "raw_text_fallback" | null;
+type GoldRecord = QuickCheckGoldComparableRecord & {
   expectedMethodology?: Partial<QuickCheckMethodologyIdentity>;
+  evidenceStack?: EvidenceStackItem[];
 };
 
 type PendingGoldDraft = {
@@ -246,18 +243,7 @@ function toGoldComparableRecord(
   expected: GoldRecord,
 ): GoldRecord {
   const methodology = buildComparableMethodology(document, result);
-
-  const record: GoldRecord = {
-    checkName: result.checkName,
-    expectedStatus: result.status,
-    expectedAnswer: result.answer,
-    goldQuote: result.evidence?.quote ?? null,
-    page: result.evidence?.page ?? null,
-    sectionHeading: result.evidence?.sectionHeading ?? null,
-    sectionPath: result.evidence?.sectionPath ?? [],
-    spanId: result.evidence?.spanId ?? null,
-    sourceType: result.evidence?.sourceType ?? null,
-  };
+  const record: GoldRecord = buildComparableQuickCheckRecord(result, expected);
 
   if (methodology && expected.expectedMethodology) {
     record.expectedMethodology = pickComparableMethodology(methodology, expected.expectedMethodology);

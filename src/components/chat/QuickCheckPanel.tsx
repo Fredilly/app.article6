@@ -78,6 +78,7 @@ import { FixtureReplayOverlay } from "@/components/dev/FixtureReplayOverlay";
 import type { FixtureContract } from "@/lib/dev/fixtureReplay";
 import { parseExtractedText, type StructuredCheckId } from "@/lib/quickCheckV2/evidence";
 import { extractAnswersForAllChecks, extractMethodologyDetailsFromEvidence, type MethodologyExtraction } from "@/lib/quickCheckV2/answers";
+import { buildQuickCheckEvidenceStackDisplay } from "@/lib/quickCheckV2/evidenceStackAdapter";
 import { validateAnswerResults, type StatusReason } from "@/lib/quickCheckV2/status";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
 import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
@@ -138,6 +139,13 @@ type StructuredEvidenceCheckResult = {
   pages: number[];
   sections: string[];
   evidenceSpanIds: string[];
+  evidenceDetails: Array<{
+    role: string;
+    roleLabel: string;
+    page: number;
+    quote: string;
+    sectionLabel: string | null;
+  }>;
   methodology?: MethodologyExtraction | null;
 };
 
@@ -2100,6 +2108,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const results: StructuredEvidenceCheckResult[] = statusResults
         .map((statusResult) => {
           const evidence = statusResult.evidence;
+          const evidenceDetails = buildQuickCheckEvidenceStackDisplay(statusResult.evidenceStack ?? []);
           const status: StructuredEvidenceCheckResult["status"] =
             statusResult.status === "FOUND"
               ? "found"
@@ -2120,6 +2129,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   ? evidence.sectionPath
                   : [],
             evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+            evidenceDetails,
             methodology:
               statusResult.checkName === "methodology"
                 ? extractMethodologyDetailsFromEvidence(evidence)
@@ -2182,6 +2192,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         const results: StructuredEvidenceCheckResult[] = statusResults
           .map((statusResult) => {
             const evidence = statusResult.evidence;
+            const evidenceDetails = buildQuickCheckEvidenceStackDisplay(statusResult.evidenceStack ?? []);
             const status: StructuredEvidenceCheckResult["status"] =
               statusResult.status === "FOUND"
                 ? "found"
@@ -2202,6 +2213,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     ? evidence.sectionPath
                     : [],
               evidenceSpanIds: evidence?.spanId ? [evidence.spanId] : [],
+              evidenceDetails,
               methodology:
                 statusResult.checkName === "methodology"
                   ? extractMethodologyDetailsFromEvidence(evidence)
@@ -2783,6 +2795,28 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                 {result.sections.length > 0 ? <span>{result.sections.join(" \u203a ")}</span> : null}
                                 {result.evidenceSpanIds.length > 0 ? <span>{result.evidenceSpanIds.length} span(s)</span> : null}
                               </div>
+                              {result.evidenceDetails.length > 1 ? (
+                                <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-2 text-[10px] text-slate-600">
+                                  <div className="font-semibold uppercase tracking-wide text-slate-500">Evidence details</div>
+                                  <div className="mt-1 space-y-2">
+                                    {result.evidenceDetails.slice(1).map((detail, index) => (
+                                      <div
+                                        key={`${result.checkId}-${detail.role}-${detail.page}-${index}`}
+                                        className="rounded border border-slate-200 bg-white px-2 py-1"
+                                      >
+                                        <div className="flex flex-wrap gap-x-2 text-[10px] text-slate-500">
+                                          <span className="font-semibold text-slate-700">{detail.roleLabel}</span>
+                                          <span>p.{detail.page}</span>
+                                          {detail.sectionLabel ? <span>{detail.sectionLabel}</span> : null}
+                                        </div>
+                                        <div className="mt-1 italic text-slate-600">
+                                          &ldquo;{detail.quote.slice(0, 220)}{detail.quote.length > 220 ? "\u2026" : ""}&rdquo;
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
                             </>
                           ) : result.status === "missing" ? (
                             <div className="text-xs text-slate-500">{result.answerText}</div>

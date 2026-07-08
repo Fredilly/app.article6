@@ -209,6 +209,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
   it("keeps answers grounded in the selected Phase 3 evidence", () => {
     for (const result of answers) {
       expect(answerIsGroundedInEvidence(result.answer, result.evidence)).toBe(true);
+      expect(result.evidenceStack?.[0]?.role).toBe("primary");
     }
   });
 
@@ -296,6 +297,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       checkName: "additionality",
       answer: null,
       evidence: null,
+      evidenceStack: [],
     });
   });
 
@@ -307,7 +309,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
 
   it("does not leak status, score, or router fields", () => {
     for (const result of answers) {
-      expect(Object.keys(result)).toStrictEqual(["checkName", "answer", "evidence"]);
+      expect(Object.keys(result)).toStrictEqual(["checkName", "answer", "evidence", "evidenceStack"]);
       expect(Object.keys(result)).not.toContain("status");
       expect(Object.keys(result)).not.toContain("score");
       expect(Object.keys(result)).not.toContain("router");
