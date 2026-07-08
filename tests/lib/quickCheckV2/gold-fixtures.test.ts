@@ -20,6 +20,7 @@ import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersi
 import type { EvidenceStackItem } from "@/lib/evidence/evidenceStack";
 import {
   buildComparableQuickCheckRecord,
+  normalizeExpectedQuickCheckGoldRecord,
   type QuickCheckGoldComparableRecord,
 } from "./goldComparison";
 
@@ -413,7 +414,9 @@ describe("Quick Check v2 gold fixtures", () => {
         }
 
         expect(comparableStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-          gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+          gold
+            .map(normalizeExpectedQuickCheckGoldRecord)
+            .map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
         );
       });
 

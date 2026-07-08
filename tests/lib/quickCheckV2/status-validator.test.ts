@@ -177,6 +177,47 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
     expect(result.reason).toBe("provenance_incomplete");
   });
 
+  it("returns UNCLEAR for baseline evidence when a blocker stack item marks the formal section incomplete", () => {
+    const result = validateAnswerResult(
+      makeAnswerResult({
+        checkName: "baseline_scenario",
+        answer: "The baseline is defined as continuation of grazing without the project.",
+        evidence: {
+          sourceType: "exact_section",
+          quote: "The baseline is defined as continuation of grazing without the project.",
+          page: 2,
+          sectionHeading: "Most-Likely Scenario Justification",
+          sectionPath: ["2", "2.4"],
+          spanId: "synthetic-doc:p2:b1:baseline",
+        },
+        evidenceStack: [
+          {
+            role: "primary",
+            page: 2,
+            quote: "The baseline is defined as continuation of grazing without the project.",
+            sectionHeading: "Most-Likely Scenario Justification",
+            sectionPath: ["2", "2.4"],
+            spanId: "synthetic-doc:p2:b1:baseline",
+            sourceType: "exact_section",
+          },
+          {
+            role: "blocker",
+            page: 4,
+            quote: "This section is under development.",
+            sectionHeading: "Baseline Scenario",
+            sectionPath: ["3", "3.13"],
+            spanId: "synthetic-doc:p4:b1:baseline",
+            sourceType: "exact_section",
+            label: "Formal baseline section incomplete",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("under_development_stub");
+  });
+
   it("includes a structured methodology identity on methodology rows", () => {
     const methodology = statuses.find((result) => result.checkName === "methodology");
     expect(methodology?.methodology?.methodologyId).toBe("VM0007");

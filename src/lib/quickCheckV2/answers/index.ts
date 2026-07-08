@@ -36,6 +36,7 @@ import {
 import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
 import type { EvidenceStackItem } from "@/lib/evidence/evidenceStack";
 import { buildQuickCheckEvidenceStack } from "@/lib/quickCheckV2/evidenceStackAdapter";
+import { buildQuickCheckEvidenceStackWithCompanions } from "@/lib/quickCheckV2/evidenceStackProducer";
 
 export type AnswerResult = {
   checkName: StructuredCheckId;
@@ -665,13 +666,16 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
 
 export function extractAnswerFromEvidence(
   selectedEvidence: RetrievedCheckEvidence,
+  document?: QuickCheckV2ExtractedDocument,
 ): AnswerResult {
   const extractor = ANSWER_EXTRACTORS[selectedEvidence.checkName];
   return {
     checkName: selectedEvidence.checkName,
     answer: extractor(selectedEvidence.evidence),
     evidence: selectedEvidence.evidence,
-    evidenceStack: buildQuickCheckEvidenceStack(selectedEvidence.evidence),
+    evidenceStack: document
+      ? buildQuickCheckEvidenceStackWithCompanions(document, selectedEvidence)
+      : buildQuickCheckEvidenceStack(selectedEvidence.evidence),
   };
 }
 
@@ -679,7 +683,7 @@ export function extractAnswerForCheck(
   document: QuickCheckV2ExtractedDocument,
   checkName: StructuredCheckId,
 ): AnswerResult {
-  return extractAnswerFromEvidence(retrieveEvidenceForCheck(document, checkName));
+  return extractAnswerFromEvidence(retrieveEvidenceForCheck(document, checkName), document);
 }
 
 export function extractAnswersForAllChecks(
@@ -687,6 +691,6 @@ export function extractAnswersForAllChecks(
 ): AnswerResult[] {
   const evidence = retrieveEvidenceForAllChecks(document);
   return STRUCTURED_CHECK_IDS.map((checkName, index) =>
-    extractAnswerFromEvidence(evidence[index] ?? { checkName, evidence: null }),
+    extractAnswerFromEvidence(evidence[index] ?? { checkName, evidence: null }, document),
   );
 }

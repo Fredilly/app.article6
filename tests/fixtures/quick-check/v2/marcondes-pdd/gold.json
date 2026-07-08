@@ -39,7 +39,7 @@
   },
   {
     "checkName": "baseline_scenario",
-    "expectedStatus": "FOUND",
+    "expectedStatus": "UNCLEAR",
     "expectedAnswer": "Legal deforestation of 20% of the property (APD), where land use conversion is allowed by law, i.e., forest suppression for pasture (livestock), is considered the most plausible baseline scenario.",
     "goldQuote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
     "page": 42,
@@ -50,7 +50,52 @@
       "2.2.2"
     ],
     "spanId": "marcondes-pdd-extracted:p42:b1863:ac664bd3",
-    "sourceType": "exact_section"
+    "sourceType": "exact_section",
+    "evidenceStack": [
+      {
+        "role": "primary",
+        "page": 42,
+        "quote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
+        "sectionHeading": "Most-Likely Scenario Justification (CCB, G2.1)",
+        "sectionPath": [
+          "2",
+          "2.2",
+          "2.2.2"
+        ],
+        "spanId": "marcondes-pdd-extracted:p42:b1863:ac664bd3",
+        "sourceType": "exact_section"
+      },
+      {
+        "role": "blocker",
+        "page": 67,
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+        "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+        "sectionPath": [
+          "3",
+          "3.1",
+          "3.1.4"
+        ],
+        "spanId": "marcondes-pdd-extracted:p67:b2878:17bea5a7",
+        "sourceType": "exact_section",
+        "label": "Formal baseline section incomplete",
+        "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+      },
+      {
+        "role": "blocker",
+        "page": 68,
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+        "sectionHeading": "Baseline Emissions (VCS, 3.15)",
+        "sectionPath": [
+          "3",
+          "3.2",
+          "3.2.1"
+        ],
+        "spanId": "marcondes-pdd-extracted:p68:b2903:a3454d9f",
+        "sourceType": "exact_section",
+        "label": "Formal baseline section incomplete",
+        "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+      }
+    ]
   },
   {
     "checkName": "additionality",

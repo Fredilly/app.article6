@@ -22,6 +22,7 @@
 import type { AnswerResult } from "@/lib/quickCheckV2/answers";
 import type { RetrievedEvidence, StructuredCheckId } from "@/lib/quickCheckV2/evidence";
 import {
+  groupEvidenceStackByRole,
   hasPrimaryEvidence,
   validateEvidenceStackForStatus,
   type EvidenceStackItem,
@@ -77,9 +78,13 @@ function hasCompleteProvenance(evidence: RetrievedEvidence | null): boolean {
 }
 
 function hasUnderDevelopmentStub(evidence: RetrievedEvidence): boolean {
+  return hasUnderDevelopmentStubText(evidence.quote);
+}
+
+function hasUnderDevelopmentStubText(quote: string): boolean {
   return (
-    /\bthis section is under development\b/i.test(evidence.quote) ||
-    /\bsection (?:is )?not required (?:for|at) the Under Development stage\b/i.test(evidence.quote)
+    /\bthis section is under development\b/i.test(quote) ||
+    /\bsection (?:is )?not required (?:for|at) the Under Development stage\b/i.test(quote)
   );
 }
 
@@ -156,6 +161,23 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
         ...evidenceStackProps,
       };
     }
+  }
+
+  if (
+    normalizedResult.checkName === "baseline_scenario" &&
+    groupEvidenceStackByRole(normalizedResult.evidenceStack).blocker.some((item) =>
+      hasUnderDevelopmentStubText(item.quote),
+    )
+  ) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "under_development_stub",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
   }
 
   if (
