@@ -253,8 +253,7 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
         ) ??
         findFirstBlock(blocks, (block) =>
           /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
-          (/^Applied$/i.test(block.text.trim()) || /^Applied Methodology$/i.test(block.text.trim())) &&
-          block.page > 30,
+          (/^Applied$/i.test(block.text.trim()) || /^Applied Methodology$/i.test(block.text.trim())),
         ) ??
         findFirstBlock(blocks, (block) =>
           /\btitle and reference\b/i.test(block.sectionHeading ?? "") &&
@@ -2031,7 +2030,6 @@ function getExactSectionEvidence(
 
   if (checkName === "additionality") {
     const ccbAdditionalityBlock = findFirstBlock(evidenceBlocks, (block) =>
-      block.page >= 47 &&
       /\bno active initiatives are in place to reduce deforestation\b/i.test(block.text),
     );
     if (ccbAdditionalityBlock) {
