@@ -70,7 +70,10 @@ function hasCompleteProvenance(evidence: RetrievedEvidence | null): boolean {
 }
 
 function hasUnderDevelopmentStub(evidence: RetrievedEvidence): boolean {
-  return /\bthis section is under development\b/i.test(evidence.quote);
+  return (
+    /\bthis section is under development\b/i.test(evidence.quote) ||
+    /\bsection (?:is )?not required (?:for|at) the Under Development stage\b/i.test(evidence.quote)
+  );
 }
 
 function hasWithoutProjectNarrative(evidence: RetrievedEvidence): boolean {

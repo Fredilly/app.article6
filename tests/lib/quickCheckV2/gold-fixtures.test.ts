@@ -198,25 +198,29 @@ function buildComparableMethodology(
     : null;
 
   const methodology = answerMethodology ?? evidenceMethodology ?? result.methodology ?? null;
-  if (!methodology) return null;
+  const resolvedMethodology =
+    answerMethodology && answerMethodology.methodologyName !== answerMethodology.methodologyId
+      ? answerMethodology
+      : evidenceMethodology ?? result.methodology ?? methodology;
+  if (!resolvedMethodology) return null;
 
   const fallbackVersion =
-    methodology.pddDeclaredMethodologyVersion
-    ?? extractDeclaredMethodologyVersionFromDocument(document, methodology.methodologyId);
+    resolvedMethodology.pddDeclaredMethodologyVersion
+    ?? extractDeclaredMethodologyVersionFromDocument(document, resolvedMethodology.methodologyId);
   const methodologyAlias = normalizeMethodologyAlias(
-    answerMethodology?.methodologyAlias ?? evidenceMethodology?.methodologyAlias ?? methodology.methodologyAlias,
+    answerMethodology?.methodologyAlias ?? evidenceMethodology?.methodologyAlias ?? resolvedMethodology.methodologyAlias,
   );
 
   if (result.answer) {
     return {
-      methodologyId: answerMethodology?.methodologyId ?? evidenceMethodology?.methodologyId ?? methodology.methodologyId,
-      methodologyName: answerMethodology?.methodologyName ?? evidenceMethodology?.methodologyName ?? methodology.methodologyName,
+      methodologyId: resolvedMethodology.methodologyId,
+      methodologyName: resolvedMethodology.methodologyName,
       methodologyAlias,
       pddDeclaredMethodologyVersion: fallbackVersion,
       versionStatus: fallbackVersion ? "DECLARED" : (
         evidenceMethodology?.versionStatus
         ?? answerMethodology?.versionStatus
-        ?? methodology.versionStatus
+        ?? resolvedMethodology.versionStatus
       ),
       evidencePage: result.evidence.page,
       evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
@@ -225,11 +229,11 @@ function buildComparableMethodology(
   }
 
   return {
-    methodologyId: methodology.methodologyId,
-    methodologyName: methodology.methodologyName,
+    methodologyId: resolvedMethodology.methodologyId,
+    methodologyName: resolvedMethodology.methodologyName,
     methodologyAlias,
     pddDeclaredMethodologyVersion: fallbackVersion,
-    versionStatus: fallbackVersion ? "DECLARED" : methodology.versionStatus,
+    versionStatus: fallbackVersion ? "DECLARED" : resolvedMethodology.versionStatus,
     evidencePage: result.evidence.page,
     evidenceSection: result.evidence.sectionHeading?.trim() ?? "",
     evidenceQuote: result.evidence.quote,

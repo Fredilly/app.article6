@@ -19,6 +19,9 @@ const ENVIRA_DOCUMENT_ID = "proj-desc-1382-extracted";
 const MARCONDES_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/marcondes-pdd/extracted.txt";
 const MARCONDES_DOCUMENT_ID = "marcondes-pdd-extracted";
+const GRANDE_SUN_FIXTURE_PATH =
+  "tests/fixtures/quick-check/v2/grande-sun-gabon-pdd/extracted.txt";
+const GRANDE_SUN_DOCUMENT_ID = "grande-sun-gabon-pdd-extracted";
 const MAYA_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/extracted.txt";
 const MAYA_DOCUMENT_ID = "maya-forest-corridor-redd-belize-extracted";
@@ -60,6 +63,10 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     MARCONDES_FIXTURE_PATH,
     MARCONDES_DOCUMENT_ID,
   );
+  const grandeSunDocument = loadAndParseExtractedText(
+    GRANDE_SUN_FIXTURE_PATH,
+    GRANDE_SUN_DOCUMENT_ID,
+  );
   const mayaDocument = loadAndParseExtractedText(
     MAYA_FIXTURE_PATH,
     MAYA_DOCUMENT_ID,
@@ -67,6 +74,7 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
   const selectedEvidence = retrieveEvidenceForAllChecks(document);
   const answers = extractAnswersForAllChecks(document);
   const marcondesAnswers = extractAnswersForAllChecks(marcondesDocument);
+  const grandeSunAnswers = extractAnswersForAllChecks(grandeSunDocument);
   const mayaAnswers = extractAnswersForAllChecks(mayaDocument);
 
   it("returns answer results for all six structured checks", () => {
@@ -143,6 +151,15 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       evidenceSection: "Title and Reference of Methodology (VCS, 3.1)",
       evidenceQuote: result?.evidence?.quote,
     });
+  });
+
+  it("formats the Grande Sun hybrid methodology from the selected evidence", () => {
+    const result = grandeSunAnswers.find((item) => item.checkName === "methodology");
+    expect(result?.answer).toBe(
+      "Hybrid methodology: VM0048 v1.0 where materially applicable, and VM0007 REDD+ Methodology Framework where VM0048 is not materially applicable.",
+    );
+    expect(result?.evidence?.quote).toContain("where it is materially applicable");
+    expect(result?.evidence?.quote).toContain("where VM0048 is not materially applicable");
   });
 
   it("prefers the Table 30 methodology row over the conflicting v1.7 prose sentence", () => {
