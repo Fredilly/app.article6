@@ -2,6 +2,9 @@ function normalizeDashCharacters(value: string): string {
   return value.replace(/[\u2010-\u2015]/g, "-");
 }
 
+const METHODOLOGY_VERSION_CONTEXT_RE =
+  /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-[A-Z0-9.-]+|GS-[A-Z0-9.-]+|VT\d{4}|methodology|framework|redd(?:\+\s*|[-\s]+)?mf)\b/i;
+
 function canonicalizeVersionSegments(rawSegments: string[]): string | null {
   const normalizedSegments: string[] = [];
 
@@ -24,7 +27,7 @@ function canonicalizeVersionSegments(rawSegments: string[]): string | null {
   return `v${normalizedSegments.join(".")}`;
 }
 
-export function normalizeDeclaredMethodologyVersion(rawVersion: string | null | undefined): string | null {
+export function normalizeMethodologyVersion(rawVersion: string | null | undefined): string | null {
   if (typeof rawVersion !== "string") return null;
 
   const normalized = normalizeDashCharacters(rawVersion)
@@ -44,5 +47,12 @@ export function normalizeDeclaredMethodologyVersion(rawVersion: string | null | 
     return canonicalizeVersionSegments(bareMatch[1].split(/[.-]/));
   }
 
+  const contextualTrailingMatch = normalized.match(/([0-9]+(?:[.-][0-9]+)+)\s*$/);
+  if (contextualTrailingMatch?.[1] && METHODOLOGY_VERSION_CONTEXT_RE.test(normalized)) {
+    return canonicalizeVersionSegments(contextualTrailingMatch[1].split(/[.-]/));
+  }
+
   return null;
 }
+
+export const normalizeDeclaredMethodologyVersion = normalizeMethodologyVersion;

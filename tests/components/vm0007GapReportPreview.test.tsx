@@ -42,9 +42,9 @@ function buildAllSupportedAudit() {
   };
 }
 
-function buildWarningAcceptedAudit(): MethodologyEvidenceAuditSummary {
+function buildBlockedMismatchAudit(): MethodologyEvidenceAuditSummary {
   return {
-    auditStatus: "VERSION_WARNING_ACCEPTED",
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
     methodologyId: "VM0007",
     rulebookVersion: "v1-8",
     pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
@@ -148,7 +148,7 @@ describe("Vm0007GapReportPreview", () => {
     );
   });
 
-  test("renders the full report when a missing-version audit is accepted", async () => {
+  test("renders only the blocked mismatch message when a missing-version audit was accepted", async () => {
     saveVm0007GapReportAudit({
       auditId: "audit-warning-missing",
       methodologyId: "VM0007",
@@ -164,7 +164,7 @@ describe("Vm0007GapReportPreview", () => {
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       userAcceptedVersionWarning: true,
-      audit: buildWarningAcceptedAudit(),
+      audit: buildBlockedMismatchAudit(),
     });
 
     await act(async () => {
@@ -175,16 +175,12 @@ describe("Vm0007GapReportPreview", () => {
     });
 
     const text = container.textContent ?? "";
-    expect(text).toContain("Version warning accepted before audit generation.");
-    expect(text).toContain("VERSION_WARNING_ACCEPTED");
-    expect(text).toContain("Print / Save PDF");
-    expect(text).toContain(REPORT_FIXTURE.expectedReportTitle);
-    expect(text).toContain("58 VM0007 rules assessed for validation readiness.");
-    expect(text).toContain("User accepted warning");
-    expect(text).toContain("true");
+    expect(text).toContain("Version lock blocked:");
+    expect(text).not.toContain("Print / Save PDF");
+    expect(text).not.toContain(REPORT_FIXTURE.expectedReportTitle);
   });
 
-  test("renders the full report with a warning banner when a mismatched audit is accepted", async () => {
+  test("renders only the blocked mismatch message when a mismatched audit was accepted", async () => {
     saveVm0007GapReportAudit({
       auditId: "audit-warning-accepted",
       methodologyId: "VM0007",
@@ -195,7 +191,7 @@ describe("Vm0007GapReportPreview", () => {
       generatedAt: "2026-07-03T00:00:00Z",
       evidenceFileName: "envira-amazonia-vm0007.pdf",
       userAcceptedVersionWarning: true,
-      audit: buildWarningAcceptedAudit(),
+      audit: buildBlockedMismatchAudit(),
     });
 
     await act(async () => {
@@ -206,13 +202,9 @@ describe("Vm0007GapReportPreview", () => {
     });
 
     const text = container.textContent ?? "";
-    expect(text).toContain("VERSION_WARNING_ACCEPTED");
-    expect(text).toContain("Version warning accepted before audit generation.");
-    expect(text).toContain("Methodology version mismatch:");
-    expect(text).toContain("Print / Save PDF");
-    expect(text).toContain(REPORT_FIXTURE.expectedReportTitle);
-    expect(text).toContain("User accepted warning");
-    expect(text).toContain("true");
+    expect(text).toContain("Version lock blocked:");
+    expect(text).not.toContain("Print / Save PDF");
+    expect(text).not.toContain(REPORT_FIXTURE.expectedReportTitle);
   });
 
   test("keeps banned wording out of the rendered internal preview", async () => {

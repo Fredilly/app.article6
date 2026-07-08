@@ -113,10 +113,10 @@ function buildSupportedOnlyAudit(): MethodologyEvidenceAuditSummary {
   };
 }
 
-function buildWarningAcceptedAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
+function buildBlockedMismatchAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
   return {
     ...baseAudit,
-    auditStatus: "VERSION_WARNING_ACCEPTED",
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
     methodologyId: "VM0007",
     rulebookVersion: "v1.8",
     pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
@@ -164,8 +164,8 @@ describe("buildVm0007GapReport", () => {
     expect(report.executiveSummary.allSupportedWarning).toBe("All rules are currently marked supported. Review evidence quality before relying on this result.");
   });
 
-  it("prepends the version warning to the report banner when the warning was accepted", () => {
-    const report = buildReport(buildWarningAcceptedAudit(auditText(ENVIRA_V18_TEXT)));
+  it("prepends the version warning to the report banner when the audit is blocked for a mismatch", () => {
+    const report = buildReport(buildBlockedMismatchAudit(auditText(ENVIRA_V18_TEXT)));
 
     expect(report.limitationBanner).toContain("Methodology version mismatch:");
     expect(report.limitationBanner).toContain("Evidence judgment may be wrong.");

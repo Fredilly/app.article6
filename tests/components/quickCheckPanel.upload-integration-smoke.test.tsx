@@ -375,7 +375,7 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     expect(audit?.methodology?.methodologyName).toBeTruthy();
     expect(audit?.loadedRulebookId).toBe("VM0007");
     expect(audit?.loadedRulebookVersion).toBe("v1-0");
-    expect(audit?.audit.auditStatus).toBe("VERSION_WARNING_ACCEPTED");
+    expect(audit?.audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
     expect(audit?.audit.versionMatch).toBe(false);
     expect(audit?.audit.userAcceptedVersionWarning).toBe(true);
     expect(container.textContent ?? "").toContain("View Gap Report");

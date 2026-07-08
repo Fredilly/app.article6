@@ -1,5 +1,5 @@
 import type { DocumentStructure } from "@/lib/documentModel";
-import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersion";
+import { normalizeMethodologyVersion } from "@/lib/chat/methodologyVersion";
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
 
 export const EVIDENCE_AUDIT_STATUSES = [
@@ -15,7 +15,10 @@ export type EvidenceAuditConfidence = "high" | "medium" | "low";
 
 export type MethodologyVersionLock = Readonly<{
   methodologyId: string;
+  rulebookVersionRaw: string;
+  rulebookVersionKey: string;
   rulebookVersion: string;
+  pddDeclaredMethodologyVersionRaw: string;
   pddDeclaredMethodologyVersion: string;
   versionMatch: boolean;
   versionMismatchReason: string;
@@ -58,7 +61,10 @@ export type MethodologyEvidenceAuditResult = {
   title: string;
   ruleLogic: string;
   methodologyId?: string;
+  rulebookVersionRaw?: string;
+  rulebookVersionKey?: string;
   rulebookVersion?: string;
+  pddDeclaredMethodologyVersionRaw?: string;
   pddDeclaredMethodologyVersion?: string;
   versionMatch?: boolean;
   versionMismatchReason?: string;
@@ -78,7 +84,10 @@ export type MethodologyEvidenceAuditResult = {
 export type MethodologyEvidenceAuditSummary = {
   auditStatus?: "AUDITED" | "VERSION_WARNING_ACCEPTED" | "BLOCKED_VERSION_MISMATCH";
   methodologyId?: string;
+  rulebookVersionRaw?: string;
+  rulebookVersionKey?: string;
   rulebookVersion?: string;
+  pddDeclaredMethodologyVersionRaw?: string;
   pddDeclaredMethodologyVersion?: string;
   versionMatch?: boolean;
   versionMismatchReason?: string;
@@ -195,7 +204,7 @@ function normalizeMethodologyId(value: string | null | undefined): string {
 function normalizeVersionValue(value: string | null | undefined): string {
   const trimmed = (value ?? "").trim();
   if (!trimmed) return "";
-  return normalizeDeclaredMethodologyVersion(trimmed) ?? (trimmed.startsWith("v") ? trimmed : `v${trimmed}`);
+  return normalizeMethodologyVersion(trimmed) ?? (trimmed.startsWith("v") ? trimmed : `v${trimmed}`);
 }
 
 function normalizeVersionKey(value: string | null | undefined): string {
@@ -268,6 +277,14 @@ function extractExplicitVersionTokens(text: string): string[] {
   );
 }
 
+function extractDeclaredVersionTokens(text: string): string[] {
+  const explicitVersions = extractExplicitVersionTokens(text);
+  if (explicitVersions.length > 0) return explicitVersions;
+
+  const contextualVersion = normalizeMethodologyVersion(text);
+  return contextualVersion ? [contextualVersion] : [];
+}
+
 function extractMethodologyBlock(rawText: string): string {
   const lines = rawText.split(/\n+/);
   const startIndex = lines.findIndex((line) =>
@@ -319,7 +336,7 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
       || METHODOLOGY_DECLARATION_ANCHORS.some((pattern) => pattern.test(line));
     if (!hasExplicitMethodologyAnchor) continue;
 
-    const lineVersions = extractExplicitVersionTokens(line);
+    const lineVersions = extractDeclaredVersionTokens(line);
     if (lineVersions.length > 0) {
       declaredVersions.push(...lineVersions);
       continue;
@@ -327,7 +344,7 @@ function collectProseDeclaredVersions(lines: string[], expectedMethodologyId: st
 
     const nextLine = lines[index + 1]?.trim();
     if (!nextLine || isTableBoundaryLine(nextLine)) continue;
-    const nextLineVersions = extractExplicitVersionTokens(nextLine);
+    const nextLineVersions = extractDeclaredVersionTokens(nextLine);
     if (nextLineVersions.length === 0) continue;
     declaredVersions.push(...nextLineVersions);
   }
@@ -447,20 +464,27 @@ export function buildMethodologyVersionLock(input: {
   userAcceptedVersionWarning?: boolean;
 }): MethodologyVersionLock {
   const methodologyId = normalizeMethodologyId(input.methodologyId);
-  const rulebookVersion = normalizeVersionValue(input.rulebookVersion);
-  const pddDeclaredMethodologyVersion = input.pddDeclaredMethodologyVersion.trim();
-  const declaredReference = extractDeclaredMethodologyReferenceFromText(pddDeclaredMethodologyVersion, methodologyId);
+  const rulebookVersionRaw = input.rulebookVersion.trim();
+  const rulebookVersion = normalizeVersionValue(rulebookVersionRaw);
+  const pddDeclaredMethodologyVersionRaw = input.pddDeclaredMethodologyVersion.trim();
+  const declaredReference = extractDeclaredMethodologyReferenceFromText(pddDeclaredMethodologyVersionRaw, methodologyId);
+  const pddDeclaredMethodologyVersion = declaredReference.declaredRulebookVersions.length === 1
+    ? normalizeVersionValue(declaredReference.declaredRulebookVersions[0] ?? "")
+    : normalizeMethodologyVersion(pddDeclaredMethodologyVersionRaw) ?? pddDeclaredMethodologyVersionRaw;
   const versionMismatchReason = buildVersionMismatchReason({
     methodologyId,
     rulebookVersion,
-    pddDeclaredMethodologyVersion,
+    pddDeclaredMethodologyVersion: pddDeclaredMethodologyVersionRaw,
     declaredMethodologyId: declaredReference.declaredMethodologyId,
     declaredRulebookVersions: declaredReference.declaredRulebookVersions,
   });
 
   return Object.freeze({
     methodologyId,
+    rulebookVersionRaw,
+    rulebookVersionKey: rulebookVersionRaw,
     rulebookVersion,
+    pddDeclaredMethodologyVersionRaw,
     pddDeclaredMethodologyVersion,
     versionMatch: versionMismatchReason.length === 0,
     versionMismatchReason,
@@ -943,7 +967,10 @@ function resultFromCandidate(input: {
     title: resolveRuleTitle(input.rule),
     ruleLogic: resolveRuleLogic(input.rule),
     methodologyId: input.versionLock.methodologyId,
+    rulebookVersionRaw: input.versionLock.rulebookVersionRaw,
+    rulebookVersionKey: input.versionLock.rulebookVersionKey,
     rulebookVersion: input.versionLock.rulebookVersion,
+    pddDeclaredMethodologyVersionRaw: input.versionLock.pddDeclaredMethodologyVersionRaw,
     pddDeclaredMethodologyVersion: input.versionLock.pddDeclaredMethodologyVersion,
     versionMatch: input.versionLock.versionMatch,
     versionMismatchReason: input.versionLock.versionMismatchReason,
@@ -964,15 +991,18 @@ function resultFromCandidate(input: {
 export function auditEvidence(input: MethodologyEvidenceAuditInput): MethodologyEvidenceAuditSummary {
   const versionLock = resolveAuditVersionLock(input);
   const userAcceptedVersionWarning = Boolean(input.userAcceptedVersionWarning);
-  if (!versionLock.versionMatch && !userAcceptedVersionWarning) {
+  if (!versionLock.versionMatch) {
     return {
       auditStatus: "BLOCKED_VERSION_MISMATCH",
       methodologyId: versionLock.methodologyId,
+      rulebookVersionRaw: versionLock.rulebookVersionRaw,
+      rulebookVersionKey: versionLock.rulebookVersionKey,
       rulebookVersion: versionLock.rulebookVersion,
+      pddDeclaredMethodologyVersionRaw: versionLock.pddDeclaredMethodologyVersionRaw,
       pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
       versionMatch: false,
       versionMismatchReason: versionLock.versionMismatchReason,
-      userAcceptedVersionWarning: false,
+      userAcceptedVersionWarning,
       results: [],
       totals: {
         supported_by_pdd: 0,
@@ -985,9 +1015,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
     };
   }
 
-  const auditStatus = !versionLock.versionMatch && userAcceptedVersionWarning
-    ? "VERSION_WARNING_ACCEPTED"
-    : "AUDITED";
+  const auditStatus = "AUDITED";
 
   const results = input.rules.map((rule) => {
     const contract = input.getContract(rule);
@@ -1038,7 +1066,10 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
   return {
     auditStatus,
     methodologyId: versionLock.methodologyId,
+    rulebookVersionRaw: versionLock.rulebookVersionRaw,
+    rulebookVersionKey: versionLock.rulebookVersionKey,
     rulebookVersion: versionLock.rulebookVersion,
+    pddDeclaredMethodologyVersionRaw: versionLock.pddDeclaredMethodologyVersionRaw,
     pddDeclaredMethodologyVersion: versionLock.pddDeclaredMethodologyVersion,
     versionMatch: versionLock.versionMatch,
     versionMismatchReason: versionLock.versionMismatchReason,
