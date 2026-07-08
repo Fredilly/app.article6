@@ -12,6 +12,12 @@ For PRs that do not advance any roadmap item (e.g. chores, dev tooling, refactor
 
 Allowed statuses: planned | next | in_progress | done | blocked | merged | etc.
 
+## Guardrails
+
+- [ ] Confirmed source fixes are generic and not fixture-shaped.
+- [ ] No project names, project IDs, exact page gates, or gold answer strings were added to source code.
+- [ ] Methodology fixes extract IDs and versions generically instead of hardcoding one fixture pair.
+
 <!--
 ### Roadmap-Override
 slug: <slug>
