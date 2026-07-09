@@ -2,16 +2,15 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "Phase 2 Envira quarantine is complete: the Envira legacy v1.5 mismatch fixture is preserved as regression coverage and not validated truth.",
+    "summary": "Phase 3 Report/PDF blocking is complete: mismatched VM0007 versions now render blocked output only, not normal evidence maps or PDFs.",
     "current_focus": [
       "Use Phase 1 hard blocking as the baseline for later cleanup phases",
       "Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case",
-      "Proceed to report/PDF blocking only if the next phase needs it"
+      "Proceed to gate strengthening for mismatched-version report, PDF, and readiness paths"
     ],
     "not_active_now": [
       "Envira quarantine",
       "Report/PDF blocking",
-      "Gate strengthening",
       "Roadmap correction",
       "Forward-path expansion"
     ],
@@ -30,7 +29,7 @@
     },
     "phase_3_report_and_pdf_blocking": {
       "title": "Phase 3: Report and PDF Blocking",
-      "status": "planned",
+      "status": "done",
       "summary": "Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims."
     },
     "phase_4_gate_strengthening": {
