@@ -367,6 +367,7 @@ Current focus:
 - Proceed to report/PDF blocking only if the next phase needs it
 
 Not active now:
+- Envira quarantine
 - Report/PDF blocking
 - Gate strengthening
 - Roadmap correction
