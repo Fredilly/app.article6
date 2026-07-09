@@ -36,7 +36,7 @@ export default function Vm0007GapReportLaunchButton({
           <div className="mt-3">
             <Link
               href={buildVm0007GapReportHref(auditId)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+              className="inline-flex items-center gap-2 rounded-full border border-green-600 bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:border-green-700 hover:bg-green-700"
             >
               <ArrowUpRight className="h-4 w-4" />
               View Gap Report
