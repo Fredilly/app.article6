@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup, vvb-finding-presentation-layer.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup.
 Frozen lanes: agentic-verification.
 
 
@@ -381,30 +381,33 @@ Not active now:
 5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
 6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Maya evidence map.
 
-## vvb-finding-presentation-layer
+## vvb-report-presentation-layer
 
-Status SSOT: `docs/roadmaps/vvb-finding-presentation-layer/phase-status.json`
-Details: `docs/roadmaps/vvb-finding-presentation-layer/PLAN.md`
+Status SSOT: `docs/roadmaps/vvb-report-presentation-layer/phase-status.json`
+Details: `docs/roadmaps/vvb-report-presentation-layer/PLAN.md`
 
-Lane status: Active
-Phase 1 CONFORMS Eligibility Contract is the next planned step. The roadmap is limited to status-consumer auditing and a strict eligibility contract before any mapper, presentation object, UI, report, or gap-report migration work.
+Lane status: Planned
+Add a VVB-report-faithful presentation layer that separates conformance checklist conclusions from formal finding/request records without changing Quick Check router semantics.
 
 Current focus:
-- Audit current consumers of Quick Check v2 status output
-- Define the CONFORMS eligibility contract from the final validated StatusResult
-- Keep implementation, router, fixture, and gap report code untouched
+- Preserve Quick Check internal statuses as machine truth
+- Model VVB-style checklist conclusions separately from finding records
+- Prevent CONFORMS from being treated as a finding type
+- Prepare gap report to consume this presentation model
 
 Not active now:
-- Mapper implementation
-- Presentation object migration
-- UI/report consumer changes
-- Gap report changes
+- Router status renames
+- Fixture migration
+- Gap report implementation
+- Formal verifier authority claims
 
-1) RC0 — Phase 0: Status Consumer Audit: Planned — Inventory the current consumers of Quick Check v2 status output and identify every FOUND -> CONFORMS touch point.
-2) RC1 — Phase 1: CONFORMS Eligibility Contract: Planned — CONFORMS may only be derived from the final validated Quick Check v2 StatusResult when all provenance and sufficiency gates are satisfied.
-3) RC2 — Phase 2: VVB Finding Mapper: Planned — Mapper code will derive VVB output from the eligibility contract without reading raw router or extractor output directly.
-4) RC3 — Phase 3: Evidence Presentation Object: Planned — Introduce a presentation object that carries the validated evidence fields needed by VVB consumers.
-5) RC4 — Phase 4: Presentation Gates: Planned — Add tests that fail if FOUND is upgraded to CONFORMS without the eligibility contract or if raw outputs are used directly.
-6) RC5 — Phase 5: Fixture Expectation Migration: Planned — Migrate fixture expectations to the new presentation contract.
-7) RC6 — Phase 6: UI, Report, and Gap Report Consumers: Planned — Move UI, report, and gap-report consumers onto the presentation object.
-8) RC7 — Phase 7: Deprecation Review: Planned — Deprecate or remove old ambiguous FOUND -> CONFORMS paths.
+1) RC0 — Phase 0: Real VVB Report Terminology Contract: Planned — Document real report language: checklist conclusions use conformance values, while NCR/NIR/OFI/CAR/CR/FAR are action findings or requests.
+2) RC1 — Phase 1: Status Consumer Audit: Planned — Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields.
+3) RC2 — Phase 2: Conformance Conclusion Contract: Planned — Define when final validated Quick Check evidence may produce a CONFORMS checklist/narrative conclusion.
+4) RC3 — Phase 3: Action Finding Contract: Planned — Define when weak, missing, non-blocking, or future-period issues produce NIR, NCR, OFI, CAR, CR, or FAR style finding records.
+5) RC4 — Phase 4: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.
+6) RC5 — Phase 5: Report Presentation Object: Planned — Add a shared object with internalStatus, conformanceConclusion, findingType, requirement reference, document reference, finding text, and auditor response.
+7) RC6 — Phase 6: Presentation Gates: Planned — Prevent weak or placeholder evidence from displaying as CONFORMS and prevent missing evidence from becoming NCR/CAR without applicability and coverage checks.
+8) RC7 — Phase 7: Fixture Expectation Migration: Planned — Migrate fixtures so non-FOUND statuses preserve weak or placeholder document evidence instead of nulling evidence when evaluated text exists.
+9) RC8 — Phase 8: Gap Report and UI Consumers: Planned — Update gap report, UI, reports, and PDFs to consume the VVB report presentation object instead of inventing their own labels.
+10) RC9 — Phase 9: Deprecation Review: Planned — Decide whether old user-facing labels can be hidden while keeping internal statuses permanently available for debugging and gates.

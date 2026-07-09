@@ -1,0 +1,72 @@
+{
+  "roadmap": "vvb-report-presentation-layer",
+  "phase_meta": {
+    "status": "planned",
+    "summary": "Add a VVB-report-faithful presentation layer that separates conformance checklist conclusions from formal finding/request records without changing Quick Check router semantics.",
+    "current_focus": [
+      "Preserve Quick Check internal statuses as machine truth",
+      "Model VVB-style checklist conclusions separately from finding records",
+      "Prevent CONFORMS from being treated as a finding type",
+      "Prepare gap report to consume this presentation model"
+    ],
+    "not_active_now": [
+      "Router status renames",
+      "Fixture migration",
+      "Gap report implementation",
+      "Formal verifier authority claims"
+    ],
+    "last_updated_at": "2026-07-09T00:00:00Z"
+  },
+  "phases": {
+    "phase_0_report_terminology_contract": {
+      "title": "Phase 0: Real VVB Report Terminology Contract",
+      "status": "planned",
+      "summary": "Document real report language: checklist conclusions use conformance values, while NCR/NIR/OFI/CAR/CR/FAR are action findings or requests."
+    },
+    "phase_1_status_consumer_audit": {
+      "title": "Phase 1: Status Consumer Audit",
+      "status": "planned",
+      "summary": "Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields."
+    },
+    "phase_2_conformance_conclusion_contract": {
+      "title": "Phase 2: Conformance Conclusion Contract",
+      "status": "planned",
+      "summary": "Define when final validated Quick Check evidence may produce a CONFORMS checklist/narrative conclusion."
+    },
+    "phase_3_action_finding_contract": {
+      "title": "Phase 3: Action Finding Contract",
+      "status": "planned",
+      "summary": "Define when weak, missing, non-blocking, or future-period issues produce NIR, NCR, OFI, CAR, CR, or FAR style finding records."
+    },
+    "phase_4_applicability_contract": {
+      "title": "Phase 4: Applicability Contract",
+      "status": "planned",
+      "summary": "Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence."
+    },
+    "phase_5_report_presentation_object": {
+      "title": "Phase 5: Report Presentation Object",
+      "status": "planned",
+      "summary": "Add a shared object with internalStatus, conformanceConclusion, findingType, requirement reference, document reference, finding text, and auditor response."
+    },
+    "phase_6_presentation_gates": {
+      "title": "Phase 6: Presentation Gates",
+      "status": "planned",
+      "summary": "Prevent weak or placeholder evidence from displaying as CONFORMS and prevent missing evidence from becoming NCR/CAR without applicability and coverage checks."
+    },
+    "phase_7_fixture_expectation_migration": {
+      "title": "Phase 7: Fixture Expectation Migration",
+      "status": "planned",
+      "summary": "Migrate fixtures so non-FOUND statuses preserve weak or placeholder document evidence instead of nulling evidence when evaluated text exists."
+    },
+    "phase_8_gap_report_and_ui_consumers": {
+      "title": "Phase 8: Gap Report and UI Consumers",
+      "status": "planned",
+      "summary": "Update gap report, UI, reports, and PDFs to consume the VVB report presentation object instead of inventing their own labels."
+    },
+    "phase_9_deprecation_review": {
+      "title": "Phase 9: Deprecation Review",
+      "status": "planned",
+      "summary": "Decide whether old user-facing labels can be hidden while keeping internal statuses permanently available for debugging and gates."
+    }
+  }
+}
