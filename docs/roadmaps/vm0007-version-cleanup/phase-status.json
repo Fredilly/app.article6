@@ -2,11 +2,11 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "Phase 4 Gate Strengthening is complete: mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths.",
+    "summary": "Phase 5 Roadmap Correction is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, and the legacy Envira fixture remains pending versioned re-audit.",
     "current_focus": [
-      "Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case",
+      "Keep Envira quarantined as a blocked legacy REDD-MF / VM0007 v1.5 mismatch regression case",
       "Keep the existing quote/page/section integrity gates intact",
-      "Advance to roadmap correction only if the next cleanup phase is genuinely needed"
+      "Phase 1-5 cleanup and roadmap-correction work is done; Phase 6 remains planned"
     ],
     "not_active_now": [
       "Envira quarantine",
@@ -40,8 +40,8 @@
     },
     "phase_5_roadmap_correction": {
       "title": "Phase 5: Roadmap Correction",
-      "status": "planned",
-      "summary": "Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit."
+      "status": "done",
+      "summary": "Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth."
     },
     "phase_6_forward_path": {
       "title": "Phase 6: Forward Path",

@@ -86,11 +86,11 @@ Add and harden fixtures for PD_REDD-style VM0007 judgments with the same evidenc
 
 ### Phase 3 — Full 58-Rule Audit Fixture Shape
 
-Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, `pr:gate`, and blind rebuild validation.
+Envira VM0007 now has a reviewed full 58-rule audit fixture shape, but it is quarantined legacy REDD-MF / VM0007 v1.5 mismatch regression data, not validated VM0007 v1.8 truth. The historical split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 remains preserved as regression evidence. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, `pr:gate`, and blind rebuild validation.
 
 ### Phase 4 — Report Fixture Layer
 
-Add report-facing fixture expectations for summary sections, row grouping, and internal preview output.
+Add report-facing fixture expectations for summary sections, row grouping, and internal preview output. This layer remains quarantined historical fixture data until versioned re-audit confirms the VM0007 evidence map is truth-complete.
 
 ### Phase 5 — Client-Readiness Gate
 
