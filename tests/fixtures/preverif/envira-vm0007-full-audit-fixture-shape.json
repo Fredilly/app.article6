@@ -1,16 +1,17 @@
 {
-  "fixtureSetId": "envira-vm0007-full-audit-fixture-shape",
-  "title": "Envira VM0007 Full 58-Rule Audit Fixture Shape",
+  "fixtureSetId": "envira-vm0007-v15-legacy-mismatch-full-audit-fixture-shape",
+  "title": "Envira VM0007 Legacy v1.5 Mismatch Full 58-Rule Regression Fixture Shape",
   "inputPdfName": "PROJ_DESC_1382_04APR2015.pdf",
   "inputPdfPath": "/Users/stphen/Desktop/PROJ_DESC_1382_04APR2015.pdf",
   "sourcePdfTitle": "Microsoft Word - Envira Amazonia VCS PD 2015.04.03",
   "documentFamily": "Project Description / PD",
   "methodology": "VM0007",
-  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. Rules without exact PDF-backed truth in this Phase 3 fixture shape must remain UNCLEAR, MISSING, or N/A.",
+  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. This is a quarantined legacy v1.5 mismatch fixture: the PDD declares REDD-MF / VM0007 v1.5, the loaded rulebook/contract is VM0007 v1.8, versionMatch is false, and the historical 30 FOUND / 8 UNCLEAR / 3 MISSING / 17 N/A split is contaminated output, not validated truth.",
   "expectedWarnings": [
     "This full 58-rule fixture shape is internal test data and not client-ready output.",
     "Only exact PDF-backed evidence may produce FOUND in this fixture set.",
-    "Rules without proven PDF truth stay UNCLEAR, MISSING, or N/A until source-backed evidence is added."
+    "Rules without proven PDF truth stay UNCLEAR, MISSING, or N/A until source-backed evidence is added.",
+    "Historical counts are contaminated legacy output and must not be treated as validated truth."
   ],
   "expectedTotalRules": 58,
   "expectedStatusCounts": {

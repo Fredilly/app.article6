@@ -15,13 +15,13 @@ export async function GET() {
     return new NextResponse(blob, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="internal-envira-vm0007-fixture-backed-report.pdf"',
+        "Content-Disposition": 'attachment; filename="envira-vm0007-v15-legacy-mismatch.pdf"',
         "Cache-Control": "no-store",
       },
     });
   } catch (error) {
     return NextResponse.json(
-      { error: "Envira fixture-backed PDF export failed", detail: String(error) },
+      { error: "Envira legacy mismatch PDF export failed", detail: String(error) },
       { status: 500 },
     );
   }

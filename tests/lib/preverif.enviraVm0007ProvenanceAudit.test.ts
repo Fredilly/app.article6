@@ -162,7 +162,7 @@ function formatAuditTable(rows: AuditRowResult[]): string {
 }
 
 describe("Envira VM0007 provenance audit", () => {
-  test("checks every report row against the fixture-backed source excerpts", () => {
+  test("checks the quarantined legacy mismatch report rows against the fixture-backed source excerpts", () => {
     const report = buildEnviraVm0007FixtureBackedReport();
     const fullAuditChecksById = new Map(FULL_AUDIT_FIXTURE.checks.map((check) => [check.checkId, check]));
     const auditRows: AuditRowResult[] = [];
@@ -174,6 +174,14 @@ describe("Envira VM0007 provenance audit", () => {
       UNCLEAR: 8,
       MISSING: 3,
       "N/A": 17,
+    });
+    expect(report.quarantine).toEqual({
+      label: "Legacy v1.5 mismatch regression fixture",
+      status: "quarantined",
+      versionMatch: false,
+      pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+      loadedRulebookVersion: "VM0007 v1.8",
+      note: "Historical counts are contaminated legacy output and must not be treated as validated truth.",
     });
 
     for (const row of report.evidenceMapRows) {

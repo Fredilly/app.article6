@@ -19,7 +19,7 @@ function cloneFixture(): FullAuditFixtureSet {
   return JSON.parse(JSON.stringify(FULL_AUDIT_FIXTURE)) as FullAuditFixtureSet;
 }
 
-describe("VM0007 full 58-rule audit fixture shape", () => {
+describe("VM0007 full 58-rule legacy mismatch fixture shape", () => {
   it("uses the canonical synced VM0007 rule list and confirms the expected total is 58", () => {
     expect(VM0007_SYNCED_RULES).toHaveLength(58);
     expect(new Set(VM0007_SYNCED_RULES.map((rule) => rule.id)).size).toBe(58);

@@ -2,11 +2,11 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "Phase 1 version lock is complete: VM0007 audits now require matching methodology ID and PDD-declared methodology version before evidence judgment can run.",
+    "summary": "Phase 2 Envira quarantine is complete: the Envira legacy v1.5 mismatch fixture is preserved as regression coverage and not validated truth.",
     "current_focus": [
       "Use Phase 1 hard blocking as the baseline for later cleanup phases",
-      "Keep Envira as a blocked legacy v1.5 mismatch regression case",
-      "Continue with Envira quarantine and report/PDF hardening as later phases"
+      "Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case",
+      "Proceed to report/PDF blocking only if the next phase needs it"
     ],
     "not_active_now": [
       "Envira quarantine",
@@ -25,7 +25,7 @@
     },
     "phase_2_envira_quarantine": {
       "title": "Phase 2: Envira Quarantine",
-      "status": "planned",
+      "status": "done",
       "summary": "Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth."
     },
     "phase_3_report_and_pdf_blocking": {

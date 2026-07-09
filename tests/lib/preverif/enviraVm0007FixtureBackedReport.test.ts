@@ -2,7 +2,7 @@ import { describe, expect, test } from "@jest/globals";
 import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
 
 describe("buildEnviraVm0007FixtureBackedReport", () => {
-  test("uses reviewed fixture truth counts and preserves all 58 VM0007 rows", () => {
+  test("uses quarantined legacy counts and preserves all 58 VM0007 rows", () => {
     const report = buildEnviraVm0007FixtureBackedReport();
 
     expect(report.summary.counts.FOUND).toBe(30);
@@ -10,6 +10,9 @@ describe("buildEnviraVm0007FixtureBackedReport", () => {
     expect(report.summary.counts.MISSING).toBe(3);
     expect(report.summary.counts["N/A"]).toBe(17);
     expect(report.summary.totalRules).toBe(58);
+    expect(report.reportName).toBe("Legacy v1.5 mismatch regression fixture preview");
+    expect(report.quarantine.label).toBe("Legacy v1.5 mismatch regression fixture");
+    expect(report.quarantine.versionMatch).toBe(false);
     expect(report.evidenceMapRows).toHaveLength(58);
   });
 });

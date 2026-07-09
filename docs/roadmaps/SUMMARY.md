@@ -359,12 +359,12 @@ Not active now:
 Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
 
 Lane status: Active
-Phase 1 version lock is complete: VM0007 audits now require matching methodology ID and PDD-declared methodology version before evidence judgment can run.
+Phase 2 Envira quarantine is complete: the Envira legacy v1.5 mismatch fixture is preserved as regression coverage and not validated truth.
 
 Current focus:
 - Use Phase 1 hard blocking as the baseline for later cleanup phases
-- Keep Envira as a blocked legacy v1.5 mismatch regression case
-- Continue with Envira quarantine and report/PDF hardening as later phases
+- Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case
+- Proceed to report/PDF blocking only if the next phase needs it
 
 Not active now:
 - Envira quarantine
@@ -374,7 +374,7 @@ Not active now:
 - Forward-path expansion
 
 1) RC1 — Phase 1: Version Lock: Done — VM0007 version identity is enforced before evidence audit; missing or mismatched PDD-declared methodology versions hard block with BLOCKED_VERSION_MISMATCH, while legitimate VM0007 v1.8 may proceed.
-2) RC2 — Phase 2: Envira Quarantine: Planned — Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.
+2) RC2 — Phase 2: Envira Quarantine: Done — Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.
 3) RC3 — Phase 3: Report and PDF Blocking: Planned — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
 4) RC4 — Phase 4: Gate Strengthening: Planned — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Planned — Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.

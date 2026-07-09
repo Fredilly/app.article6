@@ -27,15 +27,15 @@ function normalizeProvenanceText(value: string): string {
 }
 
 describe("FixtureBackedVm0007ReportView", () => {
-  test("renders the reviewed Envira fixture summary counts and all 58 evidence-map rows", () => {
+  test("renders the quarantined Envira legacy mismatch summary counts and all 58 evidence-map rows", () => {
     const html = buildHtml();
     const rowCount = (html.match(/data-evidence-map-row=/g) ?? []).length;
 
-    expect(html).toContain("Envira VM0007 Evidence Map");
-    expect(html).toContain("Internal fixture-backed preview");
+    expect(html).toContain("Envira VM0007 legacy v1.5 mismatch");
+    expect(html).toContain("Quarantined legacy fixture");
     expect(html).toContain("Not client-ready");
-    expect(html).toContain("Based on PDF-backed fixture truth");
-    expect(html).toContain("Purpose: show supported, weak, missing, and non-applicable methodology evidence");
+    expect(html).toContain("Based on contaminated historical fixture output");
+    expect(html).toContain("Purpose: preserve false FOUND rows, wrong page anchors, module-list evidence, and flattened table errors");
     expect(html).toContain("Download PDF");
     expect(html).toContain(">FOUND<");
     expect(html).toContain(">30<");
@@ -45,6 +45,8 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain(">3<");
     expect(html).toContain(">N/A<");
     expect(html).toContain(">17<");
+    expect(html).toContain("versionMatch false");
+    expect(html).toContain("Historical counts are contaminated legacy output and must not be treated as validated truth.");
     expect(rowCount).toBe(58);
     expect(html).toContain("Executive Summary");
     expect(html).toContain("Priority Client Actions");
@@ -171,6 +173,7 @@ describe("FixtureBackedVm0007ReportView", () => {
     expect(html).toContain("the land is legally permitted to be converted to non-forest");
     expect(html).toContain("Generic methodology-applicability language is not the underlying authorization document.");
     expect(html).toContain("Project Description");
+    expect(html).toContain("Quarantine metadata");
     expect(html).not.toContain("Span ID: Not available");
     expect(html).not.toContain("No accepted quote encoded in fixture truth.");
     expect(html).not.toContain("Rejected evidence examples");
