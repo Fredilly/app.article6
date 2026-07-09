@@ -1,16 +1,17 @@
 {
-  "fixtureSetId": "envira-vm0007-judgment-fixtures",
-  "title": "Envira VM0007 Judgment Fixtures",
+  "fixtureSetId": "envira-vm0007-v15-legacy-mismatch-judgment-fixtures",
+  "title": "Envira VM0007 Legacy v1.5 Mismatch Regression Judgment Fixtures",
   "inputPdfName": "PROJ_DESC_1382_04APR2015.pdf",
   "inputPdfPath": "/Users/stphen/Desktop/PROJ_DESC_1382_04APR2015.pdf",
   "sourcePdfTitle": "Microsoft Word - Envira Amazonia VCS PD 2015.04.03",
   "documentFamily": "Project Description / PD",
   "methodology": "VM0007",
-  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. Do not use current app output as gold.",
+  "fixtureTruthPolicy": "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. This is a quarantined legacy v1.5 mismatch regression fixture, so do not use current app output as gold or validated truth.",
   "expectedWarnings": [
     "Generic methodology or module-table text must not count as project evidence.",
     "Weak evidence must stay UNCLEAR and missing evidence must stay MISSING.",
-    "TOC rows, URLs, registry links, and generic country references must not count as proof."
+    "TOC rows, URLs, registry links, and generic country references must not count as proof.",
+    "Historical counts are contaminated legacy output and must not be treated as validated truth."
   ],
   "checks": [
     {

@@ -26,6 +26,14 @@ export type Vm0007FixtureBackedReport = {
   reportId: string;
   reportName: string;
   generatedAt: string;
+  quarantine: {
+    label: string;
+    status: "quarantined";
+    versionMatch: false;
+    pddDeclaredMethodologyVersion: string;
+    loadedRulebookVersion: string;
+    note: string;
+  };
   limitationBanner: string;
   summary: {
     totalRules: number;
@@ -111,8 +119,8 @@ export function buildEvidenceMapRows(
           : check.expectedStatus === "UNCLEAR"
             ? check.reason
             : check.expectedStatus === "MISSING"
-              ? "No accepted project-specific PDD quote is encoded for this rule in the reviewed fixture truth."
-              : "This rule is encoded as N/A in the reviewed fixture truth because the project scope does not trigger it.",
+              ? "No accepted project-specific PDD quote is encoded for this rule in the quarantined legacy mismatch fixture."
+              : "This rule is encoded as N/A in the quarantined legacy mismatch fixture because the project scope does not trigger it.",
       rejectedEvidenceExamples,
       whyRejectedEvidenceIsNotEnough,
       clientAction:
@@ -139,12 +147,21 @@ export function buildFixtureBackedVm0007Report(input: {
     reportId: input.reportId,
     reportName: input.reportName,
     generatedAt: input.generatedAt,
-    limitationBanner: "Internal preview only. This route renders reviewed fixture truth for analysis and is not client-ready.",
+    quarantine: {
+      label: "Legacy v1.5 mismatch regression fixture",
+      status: "quarantined",
+      versionMatch: false,
+      pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+      loadedRulebookVersion: `${input.methodology.code} ${input.methodology.version}`,
+      note: "Historical counts are contaminated legacy output and must not be treated as validated truth.",
+    },
+    limitationBanner:
+      "Internal preview only. This route renders a quarantined legacy mismatch fixture for analysis and is not client-ready.",
     summary: {
       totalRules: input.fullAuditFixtureSet.expectedTotalRules,
       counts: input.fullAuditFixtureSet.expectedStatusCounts,
       headline:
-        "Summary counts and row detail come from reviewed fixture truth, not the current live audit output.",
+        "Summary counts and row detail come from quarantined legacy mismatch output, not validated VM0007 truth.",
     },
     project: input.project,
     methodology: input.methodology,

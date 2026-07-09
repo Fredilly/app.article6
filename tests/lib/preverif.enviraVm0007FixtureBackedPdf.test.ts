@@ -35,11 +35,15 @@ function extractPriorityRowLines(lines: string[], ruleId: string): string[] {
 }
 
 describe("buildReportLines", () => {
-  test("preserves provenance for every evidence-bearing row", () => {
+  test("preserves provenance for every evidence-bearing row and keeps the legacy mismatch label visible", () => {
     const report = buildEnviraVm0007FixtureBackedReport();
     const lines = buildReportLines(report);
     const normalizedLines = normalizeProvenanceText(lines.join(" "));
     const prioritySection = extractPrioritySectionLines(lines).join("\n");
+
+    expect(lines.join("\n")).toContain("Envira VM0007 legacy v1.5 mismatch");
+    expect(lines.join("\n")).toContain("Quarantined legacy mismatch regression fixture");
+    expect(lines.join("\n")).toContain("versionMatch: false");
 
     for (const row of report.evidenceMapRows) {
       if (row.acceptedQuote?.trim()) {

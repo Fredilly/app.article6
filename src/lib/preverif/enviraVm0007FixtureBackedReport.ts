@@ -14,16 +14,17 @@ export function buildEnviraVm0007FixtureBackedReport(): Vm0007FixtureBackedRepor
   const judgmentFixtureSet = readJsonFixture<JudgmentFixtureSet>("envira-vm0007-judgment-fixtures.json");
 
   return buildFixtureBackedVm0007Report({
-    reportId: "envira-vm0007-fixture-report",
-    reportName: "Internal Envira VM0007 Fixture-Backed Report Preview",
+    reportId: "envira-vm0007-v15-legacy-mismatch",
+    reportName: "Legacy v1.5 mismatch regression fixture preview",
     generatedAt: "2026-07-03T00:00:00Z",
     project: {
       name: "The Envira Amazonia Project",
-      description: "Reviewed Envira VM0007 fixture truth rendered into an internal-only report and Evidence Map.",
+      description:
+        "Legacy v1.5 mismatch regression fixture preserved for version-lock and evidence-map quarantine coverage.",
     },
     methodology: {
       code: "VM0007",
-      version: "4.2",
+      version: "v1.8",
       name: "VM0007: REDD Methodology Modules (REDD-MF)",
     },
     fullAuditFixtureSet,

@@ -5,7 +5,7 @@ import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm000
 import { buildReportLines } from "@/lib/preverif/enviraVm0007FixtureBackedPdf";
 
 describe("/api/exports/internal/envira-vm0007-report route", () => {
-  it("returns a parseable PDF attachment built from fixture-backed report data", async () => {
+  it("returns a parseable PDF attachment built from quarantined legacy mismatch report data", async () => {
     const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
     const normalizeProvenanceText = (value: string) =>
       value
@@ -23,7 +23,7 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
-    expect(response.headers.get("Content-Disposition")).toContain('attachment; filename="internal-envira-vm0007-fixture-backed-report.pdf"');
+    expect(response.headers.get("Content-Disposition")).toContain('attachment; filename="envira-vm0007-v15-legacy-mismatch.pdf"');
 
     const bytes = await response.arrayBuffer();
     const parsed = await extractPdfTextWithPdfParse({ bytes });
@@ -43,16 +43,19 @@ describe("/api/exports/internal/envira-vm0007-report route", () => {
     const prioritySectionLines = prioritySectionStart >= 0 && prioritySectionEnd > prioritySectionStart ? reportLineList.slice(prioritySectionStart, prioritySectionEnd) : [];
     const priorityRows = report.evidenceMapRows.filter((row) => row.status === "UNCLEAR" || row.status === "MISSING");
 
-    expect(text).toContain("Envira VM0007 Evidence Map");
-    expect(text).toContain("Internal fixture-backed preview");
+    expect(text).toContain("Envira VM0007 legacy v1.5 mismatch");
+    expect(text).toContain("Quarantined legacy mismatch regression fixture");
     expect(text).toContain("Not client-ready");
-    expect(text).toContain("Based on PDF-backed fixture truth");
-    expect(text).toContain("Purpose: show supported, weak, missing, and non-applicable methodology evidence");
+    expect(text).toContain("Based on contaminated historical fixture output");
+    expect(normalized).toContain("Purpose: preserve false FOUND rows, wrong page anchors, module-list evidence, and flattened table errors");
     expect(text).toContain("FOUND: 30");
     expect(text).toContain("UNCLEAR: 8");
     expect(text).toContain("MISSING: 3");
     expect(text).toContain("N/A: 17");
     expect(text).toContain("Total rules: 58");
+    expect(text).toContain("PDD-declared methodology version: REDD-MF / VM0007 v1.5");
+    expect(text).toContain("Loaded rulebook version: VM0007 v1.8");
+    expect(text).toContain("versionMatch: false");
     expect(text).toContain("Priority Client Actions");
     expect(text).toContain("MISSING - 3");
     expect(text).toContain("UNCLEAR - 8");

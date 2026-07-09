@@ -80,14 +80,18 @@ export function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
-    "Envira VM0007 Evidence Map",
-    "Internal fixture-backed preview",
+    "Envira VM0007 legacy v1.5 mismatch",
+    "Quarantined legacy mismatch regression fixture",
     "Not client-ready",
-    "Based on PDF-backed fixture truth",
-    "Purpose: show supported, weak, missing, and non-applicable methodology evidence",
+    "Based on contaminated historical fixture output",
+    "Purpose: preserve false FOUND rows, wrong page anchors, module-list evidence, and flattened table errors",
     `Project name: ${report.project.name}`,
     report.project.description,
     `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
+    `Quarantine label: ${report.quarantine.label}`,
+    `PDD-declared methodology version: ${report.quarantine.pddDeclaredMethodologyVersion}`,
+    `Loaded rulebook version: ${report.quarantine.loadedRulebookVersion}`,
+    `versionMatch: ${report.quarantine.versionMatch}`,
     `Generated: ${report.generatedAt}`,
     report.limitationBanner,
     `FOUND: ${report.summary.counts.FOUND}`,
@@ -102,7 +106,7 @@ export function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
   lines.push(...buildPriorityActionLines(report));
   lines.push("");
   lines.push("Evidence Map");
-  lines.push("Rows are grouped by reviewed status and preserve the reviewed fixture truth.");
+  lines.push("Rows are grouped by quarantined status and preserve historical contaminated output only.");
 
   for (const group of groupedRows) {
     lines.push("");

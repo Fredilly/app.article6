@@ -30,7 +30,7 @@ const PD_REDD_SOURCE_EXCERPTS = JSON.parse(
   fs.readFileSync("tests/fixtures/preverif/pd-redd-vm0007-source-excerpts.json", "utf8"),
 ) as SourceExcerpts;
 
-describe("Envira VM0007 judgment fixtures", () => {
+describe("Envira VM0007 legacy mismatch judgment fixtures", () => {
   it("confirms Phase 0 is documented and the exact source document is the Envira project description PDF", () => {
     const phase0Plan = fs.readFileSync("docs/roadmaps/vm0007-judgement-fixtures/PLAN.md", "utf8");
 
@@ -40,7 +40,9 @@ describe("Envira VM0007 judgment fixtures", () => {
     expect(AUDIT_FIXTURE.inputPdfPath).toBe("/Users/stphen/Desktop/PROJ_DESC_1382_04APR2015.pdf");
     expect(AUDIT_FIXTURE.sourcePdfTitle).toBe("Microsoft Word - Envira Amazonia VCS PD 2015.04.03");
     expect(AUDIT_FIXTURE.documentFamily).toBe("Project Description / PD");
-    expect(AUDIT_FIXTURE.fixtureTruthPolicy).toContain("exact quotes, page numbers, and section headings");
+    expect(AUDIT_FIXTURE.title).toContain("Legacy v1.5 Mismatch Regression Judgment Fixtures");
+    expect(AUDIT_FIXTURE.fixtureTruthPolicy).toContain("quarantined legacy v1.5 mismatch regression fixture");
+    expect(AUDIT_FIXTURE.fixtureTruthPolicy).toContain("do not use current app output as gold");
     expect(SOURCE_EXCERPTS.sourceTypeConfirmation.page).toBe(1);
     expect(SOURCE_EXCERPTS.sourceTypeConfirmation.quote).toContain("PROJECT DESCRIPTION");
     expect(SOURCE_EXCERPTS.pageExcerpts["1"]).toContain("THE ENVIRA AMAZONIA PROJECT");
@@ -50,7 +52,7 @@ describe("Envira VM0007 judgment fixtures", () => {
     expect(AUDIT_FIXTURE.methodology).toBe("VM0007");
     expect(AUDIT_FIXTURE.checks.length).toBeGreaterThanOrEqual(5);
     expect(AUDIT_FIXTURE.checks.length).toBeLessThanOrEqual(10);
-    expect(AUDIT_FIXTURE.expectedWarnings).toHaveLength(3);
+    expect(AUDIT_FIXTURE.expectedWarnings).toHaveLength(4);
 
     expect(AUDIT_FIXTURE.checks.some((check) => check.coverageTags.includes("clean_found"))).toBe(true);
     expect(AUDIT_FIXTURE.checks.some((check) => check.expectedStatus === "UNCLEAR")).toBe(true);
