@@ -360,12 +360,12 @@ Not active now:
 Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
 
 Lane status: Active
-Phase 5 Roadmap Correction is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, and the legacy Envira fixture remains pending versioned re-audit.
+Phase 6 Forward Path is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, the legacy Envira fixture remains pending versioned re-audit, and a normalized VM0007 v1.8 path can pass the version lock without building a full Maya evidence map.
 
 Current focus:
 - Keep Envira quarantined as a blocked legacy REDD-MF / VM0007 v1.5 mismatch regression case
 - Keep the existing quote/page/section integrity gates intact
-- Phase 1-5 cleanup and roadmap-correction work is done; Phase 6 remains planned
+- Phase 1-6 cleanup and roadmap-correction work is done
 
 Not active now:
 - Envira quarantine
@@ -379,4 +379,4 @@ Not active now:
 3) RC3 — Phase 3: Report and PDF Blocking: Done — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
 4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
-6) RC6 — Phase 6: Forward Path: Planned — Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.
+6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Maya evidence map.
