@@ -2,27 +2,26 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "VM0007 internal review is using a temporary version-warning flow while hard blocking is deferred to issue #926.",
+    "summary": "Phase 1 version lock is complete: VM0007 audits now require matching methodology ID and PDD-declared methodology version before evidence judgment can run.",
     "current_focus": [
-      "Keep the VM0007 v1.8 internal review path usable while version detection is being hardened",
-      "Preserve the issue #926 follow-up for restoring hard blocking",
-      "Keep Envira quarantine and later cleanup phases pending"
+      "Use Phase 1 hard blocking as the baseline for later cleanup phases",
+      "Keep Envira as a blocked legacy v1.5 mismatch regression case",
+      "Continue with Envira quarantine and report/PDF hardening as later phases"
     ],
     "not_active_now": [
-      "Marking Phase 1 done",
       "Envira quarantine",
       "Report/PDF blocking",
       "Gate strengthening",
       "Roadmap correction",
       "Forward-path expansion"
     ],
-    "last_updated_at": "2026-07-04T00:00:00Z"
+    "last_updated_at": "2026-07-09T00:00:00Z"
   },
   "phases": {
     "phase_1_version_lock": {
       "title": "Phase 1: Version Lock",
-      "status": "in_progress",
-      "summary": "Internal review warning gate for VM0007 version mismatches; hard blocking is deferred to issue #926."
+      "status": "done",
+      "summary": "VM0007 version identity is enforced before evidence audit; missing or mismatched PDD-declared methodology versions hard block with BLOCKED_VERSION_MISMATCH, while legitimate VM0007 v1.8 may proceed."
     },
     "phase_2_envira_quarantine": {
       "title": "Phase 2: Envira Quarantine",
