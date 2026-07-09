@@ -15,7 +15,6 @@ import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif
 import { VM0007_SYNCED_RULES, readQuickCheckFixtureText } from "../preverifVm0007Fixtures";
 import {
   assertClientReadinessGate,
-  assertInternalPreviewBoundaries,
   assertInternalPreviewLabelVisible,
   assertNoBannedClientReadyWording,
   assertNoMissingEvidence,
@@ -246,11 +245,24 @@ describe("clientReadinessGate helper", () => {
 });
 
 describe("clientReadinessGate", () => {
-  test("internal Envira fixture-backed preview stays inside internal-only wording boundaries", () => {
+  test("blocked Envira fixture-backed preview uses mismatch wording instead of preview wording", () => {
     const html = renderToStaticMarkup(
-      createElement(FixtureBackedVm0007ReportView, { report: buildEnviraVm0007FixtureBackedReport() }),
+      createElement(FixtureBackedVm0007ReportView, {
+        report: buildEnviraVm0007FixtureBackedReport(),
+        pdfDownloadHref: "/api/exports/internal/envira-vm0007-report",
+      }),
     );
 
-    assertInternalPreviewBoundaries(html);
+    const normalized = html.toLowerCase();
+
+    expect(normalized).toContain("report blocked");
+    expect(normalized).toContain("methodology version mismatch: pdd declares redd-mf v1.5, but loaded rulebook is vm0007 v1.8. evidence judgment blocked.");
+    expect(normalized).toContain("download blocked pdf");
+    expect(normalized).not.toContain("internal preview only");
+    expect(normalized).not.toContain("not client-ready");
+
+    for (const banned of ["all clear", "fully verified", "ready for verification"]) {
+      expect(normalized).not.toContain(banned);
+    }
   });
 });

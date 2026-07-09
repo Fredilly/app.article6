@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import {
+  isVm0007VersionMismatchBlocked,
+  VM0007_VERSION_MISMATCH_BLOCK_MESSAGE,
   getPriorityClientActionRows,
   groupEvidenceMapRowsByStatus,
   type Vm0007EvidenceMapRow,
@@ -70,6 +72,62 @@ function renderBlocks(blocks: Vm0007DisplayBlock[]) {
   );
 }
 
+function renderVersionMismatchBlock(report: Vm0007FixtureBackedReport, pdfDownloadHref: string | null) {
+  return (
+    <main className="min-h-screen bg-slate-50 px-4 py-8">
+      <div className="mx-auto grid max-w-5xl gap-4">
+        <section className="rounded-[28px] border border-amber-200 bg-[linear-gradient(135deg,#fffaf0_0%,#fff4e6_100%)] p-6 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-amber-900">
+                  Report blocked
+                </span>
+                <span className="rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700">
+                  Quarantined legacy fixture
+                </span>
+              </div>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">Envira VM0007 legacy v1.5 mismatch</h1>
+              <div className="mt-2 text-base text-slate-700">{report.project.name}</div>
+              <div className="mt-4 text-sm font-medium text-amber-900">{VM0007_VERSION_MISMATCH_BLOCK_MESSAGE}</div>
+              <div className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
+                <div>Quarantined legacy mismatch regression fixture.</div>
+                <div>Historical counts remain contaminated output only.</div>
+                <div>PDD-declared methodology: {report.quarantine.pddDeclaredMethodologyVersion}</div>
+                <div>Loaded rulebook: {report.quarantine.loadedRulebookVersion}</div>
+              </div>
+            </div>
+            {pdfDownloadHref ? (
+              <a
+                href={pdfDownloadHref}
+                className="inline-flex items-center justify-center rounded-full border border-amber-900 bg-amber-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-800"
+              >
+                Download blocked PDF
+              </a>
+            ) : null}
+          </div>
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+            Evidence judgment blocked by methodology version mismatch.
+          </div>
+          <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+            <div className="font-semibold text-slate-950">Quarantine metadata</div>
+            <div className="mt-2 grid gap-1 sm:grid-cols-2">
+              <div>PDD-declared methodology: {report.quarantine.pddDeclaredMethodologyVersion}</div>
+              <div>Loaded rulebook: {report.quarantine.loadedRulebookVersion}</div>
+              <div>Status: {report.quarantine.status}</div>
+              <div>Version match: {String(report.quarantine.versionMatch)}</div>
+            </div>
+            <div className="mt-2">{report.quarantine.note}</div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+            Internal-only blocked output. No evidence map is rendered.
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 function renderEvidenceMapRow(row: Vm0007EvidenceMapRow) {
   const supportingBlocks = buildEvidenceMapDisplayBlocks(row);
 
@@ -93,6 +151,10 @@ function renderEvidenceMapRow(row: Vm0007EvidenceMapRow) {
 }
 
 export default function FixtureBackedVm0007ReportView({ report, pdfDownloadHref = null }: FixtureBackedVm0007ReportViewProps) {
+  if (isVm0007VersionMismatchBlocked(report)) {
+    return renderVersionMismatchBlock(report, pdfDownloadHref);
+  }
+
   const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const priorityRows = getPriorityClientActionRows(report.evidenceMapRows);
   const summaryCards = [

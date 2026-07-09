@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { FullAuditFixtureSet, JudgmentFixtureSet } from "../../../tests/lib/preverifJudgmentFixtureGate";
 import { buildFixtureBackedVm0007Report, type Vm0007FixtureBackedReport } from "@/lib/preverif/fixtureBackedVm0007Report";
+export { VM0007_VERSION_MISMATCH_BLOCK_MESSAGE } from "@/lib/preverif/fixtureBackedVm0007Report";
 
 const FIXTURE_DIR = path.join(process.cwd(), "tests/fixtures/preverif");
 

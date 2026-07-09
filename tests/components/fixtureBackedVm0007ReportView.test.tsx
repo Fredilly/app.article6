@@ -1,8 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
-import { JSDOM } from "jsdom";
 import { renderToStaticMarkup } from "react-dom/server";
 import FixtureBackedVm0007ReportView from "@/components/preverif/FixtureBackedVm0007ReportView";
-import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
+import { VM0007_VERSION_MISMATCH_BLOCK_MESSAGE, buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm0007FixtureBackedReport";
 
 function buildHtml() {
   return renderToStaticMarkup(
@@ -13,179 +12,34 @@ function buildHtml() {
   );
 }
 
-function buildDocument() {
-  return new JSDOM(buildHtml()).window.document;
-}
-
-function normalizeProvenanceText(value: string): string {
-  return value
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/[\u2013\u2014]/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 describe("FixtureBackedVm0007ReportView", () => {
-  test("renders the quarantined Envira legacy mismatch summary counts and all 58 evidence-map rows", () => {
+  test("renders the blocked legacy mismatch panel instead of a normal evidence map", () => {
     const html = buildHtml();
     const rowCount = (html.match(/data-evidence-map-row=/g) ?? []).length;
 
+    expect(html).toContain("Report blocked");
     expect(html).toContain("Envira VM0007 legacy v1.5 mismatch");
-    expect(html).toContain("Quarantined legacy fixture");
-    expect(html).toContain("Not client-ready");
-    expect(html).toContain("Based on contaminated historical fixture output");
-    expect(html).toContain("Purpose: preserve false FOUND rows, wrong page anchors, module-list evidence, and flattened table errors");
-    expect(html).toContain("Download PDF");
-    expect(html).toContain(">FOUND<");
-    expect(html).toContain(">30<");
-    expect(html).toContain(">UNCLEAR<");
-    expect(html).toContain(">8<");
-    expect(html).toContain(">MISSING<");
-    expect(html).toContain(">3<");
-    expect(html).toContain(">N/A<");
-    expect(html).toContain(">17<");
-    expect(html).toContain("versionMatch false");
-    expect(html).toContain("Historical counts are contaminated legacy output and must not be treated as validated truth.");
-    expect(rowCount).toBe(58);
-    expect(html).toContain("Executive Summary");
-    expect(html).toContain("Priority Client Actions");
-  });
-
-  test("renders row-scoped provenance for every evidence-bearing row and keeps missing rows honest", () => {
-    const document = buildDocument();
-    const report = buildEnviraVm0007FixtureBackedReport();
-
-    const rowsWithQuotes = report.evidenceMapRows.filter((row) => row.acceptedQuote?.trim());
-    const rowsWithPages = report.evidenceMapRows.filter((row) => row.page != null);
-    const rowsWithSections = report.evidenceMapRows.filter((row) => row.sectionHeading?.trim());
-
-    expect(rowsWithQuotes.length).toBeGreaterThan(0);
-    expect(rowsWithPages.length).toBeGreaterThan(0);
-    expect(rowsWithSections.length).toBeGreaterThan(0);
-
-    for (const row of report.evidenceMapRows) {
-      const rowEl = document.querySelector(`[data-evidence-map-row="${row.ruleId}"]`);
-      expect(rowEl).not.toBeNull();
-      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
-      const normalizedRowText = normalizeProvenanceText(rowText);
-
-      if (row.acceptedQuote?.trim()) {
-        expect(normalizedRowText).toContain(normalizeProvenanceText(row.acceptedQuote.trim()));
-        expect(normalizedRowText).toContain(row.status === "UNCLEAR" ? "Weak quote" : "Accepted quote");
-      }
-
-      if (row.page != null) {
-        expect(normalizedRowText).toContain(String(row.page));
-      }
-
-      if (row.sectionHeading?.trim()) {
-        expect(normalizedRowText).toContain(normalizeProvenanceText(row.sectionHeading.trim()));
-      }
-    }
-
-    for (const row of report.evidenceMapRows.filter((entry) => entry.status === "MISSING")) {
-      const rowEl = document.querySelector(`[data-evidence-map-row="${row.ruleId}"]`);
-      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
-
-      expect(rowText).not.toContain("No accepted quote encoded");
-      expect(rowText).not.toContain("Page: Not available");
-      expect(rowText).not.toContain("Section: Not available");
-      expect(rowText).not.toContain("Span ID: Not available");
-    }
-  });
-
-  test("renders grouped evidence-map sections in the expected order", () => {
-    const html = buildHtml();
-
-    expect(html).toContain("MISSING — 3");
-    expect(html).toContain("UNCLEAR — 8");
-    expect(html).toContain("FOUND — 30");
-    expect(html).toContain("N/A — 17");
-    expect(html).toContain('data-status="UNCLEAR"');
-    expect(html).toContain('data-status="MISSING"');
-    expect(html).toContain('data-status="N/A"');
-  });
-
-  test("renders row-scoped priority client actions with provenance for UNCLEAR rows", () => {
-    const document = buildDocument();
-    const report = buildEnviraVm0007FixtureBackedReport();
-    const priorityRows = report.evidenceMapRows.filter((row) => row.status === "UNCLEAR" || row.status === "MISSING");
-
-    expect(priorityRows.length).toBeGreaterThan(0);
-
-    for (const row of priorityRows) {
-      const rowEl = document.querySelector(`[data-priority-action-row="${row.ruleId}"]`);
-      expect(rowEl).not.toBeNull();
-
-      const rowText = rowEl?.textContent?.replace(/\s+/g, " ").trim() ?? "";
-      const normalizedRowText = normalizeProvenanceText(rowText);
-
-      if (row.status === "UNCLEAR") {
-        if (row.acceptedQuote?.trim()) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(row.acceptedQuote.trim()));
-          expect(normalizedRowText).toContain("Weak quote");
-        }
-
-        if (row.page != null) {
-          expect(normalizedRowText).toContain(String(row.page));
-        }
-
-        if (row.sectionHeading?.trim()) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(row.sectionHeading.trim()));
-        }
-
-        expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyEvidenceIsAccepted));
-
-        if (row.whyRejectedEvidenceIsNotEnough?.trim()) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyRejectedEvidenceIsNotEnough.trim()));
-        }
-
-        for (const rejected of row.rejectedEvidenceExamples) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(rejected.quote));
-          expect(normalizedRowText).toContain(normalizeProvenanceText(rejected.rejectionReason));
-        }
-
-        if (row.clientAction?.trim()) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(row.clientAction.trim()));
-        }
-      }
-
-      if (row.status === "MISSING") {
-        expect(rowText).toContain("Missing reason");
-        expect(normalizedRowText).toContain(normalizeProvenanceText(row.whyEvidenceIsAccepted));
-
-        if (row.clientAction?.trim()) {
-          expect(normalizedRowText).toContain(normalizeProvenanceText(row.clientAction.trim()));
-        }
-
-        for (const placeholder of ["No accepted quote encoded", "Page: Not available", "Section: Not available", "Span ID: Not available"]) {
-          expect(rowText).not.toContain(placeholder);
-        }
-      }
-    }
-  });
-
-  test("hides placeholder clutter while preserving rejected evidence where encoded and avoids banned wording", () => {
-    const html = buildHtml();
-    const lower = html.toLowerCase();
-
-    expect(html).toContain("the land is legally permitted to be converted to non-forest");
-    expect(html).toContain("Generic methodology-applicability language is not the underlying authorization document.");
-    expect(html).toContain("Project Description");
+    expect(html).toContain(VM0007_VERSION_MISMATCH_BLOCK_MESSAGE);
+    expect(html).toContain("Download blocked PDF");
     expect(html).toContain("Quarantine metadata");
-    expect(html).not.toContain("Span ID: Not available");
-    expect(html).not.toContain("No accepted quote encoded in fixture truth.");
-    expect(html).not.toContain("Rejected evidence examples");
+    expect(html).toContain("PDD-declared methodology: REDD-MF / VM0007 v1.5");
+    expect(html).toContain("Loaded rulebook: VM0007 v1.8");
+    expect(html).toContain("Version match: false");
+    expect(html).toContain("Internal-only blocked output. No evidence map is rendered.");
+    expect(rowCount).toBe(0);
+    expect(html).not.toContain("Executive Summary");
+    expect(html).not.toContain("Priority Client Actions");
+    expect(html).not.toContain("Evidence Map");
+    expect(html).not.toContain(">30<");
+    expect(html).not.toContain(">8<");
+    expect(html).not.toContain(">3<");
+    expect(html).not.toContain(">17<");
+  });
 
-    for (const banned of [
-      "all clear",
-      "fully verified",
-      "ready for verification",
-      "58 supported",
-      "all rules supported",
-      "passed",
-    ]) {
+  test("avoids readiness language in the blocked report view", () => {
+    const lower = buildHtml().toLowerCase();
+
+    for (const banned of ["client ready", "ready for verification", "verified", "all clear"]) {
       expect(lower).not.toContain(banned);
     }
   });

@@ -52,6 +52,9 @@ export type Vm0007FixtureBackedReport = {
   evidenceMapRows: Vm0007EvidenceMapRow[];
 };
 
+export const VM0007_VERSION_MISMATCH_BLOCK_MESSAGE =
+  "Methodology version mismatch: PDD declares REDD-MF v1.5, but loaded rulebook is VM0007 v1.8. Evidence judgment blocked.";
+
 export const VM0007_FIXTURE_BACKED_STATUS_ORDER: Vm0007FixtureBackedStatus[] = [
   "MISSING",
   "UNCLEAR",
@@ -85,6 +88,10 @@ export function groupEvidenceMapRowsByStatus(rows: Vm0007EvidenceMapRow[]): Arra
 
 export function getPriorityClientActionRows(rows: Vm0007EvidenceMapRow[]): Vm0007EvidenceMapRow[] {
   return sortEvidenceMapRows(rows).filter((row) => row.status === "MISSING" || row.status === "UNCLEAR");
+}
+
+export function isVm0007VersionMismatchBlocked(report: Pick<Vm0007FixtureBackedReport, "quarantine">): boolean {
+  return report.quarantine.versionMatch === false;
 }
 
 function buildJudgmentIndex(judgmentFixtureSet?: JudgmentFixtureSet): Map<string, JudgmentFixtureSet["checks"][number]> {
