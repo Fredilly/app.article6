@@ -50,6 +50,10 @@ const LISALA_PROSE_TEXT = [
   "The project applies VM0007 (v.1.8) for avoided deforestation.",
   "3.1.2 Applicability of Methodology",
 ].join("\n");
+const CLEAN_VM0007_V18_DECLARATION_TEXT = [
+  "Project Description Document",
+  "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) v1-8",
+].join("\n");
 const SPLIT_DECLARATION_TEXT = [
   "3.1 Application of Methodology",
   "3.1.1 Title and Reference of Methodology",
@@ -294,6 +298,30 @@ describe("VM0007 version lock", () => {
     expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
+  });
+
+  it("allows a normalized VM0007 v1-8 declaration to pass the version lock", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0007",
+      rulebookVersion: "v1.8",
+      pddDeclaredMethodologyVersion: "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) v1-8",
+    });
+
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+
+    const audit = auditVm0007(CLEAN_VM0007_V18_DECLARATION_TEXT, {
+      getContract: makeVersionedContract("v1.8"),
+      versionContext: {
+        pddDeclaredMethodologyVersion: "Methodology VM0007 REDD+ Methodology Framework (REDD+ MF) v1-8",
+      },
+    });
+
+    expect(audit.auditStatus).toBe("AUDITED");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(audit.versionMismatchReason).toBe("");
   });
 
   it("allows a Maya-style flattened methodology block with a VM0007 v1.8 row and other module/tool versions", () => {
