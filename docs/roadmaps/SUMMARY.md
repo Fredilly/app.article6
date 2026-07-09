@@ -359,22 +359,23 @@ Not active now:
 Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
 
 Lane status: Active
-Phase 3 Report/PDF blocking is complete: mismatched VM0007 versions now render blocked output only, not normal evidence maps or PDFs.
+Phase 4 Gate Strengthening is complete: mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths.
 
 Current focus:
-- Use Phase 1 hard blocking as the baseline for later cleanup phases
 - Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case
-- Proceed to gate strengthening for mismatched-version report, PDF, and readiness paths
+- Keep the existing quote/page/section integrity gates intact
+- Advance to roadmap correction only if the next cleanup phase is genuinely needed
 
 Not active now:
 - Envira quarantine
 - Report/PDF blocking
+- Gate strengthening
 - Roadmap correction
 - Forward-path expansion
 
 1) RC1 — Phase 1: Version Lock: Done — VM0007 version identity is enforced before evidence audit; missing or mismatched PDD-declared methodology versions hard block with BLOCKED_VERSION_MISMATCH, while legitimate VM0007 v1.8 may proceed.
 2) RC2 — Phase 2: Envira Quarantine: Done — Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.
 3) RC3 — Phase 3: Report and PDF Blocking: Done — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
-4) RC4 — Phase 4: Gate Strengthening: Planned — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
+4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Planned — Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.
 6) RC6 — Phase 6: Forward Path: Planned — Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.

@@ -18,6 +18,7 @@ import {
   assertInternalPreviewLabelVisible,
   assertNoBannedClientReadyWording,
   assertNoMissingEvidence,
+  assertNoVersionMismatchWarning,
   assertNoUnclearEvidence,
   assertUsesStandardReportShape,
 } from "./clientReadinessGate";
@@ -61,6 +62,19 @@ function buildReport(auditOverride?: MethodologyEvidenceAuditSummary) {
     },
     audit: base,
   });
+}
+
+function buildBlockedMismatchAudit(baseAudit: MethodologyEvidenceAuditSummary): MethodologyEvidenceAuditSummary {
+  return {
+    ...baseAudit,
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1.8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
+    userAcceptedVersionWarning: true,
+  };
 }
 
 function renderReport(report: Vm0007GapReport, extraHtml = ""): string {
@@ -216,6 +230,18 @@ describe("clientReadinessGate helper", () => {
     });
   });
 
+  describe("assertNoVersionMismatchWarning", () => {
+    it("passes when the report has no version mismatch warning", () => {
+      const report = buildReport(makeCleanAudit(auditText(ENVIRA_V18_TEXT)));
+      expect(() => assertNoVersionMismatchWarning(report)).not.toThrow();
+    });
+
+    it("fails when the report still carries a version mismatch warning", () => {
+      const report = buildReport(buildBlockedMismatchAudit(auditText(ENVIRA_V18_TEXT)));
+      expect(() => assertNoVersionMismatchWarning(report)).toThrow();
+    });
+  });
+
   describe("assertClientReadinessGate (composite)", () => {
     it("passes for a clean report (no weak, no missing, internal label, no banned wording)", () => {
       const report = buildReport(makeCleanAudit(auditText(ENVIRA_V18_TEXT)));
@@ -239,6 +265,12 @@ describe("clientReadinessGate helper", () => {
     it("fails on banned wording in HTML", () => {
       const report = buildReport();
       const html = renderReport(report, "<div>Ready for verification</div>");
+      expect(() => assertClientReadinessGate({ reportHtml: html, report })).toThrow();
+    });
+
+    it("fails when a version-mismatched report looks otherwise clean", () => {
+      const report = buildReport(buildBlockedMismatchAudit(auditText(ENVIRA_V18_TEXT)));
+      const html = renderReport(report);
       expect(() => assertClientReadinessGate({ reportHtml: html, report })).toThrow();
     });
   });

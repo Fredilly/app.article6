@@ -108,6 +108,13 @@ describe("VM0007 full 58-rule legacy mismatch fixture shape", () => {
     expect(() => assertVm0007FullAuditFixtureSet(missingWithoutGuidance, VM0007_SYNCED_RULES, SOURCE_EXCERPTS)).toThrow();
   });
 
+  it("fails if the fixture truth policy stops declaring the version mismatch quarantine", () => {
+    const brokenTruthPolicy = cloneFixture();
+    brokenTruthPolicy.fixtureTruthPolicy = "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. This fixture is validated truth.";
+
+    expect(() => assertVm0007FullAuditFixtureSet(brokenTruthPolicy, VM0007_SYNCED_RULES, SOURCE_EXCERPTS)).toThrow();
+  });
+
   it("fails if a rule is marked N/A without an explicit not-applicable reason", () => {
     const invalidNa = cloneFixture();
     invalidNa.checks = invalidNa.checks.map((check) =>

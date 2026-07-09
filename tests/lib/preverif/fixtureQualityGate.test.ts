@@ -8,7 +8,7 @@ import { auditEvidence, type MethodologyEvidenceAuditResult, type MethodologyEvi
 import { buildVm0007GapReport } from "@/lib/preverif/vm0007GapReport";
 import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 import { VM0007_SYNCED_RULES, readQuickCheckFixtureText } from "../preverifVm0007Fixtures";
-import { assertFixtureQualityGate } from "./fixtureQualityGate";
+import { assertLegacyVm0007MismatchFixtureQualityGate } from "./fixtureQualityGate";
 import type { JudgmentFixtureSet, SourceExcerpts } from "../preverifJudgmentFixtureGate";
 
 const AUDIT_FIXTURE = JSON.parse(
@@ -93,6 +93,13 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
       manual_review_needed: results.filter((entry) => entry.status === "manual_review_needed").length,
     },
     totalRules: results.length,
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1.8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
+    userAcceptedVersionWarning: true,
   };
 }
 
@@ -114,13 +121,13 @@ function buildReport(audit: MethodologyEvidenceAuditSummary) {
   });
 }
 
-describe("fixture quality gate", () => {
-  it("accepts the current Envira 58-rule audit fixture and report", () => {
+describe("legacy mismatch fixture quality gate", () => {
+  it("accepts the quarantined Envira legacy mismatch fixture and report", () => {
     const audit = buildMixedAudit();
     const report = buildReport(audit);
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
 
-    assertFixtureQualityGate({
+    assertLegacyVm0007MismatchFixtureQualityGate({
       rules: VM0007_SYNCED_RULES,
       audit,
       report,
@@ -148,7 +155,7 @@ describe("fixture quality gate", () => {
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
 
     expect(() =>
-      assertFixtureQualityGate({
+      assertLegacyVm0007MismatchFixtureQualityGate({
         rules: VM0007_SYNCED_RULES,
         audit,
         report,
@@ -165,11 +172,33 @@ describe("fixture quality gate", () => {
     const reportHtml = `${renderToStaticMarkup(createElement(Vm0007GapReportView, { report }))}<div>All clear. Passed. Confirmed.</div>`;
 
     expect(() =>
-      assertFixtureQualityGate({
+      assertLegacyVm0007MismatchFixtureQualityGate({
         rules: VM0007_SYNCED_RULES,
         audit,
         report,
         reportHtml,
+        judgmentFixtureSet: AUDIT_FIXTURE,
+        sourceExcerpts: SOURCE_EXCERPTS,
+      }),
+    ).toThrow();
+  });
+
+  it("fails if the fixture stops declaring the version mismatch as blocked", () => {
+    const audit = buildMixedAudit();
+    const report = buildReport(audit);
+    const brokenAudit = {
+      ...audit,
+      auditStatus: "AUDITED" as const,
+      versionMatch: true,
+      versionMismatchReason: "",
+    };
+
+    expect(() =>
+      assertLegacyVm0007MismatchFixtureQualityGate({
+        rules: VM0007_SYNCED_RULES,
+        audit: brokenAudit,
+        report,
+        reportHtml: renderToStaticMarkup(createElement(Vm0007GapReportView, { report })),
         judgmentFixtureSet: AUDIT_FIXTURE,
         sourceExcerpts: SOURCE_EXCERPTS,
       }),

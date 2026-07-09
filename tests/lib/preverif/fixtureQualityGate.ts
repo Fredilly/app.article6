@@ -7,7 +7,7 @@ import {
   type SourceExcerpts,
 } from "../preverifJudgmentFixtureGate";
 
-export type FixtureQualityGateInput = {
+export type LegacyMismatchFixtureQualityGateInput = {
   rules: readonly { id: string }[];
   audit: MethodologyEvidenceAuditSummary;
   report: Vm0007GapReport;
@@ -38,6 +38,15 @@ function assertVisibleWording(reportHtml: string, expectedVisibleWording: readon
   for (const wording of expectedVisibleWording) {
     expect(reportText).toContain(normalize(wording));
   }
+}
+
+function assertVersionMismatchIsQuarantined(audit: MethodologyEvidenceAuditSummary, report: Vm0007GapReport): void {
+  expect(audit.versionMatch).toBe(false);
+  expect(audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
+  expect(normalize(report.limitationBanner)).toContain("methodology version mismatch:");
+  expect(normalize(report.limitationBanner)).toContain("internal preview only");
+  expect(normalize(report.executiveSummary.limitations.join(" "))).toContain("methodology version mismatch:");
+  expect(normalize(report.reportName)).toContain("internal vm0007 gap report preview");
 }
 
 function assertRuleCoverage(rules: readonly { id: string }[], audit: MethodologyEvidenceAuditSummary, report: Vm0007GapReport): void {
@@ -98,8 +107,9 @@ function assertReportRowQuality(report: Vm0007GapReport): void {
   }
 }
 
-export function assertFixtureQualityGate(input: FixtureQualityGateInput): void {
+export function assertLegacyVm0007MismatchFixtureQualityGate(input: LegacyMismatchFixtureQualityGateInput): void {
   assertVm0007JudgmentFixtureSet(input.judgmentFixtureSet, input.sourceExcerpts);
+  assertVersionMismatchIsQuarantined(input.audit, input.report);
   assertRuleCoverage(input.rules, input.audit, input.report);
 
   for (const fixture of input.judgmentFixtureSet.checks) {

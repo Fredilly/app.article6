@@ -2,15 +2,16 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "Phase 3 Report/PDF blocking is complete: mismatched VM0007 versions now render blocked output only, not normal evidence maps or PDFs.",
+    "summary": "Phase 4 Gate Strengthening is complete: mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths.",
     "current_focus": [
-      "Use Phase 1 hard blocking as the baseline for later cleanup phases",
       "Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case",
-      "Proceed to gate strengthening for mismatched-version report, PDF, and readiness paths"
+      "Keep the existing quote/page/section integrity gates intact",
+      "Advance to roadmap correction only if the next cleanup phase is genuinely needed"
     ],
     "not_active_now": [
       "Envira quarantine",
       "Report/PDF blocking",
+      "Gate strengthening",
       "Roadmap correction",
       "Forward-path expansion"
     ],
@@ -34,7 +35,7 @@
     },
     "phase_4_gate_strengthening": {
       "title": "Phase 4: Gate Strengthening",
-      "status": "planned",
+      "status": "done",
       "summary": "Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output."
     },
     "phase_5_roadmap_correction": {
