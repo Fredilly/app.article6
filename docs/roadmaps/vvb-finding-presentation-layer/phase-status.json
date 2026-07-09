@@ -1,0 +1,61 @@
+{
+  "roadmap": "vvb-finding-presentation-layer",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Phase 1 CONFORMS Eligibility Contract is the next planned step. The roadmap is limited to status-consumer auditing and a strict eligibility contract before any mapper, presentation object, UI, report, or gap-report migration work.",
+    "current_focus": [
+      "Audit current consumers of Quick Check v2 status output",
+      "Define the CONFORMS eligibility contract from the final validated StatusResult",
+      "Keep implementation, router, fixture, and gap report code untouched"
+    ],
+    "not_active_now": [
+      "Mapper implementation",
+      "Presentation object migration",
+      "UI/report consumer changes",
+      "Gap report changes"
+    ],
+    "last_updated_at": "2026-07-09T00:00:00Z"
+  },
+  "phases": {
+    "phase_0_status_consumer_audit": {
+      "title": "Phase 0: Status Consumer Audit",
+      "status": "planned",
+      "summary": "Inventory the current consumers of Quick Check v2 status output and identify every FOUND -> CONFORMS touch point."
+    },
+    "phase_1_conforms_eligibility_contract": {
+      "title": "Phase 1: CONFORMS Eligibility Contract",
+      "status": "planned",
+      "summary": "CONFORMS may only be derived from the final validated Quick Check v2 StatusResult when all provenance and sufficiency gates are satisfied."
+    },
+    "phase_2_vvb_finding_mapper": {
+      "title": "Phase 2: VVB Finding Mapper",
+      "status": "planned",
+      "summary": "Mapper code will derive VVB output from the eligibility contract without reading raw router or extractor output directly."
+    },
+    "phase_3_evidence_presentation_object": {
+      "title": "Phase 3: Evidence Presentation Object",
+      "status": "planned",
+      "summary": "Introduce a presentation object that carries the validated evidence fields needed by VVB consumers."
+    },
+    "phase_4_presentation_gates": {
+      "title": "Phase 4: Presentation Gates",
+      "status": "planned",
+      "summary": "Add tests that fail if FOUND is upgraded to CONFORMS without the eligibility contract or if raw outputs are used directly."
+    },
+    "phase_5_fixture_expectation_migration": {
+      "title": "Phase 5: Fixture Expectation Migration",
+      "status": "planned",
+      "summary": "Migrate fixture expectations to the new presentation contract."
+    },
+    "phase_6_ui_report_and_gap_report_consumers": {
+      "title": "Phase 6: UI, Report, and Gap Report Consumers",
+      "status": "planned",
+      "summary": "Move UI, report, and gap-report consumers onto the presentation object."
+    },
+    "phase_7_deprecation_review": {
+      "title": "Phase 7: Deprecation Review",
+      "status": "planned",
+      "summary": "Deprecate or remove old ambiguous FOUND -> CONFORMS paths."
+    }
+  }
+}

@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup, vvb-finding-presentation-layer.
 Frozen lanes: agentic-verification.
 
 
@@ -380,3 +380,31 @@ Not active now:
 4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
 6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Maya evidence map.
+
+## vvb-finding-presentation-layer
+
+Status SSOT: `docs/roadmaps/vvb-finding-presentation-layer/phase-status.json`
+Details: `docs/roadmaps/vvb-finding-presentation-layer/PLAN.md`
+
+Lane status: Active
+Phase 1 CONFORMS Eligibility Contract is the next planned step. The roadmap is limited to status-consumer auditing and a strict eligibility contract before any mapper, presentation object, UI, report, or gap-report migration work.
+
+Current focus:
+- Audit current consumers of Quick Check v2 status output
+- Define the CONFORMS eligibility contract from the final validated StatusResult
+- Keep implementation, router, fixture, and gap report code untouched
+
+Not active now:
+- Mapper implementation
+- Presentation object migration
+- UI/report consumer changes
+- Gap report changes
+
+1) RC0 — Phase 0: Status Consumer Audit: Planned — Inventory the current consumers of Quick Check v2 status output and identify every FOUND -> CONFORMS touch point.
+2) RC1 — Phase 1: CONFORMS Eligibility Contract: Planned — CONFORMS may only be derived from the final validated Quick Check v2 StatusResult when all provenance and sufficiency gates are satisfied.
+3) RC2 — Phase 2: VVB Finding Mapper: Planned — Mapper code will derive VVB output from the eligibility contract without reading raw router or extractor output directly.
+4) RC3 — Phase 3: Evidence Presentation Object: Planned — Introduce a presentation object that carries the validated evidence fields needed by VVB consumers.
+5) RC4 — Phase 4: Presentation Gates: Planned — Add tests that fail if FOUND is upgraded to CONFORMS without the eligibility contract or if raw outputs are used directly.
+6) RC5 — Phase 5: Fixture Expectation Migration: Planned — Migrate fixture expectations to the new presentation contract.
+7) RC6 — Phase 6: UI, Report, and Gap Report Consumers: Planned — Move UI, report, and gap-report consumers onto the presentation object.
+8) RC7 — Phase 7: Deprecation Review: Planned — Deprecate or remove old ambiguous FOUND -> CONFORMS paths.
