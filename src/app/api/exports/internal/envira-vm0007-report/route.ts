@@ -15,7 +15,7 @@ export async function GET() {
     return new NextResponse(blob, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="envira-vm0007-v15-legacy-mismatch.pdf"',
+        "Content-Disposition": 'attachment; filename="envira-vm0007-v15-legacy-mismatch-blocked.pdf"',
         "Cache-Control": "no-store",
       },
     });

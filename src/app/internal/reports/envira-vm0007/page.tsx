@@ -4,7 +4,7 @@ import { buildEnviraVm0007FixtureBackedReport } from "@/lib/preverif/enviraVm000
 
 export const metadata: Metadata = {
   title: "Envira VM0007 legacy v1.5 mismatch | app.article6",
-  description: "Quarantined Envira VM0007 legacy v1.5 mismatch regression fixture and evidence map preview.",
+  description: "Quarantined Envira VM0007 legacy v1.5 mismatch regression fixture with blocked report preview.",
 };
 
 export default function EnviraVm0007FixtureBackedReportPage() {

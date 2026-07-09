@@ -1,6 +1,8 @@
 import {
   getPriorityClientActionRows,
   groupEvidenceMapRowsByStatus,
+  isVm0007VersionMismatchBlocked,
+  VM0007_VERSION_MISMATCH_BLOCK_MESSAGE,
   type Vm0007EvidenceMapRow,
   type Vm0007FixtureBackedReport,
 } from "@/lib/preverif/fixtureBackedVm0007Report";
@@ -57,6 +59,22 @@ function buildPriorityActionLines(report: Vm0007FixtureBackedReport): string[] {
   return lines;
 }
 
+function buildBlockedReportLines(report: Vm0007FixtureBackedReport): string[] {
+  return [
+    report.reportName,
+    "Version mismatch blocked",
+    VM0007_VERSION_MISMATCH_BLOCK_MESSAGE,
+    `Project name: ${report.project.name}`,
+    `Methodology: ${report.methodology.code} ${report.methodology.version} - ${report.methodology.name}`,
+    `Quarantine label: ${report.quarantine.label}`,
+    `PDD-declared methodology version: ${report.quarantine.pddDeclaredMethodologyVersion}`,
+    `Loaded rulebook version: ${report.quarantine.loadedRulebookVersion}`,
+    `versionMatch: ${report.quarantine.versionMatch}`,
+    `Generated: ${report.generatedAt}`,
+    "Blocked output only. No evidence map or summary counts are rendered.",
+  ].flatMap((line) => wrapText(line));
+}
+
 function wrapText(text: string, max = 96): string[] {
   const words = asciiSafeText(text).split(/\s+/).filter(Boolean);
   if (words.length === 0) return [""];
@@ -77,6 +95,10 @@ function wrapText(text: string, max = 96): string[] {
 }
 
 export function buildReportLines(report: Vm0007FixtureBackedReport): string[] {
+  if (isVm0007VersionMismatchBlocked(report)) {
+    return buildBlockedReportLines(report);
+  }
+
   const groupedRows = groupEvidenceMapRowsByStatus(report.evidenceMapRows);
   const lines: string[] = [
     report.reportName,
