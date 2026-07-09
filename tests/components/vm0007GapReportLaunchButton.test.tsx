@@ -89,6 +89,8 @@ describe("Vm0007GapReportLaunchButton", () => {
     expect(container.textContent).toContain("Internal report");
     expect(link?.textContent).toContain("View Gap Report");
     expect(link?.getAttribute("href")).toBe("/internal/reports/vm0007-gap/audit-1");
+    expect(link?.className).toContain("bg-green-600");
+    expect(link?.className).toContain("text-white");
   });
 
   test("shows a disabled helper state when VM0007 result has no audit id yet", async () => {
@@ -120,6 +122,7 @@ describe("Vm0007GapReportLaunchButton", () => {
     const button = container.querySelector("button");
     expect(container.textContent).toContain("Internal VM0007 report");
     expect(button?.textContent).toContain("Generate Gap Report Preview");
+    expect(button?.className).not.toContain("bg-green-600");
 
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onGenerate).toHaveBeenCalledTimes(1);
