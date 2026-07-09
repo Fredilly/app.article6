@@ -8,7 +8,7 @@ import { auditEvidence, type MethodologyEvidenceAuditResult, type MethodologyEvi
 import { buildVm0007GapReport } from "@/lib/preverif/vm0007GapReport";
 import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 import { VM0007_SYNCED_RULES, readQuickCheckFixtureText } from "../preverifVm0007Fixtures";
-import { assertFixtureQualityGate } from "./fixtureQualityGate";
+import { assertLegacyVm0007MismatchFixtureQualityGate } from "./fixtureQualityGate";
 import type { JudgmentFixtureSet, SourceExcerpts } from "../preverifJudgmentFixtureGate";
 
 const AUDIT_FIXTURE = JSON.parse(
@@ -121,13 +121,13 @@ function buildReport(audit: MethodologyEvidenceAuditSummary) {
   });
 }
 
-describe("fixture quality gate", () => {
-  it("accepts the current Envira 58-rule audit fixture and report", () => {
+describe("legacy mismatch fixture quality gate", () => {
+  it("accepts the quarantined Envira legacy mismatch fixture and report", () => {
     const audit = buildMixedAudit();
     const report = buildReport(audit);
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
 
-    assertFixtureQualityGate({
+    assertLegacyVm0007MismatchFixtureQualityGate({
       rules: VM0007_SYNCED_RULES,
       audit,
       report,
@@ -155,7 +155,7 @@ describe("fixture quality gate", () => {
     const reportHtml = renderToStaticMarkup(createElement(Vm0007GapReportView, { report }));
 
     expect(() =>
-      assertFixtureQualityGate({
+      assertLegacyVm0007MismatchFixtureQualityGate({
         rules: VM0007_SYNCED_RULES,
         audit,
         report,
@@ -172,7 +172,7 @@ describe("fixture quality gate", () => {
     const reportHtml = `${renderToStaticMarkup(createElement(Vm0007GapReportView, { report }))}<div>All clear. Passed. Confirmed.</div>`;
 
     expect(() =>
-      assertFixtureQualityGate({
+      assertLegacyVm0007MismatchFixtureQualityGate({
         rules: VM0007_SYNCED_RULES,
         audit,
         report,
@@ -194,7 +194,7 @@ describe("fixture quality gate", () => {
     };
 
     expect(() =>
-      assertFixtureQualityGate({
+      assertLegacyVm0007MismatchFixtureQualityGate({
         rules: VM0007_SYNCED_RULES,
         audit: brokenAudit,
         report,

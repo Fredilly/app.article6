@@ -7,7 +7,7 @@ import {
   type SourceExcerpts,
 } from "../preverifJudgmentFixtureGate";
 
-export type FixtureQualityGateInput = {
+export type LegacyMismatchFixtureQualityGateInput = {
   rules: readonly { id: string }[];
   audit: MethodologyEvidenceAuditSummary;
   report: Vm0007GapReport;
@@ -107,7 +107,7 @@ function assertReportRowQuality(report: Vm0007GapReport): void {
   }
 }
 
-export function assertFixtureQualityGate(input: FixtureQualityGateInput): void {
+export function assertLegacyVm0007MismatchFixtureQualityGate(input: LegacyMismatchFixtureQualityGateInput): void {
   assertVm0007JudgmentFixtureSet(input.judgmentFixtureSet, input.sourceExcerpts);
   assertVersionMismatchIsQuarantined(input.audit, input.report);
   assertRuleCoverage(input.rules, input.audit, input.report);
