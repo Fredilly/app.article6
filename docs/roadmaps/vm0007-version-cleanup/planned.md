@@ -2,7 +2,7 @@
 
 ## Goal
 
-Block VM0007 evidence audits unless the PDD-declared methodology version matches the loaded rulebook/contract version. For the current internal review lane, version mismatches are surfaced as warnings that require explicit user confirmation, but hard blocking remains the intended end state.
+Block VM0007 evidence audits unless the PDD-declared methodology version matches the loaded rulebook/contract version. The legacy Envira VM0007 evidence-map/report fixture work is not validated VM0007 v1.8 truth; it is quarantined REDD-MF / VM0007 v1.5 mismatch regression data pending versioned re-audit. For the current internal review lane, version mismatches are surfaced as warnings that require explicit user confirmation, but hard blocking remains the intended end state.
 
 ## Non-Negotiable Invariant
 
@@ -47,7 +47,7 @@ Done when:
 
 * Envira fixtures/routes/report labels clearly say legacy v1.5 mismatch
 * Envira is preserved as a regression fixture
-* old 30 FOUND / 8 UNCLEAR / 3 MISSING / 17 N/A counts are not treated as validated truth
+* old 30 FOUND / 8 UNCLEAR / 3 MISSING / 17 N/A counts are historical/quarantined only and are not treated as validated truth
 * false FOUND rows, wrong page anchors, module-list evidence, and flattened table evidence errors are preserved as failure examples
 
 ### Phase 3: Report and PDF Blocking
@@ -85,12 +85,12 @@ Also preserve:
 
 ### Phase 5: Roadmap Correction
 
-Status: planned
+Status: done
 
 Done when:
 
 * docs/roadmaps/vm0007-judgement-fixtures and related summaries are corrected
-* old done states are changed to blocked, quarantined, or pending versioned re-audit
+* old done states that implied truth-complete VM0007 evidence-map/report output are changed to blocked, quarantined, or pending versioned re-audit
 * docs say VM0007 Evidence Map is not truth-complete until version lock and re-audit pass
 
 ### Phase 6: Forward Path

@@ -3,14 +3,15 @@
   "roadmapId": "vm0007-judgement-fixtures",
   "phase_meta": {
     "status": "active",
-    "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.",
+    "summary": "Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic; Envira evidence-map/report fixture output is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data, not validated VM0007 v1.8 truth.",
     "current_focus": [
       "Phase 0 done: boundary-only fixture contract is documented and enforced.",
       "Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897",
       "Phase 2 done: PD_REDD VM0007 judgment fixtures established with PDF-backed accepted and rejected evidence coverage.",
-      "Phase 3 done: Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.",
-      "Phase 4 done: Report fixture layer delivered by PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output.",
-      "Next focus: Phase 5 — Client-Readiness Gate to prevent fixture drift from being mistaken for client-ready output."
+      "Phase 3 blocked: Envira VM0007's reviewed full 58-rule audit fixture remains quarantined historical regression data with the old 30 FOUND / 8 UNCLEAR / 3 MISSING / 17 N/A split, which is not validated VM0007 v1.8 truth.",
+      "Phase 4 blocked: Report fixture layer remains quarantined historical regression data; internal preview output is not client-ready truth and is pending versioned re-audit before any truth-complete claim.",
+      "Phase 5 done: roadmap correction now states the contaminated Envira evidence-map/report fixture work is quarantined and pending versioned re-audit.",
+      "Phase 6 remains planned: keep the forward path separate until a clean VM0007 v1.8 version lock passes."
     ],
     "not_active_now": [
       "Production audit logic changes",
@@ -76,7 +77,7 @@
     {
       "id": "phase_3_full_58_rule_audit_fixture_shape",
       "title": "Full 58-Rule Audit Fixture Shape",
-      "status": "done",
+      "status": "blocked",
       "dependsOn": [
         "phase_2_pd_redd_vm0007_judgment_fixtures"
       ],
@@ -89,7 +90,7 @@
     {
       "id": "phase_4_report_fixture_layer",
       "title": "Report Fixture Layer",
-      "status": "done",
+      "status": "blocked",
       "dependsOn": [
         "phase_3_full_58_rule_audit_fixture_shape"
       ],
@@ -98,7 +99,7 @@
       "doneCriteria": [
         "Report summary expectations are fixture-driven",
         "Row grouping and summary sections are testable from fixtures",
-        "Internal preview output is clearly distinguished from client-ready output"
+        "Internal preview output is preserved as fixture data only and is not client-ready truth"
       ]
     },
     {
@@ -132,13 +133,13 @@
     },
     "phase_3_full_58_rule_audit_fixture_shape": {
       "title": "Full 58-Rule Audit Fixture Shape",
-      "status": "done",
-      "summary": "Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation."
+      "status": "blocked",
+      "summary": "Envira VM0007's reviewed full 58-rule audit fixture is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data. The historical split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 remains preserved as a regression fixture, but it is not validated VM0007 v1.8 truth and is pending versioned re-audit."
     },
     "phase_4_report_fixture_layer": {
       "title": "Report Fixture Layer",
-      "status": "done",
-      "summary": "Completed via PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed."
+      "status": "blocked",
+      "summary": "Report fixture output remains quarantined historical regression data. Report summary expectations and internal preview output are fixture-driven and testable, but the legacy Envira report fixture is not client-ready truth and is pending versioned re-audit. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed."
     },
     "phase_5_client_readiness_gate": {
       "title": "Client-Readiness Gate",

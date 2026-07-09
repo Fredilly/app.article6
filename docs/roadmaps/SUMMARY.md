@@ -330,15 +330,16 @@ Status SSOT: `docs/roadmaps/vm0007-judgement-fixtures/phase-status.json`
 Details: `docs/roadmaps/vm0007-judgement-fixtures/PLAN.md`
 
 Lane status: Active
-Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic.
+Tighten VM0007 gap report accuracy by improving rule-level judgment fixtures and contracts without changing production audit logic; Envira evidence-map/report fixture output is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data, not validated VM0007 v1.8 truth.
 
 Current focus:
 - Phase 0 done: boundary-only fixture contract is documented and enforced.
 - Phase 1 done: Envira VM0007 judgment fixtures were delivered by PR #897
 - Phase 2 done: PD_REDD VM0007 judgment fixtures established with PDF-backed accepted and rejected evidence coverage.
-- Phase 3 done: Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.
-- Phase 4 done: Report fixture layer delivered by PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output.
-- Next focus: Phase 5 — Client-Readiness Gate to prevent fixture drift from being mistaken for client-ready output.
+- Phase 3 blocked: Envira VM0007's reviewed full 58-rule audit fixture remains quarantined historical regression data with the old 30 FOUND / 8 UNCLEAR / 3 MISSING / 17 N/A split, which is not validated VM0007 v1.8 truth.
+- Phase 4 blocked: Report fixture layer remains quarantined historical regression data; internal preview output is not client-ready truth and is pending versioned re-audit before any truth-complete claim.
+- Phase 5 done: roadmap correction now states the contaminated Envira evidence-map/report fixture work is quarantined and pending versioned re-audit.
+- Phase 6 remains planned: keep the forward path separate until a clean VM0007 v1.8 version lock passes.
 
 Not active now:
 - Production audit logic changes
@@ -350,8 +351,8 @@ Not active now:
 1) RC0 — Roadmap Boundary: Done — Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895.
 2) RC1 — Envira VM0007 Judgment Fixtures: Done — Added 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897.
 3) RC2 — PD_REDD VM0007 Judgment Fixtures: Done — Added PD_REDD VM0007 fixture coverage using the same judgment contract discipline, including accepted evidence, rejected weak or generic evidence, and explicit FOUND / UNCLEAR / MISSING / N/A expectations.
-4) RC3 — Full 58-Rule Audit Fixture Shape: Done — Completed via PR #911. Envira VM0007 now has a reviewed full 58-rule audit fixture with final split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, pr:gate, and blind rebuild validation.
-5) RC4 — Report Fixture Layer: Done — Completed via PR #914. Report summary expectations are fixture-driven, row grouping and summary sections are testable from fixtures, internal preview output is clearly distinguished from client-ready output. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed.
+4) RC3 — Full 58-Rule Audit Fixture Shape: Blocked — Envira VM0007's reviewed full 58-rule audit fixture is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data. The historical split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 remains preserved as a regression fixture, but it is not validated VM0007 v1.8 truth and is pending versioned re-audit.
+5) RC4 — Report Fixture Layer: Blocked — Report fixture output remains quarantined historical regression data. Report summary expectations and internal preview output are fixture-driven and testable, but the legacy Envira report fixture is not client-ready truth and is pending versioned re-audit. Local pr:gate passed, GitHub pr-gate passed, no production audit logic changed.
 6) RC5 — Client-Readiness Gate: Planned — Keep internal preview output separate from any later client-ready reporting work.
 
 ## vm0007-version-cleanup
@@ -359,12 +360,12 @@ Not active now:
 Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
 
 Lane status: Active
-Phase 4 Gate Strengthening is complete: mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths.
+Phase 5 Roadmap Correction is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, and the legacy Envira fixture remains pending versioned re-audit.
 
 Current focus:
-- Keep Envira quarantined as a blocked legacy v1.5 mismatch regression case
+- Keep Envira quarantined as a blocked legacy REDD-MF / VM0007 v1.5 mismatch regression case
 - Keep the existing quote/page/section integrity gates intact
-- Advance to roadmap correction only if the next cleanup phase is genuinely needed
+- Phase 1-5 cleanup and roadmap-correction work is done; Phase 6 remains planned
 
 Not active now:
 - Envira quarantine
@@ -377,5 +378,5 @@ Not active now:
 2) RC2 — Phase 2: Envira Quarantine: Done — Preserve Envira as a legacy v1.5 mismatch regression fixture, not validated truth.
 3) RC3 — Phase 3: Report and PDF Blocking: Done — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
 4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
-5) RC5 — Phase 5: Roadmap Correction: Planned — Correct contaminated done states and mark VM0007 evidence-map work pending versioned re-audit.
+5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
 6) RC6 — Phase 6: Forward Path: Planned — Prepare a clean VM0007 v1.8 path such as Maya without building a full evidence map yet.
