@@ -142,6 +142,13 @@ describe("Envira VM0007 legacy mismatch judgment fixtures", () => {
     expect(() => assertVm0007JudgmentFixtureSet(mutated, PD_REDD_SOURCE_EXCERPTS)).toThrow();
   });
 
+  it("fails if the judgment fixture truth policy stops declaring the version mismatch quarantine", () => {
+    const brokenTruthPolicy = JSON.parse(JSON.stringify(AUDIT_FIXTURE)) as JudgmentFixtureSet;
+    brokenTruthPolicy.fixtureTruthPolicy = "Use exact quotes, page numbers, and section headings from PROJ_DESC_1382_04APR2015.pdf only. This fixture is validated truth.";
+
+    expect(() => assertVm0007JudgmentFixtureSet(brokenTruthPolicy, SOURCE_EXCERPTS)).toThrow();
+  });
+
   it("renders the fixture-backed report contract from the finalized 58-rule Envira audit fixture", () => {
     assertVm0007FullAuditFixtureSet(
       FULL_AUDIT_FIXTURE as FullAuditFixtureSet,

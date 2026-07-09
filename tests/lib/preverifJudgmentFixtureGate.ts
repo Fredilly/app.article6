@@ -96,6 +96,16 @@ function normalizeText(value: string | null | undefined): string {
   return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
+function assertQuarantinedLegacyVersionTruthPolicy(fixtureTruthPolicy: string): void {
+  const policy = normalizeText(fixtureTruthPolicy);
+  const declaresMismatch =
+    policy.includes("versionmatch is false") ||
+    policy.includes("do not use current app output") ||
+    policy.includes("envira evidence as gold") ||
+    policy.includes("not validated truth");
+  expect(declaresMismatch).toBe(true);
+}
+
 function requireNonEmpty(value: string | null | undefined, label: string): void {
   expect(value?.trim().length ?? 0).toBeGreaterThan(0);
 }
@@ -146,6 +156,7 @@ export function assertVm0007JudgmentFixtureSet(
   expect(sourceExcerpts.inputPdfPath).toBe(fixtureSet.inputPdfPath);
   expect(sourceExcerpts.sourcePdfTitle).toBe(fixtureSet.sourcePdfTitle);
   expect(sourceExcerpts.documentFamily).toBe(fixtureSet.documentFamily);
+  assertQuarantinedLegacyVersionTruthPolicy(fixtureSet.fixtureTruthPolicy);
 
   for (const check of fixtureSet.checks) {
     expect(check.checkId).toMatch(/^R-\d-\d{4}$/);
@@ -257,6 +268,7 @@ export function assertVm0007FullAuditFixtureSet(
   expect(sourceExcerpts.inputPdfPath).toBe(fixtureSet.inputPdfPath);
   expect(sourceExcerpts.sourcePdfTitle).toBe(fixtureSet.sourcePdfTitle);
   expect(sourceExcerpts.documentFamily).toBe(fixtureSet.documentFamily);
+  assertQuarantinedLegacyVersionTruthPolicy(fixtureSet.fixtureTruthPolicy);
 
   const canonicalRuleIds = canonicalRules.map((rule) => rule.id);
   const canonicalRuleIdSet = new Set(canonicalRuleIds);

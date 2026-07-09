@@ -93,6 +93,13 @@ function buildMixedAudit(): MethodologyEvidenceAuditSummary {
       manual_review_needed: results.filter((entry) => entry.status === "manual_review_needed").length,
     },
     totalRules: results.length,
+    auditStatus: "BLOCKED_VERSION_MISMATCH",
+    methodologyId: "VM0007",
+    rulebookVersion: "v1.8",
+    pddDeclaredMethodologyVersion: "REDD-MF / VM0007 v1.5",
+    versionMatch: false,
+    versionMismatchReason: "Version lock blocked: rulebook version mismatch: PDD declares v1.5, loaded contract is v1.8.",
+    userAcceptedVersionWarning: true,
   };
 }
 
@@ -170,6 +177,28 @@ describe("fixture quality gate", () => {
         audit,
         report,
         reportHtml,
+        judgmentFixtureSet: AUDIT_FIXTURE,
+        sourceExcerpts: SOURCE_EXCERPTS,
+      }),
+    ).toThrow();
+  });
+
+  it("fails if the fixture stops declaring the version mismatch as blocked", () => {
+    const audit = buildMixedAudit();
+    const report = buildReport(audit);
+    const brokenAudit = {
+      ...audit,
+      auditStatus: "AUDITED" as const,
+      versionMatch: true,
+      versionMismatchReason: "",
+    };
+
+    expect(() =>
+      assertFixtureQualityGate({
+        rules: VM0007_SYNCED_RULES,
+        audit: brokenAudit,
+        report,
+        reportHtml: renderToStaticMarkup(createElement(Vm0007GapReportView, { report })),
         judgmentFixtureSet: AUDIT_FIXTURE,
         sourceExcerpts: SOURCE_EXCERPTS,
       }),

@@ -78,10 +78,19 @@ export function assertUsesStandardReportShape(
   expect(report.limitationBanner).toContain("Internal preview only");
 }
 
+export function assertNoVersionMismatchWarning(report: Vm0007GapReport): void {
+  const combinedText = `${report.limitationBanner} ${report.executiveSummary.limitations.join(" ")}`
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  expect(combinedText).not.toContain("methodology version mismatch:");
+}
+
 export function assertClientReadinessGate(input: ClientReadinessGateInput): void {
   const { reportHtml, report } = input;
 
   assertUsesStandardReportShape(report);
+  assertNoVersionMismatchWarning(report);
   assertNoUnclearEvidence(report);
   assertNoMissingEvidence(report);
   assertInternalPreviewLabelVisible(reportHtml);
