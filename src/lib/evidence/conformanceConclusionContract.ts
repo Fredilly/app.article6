@@ -117,6 +117,32 @@ function notAssessed(
   return { conclusion: "NOT_ASSESSED", evidenceMapRowId: row?.rowId ?? null, blockedBy };
 }
 
+/** Validate a conformance result supplied by a downstream packaging contract. */
+export function isConformanceConclusionResult(value: unknown): value is ConformanceConclusionResult {
+  if (!isRecord(value) || typeof value.conclusion !== "string") return false;
+  if (value.conclusion === "NOT_ASSESSED") {
+    return (
+      (value.evidenceMapRowId === null || (typeof value.evidenceMapRowId === "string" && value.evidenceMapRowId.trim().length > 0)) &&
+      Array.isArray(value.blockedBy) &&
+      value.blockedBy.length > 0 &&
+      value.blockedBy.every((blocker) => isRecord(blocker) && typeof blocker.category === "string")
+    );
+  }
+  const basis = value.conclusion === "CONFORMS"
+    ? "supported_applicable_requirement"
+    : value.conclusion === "ACTION_REQUIRED"
+      ? "applicable_requirement_not_supported"
+      : value.conclusion === "NOT_APPLICABLE"
+        ? "explicit_upstream_not_applicable"
+        : null;
+  return (
+    basis !== null &&
+    typeof value.evidenceMapRowId === "string" &&
+    value.evidenceMapRowId.trim().length > 0 &&
+    value.basis === basis
+  );
+}
+
 
 const supportedUpstreamStatuses = new Set(["FOUND", "answered"]);
 const unsupportedUpstreamStatuses = new Set(["UNCLEAR", "MISSING", "unclear", "no_evidence"]);
