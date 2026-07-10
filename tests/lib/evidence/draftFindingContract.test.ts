@@ -7,6 +7,7 @@ import {
   deriveConformanceConclusion,
   type ConformanceAssessmentInput,
 } from "@/lib/evidence/conformanceConclusionContract";
+import { deriveApplicability } from "@/lib/evidence/applicabilityContract";
 import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 
 const provenance = { docId: "doc-1", page: 1, sectionPath: ["1"], spanId: "span-1", sectionHeading: "Heading", sourceType: "PDD" };
@@ -24,7 +25,13 @@ const conformanceAssessment: ConformanceAssessmentInput = {
   requirementSupport: "NOT_SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE",
   versionIdentityAssessment: "NOT_REQUIRED", contradictionAssessment: "NONE",
 };
-const actionRequired = deriveConformanceConclusion(row(), conformanceAssessment);
+function derive(candidate: EvidenceMapRow, assessment: ConformanceAssessmentInput): ReturnType<typeof deriveConformanceConclusion> {
+  return deriveConformanceConclusion(candidate, deriveApplicability(candidate, {
+    decision: candidate.applicabilityState === "UNKNOWN" ? "NOT_EVALUATED" : candidate.applicabilityState,
+    decisionBasis: "Explicit applicability basis.",
+  }), assessment);
+}
+const actionRequired = derive(row(), conformanceAssessment);
 const assessment = (draftFindingType: DraftFindingAssessmentInput["draftFindingType"], findingBasis: string | null = null, reviewerAssessment: string | null = null): DraftFindingAssessmentInput => ({ draftFindingType, findingBasis, reviewerAssessment });
 function findingType(result: DraftFindingResult): string | null { return result.draftFindingType; }
 
@@ -46,9 +53,9 @@ describe("deriveDraftFinding", () => {
     expect(findingIds[1]).toBe(findingIds[2]);
   });
   it.each([
-    ["CONFORMS", deriveConformanceConclusion(row({ upstreamStatus: "FOUND" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],
-    ["NOT_APPLICABLE", deriveConformanceConclusion(row({ applicabilityState: "NOT_APPLICABLE" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],
-    ["NOT_ASSESSED", deriveConformanceConclusion(row(), { ...conformanceAssessment, requirementSupport: "NOT_EVALUATED" })],
+    ["CONFORMS", derive(row({ upstreamStatus: "FOUND" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],
+    ["NOT_APPLICABLE", derive(row({ applicabilityState: "NOT_APPLICABLE" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],
+    ["NOT_ASSESSED", derive(row(), { ...conformanceAssessment, requirementSupport: "NOT_EVALUATED" })],
   ])("returns null for %s", (_label, conformance) => {
     expect(deriveDraftFinding(row(), conformance, assessment("NIR_CANDIDATE", "Basis.", "Assessment."))).toMatchObject({ draftFindingType: null, draftFindingRecord: null });
   });
@@ -57,7 +64,7 @@ describe("deriveDraftFinding", () => {
   });
   it.each(["FOUND", "UNCLEAR", "MISSING", "answered", "unclear", "no_evidence"]) ("does not infer a candidate from upstream status %s", (upstreamStatus) => {
     const candidate = row({ upstreamStatus });
-    const conformance = deriveConformanceConclusion(candidate, conformanceAssessment);
+    const conformance = derive(candidate, conformanceAssessment);
     expect(deriveDraftFinding(candidate, conformance, assessment(null))).toEqual({ draftFindingType: null, draftFindingRecord: null });
   });
   it("fails closed for invalid classification and mismatched row identity", () => {
