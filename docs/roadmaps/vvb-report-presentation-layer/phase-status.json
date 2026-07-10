@@ -1,5 +1,5 @@
 {
-  "roadmap": "vvb-report-presentation-layer",
+  "RC0": "done",
   "phase_meta": {
     "status": "active",
     "summary": "Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.",
@@ -74,5 +74,6 @@
       "status": "planned",
       "summary": "Review old labels and organization-specific profiles after the generic Evidence Map-backed product is proven."
     }
-  }
+  },
+  "roadmap": "vvb-report-presentation-layer"
 }
