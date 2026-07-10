@@ -73,6 +73,20 @@ The report layer must never discard rejected evidence reasons.
 
 The report layer must never infer a stronger conclusion than the Evidence Map row supports.
 
+## Review governance and release control
+
+The machine proposes an assessment. A reviewer may approve, edit, or reopen it. The
+original machine proposal must remain traceable, and reviewer changes must preserve
+a reason and a review-history reference. Finalized does not mean formally validated,
+verified, or VVB-approved.
+
+Client-facing release must fail closed when required review controls are incomplete.
+Governance details should remain mostly hidden from the user interface. The minimal
+reviewer interface focuses on evidence, reasoning, client action, approve, edit,
+reopen, and history. The Evidence Map remains canonical, the presentation layer
+remains downstream, and machine output remains distinguishable from reviewer-approved
+output.
+
 ## Non-negotiable invariant
 
 The VVB Report Presentation Layer is a downstream formatting and interpretation layer. It does not own evidence truth, routing truth, or rule-level judgment truth.
@@ -115,6 +129,26 @@ Conformance conclusions are separate from draft action or finding records. `CONF
   }
 }
 ```
+
+Phase 6 must preserve, without independently interpreting, the following review and
+provenance fields in the presentation object:
+
+- `finalizationState`
+- `finalizationActorRef`
+- `finalizedAt`
+- `finalizationBasis`
+- `reviewHistoryRef`
+- `evidenceMapContractVersion`
+- `reviewPolicyVersion`
+- `acceptedEvidence`
+- `rejectedEvidence`
+- `assessmentReason`
+- `clientAction`
+- `provenance`
+
+The presentation object must distinguish machine-proposed and reviewer-finalized
+data. It must not erase or replace the original Evidence Map decision, create a
+second review-history system, or treat finalization metadata as formal VVB authority.
 
 ## Mapping rules
 
@@ -180,6 +214,75 @@ The implementation order must be:
 
 Gap/readiness report implementation remains downstream of the presentation-layer contract and gates. The report and UI must consume Evidence Map-backed presentation objects rather than inventing their own labels or selecting evidence.
 
+## Phase 7: Presentation Gates
+
+In addition to applicability, evidence sufficiency, and search-coverage gates, Phase
+7 defines these governance and release-safety gates:
+
+- finalized-row traceability gate
+- review-history-reference gate
+- contract-version gate
+- reopened-or-superseded-row gate
+- cross-row consistency gate
+- release-readiness gate
+
+Cross-row consistency outcomes are `PASS`, `WARNING`, `BLOCKED`, and
+`NOT_EVALUATED`. Blocking or warning conditions include conflicting methodology
+versions; conflicting project locations or dates; contradictory applicability
+decisions; incompatible assumptions; and evidence treated as reliable in one row
+and rejected as unreliable in another.
+
+Blocking contradictions prevent client-facing release. Missing finalization or
+review metadata fails closed. Reopened or superseded rows cannot support release.
+UI components must not duplicate or bypass gate logic. Internal preview may still be
+allowed when client release is blocked. Do not use `VALIDATED`, `VERIFIED`,
+`APPROVED_BY_VVB`, or equivalent authority language.
+
+Release states are:
+
+- `PRE_VALIDATION_RELEASE_READY`
+- `INTERNAL_REVIEW_ONLY`
+- `BLOCKED`
+
+## Phase 9: Readiness Report and UI Consumers
+
+Phase 9 includes a minimal reviewer workflow. The primary row view exposes only:
+
+- requirement
+- accepted evidence
+- rejected evidence where relevant
+- system assessment
+- assessment reason
+- client action
+- approve
+- edit
+- reopen
+- view history
+
+Technical metadata remains hidden by default under history or details. Approving,
+editing, or reopening must not silently overwrite prior state. Reviewer edits require
+a reason. Reopening invalidates the previous release-ready state. Client report
+export must check the centralized release gate; internal report preview may remain
+available when release is blocked. Do not design organization-specific VVB workflows
+or implement the UI in this roadmap-only PR.
+
+Client-facing report release requires:
+
+- required rows finalized
+- complete finalization trace metadata
+- complete provenance
+- required contract versions
+- no blocking cross-row contradictions
+- no reopened or superseded supporting rows
+- presentation gates passed
+- required pre-validation disclaimer present
+
+## Phase 10: Deprecation Review
+
+Organization-specific profiles and terminology deprecation remain blocked until the
+generic reviewer workflow is proven, the release gate is proven, and a controlled
+pilot with qualified validation or verification professionals has been completed.
+
 ## Fixture rules
 
 Do not null out weak evidence if weak evidence exists. Preserve its quote, page, section heading, section path, span ID, and source type in the Evidence Map and presentation object.
@@ -190,8 +293,8 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 
 - Phase 0: Report Terminology Contract — done
 - Phase 1: Status Consumer Audit — done
-- Phase 2: Evidence Map Dependency Contract — next
-- Phase 3: Conformance Conclusion Contract — planned
+- Phase 2: Evidence Map Dependency Contract — done
+- Phase 3: Conformance Conclusion Contract — next
 - Phase 4: Draft Action/Finding Contract — planned
 - Phase 5: Applicability Contract — planned
 - Phase 6: Report Presentation Object — planned
@@ -211,4 +314,9 @@ npm run typecheck
 npm run roadmap:check
 ```
 
-No parser/router logic, client-facing report UI, report output, PDF output, fixture, or gold truth should change as part of this phase.
+No runtime governance implementation, reviewer UI, audit-event database, permission
+system, report implementation, PDF changes, status mappings, conformance
+implementation, draft finding implementation, fixtures, gold-truth changes, router
+or Quick Check changes, separate roadmap, or phase renumbering should change as part
+of this roadmap-only PR. No parser/router logic, client-facing report UI, report
+output, PDF output, fixture, or gold truth should change.
