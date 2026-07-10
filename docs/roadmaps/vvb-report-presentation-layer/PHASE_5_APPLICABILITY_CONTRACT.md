@@ -33,9 +33,9 @@ Successful outputs preserve the Evidence Map row ID:
 
 ```ts
 { applicability: "APPLICABLE"; evidenceMapRowId: string;
-  basis: "explicit_applicable_decision" }
+  basis: "explicit_applicable_decision"; decisionBasis: string }
 { applicability: "NOT_APPLICABLE"; evidenceMapRowId: string;
-  basis: "explicit_not_applicable_decision" }
+  basis: "explicit_not_applicable_decision"; decisionBasis: string }
 ```
 
 Blocked output is:
@@ -45,7 +45,12 @@ Blocked output is:
   blockedBy: readonly ApplicabilityContractBlock[] }
 ```
 
-The result is typed, deterministic, and does not mutate either input.
+The supplied basis is normalized by trimming surrounding whitespace and retained
+in successful results. `isApplicabilityResult` is the centralized runtime
+validator used by conformance integration; it rejects empty successful IDs,
+empty blocker arrays, unknown blocker categories, unknown dependency reasons,
+extra forged fields, and malformed nested blockers. The result is typed,
+deterministic, and does not mutate either input.
 
 ## Decision table
 

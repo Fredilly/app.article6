@@ -1,5 +1,6 @@
 import {
   deriveApplicability,
+  isApplicabilityResult,
   type ApplicabilityAssessmentInput,
   type ApplicabilityResult,
 } from "@/lib/evidence/applicabilityContract";
@@ -25,9 +26,9 @@ function result(candidate: EvidenceMapRow, assessment: unknown): ApplicabilityRe
 
 describe("deriveApplicability", () => {
   it("accepts explicit applicable and not-applicable decisions with a basis", () => {
-    expect(result(row(), assess("APPLICABLE"))).toEqual({ applicability: "APPLICABLE", evidenceMapRowId: "row-1", basis: "explicit_applicable_decision" });
+    expect(result(row(), assess("APPLICABLE", "  Explicit applicability rationale.  "))).toEqual({ applicability: "APPLICABLE", evidenceMapRowId: "row-1", basis: "explicit_applicable_decision", decisionBasis: "Explicit applicability rationale." });
     const candidate = row({ applicabilityState: "NOT_APPLICABLE" });
-    expect(result(candidate, assess("NOT_APPLICABLE"))).toEqual({ applicability: "NOT_APPLICABLE", evidenceMapRowId: "row-1", basis: "explicit_not_applicable_decision" });
+    expect(result(candidate, assess("NOT_APPLICABLE"))).toEqual({ applicability: "NOT_APPLICABLE", evidenceMapRowId: "row-1", basis: "explicit_not_applicable_decision", decisionBasis: "Explicit basis." });
   });
   it.each([
     [undefined, "applicabilityState", "APPLICABLE", "invalid_applicability_assessment"],
@@ -58,5 +59,11 @@ describe("deriveApplicability", () => {
     expect(candidate).toEqual(before);
     const many = result(row({ applicabilityState: "UNKNOWN" }), assess("NOT_APPLICABLE"));
     expect(many).toMatchObject({ blockedBy: [{ category: "applicability_row_state_unknown" }, { category: "applicability_row_state_mismatch" }] });
+  });
+  it("rejects malformed or forged runtime results", () => {
+    expect(isApplicabilityResult({ applicability: "NOT_ASSESSED", evidenceMapRowId: "row-1", blockedBy: [] })).toBe(false);
+    expect(isApplicabilityResult({ applicability: "NOT_ASSESSED", evidenceMapRowId: "row-1", blockedBy: [{ category: "forged" }] })).toBe(false);
+    expect(isApplicabilityResult({ applicability: "NOT_ASSESSED", evidenceMapRowId: "row-1", blockedBy: [{ category: "evidence_map_dependency_blocked", reason: "forged" }] })).toBe(false);
+    expect(isApplicabilityResult({ applicability: "APPLICABLE", evidenceMapRowId: "", basis: "explicit_applicable_decision", decisionBasis: "Basis." })).toBe(false);
   });
 });

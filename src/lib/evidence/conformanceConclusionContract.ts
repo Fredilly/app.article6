@@ -5,8 +5,8 @@ import {
 } from "@/lib/evidence/evidenceMapDependencyContract";
 import type {
   ApplicabilityContractBlock,
-  ApplicabilityResult,
 } from "@/lib/evidence/applicabilityContract";
+import { isApplicabilityResult } from "@/lib/evidence/applicabilityContract";
 
 export type ConformanceConclusion =
   | "CONFORMS"
@@ -32,10 +32,6 @@ export type ConformanceAssessmentInput = Readonly<{
 
 export type ConformanceConclusionBlockCategory =
   | "evidence_map_dependency_blocked"
-  | "applicability_blocked"
-  | "applicability_result_invalid"
-  | "applicability_row_id_mismatch"
-  | "applicability_row_state_mismatch"
   | "applicability_blocked"
   | "applicability_result_invalid"
   | "applicability_row_id_mismatch"
@@ -121,31 +117,6 @@ function notAssessed(
   return { conclusion: "NOT_ASSESSED", evidenceMapRowId: row?.rowId ?? null, blockedBy };
 }
 
-function isApplicabilityResult(value: unknown): value is ApplicabilityResult {
-  if (!isRecord(value)) return false;
-  if (value.applicability === "APPLICABLE") {
-    return value.basis === "explicit_applicable_decision" && typeof value.evidenceMapRowId === "string";
-  }
-  if (value.applicability === "NOT_APPLICABLE") {
-    return value.basis === "explicit_not_applicable_decision" && typeof value.evidenceMapRowId === "string";
-  }
-  return (
-    value.applicability === "NOT_ASSESSED" &&
-    (value.evidenceMapRowId === null || typeof value.evidenceMapRowId === "string") &&
-    Array.isArray(value.blockedBy) &&
-    value.blockedBy.every((blocker) => {
-      if (!isRecord(blocker) || typeof blocker.category !== "string") return false;
-      if (blocker.category === "evidence_map_dependency_blocked") return typeof blocker.reason === "string";
-      return [
-        "invalid_applicability_assessment",
-        "applicability_decision_not_evaluated",
-        "applicability_basis_missing",
-        "applicability_row_state_unknown",
-        "applicability_row_state_mismatch",
-      ].includes(blocker.category);
-    })
-  );
-}
 
 const supportedUpstreamStatuses = new Set(["FOUND", "answered"]);
 const unsupportedUpstreamStatuses = new Set(["UNCLEAR", "MISSING", "unclear", "no_evidence"]);

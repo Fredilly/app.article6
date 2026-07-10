@@ -54,6 +54,8 @@ describe("deriveConformanceConclusion", () => {
     const mismatch = deriveApplicability(candidate, { decision: "NOT_APPLICABLE", decisionBasis: "Explicit basis." });
     expect(deriveConformanceConclusion(candidate, mismatch, complete)).toMatchObject({ conclusion: "NOT_ASSESSED", blockedBy: [{ category: "applicability_blocked" }] });
     expect(deriveConformanceConclusion(candidate, deriveApplicability(candidate, { decision: "APPLICABLE", decisionBasis: "Explicit basis." }), { ...complete, requirementSupport: "NOT_SUPPORTED" })).toMatchObject({ conclusion: "ACTION_REQUIRED" });
+    expect(deriveConformanceConclusion(candidate, { applicability: "APPLICABLE", evidenceMapRowId: "other-row", basis: "explicit_applicable_decision", decisionBasis: "Basis." }, complete)).toMatchObject({ conclusion: "NOT_ASSESSED", blockedBy: [{ category: "applicability_row_id_mismatch" }] });
+    expect(deriveConformanceConclusion(candidate, { applicability: "NOT_ASSESSED", evidenceMapRowId: "row-1", blockedBy: [] }, complete)).toMatchObject({ conclusion: "NOT_ASSESSED", blockedBy: [{ category: "applicability_result_invalid" }] });
   });
   it.each(["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE"]) ("allows %s with methodology only when version identity is matched", (expected) => {
     const assessment = assess({
