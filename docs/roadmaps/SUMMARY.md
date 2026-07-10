@@ -387,27 +387,29 @@ Status SSOT: `docs/roadmaps/vvb-report-presentation-layer/phase-status.json`
 Details: `docs/roadmaps/vvb-report-presentation-layer/PLAN.md`
 
 Lane status: Planned
-Add a VVB-report-faithful presentation layer that separates conformance checklist conclusions from formal finding/request records without changing Quick Check router semantics.
+Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.
 
 Current focus:
-- Preserve Quick Check internal statuses as machine truth
-- Model VVB-style checklist conclusions separately from finding records
-- Prevent CONFORMS from being treated as a finding type
-- Prepare gap report to consume this presentation model
+- Keep the Evidence Map upstream and canonical
+- Consume only finalized Evidence Map rows with accepted and rejected evidence
+- Use draft finding language with the GENERIC_PRE_VALIDATION profile
+- Keep the Pre-Validation Readiness Report and UI downstream
 
 Not active now:
 - Router status renames
 - Fixture migration
 - Gap report implementation
+- Organization-specific report profiles
 - Formal verifier authority claims
 
-1) RC0 — Phase 0: Real VVB Report Terminology Contract: Planned — Document real report language: checklist conclusions use conformance values, while NCR/NIR/OFI/CAR/CR/FAR are action findings or requests.
+1) RC0 — Phase 0: Report Terminology Contract: Planned — Define pre-validation language, draft finding terminology, and the boundary against formal VVB authority.
 2) RC1 — Phase 1: Status Consumer Audit: Planned — Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields.
-3) RC2 — Phase 2: Conformance Conclusion Contract: Planned — Define when final validated Quick Check evidence may produce a CONFORMS checklist/narrative conclusion.
-4) RC3 — Phase 3: Action Finding Contract: Planned — Define when weak, missing, non-blocking, or future-period issues produce NIR, NCR, OFI, CAR, CR, or FAR style finding records.
-5) RC4 — Phase 4: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.
-6) RC5 — Phase 5: Report Presentation Object: Planned — Add a shared object with internalStatus, conformanceConclusion, findingType, requirement reference, document reference, finding text, and auditor response.
-7) RC6 — Phase 6: Presentation Gates: Planned — Prevent weak or placeholder evidence from displaying as CONFORMS and prevent missing evidence from becoming NCR/CAR without applicability and coverage checks.
-8) RC7 — Phase 7: Fixture Expectation Migration: Planned — Migrate fixtures so non-FOUND statuses preserve weak or placeholder document evidence instead of nulling evidence when evaluated text exists.
-9) RC8 — Phase 8: Gap Report and UI Consumers: Planned — Update gap report, UI, reports, and PDFs to consume the VVB report presentation object instead of inventing their own labels.
-10) RC9 — Phase 9: Deprecation Review: Planned — Decide whether old user-facing labels can be hidden while keeping internal statuses permanently available for debugging and gates.
+3) RC2 — Phase 2: Evidence Map Dependency Contract: Planned — Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation.
+4) RC3 — Phase 3: Conformance Conclusion Contract: Planned — Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED.
+5) RC4 — Phase 4: Draft Action/Finding Contract: Planned — Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows.
+6) RC5 — Phase 5: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.
+7) RC6 — Phase 6: Report Presentation Object: Planned — Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, and draft finding fields.
+8) RC7 — Phase 7: Presentation Gates: Planned — Prevent unsupported CONFORMS conclusions and unsupported draft finding candidates through applicability, evidence sufficiency, and search-coverage gates.
+9) RC8 — Phase 8: Fixture Expectation Migration: Planned — Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations.
+10) RC9 — Phase 9: Readiness Report and UI Consumers: Planned — Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract.
+11) RC10 — Phase 10: Deprecation Review: Planned — Review old labels and organization-specific profiles after the generic Evidence Map-backed product is proven.

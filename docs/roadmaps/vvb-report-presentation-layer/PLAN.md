@@ -2,69 +2,78 @@
 
 ## Goal
 
-Make Quick Check outputs resemble real VVB report outputs without changing router semantics.
+Build a generic pre-validation report presentation layer downstream of the Evidence Map. The layer formats and interprets finalized Evidence Map rows for client-facing readiness output without changing router semantics or claiming formal VVB authority.
 
-## Non-Negotiable Invariant
+## Product architecture
 
-The deterministic router and Quick Check v2 status validator remain the truth gates.
-The VVB layer is not allowed to upgrade, rescue, reinterpret, or relabel weak evidence as `CONFORMS`.
+Article6 has one core paid asset:
 
-Real VVB reports separate:
-1. checklist or narrative conformance conclusions
-2. formal finding/request records
+Evidence Map
 
-Satisfied requirements are documented as conformance, not as findings.
-Action items are documented as NCR, NIR, OFI, CAR, CR, or FAR records.
+The product flow is:
 
-## Phases
+Quick Check / Evidence Audit
+-> finalized Evidence Map rows
+-> VVB Report Presentation Layer
+-> Pre-Validation Readiness Report
+-> future VVB-style workpaper export
 
-## Real report pattern observed
+The Evidence Map is the canonical source of truth for:
+- report conclusions
+- action items
+- client actions
+- draft finding records
+- UI
+- PDF exports
 
-SCS VCS reports use finding records like:
+The presentation layer must not consume raw extractor, raw router, or unvalidated Quick Check output directly.
 
-- NCR {id} dated {date}
-- NIR {id} dated {date}
-- OFI {id} dated {date}
-- Standard Reference
-- Document Reference
-- Finding
-- Client Response
-- Auditor Response
-- Closing Remarks
+## Product definition
 
-CCB and TÜV-style reports also use checklist conclusions:
+Core paid asset:
+Evidence Map
 
-- Conformance - Y
-- Conformance - NA
-- Draft Concl
-- Final Concl
-- CAR
-- CR
-- FAR
-- ✓
+Client-facing delivery:
+Pre-Validation Readiness Report
 
-## Non-negotiable correction
+Future professional delivery:
+VVB-style draft workpaper export
 
-CONFORMS is not a finding type.
+The report is the container.
+The Evidence Map is the content and source of truth.
 
-Use:
+## Evidence Map dependency
 
-```json
-{
-  "internalStatus",
-  "conformanceConclusion",
-  "findingType",
-  "findingRecord"
-}
-```
+The VVB Report Presentation Layer may only consume finalized Evidence Map rows.
 
-not:
+A finalized Evidence Map row must contain, at minimum:
 
-```json
-{
-  "vvbFindingType": "CONFORMS"
-}
-```
+- ruleId
+- requirementReference
+- requirementText
+- internalStatus
+- applicabilityStatus
+- acceptedEvidence[]
+- rejectedEvidence[]
+- assessmentReason
+- clientAction
+- full provenance
+
+The report layer must never select evidence itself.
+
+The report layer must never discard rejected evidence reasons.
+
+The report layer must never infer a stronger conclusion than the Evidence Map row supports.
+
+## Non-negotiable invariant
+
+The VVB Report Presentation Layer is a downstream formatting and interpretation layer. It does not own evidence truth, routing truth, or rule-level judgment truth.
+
+Article6 outputs are pre-validation readiness outputs. They do not constitute formal validation, verification, registry approval, or formally issued VVB findings.
+
+## Report terminology
+
+Conformance conclusions are separate from draft action or finding records. `CONFORMS` is not a finding type. The v1 report profile is `GENERIC_PRE_VALIDATION` only. Organization-specific profiles are deferred until the generic product is proven.
 
 ## Target presentation object
 
@@ -73,8 +82,9 @@ not:
   "internalStatus": "FOUND" | "UNCLEAR" | "MISSING",
   "applicabilityStatus": "APPLICABLE" | "NOT_APPLICABLE" | "NOT_ASSESSED",
   "conformanceConclusion": "CONFORMS" | "ACTION_REQUIRED" | "NOT_APPLICABLE" | "NOT_ASSESSED",
-  "findingType": null | "NIR" | "NCR" | "OFI" | "CAR" | "CR" | "FAR",
-  "reportProfile": "SCS_VCS" | "SCS_CCB" | "TUV_VCS_CCB" | "GENERIC_PRE_AUDIT",
+  "draftFindingType": null | "NIR_CANDIDATE" | "NCR_RISK" | "OFI_CANDIDATE" | "CAR_CANDIDATE" | "CR_CANDIDATE" | "FAR_CANDIDATE",
+  "reportProfile": "GENERIC_PRE_VALIDATION",
+  "evidenceMapRowId": "string",
   "evidence": {
     "requirementReference": "string | null",
     "requirementQuote": "string | null",
@@ -86,13 +96,13 @@ not:
     "spanId": "string | null",
     "sourceType": "string | null"
   },
-  "findingRecord": {
+  "draftFindingRecord": null | {
     "findingId": "string",
     "standardReference": "string | null",
     "documentReference": "string | null",
     "finding": "string",
     "clientResponse": null,
-    "auditorResponse": "string",
+    "reviewerAssessment": "string",
     "closingRemarks": null
   }
 }
@@ -100,124 +110,94 @@ not:
 
 ## Mapping rules
 
-FOUND with complete validated evidence:
+FOUND with validated Evidence Map support:
 - conformanceConclusion: CONFORMS
-- findingType: null
-- findingRecord: null
+- draftFindingType: null
+- draftFindingRecord: null
 
 UNCLEAR with weak, incomplete, placeholder, or insufficient evidence:
 - conformanceConclusion: ACTION_REQUIRED
-- findingType: NIR or CR depending on report profile
-- findingRecord required
+- draftFindingType: NIR_CANDIDATE or CR_CANDIDATE
+- draftFindingRecord required
 
-MISSING with applicable mandatory requirement and adequate search coverage:
+MISSING with applicable mandatory requirement and adequate evidence-search coverage:
 - conformanceConclusion: ACTION_REQUIRED
-- findingType: NCR or CAR depending on report profile
-- findingRecord required
+- draftFindingType: NCR_RISK or CAR_CANDIDATE
+- draftFindingRecord required
 
 Weak but non-blocking issue:
 - conformanceConclusion: ACTION_REQUIRED
-- findingType: OFI or FAR depending on report profile
-- findingRecord required
+- draftFindingType: OFI_CANDIDATE or FAR_CANDIDATE
+- draftFindingRecord required
 
 Explicitly not applicable:
 - conformanceConclusion: NOT_APPLICABLE
-- findingType: null
-- findingRecord: null
+- draftFindingType: null
+- draftFindingRecord: null
 
 Not safely assessed:
 - conformanceConclusion: NOT_ASSESSED
-- findingType: null
-- findingRecord: null
+- draftFindingType: null
+- draftFindingRecord: null
 
 ## Language rules
 
-For CONFORMS:
+For `CONFORMS`:
 
 "The reviewed document evidence is sufficient to demonstrate conformance with the requirement."
 
-For NIR / CR:
+For `NIR_CANDIDATE` / `CR_CANDIDATE`:
 
 "Additional information is required to determine whether a material discrepancy exists with respect to this requirement."
 
-For NCR / CAR:
+For `NCR_RISK` / `CAR_CANDIDATE`:
 
 "The requirement is not demonstrated in the reviewed document evidence."
 
-For OFI / FAR:
+For `OFI_CANDIDATE` / `FAR_CANDIDATE`:
 
 "This issue should be monitored or improved in a future reporting or verification period."
 
-For NOT_APPLICABLE:
+## Sequencing
 
-"This requirement is not applicable to the reviewed project context."
+The implementation order must be:
 
-For NOT_ASSESSED:
+1. Evidence Map row contract
+2. Accepted and rejected evidence retention
+3. Evidence Map UI/source-of-truth layer
+4. VVB Report Presentation Layer
+5. Pre-Validation Readiness Report
+6. PDF/export
+7. Future VVB-style workpaper profile
 
-"The system cannot safely assess this requirement from the reviewed evidence."
+Gap/readiness report implementation remains downstream of the presentation-layer contract and gates. The report and UI must consume Evidence Map-backed presentation objects rather than inventing their own labels or selecting evidence.
 
 ## Fixture rules
 
-Do not null out weak evidence if weak evidence exists.
+Do not null out weak evidence if weak evidence exists. Preserve its quote, page, section heading, section path, span ID, and source type in the Evidence Map and presentation object.
 
-If the PDD says:
-"This section is under development"
+Do not mark placeholder text as FOUND. MISSING means no relevant document evidence was found, not that weak evidence was found.
 
-then fixture should preserve:
-- quote
-- page
-- sectionHeading
-- sectionPath
-- spanId
-- sourceType
+## Phases
 
-and expected status should usually be:
-- internalStatus: UNCLEAR
-- conformanceConclusion: ACTION_REQUIRED
-- findingType: NIR or CR
-
-Do not mark placeholder text as FOUND.
-
-MISSING should mean no relevant document evidence was found, not that weak evidence was found.
-
-## Gap report sequencing
-
-Do not start gap report implementation until this presentation boundary exists.
-
-The gap report must consume:
-- internalStatus
-- conformanceConclusion
-- findingType
-- evidence
-- findingRecord
-
-The gap report must not invent its own VVB label mapping.
+- Phase 0: Report Terminology Contract
+- Phase 1: Status Consumer Audit
+- Phase 2: Evidence Map Dependency Contract
+- Phase 3: Conformance Conclusion Contract
+- Phase 4: Draft Action/Finding Contract
+- Phase 5: Applicability Contract
+- Phase 6: Report Presentation Object
+- Phase 7: Presentation Gates
+- Phase 8: Fixture Expectation Migration
+- Phase 9: Readiness Report and UI Consumers
+- Phase 10: Deprecation Review
 
 ## Validation
 
-Every implementation PR after this roadmap must run:
-
-```bash
-git status --short
-npx tsc --noEmit
-npm run lint
-npm run roadmap:check
-npm run pr:gate
-```
-
-For the roadmap-only PR, run:
+For this roadmap-only change, run:
 
 ```bash
 npm run roadmap:check
 ```
 
-Then report:
-- files changed
-- roadmap check result
-- git status --short
-- confirmation that no implementation files changed
-
-## Risks
-
-* Risk: FOUND is treated as a display synonym for CONFORMS before all provenance and sufficiency gates are checked.
-* Mitigation: add a CONFORMS eligibility contract and tests before any UI/report/gap report migration.
+No implementation code, parser/router logic, or client-facing report UI should change as part of this roadmap update.
