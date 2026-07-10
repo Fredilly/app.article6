@@ -4,6 +4,10 @@
 
 Build a generic pre-validation report presentation layer downstream of the Evidence Map. The layer formats and interprets finalized Evidence Map rows for client-facing readiness output without changing router semantics or claiming formal VVB authority.
 
+## Phase 0 contract
+
+The authoritative terminology and backward-compatibility contract is [Phase 0: Report Terminology Contract](./PHASE_0_TERMINOLOGY_CONTRACT.md). It defines additive downstream vocabulary only. It does not map existing statuses to presentation conclusions or change any runtime consumer.
+
 ## Product architecture
 
 Article6 has one core paid asset:

@@ -1,12 +1,12 @@
 {
   "roadmap": "vvb-report-presentation-layer",
   "phase_meta": {
-    "status": "planned",
+    "status": "active",
     "summary": "Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.",
     "current_focus": [
+      "Phase 0 terminology and compatibility contract is complete",
+      "Phase 1 status consumer audit is next",
       "Keep the Evidence Map upstream and canonical",
-      "Consume only finalized Evidence Map rows with accepted and rejected evidence",
-      "Use draft finding language with the GENERIC_PRE_VALIDATION profile",
       "Keep the Pre-Validation Readiness Report and UI downstream"
     ],
     "not_active_now": [
@@ -16,13 +16,13 @@
       "Organization-specific report profiles",
       "Formal verifier authority claims"
     ],
-    "last_updated_at": "2026-07-09T00:00:00Z"
+    "last_updated_at": "2026-07-10T00:00:00Z"
   },
   "phases": {
     "phase_0_report_terminology_contract": {
       "title": "Phase 0: Report Terminology Contract",
-      "status": "planned",
-      "summary": "Define pre-validation language, draft finding terminology, and the boundary against formal VVB authority."
+      "status": "done",
+      "summary": "Define additive pre-validation language, draft finding terminology, prohibited formal-authority claims, and preservation of existing statuses without mappings."
     },
     "phase_1_status_consumer_audit": {
       "title": "Phase 1: Status Consumer Audit",
