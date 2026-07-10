@@ -12,6 +12,8 @@ The Phase 1 status inventory is [Phase 1: Status Consumer Audit](./PHASE_1_STATU
 
 The Phase 2 structural dependency contract is [Phase 2: Evidence Map Dependency Contract](./PHASE_2_EVIDENCE_MAP_DEPENDENCY_CONTRACT.md). It validates only that finalized Evidence Map rows carry the explicit upstream dependencies required downstream; it does not map statuses or judge evidence, applicability, or search quality.
 
+The Phase 3 conclusion contract is [Phase 3: Conformance Conclusion Contract](./PHASE_3_CONFORMANCE_CONCLUSION_CONTRACT.md). It consumes explicit assessment inputs after the Phase 2 gate and fails closed to the four canonical presentation conclusions; it does not create draft findings.
+
 ## Product architecture
 
 Article6 has one core paid asset:
@@ -322,8 +324,8 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 - Phase 0: Report Terminology Contract — done
 - Phase 1: Status Consumer Audit — done
 - Phase 2: Evidence Map Dependency Contract — done
-- Phase 3: Conformance Conclusion Contract — next
-- Phase 4: Draft Action/Finding Contract — planned
+- Phase 3: Conformance Conclusion Contract — done
+- Phase 4: Draft Action/Finding Contract — next
 - Phase 5: Applicability Contract — planned
 - Phase 6: Report Presentation Object — planned
 - Phase 7: Presentation Gates — planned

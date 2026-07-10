@@ -7,7 +7,8 @@
       "Phase 0 terminology and compatibility contract is complete",
       "Phase 1 status consumer audit is complete",
       "Phase 2 Evidence Map dependency contract is complete",
-      "Phase 3 Conformance Conclusion Contract is next",
+      "Phase 3 Conformance Conclusion Contract is complete",
+      "Phase 4 Draft Action/Finding Contract is next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
@@ -39,12 +40,12 @@
     },
     "phase_3_conformance_conclusion_contract": {
       "title": "Phase 3: Conformance Conclusion Contract",
-      "status": "next",
-      "summary": "Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED."
+      "status": "done",
+      "summary": "Consume explicit assessment inputs after the Phase 2 dependency gate to derive CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or fail-closed NOT_ASSESSED without creating draft findings."
     },
     "phase_4_draft_action_finding_contract": {
       "title": "Phase 4: Draft Action/Finding Contract",
-      "status": "planned",
+      "status": "next",
       "summary": "Define draftFindingType and draftFindingRecord mappings using only NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null for unclear, missing, and weak non-blocking Evidence Map rows."
     },
     "phase_5_applicability_contract": {

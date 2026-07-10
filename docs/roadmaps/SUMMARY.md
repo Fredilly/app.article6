@@ -393,7 +393,8 @@ Current focus:
 - Phase 0 terminology and compatibility contract is complete
 - Phase 1 status consumer audit is complete
 - Phase 2 Evidence Map dependency contract is complete
-- Phase 3 Conformance Conclusion Contract is next
+- Phase 3 Conformance Conclusion Contract is complete
+- Phase 4 Draft Action/Finding Contract is next
 - Review traceability and release controls are explicit downstream requirements
 - Keep the Evidence Map upstream and canonical
 - Keep the Pre-Validation Readiness Report and UI downstream
@@ -408,8 +409,8 @@ Not active now:
 1) RC0 — Phase 0: Report Terminology Contract: Done — Define additive pre-validation language, canonical NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, and null draft-finding values, prohibited formal-authority claims, and preservation of existing statuses without mappings.
 2) RC1 — Phase 1: Status Consumer Audit: Done — Audit every producer, storage boundary, transformation, comparison, filter, display, fixture, analytics, and test consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence without changing runtime semantics.
 3) RC2 — Phase 2: Evidence Map Dependency Contract: Done — Add a generic pure dependency gate requiring finalized Evidence Map row identity, requirement and methodology identity, upstream status, applicability state, accepted and rejected evidence, assessment reason, client action, search coverage, source-document identity, and evidence provenance without mapping or judging them.
-4) RC3 — Phase 3: Conformance Conclusion Contract: Next — Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED.
-5) RC4 — Phase 4: Draft Action/Finding Contract: Planned — Define draftFindingType and draftFindingRecord mappings using only NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null for unclear, missing, and weak non-blocking Evidence Map rows.
+4) RC3 — Phase 3: Conformance Conclusion Contract: Done — Consume explicit assessment inputs after the Phase 2 dependency gate to derive CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or fail-closed NOT_ASSESSED without creating draft findings.
+5) RC4 — Phase 4: Draft Action/Finding Contract: Next — Define draftFindingType and draftFindingRecord mappings using only NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null for unclear, missing, and weak non-blocking Evidence Map rows.
 6) RC5 — Phase 5: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.
 7) RC6 — Phase 6: Report Presentation Object: Planned — Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, draft finding fields, machine-proposal traceability, reviewer finalization metadata, review history, and contract versions without replacing the canonical Evidence Map decision.
 8) RC7 — Phase 7: Presentation Gates: Planned — Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates.
