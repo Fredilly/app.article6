@@ -46,9 +46,6 @@ export type ReportPresentationObject = Readonly<{
   reviewPolicyVersion: string;
   presentationContractVersion: typeof PRESENTATION_CONTRACT_VERSION;
   machineProposalTraceability: MachineProposalTraceability | null;
-  reviewState?: "current" | "pending_review" | "reopened" | "superseded" | "stale";
-  sharedProjectFacts?: Readonly<Record<string, string | number | boolean | null>>;
-  assumptions?: readonly string[];
 }>;
 
 export type ReportPresentationBlock =
@@ -151,28 +148,19 @@ const requiredPresentationKeys = [
   "reviewPolicyVersion", "presentationContractVersion", "machineProposalTraceability",
 ] as const;
 const releaseMetadataKeys = ["finalizationActorRef", "finalizedAt", "finalizationBasis", "reviewHistoryRef"] as const;
-const optionalPresentationKeys = ["reviewState", "sharedProjectFacts", "assumptions"] as const;
-
-function parseReportPresentationInput(value: unknown, strict: boolean): value is ReportPresentationObject {
-  if (!isRecord(value) || !hasRequiredKeys(value, requiredPresentationKeys, [...releaseMetadataKeys, ...optionalPresentationKeys])) return false;
-  if (strict && !releaseMetadataKeys.every((key) => Object.prototype.hasOwnProperty.call(value, key))) return false;
+function parseReportPresentationObject(value: unknown): value is ReportPresentationObject {
+  if (!isRecord(value) || !hasRequiredKeys(value, [...requiredPresentationKeys, ...releaseMetadataKeys], [])) return false;
   if (value.profile !== "GENERIC_PRE_VALIDATION" || !hasText(value.evidenceMapRowId) || !hasText(value.upstreamStatus) ||
       !hasText(value.assessmentReason) || (value.clientAction !== null && !hasText(value.clientAction)) ||
-      !releaseMetadataKeys.every((key) => value[key] === undefined || typeof value[key] === "string") ||
-      (strict && !releaseMetadataKeys.every((key) => hasText(value[key]))) ||
+      !releaseMetadataKeys.every((key) => hasText(value[key])) ||
       !hasText(value.evidenceMapContractVersion) || !hasText(value.reviewPolicyVersion) ||
       value.presentationContractVersion !== PRESENTATION_CONTRACT_VERSION ||
-      (value.reviewState !== undefined && value.reviewState !== "current" && value.reviewState !== "pending_review" && value.reviewState !== "reopened" && value.reviewState !== "superseded" && value.reviewState !== "stale") ||
-      (value.assumptions !== undefined && (!Array.isArray(value.assumptions) || !value.assumptions.every((entry) => hasText(entry)))) ||
-      (value.sharedProjectFacts !== undefined && (!isRecord(value.sharedProjectFacts) || Object.values(value.sharedProjectFacts).some((entry) =>
-        entry !== null && typeof entry !== "string" && typeof entry !== "number" && typeof entry !== "boolean"))) ||
       !isStrictEvidenceMapFields(value) || !isApplicabilityResult(value.applicabilityResult) ||
       !isConformanceConclusionResult(value.conformanceConclusion) || !isDraftFindingResult(value.draftFindingResult)) return false;
   if (value.machineProposalTraceability !== null &&
       (!isRecord(value.machineProposalTraceability) || !hasOnlyKeys(value.machineProposalTraceability, ["source", "evidenceMapRowId"]) ||
        value.machineProposalTraceability.source !== "EVIDENCE_MAP" || value.machineProposalTraceability.evidenceMapRowId !== value.evidenceMapRowId)) return false;
   if (value.applicabilityResult.applicability === "NOT_ASSESSED" || value.conformanceConclusion.conclusion === "NOT_ASSESSED") return false;
-  if (!strict) return true;
   const draftRecord = value.draftFindingResult.draftFindingRecord;
   return value.applicabilityResult.evidenceMapRowId === value.evidenceMapRowId &&
     value.conformanceConclusion.evidenceMapRowId === value.evidenceMapRowId &&
@@ -184,12 +172,7 @@ function parseReportPresentationInput(value: unknown, strict: boolean): value is
 
 /** Strict runtime validator for the immutable Phase 6 boundary. */
 export function isReportPresentationObject(value: unknown): value is ReportPresentationObject {
-  return parseReportPresentationInput(value, true);
-}
-
-/** Permissive structural parser used by Phase 7 before release-safety blockers are evaluated. */
-export function isReportPresentationInput(value: unknown): value is ReportPresentationObject {
-  return parseReportPresentationInput(value, false);
+  return parseReportPresentationObject(value);
 }
 
 function rowIdFrom(candidate: unknown): string | null {
