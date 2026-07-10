@@ -46,6 +46,7 @@ export type ReportPresentationObject = Readonly<{
   reviewPolicyVersion: string;
   presentationContractVersion: typeof PRESENTATION_CONTRACT_VERSION;
   machineProposalTraceability: MachineProposalTraceability | null;
+  reviewState?: "current" | "reopened" | "superseded" | "stale";
 }>;
 
 export type ReportPresentationBlock =
@@ -83,6 +84,82 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function hasText(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return Object.keys(value).length === keys.length && Object.keys(value).every((key) => keys.includes(key));
+}
+
+function hasAllowedKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return Object.keys(value).every((key) => keys.includes(key));
+}
+
+function isEvidenceProvenance(value: unknown): boolean {
+  if (!isRecord(value) || !hasOnlyKeys(value, ["docId", "page", "sectionPath", "spanId", "sectionHeading", "sourceType"])) {
+    return false;
+  }
+  return (
+    hasText(value.docId) &&
+    (value.page === null || (typeof value.page === "number" && Number.isFinite(value.page))) &&
+    Array.isArray(value.sectionPath) &&
+    value.sectionPath.every((entry) => typeof entry === "string") &&
+    hasText(value.spanId) &&
+    (value.sectionHeading === null || hasText(value.sectionHeading)) &&
+    (value.sourceType === null || hasText(value.sourceType))
+  );
+}
+
+function isStrictEvidenceMapFields(value: Record<string, unknown>): boolean {
+  if (!isRecord(value.requirement) || !hasOnlyKeys(value.requirement, ["requirementId", "requirementReference", "requirementText"]) ||
+      !hasText(value.requirement.requirementId) || !hasText(value.requirement.requirementReference) || !hasText(value.requirement.requirementText)) return false;
+  if (value.methodology !== null &&
+      (!isRecord(value.methodology) || !hasOnlyKeys(value.methodology, ["methodologyId", "rulebookVersion"]) ||
+       !hasText(value.methodology.methodologyId) || !hasText(value.methodology.rulebookVersion))) return false;
+  if (!isRecord(value.searchCoverage) || !hasOnlyKeys(value.searchCoverage, ["searched", "searchedDocumentIds", "notes"]) ||
+      typeof value.searchCoverage.searched !== "boolean" || !Array.isArray(value.searchCoverage.searchedDocumentIds) ||
+      !value.searchCoverage.searchedDocumentIds.every((entry) => hasText(entry)) ||
+      (value.searchCoverage.notes !== null && !hasText(value.searchCoverage.notes))) return false;
+  if (!isRecord(value.sourceDocument) || !hasOnlyKeys(value.sourceDocument, ["documentId", "documentName", "contentSha256"]) ||
+      !hasText(value.sourceDocument.documentId) ||
+      (value.sourceDocument.documentName !== null && !hasText(value.sourceDocument.documentName)) ||
+      (value.sourceDocument.contentSha256 !== null && !hasText(value.sourceDocument.contentSha256))) return false;
+  if (!Array.isArray(value.evidenceProvenance) || !value.evidenceProvenance.every(isEvidenceProvenance)) return false;
+  if (!Array.isArray(value.acceptedEvidence) || !value.acceptedEvidence.every((item) =>
+    isRecord(item) && hasOnlyKeys(item, ["evidenceId", "quote", "provenance"]) && hasText(item.evidenceId) && hasText(item.quote) && isEvidenceProvenance(item.provenance))) return false;
+  if (!Array.isArray(value.rejectedEvidence) || !value.rejectedEvidence.every((item) =>
+    isRecord(item) && hasOnlyKeys(item, ["evidenceId", "quote", "rejectionReason", "provenance"]) && hasText(item.evidenceId) &&
+    hasText(item.quote) && hasText(item.rejectionReason) && isEvidenceProvenance(item.provenance))) return false;
+  return true;
+}
+
+/** Strict runtime validator for the immutable Phase 6 boundary. */
+export function isReportPresentationObject(value: unknown): value is ReportPresentationObject {
+  if (!isRecord(value) || !hasAllowedKeys(value, [
+    "profile", "evidenceMapRowId", "requirement", "methodology", "upstreamStatus", "applicabilityResult",
+    "conformanceConclusion", "draftFindingResult", "acceptedEvidence", "rejectedEvidence", "assessmentReason",
+    "clientAction", "searchCoverage", "sourceDocument", "evidenceProvenance", "finalizationActorRef", "finalizedAt",
+    "finalizationBasis", "reviewHistoryRef", "evidenceMapContractVersion", "reviewPolicyVersion", "presentationContractVersion",
+    "machineProposalTraceability", "reviewState",
+  ])) return false;
+  if (value.profile !== "GENERIC_PRE_VALIDATION" || !hasText(value.evidenceMapRowId) || !hasText(value.upstreamStatus) ||
+      !hasText(value.assessmentReason) || (value.clientAction !== null && !hasText(value.clientAction)) ||
+      !hasText(value.finalizationActorRef) || !hasText(value.finalizedAt) || !hasText(value.finalizationBasis) ||
+      !hasText(value.reviewHistoryRef) || !hasText(value.evidenceMapContractVersion) || !hasText(value.reviewPolicyVersion) ||
+      value.presentationContractVersion !== PRESENTATION_CONTRACT_VERSION ||
+      (value.reviewState !== undefined && value.reviewState !== "current" && value.reviewState !== "reopened" && value.reviewState !== "superseded" && value.reviewState !== "stale") ||
+      !isStrictEvidenceMapFields(value) || !isApplicabilityResult(value.applicabilityResult) ||
+      !isConformanceConclusionResult(value.conformanceConclusion) || !isDraftFindingResult(value.draftFindingResult)) return false;
+  if (value.machineProposalTraceability !== null &&
+      (!isRecord(value.machineProposalTraceability) || !hasOnlyKeys(value.machineProposalTraceability, ["source", "evidenceMapRowId"]) ||
+       value.machineProposalTraceability.source !== "EVIDENCE_MAP" || value.machineProposalTraceability.evidenceMapRowId !== value.evidenceMapRowId)) return false;
+  return value.applicabilityResult.applicability !== "NOT_ASSESSED" &&
+    value.conformanceConclusion.conclusion !== "NOT_ASSESSED" &&
+    (value.applicabilityResult.evidenceMapRowId === value.evidenceMapRowId) &&
+    value.conformanceConclusion.evidenceMapRowId === value.evidenceMapRowId &&
+    (value.draftFindingResult.draftFindingRecord === null ||
+      (value.draftFindingResult.draftFindingRecord.evidenceMapRowId === value.evidenceMapRowId &&
+        value.draftFindingResult.draftFindingRecord.requirementId === (value.requirement as ReportPresentationObject["requirement"]).requirementId &&
+        value.draftFindingResult.draftFindingRecord.findingId === ("draft:" + value.evidenceMapRowId)));
 }
 
 function rowIdFrom(candidate: unknown): string | null {

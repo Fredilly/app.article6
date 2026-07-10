@@ -334,8 +334,8 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 - Phase 4: Draft Action/Finding Contract — done
 - Phase 5: Applicability Contract — done
 - Phase 6: Report Presentation Object — done
-- Phase 7: Presentation Gates — next
-- Phase 8: Fixture Expectation Migration — planned
+- Phase 7: Presentation Gates — done
+- Phase 8: Fixture Expectation Migration — next
 - Phase 9: Readiness Report and UI Consumers — planned
 - Phase 10: Deprecation Review — planned
 

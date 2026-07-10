@@ -397,7 +397,8 @@ Current focus:
 - Phase 4 Draft Action/Finding Contract is complete
 - Phase 5 Applicability Contract is complete
 - Phase 6 Report Presentation Object is complete
-- Phase 7 Presentation Gates are next
+- Phase 7 Presentation Gates are complete
+- Phase 8 Fixture Expectation Migration is next
 - Review traceability and release controls are explicit downstream requirements
 - Keep the Evidence Map upstream and canonical
 - Keep the Pre-Validation Readiness Report and UI downstream
@@ -416,7 +417,7 @@ Not active now:
 5) RC4 — Phase 4: Draft Action/Finding Contract: Done — Consume a Phase 3 conclusion and explicit classification to produce only generic NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null without selecting evidence or claiming formal authority.
 6) RC5 — Phase 5: Applicability Contract: Done — Require a basis-backed explicit applicability decision matching the canonical Evidence Map row; block missing, unknown, contradictory, or unevaluated applicability without changing upstream status semantics.
 7) RC6 — Phase 6: Report Presentation Object: Done — Package finalized Evidence Map rows and validated applicability, conformance, and draft-finding results into one immutable generic presentation object with preserved evidence, provenance, review metadata, versions, and identity checks.
-8) RC7 — Phase 7: Presentation Gates: Next — Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates.
-9) RC8 — Phase 8: Fixture Expectation Migration: Planned — Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations.
+8) RC7 — Phase 7: Presentation Gates: Done — Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates.
+9) RC8 — Phase 8: Fixture Expectation Migration: Next — Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations.
 10) RC9 — Phase 9: Readiness Report and UI Consumers: Planned — Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract, with a minimal reviewer workflow, centralized release-gate checks, traceable approve/edit/reopen history, and internal preview when client release is blocked.
 11) RC10 — Phase 10: Deprecation Review: Planned — Review old labels and organization-specific profiles only after the generic reviewer workflow and release gate are proven through a controlled pilot with qualified validation or verification professionals.

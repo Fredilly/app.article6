@@ -11,7 +11,8 @@
       "Phase 4 Draft Action/Finding Contract is complete",
       "Phase 5 Applicability Contract is complete",
       "Phase 6 Report Presentation Object is complete",
-      "Phase 7 Presentation Gates are next",
+      "Phase 7 Presentation Gates are complete",
+      "Phase 8 Fixture Expectation Migration is next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
@@ -23,7 +24,7 @@
       "Organization-specific report profiles",
       "Formal verifier authority claims"
     ],
-    "last_updated_at": "2026-07-10T00:00:00Z"
+    "last_updated_at": "2026-07-11T00:00:00Z"
   },
   "phases": {
     "phase_0_report_terminology_contract": {
@@ -63,12 +64,12 @@
     },
     "phase_7_presentation_gates": {
       "title": "Phase 7: Presentation Gates",
-      "status": "next",
+      "status": "done",
       "summary": "Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates."
     },
     "phase_8_fixture_expectation_migration": {
       "title": "Phase 8: Fixture Expectation Migration",
-      "status": "planned",
+      "status": "next",
       "summary": "Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations."
     },
     "phase_9_readiness_report_and_ui_consumers": {
