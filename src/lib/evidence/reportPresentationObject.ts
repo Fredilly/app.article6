@@ -13,7 +13,7 @@ import {
   type ConformanceConclusionBlock,
   type ConformanceConclusionResult,
 } from "@/lib/evidence/conformanceConclusionContract";
-import type { DraftFindingBlock, DraftFindingResult } from "@/lib/evidence/draftFindingContract";
+import { isDraftFindingResult, type DraftFindingBlock, type DraftFindingResult } from "@/lib/evidence/draftFindingContract";
 
 export const PRESENTATION_CONTRACT_VERSION = "v1" as const;
 
@@ -63,6 +63,8 @@ export type ReportPresentationBlock =
         | "conformance_applicability_mismatch"
         | "invalid_draft_finding_result"
         | "draft_finding_row_id_mismatch"
+        | "draft_finding_requirement_id_mismatch"
+        | "draft_finding_id_mismatch"
         | "draft_finding_conclusion_mismatch";
     }>;
 
@@ -101,30 +103,6 @@ function cloneAndFreeze<T>(value: T): T {
     ? value.map((entry) => cloneAndFreeze(entry))
     : Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => [key, cloneAndFreeze(entry)]));
   return Object.freeze(clone) as T;
-}
-
-function isDraftFindingResult(value: unknown): value is DraftFindingResult {
-  if (!isRecord(value) || !("draftFindingType" in value) || !("draftFindingRecord" in value)) return false;
-  const type = value.draftFindingType;
-  if (type === null) {
-    return value.draftFindingRecord === null &&
-      (!Object.prototype.hasOwnProperty.call(value, "blockedBy") || (Array.isArray(value.blockedBy) && value.blockedBy.length > 0));
-  }
-  if (type !== "NIR_CANDIDATE" && type !== "NCR_CANDIDATE" && type !== "OFI_CANDIDATE") return false;
-  const record = value.draftFindingRecord;
-  if (!isRecord(record)) return false;
-  return (
-    record.profile === "GENERIC_PRE_VALIDATION" &&
-    hasText(record.findingId) &&
-    hasText(record.evidenceMapRowId) &&
-    hasText(record.requirementId) &&
-    record.conformanceConclusion === "ACTION_REQUIRED" &&
-    record.draftFindingType === type &&
-    hasText(record.findingBasis) &&
-    record.clientResponse === null &&
-    hasText(record.reviewerAssessment) &&
-    record.closingRemarks === null
-  );
 }
 
 /** Package validated upstream outputs without deriving or rewriting any judgment. */
@@ -184,6 +162,12 @@ export function createReportPresentationObject(
   }
   if (draftFindingResult.draftFindingRecord !== null && draftFindingResult.draftFindingRecord.evidenceMapRowId !== row.rowId) {
     return blocked(row.rowId, [{ category: "draft_finding_row_id_mismatch" }]);
+  }
+  if (draftFindingResult.draftFindingRecord !== null && draftFindingResult.draftFindingRecord.requirementId !== row.requirement.requirementId) {
+    return blocked(row.rowId, [{ category: "draft_finding_requirement_id_mismatch" }]);
+  }
+  if (draftFindingResult.draftFindingRecord !== null && draftFindingResult.draftFindingRecord.findingId !== `draft:${row.rowId}`) {
+    return blocked(row.rowId, [{ category: "draft_finding_id_mismatch" }]);
   }
   if (
     (draftFindingResult.draftFindingRecord !== null && conformanceConclusion.conclusion !== "ACTION_REQUIRED") ||

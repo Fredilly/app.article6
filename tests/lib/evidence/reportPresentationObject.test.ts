@@ -94,6 +94,34 @@ describe("createReportPresentationObject", () => {
     const draft = deriveDraftFinding(candidate, conformance, { draftFindingType: "NIR_CANDIDATE", findingBasis: "Basis.", reviewerAssessment: "Review." });
     expect(createReportPresentationObject(candidate, applicability, conformance, draft)).toMatchObject({ ready: false, blockedBy: [{ category: "draft_finding_blocked" }] });
   });
+  it("rejects adversarial result shapes and draft identity corruption", () => {
+    const candidate = row();
+    const { applicability, conformance, draftFinding } = inputs(candidate);
+    if (draftFinding.draftFindingRecord === null) throw new Error("Expected a draft finding record");
+    expect(createReportPresentationObject(candidate, applicability, conformance, {
+      ...draftFinding,
+      draftFindingRecord: { ...draftFinding.draftFindingRecord, requirementId: "wrong-requirement" },
+    })).toMatchObject({ ready: false, blockedBy: [{ category: "draft_finding_requirement_id_mismatch" }] });
+    expect(createReportPresentationObject(candidate, applicability, conformance, {
+      ...draftFinding,
+      draftFindingRecord: { ...draftFinding.draftFindingRecord, findingId: "draft:wrong-row" },
+    })).toMatchObject({ ready: false, blockedBy: [{ category: "draft_finding_id_mismatch" }] });
+    expect(createReportPresentationObject(candidate, applicability, conformance, {
+      ...draftFinding,
+      issued: true,
+    })).toMatchObject({ ready: false, blockedBy: [{ category: "invalid_draft_finding_result" }] });
+    expect(createReportPresentationObject(candidate, applicability, {
+      ...conformance,
+      authority: "formal",
+    }, draftFinding)).toMatchObject({ ready: false, blockedBy: [{ category: "invalid_conformance_result" }] });
+
+    const blocked = deriveConformanceConclusion(candidate, applicability, { ...conformanceAssessment, requirementSupport: "NOT_EVALUATED" });
+    if (blocked.conclusion !== "NOT_ASSESSED") throw new Error("Expected a blocked conformance result");
+    expect(createReportPresentationObject(candidate, applicability, {
+      ...blocked,
+      blockedBy: [{ category: "forged_blocker" }],
+    }, draftFinding)).toMatchObject({ ready: false, blockedBy: [{ category: "invalid_conformance_result" }] });
+  });
   it("does not add formal authority fields or language", () => {
     const candidate = row();
     const { applicability, conformance, draftFinding } = inputs(candidate);
