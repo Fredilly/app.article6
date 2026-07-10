@@ -62,6 +62,12 @@ function makeRow(overrides: Partial<EvidenceMapRow> = {}): EvidenceMapRow {
     },
     evidenceProvenance: [acceptedEvidence.provenance, rejectedEvidence.provenance],
     finalizationState: "finalized",
+    finalizationActorRef: "actor-1",
+    finalizedAt: "2026-07-10T00:00:00.000Z",
+    finalizationBasis: "review-complete",
+    reviewHistoryRef: "review-history-1",
+    evidenceMapContractVersion: "evidence-map-contract-1",
+    reviewPolicyVersion: "review-policy-1",
     ...overrides,
   };
 }
@@ -83,6 +89,19 @@ describe("validateEvidenceMapDependency", () => {
     const result = validateEvidenceMapDependency(makeRow({ finalizationState: "draft" }));
 
     expect(result).toEqual({ ready: false, blockedBy: ["row_not_finalized"] });
+  });
+
+  it.each([
+    ["finalizationActorRef", "missing_finalization_actor_ref"],
+    ["finalizedAt", "missing_finalized_at"],
+    ["finalizationBasis", "missing_finalization_basis"],
+    ["reviewHistoryRef", "missing_review_history_ref"],
+    ["evidenceMapContractVersion", "missing_evidence_map_contract_version"],
+    ["reviewPolicyVersion", "missing_review_policy_version"],
+  ])("blocks missing finalized-row metadata: %s", (field, reason) => {
+    const result = validateEvidenceMapDependency(without(makeRow(), field));
+
+    expect(result).toEqual({ ready: false, blockedBy: [reason] });
   });
 
   it.each([

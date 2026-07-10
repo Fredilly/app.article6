@@ -27,6 +27,12 @@ Focused contract test: `tests/lib/evidence/evidenceMapDependencyContract.test.ts
 | `sourceDocument` | `{ documentId, documentName, contentSha256 }` | Source-document identity. Name and hash may be explicit `null`; document ID may not be absent. |
 | `evidenceProvenance` | array of provenance records | Provenance records reuse canonical `EvidenceSpan` coordinates (`docId`, `page`, `sectionPath`, `spanId`) and carry section/source labels. `[]` is structurally explicit. |
 | `finalizationState` | `draft`, `finalized`, or `unknown` | Only `finalized` is eligible for the presentation dependency boundary. |
+| `finalizationActorRef` | non-empty string | Explicit reference for the actor associated with finalization. The contract does not assess permissions. |
+| `finalizedAt` | non-empty string | Explicit finalization timestamp value. The contract does not parse or validate lifecycle timing. |
+| `finalizationBasis` | non-empty string | Explicit basis/reference for the finalization decision. |
+| `reviewHistoryRef` | non-empty string | Explicit reference to the upstream review history. The contract does not create or inspect review events. |
+| `evidenceMapContractVersion` | non-empty string | Version of the Evidence Map contract used by the row. |
+| `reviewPolicyVersion` | non-empty string | Version of the upstream review policy used by the row. |
 
 Accepted evidence records contain an `evidenceId`, exact `quote`, and provenance. Rejected records contain the same fields plus a non-empty `rejectionReason`. The validator preserves these records and their arrays without mutation or copying.
 
@@ -55,11 +61,22 @@ missing_client_action_field
 missing_search_coverage_field
 missing_source_document_identity
 missing_provenance
+missing_finalization_actor_ref
+missing_finalized_at
+missing_finalization_basis
+missing_review_history_ref
+missing_evidence_map_contract_version
+missing_review_policy_version
 ```
 
 Malformed evidence records, partial methodology identity, incomplete search coverage, incomplete source identity, and incomplete provenance are blocked under their corresponding dependency reason. The validator does not infer omitted values or turn malformed values into `null`, empty arrays, or unknown states.
 
 ## Explicit Phase 2 boundary
+
+All six finalized-row metadata fields are required and non-empty when
+`finalizationState` is `finalized`. The gate checks presence and string shape
+only; it does not determine reviewer permissions, parse timestamps, enforce
+lifecycle transitions, create audit events, or render reviewer UI.
 
 The gate checks dependency completeness only. It does not:
 

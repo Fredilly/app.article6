@@ -73,6 +73,12 @@ export type EvidenceMapRow = Readonly<{
   sourceDocument: EvidenceMapSourceDocumentIdentity;
   evidenceProvenance: readonly EvidenceMapEvidenceProvenance[];
   finalizationState: EvidenceMapFinalizationState;
+  finalizationActorRef: string;
+  finalizedAt: string;
+  finalizationBasis: string;
+  reviewHistoryRef: string;
+  evidenceMapContractVersion: string;
+  reviewPolicyVersion: string;
 }>;
 
 export type EvidenceMapDependencyBlockReason =
@@ -89,7 +95,13 @@ export type EvidenceMapDependencyBlockReason =
   | "missing_client_action_field"
   | "missing_search_coverage_field"
   | "missing_source_document_identity"
-  | "missing_provenance";
+  | "missing_provenance"
+  | "missing_finalization_actor_ref"
+  | "missing_finalized_at"
+  | "missing_finalization_basis"
+  | "missing_review_history_ref"
+  | "missing_evidence_map_contract_version"
+  | "missing_review_policy_version";
 
 export type EvidenceMapDependencyValidationResult =
   | Readonly<{
@@ -239,6 +251,15 @@ export function validateEvidenceMapDependency(
   ) {
     blockedBy.push("missing_provenance");
   }
+
+  if (!hasText(candidate.finalizationActorRef)) blockedBy.push("missing_finalization_actor_ref");
+  if (!hasText(candidate.finalizedAt)) blockedBy.push("missing_finalized_at");
+  if (!hasText(candidate.finalizationBasis)) blockedBy.push("missing_finalization_basis");
+  if (!hasText(candidate.reviewHistoryRef)) blockedBy.push("missing_review_history_ref");
+  if (!hasText(candidate.evidenceMapContractVersion)) {
+    blockedBy.push("missing_evidence_map_contract_version");
+  }
+  if (!hasText(candidate.reviewPolicyVersion)) blockedBy.push("missing_review_policy_version");
 
   if (blockedBy.length > 0) return { ready: false, blockedBy };
   return { ready: true, row: candidate as EvidenceMapRow };
