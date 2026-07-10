@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup, vvb-report-presentation-layer.
 Frozen lanes: agentic-verification.
 
 
@@ -386,13 +386,13 @@ Not active now:
 Status SSOT: `docs/roadmaps/vvb-report-presentation-layer/phase-status.json`
 Details: `docs/roadmaps/vvb-report-presentation-layer/PLAN.md`
 
-Lane status: Planned
+Lane status: Active
 Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.
 
 Current focus:
+- Phase 0 terminology and compatibility contract is complete
+- Phase 1 status consumer audit is next
 - Keep the Evidence Map upstream and canonical
-- Consume only finalized Evidence Map rows with accepted and rejected evidence
-- Use draft finding language with the GENERIC_PRE_VALIDATION profile
 - Keep the Pre-Validation Readiness Report and UI downstream
 
 Not active now:
@@ -402,7 +402,7 @@ Not active now:
 - Organization-specific report profiles
 - Formal verifier authority claims
 
-1) RC0 — Phase 0: Report Terminology Contract: Planned — Define pre-validation language, draft finding terminology, and the boundary against formal VVB authority.
+1) RC0 — Phase 0: Report Terminology Contract: Done — Define additive pre-validation language, draft finding terminology, prohibited formal-authority claims, and preservation of existing statuses without mappings.
 2) RC1 — Phase 1: Status Consumer Audit: Planned — Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields.
 3) RC2 — Phase 2: Evidence Map Dependency Contract: Planned — Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation.
 4) RC3 — Phase 3: Conformance Conclusion Contract: Planned — Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED.
