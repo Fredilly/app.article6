@@ -391,7 +391,8 @@ Add a generic pre-validation presentation layer downstream of finalized Evidence
 
 Current focus:
 - Phase 0 terminology and compatibility contract is complete
-- Phase 1 status consumer audit is next
+- Phase 1 status consumer audit is complete
+- Phase 2 Evidence Map dependency contract is next
 - Keep the Evidence Map upstream and canonical
 - Keep the Pre-Validation Readiness Report and UI downstream
 
@@ -403,8 +404,8 @@ Not active now:
 - Formal verifier authority claims
 
 1) RC0 — Phase 0: Report Terminology Contract: Done — Define additive pre-validation language, draft finding terminology, prohibited formal-authority claims, and preservation of existing statuses without mappings.
-2) RC1 — Phase 1: Status Consumer Audit: Planned — Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields.
-3) RC2 — Phase 2: Evidence Map Dependency Contract: Planned — Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation.
+2) RC1 — Phase 1: Status Consumer Audit: Done — Audit every producer, storage boundary, transformation, comparison, filter, display, fixture, analytics, and test consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence without changing runtime semantics.
+3) RC2 — Phase 2: Evidence Map Dependency Contract: Next — Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation.
 4) RC3 — Phase 3: Conformance Conclusion Contract: Planned — Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED.
 5) RC4 — Phase 4: Draft Action/Finding Contract: Planned — Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows.
 6) RC5 — Phase 5: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.

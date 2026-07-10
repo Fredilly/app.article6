@@ -5,7 +5,8 @@
     "summary": "Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.",
     "current_focus": [
       "Phase 0 terminology and compatibility contract is complete",
-      "Phase 1 status consumer audit is next",
+      "Phase 1 status consumer audit is complete",
+      "Phase 2 Evidence Map dependency contract is next",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
     ],
@@ -26,12 +27,12 @@
     },
     "phase_1_status_consumer_audit": {
       "title": "Phase 1: Status Consumer Audit",
-      "status": "planned",
-      "summary": "Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields."
+      "status": "done",
+      "summary": "Audit every producer, storage boundary, transformation, comparison, filter, display, fixture, analytics, and test consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence without changing runtime semantics."
     },
     "phase_2_evidence_map_dependency_contract": {
       "title": "Phase 2: Evidence Map Dependency Contract",
-      "status": "planned",
+      "status": "next",
       "summary": "Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation."
     },
     "phase_3_conformance_conclusion_contract": {
