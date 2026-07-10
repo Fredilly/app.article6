@@ -26,7 +26,7 @@ const assessment: ConformanceAssessmentInput = {
   versionIdentityAssessment: "MATCHED", contradictionAssessment: "NONE",
 };
 function presentation(candidate: EvidenceMapRow = row(), conformanceInput: ConformanceAssessmentInput = assessment): ReportPresentationObject {
-  const applicability = deriveApplicability(candidate, { decision: "APPLICABLE", decisionBasis: "Explicit basis." });
+  const applicability = deriveApplicability(candidate, { decision: candidate.applicabilityState === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : "APPLICABLE", decisionBasis: "Explicit basis." });
   const conformance = deriveConformanceConclusion(candidate, applicability, conformanceInput);
   const draft = deriveDraftFinding(candidate, conformance, { draftFindingType: null, findingBasis: null, reviewerAssessment: null });
   const result = createReportPresentationObject(candidate, applicability, conformance, draft);
@@ -36,18 +36,38 @@ function presentation(candidate: EvidenceMapRow = row(), conformanceInput: Confo
 function withChanges(value: ReportPresentationObject, changes: Record<string, unknown>): unknown {
   return { ...value, ...changes };
 }
+function expectDeepFrozen(value: unknown): void {
+  if (value === null || typeof value !== "object") return;
+  expect(Object.isFrozen(value)).toBe(true);
+  Object.values(value).forEach(expectDeepFrozen);
+}
 
 describe("presentation gates", () => {
   it("passes a complete valid presentation object", () => {
     const result = evaluatePresentationGate(presentation());
     expect(result).toMatchObject({ releaseReady: true, releaseState: "PRE_VALIDATION_RELEASE_READY" });
+    expect(evaluatePresentationReportGate([presentation()])).toMatchObject({ releaseReady: true, crossRowOutcome: "NOT_EVALUATED" });
+  });
+
+  it("blocks an empty report", () => {
+    expect(evaluatePresentationReportGate([])).toMatchObject({
+      releaseReady: false, releaseState: "BLOCKED", crossRowOutcome: "NOT_EVALUATED",
+      blockedBy: [{ category: "empty_report" }],
+    });
+  });
+
+  it("uses INTERNAL_REVIEW_ONLY for warning-only reports", () => {
+    expect(evaluatePresentationReportGate([withChanges(presentation(), { reviewState: "pending_review" })])).toMatchObject({
+      releaseReady: false, releaseState: "INTERNAL_REVIEW_ONLY", crossRowOutcome: "WARNING",
+      warnings: [{ category: "review_pending" }],
+    });
   });
 
   it.each([
     ["malformed presentation", null, "invalid_presentation_object"],
-    ["missing review history", withChanges(presentation(), { reviewHistoryRef: "" }), "invalid_presentation_object"],
-    ["untraceable finalization", withChanges(presentation(), { finalizationActorRef: "" }), "invalid_presentation_object"],
-    ["inconsistent applicability", withChanges(presentation(), { applicabilityResult: { applicability: "APPLICABLE", evidenceMapRowId: "other", basis: "explicit_applicable_decision", decisionBasis: "Basis." } }), "invalid_presentation_object"],
+    ["missing review history", withChanges(presentation(), { reviewHistoryRef: "" }), "review_history_missing"],
+    ["untraceable finalization", withChanges(presentation(), { finalizationActorRef: "" }), "finalization_identity_missing"],
+    ["inconsistent applicability", withChanges(presentation(), { applicabilityResult: { applicability: "APPLICABLE", evidenceMapRowId: "other", basis: "explicit_applicable_decision", decisionBasis: "Basis." } }), "applicability_inconsistent"],
     ["unsupported conformance evidence", withChanges(presentation(), { acceptedEvidence: [] }), "evidence_insufficient_for_conformance"],
     ["incomplete search coverage", withChanges(presentation(), { searchCoverage: { searched: false, searchedDocumentIds: [], notes: null } }), "search_coverage_incomplete"],
     ["missing provenance", withChanges(presentation(), { evidenceProvenance: [] }), "provenance_incomplete"],
@@ -84,13 +104,52 @@ describe("presentation gates", () => {
     ]);
   });
 
+  it("blocks contradictory applicability and accepted-versus-rejected evidence", () => {
+    const applicable = presentation();
+    const notApplicable = presentation(row({
+      rowId: "row-2", applicabilityState: "NOT_APPLICABLE", requirement: row().requirement,
+      acceptedEvidence: [], rejectedEvidence: [{ evidenceId: "accepted-1", quote: "Evidence.", rejectionReason: "Unreliable evidence.", provenance }],
+    }), { ...assessment, requirementSupport: "NOT_SUPPORTED" });
+    const result = evaluatePresentationReportGate([applicable, notApplicable]);
+    expect(result.releaseReady).toBe(false);
+    if (!result.releaseReady) expect(result.blockedBy.map((blocker) => blocker.category)).toEqual(expect.arrayContaining([
+      "conflicting_applicability", "cross_row_evidence_conflict",
+    ]));
+  });
+
+  it("detects contradictory shared facts and assumptions when supplied", () => {
+    const first = withChanges(presentation(), { sharedProjectFacts: { location: "A" }, assumptions: ["baseline is fixed"] });
+    const second = withChanges(presentation(row({ rowId: "row-2", requirement: { requirementId: "req-2", requirementReference: "REQ-2", requirementText: "Another requirement." } })), {
+      sharedProjectFacts: { location: "B" }, assumptions: ["BASELINE IS FIXED"],
+    });
+    const result = evaluatePresentationReportGate([first, second]);
+    expect(result).toMatchObject({ releaseReady: false });
+    if (!result.releaseReady) expect(result.blockedBy.map((blocker) => blocker.category)).toEqual(expect.arrayContaining([
+      "contradictory_shared_fact", "contradictory_assumption",
+    ]));
+  });
+
+  it("reports PASS when supplied cross-row facts agree", () => {
+    const first = withChanges(presentation(), { sharedProjectFacts: { location: "A" }, assumptions: ["baseline is fixed"] });
+    const second = withChanges(presentation(row({ rowId: "row-2", requirement: { requirementId: "req-2", requirementReference: "REQ-2", requirementText: "Another requirement." } })), {
+      sharedProjectFacts: { location: "A" }, assumptions: ["baseline is fixed"],
+    });
+    expect(evaluatePresentationReportGate([first, second])).toMatchObject({
+      releaseReady: true, releaseState: "PRE_VALIDATION_RELEASE_READY", crossRowOutcome: "PASS",
+    });
+  });
+
   it("preserves evidence, leaves inputs unchanged, and freezes output", () => {
-    const input = presentation();
+    const input = structuredClone(presentation());
     const before = structuredClone(input);
     const result = evaluatePresentationGate(input);
     expect(input).toEqual(before);
     expect(result).toMatchObject({ releaseReady: true });
-    expect(Object.isFrozen(result)).toBe(true);
+    if (!result.releaseReady) throw new Error("Expected a ready result");
+    expect(result.presentations[0]).not.toBe(input);
+    expectDeepFrozen(result);
+    input.acceptedEvidence[0].quote = "Mutated caller input.";
+    expect(result.presentations[0].acceptedEvidence[0].quote).toBe("Evidence.");
     expect(JSON.stringify(result)).not.toMatch(/issued|approved|validated|verified|authority/i);
   });
 });

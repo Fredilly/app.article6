@@ -46,7 +46,9 @@ export type ReportPresentationObject = Readonly<{
   reviewPolicyVersion: string;
   presentationContractVersion: typeof PRESENTATION_CONTRACT_VERSION;
   machineProposalTraceability: MachineProposalTraceability | null;
-  reviewState?: "current" | "reopened" | "superseded" | "stale";
+  reviewState?: "current" | "pending_review" | "reopened" | "superseded" | "stale";
+  sharedProjectFacts?: Readonly<Record<string, string | number | boolean | null>>;
+  assumptions?: readonly string[];
 }>;
 
 export type ReportPresentationBlock =
@@ -139,27 +141,27 @@ export function isReportPresentationObject(value: unknown): value is ReportPrese
     "conformanceConclusion", "draftFindingResult", "acceptedEvidence", "rejectedEvidence", "assessmentReason",
     "clientAction", "searchCoverage", "sourceDocument", "evidenceProvenance", "finalizationActorRef", "finalizedAt",
     "finalizationBasis", "reviewHistoryRef", "evidenceMapContractVersion", "reviewPolicyVersion", "presentationContractVersion",
-    "machineProposalTraceability", "reviewState",
+    "machineProposalTraceability", "reviewState", "sharedProjectFacts", "assumptions",
   ])) return false;
   if (value.profile !== "GENERIC_PRE_VALIDATION" || !hasText(value.evidenceMapRowId) || !hasText(value.upstreamStatus) ||
       !hasText(value.assessmentReason) || (value.clientAction !== null && !hasText(value.clientAction)) ||
-      !hasText(value.finalizationActorRef) || !hasText(value.finalizedAt) || !hasText(value.finalizationBasis) ||
-      !hasText(value.reviewHistoryRef) || !hasText(value.evidenceMapContractVersion) || !hasText(value.reviewPolicyVersion) ||
+      (value.finalizationActorRef !== undefined && typeof value.finalizationActorRef !== "string") ||
+      (value.finalizedAt !== undefined && typeof value.finalizedAt !== "string") ||
+      (value.finalizationBasis !== undefined && typeof value.finalizationBasis !== "string") ||
+      (value.reviewHistoryRef !== undefined && typeof value.reviewHistoryRef !== "string") ||
+      !hasText(value.evidenceMapContractVersion) || !hasText(value.reviewPolicyVersion) ||
       value.presentationContractVersion !== PRESENTATION_CONTRACT_VERSION ||
-      (value.reviewState !== undefined && value.reviewState !== "current" && value.reviewState !== "reopened" && value.reviewState !== "superseded" && value.reviewState !== "stale") ||
+      (value.reviewState !== undefined && value.reviewState !== "current" && value.reviewState !== "pending_review" && value.reviewState !== "reopened" && value.reviewState !== "superseded" && value.reviewState !== "stale") ||
+      (value.assumptions !== undefined && (!Array.isArray(value.assumptions) || !value.assumptions.every((entry) => hasText(entry)))) ||
+      (value.sharedProjectFacts !== undefined && (!isRecord(value.sharedProjectFacts) || Object.values(value.sharedProjectFacts).some((entry) =>
+        entry !== null && typeof entry !== "string" && typeof entry !== "number" && typeof entry !== "boolean"))) ||
       !isStrictEvidenceMapFields(value) || !isApplicabilityResult(value.applicabilityResult) ||
       !isConformanceConclusionResult(value.conformanceConclusion) || !isDraftFindingResult(value.draftFindingResult)) return false;
   if (value.machineProposalTraceability !== null &&
       (!isRecord(value.machineProposalTraceability) || !hasOnlyKeys(value.machineProposalTraceability, ["source", "evidenceMapRowId"]) ||
        value.machineProposalTraceability.source !== "EVIDENCE_MAP" || value.machineProposalTraceability.evidenceMapRowId !== value.evidenceMapRowId)) return false;
   return value.applicabilityResult.applicability !== "NOT_ASSESSED" &&
-    value.conformanceConclusion.conclusion !== "NOT_ASSESSED" &&
-    (value.applicabilityResult.evidenceMapRowId === value.evidenceMapRowId) &&
-    value.conformanceConclusion.evidenceMapRowId === value.evidenceMapRowId &&
-    (value.draftFindingResult.draftFindingRecord === null ||
-      (value.draftFindingResult.draftFindingRecord.evidenceMapRowId === value.evidenceMapRowId &&
-        value.draftFindingResult.draftFindingRecord.requirementId === (value.requirement as ReportPresentationObject["requirement"]).requirementId &&
-        value.draftFindingResult.draftFindingRecord.findingId === ("draft:" + value.evidenceMapRowId)));
+    value.conformanceConclusion.conclusion !== "NOT_ASSESSED";
 }
 
 function rowIdFrom(candidate: unknown): string | null {
