@@ -380,3 +380,36 @@ Not active now:
 4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
 6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Maya evidence map.
+
+## vvb-report-presentation-layer
+
+Status SSOT: `docs/roadmaps/vvb-report-presentation-layer/phase-status.json`
+Details: `docs/roadmaps/vvb-report-presentation-layer/PLAN.md`
+
+Lane status: Planned
+Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.
+
+Current focus:
+- Keep the Evidence Map upstream and canonical
+- Consume only finalized Evidence Map rows with accepted and rejected evidence
+- Use draft finding language with the GENERIC_PRE_VALIDATION profile
+- Keep the Pre-Validation Readiness Report and UI downstream
+
+Not active now:
+- Router status renames
+- Fixture migration
+- Gap report implementation
+- Organization-specific report profiles
+- Formal verifier authority claims
+
+1) RC0 — Phase 0: Report Terminology Contract: Planned — Define pre-validation language, draft finding terminology, and the boundary against formal VVB authority.
+2) RC1 — Phase 1: Status Consumer Audit: Planned — Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields.
+3) RC2 — Phase 2: Evidence Map Dependency Contract: Planned — Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation.
+4) RC3 — Phase 3: Conformance Conclusion Contract: Planned — Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED.
+5) RC4 — Phase 4: Draft Action/Finding Contract: Planned — Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows.
+6) RC5 — Phase 5: Applicability Contract: Planned — Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence.
+7) RC6 — Phase 6: Report Presentation Object: Planned — Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, and draft finding fields.
+8) RC7 — Phase 7: Presentation Gates: Planned — Prevent unsupported CONFORMS conclusions and unsupported draft finding candidates through applicability, evidence sufficiency, and search-coverage gates.
+9) RC8 — Phase 8: Fixture Expectation Migration: Planned — Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations.
+10) RC9 — Phase 9: Readiness Report and UI Consumers: Planned — Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract.
+11) RC10 — Phase 10: Deprecation Review: Planned — Review old labels and organization-specific profiles after the generic Evidence Map-backed product is proven.

@@ -1,0 +1,78 @@
+{
+  "roadmap": "vvb-report-presentation-layer",
+  "phase_meta": {
+    "status": "planned",
+    "summary": "Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.",
+    "current_focus": [
+      "Keep the Evidence Map upstream and canonical",
+      "Consume only finalized Evidence Map rows with accepted and rejected evidence",
+      "Use draft finding language with the GENERIC_PRE_VALIDATION profile",
+      "Keep the Pre-Validation Readiness Report and UI downstream"
+    ],
+    "not_active_now": [
+      "Router status renames",
+      "Fixture migration",
+      "Gap report implementation",
+      "Organization-specific report profiles",
+      "Formal verifier authority claims"
+    ],
+    "last_updated_at": "2026-07-09T00:00:00Z"
+  },
+  "phases": {
+    "phase_0_report_terminology_contract": {
+      "title": "Phase 0: Report Terminology Contract",
+      "status": "planned",
+      "summary": "Define pre-validation language, draft finding terminology, and the boundary against formal VVB authority."
+    },
+    "phase_1_status_consumer_audit": {
+      "title": "Phase 1: Status Consumer Audit",
+      "status": "planned",
+      "summary": "Inventory every consumer of FOUND, UNCLEAR, MISSING, answered, unclear, and no_evidence before adding presentation fields."
+    },
+    "phase_2_evidence_map_dependency_contract": {
+      "title": "Phase 2: Evidence Map Dependency Contract",
+      "status": "planned",
+      "summary": "Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation."
+    },
+    "phase_3_conformance_conclusion_contract": {
+      "title": "Phase 3: Conformance Conclusion Contract",
+      "status": "planned",
+      "summary": "Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED."
+    },
+    "phase_4_draft_action_finding_contract": {
+      "title": "Phase 4: Draft Action/Finding Contract",
+      "status": "planned",
+      "summary": "Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows."
+    },
+    "phase_5_applicability_contract": {
+      "title": "Phase 5: Applicability Contract",
+      "status": "planned",
+      "summary": "Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence."
+    },
+    "phase_6_report_presentation_object": {
+      "title": "Phase 6: Report Presentation Object",
+      "status": "planned",
+      "summary": "Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, and draft finding fields."
+    },
+    "phase_7_presentation_gates": {
+      "title": "Phase 7: Presentation Gates",
+      "status": "planned",
+      "summary": "Prevent unsupported CONFORMS conclusions and unsupported draft finding candidates through applicability, evidence sufficiency, and search-coverage gates."
+    },
+    "phase_8_fixture_expectation_migration": {
+      "title": "Phase 8: Fixture Expectation Migration",
+      "status": "planned",
+      "summary": "Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations."
+    },
+    "phase_9_readiness_report_and_ui_consumers": {
+      "title": "Phase 9: Readiness Report and UI Consumers",
+      "status": "planned",
+      "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract."
+    },
+    "phase_10_deprecation_review": {
+      "title": "Phase 10: Deprecation Review",
+      "status": "planned",
+      "summary": "Review old labels and organization-specific profiles after the generic Evidence Map-backed product is proven."
+    }
+  }
+}
