@@ -6,7 +6,7 @@ import {
 import type {
   ApplicabilityContractBlock,
 } from "@/lib/evidence/applicabilityContract";
-import { isApplicabilityResult } from "@/lib/evidence/applicabilityContract";
+import { isApplicabilityContractBlock, isApplicabilityResult } from "@/lib/evidence/applicabilityContract";
 
 export type ConformanceConclusion =
   | "CONFORMS"
@@ -94,6 +94,22 @@ const assessmentValues = {
   versionIdentityAssessment: ["MATCHED", "NOT_REQUIRED", "MISMATCHED", "UNRESOLVED"],
   contradictionAssessment: ["NONE", "BLOCKING", "NOT_EVALUATED"],
 } as const;
+const conformanceBlockCategories: readonly ConformanceConclusionBlockCategory[] = [
+  "evidence_map_dependency_blocked", "applicability_blocked", "applicability_result_invalid", "applicability_row_id_mismatch",
+  "applicability_row_state_mismatch", "invalid_assessment_input", "unsupported_upstream_status", "applicability_unknown",
+  "requirement_support_not_evaluated", "upstream_status_conflicts_with_support", "search_coverage_inadequate",
+  "search_coverage_not_evaluated", "provenance_incomplete", "provenance_not_evaluated",
+  "version_identity_not_required_for_methodology", "version_identity_matched_without_methodology", "version_identity_mismatch",
+  "version_identity_unresolved", "blocking_contradiction", "contradiction_not_evaluated",
+];
+const dependencyBlockReasons: readonly EvidenceMapDependencyBlockReason[] = [
+  "row_not_finalized", "missing_row_identity", "missing_requirement_identity", "missing_methodology_identity",
+  "missing_methodology_version", "missing_upstream_status", "missing_applicability_state",
+  "missing_accepted_evidence_field", "missing_rejected_evidence_field", "missing_assessment_reason",
+  "missing_client_action_field", "missing_search_coverage_field", "missing_source_document_identity",
+  "missing_provenance", "missing_finalization_actor_ref", "missing_finalized_at", "missing_finalization_basis",
+  "missing_review_history_ref", "missing_evidence_map_contract_version", "missing_review_policy_version",
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -106,6 +122,21 @@ function isAssessment(value: unknown): value is ConformanceAssessmentInput {
   );
 }
 
+function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  return Object.keys(value).every((key) => keys.includes(key));
+}
+
+function isConformanceBlock(value: unknown): value is ConformanceConclusionBlock {
+  if (!isRecord(value) || typeof value.category !== "string" || !conformanceBlockCategories.includes(value.category as ConformanceConclusionBlockCategory)) return false;
+  if (value.category === "evidence_map_dependency_blocked") {
+    return hasOnlyKeys(value, ["category", "reason"]) && typeof value.reason === "string" && dependencyBlockReasons.includes(value.reason as EvidenceMapDependencyBlockReason);
+  }
+  if (value.category === "applicability_blocked") {
+    return hasOnlyKeys(value, ["category", "reason"]) && isApplicabilityContractBlock(value.reason);
+  }
+  return hasOnlyKeys(value, ["category"]);
+}
+
 function block(category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked" | "applicability_blocked">): ConformanceConclusionBlock {
   return { category };
 }
@@ -115,6 +146,34 @@ function notAssessed(
   blockedBy: readonly ConformanceConclusionBlock[],
 ): ConformanceConclusionResult {
   return { conclusion: "NOT_ASSESSED", evidenceMapRowId: row?.rowId ?? null, blockedBy };
+}
+
+/** Validate a conformance result supplied by a downstream packaging contract. */
+export function isConformanceConclusionResult(value: unknown): value is ConformanceConclusionResult {
+  if (!isRecord(value) || typeof value.conclusion !== "string") return false;
+  if (value.conclusion === "NOT_ASSESSED") {
+    return (
+      hasOnlyKeys(value, ["conclusion", "evidenceMapRowId", "blockedBy"]) &&
+      (value.evidenceMapRowId === null || (typeof value.evidenceMapRowId === "string" && value.evidenceMapRowId.trim().length > 0)) &&
+      Array.isArray(value.blockedBy) &&
+      value.blockedBy.length > 0 &&
+      value.blockedBy.every(isConformanceBlock)
+    );
+  }
+  const basis = value.conclusion === "CONFORMS"
+    ? "supported_applicable_requirement"
+    : value.conclusion === "ACTION_REQUIRED"
+      ? "applicable_requirement_not_supported"
+      : value.conclusion === "NOT_APPLICABLE"
+        ? "explicit_upstream_not_applicable"
+        : null;
+  return (
+    hasOnlyKeys(value, ["conclusion", "evidenceMapRowId", "basis"]) &&
+    basis !== null &&
+    typeof value.evidenceMapRowId === "string" &&
+    value.evidenceMapRowId.trim().length > 0 &&
+    value.basis === basis
+  );
 }
 
 

@@ -76,6 +76,14 @@ function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): b
   return Object.keys(value).every((key) => keys.includes(key));
 }
 
+export function isApplicabilityContractBlock(value: unknown): value is ApplicabilityContractBlock {
+  if (!isRecord(value) || typeof value.category !== "string" || !applicabilityBlockCategories.includes(value.category as ApplicabilityContractBlockCategory)) return false;
+  if (value.category === "evidence_map_dependency_blocked") {
+    return hasOnlyKeys(value, ["category", "reason"]) && typeof value.reason === "string" && dependencyBlockReasons.includes(value.reason as EvidenceMapDependencyBlockReason);
+  }
+  return hasOnlyKeys(value, ["category"]);
+}
+
 /** Validate an applicability result at runtime, including all nested blocker values. */
 export function isApplicabilityResult(value: unknown): value is ApplicabilityResult {
   if (!isRecord(value) || typeof value.applicability !== "string") return false;
@@ -98,13 +106,7 @@ export function isApplicabilityResult(value: unknown): value is ApplicabilityRes
   if (value.applicability !== "NOT_ASSESSED" || !hasOnlyKeys(value, ["applicability", "evidenceMapRowId", "blockedBy"])) return false;
   if (value.evidenceMapRowId !== null && !hasText(value.evidenceMapRowId)) return false;
   if (!Array.isArray(value.blockedBy) || value.blockedBy.length === 0) return false;
-  return value.blockedBy.every((blocker) => {
-    if (!isRecord(blocker) || typeof blocker.category !== "string" || !applicabilityBlockCategories.includes(blocker.category as ApplicabilityContractBlockCategory)) return false;
-    if (blocker.category === "evidence_map_dependency_blocked") {
-      return hasOnlyKeys(blocker, ["category", "reason"]) && typeof blocker.reason === "string" && dependencyBlockReasons.includes(blocker.reason as EvidenceMapDependencyBlockReason);
-    }
-    return hasOnlyKeys(blocker, ["category"]);
-  });
+  return value.blockedBy.every(isApplicabilityContractBlock);
 }
 
 function rowIdFrom(candidate: unknown): string | null {

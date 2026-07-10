@@ -10,7 +10,8 @@
       "Phase 3 Conformance Conclusion Contract is complete",
       "Phase 4 Draft Action/Finding Contract is complete",
       "Phase 5 Applicability Contract is complete",
-      "Phase 6 Report Presentation Object is next",
+      "Phase 6 Report Presentation Object is complete",
+      "Phase 7 Presentation Gates are next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
@@ -57,12 +58,12 @@
     },
     "phase_6_report_presentation_object": {
       "title": "Phase 6: Report Presentation Object",
-      "status": "next",
-      "summary": "Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, draft finding fields, machine-proposal traceability, reviewer finalization metadata, review history, and contract versions without replacing the canonical Evidence Map decision."
+      "status": "done",
+      "summary": "Package finalized Evidence Map rows and validated applicability, conformance, and draft-finding results into one immutable generic presentation object with preserved evidence, provenance, review metadata, versions, and identity checks."
     },
     "phase_7_presentation_gates": {
       "title": "Phase 7: Presentation Gates",
-      "status": "planned",
+      "status": "next",
       "summary": "Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates."
     },
     "phase_8_fixture_expectation_migration": {

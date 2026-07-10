@@ -18,6 +18,8 @@ The Phase 4 draft action/finding contract is [Phase 4: Draft Action/Finding Cont
 
 The Phase 5 applicability contract is [Phase 5: Applicability Contract](./PHASE_5_APPLICABILITY_CONTRACT.md). It requires an explicit, basis-backed applicability decision matching the canonical Evidence Map row before applicability can enter conformance derivation.
 
+The Phase 6 report presentation object is [Phase 6: Report Presentation Object](./PHASE_6_REPORT_PRESENTATION_OBJECT.md). It packages validated Evidence Map, applicability, conformance, and draft-finding outputs into one immutable generic presentation object without deriving any judgment or replacing the Evidence Map.
+
 ## Product architecture
 
 Article6 has one core paid asset:
@@ -331,8 +333,8 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 - Phase 3: Conformance Conclusion Contract — done
 - Phase 4: Draft Action/Finding Contract — done
 - Phase 5: Applicability Contract — done
-- Phase 6: Report Presentation Object — planned
-- Phase 7: Presentation Gates — planned
+- Phase 6: Report Presentation Object — done
+- Phase 7: Presentation Gates — next
 - Phase 8: Fixture Expectation Migration — planned
 - Phase 9: Readiness Report and UI Consumers — planned
 - Phase 10: Deprecation Review — planned
