@@ -125,8 +125,44 @@ describe("presentation gates", () => {
     const result = evaluatePresentationReportGate([first, second]);
     expect(result).toMatchObject({ releaseReady: false });
     if (!result.releaseReady) expect(result.blockedBy.map((blocker) => blocker.category)).toEqual(expect.arrayContaining([
-      "contradictory_shared_fact", "contradictory_assumption",
+      "contradictory_shared_fact",
     ]));
+  });
+
+  it("treats case and whitespace assumption differences as equivalent", () => {
+    const first = withChanges(presentation(), { assumptions: ["baseline   is fixed"] });
+    const second = withChanges(presentation(row({ rowId: "row-2", requirement: { requirementId: "req-2", requirementReference: "REQ-2", requirementText: "Another requirement." } })), {
+      assumptions: [" BASELINE IS FIXED "],
+    });
+    expect(evaluatePresentationReportGate([first, second])).toMatchObject({ releaseReady: true });
+  });
+
+  it("detects genuinely conflicting assumptions", () => {
+    const first = withChanges(presentation(), { assumptions: ["baseline is fixed"] });
+    const second = withChanges(presentation(row({ rowId: "row-2", requirement: { requirementId: "req-2", requirementReference: "REQ-2", requirementText: "Another requirement." } })), {
+      assumptions: ["baseline is variable"],
+    });
+    const result = evaluatePresentationReportGate([first, second]);
+    expect(result).toMatchObject({ releaseReady: false, blockedBy: [{ category: "contradictory_assumption" }] });
+  });
+
+  it("uses provenance rather than evidenceId for cross-row evidence conflicts", () => {
+    const first = presentation();
+    const unrelated = presentation(row({
+      rowId: "row-2",
+      requirement: { requirementId: "req-2", requirementReference: "REQ-2", requirementText: "Another requirement." },
+      acceptedEvidence: [{ evidenceId: "accepted-1", quote: "Other evidence.", provenance: { ...provenance, docId: "doc-2", spanId: "span-2" } }],
+    }));
+    expect(evaluatePresentationReportGate([first, unrelated])).toMatchObject({ releaseReady: true });
+    const rejectedSameSpan = presentation(row({
+      rowId: "row-3",
+      requirement: { requirementId: "req-3", requirementReference: "REQ-3", requirementText: "Third requirement." },
+      acceptedEvidence: [],
+      rejectedEvidence: [{ evidenceId: "different-id", quote: "Rejected evidence.", rejectionReason: "Unreliable evidence.", provenance }],
+    }), { ...assessment, requirementSupport: "NOT_SUPPORTED" });
+    expect(evaluatePresentationReportGate([first, rejectedSameSpan])).toMatchObject({
+      releaseReady: false, blockedBy: [{ category: "cross_row_evidence_conflict" }],
+    });
   });
 
   it("reports PASS when supplied cross-row facts agree", () => {

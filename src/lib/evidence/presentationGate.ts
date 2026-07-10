@@ -1,5 +1,5 @@
 import {
-  isReportPresentationObject,
+  isReportPresentationInput,
   PRESENTATION_CONTRACT_VERSION,
   type ReportPresentationObject,
 } from "@/lib/evidence/reportPresentationObject";
@@ -75,6 +75,26 @@ function hasText(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function normalizeAssumption(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function assumptionFamily(value: string): { family: string; value: string } | null {
+  const normalized = normalizeAssumption(value);
+  const match = /^(.*\bis\b)\s+(.+)$/.exec(normalized);
+  return match === null ? null : { family: match[1], value: match[2] };
+}
+
+function evidenceIdentity(evidence: ReportPresentationObject["acceptedEvidence"][number]): string {
+  const provenance = evidence.provenance;
+  return JSON.stringify({
+    docId: provenance.docId,
+    spanId: provenance.spanId,
+    page: provenance.page,
+    sectionPath: provenance.sectionPath,
+  });
+}
+
 function block(category: PresentationGateBlockCategory, evidenceMapRowId: string | null, detail?: string): PresentationGateBlock {
   return Object.freeze(detail === undefined ? { category, evidenceMapRowId } : { category, evidenceMapRowId, detail });
 }
@@ -104,7 +124,7 @@ function evaluatePresentation(presentation: unknown): {
   blockers: readonly PresentationGateBlock[];
   warnings: readonly PresentationGateBlock[];
 } {
-  if (!isReportPresentationObject(presentation)) {
+  if (!isReportPresentationInput(presentation)) {
     return { blockers: [block("invalid_presentation_object", null)], warnings: [] };
   }
   const rowId = hasText(presentation.evidenceMapRowId) ? presentation.evidenceMapRowId : null;
@@ -205,7 +225,7 @@ function resultFor(
 /** Evaluate one Phase 6 object without deriving any upstream judgment. */
 export function evaluatePresentationGate(presentation: unknown): PresentationGateResult {
   const evaluation = evaluatePresentation(presentation);
-  const presentations = isReportPresentationObject(presentation) ? [presentation] : [];
+  const presentations = isReportPresentationInput(presentation) ? [presentation] : [];
   return resultFor(presentations, evaluation.blockers, evaluation.warnings, "NOT_EVALUATED");
 }
 
@@ -214,7 +234,7 @@ export function evaluatePresentationReportGate(presentationsInput: unknown): Pre
   if (!Array.isArray(presentationsInput) || presentationsInput.length === 0) {
     return resultFor([], [block("empty_report", null)], [], "NOT_EVALUATED");
   }
-  const presentations = presentationsInput.filter(isReportPresentationObject);
+  const presentations = presentationsInput.filter(isReportPresentationInput);
   const blockers: PresentationGateBlock[] = [];
   const warnings: PresentationGateBlock[] = [];
   if (presentations.length !== presentationsInput.length) blockers.push(block("invalid_presentation_object", null));
@@ -248,8 +268,8 @@ export function evaluatePresentationReportGate(presentationsInput: unknown): Pre
     }
     requirementConclusions.set(requirementKey, presentation.conformanceConclusion.conclusion);
     methodologyIdentities.add(methodologyKey(presentation.methodology));
-    presentation.acceptedEvidence.forEach((evidence) => acceptedEvidence.set(evidence.evidenceId, rowId));
-    presentation.rejectedEvidence.forEach((evidence) => rejectedEvidence.set(evidence.evidenceId, evidence.rejectionReason));
+    presentation.acceptedEvidence.forEach((evidence) => acceptedEvidence.set(evidenceIdentity(evidence), rowId));
+    presentation.rejectedEvidence.forEach((evidence) => rejectedEvidence.set(evidenceIdentity(evidence), evidence.rejectionReason));
     if (presentation.sharedProjectFacts !== undefined) {
       Object.entries(presentation.sharedProjectFacts).forEach(([key, value]) => {
         const normalized = JSON.stringify(value);
@@ -259,10 +279,11 @@ export function evaluatePresentationReportGate(presentationsInput: unknown): Pre
       });
     }
     presentation.assumptions?.forEach((assumption) => {
-      const key = assumption.trim().toLowerCase();
-      const prior = assumptions.get(key);
-      if (prior !== undefined && prior !== assumption) blockers.push(block("contradictory_assumption", rowId, key));
-      assumptions.set(key, assumption);
+      const parsed = assumptionFamily(assumption);
+      if (parsed === null) return;
+      const prior = assumptions.get(parsed.family);
+      if (prior !== undefined && prior !== parsed.value) blockers.push(block("contradictory_assumption", rowId, parsed.family));
+      assumptions.set(parsed.family, parsed.value);
     });
   });
   if (methodologyIdentities.size > 1) blockers.push(block("inconsistent_methodology_identity", null));

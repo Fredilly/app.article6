@@ -96,6 +96,16 @@ function hasAllowedKeys(value: Record<string, unknown>, keys: readonly string[])
   return Object.keys(value).every((key) => keys.includes(key));
 }
 
+function hasRequiredKeys(
+  value: Record<string, unknown>,
+  requiredKeys: readonly string[],
+  optionalKeys: readonly string[],
+): boolean {
+  const allowedKeys = [...requiredKeys, ...optionalKeys];
+  return requiredKeys.every((key) => Object.prototype.hasOwnProperty.call(value, key)) &&
+    hasAllowedKeys(value, allowedKeys);
+}
+
 function isEvidenceProvenance(value: unknown): boolean {
   if (!isRecord(value) || !hasOnlyKeys(value, ["docId", "page", "sectionPath", "spanId", "sectionHeading", "sourceType"])) {
     return false;
@@ -134,21 +144,22 @@ function isStrictEvidenceMapFields(value: Record<string, unknown>): boolean {
   return true;
 }
 
-/** Strict runtime validator for the immutable Phase 6 boundary. */
-export function isReportPresentationObject(value: unknown): value is ReportPresentationObject {
-  if (!isRecord(value) || !hasAllowedKeys(value, [
-    "profile", "evidenceMapRowId", "requirement", "methodology", "upstreamStatus", "applicabilityResult",
-    "conformanceConclusion", "draftFindingResult", "acceptedEvidence", "rejectedEvidence", "assessmentReason",
-    "clientAction", "searchCoverage", "sourceDocument", "evidenceProvenance", "finalizationActorRef", "finalizedAt",
-    "finalizationBasis", "reviewHistoryRef", "evidenceMapContractVersion", "reviewPolicyVersion", "presentationContractVersion",
-    "machineProposalTraceability", "reviewState", "sharedProjectFacts", "assumptions",
-  ])) return false;
+const requiredPresentationKeys = [
+  "profile", "evidenceMapRowId", "requirement", "methodology", "upstreamStatus", "applicabilityResult",
+  "conformanceConclusion", "draftFindingResult", "acceptedEvidence", "rejectedEvidence", "assessmentReason",
+  "clientAction", "searchCoverage", "sourceDocument", "evidenceProvenance", "evidenceMapContractVersion",
+  "reviewPolicyVersion", "presentationContractVersion", "machineProposalTraceability",
+] as const;
+const releaseMetadataKeys = ["finalizationActorRef", "finalizedAt", "finalizationBasis", "reviewHistoryRef"] as const;
+const optionalPresentationKeys = ["reviewState", "sharedProjectFacts", "assumptions"] as const;
+
+function parseReportPresentationInput(value: unknown, strict: boolean): value is ReportPresentationObject {
+  if (!isRecord(value) || !hasRequiredKeys(value, requiredPresentationKeys, [...releaseMetadataKeys, ...optionalPresentationKeys])) return false;
+  if (strict && !releaseMetadataKeys.every((key) => Object.prototype.hasOwnProperty.call(value, key))) return false;
   if (value.profile !== "GENERIC_PRE_VALIDATION" || !hasText(value.evidenceMapRowId) || !hasText(value.upstreamStatus) ||
       !hasText(value.assessmentReason) || (value.clientAction !== null && !hasText(value.clientAction)) ||
-      (value.finalizationActorRef !== undefined && typeof value.finalizationActorRef !== "string") ||
-      (value.finalizedAt !== undefined && typeof value.finalizedAt !== "string") ||
-      (value.finalizationBasis !== undefined && typeof value.finalizationBasis !== "string") ||
-      (value.reviewHistoryRef !== undefined && typeof value.reviewHistoryRef !== "string") ||
+      !releaseMetadataKeys.every((key) => value[key] === undefined || typeof value[key] === "string") ||
+      (strict && !releaseMetadataKeys.every((key) => hasText(value[key]))) ||
       !hasText(value.evidenceMapContractVersion) || !hasText(value.reviewPolicyVersion) ||
       value.presentationContractVersion !== PRESENTATION_CONTRACT_VERSION ||
       (value.reviewState !== undefined && value.reviewState !== "current" && value.reviewState !== "pending_review" && value.reviewState !== "reopened" && value.reviewState !== "superseded" && value.reviewState !== "stale") ||
@@ -160,8 +171,25 @@ export function isReportPresentationObject(value: unknown): value is ReportPrese
   if (value.machineProposalTraceability !== null &&
       (!isRecord(value.machineProposalTraceability) || !hasOnlyKeys(value.machineProposalTraceability, ["source", "evidenceMapRowId"]) ||
        value.machineProposalTraceability.source !== "EVIDENCE_MAP" || value.machineProposalTraceability.evidenceMapRowId !== value.evidenceMapRowId)) return false;
-  return value.applicabilityResult.applicability !== "NOT_ASSESSED" &&
-    value.conformanceConclusion.conclusion !== "NOT_ASSESSED";
+  if (value.applicabilityResult.applicability === "NOT_ASSESSED" || value.conformanceConclusion.conclusion === "NOT_ASSESSED") return false;
+  if (!strict) return true;
+  const draftRecord = value.draftFindingResult.draftFindingRecord;
+  return value.applicabilityResult.evidenceMapRowId === value.evidenceMapRowId &&
+    value.conformanceConclusion.evidenceMapRowId === value.evidenceMapRowId &&
+    (draftRecord === null ||
+      (draftRecord.evidenceMapRowId === value.evidenceMapRowId &&
+        draftRecord.requirementId === (value.requirement as ReportPresentationObject["requirement"]).requirementId &&
+        draftRecord.findingId === "draft:" + value.evidenceMapRowId));
+}
+
+/** Strict runtime validator for the immutable Phase 6 boundary. */
+export function isReportPresentationObject(value: unknown): value is ReportPresentationObject {
+  return parseReportPresentationInput(value, true);
+}
+
+/** Permissive structural parser used by Phase 7 before release-safety blockers are evaluated. */
+export function isReportPresentationInput(value: unknown): value is ReportPresentationObject {
+  return parseReportPresentationInput(value, false);
 }
 
 function rowIdFrom(candidate: unknown): string | null {
