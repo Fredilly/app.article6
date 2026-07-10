@@ -32,6 +32,11 @@ type ConformanceAssessmentInput = Readonly<{
 These are explicit decision inputs. Later gates may calculate them; Phase 3
 only consumes them.
 
+Version identity is coupled to the row's methodology identity: a non-null
+methodology requires `MATCHED`, while a null methodology permits
+`NOT_REQUIRED`. `NOT_REQUIRED` for a non-null methodology and `MATCHED` for a
+null methodology are inconsistent and fail closed with typed blockers.
+
 ## Output contract
 
 The result is a discriminated union. Positive results contain the Evidence Map
@@ -59,6 +64,9 @@ type ConformanceConclusionResult =
 | Explicit `applicabilityState: NOT_APPLICABLE`, safe version identity, complete provenance, and no blocking contradiction | `NOT_APPLICABLE` |
 | `APPLICABLE`, `SUPPORTED`, adequate or not-required search, complete provenance, safe version, no contradiction, and upstream `FOUND` or `answered` | `CONFORMS` |
 | `APPLICABLE`, `NOT_SUPPORTED`, the same safe gates, and upstream `FOUND`, `UNCLEAR`, `MISSING`, `answered`, `unclear`, or `no_evidence` | `ACTION_REQUIRED` |
+
+For rows with a methodology identity, “safe version” means `MATCHED`. For rows
+whose methodology is explicitly null, “safe version” means `NOT_REQUIRED`.
 
 `FOUND` or `answered` alone never conforms. Supported `UNCLEAR`, `MISSING`,
 `unclear`, or `no_evidence` fails closed because the explicit inputs conflict.

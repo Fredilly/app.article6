@@ -37,6 +37,8 @@ export type ConformanceConclusionBlockCategory =
   | "search_coverage_not_evaluated"
   | "provenance_incomplete"
   | "provenance_not_evaluated"
+  | "version_identity_not_required_for_methodology"
+  | "version_identity_matched_without_methodology"
   | "version_identity_mismatch"
   | "version_identity_unresolved"
   | "blocking_contradiction"
@@ -139,6 +141,12 @@ export function deriveConformanceConclusion(
   }
   if (assessment.requirementSupport === "SUPPORTED" && unsupportedUpstreamStatuses.has(row.upstreamStatus)) {
     blockedBy.push(block("upstream_status_conflicts_with_support"));
+  }
+  if (row.methodology !== null && assessment.versionIdentityAssessment === "NOT_REQUIRED") {
+    blockAndPush(blockedBy, "version_identity_not_required_for_methodology");
+  }
+  if (row.methodology === null && assessment.versionIdentityAssessment === "MATCHED") {
+    blockAndPush(blockedBy, "version_identity_matched_without_methodology");
   }
   if (assessment.versionIdentityAssessment === "MISMATCHED") blockAndPush(blockedBy, "version_identity_mismatch");
   if (assessment.versionIdentityAssessment === "UNRESOLVED") blockAndPush(blockedBy, "version_identity_unresolved");

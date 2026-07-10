@@ -20,6 +20,7 @@ const complete: ConformanceAssessmentInput = {
   requirementSupport: "SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE",
   versionIdentityAssessment: "NOT_REQUIRED", contradictionAssessment: "NONE",
 };
+const methodology = { methodologyId: "method-1", rulebookVersion: "v1.0" };
 function assess(overrides: Partial<ConformanceAssessmentInput> = {}): ConformanceAssessmentInput { return { ...complete, ...overrides }; }
 function conclusion(result: ConformanceConclusionResult): string { return result.conclusion; }
 
@@ -38,6 +39,22 @@ describe("deriveConformanceConclusion", () => {
   it("requires explicit not-applicable applicability", () => {
     expect(conclusion(deriveConformanceConclusion(row({ applicabilityState: "NOT_APPLICABLE" }), complete))).toBe("NOT_APPLICABLE");
     expect(conclusion(deriveConformanceConclusion(row({ applicabilityState: "UNKNOWN" }), complete))).toBe("NOT_ASSESSED");
+  });
+  it.each(["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE"]) ("allows %s with methodology only when version identity is matched", (expected) => {
+    const assessment = assess({
+      versionIdentityAssessment: "MATCHED",
+      requirementSupport: expected === "ACTION_REQUIRED" ? "NOT_SUPPORTED" : "SUPPORTED",
+    });
+    const candidate = row({ methodology, applicabilityState: expected === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : "APPLICABLE" });
+    const result = deriveConformanceConclusion(candidate, assessment);
+    expect(conclusion(result)).toBe(expected);
+  });
+  it.each([
+    [null, "MATCHED", "version_identity_matched_without_methodology"],
+    [methodology, "NOT_REQUIRED", "version_identity_not_required_for_methodology"],
+  ])("blocks inconsistent methodology/version identity combinations", (rowMethodology, versionIdentityAssessment, reason) => {
+    const result = deriveConformanceConclusion(row({ methodology: rowMethodology }), assess({ versionIdentityAssessment }));
+    expect(result).toMatchObject({ conclusion: "NOT_ASSESSED", blockedBy: [{ category: reason }] });
   });
   it.each(["UNCLEAR", "MISSING", "unclear", "no_evidence"]) ("does not treat %s as not applicable", (upstreamStatus) => {
     expect(conclusion(deriveConformanceConclusion(row({ upstreamStatus }), complete))).toBe("NOT_ASSESSED");
