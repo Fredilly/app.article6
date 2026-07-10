@@ -10,8 +10,9 @@ classify draft findings.
 
 ## Input contract
 
-The per-object gate accepts one ReportPresentationObject value. The value must
-pass the strict Phase 6 runtime validator, including finalized-row metadata,
+The per-object gate accepts one typed PresentationGateInput containing a strict
+Phase 6 ReportPresentationObject and optional typed review state. The Phase 6
+object itself remains unchanged. It must pass the strict Phase 6 runtime validator, including finalized-row metadata,
 typed applicability/conformance/draft-finding results, preserved accepted and
 rejected evidence, provenance, and supported presentation version.
 
@@ -30,11 +31,10 @@ The result uses these release states:
 
 It also reports a cross-row outcome:
 
-- PASS when available generic cross-row values agree;
+- PASS when at least one typed methodology/version or composite-requirement comparison succeeds;
 - WARNING when review is pending and release is limited to internal review;
 - BLOCKED when a cross-row contradiction exists;
-- NOT_EVALUATED when the Phase 6 object does not contain a value, such as
-  shared project facts or assumptions.
+- NOT_EVALUATED when fewer than two comparable rows exist or typed comparison data is unavailable.
 
 An empty report returns BLOCKED with the typed empty_report blocker. A blocked
 result is fail-closed and cannot be interpreted as release-ready. Gate results,
@@ -50,9 +50,9 @@ frozen.
 | Review history | Non-empty review history reference | Missing or blank reference |
 | Applicability consistency | Explicit successful applicability agrees with packaged conclusion | Unknown, mismatched, or contradictory applicability |
 | Evidence sufficiency | CONFORMS has accepted evidence with provenance | CONFORMS has no accepted evidence |
-| Search coverage | Applicable rows record completed search coverage | Required search is incomplete or unresolved |
-| Provenance | Packaged provenance and evidence provenance remain traceable | Provenance is absent or malformed |
-| Version identity | Methodology/version and contract versions are supported | Version identity is unresolved, mismatched, or unsupported |
+| Search linkage | Evidence provenance document appears in searched document IDs | Evidence references an unsearched document |
+| Provenance | Every evidence item has a matching canonical provenance entry | Evidence provenance is orphaned |
+| Version identity | Same methodology ID has one rulebook version | Same methodology ID carries conflicting versions |
 | Review state | Current or unavailable review state | Reopened, superseded, or stale state |
 | Cross-row consistency | Unique row IDs and consistent generic identities | Duplicate rows, conflicting applicability/conclusions, methodology drift, accepted-versus-unreliable evidence, or contradictory supplied facts/assumptions |
 
@@ -75,7 +75,7 @@ The result uses only pre-validation language. It does not claim VVB approval,
 validation, verification, issuance, closure, or formal authority. This phase
 does not migrate fixtures, implement report or UI consumers, create PDFs,
 change Quick Check or Evidence Map semantics, rename legacy statuses, alter
-gold truth, or implement methodology-specific release rules. Shared project
-facts and assumptions are checked only when supplied by the Phase 6 object;
-otherwise those checks are explicitly NOT_EVALUATED. Phase 8 remains the next
-roadmap phase.
+gold truth, or implement methodology-specific release rules. Project facts,
+assumptions, and accepted-versus-rejected reliability conflicts are
+NOT_EVALUATED until a typed upstream contract provides them; prose fields are
+never interpreted by this gate. Phase 8 remains the next roadmap phase.
