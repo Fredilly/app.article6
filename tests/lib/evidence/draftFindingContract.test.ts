@@ -34,6 +34,17 @@ describe("deriveDraftFinding", () => {
     expect(findingType(result)).toBe(draftFindingType);
     expect(result).toMatchObject({ draftFindingRecord: { profile: "GENERIC_PRE_VALIDATION", evidenceMapRowId: "row-1", requirementId: "req-1", conformanceConclusion: "ACTION_REQUIRED", clientResponse: null, closingRemarks: null } });
   });
+  it("keeps one stable record identity when classification changes", () => {
+    const findingIds = ["NIR_CANDIDATE", "NCR_CANDIDATE", "OFI_CANDIDATE"].map((draftFindingType) => {
+      const result = deriveDraftFinding(row(), actionRequired, assessment(draftFindingType as DraftFindingAssessmentInput["draftFindingType"], "Explicit classification basis.", "Reviewer assessment."));
+      if (result.draftFindingRecord === null) throw new Error("Expected a draft finding record");
+      return result.draftFindingRecord.findingId;
+    });
+
+    expect(new Set(findingIds)).toEqual(new Set(["draft:row-1"]));
+    expect(findingIds[0]).toBe(findingIds[1]);
+    expect(findingIds[1]).toBe(findingIds[2]);
+  });
   it.each([
     ["CONFORMS", deriveConformanceConclusion(row({ upstreamStatus: "FOUND" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],
     ["NOT_APPLICABLE", deriveConformanceConclusion(row({ applicabilityState: "NOT_APPLICABLE" }), { ...conformanceAssessment, requirementSupport: "SUPPORTED" })],

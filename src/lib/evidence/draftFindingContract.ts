@@ -167,7 +167,7 @@ export function deriveDraftFinding(
   const findingBasis = assessmentInput.findingBasis as string;
   const reviewerAssessment = assessmentInput.reviewerAssessment as string;
   const record: DraftFindingRecord = {
-    findingId: `draft:${row.rowId}:${assessmentInput.draftFindingType}`,
+    findingId: `draft:${row.rowId}`,
     profile: "GENERIC_PRE_VALIDATION",
     evidenceMapRowId: row.rowId,
     requirementId: row.requirement.requirementId,
