@@ -3,6 +3,10 @@ import {
   type EvidenceMapDependencyBlockReason,
   type EvidenceMapRow,
 } from "@/lib/evidence/evidenceMapDependencyContract";
+import type {
+  ApplicabilityContractBlock,
+} from "@/lib/evidence/applicabilityContract";
+import { isApplicabilityResult } from "@/lib/evidence/applicabilityContract";
 
 export type ConformanceConclusion =
   | "CONFORMS"
@@ -28,6 +32,10 @@ export type ConformanceAssessmentInput = Readonly<{
 
 export type ConformanceConclusionBlockCategory =
   | "evidence_map_dependency_blocked"
+  | "applicability_blocked"
+  | "applicability_result_invalid"
+  | "applicability_row_id_mismatch"
+  | "applicability_row_state_mismatch"
   | "invalid_assessment_input"
   | "unsupported_upstream_status"
   | "applicability_unknown"
@@ -50,7 +58,11 @@ export type ConformanceConclusionBlock =
       reason: EvidenceMapDependencyBlockReason;
     }>
   | Readonly<{
-      category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked">;
+      category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked" | "applicability_blocked">;
+    }>
+  | Readonly<{
+      category: "applicability_blocked";
+      reason: ApplicabilityContractBlock;
     }>;
 
 export type ConformanceConclusionResult =
@@ -94,7 +106,7 @@ function isAssessment(value: unknown): value is ConformanceAssessmentInput {
   );
 }
 
-function block(category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked">): ConformanceConclusionBlock {
+function block(category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked" | "applicability_blocked">): ConformanceConclusionBlock {
   return { category };
 }
 
@@ -105,12 +117,14 @@ function notAssessed(
   return { conclusion: "NOT_ASSESSED", evidenceMapRowId: row?.rowId ?? null, blockedBy };
 }
 
+
 const supportedUpstreamStatuses = new Set(["FOUND", "answered"]);
 const unsupportedUpstreamStatuses = new Set(["UNCLEAR", "MISSING", "unclear", "no_evidence"]);
 
 /** Derive a conclusion from a finalized Evidence Map row and explicit assessments. */
 export function deriveConformanceConclusion(
   candidate: unknown,
+  applicabilityResultInput: unknown,
   assessmentInput: unknown,
 ): ConformanceConclusionResult {
   const dependency = validateEvidenceMapDependency(candidate);
@@ -127,6 +141,22 @@ export function deriveConformanceConclusion(
   }
 
   const row = dependency.row;
+  if (!isApplicabilityResult(applicabilityResultInput)) {
+    return notAssessed(row, [block("applicability_result_invalid")]);
+  }
+  const applicabilityResult = applicabilityResultInput;
+  if (applicabilityResult.applicability === "NOT_ASSESSED") {
+    return notAssessed(
+      row,
+      applicabilityResult.blockedBy.map((reason) => ({ category: "applicability_blocked" as const, reason })),
+    );
+  }
+  if (applicabilityResult.evidenceMapRowId !== row.rowId) {
+    return notAssessed(row, [block("applicability_row_id_mismatch")]);
+  }
+  if (applicabilityResult.applicability !== row.applicabilityState) {
+    return notAssessed(row, [block("applicability_row_state_mismatch")]);
+  }
   if (!isAssessment(assessmentInput)) return notAssessed(row, [block("invalid_assessment_input")]);
 
   const assessment = assessmentInput;
@@ -135,7 +165,6 @@ export function deriveConformanceConclusion(
   if (!supportedUpstreamStatuses.has(row.upstreamStatus) && !unsupportedUpstreamStatuses.has(row.upstreamStatus)) {
     blockedBy.push(block("unsupported_upstream_status"));
   }
-  if (row.applicabilityState === "UNKNOWN") blockedBy.push(block("applicability_unknown"));
   if (assessment.requirementSupport === "NOT_EVALUATED") {
     blockedBy.push(block("requirement_support_not_evaluated"));
   }
@@ -154,7 +183,7 @@ export function deriveConformanceConclusion(
   if (assessment.provenanceAssessment === "NOT_EVALUATED") blockAndPush(blockedBy, "provenance_not_evaluated");
   if (assessment.contradictionAssessment === "BLOCKING") blockAndPush(blockedBy, "blocking_contradiction");
   if (assessment.contradictionAssessment === "NOT_EVALUATED") blockAndPush(blockedBy, "contradiction_not_evaluated");
-  if (row.applicabilityState === "APPLICABLE") {
+  if (applicabilityResult.applicability === "APPLICABLE") {
     if (assessment.searchCoverageAssessment === "INADEQUATE") blockAndPush(blockedBy, "search_coverage_inadequate");
     if (assessment.searchCoverageAssessment === "NOT_EVALUATED") blockAndPush(blockedBy, "search_coverage_not_evaluated");
   }
@@ -164,12 +193,12 @@ export function deriveConformanceConclusion(
   const safeVersion = assessment.versionIdentityAssessment === "MATCHED" || assessment.versionIdentityAssessment === "NOT_REQUIRED";
   const safeProvenance = assessment.provenanceAssessment === "COMPLETE";
   const safeContradiction = assessment.contradictionAssessment === "NONE";
-  if (row.applicabilityState === "NOT_APPLICABLE" && safeVersion && safeProvenance && safeContradiction) {
+  if (applicabilityResult.applicability === "NOT_APPLICABLE" && safeVersion && safeProvenance && safeContradiction) {
     return { conclusion: "NOT_APPLICABLE", evidenceMapRowId: row.rowId, basis: "explicit_upstream_not_applicable" };
   }
 
   const adequateSearch = assessment.searchCoverageAssessment === "ADEQUATE" || assessment.searchCoverageAssessment === "NOT_REQUIRED";
-  if (row.applicabilityState !== "APPLICABLE" || !adequateSearch || !safeVersion || !safeProvenance || !safeContradiction) {
+  if (applicabilityResult.applicability !== "APPLICABLE" || !adequateSearch || !safeVersion || !safeProvenance || !safeContradiction) {
     return notAssessed(row, [block("invalid_assessment_input")]);
   }
   if (assessment.requirementSupport === "SUPPORTED") {
@@ -180,7 +209,7 @@ export function deriveConformanceConclusion(
 
 function blockAndPush(
   blockedBy: ConformanceConclusionBlock[],
-  category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked">,
+  category: Exclude<ConformanceConclusionBlockCategory, "evidence_map_dependency_blocked" | "applicability_blocked">,
 ): void {
   blockedBy.push(block(category));
 }

@@ -9,7 +9,8 @@
       "Phase 2 Evidence Map dependency contract is complete",
       "Phase 3 Conformance Conclusion Contract is complete",
       "Phase 4 Draft Action/Finding Contract is complete",
-      "Phase 5 Applicability Contract is next",
+      "Phase 5 Applicability Contract is complete",
+      "Phase 6 Report Presentation Object is next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
@@ -51,12 +52,12 @@
     },
     "phase_5_applicability_contract": {
       "title": "Phase 5: Applicability Contract",
-      "status": "next",
-      "summary": "Ensure NOT_APPLICABLE is derived only from an explicit applicability decision, not from missing or unclear evidence."
+      "status": "done",
+      "summary": "Require a basis-backed explicit applicability decision matching the canonical Evidence Map row; block missing, unknown, contradictory, or unevaluated applicability without changing upstream status semantics."
     },
     "phase_6_report_presentation_object": {
       "title": "Phase 6: Report Presentation Object",
-      "status": "planned",
+      "status": "next",
       "summary": "Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, draft finding fields, machine-proposal traceability, reviewer finalization metadata, review history, and contract versions without replacing the canonical Evidence Map decision."
     },
     "phase_7_presentation_gates": {

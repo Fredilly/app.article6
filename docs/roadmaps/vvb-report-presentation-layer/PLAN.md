@@ -16,6 +16,8 @@ The Phase 3 conclusion contract is [Phase 3: Conformance Conclusion Contract](./
 
 The Phase 4 draft action/finding contract is [Phase 4: Draft Action/Finding Contract](./PHASE_4_DRAFT_ACTION_FINDING_CONTRACT.md). It consumes a Phase 3 conclusion and explicit candidate classification to produce only generic NIR, NCR, or OFI candidates, or null, without selecting evidence or claiming formal authority.
 
+The Phase 5 applicability contract is [Phase 5: Applicability Contract](./PHASE_5_APPLICABILITY_CONTRACT.md). It requires an explicit, basis-backed applicability decision matching the canonical Evidence Map row before applicability can enter conformance derivation.
+
 ## Product architecture
 
 Article6 has one core paid asset:
@@ -328,7 +330,7 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 - Phase 2: Evidence Map Dependency Contract — done
 - Phase 3: Conformance Conclusion Contract — done
 - Phase 4: Draft Action/Finding Contract — done
-- Phase 5: Applicability Contract — next
+- Phase 5: Applicability Contract — done
 - Phase 6: Report Presentation Object — planned
 - Phase 7: Presentation Gates — planned
 - Phase 8: Fixture Expectation Migration — planned

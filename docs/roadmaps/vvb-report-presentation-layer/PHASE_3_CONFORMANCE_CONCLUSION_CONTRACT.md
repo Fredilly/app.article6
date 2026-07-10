@@ -3,8 +3,8 @@
 ## Scope
 
 `deriveConformanceConclusion` is a pure, centralized contract downstream of the
-Phase 2 Evidence Map dependency gate. It consumes a candidate row and explicit
-assessment inputs and derives only `CONFORMS`, `ACTION_REQUIRED`,
+Phase 2 Evidence Map dependency gate. It consumes a candidate row, a validated
+Phase 5 applicability result, and explicit assessment inputs and derives only `CONFORMS`, `ACTION_REQUIRED`,
 `NOT_APPLICABLE`, or `NOT_ASSESSED`.
 
 It does not calculate assessments from evidence counts, quotes, search flags,
@@ -15,7 +15,9 @@ findings or choose a finding type; those are Phase 4 concerns.
 
 The row input is `unknown` and is first passed to
 `validateEvidenceMapDependency`. A row must therefore be a complete finalized
-Evidence Map row. The assessment input is:
+Evidence Map row. The second input is the successful or blocked result from
+`deriveApplicability`; a successful result must preserve the same row ID and
+match the row's canonical applicability state. The remaining assessment input is:
 
 ```ts
 type ConformanceAssessmentInput = Readonly<{
@@ -61,7 +63,7 @@ type ConformanceConclusionResult =
 | Conditions after the Phase 2 gate | Conclusion |
 | --- | --- |
 | Dependency blocked, malformed assessments, unsupported status, unknown applicability, unevaluated support, unsafe version/provenance/contradiction, conflicting support/status, or inadequate/unevaluated required search | `NOT_ASSESSED` |
-| Explicit `applicabilityState: NOT_APPLICABLE`, safe version identity, complete provenance, and no blocking contradiction | `NOT_APPLICABLE` |
+| Successful matching explicit `NOT_APPLICABLE` applicability result, safe version identity, complete provenance, and no blocking contradiction | `NOT_APPLICABLE` |
 | `APPLICABLE`, `SUPPORTED`, adequate or not-required search, complete provenance, safe version, no contradiction, and upstream `FOUND` or `answered` | `CONFORMS` |
 | `APPLICABLE`, `NOT_SUPPORTED`, the same safe gates, and upstream `FOUND`, `UNCLEAR`, `MISSING`, `answered`, `unclear`, or `no_evidence` | `ACTION_REQUIRED` |
 
@@ -74,11 +76,14 @@ Missing or unclear evidence never means `NOT_APPLICABLE`.
 
 ## Fail-closed behavior and boundaries
 
-Malformed assessment values, unknown upstream statuses, incomplete or
+Malformed applicability or assessment values, unknown upstream statuses, incomplete or
 unevaluated provenance, mismatched or unresolved version identity, blocking or
 unevaluated contradiction review, unknown applicability, and insufficient
 search coverage produce `NOT_ASSESSED`. Dependency validation always runs first;
-its reasons are preserved in validator order. Inputs are not mutated.
+its reasons are preserved in validator order. Blocked applicability is propagated
+as `NOT_ASSESSED`, and only a successful matching explicit `NOT_APPLICABLE`
+applicability result can produce the `NOT_APPLICABLE` conclusion. Inputs are not
+mutated.
 
 Phase 4 may define `NIR_CANDIDATE`, `NCR_CANDIDATE`, `OFI_CANDIDATE`, and null
 draft-finding outputs. Phase 3 does not implement those records, an
