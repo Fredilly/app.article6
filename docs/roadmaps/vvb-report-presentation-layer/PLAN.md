@@ -8,6 +8,8 @@ Build a generic pre-validation report presentation layer downstream of the Evide
 
 The authoritative terminology and backward-compatibility contract is [Phase 0: Report Terminology Contract](./PHASE_0_TERMINOLOGY_CONTRACT.md). It defines additive downstream vocabulary only. It does not map existing statuses to presentation conclusions or change any runtime consumer.
 
+The Phase 1 status inventory is [Phase 1: Status Consumer Audit](./PHASE_1_STATUS_CONSUMER_AUDIT.md). It records every repository consumer of the existing status families and introduces no runtime mapping or semantic change.
+
 ## Product architecture
 
 Article6 has one core paid asset:
@@ -184,17 +186,17 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 
 ## Phases
 
-- Phase 0: Report Terminology Contract
-- Phase 1: Status Consumer Audit
-- Phase 2: Evidence Map Dependency Contract
-- Phase 3: Conformance Conclusion Contract
-- Phase 4: Draft Action/Finding Contract
-- Phase 5: Applicability Contract
-- Phase 6: Report Presentation Object
-- Phase 7: Presentation Gates
-- Phase 8: Fixture Expectation Migration
-- Phase 9: Readiness Report and UI Consumers
-- Phase 10: Deprecation Review
+- Phase 0: Report Terminology Contract — done
+- Phase 1: Status Consumer Audit — done
+- Phase 2: Evidence Map Dependency Contract — next
+- Phase 3: Conformance Conclusion Contract — planned
+- Phase 4: Draft Action/Finding Contract — planned
+- Phase 5: Applicability Contract — planned
+- Phase 6: Report Presentation Object — planned
+- Phase 7: Presentation Gates — planned
+- Phase 8: Fixture Expectation Migration — planned
+- Phase 9: Readiness Report and UI Consumers — planned
+- Phase 10: Deprecation Review — planned
 
 ## Validation
 
