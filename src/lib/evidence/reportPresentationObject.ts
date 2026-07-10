@@ -98,7 +98,6 @@ function blocked(
 
 function cloneAndFreeze<T>(value: T): T {
   if (value === null || typeof value !== "object") return value;
-  if (Object.isFrozen(value)) return value;
   const clone = Array.isArray(value)
     ? value.map((entry) => cloneAndFreeze(entry))
     : Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => [key, cloneAndFreeze(entry)]));

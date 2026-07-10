@@ -28,6 +28,11 @@ function inputs(candidate: EvidenceMapRow = row()) {
   const draftFinding = deriveDraftFinding(candidate, conformance, { draftFindingType: "NIR_CANDIDATE", findingBasis: "Provide missing evidence.", reviewerAssessment: "Candidate for review." });
   return { applicability, conformance, draftFinding };
 }
+function expectDeepFrozen(value: unknown): void {
+  if (value === null || typeof value !== "object") return;
+  expect(Object.isFrozen(value)).toBe(true);
+  Object.values(value).forEach(expectDeepFrozen);
+}
 
 describe("createReportPresentationObject", () => {
   it("packages a valid finalized row into one immutable presentation object", () => {
@@ -129,5 +134,37 @@ describe("createReportPresentationObject", () => {
     expect(JSON.stringify(result)).not.toMatch(/issued|approved|closed|validated|verified|authority/i);
     if (!result.ready) throw new Error("Expected a ready presentation");
     expect(Object.keys(result.presentation)).not.toEqual(expect.arrayContaining(["finding", "authority", "approval", "validation"]));
+  });
+  it("deep-clones shallow-frozen Evidence Map and validated result inputs", () => {
+    const candidate = row();
+    Object.freeze(candidate.acceptedEvidence);
+    Object.freeze(candidate.rejectedEvidence);
+    const { applicability, conformance, draftFinding } = inputs(candidate);
+    Object.freeze(applicability);
+    Object.freeze(conformance);
+    Object.freeze(draftFinding);
+
+    if (draftFinding.draftFindingRecord === null) throw new Error("Expected a draft finding record");
+    const originalAcceptedItem = candidate.acceptedEvidence[0];
+    const originalApplicability = applicability;
+    const originalConformance = conformance;
+    const originalDraftRecord = draftFinding.draftFindingRecord;
+    const result = createReportPresentationObject(candidate, applicability, conformance, draftFinding);
+    if (!result.ready) throw new Error("Expected a ready presentation");
+
+    expect(result.presentation.acceptedEvidence).not.toBe(candidate.acceptedEvidence);
+    expect(result.presentation.acceptedEvidence[0]).not.toBe(originalAcceptedItem);
+    expect(result.presentation.acceptedEvidence[0].provenance).not.toBe(originalAcceptedItem.provenance);
+    expect(result.presentation.applicabilityResult).not.toBe(originalApplicability);
+    expect(result.presentation.conformanceConclusion).not.toBe(originalConformance);
+    expect(result.presentation.draftFindingResult).not.toBe(draftFinding);
+    expect(result.presentation.draftFindingResult.draftFindingRecord).not.toBe(originalDraftRecord);
+    expectDeepFrozen(result.presentation);
+
+    const mutableAcceptedItem = originalAcceptedItem as unknown as { quote: string; provenance: { sectionHeading: string } };
+    mutableAcceptedItem.quote = "Mutated after packaging.";
+    mutableAcceptedItem.provenance.sectionHeading = "Mutated heading.";
+    expect(result.presentation.acceptedEvidence[0].quote).toBe("Accepted quote.");
+    expect(result.presentation.acceptedEvidence[0].provenance.sectionHeading).toBe("Evidence");
   });
 });
