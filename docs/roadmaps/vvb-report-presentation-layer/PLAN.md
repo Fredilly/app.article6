@@ -104,7 +104,7 @@ Conformance conclusions are separate from draft action or finding records. `CONF
   "internalStatus": "FOUND" | "UNCLEAR" | "MISSING",
   "applicabilityStatus": "APPLICABLE" | "NOT_APPLICABLE" | "NOT_ASSESSED",
   "conformanceConclusion": "CONFORMS" | "ACTION_REQUIRED" | "NOT_APPLICABLE" | "NOT_ASSESSED",
-  "draftFindingType": null | "NIR_CANDIDATE" | "NCR_RISK" | "OFI_CANDIDATE" | "CAR_CANDIDATE" | "CR_CANDIDATE" | "FAR_CANDIDATE",
+  "draftFindingType": null | "NIR_CANDIDATE" | "NCR_CANDIDATE" | "OFI_CANDIDATE",
   "reportProfile": "GENERIC_PRE_VALIDATION",
   "evidenceMapRowId": "string",
   "evidence": {
@@ -159,17 +159,17 @@ FOUND with validated Evidence Map support:
 
 UNCLEAR with weak, incomplete, placeholder, or insufficient evidence:
 - conformanceConclusion: ACTION_REQUIRED
-- draftFindingType: NIR_CANDIDATE or CR_CANDIDATE
+- draftFindingType: NIR_CANDIDATE
 - draftFindingRecord required
 
 MISSING with applicable mandatory requirement and adequate evidence-search coverage:
 - conformanceConclusion: ACTION_REQUIRED
-- draftFindingType: NCR_RISK or CAR_CANDIDATE
+- draftFindingType: NCR_CANDIDATE
 - draftFindingRecord required
 
 Weak but non-blocking issue:
 - conformanceConclusion: ACTION_REQUIRED
-- draftFindingType: OFI_CANDIDATE or FAR_CANDIDATE
+- draftFindingType: OFI_CANDIDATE
 - draftFindingRecord required
 
 Explicitly not applicable:
@@ -188,17 +188,32 @@ For `CONFORMS`:
 
 "The reviewed document evidence is sufficient to demonstrate conformance with the requirement."
 
-For `NIR_CANDIDATE` / `CR_CANDIDATE`:
+For `NIR_CANDIDATE`:
 
 "Additional information is required to determine whether a material discrepancy exists with respect to this requirement."
 
-For `NCR_RISK` / `CAR_CANDIDATE`:
+For `NCR_CANDIDATE`:
 
 "The requirement is not demonstrated in the reviewed document evidence."
 
-For `OFI_CANDIDATE` / `FAR_CANDIDATE`:
+For `OFI_CANDIDATE`:
 
 "This issue should be monitored or improved in a future reporting or verification period."
+
+## Canonical draft-finding rules
+
+The generic presentation layer uses only `NIR_CANDIDATE`, `NCR_CANDIDATE`,
+`OFI_CANDIDATE`, and `null` for `draftFindingType`.
+
+- `null` means no draft finding.
+- `CONFORMS` must produce `null`.
+- `NOT_APPLICABLE` must produce `null`.
+- `NOT_ASSESSED` must produce `null`.
+- All non-null finding values are candidates only, never formally issued VVB findings.
+
+Future organization or scheme profiles may translate generic candidates into CAR,
+CL, CR, FAR, NCR, NIR, or other VVB terminology. Those profiles are deferred and
+are not implemented in this roadmap.
 
 ## Sequencing
 

@@ -25,7 +25,7 @@
     "phase_0_report_terminology_contract": {
       "title": "Phase 0: Report Terminology Contract",
       "status": "done",
-      "summary": "Define additive pre-validation language, draft finding terminology, prohibited formal-authority claims, and preservation of existing statuses without mappings."
+      "summary": "Define additive pre-validation language, canonical NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, and null draft-finding values, prohibited formal-authority claims, and preservation of existing statuses without mappings."
     },
     "phase_1_status_consumer_audit": {
       "title": "Phase 1: Status Consumer Audit",
@@ -45,7 +45,7 @@
     "phase_4_draft_action_finding_contract": {
       "title": "Phase 4: Draft Action/Finding Contract",
       "status": "planned",
-      "summary": "Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows."
+      "summary": "Define draftFindingType and draftFindingRecord mappings using only NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null for unclear, missing, and weak non-blocking Evidence Map rows."
     },
     "phase_5_applicability_contract": {
       "title": "Phase 5: Applicability Contract",
