@@ -56,16 +56,29 @@ The VVB Report Presentation Layer may only consume finalized Evidence Map rows.
 
 A finalized Evidence Map row must contain, at minimum:
 
-- ruleId
-- requirementReference
-- requirementText
-- internalStatus
-- applicabilityStatus
-- acceptedEvidence[]
-- rejectedEvidence[]
-- assessmentReason
-- clientAction
-- full provenance
+- `rowId`
+- `requirement`
+- `methodology`
+- `upstreamStatus`
+- `applicabilityState`
+- `acceptedEvidence`
+- `rejectedEvidence`
+- `assessmentReason`
+- `clientAction`
+- `searchCoverage`
+- `sourceDocument`
+- `evidenceProvenance`
+- `finalizationState`
+- `finalizationActorRef`
+- `finalizedAt`
+- `finalizationBasis`
+- `reviewHistoryRef`
+- `evidenceMapContractVersion`
+- `reviewPolicyVersion`
+
+[`PHASE_2_EVIDENCE_MAP_DEPENDENCY_CONTRACT.md`](./PHASE_2_EVIDENCE_MAP_DEPENDENCY_CONTRACT.md)
+is authoritative for these field shapes and validation rules. This plan does not
+duplicate the Phase 2 schema.
 
 The report layer must never select evidence itself.
 
