@@ -25,11 +25,19 @@ These are presentation vocabulary only. Phase 0 does not define or implement map
 
 The allowed draft finding terminology is:
 
-- `NCR_RISK`
-- `NIR`
-- `NONE`
+- `NIR_CANDIDATE`
+- `NCR_CANDIDATE`
+- `OFI_CANDIDATE`
+- `null`
 
-These terms describe readiness-oriented draft output. They do not represent findings issued by a validator, verifier, registry, or other formal authority.
+`null` means no draft finding. `CONFORMS`, `NOT_APPLICABLE`, and `NOT_ASSESSED`
+must produce `null`. All non-null values are candidates only; they never represent
+findings formally issued by a validator, verifier, registry, or other formal
+authority.
+
+Future organization or scheme profiles may translate these generic candidates into
+CAR, CL, CR, FAR, NCR, NIR, or other VVB terminology. Those profiles are not part of
+the generic contract and are not implemented by this roadmap.
 
 ## User-facing language
 
@@ -97,4 +105,3 @@ This contract does not change or implement:
 - applicability logic
 - organization-specific profiles
 - runtime consumers
-

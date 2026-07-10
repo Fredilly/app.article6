@@ -8,6 +8,7 @@
       "Phase 1 status consumer audit is complete",
       "Phase 2 Evidence Map dependency contract is complete",
       "Phase 3 Conformance Conclusion Contract is next",
+      "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
     ],
@@ -24,7 +25,7 @@
     "phase_0_report_terminology_contract": {
       "title": "Phase 0: Report Terminology Contract",
       "status": "done",
-      "summary": "Define additive pre-validation language, draft finding terminology, prohibited formal-authority claims, and preservation of existing statuses without mappings."
+      "summary": "Define additive pre-validation language, canonical NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, and null draft-finding values, prohibited formal-authority claims, and preservation of existing statuses without mappings."
     },
     "phase_1_status_consumer_audit": {
       "title": "Phase 1: Status Consumer Audit",
@@ -44,7 +45,7 @@
     "phase_4_draft_action_finding_contract": {
       "title": "Phase 4: Draft Action/Finding Contract",
       "status": "planned",
-      "summary": "Define draftFindingType and draftFindingRecord mappings for unclear, missing, and weak non-blocking Evidence Map rows."
+      "summary": "Define draftFindingType and draftFindingRecord mappings using only NIR_CANDIDATE, NCR_CANDIDATE, OFI_CANDIDATE, or null for unclear, missing, and weak non-blocking Evidence Map rows."
     },
     "phase_5_applicability_contract": {
       "title": "Phase 5: Applicability Contract",
@@ -54,12 +55,12 @@
     "phase_6_report_presentation_object": {
       "title": "Phase 6: Report Presentation Object",
       "status": "planned",
-      "summary": "Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, and draft finding fields."
+      "summary": "Define the generic presentation object with Evidence Map row identity, provenance, conformance conclusion, draft finding fields, machine-proposal traceability, reviewer finalization metadata, review history, and contract versions without replacing the canonical Evidence Map decision."
     },
     "phase_7_presentation_gates": {
       "title": "Phase 7: Presentation Gates",
       "status": "planned",
-      "summary": "Prevent unsupported CONFORMS conclusions and unsupported draft finding candidates through applicability, evidence sufficiency, and search-coverage gates."
+      "summary": "Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates."
     },
     "phase_8_fixture_expectation_migration": {
       "title": "Phase 8: Fixture Expectation Migration",
@@ -69,12 +70,12 @@
     "phase_9_readiness_report_and_ui_consumers": {
       "title": "Phase 9: Readiness Report and UI Consumers",
       "status": "planned",
-      "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract."
+      "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract, with a minimal reviewer workflow, centralized release-gate checks, traceable approve/edit/reopen history, and internal preview when client release is blocked."
     },
     "phase_10_deprecation_review": {
       "title": "Phase 10: Deprecation Review",
       "status": "planned",
-      "summary": "Review old labels and organization-specific profiles after the generic Evidence Map-backed product is proven."
+      "summary": "Review old labels and organization-specific profiles only after the generic reviewer workflow and release gate are proven through a controlled pilot with qualified validation or verification professionals."
     }
   },
   "roadmap": "vvb-report-presentation-layer"
