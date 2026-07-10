@@ -10,6 +10,8 @@ The authoritative terminology and backward-compatibility contract is [Phase 0: R
 
 The Phase 1 status inventory is [Phase 1: Status Consumer Audit](./PHASE_1_STATUS_CONSUMER_AUDIT.md). It records every repository consumer of the existing status families and introduces no runtime mapping or semantic change.
 
+The Phase 2 structural dependency contract is [Phase 2: Evidence Map Dependency Contract](./PHASE_2_EVIDENCE_MAP_DEPENDENCY_CONTRACT.md). It validates only that finalized Evidence Map rows carry the explicit upstream dependencies required downstream; it does not map statuses or judge evidence, applicability, or search quality.
+
 ## Product architecture
 
 Article6 has one core paid asset:
@@ -200,10 +202,13 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 
 ## Validation
 
-For this roadmap-only change, run:
+For this contract-only change, run:
 
 ```bash
+npx jest tests/lib/evidence/evidenceMapDependencyContract.test.ts --runInBand
+npm run lint
+npm run typecheck
 npm run roadmap:check
 ```
 
-No implementation code, parser/router logic, or client-facing report UI should change as part of this roadmap update.
+No parser/router logic, client-facing report UI, report output, PDF output, fixture, or gold truth should change as part of this phase.

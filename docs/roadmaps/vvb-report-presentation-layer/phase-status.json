@@ -6,7 +6,8 @@
     "current_focus": [
       "Phase 0 terminology and compatibility contract is complete",
       "Phase 1 status consumer audit is complete",
-      "Phase 2 Evidence Map dependency contract is next",
+      "Phase 2 Evidence Map dependency contract is complete",
+      "Phase 3 Conformance Conclusion Contract is next",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
     ],
@@ -32,12 +33,12 @@
     },
     "phase_2_evidence_map_dependency_contract": {
       "title": "Phase 2: Evidence Map Dependency Contract",
-      "status": "next",
-      "summary": "Require finalized Evidence Map rows, accepted and rejected evidence retention, client actions, assessment reasons, and full provenance before presentation."
+      "status": "done",
+      "summary": "Add a generic pure dependency gate requiring finalized Evidence Map row identity, requirement and methodology identity, upstream status, applicability state, accepted and rejected evidence, assessment reason, client action, search coverage, source-document identity, and evidence provenance without mapping or judging them."
     },
     "phase_3_conformance_conclusion_contract": {
       "title": "Phase 3: Conformance Conclusion Contract",
-      "status": "planned",
+      "status": "next",
       "summary": "Define when finalized Evidence Map support may produce CONFORMS, ACTION_REQUIRED, NOT_APPLICABLE, or NOT_ASSESSED."
     },
     "phase_4_draft_action_finding_contract": {
