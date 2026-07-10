@@ -157,7 +157,7 @@ provenance fields in the presentation object:
 - `rejectedEvidence`
 - `assessmentReason`
 - `clientAction`
-- `provenance`
+- `evidenceProvenance`
 
 The presentation object must distinguish machine-proposed and reviewer-finalized
 data. It must not erase or replace the original Evidence Map decision, create a
