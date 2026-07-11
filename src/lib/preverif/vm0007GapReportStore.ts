@@ -17,6 +17,8 @@ import {
   normalizeVm0007RuleId,
 } from "@/lib/preverif/vm0007EvidenceContracts";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
+import { buildVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
 
@@ -162,5 +164,13 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: null },
   };
   saveVm0007GapReportAudit(record);
+  const draft = buildVm0007EvidenceMapDraft({
+    auditId: record.auditId,
+    generatedAt: record.generatedAt,
+    rules: input.rules,
+    audit,
+    sourceDocument: record.sourceDocument,
+  });
+  if (draft.ok) saveVm0007EvidenceMapDraft(draft.package);
   return record;
 }

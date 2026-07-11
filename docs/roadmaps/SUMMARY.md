@@ -3,7 +3,7 @@
 This file is generated from roadmap SSOT JSON. Do not edit manually.
 
 Roadmap reset: only explicitly active items drive what's next; historical PR numbers stay preserved for context.
-Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup, vvb-report-presentation-layer.
+Active lanes: verification-factory, project-readiness-verification-output, review-grade-quick-check, project-verification, quick-check-document-pipeline, quickcheck-v2, requirement-coverage, review-grade-evidence-intelligence, safe-learning-intake-pipeline, standard-registry-wiring, traceable-rule-review-mvp, vm0007-evidence-map-mvp, vm0007-judgement-fixtures, vm0007-version-cleanup, vvb-report-presentation-layer.
 Frozen lanes: agentic-verification.
 
 
@@ -323,6 +323,17 @@ Not active now:
 - AI-assisted review (post-moat)
 - Multi-methodology cross-referencing (Phase 5+)
 
+
+## vm0007-evidence-map-mvp
+
+Status SSOT: `docs/roadmaps/vm0007-evidence-map-mvp/phase-status.json`
+Details: `docs/roadmaps/vm0007-evidence-map-mvp/PLAN.md`
+
+Lane status: Active
+Persist and display the machine-proposed VM0007 v1.8 58-rule Evidence Map draft.
+
+1) RC1 — 58-rule draft Evidence Map and UI: Active
+2) RC2 — reviewer finalization and readiness report wiring: Planned
 
 ## vm0007-judgement-fixtures
 
