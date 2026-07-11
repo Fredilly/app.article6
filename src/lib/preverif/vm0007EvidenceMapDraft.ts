@@ -12,6 +12,7 @@ import type {
 } from "@/lib/preverif/evidenceAudit";
 import { EVIDENCE_AUDIT_STATUSES } from "@/lib/preverif/evidenceAudit";
 import { normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
+import type { ReviewerWorkflowEvent, ReviewerWorkflowState } from "@/lib/evidence/readinessReport";
 
 export const VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION = "vm0007-evidence-map-draft-v1";
 export const VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE = "MACHINE_PROPOSED" as const;
@@ -45,7 +46,14 @@ export type Vm0007EvidenceMapDraftRow = {
   section: string | null;
   spanId: string | null;
   provenance: EvidenceMapEvidenceProvenance | null;
-  finalizationState: "draft";
+  finalizationState: "draft" | "finalized";
+  reviewState?: ReviewerWorkflowState;
+  reviewHistory?: readonly ReviewerWorkflowEvent[];
+  rowVersion?: number;
+  finalizationActorRef?: string | null;
+  finalizedAt?: string | null;
+  finalizationBasis?: string | null;
+  reviewHistoryRef?: string | null;
   proposalSource: "VM0007_QUICK_CHECK_AUDIT";
   proposalTimestamp: string;
 };
@@ -61,6 +69,11 @@ export type Vm0007EvidenceMapDraftPackage = {
   rows: Vm0007EvidenceMapDraftRow[];
   blockedBy: string[];
   contractVersion: typeof VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION;
+  mapVersion?: number;
+  finalizationState?: "draft" | "finalized";
+  finalizedBy?: string | null;
+  finalizedAt?: string | null;
+  finalizationBasis?: string | null;
 };
 
 export type DraftBuildResult =
@@ -76,8 +89,9 @@ const DRAFT_ROW_KEYS = new Set([
   "proposedRejectedEvidence", "assessmentReason", "gap", "clientAction", "confidence",
   "searchCoverage", "sourceDocument", "quote", "page", "section", "spanId", "provenance",
   "finalizationState", "proposalSource", "proposalTimestamp",
+  "reviewState", "reviewHistory", "rowVersion", "finalizationActorRef", "finalizedAt", "finalizationBasis", "reviewHistoryRef",
 ]);
-const DRAFT_PACKAGE_KEYS = new Set(["auditId", "generatedAt", "methodologyId", "rulebookVersion", "pddDeclaredMethodologyVersion", "sourceDocument", "proposalState", "rows", "blockedBy", "contractVersion"]);
+const DRAFT_PACKAGE_KEYS = new Set(["auditId", "generatedAt", "methodologyId", "rulebookVersion", "pddDeclaredMethodologyVersion", "sourceDocument", "proposalState", "rows", "blockedBy", "contractVersion", "mapVersion", "finalizationState", "finalizedBy", "finalizedAt", "finalizationBasis"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -163,7 +177,12 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
     value.methodologyId !== "VM0007" || value.rulebookVersion !== "v1.8" || normalizeMethodologyVersion(String(value.pddDeclaredMethodologyVersion ?? "")) !== "v1.8" ||
     !hasText(value.auditId) || (expectedAuditId !== undefined && value.auditId !== expectedAuditId) || !hasText(value.generatedAt) ||
     !isSourceDocument(value.sourceDocument) || !Array.isArray(value.rows) || value.rows.length !== 58 || !Array.isArray(value.blockedBy) ||
-    !value.blockedBy.every((reason) => hasText(reason))) return false;
+    !value.blockedBy.every((reason) => hasText(reason)) ||
+    (value.mapVersion !== undefined && (typeof value.mapVersion !== "number" || !Number.isInteger(value.mapVersion) || value.mapVersion < 1)) ||
+    (value.finalizationState !== undefined && !["draft", "finalized"].includes(String(value.finalizationState))) ||
+    (value.finalizedBy !== undefined && !hasNullableText(value.finalizedBy)) ||
+    (value.finalizedAt !== undefined && !hasNullableText(value.finalizedAt)) ||
+    (value.finalizationBasis !== undefined && !hasNullableText(value.finalizationBasis))) return false;
 
   const ruleIds = new Set<string>();
   const stableRuleIds = new Set<string>();
@@ -175,7 +194,10 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
       !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.upstreamStatus)) || !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.proposedEvidenceStatus)) ||
       !(DRAFT_APPLICABILITY_STATES as readonly string[]).includes(String(row.proposedApplicability)) || !hasText(row.assessmentReason) || typeof row.gap !== "string" || !hasText(row.clientAction) ||
       !["high", "medium", "low"].includes(String(row.confidence)) || !isSearchCoverage(row.searchCoverage) || !isSourceDocument(row.sourceDocument) ||
-      row.finalizationState !== "draft" || row.proposalSource !== "VM0007_QUICK_CHECK_AUDIT" || !hasText(row.proposalTimestamp) ||
+      !["draft", "finalized"].includes(String(row.finalizationState)) || row.proposalSource !== "VM0007_QUICK_CHECK_AUDIT" || !hasText(row.proposalTimestamp) ||
+      (row.reviewState !== undefined && !["pending review", "approved", "edited", "reopened"].includes(String(row.reviewState))) ||
+      (row.reviewHistory !== undefined && (!Array.isArray(row.reviewHistory) || row.reviewHistory.some((event) => !isRecord(event)))) ||
+      (row.rowVersion !== undefined && (typeof row.rowVersion !== "number" || !Number.isInteger(row.rowVersion) || row.rowVersion < 1)) ||
       (row.quote !== null && !hasText(row.quote)) || (row.page !== null && (typeof row.page !== "number" || !Number.isFinite(row.page))) ||
       !hasNullableText(row.section) || !hasNullableText(row.spanId) || (row.provenance !== null && !isProvenance(row.provenance)) ||
       (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true))) return false;
@@ -185,6 +207,9 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
     if (row.sourceDocument.documentId !== value.sourceDocument.documentId || !row.searchCoverage.searchedDocumentIds.includes(value.sourceDocument.documentId)) return false;
     if (row.provenance && row.provenance.docId !== row.sourceDocument.documentId) return false;
   }
+  if (value.finalizationState === "finalized" &&
+      (!hasText(value.finalizedBy) || !hasText(value.finalizedAt) || !hasText(value.finalizationBasis) ||
+       value.rows.some((row) => !isRecord(row) || row.finalizationState !== "finalized"))) return false;
   return true;
 }
 
@@ -256,6 +281,13 @@ export function buildVm0007EvidenceMapDraft(input: {
       spanId: result.span,
       provenance,
       finalizationState: "draft" as const,
+      reviewState: "pending review" as const,
+      reviewHistory: [] as const,
+      rowVersion: 1,
+      finalizationActorRef: null,
+      finalizedAt: null,
+      finalizationBasis: null,
+      reviewHistoryRef: null,
       proposalSource: "VM0007_QUICK_CHECK_AUDIT" as const,
       proposalTimestamp: input.generatedAt,
     } satisfies Vm0007EvidenceMapDraftRow;

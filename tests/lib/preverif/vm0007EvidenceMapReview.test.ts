@@ -1,0 +1,96 @@
+/** @jest-environment jsdom */
+
+import {
+  approveVm0007EvidenceMapRow,
+  editVm0007EvidenceMapRow,
+  finalizeVm0007EvidenceMap,
+  reopenVm0007EvidenceMapRow,
+} from "@/lib/preverif/vm0007EvidenceMapReview";
+import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
+import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+
+const provenance = { docId: "doc-1", page: 3, sectionPath: ["Evidence"], spanId: "span-1", sectionHeading: "Evidence", sourceType: "PDD" };
+
+function makePackage(overrides: Partial<Vm0007EvidenceMapDraftPackage> = {}): Vm0007EvidenceMapDraftPackage {
+  const auditId = "review-audit";
+  const rows = Array.from({ length: 58 }, (_, index) => ({
+    rowId: `${auditId}:R-${index + 1}`, auditId, stableRuleId: `R-${index + 1}`, ruleReference: `R-${index + 1}`,
+    ruleTitle: `Rule ${index + 1}`, requirementText: "Requirement", methodologyId: "VM0007" as const, methodologyVersion: "v1.8" as const,
+    rawAuditStatus: "missing_evidence" as const, upstreamStatus: "MISSING" as const, proposedEvidenceStatus: "MISSING" as const,
+    proposedApplicability: "APPLICABLE" as const, proposedAcceptedEvidence: null, proposedRejectedEvidence: null,
+    assessmentReason: "No evidence was located.", gap: "Add evidence.", clientAction: "Provide evidence.", confidence: "low" as const,
+    searchCoverage: { searched: true, searchedDocumentIds: ["doc-1"], notes: null }, sourceDocument: { documentId: "doc-1", documentName: "pdd.pdf", contentSha256: null },
+    quote: null, page: null, section: null, spanId: null, provenance: null, finalizationState: "draft" as const,
+    proposalSource: "VM0007_QUICK_CHECK_AUDIT" as const, proposalTimestamp: "2026-07-12T00:00:00.000Z",
+  }));
+  rows[0] = { ...rows[0], proposedAcceptedEvidence: { quote: "Accepted source quote", provenance }, proposedRejectedEvidence: { quote: "Rejected source quote", reason: "Contradictory context", provenance }, quote: "Accepted source quote", page: 3, section: "Evidence", spanId: "span-1", provenance };
+  return { auditId, generatedAt: "2026-07-12T00:00:00.000Z", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8", sourceDocument: rows[0].sourceDocument, proposalState: "MACHINE_PROPOSED", rows, blockedBy: [], contractVersion: "vm0007-evidence-map-draft-v1", ...overrides } as Vm0007EvidenceMapDraftPackage;
+}
+
+function approveAll(pkg: Vm0007EvidenceMapDraftPackage): Vm0007EvidenceMapDraftPackage {
+  let current = pkg;
+  for (const row of pkg.rows) {
+    const result = approveVm0007EvidenceMapRow(current, row.rowId, "reviewer-1", "Reviewed row.", "2026-07-12T01:00:00.000Z");
+    if (!result.ok) throw new Error(result.reason);
+    current = result.package;
+  }
+  return current;
+}
+
+describe("VM0007 persisted Evidence Map reviewer workflow", () => {
+  beforeEach(() => localStorage.clear());
+
+  test("draft opens with 58 pending rows and approval/edit survive save and reload", () => {
+    const pkg = makePackage();
+    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(true);
+    let loaded = loadVm0007EvidenceMapDraft(pkg.auditId)!;
+    expect(loaded.rows).toHaveLength(58);
+    expect(loaded.rows[0].reviewState).toBe("pending review");
+    loaded = approveVm0007EvidenceMapRow(loaded, loaded.rows[0].rowId, "reviewer-1", "Approved after review.", "2026-07-12T01:00:00.000Z").package!;
+    loaded = editVm0007EvidenceMapRow(loaded, loaded.rows[0].rowId, { assessmentReason: "Reviewer clarified the evidence assessment." }, "reviewer-1", "Clarified assessment.", "2026-07-12T01:01:00.000Z").package!;
+    const reloaded = loadVm0007EvidenceMapDraft(pkg.auditId)!;
+    expect(reloaded.rows[0].reviewState).toBe("edited");
+    expect(reloaded.rows[0].assessmentReason).toContain("clarified");
+    expect(reloaded.rows[0].reviewHistory).toHaveLength(2);
+    expect(reloaded.rows[0].rowVersion).toBe(3);
+  });
+
+  test("finalization fails closed for unreviewed rows and missing reviewer metadata", () => {
+    const pkg = makePackage();
+    expect(finalizeVm0007EvidenceMap(pkg, "")).toMatchObject({ ok: false, blockedBy: expect.arrayContaining(["missing reviewer metadata", "one or more rows are not approved"]) });
+    const reviewed = approveAll(pkg);
+    const missingApplicability = { ...reviewed, rows: reviewed.rows.map((row, index) => index === 1 ? { ...row, proposedApplicability: "UNKNOWN" as const } : row) };
+    expect(finalizeVm0007EvidenceMap(missingApplicability, "reviewer-1")).toMatchObject({ ok: false });
+  });
+
+  test("valid finalization survives reload and populates the existing readiness pipeline", () => {
+    const reviewed = approveAll(makePackage());
+    const result = finalizeVm0007EvidenceMap(reviewed, "reviewer-1", "2026-07-12T02:00:00.000Z");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const reloaded = loadVm0007EvidenceMapDraft(reviewed.auditId)!;
+    expect(reloaded.finalizationState).toBe("finalized");
+    expect(reloaded.rows.every((row) => row.finalizationState === "finalized")).toBe(true);
+    const payload = loadQuickCheckReadinessPayload(reviewed.auditId);
+    expect(payload?.gateResult.releaseState).toBe("PRE_VALIDATION_RELEASE_READY");
+    expect(payload?.gateResult.presentations).toHaveLength(58);
+    expect(payload?.gateResult.presentations[0].acceptedEvidence[0].quote).toBe("Accepted source quote");
+    expect(payload?.gateResult.presentations[0].rejectedEvidence[0].quote).toBe("Rejected source quote");
+  });
+
+  test("reopening preserves history, invalidates finalization, and clears the release-ready report", () => {
+    const result = finalizeVm0007EvidenceMap(approveAll(makePackage()), "reviewer-1", "2026-07-12T02:00:00.000Z");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(loadQuickCheckReadinessPayload(result.package.auditId)).not.toBeNull();
+    const reopened = reopenVm0007EvidenceMapRow(result.package, result.package.rows[0].rowId, "reviewer-1", "Reopen for clarification.", "2026-07-12T03:00:00.000Z");
+    expect(reopened.ok).toBe(true);
+    if (!reopened.ok) return;
+    expect(reopened.package.finalizationState).toBe("draft");
+    expect(reopened.row.reviewState).toBe("reopened");
+    expect(reopened.row.reviewHistory).toHaveLength(2);
+    expect(loadVm0007EvidenceMapDraft(result.package.auditId)?.rows[0].reviewHistory).toHaveLength(2);
+    expect(loadQuickCheckReadinessPayload(result.package.auditId)).toBeNull();
+  });
+});
