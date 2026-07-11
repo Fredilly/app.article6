@@ -172,7 +172,7 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
       !hasText(row.stableRuleId) || stableRuleIds.has(row.stableRuleId) || !hasText(row.ruleReference) || ruleIds.has(row.ruleReference) || !hasText(row.ruleTitle) || !hasText(row.requirementText) ||
       row.methodologyId !== "VM0007" || row.methodologyVersion !== "v1.8" || !isKnownAuditStatus(row.rawAuditStatus) ||
       !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.upstreamStatus)) || !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.proposedEvidenceStatus)) ||
-      !(DRAFT_APPLICABILITY_STATES as readonly string[]).includes(String(row.proposedApplicability)) || !hasText(row.assessmentReason) || !hasText(row.gap) || !hasText(row.clientAction) ||
+      !(DRAFT_APPLICABILITY_STATES as readonly string[]).includes(String(row.proposedApplicability)) || !hasText(row.assessmentReason) || typeof row.gap !== "string" || !hasText(row.clientAction) ||
       !["high", "medium", "low"].includes(String(row.confidence)) || !isSearchCoverage(row.searchCoverage) || !isSourceDocument(row.sourceDocument) ||
       row.finalizationState !== "draft" || row.proposalSource !== "VM0007_QUICK_CHECK_AUDIT" || !hasText(row.proposalTimestamp) ||
       (row.quote !== null && !hasText(row.quote)) || (row.page !== null && (typeof row.page !== "number" || !Number.isFinite(row.page))) ||

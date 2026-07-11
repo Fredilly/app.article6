@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { validateVm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
 
 function makePackage(): Vm0007EvidenceMapDraftPackage {
@@ -59,5 +60,26 @@ describe("VM0007 draft package storage validation", () => {
   test("rejects malformed JSON when loading", () => {
     localStorage.setItem("article6:vm0007-evidence-map-draft:v1:storage-audit", "{broken");
     expect(loadVm0007EvidenceMapDraft("storage-audit")).toBeNull();
+  });
+
+  test("allows supported and explicitly not-applicable rows with empty gaps", () => {
+    const pkg = makePackage();
+    pkg.rows[0] = {
+      ...pkg.rows[0], rawAuditStatus: "supported_by_pdd", upstreamStatus: "FOUND", proposedEvidenceStatus: "FOUND", gap: "",
+      proposedAcceptedEvidence: { quote: "Supported evidence", provenance: { docId: "doc-1", page: 1, sectionPath: ["S-1"], spanId: "span-1", sectionHeading: "Evidence", sourceType: "PDD" } },
+      quote: "Supported evidence", page: 1, section: "Evidence", spanId: "span-1", provenance: { docId: "doc-1", page: 1, sectionPath: ["S-1"], spanId: "span-1", sectionHeading: "Evidence", sourceType: "PDD" },
+    };
+    pkg.rows[1] = {
+      ...pkg.rows[1], rawAuditStatus: "not_applicable", upstreamStatus: "UNCLEAR", proposedEvidenceStatus: "UNCLEAR", proposedApplicability: "NOT_APPLICABLE", gap: "",
+      assessmentReason: "Not applicable because this rule is outside the project scope.",
+      proposedAcceptedEvidence: { quote: "Scope evidence", provenance: { docId: "doc-1", page: 1, sectionPath: ["S-1"], spanId: "span-2", sectionHeading: "Scope", sourceType: "PDD" } },
+      quote: "Scope evidence", page: 1, section: "Scope", spanId: "span-2", provenance: { docId: "doc-1", page: 1, sectionPath: ["S-1"], spanId: "span-2", sectionHeading: "Scope", sourceType: "PDD" },
+    };
+    expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(true);
+    const loaded = loadVm0007EvidenceMapDraft(pkg.auditId);
+    expect(loaded?.rows[0].gap).toBe("");
+    expect(loaded?.rows[1].proposedApplicability).toBe("NOT_APPLICABLE");
+    expect(validateVm0007EvidenceMapDraftPackage(loaded, pkg.auditId)).toBe(true);
   });
 });

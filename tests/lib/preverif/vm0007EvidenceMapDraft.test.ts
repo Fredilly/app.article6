@@ -1,4 +1,8 @@
+/** @jest-environment jsdom */
+
 import { buildVm0007EvidenceMapDraft, mapVm0007DraftStatus } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { validateVm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
 import type { MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
@@ -24,6 +28,32 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     expect(built.package.rows).toHaveLength(58);
     expect(built.package.rows.map((row) => row.ruleReference)).toEqual(canonical.rules.map((rule) => rule.id));
     expect(new Set(built.package.rows.map((row) => row.ruleReference)).size).toBe(58);
+  });
+
+  it("builds, persists, and reloads a valid mixed-status 58-row draft", () => {
+    const statuses: MethodologyEvidenceAuditResult["status"][] = [
+      "supported_by_pdd", "partially_supported", "missing_evidence", "manual_review_needed", "not_applicable",
+    ];
+    const built = buildVm0007EvidenceMapDraft({
+      auditId: "mixed-audit",
+      generatedAt: "2026-07-11T00:00:00.000Z",
+      rules,
+      audit: audit(rules.map((rule, index) => {
+        const status = statuses[index % statuses.length];
+        return status === "not_applicable"
+          ? { ...result(rule.id, status, index), assessmentReason: "Not applicable because this rule is outside the project scope." }
+          : result(rule.id, status, index);
+      })),
+      sourceDocument,
+    });
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+    expect(built.package.rows[0].gap).toBe("");
+    expect(built.package.rows[4].proposedApplicability).toBe("NOT_APPLICABLE");
+    expect(saveVm0007EvidenceMapDraft(built.package)).toBe(true);
+    const reloaded = loadVm0007EvidenceMapDraft("mixed-audit");
+    expect(reloaded?.rows).toHaveLength(58);
+    expect(validateVm0007EvidenceMapDraftPackage(reloaded, "mixed-audit")).toBe(true);
   });
 
   it("maps evidence statuses without fabricating or finalizing evidence", () => {

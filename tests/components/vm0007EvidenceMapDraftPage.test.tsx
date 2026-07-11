@@ -44,9 +44,14 @@ describe("VM0007 Evidence Map draft page", () => {
     const container = document.createElement("div");
     const root = createRoot(container);
     await act(async () => { root.render(<Vm0007EvidenceMapDraftPage auditId={auditId} />); });
-    expect(container.textContent).toContain("58 rows");
+    expect(container.textContent).toContain("Evidence Map");
+    expect(container.textContent).toContain("VM0007 v1.8 · 58 requirements");
     expect(container.textContent).toContain("Rule 1");
     expect(container.textContent).toContain("Rule 58");
+    expect(container.textContent).not.toContain("Gap Report");
+    expect(container.textContent).toContain("Pre-Validation Readiness Report");
+    expect(container.textContent).toContain("Available after the Evidence Map has been reviewer-finalized.");
+    expect(container.querySelector("button")?.hasAttribute("disabled")).toBe(true);
     act(() => root.unmount());
   });
 });
