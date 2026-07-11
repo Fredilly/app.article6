@@ -32,9 +32,12 @@ The result uses these release states:
 It also reports a cross-row outcome:
 
 - PASS when at least one typed methodology/version or composite-requirement comparison succeeds;
-- WARNING when review is pending and release is limited to internal review;
+- WARNING when a real typed cross-row warning exists (not from pending review);
 - BLOCKED when a cross-row contradiction exists;
 - NOT_EVALUATED when fewer than two comparable rows exist or typed comparison data is unavailable.
+
+PENDING_REVIEW produces INTERNAL_REVIEW_ONLY but preserves the actual computed
+crossRowOutcome (normally NOT_EVALUATED for a single pending-review row).
 
 An empty report returns BLOCKED with the typed empty_report blocker. A blocked
 result is fail-closed and cannot be interpreted as release-ready. Gate results,
@@ -48,13 +51,13 @@ frozen.
 | Presentation validity | Strict Phase 6 object shape | Malformed, extra, blocked, or unsupported result shape |
 | Finalization traceability | Row ID, finalization actor, timestamp, and basis are present | Any traceability value is absent or invalid |
 | Review history | Non-empty review history reference | Missing or blank reference |
-| Applicability consistency | Explicit successful applicability agrees with packaged conclusion | Unknown, mismatched, or contradictory applicability |
+| Applicability/conclusion consistency | APPLICABLE rows do not conclude NOT_APPLICABLE; NOT_APPLICABLE rows conclude NOT_APPLICABLE | APPLICABLE produces NOT_APPLICABLE, or NOT_APPLICABLE produces a different conclusion |
 | Evidence sufficiency | CONFORMS has accepted evidence with provenance | CONFORMS has no accepted evidence |
-| Search linkage | Evidence provenance document appears in searched document IDs | Evidence references an unsearched document |
+| Search linkage | Evidence provenance document has searchCoverage.searched === true | searched is false despite accepted or rejected evidence |
 | Provenance | Every evidence item has a matching canonical provenance entry | Evidence provenance is orphaned |
 | Version identity | Same methodology ID has one rulebook version | Same methodology ID carries conflicting versions |
 | Review state | Current or unavailable review state | Reopened, superseded, or stale state |
-| Cross-row consistency | Unique row IDs and consistent generic identities | Duplicate rows, conflicting applicability/conclusions, methodology drift, accepted-versus-unreliable evidence, or contradictory supplied facts/assumptions |
+| Cross-row consistency | Unique row IDs and consistent generic identities | Duplicate rows, conflicting conclusions, methodology drift |
 
 ACTION_REQUIRED may preserve missing or insufficient evidence. FOUND alone
 never proves CONFORMS; the Phase 3 explicit support result and this gate's

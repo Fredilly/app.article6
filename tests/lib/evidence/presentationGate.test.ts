@@ -35,7 +35,7 @@ describe("presentation gates", () => {
     expect(evaluatePresentationReportGate([input(presentation())])).toMatchObject({ releaseReady: true, crossRowOutcome: "NOT_EVALUATED" });
   });
   it("uses typed review state without changing Phase 6", () => {
-    expect(evaluatePresentationGate(input(presentation(), "PENDING_REVIEW"))).toMatchObject({ releaseState: "INTERNAL_REVIEW_ONLY", crossRowOutcome: "WARNING" });
+    expect(evaluatePresentationGate(input(presentation(), "PENDING_REVIEW"))).toMatchObject({ releaseState: "INTERNAL_REVIEW_ONLY", crossRowOutcome: "NOT_EVALUATED" });
     expect(evaluatePresentationGate(input(presentation(), "REOPENED"))).toMatchObject({ releaseState: "BLOCKED", blockedBy: [{ category: "review_state_not_current" }] });
   });
   it.each([["MISSING"], ["UNCLEAR"]])("blocks %s from CONFORMS", (upstreamStatus) => {
@@ -60,7 +60,8 @@ describe("presentation gates", () => {
   it("blocks orphan and unsearched evidence provenance", () => {
     const p = presentation();
     expect(evaluatePresentationGate(input({ ...p, evidenceProvenance: [] }))).toMatchObject({ blockedBy: [{ category: "evidence_provenance_not_linked" }] });
-    expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searchedDocumentIds: [] } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
+    expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searched: false } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
+    expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searched: false, searchedDocumentIds: ["doc-1"] } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
   });
   it("allows multi-method reports and scopes requirement collisions by methodology/version", () => {
     const other = presentation(row({ rowId: "row-2", methodology: { methodologyId: "method-2", rulebookVersion: "v1" } }));
@@ -71,6 +72,21 @@ describe("presentation gates", () => {
     expect(evaluatePresentationReportGate([input(presentation()), input(version)])).toMatchObject({ blockedBy: [{ category: "conflicting_methodology_version" }] });
     const action = presentation(row({ rowId: "row-3", upstreamStatus: "MISSING", acceptedEvidence: [], rejectedEvidence: [], evidenceProvenance: [], searchCoverage: { searched: true, searchedDocumentIds: ["doc-1"], notes: null } }), { ...assessed, requirementSupport: "NOT_SUPPORTED" });
     expect(evaluatePresentationReportGate([input(presentation()), input(action)])).toMatchObject({ blockedBy: [{ category: "conflicting_requirement_conclusion" }] });
+  });
+  it("blocks APPLICABLE producing NOT_APPLICABLE", () => {
+    const p = presentation();
+    const bad = evaluatePresentationGate(input({ ...p, conformanceConclusion: { ...p.conformanceConclusion, conclusion: "NOT_APPLICABLE", basis: "explicit_upstream_not_applicable" } }));
+    expect(bad.releaseState).toBe("BLOCKED");
+    if (bad.releaseState !== "BLOCKED") throw new Error("Expected BLOCKED");
+    expect(bad.blockedBy).toEqual(expect.arrayContaining([expect.objectContaining({ category: "applicability_inconsistent" })]));
+  });
+  it("blocks NOT_APPLICABLE producing non-NOT_APPLICABLE conclusion", () => {
+    const candidate = row({ applicabilityState: "NOT_APPLICABLE" });
+    const p = presentation(candidate);
+    const bad = evaluatePresentationGate(input({ ...p, conformanceConclusion: { ...p.conformanceConclusion, conclusion: "CONFORMS", basis: "supported_applicable_requirement" } }));
+    expect(bad.releaseState).toBe("BLOCKED");
+    if (bad.releaseState !== "BLOCKED") throw new Error("Expected BLOCKED");
+    expect(bad.blockedBy).toEqual(expect.arrayContaining([expect.objectContaining({ category: "applicability_inconsistent" })]));
   });
   it("does not turn a per-row failure into a cross-row contradiction", () => {
     expect(evaluatePresentationReportGate([input({ ...presentation(), finalizedAt: "not-a-date" })])).toMatchObject({ releaseState: "BLOCKED", crossRowOutcome: "NOT_EVALUATED", blockedBy: [{ category: "finalized_at_invalid" }] });

@@ -21,7 +21,7 @@ export type PresentationGateBlockCategory =
 export type PresentationGateBlock = Readonly<{ category: PresentationGateBlockCategory; evidenceMapRowId: string | null; detail?: string }>;
 export type PresentationGateResult =
   | Readonly<{ releaseReady: true; releaseState: "PRE_VALIDATION_RELEASE_READY"; crossRowOutcome: CrossRowOutcome; presentations: readonly ReportPresentationObject[] }>
-  | Readonly<{ releaseReady: false; releaseState: "INTERNAL_REVIEW_ONLY"; crossRowOutcome: "WARNING"; presentations: readonly ReportPresentationObject[]; warnings: readonly PresentationGateBlock[] }>
+  | Readonly<{ releaseReady: false; releaseState: "INTERNAL_REVIEW_ONLY"; crossRowOutcome: CrossRowOutcome; presentations: readonly ReportPresentationObject[]; warnings: readonly PresentationGateBlock[] }>
   | Readonly<{ releaseReady: false; releaseState: "BLOCKED"; crossRowOutcome: CrossRowOutcome; presentations: readonly ReportPresentationObject[]; blockedBy: readonly PresentationGateBlock[] }>;
 
 const allowedGateInputKeys = ["presentation", "reviewState"] as const;
@@ -70,13 +70,15 @@ function rowBlockers(presentation: ReportPresentationObject): readonly Presentat
   if ((conclusion.conclusion === "CONFORMS" || conclusion.conclusion === "NOT_APPLICABLE") && draft.draftFindingType !== null) blockers.push(block("conclusion_invariant_violation", id));
   if (draft.draftFindingType !== null && conclusion.conclusion !== "ACTION_REQUIRED") blockers.push(block("conclusion_invariant_violation", id));
   if (draft.draftFindingRecord !== null && draft.draftFindingRecord.conformanceConclusion !== conclusion.conclusion) blockers.push(block("conclusion_invariant_violation", id));
+  if (presentation.applicabilityResult.applicability === "APPLICABLE" && conclusion.conclusion === "NOT_APPLICABLE") blockers.push(block("applicability_inconsistent", id, "APPLICABLE produced NOT_APPLICABLE"));
+  if (presentation.applicabilityResult.applicability === "NOT_APPLICABLE" && conclusion.conclusion !== "NOT_APPLICABLE") blockers.push(block("applicability_inconsistent", id, "NOT_APPLICABLE produced " + conclusion.conclusion));
   if (!supportedContractVersions.evidenceMap.has(presentation.evidenceMapContractVersion) || !supportedContractVersions.reviewPolicy.has(presentation.reviewPolicyVersion) || presentation.presentationContractVersion !== PRESENTATION_CONTRACT_VERSION) blockers.push(block("unsupported_contract_version", id));
   const provenance = new Set(presentation.evidenceProvenance.map(canonicalProvenance));
   const evidence = [...presentation.acceptedEvidence, ...presentation.rejectedEvidence];
   evidence.forEach((item) => {
     const key = canonicalProvenance(item.provenance);
     if (!provenance.has(key)) blockers.push(block("evidence_provenance_not_linked", id));
-    if (presentation.applicabilityResult.applicability === "APPLICABLE" && !presentation.searchCoverage.searchedDocumentIds.includes(item.provenance.docId)) blockers.push(block("evidence_document_not_searched", id, item.provenance.docId));
+    if (presentation.applicabilityResult.applicability === "APPLICABLE" && !presentation.searchCoverage.searched) blockers.push(block("evidence_document_not_searched", id, item.provenance.docId));
   });
   if (conclusion.conclusion === "CONFORMS" && presentation.acceptedEvidence.length === 0) blockers.push(block("accepted_evidence_missing_provenance", id));
   return blockers;
@@ -84,7 +86,7 @@ function rowBlockers(presentation: ReportPresentationObject): readonly Presentat
 function finish(presentations: readonly ReportPresentationObject[], blockers: readonly PresentationGateBlock[], warnings: readonly PresentationGateBlock[], crossRowOutcome: CrossRowOutcome): PresentationGateResult {
   const frozen = Object.freeze(presentations.map(cloneAndFreeze));
   if (blockers.length > 0) return Object.freeze({ releaseReady: false, releaseState: "BLOCKED", crossRowOutcome, presentations: frozen, blockedBy: Object.freeze([...blockers]) });
-  if (warnings.length > 0) return Object.freeze({ releaseReady: false, releaseState: "INTERNAL_REVIEW_ONLY", crossRowOutcome: "WARNING", presentations: frozen, warnings: Object.freeze([...warnings]) });
+  if (warnings.length > 0) return Object.freeze({ releaseReady: false, releaseState: "INTERNAL_REVIEW_ONLY", crossRowOutcome, presentations: frozen, warnings: Object.freeze([...warnings]) });
   return Object.freeze({ releaseReady: true, releaseState: "PRE_VALIDATION_RELEASE_READY", crossRowOutcome, presentations: frozen });
 }
 function evaluateInputs(input: unknown): { presentations: readonly ReportPresentationObject[]; blockers: readonly PresentationGateBlock[]; warnings: readonly PresentationGateBlock[]; validInputs: readonly PresentationGateInput[] } {
