@@ -78,7 +78,7 @@ function rowBlockers(presentation: ReportPresentationObject): readonly Presentat
   evidence.forEach((item) => {
     const key = canonicalProvenance(item.provenance);
     if (!provenance.has(key)) blockers.push(block("evidence_provenance_not_linked", id));
-    if (presentation.applicabilityResult.applicability === "APPLICABLE" && !presentation.searchCoverage.searched) blockers.push(block("evidence_document_not_searched", id, item.provenance.docId));
+    if (presentation.applicabilityResult.applicability === "APPLICABLE" && (!presentation.searchCoverage.searched || !presentation.searchCoverage.searchedDocumentIds.includes(item.provenance.docId))) blockers.push(block("evidence_document_not_searched", id, item.provenance.docId));
   });
   if (conclusion.conclusion === "CONFORMS" && presentation.acceptedEvidence.length === 0) blockers.push(block("accepted_evidence_missing_provenance", id));
   return blockers;

@@ -62,6 +62,8 @@ describe("presentation gates", () => {
     expect(evaluatePresentationGate(input({ ...p, evidenceProvenance: [] }))).toMatchObject({ blockedBy: [{ category: "evidence_provenance_not_linked" }] });
     expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searched: false } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
     expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searched: false, searchedDocumentIds: ["doc-1"] } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
+    expect(evaluatePresentationGate(input({ ...p, searchCoverage: { ...p.searchCoverage, searched: true, searchedDocumentIds: [] } }))).toMatchObject({ blockedBy: [{ category: "evidence_document_not_searched" }] });
+    expect(evaluatePresentationGate(input(p))).toMatchObject({ releaseReady: true });
   });
   it("allows multi-method reports and scopes requirement collisions by methodology/version", () => {
     const other = presentation(row({ rowId: "row-2", methodology: { methodologyId: "method-2", rulebookVersion: "v1" } }));

@@ -53,7 +53,7 @@ frozen.
 | Review history | Non-empty review history reference | Missing or blank reference |
 | Applicability/conclusion consistency | APPLICABLE rows do not conclude NOT_APPLICABLE; NOT_APPLICABLE rows conclude NOT_APPLICABLE | APPLICABLE produces NOT_APPLICABLE, or NOT_APPLICABLE produces a different conclusion |
 | Evidence sufficiency | CONFORMS has accepted evidence with provenance | CONFORMS has no accepted evidence |
-| Search linkage | Evidence provenance document has searchCoverage.searched === true | searched is false despite accepted or rejected evidence |
+| Search linkage | searchCoverage.searched === true AND evidence document ID appears in searchedDocumentIds | searched is false or the document ID is absent from searchedDocumentIds despite accepted or rejected evidence |
 | Provenance | Every evidence item has a matching canonical provenance entry | Evidence provenance is orphaned |
 | Version identity | Same methodology ID has one rulebook version | Same methodology ID carries conflicting versions |
 | Review state | Current or unavailable review state | Reopened, superseded, or stale state |
