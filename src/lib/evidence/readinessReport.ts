@@ -26,7 +26,7 @@ export type ReadinessReportViewModel = Readonly<{
   gate: PresentationGateResult;
 }>;
 
-function isGateResult(value: unknown): value is PresentationGateResult {
+export function isPresentationGateResult(value: unknown): value is PresentationGateResult {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Record<string, unknown>;
   if (!Array.isArray(candidate.presentations) || !candidate.presentations.every(isReportPresentationObject)) return false;
@@ -53,7 +53,7 @@ function invalidGate(): PresentationGateResult {
 }
 
 export function createReadinessReportViewModel(input: unknown): ReadinessReportViewModel {
-  const gate = isGateResult(input) ? input : invalidGate();
+  const gate = isPresentationGateResult(input) ? input : invalidGate();
   const reasons = gate.releaseState === "BLOCKED" ? gate.blockedBy : gate.releaseState === "INTERNAL_REVIEW_ONLY" ? gate.warnings : [];
   const label: ReadinessReportReleaseLabel =
     gate.releaseState === "PRE_VALIDATION_RELEASE_READY"
