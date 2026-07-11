@@ -2,6 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import path from "path";
 import { mkdirSync, writeFileSync, rmSync } from "fs";
 import {
+  checkParserAvailable,
   runParserBakeoff,
   formatParserBakeoffScorecard,
   formatParserBakeoffScorecardJson,
@@ -48,6 +49,16 @@ describe("Parser bakeoff scorecard", () => {
     const ce = scorecard.parsers.find((p) => p.parserId === "current-extractor");
     expect(ce).toBeDefined();
     expect(ce!.available).toBe(true);
+  });
+
+  it("checks missing optional Docling quietly", () => {
+    expect(() => checkParserAvailable("docling")).not.toThrow();
+
+    const docling = checkParserAvailable("docling");
+    if (!docling.available) {
+      expect(docling.reason).toBe("Docling unavailable; optional adapter skipped.");
+      expect(docling.reason).not.toMatch(/traceback|ModuleNotFoundError|No module named/i);
+    }
   });
 
   it("records parser availability truthfully", () => {
