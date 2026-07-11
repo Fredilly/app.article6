@@ -16,6 +16,8 @@ import {
   getVm0007EvidenceContract,
   normalizeVm0007RuleId,
 } from "@/lib/preverif/vm0007EvidenceContracts";
+import { buildAndSaveQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
+import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
 
@@ -30,6 +32,7 @@ export type Vm0007GapReportAuditRecord = {
   evidenceFileName?: string;
   userAcceptedVersionWarning?: boolean;
   audit: MethodologyEvidenceAuditSummary;
+  sourceDocument?: EvidenceMapSourceDocumentIdentity;
 };
 
 function getStorage(): Storage | null {
@@ -71,6 +74,7 @@ export function saveVm0007GapReportAudit(record: Vm0007GapReportAuditRecord): vo
   const storage = getStorage();
   if (!storage) return;
   storage.setItem(storageKey(record.auditId), JSON.stringify(record));
+  buildAndSaveQuickCheckReadinessPayload(record);
 }
 
 export function loadVm0007GapReportAudit(auditId: string): Vm0007GapReportAuditRecord | null {
@@ -90,6 +94,7 @@ export function loadVm0007GapReportAudit(auditId: string): Vm0007GapReportAuditR
       loadedRulebookId: typeof parsed.loadedRulebookId === "string" ? parsed.loadedRulebookId : parsed.methodologyId,
       loadedRulebookVersion: typeof parsed.loadedRulebookVersion === "string" ? parsed.loadedRulebookVersion : parsed.methodologyVersion,
       methodology: parsed.methodology ?? null,
+      sourceDocument: parsed.sourceDocument ?? { documentId: parsed.evidenceFileName || parsed.auditId, documentName: parsed.evidenceFileName || null, contentSha256: null },
     };
   } catch {
     return null;
@@ -156,6 +161,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     evidenceFileName: input.evidenceFileName?.trim() || undefined,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
     audit,
+    sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: null },
   };
   saveVm0007GapReportAudit(record);
   return record;

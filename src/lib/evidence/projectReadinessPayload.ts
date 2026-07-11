@@ -15,6 +15,12 @@ export type ProjectReadinessPayloadEventDetail = Readonly<{
   state: "saved" | "cleared";
 }>;
 
+export type ReadinessPayloadStorageScope = Readonly<{
+  id: string;
+  save: (gateResult: PresentationGateResult) => boolean;
+  clear: () => void;
+}>;
+
 export function projectReadinessPayloadStorageKey(projectId: string): string {
   return `${STORAGE_PREFIX}${projectId}`;
 }
