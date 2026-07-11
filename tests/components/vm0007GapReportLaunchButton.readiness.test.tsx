@@ -13,10 +13,10 @@ describe("VM0007 gap report routing compatibility", () => {
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/projects/project-1/pre-validation-readiness");
     act(() => { root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit-1" projectId="project-1" />); });
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/projects/project-1/pre-validation-readiness");
-    act(() => { root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit-1" projectId="project/a" />); });
+    act(() => { root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit/a" projectId="project/a" />); });
     expect(container.querySelector("a")?.getAttribute("href")).toBe("/projects/project%2Fa/pre-validation-readiness");
-    act(() => { root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit-1" />); });
-    expect(container.querySelector("a")?.getAttribute("href")).toBe("/internal/reports/vm0007-gap/audit-1");
+    act(() => { root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId="audit/a" />); });
+    expect(container.querySelector("a")?.getAttribute("href")).toBe("/quick-check/pre-validation-readiness?auditId=audit%2Fa");
     act(() => { root.unmount(); });
   });
 });

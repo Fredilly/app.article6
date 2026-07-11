@@ -121,7 +121,7 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
     expect(text).toContain("View Gap Report");
 
     const link = Array.from(container.querySelectorAll("a")).find((item) => item.textContent?.includes("View Gap Report"));
-    expect(link?.getAttribute("href")).toBe("/internal/reports/vm0007-gap/audit-quickcheck-1");
+    expect(link?.getAttribute("href")).toBe("/quick-check/pre-validation-readiness?auditId=audit-quickcheck-1");
   });
 
   test("renders a disabled helper state when VM0007 result has no report id yet", async () => {

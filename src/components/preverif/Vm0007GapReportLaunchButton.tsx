@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
-import { buildVm0007GapReportHref } from "@/lib/preverif/vm0007GapReportStore";
 
 type Vm0007GapReportLaunchButtonProps = {
   isVm0007Result: boolean;
@@ -48,11 +47,11 @@ export default function Vm0007GapReportLaunchButton({
       ) : auditId?.trim() ? (
         <>
           <div className="mt-2 text-sm text-slate-600">
-            Open the internal VM0007 gap report preview for manual browser print or PDF save.
+            Open the standalone Pre-Validation Readiness Report. It remains not assessed until canonical project Evidence Map data exists.
           </div>
           <div className="mt-3">
             <Link
-              href={buildVm0007GapReportHref(auditId)}
+              href={`/quick-check/pre-validation-readiness?auditId=${encodeURIComponent(auditId)}`}
               className="inline-flex items-center gap-2 rounded-full border border-green-600 bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:border-green-700 hover:bg-green-700"
             >
               <ArrowUpRight className="h-4 w-4" />
