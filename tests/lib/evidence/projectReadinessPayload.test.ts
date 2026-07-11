@@ -7,7 +7,7 @@ import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContrac
 import { deriveDraftFinding } from "@/lib/evidence/draftFindingContract";
 import { createReportPresentationObject } from "@/lib/evidence/reportPresentationObject";
 import { createReadinessReportViewModel } from "@/lib/evidence/readinessReport";
-import { createProjectReadinessReportViewModel, hasProjectReadinessPayload, loadProjectReadinessPayload, projectReadinessPayloadStorageKey } from "@/lib/evidence/projectReadinessPayload";
+import { createProjectReadinessReportViewModel, hasProjectReadinessPayload, loadProjectReadinessPayload, projectReadinessPayloadStorageKey, saveProjectReadinessPayload } from "@/lib/evidence/projectReadinessPayload";
 
 describe("project readiness payload boundary", () => {
   function realGateResult() {
@@ -54,7 +54,7 @@ describe("project readiness payload boundary", () => {
     expect(report.gate).toEqual(gateResult);
     expect(report.release.releaseReady).toBe(true);
     expect(report.rows[0].evidenceMapRowId).toBe("project-row-1");
-    window.localStorage.setItem(projectReadinessPayloadStorageKey("project-1"), JSON.stringify({ projectId: "project-1", gateResult }));
+    expect(saveProjectReadinessPayload({ projectId: "project-1", gateResult })).toBe(true);
     expect(hasProjectReadinessPayload("project-1")).toBe(true);
     expect(createReadinessReportViewModel(gateResult).release.state).toBe("PRE_VALIDATION_RELEASE_READY");
   });
