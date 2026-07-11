@@ -399,7 +399,8 @@ Current focus:
 - Phase 6 Report Presentation Object is complete
 - Phase 7 Presentation Gates are complete
 - Phase 8 Fixture Expectation Migration is complete
-- Phase 9 Readiness Report and UI Consumers is next
+- Phase 9 Readiness Report and UI Consumers is complete
+- Phase 10 Deprecation Review is next
 - Review traceability and release controls are explicit downstream requirements
 - Keep the Evidence Map upstream and canonical
 - Keep the Pre-Validation Readiness Report and UI downstream
@@ -420,5 +421,5 @@ Not active now:
 7) RC6 — Phase 6: Report Presentation Object: Done — Package finalized Evidence Map rows and validated applicability, conformance, and draft-finding results into one immutable generic presentation object with preserved evidence, provenance, review metadata, versions, and identity checks.
 8) RC7 — Phase 7: Presentation Gates: Done — Prevent unsupported conclusions and draft finding candidates through applicability, evidence sufficiency, and search-coverage gates, plus finalized-row traceability, review-history, contract-version, reopened-or-superseded-row, cross-row consistency, and fail-closed release-readiness gates.
 9) RC8 — Phase 8: Fixture Expectation Migration: Done — Migrate reviewed fixture truth through finalized Evidence Map rows and the Phase 2–7 presentation contracts while preserving accepted and rejected evidence, provenance, statuses, and legacy consumers.
-10) RC9 — Phase 9: Readiness Report and UI Consumers: Next — Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract, with a minimal reviewer workflow, centralized release-gate checks, traceable approve/edit/reopen history, and internal preview when client release is blocked.
-11) RC10 — Phase 10: Deprecation Review: Planned — Review old labels and organization-specific profiles only after the generic reviewer workflow and release gate are proven through a controlled pilot with qualified validation or verification professionals.
+10) RC9 — Phase 9: Readiness Report and UI Consumers: Done — Implement downstream Pre-Validation Readiness Report and UI consumers using only finalized Phase 6 presentation objects and Phase 7 gate results, with fail-closed reviewer metadata and internal preview when client release is blocked.
+11) RC10 — Phase 10: Deprecation Review: Next — Review old labels and organization-specific profiles only after the generic reviewer workflow and release gate are proven through a controlled pilot with qualified validation or verification professionals.

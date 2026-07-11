@@ -13,7 +13,8 @@
       "Phase 6 Report Presentation Object is complete",
       "Phase 7 Presentation Gates are complete",
       "Phase 8 Fixture Expectation Migration is complete",
-      "Phase 9 Readiness Report and UI Consumers is next",
+      "Phase 9 Readiness Report and UI Consumers is complete",
+      "Phase 10 Deprecation Review is next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
@@ -75,12 +76,12 @@
     },
     "phase_9_readiness_report_and_ui_consumers": {
       "title": "Phase 9: Readiness Report and UI Consumers",
-      "status": "next",
-      "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract, with a minimal reviewer workflow, centralized release-gate checks, traceable approve/edit/reopen history, and internal preview when client release is blocked."
+      "status": "done",
+      "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using only finalized Phase 6 presentation objects and Phase 7 gate results, with fail-closed reviewer metadata and internal preview when client release is blocked."
     },
     "phase_10_deprecation_review": {
       "title": "Phase 10: Deprecation Review",
-      "status": "planned",
+      "status": "next",
       "summary": "Review old labels and organization-specific profiles only after the generic reviewer workflow and release gate are proven through a controlled pilot with qualified validation or verification professionals."
     }
   },
