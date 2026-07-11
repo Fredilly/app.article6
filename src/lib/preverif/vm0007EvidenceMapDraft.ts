@@ -11,6 +11,7 @@ import type {
   MethodologyEvidenceAuditSummary,
 } from "@/lib/preverif/evidenceAudit";
 import { EVIDENCE_AUDIT_STATUSES } from "@/lib/preverif/evidenceAudit";
+import { normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 
 export const VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION = "vm0007-evidence-map-draft-v1";
 export const VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE = "MACHINE_PROPOSED" as const;
@@ -202,8 +203,8 @@ export function buildVm0007EvidenceMapDraft(input: {
   const rulebookVersion = normalizeMethodologyVersion(input.audit.rulebookVersion ?? "");
   const declaredVersion = normalizeMethodologyVersion(input.audit.pddDeclaredMethodologyVersion ?? "");
   const sourceDocument = input.sourceDocument ?? null;
-  const canonicalIds = input.rules.map((rule) => typeof rule.id === "string" ? rule.id.trim().toUpperCase() : "");
-  const resultIds = input.audit.results.map((result) => typeof result?.ruleId === "string" ? result.ruleId.trim().toUpperCase() : "");
+  const canonicalIds = input.rules.map((rule) => typeof rule.id === "string" ? normalizeVm0007RuleId(rule.id) : "");
+  const resultIds = input.audit.results.map((result) => typeof result?.ruleId === "string" ? normalizeVm0007RuleId(result.ruleId) : "");
   if (canonicalIds.some((id) => !id)) blockedBy.push("malformed_rulebook");
   if (canonicalIds.some((id, index) => canonicalIds.indexOf(id) !== index)) blockedBy.push("duplicate_canonical_rule_ids");
   const duplicates = resultIds.filter((id, index) => resultIds.indexOf(id) !== index);
@@ -223,9 +224,9 @@ export function buildVm0007EvidenceMapDraft(input: {
   if (input.audit.results.some((result) => !isKnownAuditStatus(result?.status))) blockedBy.push("unknown_audit_status");
   if (blockedBy.length || !sourceDocument) return { ok: false, blockedBy: Array.from(new Set(blockedBy)) };
 
-  const results = new Map(input.audit.results.map((result) => [result.ruleId.trim().toUpperCase(), result]));
+  const results = new Map(input.audit.results.map((result) => [normalizeVm0007RuleId(result.ruleId), result]));
   const rows = input.rules.map((rule) => {
-    const result = results.get(rule.id.trim().toUpperCase())!;
+    const result = results.get(normalizeVm0007RuleId(rule.id))!;
     const mapped = mapVm0007DraftStatus(result.status, result, sourceDocument);
     const provenance = mapped.accepted?.provenance ?? mapped.rejected?.provenance ?? null;
     return {

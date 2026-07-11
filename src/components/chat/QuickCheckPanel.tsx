@@ -664,6 +664,28 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
+export function mapVm0007EvidenceMapGenerationError(blockedBy: readonly string[]): string {
+  if (blockedBy.some((reason) => reason === "methodology_id_mismatch" || reason === "rulebook_version_mismatch")) {
+    return "Evidence Map requires the VM0007 v1.8 methodology version.";
+  }
+  if (blockedBy.includes("pdd_declared_version_mismatch")) {
+    return "Evidence Map requires a PDD that declares VM0007 v1.8.";
+  }
+  if (blockedBy.includes("audit_not_successfully_audited")) {
+    return "The VM0007 evidence audit was not successfully completed.";
+  }
+  if (blockedBy.includes("canonical_rule_count_is_not_58")) {
+    return "Evidence Map requires all 58 canonical VM0007 requirements.";
+  }
+  if (blockedBy.some((reason) => ["missing_rule_ids", "duplicate_rule_ids", "unknown_rule_ids", "duplicate_canonical_rule_ids"].includes(reason))) {
+    return "Evidence Map could not match the complete set of 58 VM0007 requirements.";
+  }
+  if (blockedBy.some((reason) => reason.includes("persistence") || reason.includes("validation"))) {
+    return "Evidence Map draft could not be validated or saved. You can retry.";
+  }
+  return "Evidence Map could not be created. You can retry.";
+}
+
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace, fixtureContract }: QuickCheckPanelProps) {
   const showReviewRoutingDiagnostic = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -691,6 +713,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [evidenceCheckResults, setEvidenceCheckResults] = useState<StructuredEvidenceCheckResult[]>([]);
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [uploadVm0007GapReportAuditId, setUploadVm0007GapReportAuditId] = useState<string | null>(null);
+  const [uploadVm0007GenerationError, setUploadVm0007GenerationError] = useState<string | null>(null);
   const [generatingUploadVm0007GapReport, setGeneratingUploadVm0007GapReport] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -1016,7 +1039,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       && evidenceMentionsMethodologyCode(extractionState.analysis, "VM0007"),
     [activeSourceMode, extractionState.analysis, isProjectDescriptionPdd],
   );
-  const uploadVm0007ReportAuditId = uploadVm0007GapReportAuditId ?? renderedResult?.vm0007GapReportAuditId ?? null;
+  const uploadVm0007ReportAuditId = uploadVm0007GapReportAuditId;
   const canGenerateUploadVm0007Report = Boolean(
     showUploadVm0007ReportCard
     && detectedVm0007Method?.methodologyVersion
@@ -1182,6 +1205,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setEvidenceCheckResults([]);
     setRunningEvidenceChecks(false);
     setUploadVm0007GapReportAuditId(null);
+    setUploadVm0007GenerationError(null);
     setGeneratingUploadVm0007GapReport(false);
     setDocumentPurpose(null);
   }
@@ -1257,6 +1281,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!rawPddText) return;
 
     setGeneratingUploadVm0007GapReport(true);
+    setUploadVm0007GenerationError(null);
+    setUploadVm0007GapReportAuditId(null);
     setFieldErrors({});
     try {
       const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.methodologyVersion);
@@ -1267,12 +1293,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         rawPddText,
         rules,
       });
-      if (!savedAudit?.auditId) return;
+      if (!savedAudit || !savedAudit.draftSaved || !savedAudit.auditId) {
+        setUploadVm0007GenerationError(mapVm0007EvidenceMapGenerationError(savedAudit?.blockedBy ?? ["draft_persistence_failed"]));
+        return;
+      }
       setUploadVm0007GapReportAuditId(savedAudit.auditId);
-    } catch (error) {
-      setFieldErrors({
-        general: error instanceof Error ? error.message : String(error),
-      });
+    } catch {
+      setUploadVm0007GenerationError("Evidence Map could not be created. You can retry.");
     } finally {
       setGeneratingUploadVm0007GapReport(false);
     }
@@ -1512,7 +1539,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             rawPddText: sourceAnalysis.rawPddText,
             rules: auditRules,
           });
-          vm0007GapReportAuditId = savedAudit?.auditId;
+          vm0007GapReportAuditId = savedAudit?.draftSaved ? savedAudit.auditId ?? undefined : undefined;
         } catch (error) {
           if (process.env.NODE_ENV !== "production") {
             console.error("Failed to save VM0007 gap report audit output.", error);
@@ -2909,6 +2936,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               projectId={linkedProjectId}
               title="Internal VM0007 report"
               onGenerate={handleGenerateUploadVm0007GapReport}
+              generationError={uploadVm0007GenerationError}
               generating={generatingUploadVm0007GapReport}
               generateDisabled={!canGenerateUploadVm0007Report}
               testId="vm0007-upload-report-section"

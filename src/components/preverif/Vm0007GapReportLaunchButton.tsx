@@ -15,6 +15,7 @@ type Vm0007GapReportLaunchButtonProps = {
   projectId?: string | null;
   title?: string;
   onGenerate?: (() => void) | null;
+  generationError?: string | null;
   generating?: boolean;
   generateDisabled?: boolean;
   testId?: string;
@@ -25,6 +26,7 @@ export default function Vm0007GapReportLaunchButton({
   auditId,
   title = "Internal report",
   onGenerate = null,
+  generationError = null,
   generating = false,
   generateDisabled = false,
   testId = "vm0007-internal-report-section",
@@ -64,12 +66,9 @@ export default function Vm0007GapReportLaunchButton({
           </div>
           <div className="mt-2 text-xs text-slate-500">{draftPackage.methodologyId} {draftPackage.rulebookVersion} · {draftPackage.rows.length} requirements</div>
         </>
-      ) : auditId?.trim() ? (
-        <>
-          <div className="mt-2 text-sm text-slate-600">Evidence Map was not created for this audit. Rerun the evidence review with a valid VM0007 v1.8 PDD.</div>
-        </>
       ) : onGenerate ? (
         <>
+          {generationError ? <div className="mt-2 text-sm text-amber-800">{generationError}</div> : null}
           <div className="mt-2 text-sm text-slate-600">
             Create a machine-proposed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.
           </div>
@@ -81,9 +80,13 @@ export default function Vm0007GapReportLaunchButton({
               className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
             >
               {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-              Generate Evidence Map
+              {generationError ? "Retry Evidence Map" : "Generate Evidence Map"}
             </button>
           </div>
+        </>
+      ) : auditId?.trim() ? (
+        <>
+          <div className="mt-2 text-sm text-slate-600">Evidence Map was not created for this audit. Rerun the evidence review with a valid VM0007 v1.8 PDD.</div>
         </>
       ) : (
         <>

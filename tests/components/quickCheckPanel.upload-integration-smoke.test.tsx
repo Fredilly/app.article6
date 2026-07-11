@@ -30,10 +30,13 @@ const ENVIRA_GOLD_FIXTURE = JSON.parse(
 }>;
 
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+let selectedRulebookVersion = "v1-0";
+let canonicalVm0007Rules: import("@/app/m/_lib/methodRules").RuleSummary[] = [];
 
 const PDF_TEXT_BY_FILENAME: Record<string, string> = {
   "qc-smoke-upload.pdf": PLUM_PDD_TEXT,
   "envira-gold.pdf": ENVIRA_PDD_TEXT,
+  "makanza-vm0007-v18.pdf": fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/v2/makanza-congo-pdd/extracted.txt"), "utf-8"),
 };
 
 jest.mock("@/lib/proofMap/attachments", () => ({
@@ -60,6 +63,9 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
 
 import QuickCheckPanel from "@/components/chat/QuickCheckPanel";
 import { loadVm0007GapReportAudit } from "@/lib/preverif/vm0007GapReportStore";
+import { loadVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { validateVm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { loadMethodRules } from "@/app/m/_lib/methodRules";
 
 jest.setTimeout(15000);
 
@@ -134,7 +140,9 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    selectedRulebookVersion = "v1-0";
+    canonicalVm0007Rules = (await loadMethodRules("VM0007", "v1-8")).rules;
     container = document.createElement("div");
     document.body.appendChild(container);
     root = createRoot(container);
@@ -173,7 +181,7 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
         return new Response(
           JSON.stringify({
             methods: [
-              { code: "VM0007", latestVersion: "v1-0", versions: ["v1-0"] },
+              { code: "VM0007", latestVersion: selectedRulebookVersion, versions: [selectedRulebookVersion] },
             ],
           }),
           { status: 200 },
@@ -213,19 +221,10 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
           { status: 200 },
         );
       }
-      if (url.includes("/api/methods/VM0007/v/v1-0/rules")) {
+      if (url.includes(`/api/methods/VM0007/v/${selectedRulebookVersion}/rules`)) {
         return new Response(
           JSON.stringify({
-            rules: [
-              {
-                id: "R-1-0001",
-                title: "Forest definition",
-                snippet: "Forest definition evidence.",
-                summary: "Forest definition evidence.",
-                logic: "Confirm the project remains within the forest definition.",
-                tags: ["vm0007", "eligibility"],
-              },
-            ],
+            rules: selectedRulebookVersion === "v1-8" ? canonicalVm0007Rules : [{ id: "R-1-0001", title: "Forest definition", snippet: "Forest definition evidence.", summary: "Forest definition evidence.", logic: "Confirm the project remains within the forest definition.", tags: ["vm0007", "eligibility"] }],
           }),
           { status: 200 },
         );
@@ -336,12 +335,13 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     }
   });
 
-  it("shows the VM0007 internal report card in the upload evidence-check flow and generates a preview", async () => {
+  it("proves the valid VM0007 v1.8 upload flow persists and opens a 58-requirement Evidence Map", async () => {
+    selectedRulebookVersion = "v1-8";
     seedSession({
       claimText: "What is the project title?",
-      filename: "qc-smoke-upload.pdf",
+      filename: "makanza-vm0007-v18.pdf",
     });
-    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PDF_TEXT_BY_FILENAME["makanza-vm0007-v18.pdf"]})\n%%EOF`);
 
     await act(async () => {
       root.render(<QuickCheckPanel />);
@@ -353,32 +353,51 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     const beforeGenerateText = container.textContent ?? "";
     expect(beforeGenerateText).toContain("Evidence Checks");
     expect(beforeGenerateText).toContain("Internal VM0007 report");
-    expect(beforeGenerateText).toContain("Generate Gap Report Preview");
+    expect(beforeGenerateText).toContain("Generate Evidence Map");
     expect(beforeGenerateText).toContain("Methodology");
 
     await act(async () => {
-      clickButton("Generate Gap Report Preview");
+      clickButton("Generate Evidence Map");
     });
     await flushUi();
     await flushUi();
 
-    const link = Array.from(container.querySelectorAll("a")).find((node) =>
-      node.textContent?.includes("View Gap Report"),
-    );
+    const link = Array.from(container.querySelectorAll("a")).find((node) => node.textContent?.includes("Open Evidence Map"));
     expect(link).toBeTruthy();
     const href = link?.getAttribute("href") ?? "";
-    const auditIdMatch = href.match(/\/quick-check\/pre-validation-readiness\?auditId=([^&]+)$/);
+    const auditIdMatch = href.match(/\/internal\/reports\/vm0007-evidence-map\/([^/]+)$/);
     expect(auditIdMatch?.[1]).toBeTruthy();
-    const audit = loadVm0007GapReportAudit(decodeURIComponent(auditIdMatch?.[1] ?? ""));
+    const auditId = decodeURIComponent(auditIdMatch?.[1] ?? "");
+    const audit = loadVm0007GapReportAudit(auditId);
+    const draft = loadVm0007EvidenceMapDraft(auditId);
     expect(audit).not.toBeNull();
-    expect(audit?.methodology?.methodologyId).toBe("VM0007");
-    expect(audit?.methodology?.methodologyName).toBeTruthy();
-    expect(audit?.loadedRulebookId).toBe("VM0007");
-    expect(audit?.loadedRulebookVersion).toBe("v1-0");
-    expect(audit?.audit.auditStatus).toBe("BLOCKED_VERSION_MISMATCH");
-    expect(audit?.audit.versionMatch).toBe(false);
-    expect(audit?.audit.userAcceptedVersionWarning).toBe(true);
-    expect(container.textContent ?? "").toContain("View Gap Report");
+    expect(draft).not.toBeNull();
+    expect(validateVm0007EvidenceMapDraftPackage(draft, auditId)).toBe(true);
+    expect(draft?.rows).toHaveLength(58);
+    expect(audit?.loadedRulebookVersion).toBe("v1-8");
+    expect(container.textContent ?? "").not.toContain("Pre-Validation Readiness Report");
+    expect(container.textContent ?? "").not.toContain("Gap Report");
+  });
+
+  it("stores a wrong-version audit but fails closed without a draft and keeps retry available", async () => {
+    seedSession({ claimText: "What is the project title?", filename: "qc-smoke-upload.pdf" });
+    await seedAttachmentText("att-upload-1", `%PDF-1.4\n(${PLUM_PDD_TEXT})\n%%EOF`);
+
+    await act(async () => { root.render(<QuickCheckPanel />); });
+    await flushUi();
+    expect(container.textContent).toContain("Generate Evidence Map");
+    await act(async () => { clickButton("Generate Evidence Map"); });
+    await flushUi();
+
+    expect(container.textContent).toContain("Evidence Map requires the VM0007 v1.8 methodology version.");
+    expect(container.textContent).toContain("Retry Evidence Map");
+    expect(container.textContent).not.toContain("Open Evidence Map");
+    expect(container.textContent).not.toContain("Pre-Validation Readiness Report");
+    const auditIds = Object.keys(window.localStorage)
+      .filter((key) => key.startsWith("a6:vm0007-gap-report-audit:v1:"))
+      .map((key) => key.slice("a6:vm0007-gap-report-audit:v1:".length));
+    expect(auditIds).toHaveLength(1);
+    expect(loadVm0007EvidenceMapDraft(auditIds[0])).toBeNull();
   });
 
   it("shows rejection state for unsupported question from seeded upload/session state", async () => {

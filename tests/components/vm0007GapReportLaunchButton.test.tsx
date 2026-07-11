@@ -69,6 +69,25 @@ describe("Vm0007GapReportLaunchButton", () => {
     expect(container.textContent).not.toContain("Pre-Validation Readiness Report");
   });
 
+  test("keeps retry available when a stale audit id has no valid draft", async () => {
+    const onGenerate = jest.fn();
+    await act(async () => {
+      root.render(
+        <Vm0007GapReportLaunchButton
+          isVm0007Result
+          auditId="stale-audit"
+          onGenerate={onGenerate}
+          generationError="Evidence Map requires a PDD that declares VM0007 v1.8."
+        />,
+      );
+    });
+    expect(container.querySelector("a")).toBeNull();
+    expect(container.textContent).toContain("Evidence Map requires a PDD that declares VM0007 v1.8.");
+    expect(container.textContent).toContain("Retry Evidence Map");
+    container.querySelector("button")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(onGenerate).toHaveBeenCalledTimes(1);
+  });
+
   test("shows a disabled helper state when VM0007 result has no audit id yet", async () => {
     await act(async () => {
       root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId={null} />);
