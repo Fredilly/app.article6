@@ -16,7 +16,6 @@ import {
   getVm0007EvidenceContract,
   normalizeVm0007RuleId,
 } from "@/lib/preverif/vm0007EvidenceContracts";
-import { buildAndSaveQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
@@ -74,7 +73,6 @@ export function saveVm0007GapReportAudit(record: Vm0007GapReportAuditRecord): vo
   const storage = getStorage();
   if (!storage) return;
   storage.setItem(storageKey(record.auditId), JSON.stringify(record));
-  buildAndSaveQuickCheckReadinessPayload(record);
 }
 
 export function loadVm0007GapReportAudit(auditId: string): Vm0007GapReportAuditRecord | null {

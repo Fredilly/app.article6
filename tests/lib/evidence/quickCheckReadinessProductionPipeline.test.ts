@@ -1,29 +1,45 @@
 /** @jest-environment jsdom */
 
 import { afterEach, beforeEach, describe, expect, test } from "@jest/globals";
-import { buildAndSaveQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
+import { finalizeQuickCheckEvidenceMapForReadiness } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
-import type { Vm0007GapReportAuditRecord } from "@/lib/preverif/vm0007GapReportStore";
+import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
+import type { ProjectEvidenceMapAssessment } from "@/lib/evidence/projectReadinessProductionPipeline";
+import { saveVm0007GapReportAudit } from "@/lib/preverif/vm0007GapReportStore";
 
-function auditRecord(): Vm0007GapReportAuditRecord {
+function row(overrides: Partial<EvidenceMapRow> = {}): EvidenceMapRow {
+  const provenance = { docId: "pdd-real-1", page: 4, sectionPath: ["3.1 Evidence"], spanId: "span-real", sectionHeading: "3.1 Evidence", sourceType: "PDD" };
   return {
-    auditId: "audit-real-1",
-    methodologyId: "VM0007",
-    methodologyVersion: "v1-8",
-    loadedRulebookId: "VM0007",
-    loadedRulebookVersion: "v1-8",
-    generatedAt: "2026-07-11T00:00:00.000Z",
+    rowId: "quick-row-1",
+    requirement: { requirementId: "R-FOUND", requirementReference: "R-FOUND", requirementText: "The project provides evidence." },
+    methodology: { methodologyId: "VM0007", rulebookVersion: "v1-8" },
+    upstreamStatus: "FOUND",
+    applicabilityState: "APPLICABLE",
+    acceptedEvidence: [{ evidenceId: "accepted", quote: "The project provides evidence.", provenance }],
+    rejectedEvidence: [{ evidenceId: "rejected", quote: "Methodology boilerplate only.", rejectionReason: "Boilerplate evidence rejected.", provenance }],
+    assessmentReason: "The finalized Evidence Map records the explicit audit evidence.",
+    clientAction: null,
+    searchCoverage: { searched: true, searchedDocumentIds: ["pdd-real-1"], notes: null },
     sourceDocument: { documentId: "pdd-real-1", documentName: "real-project.pdd.pdf", contentSha256: "sha256:real" },
-    audit: {
-      auditStatus: "AUDITED",
-      results: [
-        { ruleId: "R-FOUND", stableId: "R-FOUND", title: "Found requirement", ruleLogic: "The project provides evidence.", status: "supported_by_pdd", bestEvidenceQuote: "The project provides evidence.", page: 4, section: "3.1 Evidence", span: "span-found", reasonSelected: "Project-specific evidence found.", assessmentReason: "The audit found project-specific evidence.", gap: "", clientAction: "", confidence: "high" },
-        { ruleId: "R-MISSING", stableId: "R-MISSING", title: "Missing requirement", ruleLogic: "The project retains records.", status: "missing_evidence", bestEvidenceQuote: null, page: null, section: null, span: null, reasonSelected: "No project evidence found.", assessmentReason: "The audit found no project evidence.", gap: "Provide records.", clientAction: "Provide records.", confidence: "low" },
-        { ruleId: "R-REJECTED", stableId: "R-REJECTED", title: "Rejected requirement", ruleLogic: "The project documents scope.", status: "manual_review_needed", bestEvidenceQuote: "Methodology boilerplate only.", page: 8, section: "4 Scope", span: "span-rejected", reasonSelected: "Boilerplate evidence rejected.", assessmentReason: "The audit rejected non-project evidence.", gap: "Use project evidence.", clientAction: "Provide project evidence.", confidence: "low" },
-      ],
-      totals: { supported_by_pdd: 1, partially_supported: 0, missing_evidence: 1, not_applicable: 0, manual_review_needed: 1 },
-      totalRules: 3,
-    },
+    evidenceProvenance: [provenance],
+    finalizationState: "finalized",
+    finalizationActorRef: "reviewer:quick-check",
+    finalizedAt: "2026-07-11T00:00:00.000Z",
+    finalizationBasis: "Explicit reviewer finalization.",
+    reviewHistoryRef: "history:quick-row-1",
+    evidenceMapContractVersion: "v1",
+    reviewPolicyVersion: "policy-v1",
+    ...overrides,
+  };
+}
+
+function assessment(): ProjectEvidenceMapAssessment {
+  return {
+    evidenceMapRowId: "quick-row-1",
+    applicability: { decision: "APPLICABLE", decisionBasis: "Explicit reviewer applicability decision." },
+    conformance: { requirementSupport: "SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE", versionIdentityAssessment: "MATCHED", contradictionAssessment: "NONE" },
+    draftFinding: { draftFindingType: null, findingBasis: null, reviewerAssessment: null },
+    reviewState: "CURRENT",
   };
 }
 
@@ -31,21 +47,34 @@ describe("Quick Check readiness producer", () => {
   beforeEach(() => window.localStorage.clear());
   afterEach(() => window.localStorage.clear());
 
-  test("saves real rows through the Phase 2–7 contracts without colliding with project storage", () => {
-    buildAndSaveQuickCheckReadinessPayload(auditRecord());
+  test("saves only explicitly finalized rows through the Phase 2–7 contracts", () => {
+    const result = finalizeQuickCheckEvidenceMapForReadiness({ auditId: "audit-real-1", auditGeneratedAt: "2026-07-11T00:00:00.000Z", rows: [row()], assessments: [assessment()] });
     const payload = loadQuickCheckReadinessPayload("audit-real-1");
-    expect(payload?.gateResult.presentations).toHaveLength(3);
+    expect(result.ready).toBe(true);
+    expect(payload?.gateResult.presentations).toHaveLength(1);
     expect(payload?.gateResult.presentations[0].acceptedEvidence[0].quote).toBe("The project provides evidence.");
-    expect(payload?.gateResult.presentations[2].rejectedEvidence[0].rejectionReason).toBe("Boilerplate evidence rejected.");
-    expect(payload?.gateResult.presentations[0].evidenceProvenance[0]).toMatchObject({ docId: "pdd-real-1", page: 4, spanId: "span-found" });
+    expect(payload?.gateResult.presentations[0].rejectedEvidence[0].rejectionReason).toBe("Boilerplate evidence rejected.");
+    expect(payload?.gateResult.presentations[0].evidenceProvenance[0]).toMatchObject({ docId: "pdd-real-1", page: 4, spanId: "span-real" });
     expect(payload?.gateResult.presentations[0].sourceDocument).toEqual({ documentId: "pdd-real-1", documentName: "real-project.pdd.pdf", contentSha256: "sha256:real" });
-    expect(payload?.gateResult.releaseState).toBe("INTERNAL_REVIEW_ONLY");
+    expect(payload?.gateResult.releaseState).toBe("PRE_VALIDATION_RELEASE_READY");
   });
 
-  test("does not produce a payload when explicit assessment input is missing", () => {
-    const record = auditRecord();
-    record.audit.results = record.audit.results.slice(0, 0);
-    buildAndSaveQuickCheckReadinessPayload(record);
-    expect(loadQuickCheckReadinessPayload(record.auditId)).toBeNull();
+  test("fails closed for non-finalized rows and missing explicit assessments", () => {
+    const result = finalizeQuickCheckEvidenceMapForReadiness({ auditId: "audit-real-1", auditGeneratedAt: "2026-07-11T00:00:00.000Z", rows: [row({ finalizationState: "draft" })], assessments: [] });
+    expect(result).toMatchObject({ ready: false, state: "NOT_ASSESSED" });
+    expect(loadQuickCheckReadinessPayload("audit-real-1")).toBeNull();
+  });
+
+  test("saving a Quick Check audit does not finalize or save readiness", () => {
+    saveVm0007GapReportAudit({
+      auditId: "audit-only-1",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1-8",
+      generatedAt: "2026-07-11T00:00:00.000Z",
+      audit: { results: [], totals: { supported_by_pdd: 0, partially_supported: 0, missing_evidence: 0, not_applicable: 0, manual_review_needed: 0 }, totalRules: 0 },
+    });
+    expect(loadQuickCheckReadinessPayload("audit-only-1")).toBeNull();
   });
 });
