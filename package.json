@@ -53,6 +53,7 @@
     "generate:manifest": "node scripts/generate-manifest-from-pack.mjs",
     "determinism:audit-pack": "node scripts/determinism-audit-pack.mjs",
     "pr:gate": "node scripts/pr-gate.mjs",
+    "pr:check:local": "npm run guard:methodology-boundary && npm run lint && npm run typecheck && npm run check:docs-layout && npm run roadmap:validate-evidence && git diff --check",
     "ci:coverage": "node scripts/compute-coverage.mjs",
     "ci:ratchet": "node scripts/gate-coverage-ratchet.mjs",
     "ci:links": "node scripts/gate-link-resolver.mjs",
