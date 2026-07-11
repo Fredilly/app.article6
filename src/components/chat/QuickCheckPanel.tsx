@@ -706,6 +706,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }),
   );
 
+  const linkedProjectId = typeof window === "undefined"
+    ? null
+    : new URLSearchParams(window.location.search).get("projectId")?.trim() || null;
+
   const draft = session.draft;
   const result = session.result;
   const stagedUploads = session.stagedUploads;
@@ -2902,6 +2906,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <Vm0007GapReportLaunchButton
               isVm0007Result
               auditId={uploadVm0007ReportAuditId}
+              projectId={linkedProjectId}
               title="Internal VM0007 report"
               onGenerate={handleGenerateUploadVm0007GapReport}
               generating={generatingUploadVm0007GapReport}
@@ -3634,6 +3639,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <Vm0007GapReportLaunchButton
                 isVm0007Result={isVm0007RenderedResult}
                 auditId={renderedResult?.vm0007GapReportAuditId}
+                projectId={linkedProjectId}
               />
             </div>
           ) : null}

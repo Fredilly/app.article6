@@ -88,7 +88,7 @@ describe("Vm0007GapReportLaunchButton", () => {
     const link = container.querySelector("a");
     expect(container.textContent).toContain("Internal report");
     expect(link?.textContent).toContain("View Gap Report");
-    expect(link?.getAttribute("href")).toBe("/internal/reports/vm0007-gap/audit-1");
+    expect(link?.getAttribute("href")).toBe("/quick-check/pre-validation-readiness?auditId=audit-1");
     expect(link?.className).toContain("bg-green-600");
     expect(link?.className).toContain("text-white");
   });

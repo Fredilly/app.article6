@@ -367,9 +367,9 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     );
     expect(link).toBeTruthy();
     const href = link?.getAttribute("href") ?? "";
-    const auditIdMatch = href.match(/\/internal\/reports\/vm0007-gap\/(.+)$/);
+    const auditIdMatch = href.match(/\/quick-check\/pre-validation-readiness\?auditId=([^&]+)$/);
     expect(auditIdMatch?.[1]).toBeTruthy();
-    const audit = loadVm0007GapReportAudit(auditIdMatch?.[1] ?? "");
+    const audit = loadVm0007GapReportAudit(decodeURIComponent(auditIdMatch?.[1] ?? ""));
     expect(audit).not.toBeNull();
     expect(audit?.methodology?.methodologyId).toBe("VM0007");
     expect(audit?.methodology?.methodologyName).toBeTruthy();
