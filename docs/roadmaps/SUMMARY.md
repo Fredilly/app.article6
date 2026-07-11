@@ -332,7 +332,7 @@ Details: `docs/roadmaps/vm0007-evidence-map-mvp/PLAN.md`
 Lane status: Active
 Persist and display the machine-proposed VM0007 v1.8 58-rule Evidence Map draft.
 
-1) RC1 — 58-rule draft Evidence Map and UI: Active
+1) RC1 — 58-rule draft Evidence Map and UI: Done
 2) RC2 — reviewer finalization and readiness report wiring: Planned
 
 ## vm0007-judgement-fixtures
