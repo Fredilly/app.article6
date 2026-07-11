@@ -17,6 +17,8 @@ import {
   normalizeVm0007RuleId,
 } from "@/lib/preverif/vm0007EvidenceContracts";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
+import { buildVm0007EvidenceMapDraft, type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
 
@@ -33,6 +35,40 @@ export type Vm0007GapReportAuditRecord = {
   audit: MethodologyEvidenceAuditSummary;
   sourceDocument?: EvidenceMapSourceDocumentIdentity;
 };
+
+export type Vm0007EvidenceMapGenerationResult = {
+  auditSaved: boolean;
+  draftBuilt: boolean;
+  draftSaved: boolean;
+  blockedBy: string[];
+  auditId: string | null;
+  audit: Vm0007GapReportAuditRecord | null;
+};
+
+const failedGeneration = (blockedBy: string[] = []): Vm0007EvidenceMapGenerationResult => ({
+  auditSaved: false,
+  draftBuilt: false,
+  draftSaved: false,
+  blockedBy,
+  auditId: null,
+  audit: null,
+});
+
+export function completeVm0007EvidenceMapGeneration(input: {
+  audit: Vm0007GapReportAuditRecord;
+  auditSaved: boolean;
+  draft: DraftBuildResult;
+  saveDraft?: (draft: Vm0007EvidenceMapDraftPackage) => boolean;
+  loadDraft?: (auditId: string) => Vm0007EvidenceMapDraftPackage | null;
+}): Vm0007EvidenceMapGenerationResult {
+  if (!input.auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: input.audit.auditId, audit: input.audit };
+  if (!input.draft.ok) return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit };
+  const saveDraft = input.saveDraft ?? saveVm0007EvidenceMapDraft;
+  const loadDraft = input.loadDraft ?? loadVm0007EvidenceMapDraft;
+  if (!saveDraft(input.draft.package)) return { auditSaved: true, draftBuilt: true, draftSaved: false, blockedBy: ["draft_persistence_failed"], auditId: input.audit.auditId, audit: input.audit };
+  if (!loadDraft(input.audit.auditId)) return { auditSaved: true, draftBuilt: true, draftSaved: false, blockedBy: ["draft_persistence_failed"], auditId: input.audit.auditId, audit: input.audit };
+  return { auditSaved: true, draftBuilt: true, draftSaved: true, blockedBy: [], auditId: input.audit.auditId, audit: input.audit };
+}
 
 function getStorage(): Storage | null {
   if (typeof window === "undefined") return null;
@@ -119,9 +155,9 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   rawPddText: string;
   rules: readonly RuleSummary[];
   userAcceptedVersionWarning?: boolean;
-}): Vm0007GapReportAuditRecord | null {
-  if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return null;
-  if (!input.rawPddText.trim() || input.rules.length === 0) return null;
+}): Vm0007EvidenceMapGenerationResult {
+  if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return failedGeneration(["methodology_id_mismatch"]);
+  if (!input.rawPddText.trim() || input.rules.length === 0) return failedGeneration(["malformed_audit_output"]);
 
   const context = getStructuredQueryContext(input.rawPddText);
   const parsedDocument = parseExtractedText(
@@ -162,5 +198,14 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: null },
   };
   saveVm0007GapReportAudit(record);
-  return record;
+  const auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
+  if (!auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: record.auditId, audit: record };
+  const draft = buildVm0007EvidenceMapDraft({
+    auditId: record.auditId,
+    generatedAt: record.generatedAt,
+    rules: input.rules,
+    audit,
+    sourceDocument: record.sourceDocument,
+  });
+  return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft });
 }

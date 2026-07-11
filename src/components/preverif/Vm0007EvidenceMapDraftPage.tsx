@@ -1,0 +1,23 @@
+"use client";
+import { useEffect, useState } from "react";
+import { loadVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+
+function humanizeRawAuditStatus(status: string): string {
+  switch (status) {
+    case "supported_by_pdd": return "Supported by PDD";
+    case "partially_supported": return "Partially supported";
+    case "missing_evidence": return "Missing evidence";
+    case "not_applicable": return "Not applicable";
+    case "manual_review_needed": return "Manual review needed";
+    default: return status;
+  }
+}
+
+export default function Vm0007EvidenceMapDraftPage({ auditId }: { auditId: string }) {
+  const [pkg, setPkg] = useState<Vm0007EvidenceMapDraftPackage | null>(null);
+  useEffect(() => setPkg(loadVm0007EvidenceMapDraft(auditId)), [auditId]);
+  if (!pkg) return <main className="min-h-screen bg-slate-50 p-8"><div className="mx-auto max-w-4xl rounded-2xl border border-amber-200 bg-white p-6 text-amber-900">Evidence Map is not available for this audit. Only a valid VM0007 v1.8 draft can be opened.</div></main>;
+  const counts = pkg.rows.reduce<Record<string, number>>((all, row) => ({ ...all, [row.rawAuditStatus]: (all[row.rawAuditStatus] ?? 0) + 1 }), {});
+  return <main className="min-h-screen bg-slate-50 px-4 py-8"><div className="mx-auto max-w-7xl"><div className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm font-semibold text-amber-950">Machine-proposed Evidence Map. These rows have not been reviewer-finalized.</div><section className="mb-5 rounded-2xl border border-slate-200 bg-white p-5"><h1 className="text-xl font-semibold text-slate-950">Evidence Map</h1><p className="mt-2 text-sm text-slate-600">{pkg.methodologyId} {pkg.rulebookVersion} · {pkg.rows.length} requirements</p><p className="mt-2 text-sm text-slate-600">Source: {pkg.sourceDocument.documentName || pkg.sourceDocument.documentId} · Audit ID: {pkg.auditId}</p><p className="mt-2 text-sm text-slate-600">Source audit status: {Object.entries(counts).map(([status, count]) => `${humanizeRawAuditStatus(status)} ${count}`).join(" · ")}</p></section><div className="space-y-4">{pkg.rows.map((row) => { const showTitle = row.ruleReference.trim().toLowerCase() !== row.ruleTitle.trim().toLowerCase(); return <article key={row.rowId} className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex flex-wrap items-baseline justify-between gap-2"><h2 className="font-semibold text-slate-950">{showTitle ? `${row.ruleReference} · ${row.ruleTitle}` : row.ruleReference}</h2><span className="rounded-full border border-slate-300 px-2 py-1 text-xs font-semibold">{humanizeRawAuditStatus(row.rawAuditStatus)}</span></div><p className="mt-2 text-sm text-slate-600">Proposed evidence: {row.proposedEvidenceStatus} · Applicability: {row.proposedApplicability} · Confidence: {row.confidence}</p><dl className="mt-3 grid gap-3 text-sm md:grid-cols-2"><div><dt className="font-semibold text-slate-700">Proposed candidate evidence</dt><dd className="mt-1 text-slate-600">{row.proposedAcceptedEvidence?.quote || "None proposed"}</dd></div><div><dt className="font-semibold text-slate-700">Proposed rejected or uncertain evidence</dt><dd className="mt-1 text-slate-600">{row.proposedRejectedEvidence ? `${row.proposedRejectedEvidence.quote} — ${row.proposedRejectedEvidence.reason}` : "None proposed"}</dd></div><div><dt className="font-semibold text-slate-700">Quote / location</dt><dd className="mt-1 text-slate-600">{row.quote || "No quote"} · page {row.page ?? "—"} · {row.section || "No section"}</dd></div><div><dt className="font-semibold text-slate-700">Assessment / client action</dt><dd className="mt-1 text-slate-600">{row.assessmentReason} {row.clientAction}</dd></div><div className="md:col-span-2"><dt className="font-semibold text-slate-700">Provenance</dt><dd className="mt-1 text-slate-600">{row.provenance ? `${row.provenance.docId} · ${row.provenance.spanId} · ${row.provenance.sectionHeading || "No section"}` : "No provenance proposed"}</dd></div></dl></article>; })}</div><div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"><button type="button" disabled className="rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-500">Pre-Validation Readiness Report</button><p className="mt-2 text-sm text-slate-600">Available after the Evidence Map has been reviewer-finalized.</p></div></div></main>;
+}

@@ -103,7 +103,7 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
     window.localStorage.clear();
   });
 
-  test("renders an internal report section with an active View Gap Report link when audit id exists", async () => {
+  test("does not expose a stale Evidence Map link when only an audit id exists", async () => {
     seedVm0007Session("audit-quickcheck-1");
 
     await act(async () => {
@@ -118,10 +118,9 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Internal report");
-    expect(text).toContain("View Gap Report");
-
-    const link = Array.from(container.querySelectorAll("a")).find((item) => item.textContent?.includes("View Gap Report"));
-    expect(link?.getAttribute("href")).toBe("/quick-check/pre-validation-readiness?auditId=audit-quickcheck-1");
+    expect(text).toContain("Evidence Map was not created for this audit.");
+    expect(text).not.toContain("Open Evidence Map");
+    expect(text).not.toContain("Pre-Validation Readiness Report");
   });
 
   test("renders a disabled helper state when VM0007 result has no report id yet", async () => {
@@ -139,9 +138,8 @@ describe("QuickCheckPanel VM0007 gap report entry point", () => {
 
     const text = container.textContent ?? "";
     expect(text).toContain("Internal report");
-    expect(text).toContain("Gap report not available yet");
-    expect(text).toContain("Run a VM0007 evidence audit to generate the internal report preview.");
-    expect(text).not.toContain("View Gap Report");
+    expect(text).toContain("Evidence Map not available yet");
+    expect(text).toContain("Upload a VM0007 v1.8 PDD and run Quick Check to generate the Evidence Map.");
   });
 
   test("does not render the internal report card for validation-report extraction results", async () => {
