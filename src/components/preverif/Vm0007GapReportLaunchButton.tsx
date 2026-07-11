@@ -7,6 +7,8 @@ import { buildVm0007GapReportHref } from "@/lib/preverif/vm0007GapReportStore";
 type Vm0007GapReportLaunchButtonProps = {
   isVm0007Result: boolean;
   auditId?: string | null;
+  projectId?: string | null;
+  readinessPayloadAvailable?: boolean;
   title?: string;
   onGenerate?: (() => void) | null;
   generating?: boolean;
@@ -17,6 +19,8 @@ type Vm0007GapReportLaunchButtonProps = {
 export default function Vm0007GapReportLaunchButton({
   isVm0007Result,
   auditId,
+  projectId = null,
+  readinessPayloadAvailable = false,
   title = "Internal report",
   onGenerate = null,
   generating = false,
@@ -28,7 +32,22 @@ export default function Vm0007GapReportLaunchButton({
   return (
     <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-4" data-testid={testId}>
       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</div>
-      {auditId?.trim() ? (
+      {projectId?.trim() && readinessPayloadAvailable ? (
+        <>
+          <div className="mt-2 text-sm text-slate-600">
+            Open the project Pre-Validation Readiness Report from finalized presentation data.
+          </div>
+          <div className="mt-3">
+            <Link
+              href={`/projects/${encodeURIComponent(projectId)}/pre-validation-readiness`}
+              className="inline-flex items-center gap-2 rounded-full border border-green-600 bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:border-green-700 hover:bg-green-700"
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              View Gap Report
+            </Link>
+          </div>
+        </>
+      ) : auditId?.trim() ? (
         <>
           <div className="mt-2 text-sm text-slate-600">
             Open the internal VM0007 gap report preview for manual browser print or PDF save.

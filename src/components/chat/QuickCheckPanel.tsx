@@ -92,6 +92,7 @@ import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
 import {
   buildAndSaveVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
+import { hasProjectReadinessPayload } from "@/lib/evidence/projectReadinessPayload";
 
 type MethodInventoryRecord = {
   code: string;
@@ -692,6 +693,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [uploadVm0007GapReportAuditId, setUploadVm0007GapReportAuditId] = useState<string | null>(null);
   const [generatingUploadVm0007GapReport, setGeneratingUploadVm0007GapReport] = useState(false);
+  const [linkedProjectReadinessPayload, setLinkedProjectReadinessPayload] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>({
@@ -705,6 +707,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       methodologyVersion: initialVersion?.trim() || undefined,
     }),
   );
+
+  const linkedProjectId = typeof window === "undefined"
+    ? null
+    : new URLSearchParams(window.location.search).get("projectId")?.trim() || null;
+
+  useEffect(() => {
+    setLinkedProjectReadinessPayload(linkedProjectId ? hasProjectReadinessPayload(linkedProjectId) : false);
+  }, [linkedProjectId]);
 
   const draft = session.draft;
   const result = session.result;
@@ -2902,6 +2912,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             <Vm0007GapReportLaunchButton
               isVm0007Result
               auditId={uploadVm0007ReportAuditId}
+              projectId={linkedProjectId}
+              readinessPayloadAvailable={linkedProjectReadinessPayload}
               title="Internal VM0007 report"
               onGenerate={handleGenerateUploadVm0007GapReport}
               generating={generatingUploadVm0007GapReport}
@@ -3634,6 +3646,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               <Vm0007GapReportLaunchButton
                 isVm0007Result={isVm0007RenderedResult}
                 auditId={renderedResult?.vm0007GapReportAuditId}
+                projectId={linkedProjectId}
+                readinessPayloadAvailable={linkedProjectReadinessPayload}
               />
             </div>
           ) : null}
