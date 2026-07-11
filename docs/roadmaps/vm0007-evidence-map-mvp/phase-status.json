@@ -1,9 +1,25 @@
 {
+  "RC1": "done",
+  "RC2": "planned",
   "name": "VM0007 Evidence Map MVP",
-  "roadmapId": "vm0007-evidence-map-mvp",
-  "phase_meta": { "status": "active", "summary": "Persist and display the machine-proposed VM0007 v1.8 58-rule Evidence Map draft.", "last_updated_at": "2026-07-11T00:00:00Z" },
+  "phase_meta": {
+    "status": "active",
+    "summary": "Persist and display the machine-proposed VM0007 v1.8 58-rule Evidence Map draft.",
+    "last_updated_at": "2026-07-11T00:00:00Z"
+  },
   "phases": {
-    "phase_1": { "title": "58-rule draft Evidence Map and UI", "status": "active", "dependsOn": [] },
-    "phase_2": { "title": "reviewer finalization and readiness report wiring", "status": "planned", "dependsOn": ["phase_1"] }
-  }
+    "phase_1": {
+      "title": "58-rule draft Evidence Map and UI",
+      "status": "active",
+      "dependsOn": []
+    },
+    "phase_2": {
+      "title": "reviewer finalization and readiness report wiring",
+      "status": "planned",
+      "dependsOn": [
+        "phase_1"
+      ]
+    }
+  },
+  "roadmapId": "vm0007-evidence-map-mvp"
 }
