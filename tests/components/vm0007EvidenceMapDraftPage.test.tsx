@@ -14,12 +14,12 @@ describe("VM0007 Evidence Map draft page", () => {
       rowId: `${auditId}:R-${index + 1}`,
       auditId,
       ruleReference: `R-${index + 1}`,
-      ruleTitle: `Rule ${index + 1}`,
+      ruleTitle: index === 0 ? " r-1 " : index === 1 ? "Rule Two" : `Rule ${index + 1}`,
       stableRuleId: `R-${index + 1}`,
       requirementText: "Requirement",
       methodologyId: "VM0007",
       methodologyVersion: "v1.8",
-      rawAuditStatus: "missing_evidence",
+      rawAuditStatus: (["supported_by_pdd", "partially_supported", "missing_evidence", "not_applicable", "manual_review_needed"] as const)[index] ?? "missing_evidence",
       upstreamStatus: "MISSING",
       proposedEvidenceStatus: "MISSING",
       proposedApplicability: "APPLICABLE",
@@ -46,8 +46,20 @@ describe("VM0007 Evidence Map draft page", () => {
     await act(async () => { root.render(<Vm0007EvidenceMapDraftPage auditId={auditId} />); });
     expect(container.textContent).toContain("Evidence Map");
     expect(container.textContent).toContain("VM0007 v1.8 · 58 requirements");
-    expect(container.textContent).toContain("Rule 1");
-    expect(container.textContent).toContain("Rule 58");
+    const headings = Array.from(container.querySelectorAll("h2")).map((heading) => heading.textContent);
+    expect(headings[0]).toBe("R-1");
+    expect(headings[1]).toBe("R-2 · Rule Two");
+    expect(headings[57]).toContain("Rule 58");
+    expect(container.textContent).toContain("Supported by PDD 1");
+    expect(container.textContent).toContain("Partially supported 1");
+    expect(container.textContent).toContain("Missing evidence 54");
+    expect(container.textContent).toContain("Not applicable 1");
+    expect(container.textContent).toContain("Manual review needed 1");
+    expect(container.textContent).not.toContain("supported_by_pdd");
+    expect(container.textContent).not.toContain("missing_evidence");
+    expect(container.textContent).toContain("Proposed candidate evidence");
+    expect(container.textContent).toContain("Proposed rejected or uncertain evidence");
+    expect(container.textContent).toContain("Machine-proposed Evidence Map. These rows have not been reviewer-finalized.");
     expect(container.textContent).not.toContain("Gap Report");
     expect(container.textContent).toContain("Pre-Validation Readiness Report");
     expect(container.textContent).toContain("Available after the Evidence Map has been reviewer-finalized.");
