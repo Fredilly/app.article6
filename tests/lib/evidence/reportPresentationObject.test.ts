@@ -1,7 +1,7 @@
 import { deriveApplicability } from "@/lib/evidence/applicabilityContract";
 import { deriveConformanceConclusion, type ConformanceAssessmentInput } from "@/lib/evidence/conformanceConclusionContract";
 import { deriveDraftFinding } from "@/lib/evidence/draftFindingContract";
-import { createReportPresentationObject } from "@/lib/evidence/reportPresentationObject";
+import { createReportPresentationObject, isReportPresentationObject } from "@/lib/evidence/reportPresentationObject";
 import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 
 const provenance = { docId: "doc-1", page: 2, sectionPath: ["3", "3.1"], spanId: "span-1", sectionHeading: "Evidence", sourceType: "PDD" };
@@ -35,6 +35,21 @@ function expectDeepFrozen(value: unknown): void {
 }
 
 describe("createReportPresentationObject", () => {
+  it("keeps the strict Phase 6 validator fail-closed for missing metadata and identity mismatch", () => {
+    const candidate = row();
+    const { applicability, conformance, draftFinding } = inputs(candidate);
+    const result = createReportPresentationObject(candidate, applicability, conformance, draftFinding);
+    if (!result.ready) throw new Error("Expected a ready presentation");
+    const missingMetadata = { ...result.presentation };
+    delete (missingMetadata as { finalizationActorRef?: string }).finalizationActorRef;
+    const mismatchedApplicability = {
+      ...result.presentation,
+      applicabilityResult: { ...result.presentation.applicabilityResult, evidenceMapRowId: "other-row" },
+    };
+    expect(isReportPresentationObject(missingMetadata)).toBe(false);
+    expect(isReportPresentationObject(mismatchedApplicability)).toBe(false);
+  });
+
   it("packages a valid finalized row into one immutable presentation object", () => {
     const candidate = row();
     const before = structuredClone(candidate);
