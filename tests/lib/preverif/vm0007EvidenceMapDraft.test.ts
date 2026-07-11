@@ -1,4 +1,5 @@
 import { buildVm0007EvidenceMapDraft, mapVm0007DraftStatus } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
 import type { MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 
@@ -14,12 +15,14 @@ function audit(results: MethodologyEvidenceAuditResult[]): MethodologyEvidenceAu
 }
 
 describe("VM0007 v1.8 draft Evidence Map", () => {
-  it("creates 58 rows once, in canonical rulebook order", () => {
-    const built = buildVm0007EvidenceMapDraft({ auditId: "audit-1", generatedAt: "2026-07-11T00:00:00.000Z", rules, audit: audit(rules.map((rule, index) => result(rule.id, "supported_by_pdd", index))), sourceDocument });
+  it("creates one row per real canonical VM0007 v1.8 rule in loader order", async () => {
+    const canonical = await loadMethodRules("VM0007", "v1-8");
+    expect(canonical.rules).toHaveLength(58);
+    const built = buildVm0007EvidenceMapDraft({ auditId: "audit-1", generatedAt: "2026-07-11T00:00:00.000Z", rules: canonical.rules, audit: audit(canonical.rules.map((rule, index) => result(rule.id, "supported_by_pdd", index))), sourceDocument });
     expect(built.ok).toBe(true);
     if (!built.ok) return;
     expect(built.package.rows).toHaveLength(58);
-    expect(built.package.rows.map((row) => row.ruleReference)).toEqual(rules.map((rule) => rule.id));
+    expect(built.package.rows.map((row) => row.ruleReference)).toEqual(canonical.rules.map((rule) => rule.id));
     expect(new Set(built.package.rows.map((row) => row.ruleReference)).size).toBe(58);
   });
 
@@ -33,9 +36,12 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     expect(missing.accepted).toBeNull();
     const manual = mapVm0007DraftStatus("manual_review_needed", result("R-01-0001", "manual_review_needed"), sourceDocument);
     expect(manual.upstreamStatus).toBe("UNCLEAR");
+    expect(manual.proposedApplicability).toBe("UNKNOWN");
     expect(manual.rejected?.reason).toContain("Assessment");
     const na = mapVm0007DraftStatus("not_applicable", result("R-01-0001", "not_applicable"), sourceDocument);
-    expect(na.upstreamStatus).not.toBe("MISSING");
+    expect(na.proposedApplicability).toBe("UNKNOWN");
+    const scopedNa = mapVm0007DraftStatus("not_applicable", { ...result("R-01-0001", "not_applicable"), assessmentReason: "Not applicable because this rule is outside the project scope." }, sourceDocument);
+    expect(scopedNa.proposedApplicability).toBe("NOT_APPLICABLE");
   });
 
   it.each([
@@ -45,5 +51,12 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
   ])("fails closed for %s", (_, invalidAudit) => {
     const built = buildVm0007EvidenceMapDraft({ auditId: "audit-2", generatedAt: "2026-07-11T00:00:00.000Z", rules, audit: invalidAudit, sourceDocument });
     expect(built.ok).toBe(false);
+  });
+
+  it("blocks the package when a runtime audit status is unknown", () => {
+    const invalid = audit(rules.map((rule) => result(rule.id, "supported_by_pdd")));
+    (invalid.results[0] as MethodologyEvidenceAuditResult & { status: string }).status = "future_status";
+    const built = buildVm0007EvidenceMapDraft({ auditId: "audit-unknown-status", generatedAt: "2026-07-11T00:00:00.000Z", rules, audit: invalid, sourceDocument });
+    expect(built).toEqual({ ok: false, blockedBy: ["unknown_audit_status"] });
   });
 });

@@ -51,13 +51,6 @@ export default function Vm0007GapReportLaunchButton({
           </div>
           <div className="mt-3">
             <Link
-              href={`/internal/reports/vm0007-evidence-map/${encodeURIComponent(auditId)}`}
-              className="mr-2 inline-flex items-center gap-2 rounded-full border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:border-blue-700 hover:bg-blue-700"
-            >
-              <ArrowUpRight className="h-4 w-4" />
-              View 58-rule Evidence Map
-            </Link>
-            <Link
               href={`/quick-check/pre-validation-readiness?auditId=${encodeURIComponent(auditId)}`}
               className="inline-flex items-center gap-2 rounded-full border border-green-600 bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:border-green-700 hover:bg-green-700"
             >

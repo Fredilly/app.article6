@@ -1,4 +1,7 @@
-import type { Vm0007EvidenceMapDraftPackage } from "./vm0007EvidenceMapDraft";
+import {
+  validateVm0007EvidenceMapDraftPackage,
+  type Vm0007EvidenceMapDraftPackage,
+} from "./vm0007EvidenceMapDraft";
 
 const PREFIX = "article6:vm0007-evidence-map-draft:v1:";
 export const VM0007_EVIDENCE_MAP_DRAFT_EVENT = "vm0007-evidence-map-draft";
@@ -9,14 +12,13 @@ export function loadVm0007EvidenceMapDraft(auditId: string): Vm0007EvidenceMapDr
   const raw = storage()?.getItem(key(auditId));
   if (!raw) return null;
   try {
-    const value = JSON.parse(raw) as Vm0007EvidenceMapDraftPackage;
-    if (value.auditId !== auditId || value.proposalState !== "MACHINE_PROPOSED" || value.contractVersion !== "vm0007-evidence-map-draft-v1" || value.rows.length !== 58 || value.rows.some((row) => row.finalizationState !== "draft")) return null;
-    return value;
+    const value: unknown = JSON.parse(raw);
+    return validateVm0007EvidenceMapDraftPackage(value, auditId) ? value : null;
   } catch { return null; }
 }
 
 export function saveVm0007EvidenceMapDraft(pkg: Vm0007EvidenceMapDraftPackage): boolean {
-  if (pkg.rows.length !== 58 || pkg.rows.some((row) => row.finalizationState !== "draft")) return false;
+  if (!validateVm0007EvidenceMapDraftPackage(pkg)) return false;
   const target = storage();
   if (!target) return false;
   target.setItem(key(pkg.auditId), JSON.stringify(pkg));

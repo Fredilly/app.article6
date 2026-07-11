@@ -10,6 +10,7 @@ import type {
   MethodologyEvidenceAuditResult,
   MethodologyEvidenceAuditSummary,
 } from "@/lib/preverif/evidenceAudit";
+import { EVIDENCE_AUDIT_STATUSES } from "@/lib/preverif/evidenceAudit";
 
 export const VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION = "vm0007-evidence-map-draft-v1";
 export const VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE = "MACHINE_PROPOSED" as const;
@@ -65,6 +66,64 @@ export type DraftBuildResult =
   | { ok: true; package: Vm0007EvidenceMapDraftPackage }
   | { ok: false; blockedBy: string[] };
 
+const DRAFT_EVIDENCE_STATUSES = ["FOUND", "UNCLEAR", "MISSING"] as const;
+const DRAFT_APPLICABILITY_STATES = ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN"] as const;
+const DRAFT_ROW_KEYS = new Set([
+  "rowId", "auditId", "stableRuleId", "ruleReference", "ruleTitle", "requirementText",
+  "methodologyId", "methodologyVersion", "rawAuditStatus", "upstreamStatus",
+  "proposedEvidenceStatus", "proposedApplicability", "proposedAcceptedEvidence",
+  "proposedRejectedEvidence", "assessmentReason", "gap", "clientAction", "confidence",
+  "searchCoverage", "sourceDocument", "quote", "page", "section", "spanId", "provenance",
+  "finalizationState", "proposalSource", "proposalTimestamp",
+]);
+const DRAFT_PACKAGE_KEYS = new Set(["auditId", "generatedAt", "methodologyId", "rulebookVersion", "pddDeclaredMethodologyVersion", "sourceDocument", "proposalState", "rows", "blockedBy", "contractVersion"]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function hasText(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasNullableText(value: unknown): value is string | null {
+  return value === null || hasText(value);
+}
+
+function isKnownAuditStatus(value: unknown): value is EvidenceAuditStatus {
+  return typeof value === "string" && (EVIDENCE_AUDIT_STATUSES as readonly string[]).includes(value);
+}
+
+function isProvenance(value: unknown): value is EvidenceMapEvidenceProvenance {
+  return isRecord(value) && hasText(value.docId) && (value.page === null || (typeof value.page === "number" && Number.isFinite(value.page))) &&
+    Array.isArray(value.sectionPath) && value.sectionPath.every((entry) => hasText(entry)) && hasText(value.spanId) &&
+    hasNullableText(value.sectionHeading) && hasNullableText(value.sourceType);
+}
+
+function isSourceDocument(value: unknown): value is EvidenceMapSourceDocumentIdentity {
+  return isRecord(value) && hasText(value.documentId) && hasNullableText(value.documentName) && hasNullableText(value.contentSha256);
+}
+
+function isSearchCoverage(value: unknown): value is EvidenceMapSearchCoverage {
+  return isRecord(value) && typeof value.searched === "boolean" && Array.isArray(value.searchedDocumentIds) &&
+    value.searchedDocumentIds.length > 0 && value.searchedDocumentIds.every((entry) => hasText(entry)) && hasNullableText(value.notes);
+}
+
+function isEvidence(value: unknown, rejected: boolean): boolean {
+  if (!isRecord(value) || !hasText(value.quote) || !isProvenance(value.provenance)) return false;
+  return !rejected || hasText(value.reason);
+}
+
+function isExplicitNotApplicableScopeBasis(reason: unknown): reason is string {
+  if (!hasText(reason)) return false;
+  const normalized = reason.toLowerCase();
+  return /\b(not applicable|does not apply|outside (?:the )?scope|out of scope|excluded from (?:the )?scope|not within (?:the )?scope)\b/.test(normalized);
+}
+
+function exhaustiveDraftStatus(status: never): never {
+  return status;
+}
+
 function provenanceFor(result: MethodologyEvidenceAuditResult, sourceDocument: EvidenceMapSourceDocumentIdentity): EvidenceMapEvidenceProvenance | null {
   if (!result.bestEvidenceQuote?.trim() || !result.span?.trim() || !sourceDocument.documentId.trim()) return null;
   return {
@@ -79,36 +138,53 @@ function provenanceFor(result: MethodologyEvidenceAuditResult, sourceDocument: E
 
 export function mapVm0007DraftStatus(status: EvidenceAuditStatus, result: MethodologyEvidenceAuditResult, sourceDocument: EvidenceMapSourceDocumentIdentity) {
   const provenance = provenanceFor(result, sourceDocument);
-  if (status === "supported_by_pdd") return {
-    upstreamStatus: "FOUND" as const,
-    proposedApplicability: "APPLICABLE" as const,
-    accepted: provenance ? { quote: result.bestEvidenceQuote!.trim(), provenance } : null,
-    rejected: null,
-  };
-  if (status === "partially_supported") return {
-    upstreamStatus: "UNCLEAR" as const,
-    proposedApplicability: "APPLICABLE" as const,
-    accepted: provenance ? { quote: result.bestEvidenceQuote!.trim(), provenance } : null,
-    rejected: null,
-  };
-  if (status === "missing_evidence") return {
-    upstreamStatus: "MISSING" as const,
-    proposedApplicability: "APPLICABLE" as const,
-    accepted: null,
-    rejected: null,
-  };
-  if (status === "manual_review_needed") return {
-    upstreamStatus: "UNCLEAR" as const,
-    proposedApplicability: provenance ? "APPLICABLE" as const : "UNKNOWN" as const,
-    accepted: null,
-    rejected: provenance ? { quote: result.bestEvidenceQuote!.trim(), reason: result.assessmentReason || result.gap, provenance } : null,
-  };
-  return {
-    upstreamStatus: "UNCLEAR" as const,
-    proposedApplicability: provenance ? "NOT_APPLICABLE" as const : "UNKNOWN" as const,
-    accepted: provenance ? { quote: result.bestEvidenceQuote!.trim(), provenance } : null,
-    rejected: null,
-  };
+  switch (status) {
+    case "supported_by_pdd":
+      return { upstreamStatus: "FOUND" as const, proposedApplicability: "APPLICABLE" as const, accepted: provenance ? { quote: result.bestEvidenceQuote!.trim(), provenance } : null, rejected: null };
+    case "partially_supported":
+      return { upstreamStatus: "UNCLEAR" as const, proposedApplicability: "APPLICABLE" as const, accepted: provenance ? { quote: result.bestEvidenceQuote!.trim(), provenance } : null, rejected: null };
+    case "missing_evidence":
+      return { upstreamStatus: "MISSING" as const, proposedApplicability: "APPLICABLE" as const, accepted: null, rejected: null };
+    case "manual_review_needed":
+      return { upstreamStatus: "UNCLEAR" as const, proposedApplicability: "UNKNOWN" as const, accepted: null, rejected: provenance ? { quote: result.bestEvidenceQuote!.trim(), reason: result.assessmentReason || result.gap, provenance } : null };
+    case "not_applicable": {
+      const explicitlyScoped = Boolean(provenance && isExplicitNotApplicableScopeBasis(result.assessmentReason));
+      return { upstreamStatus: "UNCLEAR" as const, proposedApplicability: explicitlyScoped ? "NOT_APPLICABLE" as const : "UNKNOWN" as const, accepted: explicitlyScoped ? { quote: result.bestEvidenceQuote!.trim(), provenance: provenance! } : null, rejected: null };
+    }
+    default:
+      return exhaustiveDraftStatus(status);
+  }
+}
+
+/** Pure runtime validation for the draft persistence boundary. */
+export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAuditId?: string): value is Vm0007EvidenceMapDraftPackage {
+  if (!isRecord(value) || Object.keys(value).some((key) => !DRAFT_PACKAGE_KEYS.has(key)) || value.contractVersion !== VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION || value.proposalState !== VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE ||
+    value.methodologyId !== "VM0007" || value.rulebookVersion !== "v1.8" || normalizeMethodologyVersion(String(value.pddDeclaredMethodologyVersion ?? "")) !== "v1.8" ||
+    !hasText(value.auditId) || (expectedAuditId !== undefined && value.auditId !== expectedAuditId) || !hasText(value.generatedAt) ||
+    !isSourceDocument(value.sourceDocument) || !Array.isArray(value.rows) || value.rows.length !== 58 || !Array.isArray(value.blockedBy) ||
+    !value.blockedBy.every((reason) => hasText(reason))) return false;
+
+  const ruleIds = new Set<string>();
+  const stableRuleIds = new Set<string>();
+  const rowIds = new Set<string>();
+  for (const row of value.rows) {
+    if (!isRecord(row) || Object.keys(row).some((key) => !DRAFT_ROW_KEYS.has(key)) || !hasText(row.rowId) || rowIds.has(row.rowId) || !hasText(row.auditId) || row.auditId !== value.auditId ||
+      !hasText(row.stableRuleId) || stableRuleIds.has(row.stableRuleId) || !hasText(row.ruleReference) || ruleIds.has(row.ruleReference) || !hasText(row.ruleTitle) || !hasText(row.requirementText) ||
+      row.methodologyId !== "VM0007" || row.methodologyVersion !== "v1.8" || !isKnownAuditStatus(row.rawAuditStatus) ||
+      !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.upstreamStatus)) || !(DRAFT_EVIDENCE_STATUSES as readonly string[]).includes(String(row.proposedEvidenceStatus)) ||
+      !(DRAFT_APPLICABILITY_STATES as readonly string[]).includes(String(row.proposedApplicability)) || !hasText(row.assessmentReason) || !hasText(row.gap) || !hasText(row.clientAction) ||
+      !["high", "medium", "low"].includes(String(row.confidence)) || !isSearchCoverage(row.searchCoverage) || !isSourceDocument(row.sourceDocument) ||
+      row.finalizationState !== "draft" || row.proposalSource !== "VM0007_QUICK_CHECK_AUDIT" || !hasText(row.proposalTimestamp) ||
+      (row.quote !== null && !hasText(row.quote)) || (row.page !== null && (typeof row.page !== "number" || !Number.isFinite(row.page))) ||
+      !hasNullableText(row.section) || !hasNullableText(row.spanId) || (row.provenance !== null && !isProvenance(row.provenance)) ||
+      (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true))) return false;
+    rowIds.add(row.rowId);
+    ruleIds.add(row.ruleReference);
+    stableRuleIds.add(row.stableRuleId);
+    if (row.sourceDocument.documentId !== value.sourceDocument.documentId || !row.searchCoverage.searchedDocumentIds.includes(value.sourceDocument.documentId)) return false;
+    if (row.provenance && row.provenance.docId !== row.sourceDocument.documentId) return false;
+  }
+  return true;
 }
 
 export function buildVm0007EvidenceMapDraft(input: {
@@ -144,6 +220,7 @@ export function buildVm0007EvidenceMapDraft(input: {
   if (unknown.length) blockedBy.push("unknown_rule_ids");
   if (!sourceDocument?.documentId?.trim()) blockedBy.push("missing_source_document_identity");
   if (!input.audit.results.every((result) => result && typeof result.ruleId === "string" && typeof result.status === "string")) blockedBy.push("malformed_audit_output");
+  if (input.audit.results.some((result) => !isKnownAuditStatus(result?.status))) blockedBy.push("unknown_audit_status");
   if (blockedBy.length || !sourceDocument) return { ok: false, blockedBy: Array.from(new Set(blockedBy)) };
 
   const results = new Map(input.audit.results.map((result) => [result.ruleId.trim().toUpperCase(), result]));
