@@ -12,14 +12,15 @@
       "Phase 5 Applicability Contract is complete",
       "Phase 6 Report Presentation Object is complete",
       "Phase 7 Presentation Gates are complete",
-      "Phase 8 Fixture Expectation Migration is next",
+      "Phase 8 Fixture Expectation Migration is complete",
+      "Phase 9 Readiness Report and UI Consumers is next",
       "Review traceability and release controls are explicit downstream requirements",
       "Keep the Evidence Map upstream and canonical",
       "Keep the Pre-Validation Readiness Report and UI downstream"
     ],
     "not_active_now": [
       "Router status renames",
-      "Fixture migration",
+      "Fixture migration is complete",
       "Gap report implementation",
       "Organization-specific report profiles",
       "Formal verifier authority claims"
@@ -69,12 +70,12 @@
     },
     "phase_8_fixture_expectation_migration": {
       "title": "Phase 8: Fixture Expectation Migration",
-      "status": "next",
-      "summary": "Migrate fixtures to preserve accepted and rejected evidence and use the Evidence Map-backed draft presentation expectations."
+      "status": "done",
+      "summary": "Migrate reviewed fixture truth through finalized Evidence Map rows and the Phase 2–7 presentation contracts while preserving accepted and rejected evidence, provenance, statuses, and legacy consumers."
     },
     "phase_9_readiness_report_and_ui_consumers": {
       "title": "Phase 9: Readiness Report and UI Consumers",
-      "status": "planned",
+      "status": "next",
       "summary": "Implement downstream Pre-Validation Readiness Report and UI consumers using the finalized Evidence Map presentation contract, with a minimal reviewer workflow, centralized release-gate checks, traceable approve/edit/reopen history, and internal preview when client release is blocked."
     },
     "phase_10_deprecation_review": {
