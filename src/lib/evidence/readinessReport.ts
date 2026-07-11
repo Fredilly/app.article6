@@ -87,20 +87,98 @@ export type ReviewerWorkflowResult =
   | Readonly<{ complete: true; state: ReviewerWorkflowState; event: ReviewerWorkflowEvent }>
   | Readonly<{ complete: false; state: "incomplete"; reason: "review-history-event-required" }>;
 
+export type ReviewerWorkflowAction = "approve" | "edit" | "reopen";
+export type ReviewerWorkflowHistory = readonly ReviewerWorkflowEvent[];
+export type ReviewerWorkflowTransitionResult =
+  | Readonly<{
+      accepted: true;
+      state: ReviewerWorkflowState;
+      history: ReviewerWorkflowHistory;
+    }>
+  | Readonly<{
+      accepted: false;
+      state: "incomplete" | "invalid_transition";
+      reason: "review-history-event-required" | "unsupported-transition" | "history-state-mismatch";
+      history: ReviewerWorkflowHistory;
+    }>;
+
+const allowedTransitions: Readonly<Record<ReviewerWorkflowState, readonly ReviewerWorkflowState[]>> = {
+  "pending review": ["approved", "edited"],
+  approved: ["edited", "reopened"],
+  edited: ["approved", "reopened"],
+  reopened: ["edited", "approved"],
+};
+
+const actionTargets: Readonly<Record<ReviewerWorkflowState, Readonly<Record<ReviewerWorkflowAction, ReviewerWorkflowState | undefined>>>> = {
+  "pending review": { approve: "approved", edit: "edited", reopen: undefined },
+  approved: { approve: undefined, edit: "edited", reopen: "reopened" },
+  edited: { approve: "approved", edit: undefined, reopen: "reopened" },
+  reopened: { approve: "approved", edit: "edited", reopen: undefined },
+};
+
+const workflowStates: readonly ReviewerWorkflowState[] = ["pending review", "approved", "edited", "reopened"];
+
+export function reviewerWorkflowActions(state: ReviewerWorkflowState): readonly ReviewerWorkflowAction[] {
+  return Object.entries(actionTargets[state])
+    .filter(([, target]) => target !== undefined)
+    .map(([action]) => action as ReviewerWorkflowAction);
+}
+
 export function validateReviewerWorkflowEvent(input: unknown): ReviewerWorkflowResult {
   if (!input || typeof input !== "object") return { complete: false, state: "incomplete", reason: "review-history-event-required" };
   const event = input as Partial<ReviewerWorkflowEvent>;
-  const states: readonly ReviewerWorkflowState[] = ["pending review", "approved", "edited", "reopened"];
   if (
     typeof event.reviewerIdentity !== "string" || !event.reviewerIdentity.trim() ||
     typeof event.timestamp !== "string" || Number.isNaN(Date.parse(event.timestamp)) ||
     typeof event.reasonOrNote !== "string" || !event.reasonOrNote.trim() ||
-    !states.includes(event.newState as ReviewerWorkflowState) ||
-    (event.previousState !== null && !states.includes(event.previousState as ReviewerWorkflowState)) ||
+    !workflowStates.includes(event.newState as ReviewerWorkflowState) ||
+    (event.previousState !== null && !workflowStates.includes(event.previousState as ReviewerWorkflowState)) ||
     typeof event.presentationContractVersion !== "string" || !event.presentationContractVersion.trim() ||
     typeof event.reviewPolicyVersion !== "string" || !event.reviewPolicyVersion.trim()
   ) return { complete: false, state: "incomplete", reason: "review-history-event-required" };
   return { complete: true, state: event.newState as ReviewerWorkflowState, event: event as ReviewerWorkflowEvent };
+}
+
+/** Apply one explicitly recorded reviewer transition without replacing history. */
+export function transitionReviewerWorkflow(
+  currentState: ReviewerWorkflowState,
+  history: ReviewerWorkflowHistory | undefined,
+  eventInput: unknown,
+): ReviewerWorkflowTransitionResult {
+  const preservedHistory = Array.isArray(history) ? history : [];
+  if (!Array.isArray(history)) {
+    return { accepted: false, state: "incomplete", reason: "review-history-event-required", history: preservedHistory };
+  }
+  if (!workflowStates.includes(currentState)) {
+    return { accepted: false, state: "invalid_transition", reason: "unsupported-transition", history: preservedHistory };
+  }
+  let priorState: ReviewerWorkflowState | null = null;
+  for (const historyEvent of preservedHistory) {
+    const historyResult = validateReviewerWorkflowEvent(historyEvent);
+    if (!historyResult.complete || historyResult.event.previousState === null || (priorState === null && historyResult.event.previousState !== "pending review") || (priorState !== null && historyResult.event.previousState !== priorState)) {
+      return { accepted: false, state: "incomplete", reason: "review-history-event-required", history: preservedHistory };
+    }
+    priorState = historyResult.event.newState;
+  }
+  const eventResult = validateReviewerWorkflowEvent(eventInput);
+  if (!eventResult.complete || eventResult.event.previousState === null) {
+    return { accepted: false, state: "incomplete", reason: "review-history-event-required", history: preservedHistory };
+  }
+  const event = eventResult.event;
+  if (event.previousState !== currentState) {
+    return { accepted: false, state: "invalid_transition", reason: "history-state-mismatch", history: preservedHistory };
+  }
+  if (!allowedTransitions[currentState].includes(event.newState)) {
+    return { accepted: false, state: "invalid_transition", reason: "unsupported-transition", history: preservedHistory };
+  }
+  if (preservedHistory.length > 0 && priorState !== currentState) {
+    return { accepted: false, state: "invalid_transition", reason: "history-state-mismatch", history: preservedHistory };
+  }
+  return Object.freeze({
+    accepted: true,
+    state: event.newState,
+    history: Object.freeze([...preservedHistory, Object.freeze({ ...event })]),
+  });
 }
 
 export function reviewStateForGate(state: ReviewerWorkflowState): PresentationReviewState {

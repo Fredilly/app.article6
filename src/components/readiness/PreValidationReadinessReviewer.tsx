@@ -1,8 +1,17 @@
-import type { ReadinessReportViewModel } from "@/lib/evidence/readinessReport";
+import {
+  reviewerWorkflowActions,
+  type ReadinessReportViewModel,
+  type ReviewerWorkflowAction,
+  type ReviewerWorkflowState,
+} from "@/lib/evidence/readinessReport";
 
 type Props = Readonly<{
   report: ReadinessReportViewModel;
   onClientRelease?: () => void;
+  workflowState?: ReviewerWorkflowState;
+  onApprove?: (evidenceMapRowId: string) => void;
+  onEdit?: (evidenceMapRowId: string) => void;
+  onReopen?: (evidenceMapRowId: string) => void;
 }>;
 
 function statusClass(label: ReadinessReportViewModel["release"]["label"]): string {
@@ -16,8 +25,9 @@ function Provenance({ provenance }: { provenance: { docId: string; page: number 
   return <div className="mt-1 text-xs text-slate-500">{provenance.docId} · page {provenance.page ?? "—"} · {provenance.sectionHeading ?? provenance.sectionPath.join(" / ")} · span {provenance.spanId}</div>;
 }
 
-export default function PreValidationReadinessReviewer({ report, onClientRelease }: Props) {
+export default function PreValidationReadinessReviewer({ report, onClientRelease, workflowState, onApprove, onEdit, onReopen }: Props) {
   const { release } = report;
+  const callbacks: Readonly<Record<ReviewerWorkflowAction, ((evidenceMapRowId: string) => void) | undefined>> = { approve: onApprove, edit: onEdit, reopen: onReopen };
   return (
     <main className="grid gap-4" data-testid="pre-validation-readiness-reviewer">
       <header className={`rounded-2xl border p-5 ${statusClass(release.label)}`} data-release-state={release.state}>
@@ -42,6 +52,7 @@ export default function PreValidationReadinessReviewer({ report, onClientRelease
           </div>
           <dl className="mt-4 grid gap-2 text-sm text-slate-700"><div><dt className="font-semibold text-slate-950">Assessment reason</dt><dd>{presentation.assessmentReason}</dd></div><div><dt className="font-semibold text-slate-950">Client action required</dt><dd>{presentation.clientAction ?? "No client action recorded."}</dd></div><div><dt className="font-semibold text-slate-950">Draft finding</dt><dd>{presentation.draftFindingResult.draftFindingType ?? "None"} — draft candidate language only</dd></div><div><dt className="font-semibold text-slate-950">Source document</dt><dd>{presentation.sourceDocument.documentName ?? presentation.sourceDocument.documentId} ({presentation.sourceDocument.documentId})</dd></div></dl>
           <div className="mt-4 border-t border-slate-200 pt-3 text-xs text-slate-500">Review history: {presentation.reviewHistoryRef} · finalized by {presentation.finalizationActorRef} at {presentation.finalizedAt} · contracts {presentation.presentationContractVersion} / {presentation.reviewPolicyVersion}</div>
+          {workflowState ? <div className="mt-3 flex flex-wrap items-center gap-2" data-testid={`reviewer-actions-${presentation.evidenceMapRowId}`}><span className="text-xs font-semibold text-slate-600">Reviewer state: {workflowState}</span>{reviewerWorkflowActions(workflowState).map((action) => <button key={action} type="button" disabled={!callbacks[action]} onClick={() => callbacks[action]?.(presentation.evidenceMapRowId)} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 disabled:cursor-not-allowed disabled:opacity-50">{action === "approve" ? "Approve" : action === "edit" ? "Edit" : "Reopen"}</button>)}</div> : null}
         </article>
       ))}
     </main>
