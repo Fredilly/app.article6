@@ -43,7 +43,7 @@ Status: `done` — PR [#797](https://github.com/Fredilly/app.article6/pull/797)
 
 - **PyMuPDF adapter** (`QUICK_CHECK_PARSER=pymupdf`): primary successful Phase 0B adapter.
 - **Docling adapter** (`QUICK_CHECK_PARSER=docling`): optional/unavailable-safe.
-- `current-extractor` remains the default.
+- PyMuPDF is the active default parser.
 - Both adapters fall back to `current-extractor` on failure.
 - 55+ tests covering both adapters, fallback paths, runtime init.
 
@@ -61,8 +61,8 @@ Status: `done` — PR [#801](https://github.com/Fredilly/app.article6/pull/801)
 
 Status: `done`
 
-- Default parser remains `current-extractor` (PyMuPDF available as opt-in).
-- PyMuPDF adapter is available but not promoted to default — decision can be revisited.
+- Default parser is PyMuPDF; it falls back to `current-extractor` when the native helper is unavailable.
+- Docling remains an optional experimental fallback and is not a required dependency or gate.
 
 ### Phase 1: Evidence Compiler v2 — Noise Context Detection
 

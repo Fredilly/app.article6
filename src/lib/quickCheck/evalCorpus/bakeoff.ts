@@ -180,7 +180,7 @@ function computePerPdfMetrics(parsed: ParsedDocument): ParserBakeoffPerPdfMetric
   };
 }
 
-function checkParserAvailable(parserId: string): { available: boolean; reason?: string } {
+export function checkParserAvailable(parserId: string): { available: boolean; reason?: string } {
   if (parserId === "current-extractor") {
     return { available: true };
   }
@@ -203,10 +203,14 @@ function checkParserAvailable(parserId: string): { available: boolean; reason?: 
     try {
       execFileSync(resolvePython3Path(), ["--version"], { timeout: 5000, encoding: "utf-8" });
       try {
-        execFileSync(resolvePython3Path(), ["-c", "import docling"], { timeout: 10000, encoding: "utf-8" });
+        execFileSync(
+          resolvePython3Path(),
+          ["-c", "import importlib.util,sys; sys.exit(0 if importlib.util.find_spec('docling') else 1)"],
+          { timeout: 10000, encoding: "utf-8", stdio: ["ignore", "ignore", "ignore"] },
+        );
         return { available: true };
       } catch {
-        return { available: false, reason: "python3 available but docling not installed" };
+        return { available: false, reason: "Docling unavailable; optional adapter skipped." };
       }
     } catch {
       return { available: false, reason: "python3 not available" };
