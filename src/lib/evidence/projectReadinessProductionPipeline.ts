@@ -24,6 +24,7 @@ import {
   type ReportPresentationObject,
 } from "@/lib/evidence/reportPresentationObject";
 import {
+  clearProjectReadinessPayload,
   saveProjectReadinessPayload,
   type ProjectReadinessPayload,
 } from "@/lib/evidence/projectReadinessPayload";
@@ -52,6 +53,8 @@ export type ProjectReadinessPipelineBlock = Readonly<{
     | "applicability_not_assessed"
     | "conformance_not_assessed"
     | "draft_finding_blocked"
+    | "assessment_invalid"
+    | "review_state_not_finalizable"
     | "presentation_blocked"
     | "payload_not_saved";
   evidenceMapRowId: string | null;
@@ -85,6 +88,11 @@ function invalid(projectId: string | null, blockedBy: readonly ProjectReadinessP
   return { ready: false, projectId, state: "NOT_ASSESSED", blockedBy };
 }
 
+function fail(projectId: string | null, blockedBy: readonly ProjectReadinessPipelineBlock[]): ProjectReadinessPipelineResult {
+  if (projectId) clearProjectReadinessPayload(projectId);
+  return invalid(projectId, blockedBy);
+}
+
 function isInput(value: unknown): value is ProjectEvidenceMapFinalizationInput {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<ProjectEvidenceMapFinalizationInput>;
@@ -100,18 +108,61 @@ function isReviewState(value: unknown): value is PresentationReviewState {
   return value === "CURRENT" || value === "PENDING_REVIEW" || value === "REOPENED" || value === "SUPERSEDED" || value === "STALE";
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isTextOrNull(value: unknown): value is string | null {
+  return value === null || typeof value === "string";
+}
+
+function isProjectEvidenceMapAssessment(value: unknown): value is ProjectEvidenceMapAssessment {
+  if (!isRecord(value) || typeof value.evidenceMapRowId !== "string" || !value.evidenceMapRowId || value.evidenceMapRowId.trim() !== value.evidenceMapRowId) return false;
+  if (!isReviewState(value.reviewState)) return false;
+  if (!isRecord(value.applicability) || !["APPLICABLE", "NOT_APPLICABLE", "NOT_EVALUATED"].includes(value.applicability.decision as string) || !isTextOrNull(value.applicability.decisionBasis)) return false;
+  if (!isRecord(value.conformance)) return false;
+  const conformanceValues: Record<string, readonly string[]> = {
+    requirementSupport: ["SUPPORTED", "NOT_SUPPORTED", "NOT_EVALUATED"],
+    searchCoverageAssessment: ["ADEQUATE", "INADEQUATE", "NOT_REQUIRED", "NOT_EVALUATED"],
+    provenanceAssessment: ["COMPLETE", "INCOMPLETE", "NOT_EVALUATED"],
+    versionIdentityAssessment: ["MATCHED", "NOT_REQUIRED", "MISMATCHED", "UNRESOLVED"],
+    contradictionAssessment: ["NONE", "BLOCKING", "NOT_EVALUATED"],
+  };
+  const conformance = value.conformance as Record<string, unknown>;
+  if (Object.entries(conformanceValues).some(([key, allowed]) => !allowed.includes(conformance[key] as string))) return false;
+  if (!isRecord(value.draftFinding) || ![null, "NIR_CANDIDATE", "NCR_CANDIDATE", "OFI_CANDIDATE"].includes(value.draftFinding.draftFindingType as string | null) || !isTextOrNull(value.draftFinding.findingBasis) || !isTextOrNull(value.draftFinding.reviewerAssessment)) return false;
+  return true;
+}
+
+function inputProjectId(value: unknown): string | null {
+  if (!isRecord(value) || typeof value.projectId !== "string") return null;
+  const projectId = value.projectId.trim();
+  return projectId && projectId === value.projectId ? projectId : null;
+}
+
 /**
  * Explicit production finalization boundary for an already-reviewed project
  * Evidence Map. It never adapts Quick Check, legacy audit, or fixture data.
  */
 export function finalizeProjectEvidenceMapForReadiness(input: unknown): ProjectReadinessPipelineResult {
-  if (!isInput(input)) return invalid(null, [block("invalid_input", null)]);
+  const projectId = inputProjectId(input);
+  if (!isInput(input)) return fail(projectId, [block("invalid_input", null)]);
 
   const rowIds = new Set<string>();
-  const assessmentByRowId = new Map(input.assessments.map((assessment) => [assessment.evidenceMapRowId, assessment]));
   const blockers: ProjectReadinessPipelineBlock[] = [];
   const presentations: ReportPresentationObject[] = [];
   const gateInputs: Array<{ presentation: ReportPresentationObject; reviewState: PresentationReviewState }> = [];
+
+  const validatedAssessments: ProjectEvidenceMapAssessment[] = [];
+  for (const assessment of input.assessments as readonly unknown[]) {
+    if (!isProjectEvidenceMapAssessment(assessment)) {
+      blockers.push(block("assessment_invalid", null));
+      continue;
+    }
+    validatedAssessments.push(assessment);
+  }
+  if (blockers.length > 0) return fail(input.projectId, blockers);
+  const assessmentByRowId = new Map(validatedAssessments.map((assessment) => [assessment.evidenceMapRowId, assessment]));
 
   if (input.rows.length === 0 || input.assessments.length !== input.rows.length) {
     blockers.push(block("assessment_missing", null, "Every finalized Evidence Map row requires one explicit assessment."));
@@ -138,6 +189,10 @@ export function finalizeProjectEvidenceMapForReadiness(input: unknown): ProjectR
     const assessment = assessmentByRowId.get(row.rowId);
     if (!assessment || assessment.evidenceMapRowId !== row.rowId || !isReviewState(assessment.reviewState)) {
       blockers.push(block("assessment_missing", row.rowId));
+      continue;
+    }
+    if (assessment.reviewState === "REOPENED" || assessment.reviewState === "SUPERSEDED" || assessment.reviewState === "STALE") {
+      blockers.push(block("review_state_not_finalizable", row.rowId, assessment.reviewState));
       continue;
     }
 
@@ -169,13 +224,13 @@ export function finalizeProjectEvidenceMapForReadiness(input: unknown): ProjectR
   }
 
   if (blockers.length > 0 || presentations.length !== input.rows.length) {
-    return invalid(input.projectId, blockers.length ? blockers : [block("presentation_blocked", null)]);
+    return fail(input.projectId, blockers.length ? blockers : [block("presentation_blocked", null)]);
   }
 
   const gateResult = evaluatePresentationReportGate(gateInputs);
   const payload: ProjectReadinessPayload = { projectId: input.projectId, gateResult };
   if (!saveProjectReadinessPayload(payload)) {
-    return invalid(input.projectId, [block("payload_not_saved", null)]);
+    return fail(input.projectId, [block("payload_not_saved", null)]);
   }
 
   return { ready: true, projectId: input.projectId, payload, gateResult, presentations };

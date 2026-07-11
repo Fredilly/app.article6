@@ -9,9 +9,10 @@ export type ProjectReadinessPayload = Readonly<{
   gateResult: PresentationGateResult;
 }>;
 
-export type ProjectReadinessPayloadSavedEventDetail = Readonly<{
+export type ProjectReadinessPayloadEventDetail = Readonly<{
   projectId: string;
-  payload: ProjectReadinessPayload;
+  payload: ProjectReadinessPayload | null;
+  state: "saved" | "cleared";
 }>;
 
 export function projectReadinessPayloadStorageKey(projectId: string): string {
@@ -42,8 +43,22 @@ export function saveProjectReadinessPayload(payload: ProjectReadinessPayload): b
   if (typeof window === "undefined") return false;
   try {
     window.localStorage.setItem(projectReadinessPayloadStorageKey(projectId), JSON.stringify(payload));
-    window.dispatchEvent(new CustomEvent<ProjectReadinessPayloadSavedEventDetail>(PROJECT_READINESS_PAYLOAD_EVENT, {
-      detail: { projectId, payload },
+    window.dispatchEvent(new CustomEvent<ProjectReadinessPayloadEventDetail>(PROJECT_READINESS_PAYLOAD_EVENT, {
+      detail: { projectId, payload, state: "saved" },
+    }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function clearProjectReadinessPayload(projectId: string): boolean {
+  const normalizedProjectId = projectId.trim();
+  if (!normalizedProjectId || normalizedProjectId !== projectId || typeof window === "undefined") return false;
+  try {
+    window.localStorage.removeItem(projectReadinessPayloadStorageKey(normalizedProjectId));
+    window.dispatchEvent(new CustomEvent<ProjectReadinessPayloadEventDetail>(PROJECT_READINESS_PAYLOAD_EVENT, {
+      detail: { projectId: normalizedProjectId, payload: null, state: "cleared" },
     }));
     return true;
   } catch {

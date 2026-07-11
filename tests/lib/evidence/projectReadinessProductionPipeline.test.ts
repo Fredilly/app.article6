@@ -98,7 +98,25 @@ describe("project readiness production pipeline", () => {
     expect(result.gateResult.presentations[0].evidenceProvenance[0].spanId).toBe("accepted-span");
     expect(result.gateResult.presentations[0].finalizationActorRef).toBe("reviewer:project");
     expect(event).toHaveBeenCalledTimes(1);
+    expect(event.mock.calls[0][0].detail.state).toBe("saved");
     expect(loadProjectReadinessPayload("project-1")?.gateResult).toEqual(result.gateResult);
+  });
+
+  test("malformed assessment entries fail closed without throwing", () => {
+    expect(() => finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [null],
+    })).not.toThrow();
+    const result = finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [null],
+    });
+    expect(result).toMatchObject({ ready: false, state: "NOT_ASSESSED" });
+    expect(loadProjectReadinessPayload("project-1")).toBeNull();
   });
 
   test("non-finalized rows fail closed and do not write a payload", () => {
@@ -132,6 +150,69 @@ describe("project readiness production pipeline", () => {
     });
     expect(result).toMatchObject({ ready: false, state: "NOT_ASSESSED" });
     expect(loadProjectReadinessPayload("project-1")).toBeNull();
+  });
+
+  test("a failed later finalization clears a previously saved payload and emits immediately", () => {
+    const first = finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [assessment()],
+    });
+    expect(first.ready).toBe(true);
+    const event = jest.fn();
+    window.addEventListener(PROJECT_READINESS_PAYLOAD_EVENT, event);
+    const failed = finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row({ finalizationState: "draft" })],
+      assessments: [assessment()],
+    });
+    window.removeEventListener(PROJECT_READINESS_PAYLOAD_EVENT, event);
+    expect(failed).toMatchObject({ ready: false, state: "NOT_ASSESSED" });
+    expect(loadProjectReadinessPayload("project-1")).toBeNull();
+    expect(event).toHaveBeenCalledTimes(1);
+    expect(event.mock.calls[0][0].detail).toEqual({ projectId: "project-1", payload: null, state: "cleared" });
+  });
+
+  test("reopened rows clear stale release-ready payloads", () => {
+    expect(finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [assessment()],
+    }).ready).toBe(true);
+    const result = finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [{ ...assessment(), reviewState: "REOPENED" }],
+    });
+    expect(result).toMatchObject({ ready: false, state: "NOT_ASSESSED" });
+    expect(loadProjectReadinessPayload("project-1")).toBeNull();
+  });
+
+  test("clearing one project does not clear another project", () => {
+    expect(finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row()],
+      assessments: [assessment()],
+    }).ready).toBe(true);
+    expect(finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-2",
+      rows: [row({ rowId: "project-row-2" })],
+      assessments: [assessment("project-row-2")],
+    }).ready).toBe(true);
+    finalizeProjectEvidenceMapForReadiness({
+      source: "PROJECT_EVIDENCE_MAP",
+      projectId: "project-1",
+      rows: [row({ finalizationState: "draft" })],
+      assessments: [assessment()],
+    });
+    expect(loadProjectReadinessPayload("project-1")).toBeNull();
+    expect(loadProjectReadinessPayload("project-2")?.projectId).toBe("project-2");
   });
 
   test("legacy audit and fixture/preview inputs cannot enter the production producer", () => {
