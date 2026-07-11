@@ -154,6 +154,15 @@ npm run pr:gate
 
 If npm run pr:gate fails because of an unrelated existing failure, report the exact failing test and explain why it is unrelated.
 
+## Staged validation workflow
+
+- During development, run only focused tests for the files being changed.
+- After implementation is stable, run lint, typecheck, roadmap check, and diff check.
+- Run the full `npm run pr:gate` only once, after all implementation changes are complete and before the PR is ready to merge.
+- Do not rerun `pr:gate` after every small edit.
+- Never start another `pr:gate` process while one is already running.
+- If the full gate fails, fix the reported failure, run the narrow affected test first, then rerun the full gate once.
+
 ## Verification
 
 Before final handoff, report:
