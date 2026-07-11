@@ -335,13 +335,13 @@ Do not mark placeholder text as FOUND. MISSING means no relevant document eviden
 - Phase 5: Applicability Contract — done
 - Phase 6: Report Presentation Object — done
 - Phase 7: Presentation Gates — done
-- Phase 8: Fixture Expectation Migration — next
-- Phase 9: Readiness Report and UI Consumers — planned
-- Phase 10: Deprecation Review — planned
+- Phase 8: Fixture Expectation Migration — done
+- Phase 9: Readiness Report and UI Consumers — done
+- Phase 10: Deprecation Review — next
 
 ## Validation
 
-For this contract-only change, run:
+For this Phase 9 consumer change, run:
 
 ```bash
 npx jest tests/lib/evidence/evidenceMapDependencyContract.test.ts --runInBand
