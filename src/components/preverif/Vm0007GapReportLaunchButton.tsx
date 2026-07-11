@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
 import { buildVm0007GapReportHref } from "@/lib/preverif/vm0007GapReportStore";
+import { hasProjectReadinessPayload, PROJECT_READINESS_PAYLOAD_EVENT, type ProjectReadinessPayloadEventDetail } from "@/lib/evidence/projectReadinessPayload";
 
 type Vm0007GapReportLaunchButtonProps = {
   isVm0007Result: boolean;
@@ -27,12 +29,25 @@ export default function Vm0007GapReportLaunchButton({
   generateDisabled = false,
   testId = "vm0007-internal-report-section",
 }: Vm0007GapReportLaunchButtonProps) {
+  const [hasReadinessPayload, setHasReadinessPayload] = useState(readinessPayloadAvailable);
+
+  useEffect(() => {
+    setHasReadinessPayload(projectId?.trim() ? hasProjectReadinessPayload(projectId) || readinessPayloadAvailable : false);
+    const handlePayloadEvent = (event: Event) => {
+      const detail = (event as CustomEvent<ProjectReadinessPayloadEventDetail>).detail;
+      if (!projectId?.trim() || !detail || detail.projectId !== projectId) return;
+      setHasReadinessPayload(detail.state === "saved" && hasProjectReadinessPayload(projectId));
+    };
+    window.addEventListener(PROJECT_READINESS_PAYLOAD_EVENT, handlePayloadEvent);
+    return () => window.removeEventListener(PROJECT_READINESS_PAYLOAD_EVENT, handlePayloadEvent);
+  }, [projectId, readinessPayloadAvailable]);
+
   if (!isVm0007Result) return null;
 
   return (
     <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 px-4 py-4" data-testid={testId}>
       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</div>
-      {projectId?.trim() && readinessPayloadAvailable ? (
+      {projectId?.trim() && hasReadinessPayload ? (
         <>
           <div className="mt-2 text-sm text-slate-600">
             Open the project Pre-Validation Readiness Report from finalized presentation data.

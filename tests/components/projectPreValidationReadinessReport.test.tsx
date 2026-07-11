@@ -4,7 +4,7 @@ import { describe, expect, test } from "@jest/globals";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import ProjectPreValidationReadinessReport from "@/components/projects/ProjectPreValidationReadinessReport";
-import { projectReadinessPayloadStorageKey } from "@/lib/evidence/projectReadinessPayload";
+import { clearProjectReadinessPayload, saveProjectReadinessPayload } from "@/lib/evidence/projectReadinessPayload";
 import { createReadinessReportViewModel } from "@/lib/evidence/readinessReport";
 import { deriveApplicability } from "@/lib/evidence/applicabilityContract";
 import { deriveConformanceConclusion } from "@/lib/evidence/conformanceConclusionContract";
@@ -24,6 +24,8 @@ function realPresentation() {
 }
 
 describe("ProjectPreValidationReadinessReport", () => {
+  beforeEach(() => window.localStorage.clear());
+
   test("renders not-assessed when the real project payload is missing", async () => {
     const container = document.createElement("div");
     const root = createRoot(container);
@@ -34,15 +36,43 @@ describe("ProjectPreValidationReadinessReport", () => {
 
   test("renders a blocked real gate result and preserves the reviewer surface", async () => {
     const presentation = realPresentation();
-    window.localStorage.setItem(projectReadinessPayloadStorageKey("project-1"), JSON.stringify({
-      projectId: "project-1",
-      gateResult: { releaseReady: false, releaseState: "BLOCKED", crossRowOutcome: "NOT_EVALUATED", presentations: [presentation], blockedBy: [{ category: "review_state_not_current", evidenceMapRowId: presentation.evidenceMapRowId, detail: "REOPENED" }] },
-    }));
+    expect(saveProjectReadinessPayload({ projectId: "project-1", gateResult: {
+      releaseReady: false,
+      releaseState: "BLOCKED",
+      crossRowOutcome: "NOT_EVALUATED",
+      presentations: [presentation],
+      blockedBy: [{ category: "review_state_not_current", evidenceMapRowId: presentation.evidenceMapRowId, detail: "REOPENED" }],
+    } })).toBe(true);
     const container = document.createElement("div");
     const root = createRoot(container);
     await act(async () => { root.render(<ProjectPreValidationReadinessReport projectId="project-1" />); });
     expect(container.textContent).toContain("blocked");
     expect(container.textContent).toContain("Project evidence.");
+    act(() => { root.unmount(); });
+  });
+
+  test("updates immediately for the linked project's save and clear events, but ignores another project", async () => {
+    const presentation = realPresentation();
+    const gateResult = {
+      releaseReady: false as const,
+      releaseState: "BLOCKED" as const,
+      crossRowOutcome: "NOT_EVALUATED" as const,
+      presentations: [presentation],
+      blockedBy: [{ category: "review_state_not_current" as const, evidenceMapRowId: presentation.evidenceMapRowId, detail: "REOPENED" }],
+    };
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    await act(async () => { root.render(<ProjectPreValidationReadinessReport projectId="project-1" />); });
+    expect(container.textContent).toContain("not assessed");
+
+    await act(async () => { expect(saveProjectReadinessPayload({ projectId: "project-1", gateResult })).toBe(true); });
+    expect(container.textContent).toContain("Project evidence.");
+
+    await act(async () => { expect(saveProjectReadinessPayload({ projectId: "project-2", gateResult })).toBe(true); });
+    expect(container.textContent).toContain("Project evidence.");
+
+    await act(async () => { expect(clearProjectReadinessPayload("project-1")).toBe(true); });
+    expect(container.textContent).toContain("not assessed");
     act(() => { root.unmount(); });
   });
 });
