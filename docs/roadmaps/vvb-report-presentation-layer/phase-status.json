@@ -1,5 +1,6 @@
 {
   "RC0": "done",
+  "RC8": "done",
   "phase_meta": {
     "status": "active",
     "summary": "Add a generic pre-validation presentation layer downstream of finalized Evidence Map rows, without changing Quick Check router semantics or claiming formal VVB authority.",
