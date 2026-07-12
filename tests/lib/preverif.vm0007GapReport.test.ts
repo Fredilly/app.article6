@@ -187,8 +187,11 @@ describe("buildVm0007GapReport", () => {
   });
 
   it("does not show remediation guidance on supported rows", () => {
-    const report = buildReport(buildMixedAudit());
-    const supported = report.fullRuleAuditTable.find((row) => row.ruleId === "R-1-0001");
+    // This assertion isolates report rendering from audit classification. The
+    // mixed Envira fixture is intentionally conservative now, so use an
+    // explicitly supported audit when testing supported-row presentation.
+    const report = buildReport(buildSupportedOnlyAudit());
+    const supported = report.fullRuleAuditTable.find((row) => row.status === "supported");
 
     expect(supported?.status).toBe("supported");
     expect(supported?.gapGuidance).toBe("");
@@ -208,7 +211,9 @@ describe("buildVm0007GapReport", () => {
     const supported = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0001");
     const missing = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0003");
 
-    expect(supported?.quote).toContain("Leakage Management procedures");
+    // The conservative classifier retains the selected source span, even
+    // though this row is no longer treated as fully supported.
+    expect(supported?.quote).toBe("REDD-MF / VM0007 v1.8");
     expect(missing?.quote).toBe(NO_PDD_EVIDENCE_TEXT);
   });
 
