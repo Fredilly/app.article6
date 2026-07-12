@@ -54,7 +54,7 @@ Preserve report-facing fixture expectations and internal preview coverage for th
 
 Keep internal preview output separate from later client-ready reporting work. This phase records the existing quarantine and gate boundary; it does not promote the legacy Envira material to client-ready truth.
 
-### Phase 6 — Evidence Map Learning Contract — active
+### Phase 6 — Evidence Map Learning Contract — done
 
 Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
@@ -77,7 +77,9 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 - rerun all previous fixtures
 - test one unseen eligible PDD
 
-### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — planned
+Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
+
+### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — active
 
 - Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy
 - preserve the raw 58-row machine output
@@ -98,7 +100,7 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
 ### Phase 8 — Marcondes Generic System Improvement — planned
 
-- compare Marcondes machine proposals against reviewed truth
+- compare Marcondes machine proposals against reviewed truth after the reviewed truth exists
 - classify retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors
 - fix only reusable shared logic
 - rerun Quick Check and Evidence Map regressions

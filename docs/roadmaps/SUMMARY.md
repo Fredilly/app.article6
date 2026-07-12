@@ -344,11 +344,9 @@ Lane status: Active
 Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.
 
 Current focus:
-- Phases 0–2 complete: the boundary, Envira rule-level fixtures, and PD_REDD rule-level fixtures remain preserved with their historical references.
-- Phases 3–4 blocked/quarantined: Envira full-audit and report material is legacy REDD-MF / VM0007 v1.5 mismatch regression data, not VM0007 v1.8 truth.
-- Phase 5 complete: the internal-preview/client-readiness boundary and legacy-fixture quarantine are documented.
-- Phase 6 active: define and enforce the two-PR truth-intake and generic-system-improvement learning contract.
-- Phase 7 planned: begin Marcondes REDD+ as the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy.
+- Phase 6 complete: canonical system prompt and new-PDD playbook delivered by PR #994.
+- Phase 7 active: Marcondes truth intake and v1.7/v1.8 reconciliation.
+- Phase 8 planned: generic system improvement after reviewed truth exists.
 
 Not active now:
 - Production logic changes in truth-intake PRs
@@ -364,9 +362,9 @@ Not active now:
 4) RC3 — Full 58-Rule Audit Fixture Shape: Blocked — Envira VM0007's reviewed full 58-rule audit fixture is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data. The historical FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 split remains preserved as a regression fixture, but it is not validated VM0007 v1.8 truth.
 5) RC4 — Report Fixture Layer: Blocked — Report fixture output remains quarantined historical regression data. Report summary expectations and internal preview output are fixture-driven and testable, but the legacy Envira report fixture is not client-ready truth and is pending versioned re-audit. Historical delivery is preserved as PR #914.
 6) RC5 — Client-Readiness Gate: Done — The internal-preview/client-readiness boundary is documented and legacy mismatch fixtures remain quarantined; no legacy Envira output is promoted as VM0007 v1.8 truth.
-7) RC6 — Evidence Map Learning Contract: Active — Define the repeatable two-PR cycle: PR1 truth intake with untouched machine output and partial reviewed truth; PR2 generic shared-system improvement with previous-fixture reruns and one unseen eligible PDD.
-8) RC7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake: Planned — Intake Marcondes REDD+ as the first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy while preserving raw 58-row output and counting only explicitly reviewed rows as gold.
-9) RC8 — Marcondes Generic System Improvement: Planned — Use Marcondes reviewed truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures without Marcondes-specific hardcoding.
+7) RC6 — Evidence Map Learning Contract: Done — Defined the repeatable two-PR cycle for VM0007 evidence-map learning and delivered the canonical system prompt plus new-PDD playbook in PR #994.
+8) RC7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake: Active — Intake Marcondes REDD+ as the active VM0007 v1.8 truth case while reconciling the internal v1.7/v1.8 discrepancy, preserving raw 58-row output, and counting only explicitly reviewed rows as gold.
+9) RC8 — Marcondes Generic System Improvement: Planned — Use reviewed Marcondes truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures after the reviewed truth exists.
 10) RC9 — Review and Gold Promotion Tooling: Planned — Make partial review and correction generation easy while preserving machine proposal, reviewer correction, final truth, and explicit gold coverage separately.
 11) RC10 — Second Unseen VM0007 v1.8 PDD: Planned — Run the same truth-intake and generic-improvement cycle on an unseen eligible VM0007 v1.8 PDD to prove generalization and prevent regressions.
 

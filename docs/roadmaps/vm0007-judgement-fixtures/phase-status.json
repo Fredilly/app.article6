@@ -5,11 +5,9 @@
     "status": "active",
     "summary": "Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.",
     "current_focus": [
-      "Phases 0–2 complete: the boundary, Envira rule-level fixtures, and PD_REDD rule-level fixtures remain preserved with their historical references.",
-      "Phases 3–4 blocked/quarantined: Envira full-audit and report material is legacy REDD-MF / VM0007 v1.5 mismatch regression data, not VM0007 v1.8 truth.",
-      "Phase 5 complete: the internal-preview/client-readiness boundary and legacy-fixture quarantine are documented.",
-      "Phase 6 active: define and enforce the two-PR truth-intake and generic-system-improvement learning contract.",
-      "Phase 7 planned: begin Marcondes REDD+ as the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy."
+      "Phase 6 complete: canonical system prompt and new-PDD playbook delivered by PR #994.",
+      "Phase 7 active: Marcondes truth intake and v1.7/v1.8 reconciliation.",
+      "Phase 8 planned: generic system improvement after reviewed truth exists."
     ],
     "not_active_now": [
       "Production logic changes in truth-intake PRs",
@@ -109,8 +107,10 @@
     {
       "id": "phase_6_evidence_map_learning_contract",
       "title": "Evidence Map Learning Contract",
-      "status": "active",
+      "status": "done",
       "dependsOn": ["phase_5_client_readiness_gate"],
+      "branch": "docs/vm0007-evidence-map-playbook",
+      "pr": 994,
       "doneCriteria": [
         "The repeatable two-PR truth-intake and generic-system-improvement cycle is documented",
         "Truth intake preserves untouched machine output, supports partial review, records accepted/rejected evidence and corrections, and counts only reviewed rows as gold",
@@ -121,7 +121,7 @@
     {
       "id": "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake",
       "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
-      "status": "planned",
+      "status": "active",
       "dependsOn": ["phase_6_evidence_map_learning_contract"],
       "doneCriteria": [
         "Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy",
@@ -210,18 +210,20 @@
     },
     "phase_6_evidence_map_learning_contract": {
       "title": "Evidence Map Learning Contract",
-      "status": "active",
-      "summary": "Define the repeatable two-PR cycle: PR1 truth intake with untouched machine output and partial reviewed truth; PR2 generic shared-system improvement with previous-fixture reruns and one unseen eligible PDD."
+      "status": "done",
+      "branch": "docs/vm0007-evidence-map-playbook",
+      "pr": 994,
+      "summary": "Defined the repeatable two-PR cycle for VM0007 evidence-map learning and delivered the canonical system prompt plus new-PDD playbook in PR #994."
     },
     "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake": {
       "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
-      "status": "planned",
-      "summary": "Intake Marcondes REDD+ as the first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy while preserving raw 58-row output and counting only explicitly reviewed rows as gold."
+      "status": "active",
+      "summary": "Intake Marcondes REDD+ as the active VM0007 v1.8 truth case while reconciling the internal v1.7/v1.8 discrepancy, preserving raw 58-row output, and counting only explicitly reviewed rows as gold."
     },
     "phase_8_marcondes_generic_system_improvement": {
       "title": "Marcondes Generic System Improvement",
       "status": "planned",
-      "summary": "Use Marcondes reviewed truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures without Marcondes-specific hardcoding."
+      "summary": "Use reviewed Marcondes truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures after the reviewed truth exists."
     },
     "phase_9_review_and_gold_promotion_tooling": {
       "title": "Review and Gold Promotion Tooling",
