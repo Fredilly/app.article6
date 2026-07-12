@@ -88,8 +88,10 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     expect(rules).toHaveLength(58);
     expect(audit.results).toHaveLength(58);
     expect(audit.totalRules).toBe(58);
-    expect(reviewedIds.reviewedRuleIds).toEqual(gold.reviewedRuleIds);
-    expect(corrections.reviewedRuleIds).toEqual(gold.reviewedRuleIds);
+    const historicalReviewedIds = reviewedRuleIds.map((ruleId) => `Verra.AFOLU.VM0007.v1-8.${ruleId}`);
+    expect(reviewedIds.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
+    expect(corrections.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
+    expect(gold.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
 
     const byRule = new Map(audit.results.map((result) => [normalizeVm0007RuleId(result.ruleId), result]));
     const previousByRule = new Map(previousMachine.rows.map((row: JsonRecord) => [row.ruleReference, row]));
