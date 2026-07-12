@@ -165,6 +165,32 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(result.evidence?.map((item) => item.span)).toEqual(["p12"]);
   });
 
+  it("prefers a concise project assertion over a long methodology-heavy span", () => {
+    const methodology = "The methodology requires the project proponent to demonstrate applicability, select the relevant modules, follow the applicable tools and standards, and document all required conditions. ".repeat(10);
+    const projectFact = "The project area is upland forest and the APDef category is applicable to the project activity.";
+    const result = byRuleId(auditSynthetic("R-3-0005", [
+      span(60, "methodology", methodology),
+      span(63, "project-fact", projectFact),
+    ]).results, "R-3-0005");
+
+    expect(result.page).toBe(63);
+    expect(result.evidence?.[0]?.quote).toBe(projectFact);
+    expect(result.evidence?.[0]?.span).toBe("project-fact");
+  });
+
+  it("retains explicit exclusion evidence for scope-sensitive N/A retrieval", () => {
+    const methodology = "The methodology includes peatland, tidal wetland, ARR, IFM, and WRC modules and describes their applicability conditions.";
+    const exclusion = "The project is REDD/APD only; there are no peat soils or tidal wetlands in the project area, and soil carbon is excluded.";
+    const result = byRuleId(auditSynthetic("R-1-0010", [
+      span(62, "scope-exclusion", exclusion),
+      span(63, "copied-modules", methodology),
+    ]).results, "R-1-0010");
+
+    expect(result.status).toBe("not_applicable");
+    expect(result.page).toBe(62);
+    expect(result.evidence?.[0]?.span).toBe("scope-exclusion");
+  });
+
   it.each([
     ["R-1-0004", "All property owners have filed applications for conversion authorization with the authority; the permits will be issued later."],
     ["R-3-0001", "The alternative scenarios and the VT0001 decision path will be provided during the validation stage."],

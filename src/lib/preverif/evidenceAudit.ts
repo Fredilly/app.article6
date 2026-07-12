@@ -692,6 +692,39 @@ function projectFactBonus(text: string): number {
   return factualSignals.reduce((bonus, pattern) => bonus + (pattern.test(text) ? 10 : 0), 0);
 }
 
+function evidenceSpecificityBonus(text: string): number {
+  const normalized = normalizeText(text);
+  const lengthBonus = normalized.length <= 420 ? 8 : normalized.length <= 900 ? 4 : 0;
+  const explicitScopeBonus = /\b(?:no|not|without|excludes?|excluded|does not include|is not)\b/.test(normalized)
+    && /\b(?:peat|tidal|wetland|arr|ifm|wrc|soil|deforest|scope|activity|project)\b/.test(normalized)
+    ? 18
+    : 0;
+  const projectAssertionBonus = /\b(?:the project|project area|project activities|the pdd)\b/.test(normalized)
+    && /\b(?:is|are|has|have|includes?|excludes?|occurs?|occurring|qualifies|confirms?|states?)\b/.test(normalized)
+    ? 12
+    : 0;
+  const quantifiedFactBonus = /\b(?:all|no|at least|approximately)\s+\d+\b/.test(normalized)
+    || /\b(?:there are no|does not include|is not present|are not present)\b/.test(normalized)
+    ? 20
+    : 0;
+  const eligibilityFactBonus = /\b(?:the project|project area)\b[\s\S]{0,120}\b(?:eligible|qualifies as forest|has remained forested)\b/.test(normalized)
+    ? 40
+    : 0;
+  const applicabilityFactBonus = /\b(?:category|condition|module|rule)\b[\s\S]{0,100}\b(?:is|are)\s+(?:not\s+)?applicable\b/.test(normalized)
+    && /\b(?:project|properties|area|activity)\b/.test(normalized)
+    ? 60
+    : 0;
+  const copiedTextPenalty = /\b(?:methodology|module|tool|template|standard)\b/.test(normalized)
+    && !hasProjectSpecificMarkers(normalized)
+    ? 18
+    : 0;
+  const pendingPenalty = /\b(?:will be|to be|provided during|proxy|pending|not yet|under development|future)\b/.test(normalized)
+    || /\bnot required at the .* stage\b/.test(normalized)
+    ? 40
+    : 0;
+  return lengthBonus + explicitScopeBonus + projectAssertionBonus + quantifiedFactBonus + eligibilityFactBonus + applicabilityFactBonus - copiedTextPenalty - pendingPenalty;
+}
+
 function candidateLooksLikeBoilerplate(input: {
   rule: MethodologyEvidenceAuditRule;
   contract: MethodologyEvidenceContract;
@@ -822,17 +855,21 @@ function candidateScore(input: {
   const reliabilityBonus = input.span.reliability === "primary" ? 6 : -2;
   const headingPenalty = input.span.blockType === "section_heading" ? 14 : 0;
   const noisePenalty = input.span.noise?.length ? 10 : 0;
+  const specificityBonus = evidenceSpecificityBonus(text);
 
   const score =
     preferredSectionBonus
     + (sectionHits * 8)
-    + (ruleHits * 6)
+    // Rule-token overlap is useful for recall, but should not outweigh a
+    // complete project-specific signal or a scope/exclusion statement.
+    + (ruleHits * 3)
     + (strongHits * 9)
     + (signalTokenHits * 2)
     + (weakHits * 3)
     // Explicit project qualification language is a stronger retrieval signal
     // than generic methodology vocabulary.
     + (ruleTokens.includes("forest") && /\bthe project area qualifies as forest\b/i.test(text) ? 30 : 0)
+    + specificityBonus
     // Project markers are retained for classification diagnostics, but broad
     // factual language must not outweigh rule-specific evidence during retrieval.
     + reliabilityBonus
@@ -919,7 +956,9 @@ function selectEvidenceCandidates(input: {
     }))
     .filter((candidate): candidate is CandidateScore => candidate !== null)
     .filter((candidate) =>
-      candidate.score >= Math.max(24, input.bestCandidate.score - 12)
+      // Keep complementary project evidence when the document distributes a
+      // rule's support across sections; the top span still controls status.
+      candidate.score >= Math.max(24, input.bestCandidate.score - 40)
       || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1),
     )
     .sort((left, right) => right.score - left.score);
@@ -955,7 +994,9 @@ function selectNotApplicableCandidate(input: {
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
       : null;
 
-    const score = phraseHits * 14 + (span.reliability === "primary" ? 6 : 0);
+    const score = phraseHits * 14
+      + (span.reliability === "primary" ? 6 : 0)
+      + evidenceSpecificityBonus(text);
     const candidate: CandidateScore = {
       span,
       sectionTitle,
