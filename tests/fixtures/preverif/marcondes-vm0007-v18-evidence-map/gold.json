@@ -86,7 +86,10 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 6,
-            "sectionPath": ["1 SUMMARY OF PROJECT BENEFITS", "1.2 Standardized Benefit Metrics"],
+            "sectionPath": [
+              "1 SUMMARY OF PROJECT BENEFITS",
+              "1.2 Standardized Benefit Metrics"
+            ],
             "spanId": "manual:marcondes-pdd:page-6:r-1-0001-definition",
             "sectionHeading": "1.2 Standardized Benefit Metrics",
             "sourceType": "PDD",
@@ -102,7 +105,10 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 62,
-            "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"],
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
             "spanId": "manual:marcondes-pdd:page-62:r-1-0001-history",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
             "sourceType": "PDD",
@@ -189,7 +195,10 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 63,
-            "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"],
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
             "spanId": "manual:marcondes-pdd:page-63:r-1-0002-selection",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
             "sourceType": "PDD",
@@ -669,7 +678,11 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 61,
-            "sectionPath": ["3 CLIMATE", "3.1 Application of Methodology", "Table 30. Methodologies, modules, and tools applied"],
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1 Application of Methodology",
+              "Table 30. Methodologies, modules, and tools applied"
+            ],
             "spanId": "manual:marcondes-pdd:page-61:r-3-0005-table30",
             "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
             "sourceType": "PDD",
@@ -685,7 +698,10 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 63,
-            "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4"],
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4"
+            ],
             "spanId": "manual:marcondes-pdd:page-63:r-3-0005-module",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
             "sourceType": "PDD",
@@ -1588,7 +1604,10 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 12,
-            "sectionPath": ["2 PROJECT DETAILS", "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"],
+            "sectionPath": [
+              "2 PROJECT DETAILS",
+              "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+            ],
             "spanId": "manual:marcondes-pdd:page-12:r-1-0014",
             "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
             "sourceType": "PDD",
@@ -1604,7 +1623,11 @@
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 61,
-            "sectionPath": ["3 CLIMATE", "3.1 Application of Methodology", "Table 30. Methodologies, modules, and tools applied"],
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1 Application of Methodology",
+              "Table 30. Methodologies, modules, and tools applied"
+            ],
             "spanId": "manual:marcondes-pdd:page-61:r-1-0014-table30",
             "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
             "sourceType": "PDD",
@@ -1730,11 +1753,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-        "correction": "Manual review replaced the machine-selected evidence for R-1-0015 with PDF-backed evidence. The PDD directly confirms that neither prohibited leakage-prevention activity is implemented, so the project conforms to this prohibition."
+        "correction": "The blind audit confirms the existing FOUND/CONFORMS judgment: the page-63 project statement covers both prohibited categories in VM0007 v1.8 Section 4.2.1. Supporting leakage records may be retained for validation but are not a missing component of this applicability statement."
       },
       "finalEvidenceState": "FOUND",
       "reviewerOutcome": "CONFORMS",
-      "clientAction": "Retain the Table 31 statement and supporting project records showing that neither flooded agriculture nor livestock intensification through feedlots or manure lagoons is implemented.",
+      "clientAction": "Retain the Table 31 statement and supporting leakage-prevention records showing that neither flooded agriculture nor livestock intensification through feedlots or manure lagoons is implemented.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -1839,12 +1862,12 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0001 with PDF-backed Table 10 evidence. The table headers and representative parcel rows directly document the parcel identifier, property, owner/entity, municipality, contracted area, SIGEF area, contract, and SIGEF status fields."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. VM0007 Section 5.1.1 requires six elements for every discrete parcel; rendered Table 10 has names, owners, municipality, areas and status fields but does not provide maps or polygon-vertex coordinates/accuracy, and representative rows cannot prove all 36 parcels."
       },
-      "finalEvidenceState": "FOUND",
-      "reviewerOutcome": "CONFORMS",
-      "clientAction": "Retain the project-property inventory and its supporting SIGEF/CAR records for validation.",
-      "draftFindingCandidate": null,
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "clientAction": "Provide the complete parcel-level boundary inventory for all 36 discrete areas, including VCS-format maps, every polygon vertex coordinate with accuracy documentation, total area, and landholder/user rights; Table 10 headers and representative rows are insufficient.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
     {
@@ -1910,12 +1933,12 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0002 with PDF-backed evidence. The PDD directly states that all 36 project properties have legally recognized, georeferenced, non-overlapping boundaries."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD asserts SIGEF georeferenced non-overlap for all 36 properties, but VM0007 requires defined boundaries and no overlap across applicable baselines; no maps, coordinates or geospatial analysis are preserved to verify the assertion."
       },
-      "finalEvidenceState": "FOUND",
-      "reviewerOutcome": "CONFORMS",
-      "clientAction": "Retain the SIGEF and CAR boundary records and confirm no project overlap during validation.",
-      "draftFindingCandidate": null,
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "clientAction": "Provide maps, polygon coordinates and geospatial records or analysis demonstrating no overlap among all applicable baseline areas and exclusion from other GHG programs; the SIGEF narrative assertion alone is insufficient.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
     {
@@ -1981,12 +2004,12 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0006 with PDF-backed evidence. The PDD provides project-specific stratification treatment for the baseline and project scenario and identifies the forest classes under deforestation pressure to which the strata apply."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD states that strata apply to forest classes under pressure and are shared by baseline/project, but does not define actual project strata, criteria, maps, areas, carbon-stock differences or sampling links."
       },
-      "finalEvidenceState": "FOUND",
-      "reviewerOutcome": "CONFORMS",
-      "clientAction": "Retain the stratification description and supporting maps or sample-plot records.",
-      "draftFindingCandidate": null,
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "clientAction": "Provide the actual project strata, project-specific stratification criteria/variables, maps and area totals, carbon-stock differences, and links to the applicable sampling and estimation procedures; the PDD currently describes only a general treatment.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
     {
@@ -2014,17 +2037,17 @@
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
           "quote": "The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module.",
-          "page": 64,
+        "page": 63,
           "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
-          "spanId": "manual:marcondes-pdd:page-64:r-2-0008",
+        "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
           "provenance": {
             "docId": "quick-check-review-question",
-            "page": 64,
+          "page": 63,
             "sectionPath": [
               "3 CLIMATE",
               "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
             ],
-            "spanId": "manual:marcondes-pdd:page-64:r-2-0008",
+          "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
             "sourceType": "PDD",
             "provenanceKind": "manual"
@@ -2052,11 +2075,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0008 with PDF-backed evidence. The PDD directly supports mandatory aboveground tree biomass and describes the wood-products pool, but does not fully document the conditional dead-wood and HWP comparison required by the rule."
+        "correction": "The blind audit confirms UNCLEAR/ACTION_REQUIRED. Aboveground biomass is mandatory, but VM0007 also requires conditional HWP/dead-wood comparison, T-SIG or Appendix 1 significance treatment where triggered, and consistency across baseline, project and leakage accounting; the PDD does not fully document these."
       },
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the complete carbon-pool inclusion/exclusion assessment, including the required HWP and dead-wood comparison and justification.",
+      "clientAction": "Provide the complete baseline/project/leakage carbon-pool comparison, including HWP and dead wood, significance determinations using T-SIG or Appendix 1 where triggered, and consistent inclusion/exclusion justifications.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -2123,11 +2146,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0016 with PDF-backed evidence. The PDD expressly states that no tidal wetlands are present; the tidal-project sea-level-rise boundary condition is not applicable."
+        "correction": "The blind audit confirms N/A/NOT_APPLICABLE. VM0007 Section 5.1.3 triggers sea-level-rise treatment only for WRC project activities in tidal zones; page 62 expressly states that no tidal wetlands are present."
       },
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
-      "clientAction": "Retain the PDD wetland-scope statement; sea-level-rise boundary treatment is not applicable.",
+      "clientAction": "Retain project-specific evidence that no tidal wetlands are present; the sea-level-rise boundary requirement is not applicable unless tidal WRC scope is added.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -2232,12 +2255,12 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-        "correction": "Manual review replaced the machine-selected evidence for R-3-0002 with three PDF-backed evidence records covering Scenario 1 maintenance of forest cover, Scenario 2 legal deforestation of 20%, and Scenario 3 illegal deforestation exceeding 20%."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. VM0007 Section 6.1 requires the three specific VT0001 scenario categories and further baseline determination steps; the PDD’s three named scenarios do not match those required categories and do not evidence the VT0001 analysis or baseline selection."
       },
-      "finalEvidenceState": "FOUND",
-      "reviewerOutcome": "CONFORMS",
-      "clientAction": "Retain the three documented alternatives and the evidence supporting their credibility and legal status.",
-      "draftFindingCandidate": null,
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "clientAction": "Provide the VT0001 Sub-step 1b and VM0007 Step 2/3 analysis: the exact three required alternative categories, legal-feasibility checks, barrier or investment analysis, scenario elimination, and evidence for the selected baseline.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
     {
@@ -2303,18 +2326,18 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
-        "correction": "Manual review replaced the machine-selected evidence for R-3-0006 with PDF-backed evidence. The PDD expressly excludes peat and tidal wetlands from the project area, so substrate- and wetland-activity-based module selection is not applicable."
+        "correction": "The blind audit confirms N/A/NOT_APPLICABLE. The substrate/activity-dependent WRC module-selection trigger is absent because page 62 states that no peat soils or tidal wetlands are present and the project is APD REDD."
       },
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
-      "clientAction": "Retain the PDD wetland-scope statement; peat/tidal module selection is not applicable.",
+      "clientAction": "Retain project-specific evidence that no peat soils or tidal wetlands and no WRC activity are present; substrate/activity-dependent WRC module selection is not applicable unless that scope changes.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     }
   ],
   "counts": {
-    "FOUND": 8,
-    "UNCLEAR": 8,
+    "FOUND": 4,
+    "UNCLEAR": 12,
     "MISSING": 0,
     "N/A": 12
   },
