@@ -131,6 +131,7 @@ type CandidateScore = {
   rejectHits: number;
   ruleHits: number;
   sectionHits: number;
+  projectFactBonus: number;
 };
 
 const SECTION_STOPWORDS = new Set([
@@ -655,6 +656,36 @@ function hasProjectSpecificMarkers(text: string): boolean {
     || /\b\d{1,4}\b/.test(text);
 }
 
+function methodologyBoilerplatePenalty(text: string): number {
+  const methodologySignals = [
+    /\bmethodolog(?:y|ies)\b/g,
+    /\bmodules?\b/g,
+    /\btools?\b/g,
+    /\btemplates?\b/g,
+    /\bstandards?\b/g,
+    /\bapplicability conditions?\b/g,
+    /\b(?:must|shall|required|as required|in accordance with)\b/g,
+  ].reduce((count, pattern) => count + (text.match(pattern)?.length ?? 0), 0);
+
+  if (methodologySignals === 0) return 0;
+  const densityPenalty = methodologySignals * 6;
+  const mixedSpanPenalty = methodologySignals >= 3 && text.length > 600 ? 28 : 0;
+  const definitionTablePenalty = /\b(?:VCS Program Definitions|category\s+metric|estimated by the end|internationally accepted definition)\b/i.test(text)
+    ? 32
+    : 0;
+  return densityPenalty + mixedSpanPenalty + definitionTablePenalty;
+}
+
+function projectFactBonus(text: string): number {
+  if (/\bthe project area qualifies as forest\b/i.test(text)) return 48;
+  const factualSignals = [
+    /\b(?:project area qualifies|has remained forested|project area is|project area covers)\b/i,
+    /\b(?:properties|landowners|municipalities|historical reference period|project start date)\b/i,
+    /\b(?:confirm|confirmed|classified|documented|measured|recorded|observed)\b/i,
+  ];
+  return factualSignals.reduce((bonus, pattern) => bonus + (pattern.test(text) ? 10 : 0), 0);
+}
+
 function candidateLooksLikeBoilerplate(input: {
   rule: MethodologyEvidenceAuditRule;
   contract: MethodologyEvidenceContract;
@@ -683,7 +714,7 @@ function candidateDescribesFutureOrUnissuedEvidence(input: {
   candidate: CandidateScore;
 }): boolean {
   const text = normalizeText(input.candidate.span.text);
-  const futureWork = /\b(will be|to be|shall be|provided during|during the validation stage|future|planned|proposed|under development|not yet available|not required at the .* stage)\b/.test(text);
+  const futureWork = /\b(will be|to be|shall be|provided during|during the validation stage|future|under development|not yet available|not required at the .* stage)\b/.test(text);
   const authorizationRule = /\b(permit|permission|authorization|authorisation|license|licence|approval|legal right|legally authorized|legally authorised)\b/.test(
     normalizeText(`${resolveRuleTitle(input.rule)} ${resolveRuleLogic(input.rule)}`),
   );
@@ -774,6 +805,8 @@ function candidateScore(input: {
     + Math.min(countTokenHits(text, tokenize(signalPhrases.join(" "), TEXT_STOPWORDS)), 4);
   const weakHits = countPhraseHits(text, input.contract.weakEvidenceSignals);
   const rejectHits = countPhraseHits(text, input.contract.rejectSignals);
+  const boilerplatePenalty = methodologyBoilerplatePenalty(text);
+  const projectFactBonusValue = projectFactBonus(text);
 
   const preferredSectionBonus = input.span.sectionId && input.preferredSectionIds.has(input.span.sectionId) ? 20 : 0;
   const reliabilityBonus = input.span.reliability === "primary" ? 6 : -2;
@@ -786,10 +819,12 @@ function candidateScore(input: {
     + (ruleHits * 6)
     + (strongHits * 9)
     + (weakHits * 3)
+    + projectFactBonusValue
     + reliabilityBonus
     - (rejectHits * 12)
     - headingPenalty
-    - noisePenalty;
+    - noisePenalty
+    - boilerplatePenalty;
 
   if (score <= 0 && strongHits === 0 && ruleHits === 0 && sectionHits === 0) return null;
 
@@ -802,6 +837,7 @@ function candidateScore(input: {
     rejectHits,
     ruleHits,
     sectionHits,
+    projectFactBonus: projectFactBonusValue,
   };
 }
 
@@ -866,7 +902,10 @@ function selectEvidenceCandidates(input: {
       preferredSectionIds,
     }))
     .filter((candidate): candidate is CandidateScore => candidate !== null)
-    .filter((candidate) => candidate.score >= Math.max(24, input.bestCandidate.score - 12))
+    .filter((candidate) =>
+      candidate.score >= Math.max(24, input.bestCandidate.score - 12)
+      || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1),
+    )
     .sort((left, right) => right.score - left.score);
 
   const seen = new Set<string>();
@@ -910,6 +949,7 @@ function selectNotApplicableCandidate(input: {
       rejectHits: 0,
       ruleHits: 0,
       sectionHits: 0,
+      projectFactBonus: 0,
     };
     if (!best || candidate.score > best.score) best = candidate;
   }
@@ -984,7 +1024,11 @@ function classifyStatus(input: {
       };
     }
 
-    if (input.bestCandidate.strongHits >= 2 || (input.bestCandidate.score >= 42 && input.bestCandidate.ruleHits >= 2)) {
+    if (
+      input.bestCandidate.strongHits >= 2
+      || (input.bestCandidate.score >= 42 && input.bestCandidate.ruleHits >= 2)
+      || (input.bestCandidate.projectFactBonus >= 30 && input.bestCandidate.ruleHits >= 1)
+    ) {
       return {
         status: "supported_by_pdd",
         confidence: input.bestCandidate.score >= 56 ? "high" : "medium",
