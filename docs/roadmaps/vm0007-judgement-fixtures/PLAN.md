@@ -8,6 +8,11 @@ Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machin
 
 This roadmap grows from the existing VM0007 judgment-fixture and gap-report accuracy work. It does not change production logic, Quick Check semantics, report UI styling, or client-facing outputs unless a later phase explicitly permits a shared-system improvement.
 
+## Governing Documents
+
+- [SYSTEM_PROMPT.md](./SYSTEM_PROMPT.md) - canonical agent rules
+- [NEW_PDD_PLAYBOOK.md](./NEW_PDD_PLAYBOOK.md) - exact operator steps for adding a PDD
+
 ## Core Focus
 
 - PDF-backed accepted and rejected evidence
