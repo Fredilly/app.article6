@@ -72,7 +72,7 @@ function buildProductionDraft(): Vm0007EvidenceMapDraftPackage {
   const audit: MethodologyEvidenceAuditSummary = { auditStatus: "AUDITED", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8", versionMatch: true, results, totals: { supported_by_pdd: 0, partially_supported: 0, missing_evidence: 58, not_applicable: 0, manual_review_needed: 0 }, totalRules: 58 };
   const built = buildVm0007EvidenceMapDraft({ auditId: "production-draft", generatedAt: "2026-07-12T00:00:00.000Z", rules, audit, sourceDocument: { documentId: "doc-1", documentName: "pdd.pdf", contentSha256: null } });
   if (!built.ok) throw new Error(built.blockedBy.join(", "));
-  return built.package;
+  return { ...built.package, rows: built.package.rows.map((row, index) => index === 0 ? { ...row, proposedApplicability: "UNKNOWN" as const } : row) };
 }
 
 describe("VM0007 persisted Evidence Map reviewer workflow", () => {
@@ -102,6 +102,7 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
       if (!attached.ok) return;
       pkg = attached.package;
     }
+    expect(pkg.rows[0].proposedApplicability).toBe("APPLICABLE");
     pkg = approveAll(pkg);
     const reloaded = loadVm0007EvidenceMapDraft(pkg.auditId)!;
     const result = finalizeVm0007EvidenceMap(reloaded, "reviewer-1", "2026-07-12T02:00:00.000Z");
@@ -130,9 +131,26 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     ["blocking contradiction", { contradictionAssessment: "BLOCKING" as const }],
   ])("canonical %s blocks finalization and release readiness", (_, conformance) => {
     const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, assessment: assessmentFor(row.rowId, { conformance: { ...assessmentFor(row.rowId).conformance, ...conformance } }) } : row) });
-    const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1");
-    expect(result).toMatchObject({ ok: false, pipeline: { ready: false } });
+    expect(approveVm0007EvidenceMapRow(pkg, pkg.rows[0].rowId, "reviewer-1").ok).toBe(false);
+    const result = finalizeVm0007EvidenceMap(approveAllExcept(pkg, pkg.rows[0].rowId), "reviewer-1");
+    expect(result).toMatchObject({ ok: false, blockedBy: expect.arrayContaining(["canonical assessment is missing, invalid, stale, or unresolved"]) });
     expect(loadQuickCheckReadinessPayload(pkg.auditId)).toBeNull();
+  });
+
+  test("approval rejects NOT_EVALUATED applicability", () => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, assessment: assessmentFor(row.rowId, { applicability: { decision: "NOT_EVALUATED", decisionBasis: null } }) } : row) });
+    expect(approveVm0007EvidenceMapRow(pkg, pkg.rows[0].rowId, "reviewer-1").ok).toBe(false);
+  });
+
+  test.each([
+    ["NOT_EVALUATED requirement support", { requirementSupport: "NOT_EVALUATED" as const }],
+    ["NOT_EVALUATED search coverage", { searchCoverageAssessment: "NOT_EVALUATED" as const }],
+    ["INCOMPLETE provenance", { provenanceAssessment: "INCOMPLETE" as const }],
+    ["MISMATCHED version identity", { versionIdentityAssessment: "MISMATCHED" as const }],
+    ["BLOCKING contradiction", { contradictionAssessment: "BLOCKING" as const }],
+  ])("approval rejects %s", (_, conformance) => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, assessment: assessmentFor(row.rowId, { conformance: { ...assessmentFor(row.rowId).conformance, ...conformance } }) } : row) });
+    expect(approveVm0007EvidenceMapRow(pkg, pkg.rows[0].rowId, "reviewer-1").ok).toBe(false);
   });
 
   test("an incomplete presentation-gate review state blocks finalization", () => {
@@ -169,6 +187,7 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     const replacement = editVm0007EvidenceMapRow(edited.package, rowId, { assessment: assessmentFor(rowId, { applicability: { decision: "NOT_APPLICABLE", decisionBasis: "Reviewer confirmed the requirement is out of scope." } }) }, "reviewer-1", "Reassessed applicability.", "2026-07-12T03:01:00.000Z");
     expect(replacement.ok).toBe(true);
     if (!replacement.ok) return;
+    expect(replacement.row.proposedApplicability).toBe("NOT_APPLICABLE");
     expect(replacement.row.assessment?.rowVersion).toBe(replacement.row.rowVersion);
     expect(approveVm0007EvidenceMapRow(replacement.package, rowId, "reviewer-1").ok).toBe(true);
   });

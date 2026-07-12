@@ -9,7 +9,7 @@ import { PRESENTATION_CONTRACT_VERSION } from "@/lib/evidence/reportPresentation
 import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 import { finalizeQuickCheckEvidenceMapForReadiness } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import { clearQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
-import { isProjectEvidenceMapAssessment, type ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
+import { validateProjectEvidenceMapAssessment, type ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
 import {
   loadVm0007EvidenceMapDraft,
   normalizeVm0007EvidenceMapDraftPackage,
@@ -42,11 +42,9 @@ function rowFor(pkg: Vm0007EvidenceMapDraftPackage, rowId: string): Vm0007Eviden
   return pkg.rows.find((row) => row.rowId === rowId) ?? null;
 }
 function currentAssessment(row: Vm0007EvidenceMapDraftRow): boolean {
-  return row.assessment !== undefined &&
-    isProjectEvidenceMapAssessment(row.assessment) &&
-    row.assessment.evidenceMapRowId === row.rowId &&
-    row.assessment.rowVersion === (row.rowVersion ?? 1) &&
-    row.assessment.reviewState === "CURRENT";
+  if (row.assessment === undefined || row.assessment.evidenceMapRowId !== row.rowId || row.assessment.rowVersion !== (row.rowVersion ?? 1)) return false;
+  const canonicalRow = toEvidenceMapRow(row, now(), "reviewer:validation");
+  return validateProjectEvidenceMapAssessment(canonicalRow, row.assessment).valid;
 }
 function eventFor(input: { reviewerIdentity: string; currentState: ReviewerWorkflowState; nextState: ReviewerWorkflowState; note: string; timestamp?: string }): ReviewerWorkflowEvent | null {
   const event: ReviewerWorkflowEvent = {
@@ -76,9 +74,17 @@ function applyTransition(pkgInput: Vm0007EvidenceMapDraftPackage, rowId: string,
   const nextRowVersion = input.action === "approve" ? (current.rowVersion ?? 1) : (current.rowVersion ?? 1) + 1;
   const assessmentAffectsValidity = input.action === "edit" && input.edit !== undefined;
   const replacementAssessment = input.edit?.assessment;
+  const replacementApplicability: Vm0007EvidenceMapDraftRow["proposedApplicability"] | undefined = replacementAssessment?.applicability.decision === "APPLICABLE"
+    ? "APPLICABLE"
+    : replacementAssessment?.applicability.decision === "NOT_APPLICABLE"
+      ? "NOT_APPLICABLE"
+      : replacementAssessment?.applicability.decision === "NOT_EVALUATED"
+        ? "UNKNOWN"
+        : undefined;
   const changed = input.action === "edit" && input.edit ? {
     ...current,
     ...input.edit,
+    ...(replacementApplicability ? { proposedApplicability: replacementApplicability } : {}),
     assessment: replacementAssessment ? { ...replacementAssessment, evidenceMapRowId: rowId, rowVersion: nextRowVersion } : (assessmentAffectsValidity ? undefined : current.assessment),
   } : current;
   const updatedRow: Vm0007EvidenceMapDraftRow = {

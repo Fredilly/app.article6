@@ -221,6 +221,30 @@ export function isProjectEvidenceMapAssessment(value: unknown): value is Project
   return true;
 }
 
+export type ProjectEvidenceMapAssessmentValidationResult =
+  | Readonly<{ valid: true }>
+  | Readonly<{ valid: false; reason: string }>;
+
+/** Validate reviewer assessment inputs against the same Phase 3–5 contracts used by finalization. */
+export function validateProjectEvidenceMapAssessment(
+  row: EvidenceMapRow,
+  value: unknown,
+): ProjectEvidenceMapAssessmentValidationResult {
+  if (!isProjectEvidenceMapAssessment(value)) return { valid: false, reason: "assessment-invalid" };
+  if (value.reviewState !== "CURRENT") return { valid: false, reason: "assessment-not-current" };
+  if (value.conformance.searchCoverageAssessment === "INADEQUATE" || value.conformance.searchCoverageAssessment === "NOT_EVALUATED") return { valid: false, reason: "search-coverage-unresolved" };
+  if (value.conformance.provenanceAssessment === "INCOMPLETE" || value.conformance.provenanceAssessment === "NOT_EVALUATED") return { valid: false, reason: "provenance-unresolved" };
+  if (value.conformance.versionIdentityAssessment === "MISMATCHED" || value.conformance.versionIdentityAssessment === "UNRESOLVED") return { valid: false, reason: "version-identity-unresolved" };
+  if (value.conformance.contradictionAssessment === "BLOCKING" || value.conformance.contradictionAssessment === "NOT_EVALUATED") return { valid: false, reason: "contradiction-unresolved" };
+  const applicability = deriveApplicability(row, value.applicability);
+  if (applicability.applicability === "NOT_ASSESSED") return { valid: false, reason: "applicability-unresolved" };
+  const conformance = deriveConformanceConclusion(row, applicability, value.conformance);
+  if (conformance.conclusion === "NOT_ASSESSED") return { valid: false, reason: "conformance-unresolved" };
+  const draftFinding = deriveDraftFinding(row, conformance, value.draftFinding);
+  if (draftFinding.draftFindingType === null && draftFinding.blockedBy?.length) return { valid: false, reason: "draft-finding-unresolved" };
+  return { valid: true };
+}
+
 function inputProjectId(value: unknown): string | null {
   if (!isRecord(value) || typeof value.projectId !== "string") return null;
   const projectId = value.projectId.trim();
