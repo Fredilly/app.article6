@@ -592,7 +592,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
-        "correction": "Manual review replaced the machine-selected truncated or mislocated evidence for R-6-0008 with PDF-backed evidence. The available project evidence is incomplete and does not support CONFORMS."
+        "correction": "Manual review replaced the machine-selected truncated or mislocated evidence for R-6-0008 with PDF-backed evidence. VMD0017 v2.2 is identified and the uncertainty sources are enumerated, but no project-specific uncertainty values, calculations, thresholds, confidence results, deductions, conservative assumptions, or uncertainty-reduction procedures are demonstrated. The available project evidence is incomplete and does not support CONFORMS."
       }
     }
   ],
@@ -673,7 +673,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the data-source register and source-tier justification for each monitored parameter, distinguishing literature, IPCC defaults, and expert judgment.",
+      "clientAction": "Provide project-specific uncertainty calculations, the values for each uncertainty source, applicable thresholds, deduction or adjustment calculations, justification for conservative assumptions or any 0% uncertainty treatment, and uncertainty-reduction procedures.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     }

@@ -91,6 +91,16 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(gold.counts).toEqual({ FOUND: 3, UNCLEAR: 6, MISSING: 0, "N/A": 1 });
   });
 
+  it("keeps R-6-0008 on the canonical uncertainty-reduction semantics", () => {
+    const gold = read("gold.json");
+    const row = gold.rows.find((candidate: any) => candidate.ruleReference === "R-6-0008");
+    expect(row.requirement).toBe("Uncertainty reduction requirements");
+    expect(row.requirement).not.toMatch(/data-source|source-tier|literature|IPCC defaults|expert opinion/i);
+    expect(row.finalEvidenceState).toBe("UNCLEAR");
+    expect(row.reviewerOutcome).toBe("ACTION_REQUIRED");
+    expect(row.draftFindingCandidate).toBe("NIR_CANDIDATE");
+  });
+
   it("records completed version qualification while keeping release blocked", () => {
     const metadata = read("metadata.json");
     const excerpts = read("source-excerpts.json");
