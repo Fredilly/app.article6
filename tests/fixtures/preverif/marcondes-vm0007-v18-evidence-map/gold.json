@@ -131,18 +131,34 @@
       "acceptedEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
-          "quote": "a) Unplanned deforestation (VCS category AUDef)\nb) Planned deforestation (VCS category APDef)",
-          "page": 63,
+          "quote": "Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural",
+          "page": 62,
           "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
-          "spanId": "manual:marcondes-pdd:page-63:r-1-0002",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0002",
           "provenance": {
             "docId": "quick-check-review-question",
-            "page": 63,
+            "page": 62,
             "sectionPath": [
               "3 CLIMATE",
               "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
             ],
-            "spanId": "manual:marcondes-pdd:page-63:r-1-0002",
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0002",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+          "quote": "properties in the Legal Amazon. The APDef category is applicable.",
+          "page": 63,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-63:r-1-0002-selection",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 63,
+            "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"],
+            "spanId": "manual:marcondes-pdd:page-63:r-1-0002-selection",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
             "sourceType": "PDD",
             "provenanceKind": "manual"
@@ -170,7 +186,7 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
-        "correction": "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0002 with PDF-backed evidence. The complete project-specific quote supports the reviewed outcome."
+        "correction": "Independent audit found that the previous accepted quote listed AUDef/APDef but did not prove the project selection. It was replaced with the page-63 project-specific legal-basis and APDef-selection quote; the FOUND/CONFORMS outcome is retained."
       },
       "finalEvidenceState": "FOUND",
       "reviewerOutcome": "CONFORMS",

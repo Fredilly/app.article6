@@ -35,6 +35,11 @@
     }
   },
   "review": {
+    "independentAudit": {
+      "batch": 1,
+      "rowCount": 10,
+      "results": { "CONFIRMED": 9, "CORRECTED": 1, "INSUFFICIENT_SOURCE_ACCESS": 0 }
+    },
     "reviewedRuleIds": [
       "Verra.AFOLU.VM0007.v1-8.R-1-0001",
       "Verra.AFOLU.VM0007.v1-8.R-1-0002",

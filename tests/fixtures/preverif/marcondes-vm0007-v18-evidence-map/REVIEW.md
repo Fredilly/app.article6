@@ -14,6 +14,12 @@ Accepted evidence for pages 12, 18–19, and 38 is located under 2 PROJECT DETAI
 
 An independent blind adversarial review was completed. The final reviewer retained the existing outcomes for all reviewed rules except for correcting the R-6-0008 requirement semantics to uncertainty reduction requirements.
 
+## Independent truth audit batch 1
+
+The first 10 existing reviewed rows were independently audited directly against the VM0007 v1.8 requirement logic and the preserved PDD extraction. Nine rows are CONFIRMED. R-1-0002 is CORRECTED at the evidence level: the prior accepted quote listed AUDef/APDef but did not prove the project’s APDef selection; the accepted quote now preserves the page-63 project-specific classification and legal basis. Its final state remains FOUND/CONFORMS. No row had insufficient source access.
+
+Audit records are in `independent-audit.json`. The audit confirms that incomplete multi-part requirements remain UNCLEAR/ACTION_REQUIRED, N/A has an explicit applicability reason, rejected machine evidence is not used as truth, the other 18 reviewed rows are unchanged, and the remaining 30 rows remain excluded from gold.
+
 
 ## Batch 2 review: R-1-0003 and R-1-0006 through R-1-0012
 

@@ -1,0 +1,128 @@
+{
+  "stableProjectId": "marcondes-redd-5953",
+  "methodology": "VM0007 v1.8",
+  "auditType": "INDEPENDENT_TRUTH_AUDIT",
+  "rows": [
+    {
+      "ruleReference": "R-1-0001",
+      "requirementReviewed": "Project land must meet forest definition threshold for 10+ years. Mangroves exempt from height.",
+      "pagesInspected": [12, 62],
+      "evidenceCompleteness": "COMPLETE",
+      "finalState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 12 directly ties the project area to forest status for more than 10 years and says the applicable thresholds are met. Page 62 independently repeats the 10-year forest condition and historical forest-cover support. The accepted page-12 quote is present in the preserved extraction; the generic methodology-only proposal is correctly rejected.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Retaining the forest-history and definition records is proportionate; no unsupported conclusion is added."
+    },
+    {
+      "ruleReference": "R-1-0002",
+      "requirementReviewed": "Binary classification: unplanned (no legal right) vs planned (legally permitted conversion). Determines which BL module applies.",
+      "pagesInspected": [62, 63],
+      "evidenceCompleteness": "COMPLETE_AFTER_CORRECTION",
+      "finalState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "auditResult": "CORRECTED",
+      "rationale": "The prior accepted quote listed both categories but did not prove the project choice. Page 63 states the project-area legal basis and that APDef is applicable, directly closing the classification. The accepted evidence was corrected to that exact project-specific passage; the machine proposal remains preserved.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Retaining the Table 31 classification and supporting baseline evidence is supported and not overstated."
+    },
+    {
+      "ruleReference": "R-1-0004",
+      "requirementReviewed": "Must have legal documentation authorizing conversion.",
+      "pagesInspected": [12, 63],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 12 asserts legal authorization, while page 63 identifies the Forest Code and ASV applications. Applications, boundary registrations, and compliance statements do not establish issued conversion authorization documents. The accepted evidence is exact and supports UNCLEAR, not CONFORMS.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Requesting issued ASV or other actual authorization documents, issuing authority, area, and dates is supported by the gap and is not overstated."
+    },
+    {
+      "ruleReference": "R-1-0005",
+      "requirementReviewed": "Water table lowering is prohibited except for two specific exceptions.",
+      "pagesInspected": [62, 63],
+      "evidenceCompleteness": "NOT_APPLICABLE",
+      "finalState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "auditResult": "CONFIRMED",
+      "rationale": "The rule is a WRC applicability condition. Page 62 explicitly states that no peat soils or tidal wetlands are present in the project area, so the triggering WRC pathway is absent. This is an applicability determination, not a finding that the prohibition was satisfied.",
+      "multiPartRequirement": false,
+      "applicabilityReason": "No peat soils or tidal wetlands are present; WRC water-table requirements therefore do not apply.",
+      "clientActionAssessment": "Retaining the project-area soil and wetland assessment for validation is proportionate."
+    },
+    {
+      "ruleReference": "R-2-0005",
+      "requirementReviewed": "Proxy areas required for planned deforestation baseline.",
+      "pagesInspected": [18, 19, 37],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Pages 18–19 describe proxy-area analysis and representativeness, but page 37 says proxy-area locations and related maps are still to be produced. The accepted evidence is multi-record and exact, yet the PDD does not demonstrate completed proxy-area documentation; UNCLEAR is correct.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Requesting proxy-area maps and completed analysis directly addresses the stated future deliverable and is not overstated."
+    },
+    {
+      "ruleReference": "R-2-0007",
+      "requirementReviewed": "Pool inclusion/exclusion must be justified. If included in baseline, must also be in project and leakage.",
+      "pagesInspected": [63],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 63 proves only that above-ground tree biomass is mandatory. It does not provide complete inclusion/exclusion decisions, reasons, or baseline/project/leakage consistency for every relevant pool. The accepted evidence is therefore partial and the rejected generic passage is correctly rejected.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Requesting complete pool decisions and consistency evidence is exactly the missing support and is not overstated."
+    },
+    {
+      "ruleReference": "R-3-0001",
+      "requirementReviewed": "VT0001 mandatory. Stepwise approach: list alternatives, barrier/investment analysis, select most plausible.",
+      "pagesInspected": [66, 67],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 66 mentions the stepwise procedures only at a high level. Page 67 states that the baseline and additionality information will be provided during validation. No project-specific alternatives, analysis, or selected most-plausible baseline are shown, so UNCLEAR/ACTION_REQUIRED is required.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Requesting the complete VT0001 analysis and supporting records is supported by the explicit validation-stage deferral."
+    },
+    {
+      "ruleReference": "R-3-0005",
+      "requirementReviewed": "Module selection based on deforestation category.",
+      "pagesInspected": [63],
+      "evidenceCompleteness": "COMPLETE",
+      "finalState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 63 identifies planned deforestation (APD), legally authorized/documented conversion to non-forest land, and the applicable VMD0006 module. The accepted quote directly links category, project activity, and module; the generic additionality passage is correctly rejected.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Retaining the APD/VMD0006 rationale is supported and appropriately limited to the evidence shown."
+    },
+    {
+      "ruleReference": "R-6-0001",
+      "requirementReviewed": "Four mandatory monitoring tasks. Each requires technical description, data list, procedures, QA/QC, archiving, responsibilities.",
+      "pagesInspected": [38, 68],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 38 shows one monitoring activity and some frequency/procedure detail. Page 68 expressly defers the formal monitoring sections to validation. The evidence does not enumerate and operationalize all four tasks with QA/QC, archiving, and responsibilities, so CONFORMS is unsupported.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "Requesting formal parameters and the monitoring plan for validation is supported and not overstated."
+    },
+    {
+      "ruleReference": "R-6-0008",
+      "requirementReviewed": "Uncertainty reduction requirements.",
+      "pagesInspected": [66],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CONFIRMED",
+      "rationale": "Page 66 identifies VMD0017, lists uncertainty sources, and says the project quantifies them, but it does not show project-specific values, calculations, thresholds, confidence/results, conservative assumptions, reduction procedures, source hierarchy, or QA/QC. The corrected requirement semantics and UNCLEAR outcome are supported.",
+      "multiPartRequirement": true,
+      "clientActionAssessment": "The detailed request for project-specific uncertainty calculations, source hierarchy, reduction procedures, and QA/QC tracks the missing mandatory components and is not overstated."
+    }
+  ]
+}
