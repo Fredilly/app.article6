@@ -58,8 +58,8 @@
     "independentAuditCumulative": {
       "rowCount": 28,
       "results": {
-        "CONFIRMED": 20,
-        "CORRECTED": 8,
+      "CONFIRMED": 20,
+      "CORRECTED": 8,
         "INSUFFICIENT_SOURCE_ACCESS": 0
       }
     },
@@ -99,9 +99,9 @@
     "versionReconciliationPending": false,
     "evidenceStateCounts": {
       "FOUND": 4,
-      "UNCLEAR": 12,
+      "UNCLEAR": 11,
       "MISSING": 0,
-      "N/A": 12
+      "N/A": 13
     }
   },
   "productionLogicChanged": false

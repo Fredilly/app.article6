@@ -978,6 +978,50 @@
           "provenanceKind": "manual"
         }
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+        "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+        "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+        "page": 61,
+        "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
     }
   ],
   "rejectedEvidence": [
@@ -1716,7 +1760,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD asserts SIGEF georeferenced non-overlap for all 36 properties, but VM0007 requires defined boundaries and no overlap across applicable baselines; no maps, coordinates or geospatial analysis are preserved to verify the assertion."
+        "correction": "Corrected from UNCLEAR/ACTION_REQUIRED to N/A/NOT_APPLICABLE. Before assessing boundary completeness, the blind audit resolved the conditional trigger: page 12 identifies APD, page 61 selects VMD0006/BL-PL, and page 62 excludes peat and tidal wetlands. No AUDef, degradation, degraded-land, WRC, or other parallel spatial baseline category is identified. The three alternative scenarios are not three spatial baselines."
       }
     },
     {
@@ -1916,16 +1960,16 @@
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-      "finalEvidenceState": "UNCLEAR",
-      "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide maps, polygon coordinates and geospatial records or analysis demonstrating no overlap among all applicable baseline areas and exclusion from other GHG programs; the SIGEF narrative assertion alone is insufficient.",
-      "draftFindingCandidate": "NIR_CANDIDATE"
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "clientAction": "Retain the APD classification, VMD0006/BL-PL selection, and project-area wetland-scope evidence; the multiple-spatial-baseline no-overlap condition is not applicable unless AUDef, degradation, degraded-land, WRC, or another parallel baseline category is added.",
+      "draftFindingCandidate": null
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the actual project strata, project-specific stratification criteria/variables, maps and area totals, carbon-stock differences, and links to the applicable sampling and estimation procedures; the PDD currently describes only a general treatment.",
+      "clientAction": "Provide the actual project strata and project-specific X-STR basis: homogeneous-unit criteria/variables, final stratum map, reconciled area totals, carbon-stock or land-use distinctions, field/remote-sensing validation, and the sampling and estimation linkage required for the strata.",
       "draftFindingCandidate": "NIR_CANDIDATE"
     },
     {
@@ -1946,14 +1990,14 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the VT0001 Sub-step 1b and VM0007 Step 2/3 analysis: the exact three required alternative categories, legal-feasibility checks, barrier or investment analysis, scenario elimination, and evidence for the selected baseline.",
+      "clientAction": "Provide the missing or clearly mapped scenario categories required by VM0007 Section 6.1/VT0001 Sub-step 1b — continuation of pre-project land use, the project activity without VCS registration, and similar project activity on at least part of the land — plus the rule-specific credibility and mandatory-law feasibility treatment supporting any omitted category.",
       "draftFindingCandidate": "NIR_CANDIDATE"
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
-      "clientAction": "Retain project-specific evidence that no peat soils or tidal wetlands and no WRC activity are present; substrate/activity-dependent WRC module selection is not applicable unless that scope changes.",
+      "clientAction": "Retain the APD classification, VMD0006/BL-PL selection, and no-peat/no-tidal project evidence; WRC baseline modules BL-PEAT and BL-TW are not applicable unless peatland or tidal-wetland WRC scope is added.",
       "draftFindingCandidate": null
     }
   ],

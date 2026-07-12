@@ -1933,12 +1933,12 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD asserts SIGEF georeferenced non-overlap for all 36 properties, but VM0007 requires defined boundaries and no overlap across applicable baselines; no maps, coordinates or geospatial analysis are preserved to verify the assertion."
+        "correction": "Corrected from UNCLEAR/ACTION_REQUIRED to N/A/NOT_APPLICABLE. The VM0007 clause begins “Where multiple baselines exist” and therefore requires a conditional applicability check first. Project-specific evidence identifies only APD and the VMD0006/BL-PL baseline pathway; the PDD does not identify AUDef, degradation, degraded-land, WRC, or another parallel spatial baseline category. The three alternative land-use scenarios are not spatial baseline categories."
       },
-      "finalEvidenceState": "UNCLEAR",
-      "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide maps, polygon coordinates and geospatial records or analysis demonstrating no overlap among all applicable baseline areas and exclusion from other GHG programs; the SIGEF narrative assertion alone is insufficient.",
-      "draftFindingCandidate": "NIR_CANDIDATE",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "clientAction": "Retain the APD classification, VMD0006/BL-PL selection, and project-area wetland-scope evidence; the multiple-spatial-baseline no-overlap condition is not applicable unless AUDef, degradation, degraded-land, WRC, or another parallel baseline category is added.",
+      "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     },
     {
@@ -2004,11 +2004,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
-        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD states that strata apply to forest classes under pressure and are shared by baseline/project, but does not define actual project strata, criteria, maps, areas, carbon-stock differences or sampling links."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED under the exact VMD0016 X-STR requirement. The PDD says strata apply to forest classes under pressure and are the same in baseline/project, but does not provide actual project strata, project-specific criteria, homogeneous-unit basis, maps, reconciled areas, carbon-stock or land-use distinctions, or sampling/estimation linkage."
       },
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the actual project strata, project-specific stratification criteria/variables, maps and area totals, carbon-stock differences, and links to the applicable sampling and estimation procedures; the PDD currently describes only a general treatment.",
+      "clientAction": "Provide the actual project strata and project-specific X-STR basis: homogeneous-unit criteria/variables, final stratum map, reconciled area totals, carbon-stock or land-use distinctions, field/remote-sensing validation, and the sampling and estimation linkage required for the strata.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -2037,17 +2037,17 @@
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
           "quote": "The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module.",
-        "page": 63,
+          "page": 63,
           "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
-        "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
+          "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
           "provenance": {
             "docId": "quick-check-review-question",
-          "page": 63,
+            "page": 63,
             "sectionPath": [
               "3 CLIMATE",
               "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
             ],
-          "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
+            "spanId": "manual:marcondes-pdd:page-63:r-2-0008",
             "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
             "sourceType": "PDD",
             "provenanceKind": "manual"
@@ -2255,11 +2255,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. VM0007 Section 6.1 requires the three specific VT0001 scenario categories and further baseline determination steps; the PDD’s three named scenarios do not match those required categories and do not evidence the VT0001 analysis or baseline selection."
+        "correction": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED for the minimum alternative-scenario list only. The PDD lists three scenarios, but they do not match the exact required categories: continuation of pre-project land use, project activity without VCS registration, and similar project activity on at least part of the land. The rule also permits omission only when a scenario is shown not credible or legally non-compliant; no barrier analysis, investment analysis, or final baseline selection is assessed here."
       },
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the VT0001 Sub-step 1b and VM0007 Step 2/3 analysis: the exact three required alternative categories, legal-feasibility checks, barrier or investment analysis, scenario elimination, and evidence for the selected baseline.",
+      "clientAction": "Provide the missing or clearly mapped scenario categories required by VM0007 Section 6.1/VT0001 Sub-step 1b — continuation of pre-project land use, the project activity without VCS registration, and similar project activity on at least part of the land — plus the rule-specific credibility and mandatory-law feasibility treatment supporting any omitted category.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -2303,6 +2303,44 @@
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+          "page": 12,
+          "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 12,
+            "sectionPath": [
+              "2 PROJECT DETAILS",
+              "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+            ],
+            "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+            "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+          "page": 61,
+          "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 61,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied"
+            ],
+            "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+            "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
         }
       ],
       "rejectedEvidence": [
@@ -2326,20 +2364,20 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
-        "correction": "The blind audit confirms N/A/NOT_APPLICABLE. The substrate/activity-dependent WRC module-selection trigger is absent because page 62 states that no peat soils or tidal wetlands are present and the project is APD REDD."
+        "correction": "The blind audit confirms N/A/NOT_APPLICABLE under the WRC baseline-module selection requirement. Pages 12 and 61 identify APD with VMD0006/BL-PL; page 62 states that no peat soils or tidal wetlands are present. The WRC baseline-module pathway is therefore absent."
       },
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
-      "clientAction": "Retain project-specific evidence that no peat soils or tidal wetlands and no WRC activity are present; substrate/activity-dependent WRC module selection is not applicable unless that scope changes.",
+      "clientAction": "Retain the APD classification, VMD0006/BL-PL selection, and no-peat/no-tidal project evidence; WRC baseline modules BL-PEAT and BL-TW are not applicable unless peatland or tidal-wetland WRC scope is added.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     }
   ],
   "counts": {
     "FOUND": 4,
-    "UNCLEAR": 12,
+    "UNCLEAR": 11,
     "MISSING": 0,
-    "N/A": 12
+    "N/A": 13
   },
   "goldPromotionBlocked": true,
   "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE"

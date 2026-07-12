@@ -152,7 +152,7 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     }
 
     const notApplicableIds = reviewedRuleIds.filter((ruleId) => goldByRule.get(ruleId)!.finalEvidenceState === "N/A");
-    expect(notApplicableIds).toHaveLength(12);
+    expect(notApplicableIds).toHaveLength(13);
     for (const ruleId of notApplicableIds) {
       expect(goldByRule.get(ruleId)!.acceptedEvidence.length).toBeGreaterThan(0);
       expect(byRule.get(ruleId)?.evidence?.every((record) => record.page !== null && record.section && record.span)).toBe(true);

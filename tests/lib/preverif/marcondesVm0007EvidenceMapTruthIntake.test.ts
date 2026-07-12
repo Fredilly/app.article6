@@ -19,7 +19,7 @@ const expectedPages: Record<string, Array<number>> = {
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [12, 61, 63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [63, 64], "R-2-0016": [62],
-  "R-3-0002": [41, 42], "R-3-0006": [62]
+  "R-3-0002": [41, 42], "R-3-0006": [12, 61, 62]
 };
 
 describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
@@ -122,6 +122,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       expect(auditRow.finalState).toBe(goldRow.finalEvidenceState);
       expect(auditRow.reviewerOutcome).toBe(goldRow.reviewerOutcome);
       for (const page of auditRow.pagesInspected) expect(sourcePages.has(page)).toBe(true);
+      for (const evidence of auditRow.projectEvidence ?? []) expect(auditRow.pagesInspected).toContain(evidence.page);
       for (const evidence of goldRow.acceptedEvidence) {
         expect(sourcePages.has(evidence.page)).toBe(true);
         expect((sourcePages.get(evidence.page) ?? "").replace(/\s+/g, " ").trim()).toContain(evidence.quote.replace(/\s+/g, " ").trim());
@@ -153,7 +154,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(finalAudit.filter((row: any) => row.auditResult === "CORRECTED")).toHaveLength(4);
     expect(finalAudit.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
     for (const row of finalAudit) {
-      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: "VM0007 v1.8", version: "v1.8", section: expect.any(String), methodologyPage: expect.any(Number), officialRequirementQuote: expect.any(String) }));
+      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: "VM0007 v1.8", version: expect.any(String), section: expect.any(String), methodologyPage: expect.any(Number), officialRequirementQuote: expect.any(String) }));
       expect(row.pagesInspected.length).toBeGreaterThan(0);
       if (row.finalState === "N/A") {
         expect(row.applicabilityTrigger).toBeTruthy();
@@ -166,6 +167,20 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(row.clientActionAssessment).toMatch(/provide|retain/i);
       }
     }
+    const r20002Audit = finalAudit.find((row: any) => row.ruleReference === "R-2-0002")!;
+    expect(r20002Audit).toEqual(expect.objectContaining({ finalState: "N/A", reviewerOutcome: "NOT_APPLICABLE", auditResult: "CORRECTED", evidenceCompleteness: "NOT_APPLICABLE" }));
+    expect(r20002Audit.applicabilityTrigger).toMatch(/Where multiple baselines exist/);
+    expect(r20002Audit.applicabilityReason).toMatch(/Only the APD\/BL-PL/);
+    const r20006Audit = finalAudit.find((row: any) => row.ruleReference === "R-2-0006")!;
+    expect(r20006Audit.requirementReviewed).toMatch(/stratif|homogeneous|X-STR/i);
+    expect(r20006Audit.methodologyTraceability.section).toMatch(/X-STR/);
+    expect(r20006Audit.methodologyTraceability.officialRequirementQuote).not.toMatch(/spatial boundaries of a project must be clearly defined/i);
+    const r30006Audit = finalAudit.find((row: any) => row.ruleReference === "R-3-0006")!;
+    expect(r30006Audit.requirementReviewed).toMatch(/BL-UP|BL-PL|BL-PEAT|BL-TW/);
+    expect(r30006Audit.methodologyTraceability.officialRequirementQuote).toMatch(/baseline modules/);
+    expect(r30006Audit.methodologyTraceability.officialRequirementQuote).not.toMatch(/lower the water table/i);
+    const r30002 = goldByRule.get("R-3-0002")!;
+    expect(r30002.clientAction).not.toMatch(/barrier analysis|investment analysis|final baseline selection/i);
     const source = rawDocument.pages.map((page: any) => page.text).join("\n");
     const normalizeAudit = (value: string) => value.replace(/\s+/g, " ").trim();
     const r1 = goldByRule.get("R-1-0001");
@@ -205,7 +220,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       return counts;
     }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
     expect(gold.counts).toEqual(calculatedCounts);
-    expect(calculatedCounts).toEqual({ FOUND: 4, UNCLEAR: 12, MISSING: 0, "N/A": 12 });
+    expect(calculatedCounts).toEqual({ FOUND: 4, UNCLEAR: 11, MISSING: 0, "N/A": 13 });
   });
 
   it("keeps all 28 reviewed rows and excludes the remaining 30", () => {
@@ -213,7 +228,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(finalEight.every((id) => byRule.has(id))).toBe(true);
     expect(finalEight.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
-      ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0006", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
+      ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0002", "N/A", "NOT_APPLICABLE"], ["R-2-0006", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
     ]);
     expect(gold.rows.some((row: any) => row.ruleReference === "R-4-0001")).toBe(false);
     expect(gold.rows).toHaveLength(28);
@@ -251,7 +266,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(scenarioQuotes).toContain("SCENARIO 2:");
     expect(scenarioQuotes).toContain("SCENARIO 3:");
     const finalEightStates: Record<string, [string, string]> = {
-      "R-1-0015": ["FOUND", "CONFORMS"], "R-2-0001": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0002": ["UNCLEAR", "ACTION_REQUIRED"],
+      "R-1-0015": ["FOUND", "CONFORMS"], "R-2-0001": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0002": ["N/A", "NOT_APPLICABLE"],
       "R-2-0006": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0008": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0016": ["N/A", "NOT_APPLICABLE"],
       "R-3-0002": ["UNCLEAR", "ACTION_REQUIRED"], "R-3-0006": ["N/A", "NOT_APPLICABLE"]
     };

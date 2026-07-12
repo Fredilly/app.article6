@@ -415,34 +415,91 @@
       "ruleReference": "R-2-0002",
       "requirementReviewed": "Where multiple baselines exist (e.g., planned deforestation, unplanned deforestation, forest degradation, degraded land) there must be no overlap in boundaries between areas appropriate to each of the baselines.",
       "pagesInspected": [
-        22
+        12,
+        22,
+        61,
+        62
       ],
-      "evidenceCompleteness": "INCOMPLETE",
-      "finalState": "UNCLEAR",
-      "reviewerOutcome": "ACTION_REQUIRED",
+      "evidenceCompleteness": "NOT_APPLICABLE",
+      "finalState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "auditResult": "CORRECTED",
-      "rationale": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD asserts SIGEF georeferenced non-overlap for all 36 properties, but VM0007 requires defined boundaries and no overlap across applicable baselines; no maps, coordinates or geospatial analysis are preserved to verify the assertion.",
-      "multiPartRequirement": true,
+      "rationale": "The clause is conditional on multiple spatial baseline categories existing. Pages 12 and 61 identify the project as APD with VMD0006/BL-PL as the selected baseline pathway; page 62 states there are no peat soils or tidal wetlands. The PDD identifies no AUDef, degradation, degraded-land, WRC, or other parallel spatial baseline category. The three alternative land-use scenarios are not spatial baselines, so the no-overlap condition is not applicable.",
+      "multiPartRequirement": false,
       "methodologyTraceability": {
         "methodology": "VM0007 v1.8",
         "version": "v1.8",
-        "section": "5.1.1 General",
+        "section": "5.1.1 General — conditional multiple-baseline rule",
         "methodologyPage": 19,
         "sourceUrl": "https://verra.org/documents/vm0007-redd-methodology-framework-v1-8-clean/",
         "officialRequirementQuote": "Where multiple baselines exist (e.g., planned deforestation, unplanned deforestation, forest degradation, degraded land) there must be no overlap in boundaries between areas appropriate to each of the baselines."
       },
       "projectEvidence": [
         {
-          "quote": "All 36 project properties are registered in the SIGEF system (Sistema de Gestão Fundiária) managed by INCRA, providing legally recognized, georeferenced, non-overlapping property boundaries.",
-          "page": 22,
-          "section": "2.1.9 Project Ownership"
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+          "page": 12,
+          "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 12,
+            "sectionPath": [
+              "3 CLIMATE",
+              "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+            ],
+            "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+            "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+          "page": 61,
+          "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 61,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied"
+            ],
+            "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+            "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-3-0006",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
         }
       ],
-      "clientActionAssessment": "Provide maps, polygon coordinates and geospatial records or analysis demonstrating no overlap among all applicable baseline areas and exclusion from other GHG programs; the SIGEF narrative assertion alone is insufficient."
+      "clientActionAssessment": "Applicability is resolved before evidence sufficiency: retain the APD/BL-PL classification and wetland-scope evidence; do not request no-overlap analysis unless another spatial baseline category is introduced.",
+      "applicabilityTrigger": "Where multiple baselines exist (e.g., planned deforestation, unplanned deforestation, forest degradation, degraded land) there must be no overlap in boundaries between areas appropriate to each of the baselines.",
+      "applicabilityReason": "Only the APD/BL-PL spatial baseline pathway is identified; no AUDef, degradation, degraded-land, WRC, or other parallel baseline category is evidenced."
     },
     {
       "ruleReference": "R-2-0006",
-      "requirementReviewed": "The spatial boundaries of a project must be clearly defined to facilitate accurate measuring, monitoring, accounting, and verification of the project’s emissions reductions and removals.",
+      "requirementReviewed": "VMD0016 X-STR provides guidance on stratifying the project area into discrete, relatively homogeneous units to improve accuracy and precision of carbon-stock, carbon-stock-change, and GHG-emission estimates. For REDD, aboveground-biomass strata are used for pre-deforestation forest classes, are the same in the baseline and project scenario, and the final stratum delineation map and reconciled areas must be included in the PD.",
       "pagesInspected": [
         65
       ],
@@ -450,15 +507,17 @@
       "finalState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
       "auditResult": "CORRECTED",
-      "rationale": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. The PDD states that strata apply to forest classes under pressure and are shared by baseline/project, but does not define actual project strata, criteria, maps, areas, carbon-stock differences or sampling links.",
+      "rationale": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED under VMD0016 X-STR. The page-65 PDD text supplies only a general statement that strata apply to forest classes under pressure and are shared by baseline/project. It does not show actual project strata, project-specific homogeneous-unit criteria, maps, reconciled areas, carbon-stock or land-use distinctions, validation, or sampling/estimation linkage.",
       "multiPartRequirement": true,
       "methodologyTraceability": {
         "methodology": "VM0007 v1.8",
-        "version": "v1.8",
-        "section": "5.1.1 General; VMD0016 X-STR",
-        "methodologyPage": 18,
-        "sourceUrl": "https://verra.org/documents/vm0007-redd-methodology-framework-v1-8-clean/",
-        "officialRequirementQuote": "The spatial boundaries of a project must be clearly defined to facilitate accurate measuring, monitoring, accounting, and verification of the project’s emissions reductions and removals."
+        "version": "v1.2",
+        "section": "VMD0016 X-STR §§2, 4, 5, 5.1",
+        "methodologyPage": 5,
+        "sourceUrl": "https://verra.org/documents/vmd0016-methods-for-stratification-of-the-project-area-x-str-v1-2/",
+        "module": "VMD0016 X-STR",
+        "moduleVersion": "v1.2",
+        "officialRequirementQuote": "This module provides guidance on stratifying the project area into discrete, relatively homogeneous units to improve accuracy and precision of carbon stock, carbon stock change and GHG emission estimates. In case of REDD, aboveground biomass stratification is only used for pre-deforestation forest classes, and strata are the same in the baseline and the project scenario. A map displaying the final delineation of strata must be included in the project description. Areas of individual strata naturally sum to the total project area; any discrepancies must be reconciled."
       },
       "projectEvidence": [
         {
@@ -467,12 +526,13 @@
           "section": "3.1.2 Applicability of Methodology, Table 31"
         }
       ],
-      "clientActionAssessment": "Provide the actual project strata, project-specific stratification criteria/variables, maps and area totals, carbon-stock differences, and links to the applicable sampling and estimation procedures; the PDD currently describes only a general treatment."
+      "clientActionAssessment": "Provide the actual project strata and project-specific X-STR basis: homogeneous-unit criteria/variables, final stratum map, reconciled area totals, carbon-stock or land-use distinctions, field/remote-sensing validation, and the sampling and estimation linkage required for the strata."
     },
     {
       "ruleReference": "R-2-0008",
       "requirementReviewed": "Harvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting. Where the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant.",
       "pagesInspected": [
+        63,
         64
       ],
       "evidenceCompleteness": "INCOMPLETE",
@@ -492,7 +552,7 @@
       "projectEvidence": [
         {
           "quote": "The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module.",
-        "page": 63,
+          "page": 63,
           "section": "3.1.2 Applicability of Methodology, Table 31"
         },
         {
@@ -545,7 +605,7 @@
       "finalState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
       "auditResult": "CORRECTED",
-      "rationale": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED. VM0007 Section 6.1 requires the three specific VT0001 scenario categories and further baseline determination steps; the PDD’s three named scenarios do not match those required categories and do not evidence the VT0001 analysis or baseline selection.",
+      "rationale": "Corrected from FOUND/CONFORMS to UNCLEAR/ACTION_REQUIRED for the minimum alternative-scenario list only. VM0007 Section 6.1 requires the three exact categories and permits omission only when a category is shown not credible or non-compliant with mandatory law. The PDD’s three named scenarios do not map clearly to those categories. Barrier analysis, investment analysis, and final baseline selection are outside this row.",
       "multiPartRequirement": true,
       "methodologyTraceability": {
         "methodology": "VM0007 v1.8",
@@ -572,38 +632,92 @@
           "section": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project"
         }
       ],
-      "clientActionAssessment": "Provide the VT0001 Sub-step 1b and VM0007 Step 2/3 analysis: the exact three required alternative categories, legal-feasibility checks, barrier or investment analysis, scenario elimination, and evidence for the selected baseline."
+      "clientActionAssessment": "Provide the missing or clearly mapped scenario categories required by VM0007 Section 6.1/VT0001 Sub-step 1b — continuation of pre-project land use, the project activity without VCS registration, and similar project activity on at least part of the land — plus the rule-specific credibility and mandatory-law feasibility treatment supporting any omitted category."
     },
     {
       "ruleReference": "R-3-0006",
-      "requirementReviewed": "WRC activities are not eligible under the following conditions: 8) Project activities lower the water table, unless the project converts open water to tidal wetlands, or improves the hydrological connection to impounded waters.",
+      "requirementReviewed": "The relevant baseline modules — BL-UP for avoiding unplanned deforestation or wetland degradation, BL-PL for avoiding planned deforestation, planned degradation, or planned wetland degradation, BL-PEAT for peatland, and BL-TW for tidal wetland — must be applied with their relevant applicability conditions and criteria.",
       "pagesInspected": [
+        12,
+        61,
         62
       ],
       "evidenceCompleteness": "NOT_APPLICABLE",
       "finalState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
       "auditResult": "CONFIRMED",
-      "rationale": "The blind audit confirms N/A/NOT_APPLICABLE. The substrate/activity-dependent WRC module-selection trigger is absent because page 62 states that no peat soils or tidal wetlands are present and the project is APD REDD.",
+      "rationale": "The WRC baseline-module rule applies when the project activity and wetland conditions trigger a WRC baseline pathway. Pages 12 and 61 identify APD and VMD0006/BL-PL, while page 62 states that no peat soils or tidal wetlands are present. No WRC activity or WRC baseline-module pathway is evidenced, so BL-PEAT/BL-TW selection is not applicable.",
       "multiPartRequirement": false,
       "methodologyTraceability": {
         "methodology": "VM0007 v1.8",
         "version": "v1.8",
-        "section": "4.3 WRC; 4.3.2 RWE Project Activities",
-        "methodologyPage": 15,
+        "section": "Identification of the VCS-eligible Activity(ies), Tables 1–3",
+        "methodologyPage": 7,
         "sourceUrl": "https://verra.org/documents/vm0007-redd-methodology-framework-v1-8-clean/",
-        "officialRequirementQuote": "WRC activities are not eligible under the following conditions: 8) Project activities lower the water table, unless the project converts open water to tidal wetlands, or improves the hydrological connection to impounded waters."
+        "officialRequirementQuote": "Ultimately, the relevant baseline modules (BL-UP – avoiding unplanned deforestation or wetland degradation; BL-PL – avoiding planned deforestation, planned degradation, or planned wetland degradation; BL-PEAT – peatland and BL-TW – tidal wetland) must be applied with relevant applicability conditions and criteria."
       },
       "projectEvidence": [
         {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+          "page": 12,
+          "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 12,
+            "sectionPath": [
+              "3 CLIMATE",
+              "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+            ],
+            "spanId": "manual:marcondes-pdd:page-12:r-3-0006",
+            "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+          "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+          "page": 61,
+          "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 61,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied"
+            ],
+            "spanId": "manual:marcondes-pdd:page-61:r-3-0006",
+            "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
           "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
           "page": 62,
-          "section": "3.1.2 Applicability of Methodology, Table 31"
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-3-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-3-0006",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
         }
       ],
-      "clientActionAssessment": "Retain project-specific evidence that no peat soils or tidal wetlands and no WRC activity are present; substrate/activity-dependent WRC module selection is not applicable unless that scope changes.",
-      "applicabilityTrigger": "WRC activities are not eligible under the following conditions: 8) Project activities lower the water table, unless the project converts open water to tidal wetlands, or improves the hydrological connection to impounded waters.",
-      "applicabilityReason": "No peat soils or tidal wetlands and no WRC activity are present, so the substrate/activity-dependent WRC module-selection trigger is absent."
+      "clientActionAssessment": "Retain the APD classification, VMD0006/BL-PL selection, and no-peat/no-tidal project evidence; WRC baseline modules BL-PEAT and BL-TW are not applicable unless peatland or tidal-wetland WRC scope is added.",
+      "applicabilityTrigger": "Ultimately, the relevant baseline modules (BL-UP – avoiding unplanned deforestation or wetland degradation; BL-PL – avoiding planned deforestation, planned degradation, or planned wetland degradation; BL-PEAT – peatland and BL-TW – tidal wetland) must be applied with relevant applicability conditions and criteria.",
+      "applicabilityReason": "The project is APD REDD with VMD0006/BL-PL selected; no peat soils, tidal wetlands, WRC activity, or WRC baseline-module pathway is present."
     }
   ]
 }
