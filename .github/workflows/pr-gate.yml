@@ -18,43 +18,70 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Determine PR scope
+        id: scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          changed_files="$(git diff --name-only --no-renames "$base" "$head")"
+          printf '%s\n' "$changed_files" | node scripts/pr-gate-scope.cjs --print
+          mode="$(printf '%s\n' "$changed_files" | node scripts/pr-gate-scope.cjs --mode)"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
       - name: Install
         run: npm ci
 
+      - name: Docs-only fast gate
+        if: steps.scope.outputs.mode == 'docs-only'
+        run: npm run check:docs-layout && npm run roadmap:validate && npm run roadmap:validate-evidence && npm run roadmap:check && git diff --check
+
       - name: Fetch methodology pack data
+        if: steps.scope.outputs.mode == 'full'
         run: npm run fetch:methodologies-pack
 
       - name: Validate roadmap SSOT
+        if: steps.scope.outputs.mode == 'full'
         run: npm run roadmap:validate
 
       - name: Enforce app vs methodologies boundary
+        if: steps.scope.outputs.mode == 'full'
         run: npm run guard:methodology-boundary
 
       - name: CI
+        if: steps.scope.outputs.mode == 'full'
         run: npm run ci
 
       - name: Strict eval corpus gate
+        if: steps.scope.outputs.mode == 'full'
         run: npm run quickcheck:eval:corpus -- --strict
 
       - name: Build verify run summary
+        if: steps.scope.outputs.mode == 'full'
         run: node scripts/ci-verify-run-summary.mjs
 
       - name: Compute coverage report
+        if: steps.scope.outputs.mode == 'full'
         run: npm run ci:coverage
 
       - name: Enforce coverage ratchet
+        if: steps.scope.outputs.mode == 'full'
         run: npm run ci:ratchet
 
       - name: Resolve evidence links
+        if: steps.scope.outputs.mode == 'full'
         run: npm run ci:links
 
       - name: Upload verify run summary
+        if: steps.scope.outputs.mode == 'full'
         uses: actions/upload-artifact@v4
         with:
           name: verify-ci-run-summary
           path: artifacts/verify/ci-run-summary.json
 
       - name: Upload CI gate artifacts
+        if: steps.scope.outputs.mode == 'full'
         uses: actions/upload-artifact@v4
         with:
           name: ci-gate-artifacts
