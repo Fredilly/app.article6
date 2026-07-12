@@ -9,7 +9,7 @@ import { PRESENTATION_CONTRACT_VERSION } from "@/lib/evidence/reportPresentation
 import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 import { finalizeQuickCheckEvidenceMapForReadiness } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import { clearQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
-import type { ProjectEvidenceMapAssessment, ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
+import { isProjectEvidenceMapAssessment, type ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
 import {
   loadVm0007EvidenceMapDraft,
   normalizeVm0007EvidenceMapDraftPackage,
@@ -41,6 +41,13 @@ function reviewerRef(value: string): string { return value.trim(); }
 function rowFor(pkg: Vm0007EvidenceMapDraftPackage, rowId: string): Vm0007EvidenceMapDraftRow | null {
   return pkg.rows.find((row) => row.rowId === rowId) ?? null;
 }
+function currentAssessment(row: Vm0007EvidenceMapDraftRow): boolean {
+  return row.assessment !== undefined &&
+    isProjectEvidenceMapAssessment(row.assessment) &&
+    row.assessment.evidenceMapRowId === row.rowId &&
+    row.assessment.rowVersion === (row.rowVersion ?? 1) &&
+    row.assessment.reviewState === "CURRENT";
+}
 function eventFor(input: { reviewerIdentity: string; currentState: ReviewerWorkflowState; nextState: ReviewerWorkflowState; note: string; timestamp?: string }): ReviewerWorkflowEvent | null {
   const event: ReviewerWorkflowEvent = {
     reviewerIdentity: reviewerRef(input.reviewerIdentity),
@@ -61,22 +68,33 @@ function applyTransition(pkgInput: Vm0007EvidenceMapDraftPackage, rowId: string,
   if (!reviewerRef(input.reviewerIdentity) || !input.note.trim()) return { ok: false, reason: "reviewer-metadata-required" };
   const nextState = ({ approve: "approved", edit: "edited", reopen: "reopened" } as const)[input.action];
   if (!reviewerWorkflowActions(current.reviewState!).includes(input.action)) return { ok: false, reason: "unsupported-transition" };
+  if (input.action === "approve" && !currentAssessment(current)) return { ok: false, reason: "canonical-assessment-required-or-stale" };
   const event = eventFor({ reviewerIdentity: input.reviewerIdentity, currentState: current.reviewState!, nextState, note: input.note, timestamp: input.timestamp });
   if (!event) return { ok: false, reason: "reviewer-metadata-required" };
   const transition = transitionReviewerWorkflow(current.reviewState!, current.reviewHistory, event);
   if (!transition.accepted) return { ok: false, reason: transition.reason };
-  const changed = input.action === "edit" && input.edit ? { ...current, ...input.edit } : current;
+  const nextRowVersion = input.action === "approve" ? (current.rowVersion ?? 1) : (current.rowVersion ?? 1) + 1;
+  const assessmentAffectsValidity = input.action === "edit" && input.edit !== undefined;
+  const replacementAssessment = input.edit?.assessment;
+  const changed = input.action === "edit" && input.edit ? {
+    ...current,
+    ...input.edit,
+    assessment: replacementAssessment ? { ...replacementAssessment, evidenceMapRowId: rowId, rowVersion: nextRowVersion } : (assessmentAffectsValidity ? undefined : current.assessment),
+  } : current;
   const updatedRow: Vm0007EvidenceMapDraftRow = {
     ...changed,
     reviewState: transition.state,
     reviewHistory: transition.history,
-    rowVersion: (current.rowVersion ?? 1) + 1,
+    rowVersion: nextRowVersion,
     finalizationState: "draft",
     finalizationActorRef: null,
     finalizedAt: null,
     finalizationBasis: null,
     reviewHistoryRef: `${pkg.auditId}:${rowId}:history:${transition.history.length}`,
   };
+  if (input.action === "reopen" && current.assessment) {
+    updatedRow.assessment = { ...current.assessment, reviewState: "REOPENED", rowVersion: nextRowVersion };
+  }
   const updated: Vm0007EvidenceMapDraftPackage = {
     ...pkg,
     finalizationState: "draft",
@@ -95,6 +113,12 @@ export function approveVm0007EvidenceMapRow(pkg: Vm0007EvidenceMapDraftPackage, 
 }
 
 export function editVm0007EvidenceMapRow(pkg: Vm0007EvidenceMapDraftPackage, rowId: string, edit: Vm0007EvidenceMapEdit, reviewerIdentity: string, note = "Evidence Map row edited.", timestamp?: string): Vm0007ReviewResult {
+  const current = rowFor(normalizeVm0007EvidenceMapDraftPackage(pkg), rowId);
+  if (current?.reviewState === "edited" && edit.assessment) {
+    const reopened = applyTransition(pkg, rowId, { reviewerIdentity, action: "reopen", note: "Reopened to replace the invalidated assessment.", timestamp });
+    if (!reopened.ok) return reopened;
+    return applyTransition(reopened.package, rowId, { reviewerIdentity, action: "edit", edit, note, timestamp });
+  }
   return applyTransition(pkg, rowId, { reviewerIdentity, action: "edit", edit, note, timestamp });
 }
 
@@ -136,12 +160,12 @@ export function finalizeVm0007EvidenceMap(pkgInput: Vm0007EvidenceMapDraftPackag
   if (pkg.blockedBy.length) blockedBy.push(...pkg.blockedBy);
   if (pkg.rows.some((row) => row.reviewState !== "approved")) blockedBy.push("one or more rows are not approved");
   if (pkg.rows.some((row) => !row.reviewHistory?.length || !row.reviewHistory.every((event) => validateReviewerWorkflowEvent(event).complete))) blockedBy.push("required review history is missing or invalid");
-  if (pkg.rows.some((row) => !row.assessment)) blockedBy.push("canonical assessment is missing");
+  if (pkg.rows.some((row) => !currentAssessment(row))) blockedBy.push("canonical assessment is missing, invalid, stale, or unresolved");
   if (blockedBy.length) return { ok: false, package: pkg, blockedBy: Array.from(new Set(blockedBy)) };
   const finalizedRows = pkg.rows.map((row) => ({ ...row, finalizationState: "finalized" as const, finalizationActorRef: reviewerRef(reviewerIdentity), finalizedAt: timestamp, finalizationBasis: "Reviewer-approved Evidence Map finalization.", reviewHistoryRef: row.reviewHistoryRef || `${pkg.auditId}:${row.rowId}:history` }));
   const rows = finalizedRows.map((row) => toEvidenceMapRow(row, timestamp, reviewerRef(reviewerIdentity)));
   const assessments = finalizedRows.map((row) => row.assessment);
-  const pipeline = finalizeQuickCheckEvidenceMapForReadiness({ auditId: pkg.auditId, auditGeneratedAt: pkg.generatedAt, rows, assessments: assessments as ProjectEvidenceMapAssessment[] });
+  const pipeline = finalizeQuickCheckEvidenceMapForReadiness({ auditId: pkg.auditId, auditGeneratedAt: pkg.generatedAt, rows, assessments: assessments as NonNullable<typeof assessments[number]>[] });
   if (!pipeline.ready) return { ok: false, package: pkg, blockedBy: pipeline.blockedBy.map((entry) => entry.detail ? `${entry.category}: ${entry.detail}` : entry.category), pipeline };
   if (!pipeline.gateResult.releaseReady) {
     clearQuickCheckReadinessPayload(pkg.auditId);

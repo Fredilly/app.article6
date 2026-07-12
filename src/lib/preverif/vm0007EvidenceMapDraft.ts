@@ -15,6 +15,8 @@ import { normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 import type { ReviewerWorkflowEvent, ReviewerWorkflowState } from "@/lib/evidence/readinessReport";
 import type { ProjectEvidenceMapAssessment } from "@/lib/evidence/projectReadinessProductionPipeline";
 
+export type Vm0007PersistedEvidenceMapAssessment = ProjectEvidenceMapAssessment & Readonly<{ rowVersion: number }>;
+
 export const VM0007_EVIDENCE_MAP_DRAFT_CONTRACT_VERSION = "vm0007-evidence-map-draft-v1";
 export const VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE = "MACHINE_PROPOSED" as const;
 
@@ -55,7 +57,7 @@ export type Vm0007EvidenceMapDraftRow = {
   finalizedAt?: string | null;
   finalizationBasis?: string | null;
   reviewHistoryRef?: string | null;
-  assessment?: ProjectEvidenceMapAssessment;
+  assessment?: Vm0007PersistedEvidenceMapAssessment;
   proposalSource: "VM0007_QUICK_CHECK_AUDIT";
   proposalTimestamp: string;
 };

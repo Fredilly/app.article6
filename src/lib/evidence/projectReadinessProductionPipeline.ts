@@ -203,7 +203,7 @@ function isTextOrNull(value: unknown): value is string | null {
   return value === null || typeof value === "string";
 }
 
-function isProjectEvidenceMapAssessment(value: unknown): value is ProjectEvidenceMapAssessment {
+export function isProjectEvidenceMapAssessment(value: unknown): value is ProjectEvidenceMapAssessment {
   if (!isRecord(value) || typeof value.evidenceMapRowId !== "string" || !value.evidenceMapRowId || value.evidenceMapRowId.trim() !== value.evidenceMapRowId) return false;
   if (!isReviewState(value.reviewState)) return false;
   if (!isRecord(value.applicability) || !["APPLICABLE", "NOT_APPLICABLE", "NOT_EVALUATED"].includes(value.applicability.decision as string) || !isTextOrNull(value.applicability.decisionBasis)) return false;
