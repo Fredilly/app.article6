@@ -4366,9 +4366,9 @@
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "VMD0017 v2.2 is identified and the uncertainty sources are enumerated, but the PDD does not demonstrate project-specific uncertainty values, calculations, thresholds, confidence results, deductions, conservative assumptions, or uncertainty-reduction procedures.",
-      "gap": "No project-specific uncertainty values, calculations, thresholds, confidence results, deductions, conservative assumptions, or reduction procedures are demonstrated.",
-      "clientAction": "Provide project-specific uncertainty calculations, the values for each uncertainty source, applicable thresholds, deduction or adjustment calculations, justification for conservative assumptions or any 0% uncertainty treatment, and uncertainty-reduction procedures.",
+      "assessmentReason": "VMD0017 v2.2 is identified and the uncertainty sources are enumerated, but the PDD does not demonstrate project-specific uncertainty values, calculations, applicable thresholds, confidence level or results, deductions, conservative assumptions, or uncertainty-reduction procedures. It also does not demonstrate identification of key parameters, use of local data where possible, a source hierarchy using peer-reviewed literature, national/IPCC data, or documented expert judgment, or QA/QC procedures.",
+      "gap": "No project-specific uncertainty values, calculations, applicable thresholds, confidence level or results, deductions, conservative assumptions, reduction procedures, key-parameter identification, local-data use, documented source hierarchy, or QA/QC procedures are demonstrated.",
+      "clientAction": "Provide project-specific uncertainty calculations, the values for each uncertainty source, applicable thresholds, confidence level and results, deduction or adjustment calculations, justification for conservative assumptions or any 0% uncertainty treatment, and uncertainty-reduction procedures; identify key parameters, use local data where possible, document the source hierarchy using peer-reviewed literature, national/IPCC data, or documented expert judgment, and provide QA/QC procedures.",
       "confidence": "high",
       "searchCoverage": {
         "searched": true,

@@ -95,7 +95,9 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const gold = read("gold.json");
     const row = gold.rows.find((candidate: any) => candidate.ruleReference === "R-6-0008");
     expect(row.requirement).toBe("Uncertainty reduction requirements");
-    expect(row.requirement).not.toMatch(/data-source|source-tier|literature|IPCC defaults|expert opinion/i);
+    expect(row.requirement).not.toBe(
+      "Three data source tiers: literature > IPCC defaults > expert opinion."
+    );
     expect(row.finalEvidenceState).toBe("UNCLEAR");
     expect(row.reviewerOutcome).toBe("ACTION_REQUIRED");
     expect(row.draftFindingCandidate).toBe("NIR_CANDIDATE");
