@@ -9,7 +9,7 @@
       "Phases 3–4 blocked/quarantined: Envira full-audit and report material is legacy REDD-MF / VM0007 v1.5 mismatch regression data, not VM0007 v1.8 truth.",
       "Phase 5 complete: the internal-preview/client-readiness boundary and legacy-fixture quarantine are documented.",
       "Phase 6 active: define and enforce the two-PR truth-intake and generic-system-improvement learning contract.",
-      "Phase 7 planned: begin Maya Forest Corridor REDD Belize VM0007 v1.8 Evidence Map truth intake."
+      "Phase 7 planned: begin Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake with an explicit internal v1.7/v1.8 discrepancy."
     ],
     "not_active_now": [
       "Production logic changes in truth-intake PRs",
@@ -119,12 +119,12 @@
       ]
     },
     {
-      "id": "phase_7_maya_vm0007_v1_8_evidence_map_truth_intake",
-      "title": "Maya VM0007 v1.8 Evidence Map Truth Intake",
+      "id": "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake",
+      "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
       "status": "planned",
       "dependsOn": ["phase_6_evidence_map_learning_contract"],
       "doneCriteria": [
-        "Maya Forest Corridor REDD Belize is validated as a clean VM0007 v1.8 full Evidence Map learning case",
+        "Marcondes REDD+ is validated as a forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy",
         "Raw 58-row machine output is preserved",
         "Partial coverage uses reviewedRuleIds or an equivalent explicit mechanism",
         "Reviewed truth, corrections, provenance, reviewer notes, and REVIEW.md are stored",
@@ -133,23 +133,23 @@
       ]
     },
     {
-      "id": "phase_8_maya_generic_system_improvement",
-      "title": "Maya Generic System Improvement",
+      "id": "phase_8_marcondes_generic_system_improvement",
+      "title": "Marcondes Generic System Improvement",
       "status": "planned",
-      "dependsOn": ["phase_7_maya_vm0007_v1_8_evidence_map_truth_intake"],
+      "dependsOn": ["phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake"],
       "doneCriteria": [
-        "Maya proposals are compared against reviewed truth",
+        "Marcondes proposals are compared against reviewed truth",
         "Retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors are classified",
         "Only reusable shared logic is changed",
         "Quick Check and Evidence Map regressions are rerun",
-        "Maya-specific hardcoding is prohibited"
+        "Marcondes-specific hardcoding is prohibited"
       ]
     },
     {
       "id": "phase_9_review_and_gold_promotion_tooling",
       "title": "Review and Gold Promotion Tooling",
       "status": "planned",
-      "dependsOn": ["phase_8_maya_generic_system_improvement"],
+      "dependsOn": ["phase_8_marcondes_generic_system_improvement"],
       "doneCriteria": [
         "Partial row review is easy to perform",
         "Corrections are generated from machine-versus-reviewer differences",
@@ -165,8 +165,8 @@
       "dependsOn": ["phase_9_review_and_gold_promotion_tooling"],
       "doneCriteria": [
         "An unseen eligible PDD completes the same PR1/PR2 cycle",
-        "Maya improvements generalize to the unseen PDD",
-        "Maya, earlier judgment fixtures, and version-mismatch fixtures remain regression-safe"
+        "Marcondes improvements generalize to the unseen PDD",
+        "Marcondes, earlier judgment fixtures, and version-mismatch fixtures remain regression-safe"
       ]
     }
   ],
@@ -206,15 +206,15 @@
       "status": "active",
       "summary": "Define the repeatable two-PR cycle: PR1 truth intake with untouched machine output and partial reviewed truth; PR2 generic shared-system improvement with previous-fixture reruns and one unseen eligible PDD."
     },
-    "phase_7_maya_vm0007_v1_8_evidence_map_truth_intake": {
-      "title": "Maya VM0007 v1.8 Evidence Map Truth Intake",
+    "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake": {
+      "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
       "status": "planned",
-      "summary": "Intake Maya Forest Corridor REDD Belize as the first clean VM0007 v1.8 full Evidence Map learning case while preserving raw 58-row output and counting only explicitly reviewed rows as gold."
+      "summary": "Intake Marcondes REDD+ as the first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy while preserving raw 58-row output and counting only explicitly reviewed rows as gold."
     },
-    "phase_8_maya_generic_system_improvement": {
-      "title": "Maya Generic System Improvement",
+    "phase_8_marcondes_generic_system_improvement": {
+      "title": "Marcondes Generic System Improvement",
       "status": "planned",
-      "summary": "Use Maya reviewed truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures without Maya-specific hardcoding."
+      "summary": "Use Marcondes reviewed truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures without Marcondes-specific hardcoding."
     },
     "phase_9_review_and_gold_promotion_tooling": {
       "title": "Review and Gold Promotion Tooling",

@@ -101,7 +101,7 @@ Done when:
 
 * minimal fixture/test hook proves a clean VM0007 v1.8 PDD can pass the version lock
 * Envira remains blocked
-* no full Maya evidence map is built in this cleanup roadmap unless explicitly requested
+* no full Marcondes evidence map is built in this cleanup roadmap unless explicitly requested
 
 ## Expected PR Split
 

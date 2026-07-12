@@ -72,22 +72,22 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 - rerun all previous fixtures
 - test one unseen eligible PDD
 
-### Phase 7 — Maya VM0007 v1.8 Evidence Map Truth Intake — planned
+### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — planned
 
-- Maya Forest Corridor REDD Belize is the first clean VM0007 v1.8 full Evidence Map learning case
+- Marcondes REDD+ is the first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy
 - preserve the raw 58-row machine output
 - support `reviewedRuleIds` or equivalent partial coverage
 - store reviewed truth, corrections, provenance, reviewer notes, and `REVIEW.md`
 - review high-value and uncertain rows first
 - unreviewed rows must not count as gold or accuracy evidence
 
-### Phase 8 — Maya Generic System Improvement — planned
+### Phase 8 — Marcondes Generic System Improvement — planned
 
-- compare Maya machine proposals against reviewed truth
+- compare Marcondes machine proposals against reviewed truth
 - classify retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors
 - fix only reusable shared logic
 - rerun Quick Check and Evidence Map regressions
-- prohibit Maya-specific hardcoding
+- prohibit Marcondes-specific hardcoding
 
 ### Phase 9 — Review and Gold Promotion Tooling — planned
 
@@ -101,12 +101,12 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
 - intake an unseen eligible PDD
 - run the same PR1/PR2 cycle
-- prove Maya improvements generalize
-- prevent regression across Maya, earlier judgment fixtures, and version-mismatch fixtures
+- prove Marcondes improvements generalize
+- prevent regression across Marcondes, earlier judgment fixtures, and version-mismatch fixtures
 
 ## Fixture roles
 
-- **Maya:** first clean VM0007 v1.8 Evidence Map learning fixture.
+- **Marcondes:** first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy.
 - **Envira:** quarantined methodology-version mismatch regression fixture.
 - **PD_REDD:** existing rule-level judgment fixture set; do not claim full VM0007 v1.8 Evidence Map truth unless separately version-validated.
 - **Future PDDs:** unseen VM0007 v1.8 generalization cases.
