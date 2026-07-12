@@ -1,105 +1,151 @@
-# VM0007 Judgement Fixtures Roadmap
+# VM0007 Judgement Fixtures and Evidence Map Learning Roadmap
 
 Status is sourced from `docs/roadmaps/vm0007-judgement-fixtures/phase-status.json`; docs must not drift.
 
 ## Goal
 
-Improve VM0007 gap report accuracy by tightening rule-level judgment fixtures and contracts.
+Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.
 
-This roadmap focuses on the evidence and status layer, not production logic, not report UI redesign, and not client-facing outputs.
+This roadmap grows from the existing VM0007 judgment-fixture and gap-report accuracy work. It does not change production logic, Quick Check semantics, report UI styling, or client-facing outputs unless a later phase explicitly permits a shared-system improvement.
 
 ## Core Focus
 
-- accepted evidence
-- rejected evidence
-- expected status
-- weak / missing / not-applicable logic
-- audit summary expectations
-- report summary expectations
+- PDF-backed accepted and rejected evidence
+- explicit reviewer truth and corrections
+- applicability, provenance, search coverage, contradiction, and draft-finding assessments
+- partial review coverage without treating unreviewed rows as truth
+- generic retrieval, routing, and evidence-selection improvements
+- regression protection across clean VM0007 v1.8 PDDs and quarantined version-mismatch fixtures
 
 ## Boundary
 
-This lane is separate from Quick Check v2 Phase 7.
+This lane remains separate from Quick Check v2 Phase 7. The learning cycle may consume persisted Evidence Map output, but it must not change Quick Check extraction or routing semantics through fixture work.
 
-Do not mix judgment-fixture work into the Quick Check v2 parser / ingestion rebuild unless a later roadmap explicitly calls for that overlap.
+Envira's historical VM0007 v1.5 mismatch material remains quarantined regression data. It must never be rewritten as valid VM0007 v1.8 truth.
 
 ## Phases
 
-### Phase 0 — Roadmap Boundary
+### Phase 0 — Roadmap Boundary — done
 
-Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7.
+Phase 0 is documentation-only. fixtures must use PDF truth, not current app output. Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7. Delivered by PR #895.
 
-Phase 0 is documentation-only. It defines the contract for future fixture PRs before any Envira or PD_REDD fixture files are added.
+### Phase 1 — Envira VM0007 Judgment Fixtures — done
 
-#### Phase 0 Scope
+Add and harden Envira-specific VM0007 judgment fixtures, including accepted evidence, rejected generic evidence, false-supported cases, expected statuses, and client actions. Delivered by PR #897.
 
-- this lane is for VM0007 judgment fixtures only
-- fixtures must use PDF truth, not current app output
-- each fixture must encode accepted evidence
-- each fixture must encode rejected weak or generic evidence
-- weak evidence must stay `UNCLEAR`, not `FOUND`
-- missing evidence must stay `MISSING`
-- no production audit logic changes
-- no report UI changes
-- no client-facing report behavior changes
-- no Quick Check v2 Phase 7 work
+### Phase 2 — PD_REDD VM0007 Judgment Fixtures — done
 
-#### Future Fixture PR Contract
+Add and harden PD_REDD-style VM0007 rule-level judgments using the same PDF-backed accepted/rejected evidence contract.
 
-Every future fixture PR in this lane must:
+### Phase 3 — Full 58-Rule Audit Fixture Shape — blocked/quarantined
 
-- stay docs or fixture scoped unless a separate production-logic roadmap explicitly allows broader work
-- identify the rule IDs covered by the fixture set
-- state the PDF source of truth for each fixture set
-- encode accepted evidence that is sufficient for the expected status
-- encode rejected weak or generic evidence that must not upgrade a row to `FOUND`
-- preserve `UNCLEAR` for weak evidence and `MISSING` for absent evidence
-- define expected status per fixture
-- define expected client action whenever status is weak or missing
-- avoid using current app output as fixture truth
+Preserve the Envira full 58-rule audit fixture as a quarantined legacy REDD-MF / VM0007 v1.5 mismatch regression case. The historical FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 split remains regression evidence only and is not VM0007 v1.8 truth.
 
-#### Acceptance For Future Fixture PRs
+### Phase 4 — Report Fixture Layer — blocked/quarantined
 
-- fixture scope is limited to VM0007 judgment fixtures
-- PDF truth is explicit
-- accepted and rejected evidence are explicit
-- status expectations are explicit
-- weak evidence remains `UNCLEAR`
-- missing evidence remains `MISSING`
-- tests and CI are not weakened
+Preserve report-facing fixture expectations and internal preview coverage for the quarantined legacy Envira material. Do not present it as client-ready or truth-complete VM0007 v1.8 output. Historical delivery is preserved as PR #914.
 
-### Phase 1 — Envira VM0007 Judgment Fixtures
+### Phase 5 — Client-Readiness Gate — done
 
-Add and harden fixtures that capture Envira-specific VM0007 judgments, including:
+Keep internal preview output separate from later client-ready reporting work. This phase records the existing quarantine and gate boundary; it does not promote the legacy Envira material to client-ready truth.
 
-- 5-10 rule-level judgment fixtures
-- accepted evidence requirements
-- rejected generic evidence examples
-- at least one false-supported case
-- at least one case where generic methodology/module-table evidence must not count as supported
-- expected status for each fixture
-- expected client action where status is weak or missing
+### Phase 6 — Evidence Map Learning Contract — active
 
-### Phase 2 — PD_REDD VM0007 Judgment Fixtures
+Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
-Add and harden fixtures for PD_REDD-style VM0007 judgments with the same evidence/status contract discipline.
+#### PR1: Truth intake
 
-### Phase 3 — Full 58-Rule Audit Fixture Shape
+- validate methodology and version
+- preserve untouched machine output
+- review PDF-backed rows
+- save accepted and rejected evidence
+- record corrections
+- allow partial review
+- only reviewed rows count as gold
+- make no production logic changes
 
-Envira VM0007 now has a reviewed full 58-rule audit fixture shape, but it is quarantined legacy REDD-MF / VM0007 v1.5 mismatch regression data, not validated VM0007 v1.8 truth. The historical split FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 remains preserved as regression evidence. Review included FOUND red-team pass, UNCLEAR/MISSING rescue check, R-1-0003 carbon-rights fix, fixture/test-only scope confirmation, `pr:gate`, and blind rebuild validation.
+#### PR2: Generic system improvement
 
-### Phase 4 — Report Fixture Layer
+- classify reusable failures
+- improve shared retrieval, routing, evidence selection, or assessment logic
+- never hardcode the project
+- rerun all previous fixtures
+- test one unseen eligible PDD
 
-Add report-facing fixture expectations for summary sections, row grouping, and internal preview output. This layer remains quarantined historical fixture data until versioned re-audit confirms the VM0007 evidence map is truth-complete.
+### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — planned
 
-### Phase 5 — Client-Readiness Gate
+- Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy
+- preserve the raw 58-row machine output
+- support `reviewedRuleIds` or equivalent partial coverage
+- store reviewed truth, corrections, provenance, reviewer notes, and `REVIEW.md`
+- review high-value and uncertain rows first
+- unreviewed rows must not count as gold or accuracy evidence
 
-Define the gate that keeps internal preview output distinct from any later client-ready reporting work.
+#### Phase 7 completion criteria
+
+- page 61 v1.7 wording is preserved exactly
+- Tables 30 and 31 v1.8 declarations are preserved exactly
+- a reviewer records the reconciled methodology version and rationale
+- the decision is stored in metadata and `REVIEW.md`
+- unresolved conflict blocks gold promotion and Evidence Map truth claims
+- no silent normalization is permitted
+- after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth
+
+### Phase 8 — Marcondes Generic System Improvement — planned
+
+- compare Marcondes machine proposals against reviewed truth
+- classify retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors
+- fix only reusable shared logic
+- rerun Quick Check and Evidence Map regressions
+- prohibit Marcondes-specific hardcoding
+
+### Phase 9 — Review and Gold Promotion Tooling — planned
+
+- make partial row review easy
+- generate corrections automatically from machine-versus-reviewer differences
+- promote only explicitly reviewed rows to gold
+- preserve machine proposal, reviewer correction, and final truth separately
+- provide coverage counts without treating unreviewed rows as failures or passes
+
+### Phase 10 — Second Unseen VM0007 v1.8 PDD — planned
+
+- intake an unseen eligible PDD
+- run the same PR1/PR2 cycle
+- prove Marcondes improvements generalize
+- prevent regression across Marcondes, earlier judgment fixtures, and version-mismatch fixtures
+
+## Fixture roles
+
+- **Marcondes:** first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy.
+- **Envira:** quarantined methodology-version mismatch regression fixture.
+- **PD_REDD:** existing rule-level judgment fixture set; do not claim full VM0007 v1.8 Evidence Map truth unless separately version-validated.
+- **Future PDDs:** unseen VM0007 v1.8 generalization cases.
+
+## Required Evidence Map truth artifacts
+
+Every reviewed Evidence Map learning case should preserve, separately and traceably:
+
+- raw machine output
+- reviewed truth
+- corrections
+- `REVIEW.md`
+- metadata
+- `reviewedRuleIds` or equivalent
+- accepted evidence
+- rejected evidence and reason
+- quote, page, section, and provenance
+- applicability and basis
+- assessment reason
+- client action
+- draft finding candidate
+- reviewer notes
+- review status
 
 ## Non-Goals
 
-- No production logic changes
-- No report UI redesign
-- No client-facing report changes
-- No LLM final judgment
-- No mixing into Quick Check v2 Phase 7
+- No Quick Check status or extraction semantics changes
+- No production changes in truth-intake PRs
+- No project-specific or methodology-specific hardcoding in generic improvements
+- No report styling redesign
+- No formal validation, verification, or VVB authority language
+- No rewriting of Envira legacy mismatch data as VM0007 v1.8 truth
