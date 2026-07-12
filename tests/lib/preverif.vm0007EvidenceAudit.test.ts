@@ -5,6 +5,7 @@ import {
   EVIDENCE_AUDIT_STATUSES,
   type MethodologyEvidenceAuditResult,
 } from "@/lib/preverif/evidenceAudit";
+import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
 import {
   getVm0007EvidenceContract,
   normalizeVm0007RuleId,
@@ -33,6 +34,38 @@ function byRuleId(results: MethodologyEvidenceAuditResult[], ruleId: string): Me
   const result = results.find((entry) => entry.ruleId === ruleId);
   if (!result) throw new Error(`Missing audit result for ${ruleId}`);
   return result;
+}
+
+function span(page: number, id: string, text: string): EvidenceSpan {
+  return {
+    spanId: id,
+    docId: "synthetic-pdd",
+    page,
+    sectionId: `section-${page}`,
+    heading: "Project evidence",
+    headingPath: ["Project evidence"],
+    sectionPath: ["Project evidence"],
+    blockType: "paragraph",
+    text,
+    normalizedText: text.toLowerCase(),
+    charStart: null,
+    charEnd: null,
+    reliability: "primary",
+    confidence: 1,
+  };
+}
+
+function auditSynthetic(ruleId: string, spans: EvidenceSpan[]) {
+  const rule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === ruleId);
+  if (!rule) throw new Error(`Missing synced rule ${ruleId}`);
+  const evidenceDocument: EvidenceDocument = { docId: "synthetic-pdd", rawText: spans.map((candidate) => candidate.text).join("\n"), spans };
+  return auditEvidence({
+    rules: [rule],
+    evidenceDocument,
+    getContract: getVm0007EvidenceContract,
+    normalizeRuleId: normalizeVm0007RuleId,
+    versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
+  });
 }
 
 describe("auditEvidence with VM0007 contracts", () => {
@@ -119,6 +152,26 @@ describe("auditEvidence with VM0007 contracts", () => {
     for (const ruleId of ["R-3-0001", "R-4-0001", "R-5-0003", "R-6-0001", "R-6-0002"]) {
       expect(byRuleId(audit.results, ruleId).status).not.toBe("supported_by_pdd");
     }
+  });
+
+  it("keeps complete source quotes and emits separate records for evidence on separate pages", () => {
+    const first = "The project area qualifies as forest under the applicable forest definition thresholds and has remained forested for more than 10 years prior to the project start date.";
+    const second = "The land-use history and area-specific evidence confirm the forest qualification for the project area.";
+    const result = byRuleId(auditSynthetic("R-1-0001", [span(12, "p12", first), span(13, "p13", second)]).results, "R-1-0001");
+
+    expect(result.bestEvidenceQuote).not.toContain("…");
+    expect(result.bestEvidenceQuote).toBe(first);
+    expect(result.evidence?.map((item) => item.page)).toEqual([12, 13]);
+    expect(result.evidence?.map((item) => item.span)).toEqual(["p12", "p13"]);
+  });
+
+  it.each([
+    ["R-1-0004", "All property owners have filed applications for conversion authorization with the authority; the permits will be issued later."],
+    ["R-3-0001", "The alternative scenarios and the VT0001 decision path will be provided during the validation stage."],
+  ])("does not promote planned or unissued evidence for %s", (ruleId, text) => {
+    const result = byRuleId(auditSynthetic(ruleId, [span(1, "future", text)]).results, ruleId);
+    expect(result.status).not.toBe("supported_by_pdd");
+    expect(result.bestEvidenceQuote).toBe(text);
   });
 
   it("produces useful Envira-like outputs across the main VM0007 categories", () => {
