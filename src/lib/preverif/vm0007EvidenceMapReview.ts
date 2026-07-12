@@ -9,7 +9,7 @@ import { PRESENTATION_CONTRACT_VERSION } from "@/lib/evidence/reportPresentation
 import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 import { finalizeQuickCheckEvidenceMapForReadiness } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import { clearQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
-import type { ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
+import type { ProjectEvidenceMapAssessment, ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
 import {
   loadVm0007EvidenceMapDraft,
   normalizeVm0007EvidenceMapDraftPackage,
@@ -25,6 +25,7 @@ export const VM0007_REVIEW_POLICY_VERSION = "policy-v1";
 export type Vm0007EvidenceMapEdit = Readonly<Partial<Pick<
   Vm0007EvidenceMapDraftRow,
   "assessmentReason" | "clientAction" | "proposedApplicability" | "proposedAcceptedEvidence" | "proposedRejectedEvidence"
+  | "assessment"
 >>>;
 
 export type Vm0007ReviewResult =
@@ -128,25 +129,6 @@ function toEvidenceMapRow(row: Vm0007EvidenceMapDraftRow, finalizedAt: string, r
   };
 }
 
-function defaultAssessments(rows: readonly Vm0007EvidenceMapDraftRow[]) {
-  return rows.map((row) => ({
-    evidenceMapRowId: row.rowId,
-    applicability: {
-      decision: (row.proposedApplicability === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : row.proposedApplicability === "APPLICABLE" ? "APPLICABLE" : "NOT_EVALUATED") as "APPLICABLE" | "NOT_APPLICABLE" | "NOT_EVALUATED",
-      decisionBasis: row.assessmentReason || null,
-    },
-    conformance: {
-      requirementSupport: (row.upstreamStatus === "FOUND" ? "SUPPORTED" : "NOT_SUPPORTED") as "SUPPORTED" | "NOT_SUPPORTED",
-      searchCoverageAssessment: "ADEQUATE" as const,
-      provenanceAssessment: "COMPLETE" as const,
-      versionIdentityAssessment: "MATCHED" as const,
-      contradictionAssessment: "NONE" as const,
-    },
-    draftFinding: { draftFindingType: null, findingBasis: null, reviewerAssessment: null },
-    reviewState: "CURRENT" as const,
-  }));
-}
-
 export function finalizeVm0007EvidenceMap(pkgInput: Vm0007EvidenceMapDraftPackage, reviewerIdentity: string, timestamp = now()): Vm0007FinalizeResult {
   const pkg = normalizeVm0007EvidenceMapDraftPackage(pkgInput);
   const blockedBy: string[] = [];
@@ -154,11 +136,23 @@ export function finalizeVm0007EvidenceMap(pkgInput: Vm0007EvidenceMapDraftPackag
   if (pkg.blockedBy.length) blockedBy.push(...pkg.blockedBy);
   if (pkg.rows.some((row) => row.reviewState !== "approved")) blockedBy.push("one or more rows are not approved");
   if (pkg.rows.some((row) => !row.reviewHistory?.length || !row.reviewHistory.every((event) => validateReviewerWorkflowEvent(event).complete))) blockedBy.push("required review history is missing or invalid");
+  if (pkg.rows.some((row) => !row.assessment)) blockedBy.push("canonical assessment is missing");
   if (blockedBy.length) return { ok: false, package: pkg, blockedBy: Array.from(new Set(blockedBy)) };
   const finalizedRows = pkg.rows.map((row) => ({ ...row, finalizationState: "finalized" as const, finalizationActorRef: reviewerRef(reviewerIdentity), finalizedAt: timestamp, finalizationBasis: "Reviewer-approved Evidence Map finalization.", reviewHistoryRef: row.reviewHistoryRef || `${pkg.auditId}:${row.rowId}:history` }));
   const rows = finalizedRows.map((row) => toEvidenceMapRow(row, timestamp, reviewerRef(reviewerIdentity)));
-  const pipeline = finalizeQuickCheckEvidenceMapForReadiness({ auditId: pkg.auditId, auditGeneratedAt: pkg.generatedAt, rows, assessments: defaultAssessments(finalizedRows) });
+  const assessments = finalizedRows.map((row) => row.assessment);
+  const pipeline = finalizeQuickCheckEvidenceMapForReadiness({ auditId: pkg.auditId, auditGeneratedAt: pkg.generatedAt, rows, assessments: assessments as ProjectEvidenceMapAssessment[] });
   if (!pipeline.ready) return { ok: false, package: pkg, blockedBy: pipeline.blockedBy.map((entry) => entry.detail ? `${entry.category}: ${entry.detail}` : entry.category), pipeline };
+  if (!pipeline.gateResult.releaseReady) {
+    clearQuickCheckReadinessPayload(pkg.auditId);
+    const reasons = pipeline.gateResult.releaseState === "BLOCKED" ? pipeline.gateResult.blockedBy : pipeline.gateResult.warnings;
+    return {
+      ok: false,
+      package: pkg,
+      blockedBy: reasons.map((reason) => reason.detail ? `${reason.category}: ${reason.detail}` : reason.category),
+      pipeline,
+    };
+  }
   const finalized: Vm0007EvidenceMapDraftPackage = { ...pkg, rows: finalizedRows, finalizationState: "finalized", finalizedBy: reviewerRef(reviewerIdentity), finalizedAt: timestamp, finalizationBasis: "Reviewer-approved Evidence Map finalization." };
   if (!saveVm0007EvidenceMapDraft(finalized)) return { ok: false, package: pkg, blockedBy: ["draft-persistence-failed"], pipeline };
   return { ok: true, package: finalized, pipeline };

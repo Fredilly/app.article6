@@ -9,8 +9,20 @@ import {
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import type { ProjectEvidenceMapAssessment } from "@/lib/evidence/projectReadinessProductionPipeline";
 
 const provenance = { docId: "doc-1", page: 3, sectionPath: ["Evidence"], spanId: "span-1", sectionHeading: "Evidence", sourceType: "PDD" };
+
+function assessmentFor(rowId: string, overrides: Partial<ProjectEvidenceMapAssessment> = {}): ProjectEvidenceMapAssessment {
+  return {
+    evidenceMapRowId: rowId,
+    applicability: { decision: "APPLICABLE", decisionBasis: "Reviewer confirmed the requirement applies." },
+    conformance: { requirementSupport: "NOT_SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE", versionIdentityAssessment: "MATCHED", contradictionAssessment: "NONE" },
+    draftFinding: { draftFindingType: null, findingBasis: null, reviewerAssessment: null },
+    reviewState: "CURRENT",
+    ...overrides,
+  };
+}
 
 function makePackage(overrides: Partial<Vm0007EvidenceMapDraftPackage> = {}): Vm0007EvidenceMapDraftPackage {
   const auditId = "review-audit";
@@ -23,8 +35,9 @@ function makePackage(overrides: Partial<Vm0007EvidenceMapDraftPackage> = {}): Vm
     searchCoverage: { searched: true, searchedDocumentIds: ["doc-1"], notes: null }, sourceDocument: { documentId: "doc-1", documentName: "pdd.pdf", contentSha256: null },
     quote: null, page: null, section: null, spanId: null, provenance: null, finalizationState: "draft" as const,
     proposalSource: "VM0007_QUICK_CHECK_AUDIT" as const, proposalTimestamp: "2026-07-12T00:00:00.000Z",
+    assessment: assessmentFor(`${auditId}:R-${index + 1}`),
   }));
-  rows[0] = { ...rows[0], proposedAcceptedEvidence: { quote: "Accepted source quote", provenance }, proposedRejectedEvidence: { quote: "Rejected source quote", reason: "Contradictory context", provenance }, quote: "Accepted source quote", page: 3, section: "Evidence", spanId: "span-1", provenance };
+  rows[0] = { ...rows[0], upstreamStatus: "FOUND", proposedEvidenceStatus: "FOUND", proposedAcceptedEvidence: { quote: "Accepted source quote", provenance }, proposedRejectedEvidence: { quote: "Rejected source quote", reason: "Contradictory context", provenance }, quote: "Accepted source quote", page: 3, section: "Evidence", spanId: "span-1", provenance, assessment: assessmentFor(`${auditId}:R-1`, { conformance: { requirementSupport: "SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE", versionIdentityAssessment: "MATCHED", contradictionAssessment: "NONE" } }) };
   return { auditId, generatedAt: "2026-07-12T00:00:00.000Z", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8", sourceDocument: rows[0].sourceDocument, proposalState: "MACHINE_PROPOSED", rows, blockedBy: [], contractVersion: "vm0007-evidence-map-draft-v1", ...overrides } as Vm0007EvidenceMapDraftPackage;
 }
 
@@ -62,6 +75,31 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     const reviewed = approveAll(pkg);
     const missingApplicability = { ...reviewed, rows: reviewed.rows.map((row, index) => index === 1 ? { ...row, proposedApplicability: "UNKNOWN" as const } : row) };
     expect(finalizeVm0007EvidenceMap(missingApplicability, "reviewer-1")).toMatchObject({ ok: false });
+  });
+
+  test("FOUND alone cannot become SUPPORTED or CONFORMS", () => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, upstreamStatus: "FOUND" as const, proposedEvidenceStatus: "FOUND" as const, assessment: undefined } : row) });
+    const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1");
+    expect(result).toMatchObject({ ok: false, blockedBy: expect.arrayContaining(["canonical assessment is missing"]) });
+  });
+
+  test.each([
+    ["incomplete search coverage", { searchCoverageAssessment: "INADEQUATE" as const }],
+    ["incomplete provenance", { provenanceAssessment: "INCOMPLETE" as const }],
+    ["unresolved version identity", { versionIdentityAssessment: "UNRESOLVED" as const }],
+    ["blocking contradiction", { contradictionAssessment: "BLOCKING" as const }],
+  ])("canonical %s blocks finalization and release readiness", (_, conformance) => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, assessment: assessmentFor(row.rowId, { conformance: { ...assessmentFor(row.rowId).conformance, ...conformance } }) } : row) });
+    const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1");
+    expect(result).toMatchObject({ ok: false, pipeline: { ready: false } });
+    expect(loadQuickCheckReadinessPayload(pkg.auditId)).toBeNull();
+  });
+
+  test("an incomplete presentation-gate review state blocks finalization", () => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, assessment: assessmentFor(row.rowId, { reviewState: "PENDING_REVIEW" }) } : row) });
+    const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1");
+    expect(result).toMatchObject({ ok: false, blockedBy: expect.arrayContaining(["review_state_not_current: PENDING_REVIEW"]) });
+    expect(loadQuickCheckReadinessPayload(pkg.auditId)).toBeNull();
   });
 
   test("valid finalization survives reload and populates the existing readiness pipeline", () => {
