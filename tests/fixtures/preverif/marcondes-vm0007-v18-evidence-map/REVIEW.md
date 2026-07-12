@@ -2,9 +2,9 @@
 
 - Reviewed rows: 28 of 58
 - Remaining rows: 30, unreviewed and NOT_ASSESSED
-- Corrected evidence states: FOUND 8, UNCLEAR 7, MISSING 0, N/A 13
-- Reviewer outcomes: CONFORMS 8, ACTION_REQUIRED 7, NOT_APPLICABLE 13, NOT_ASSESSED 30
-- Draft findings: NIR_CANDIDATE 7, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
+- Corrected evidence states: FOUND 7, UNCLEAR 8, MISSING 0, N/A 13
+- Reviewer outcomes: CONFORMS 7, ACTION_REQUIRED 8, NOT_APPLICABLE 13, NOT_ASSESSED 30
+- Draft findings: NIR_CANDIDATE 8, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
 - Gold promotion: BLOCKED_PENDING_REVIEW_COVERAGE
 - Report release state: BLOCKED_PENDING_REVIEW_COVERAGE
 
@@ -13,6 +13,12 @@ VM0007 v1.8 is version-qualified. The page 61 Section 3.1.1 VM0007 v1.7 wording 
 Accepted evidence for pages 12, 18–19, and 38 is located under 2 PROJECT DETAILS. Accepted evidence for pages 62–66 is located under 3 CLIMATE. Manually adjudicated evidence uses explicit manual:... provenance IDs; no fabricated parser element IDs are used.
 
 An independent blind adversarial review was completed. The final reviewer retained the existing outcomes for all reviewed rules except for correcting the R-6-0008 requirement semantics to uncertainty reduction requirements.
+
+## Independent truth audit batch 1
+
+The first 10 existing reviewed rows were independently audited directly against the VM0007 v1.8 requirement logic and the preserved PDD extraction. Seven rows are CONFIRMED. R-1-0001 is CORRECTED to UNCLEAR/ACTION_REQUIRED because the PDD identifies the VCS threshold categories and supplies page-62 MapBiomas/PRODES history, but does not preserve numeric forest-definition thresholds. R-1-0002 is CORRECTED at the evidence level: the prior accepted quote listed AUDef/APDef but did not prove the project’s APDef selection; the accepted quote now preserves the page-62/63 project-specific classification and legal basis, with FOUND/CONFORMS retained. R-3-0005 is CORRECTED at the evidence level: page 61 Table 30 now preserves VMD0006 selection and page 63 preserves VMD0006 applicability plus the APD rationale, with FOUND/CONFORMS retained. No row had insufficient source access.
+
+Audit records are in `independent-audit.json`. The audit confirms that incomplete multi-part requirements remain UNCLEAR/ACTION_REQUIRED, N/A has an explicit applicability reason, rejected machine evidence is not used as truth, the other 18 reviewed rows are unchanged, and the remaining 30 rows remain excluded from gold.
 
 
 ## Batch 2 review: R-1-0003 and R-1-0006 through R-1-0012
