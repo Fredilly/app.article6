@@ -1,0 +1,99 @@
+{
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "5953-Marcondes-Brazil-pdd.pdf",
+    "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
+  },
+  "methodologyDeclarations": [
+    {
+      "page": 13,
+      "section": "3.1.3 Modules and tools shall be applied in accordance with the VCS Program rules and the applied methodology.",
+      "quote": "VM0007 REDD+ Methodology Framework v1.8\nand consistent with the rules of the VCS\nProgram. Details of the modules and tools\napplied are provided in Section 3.1.1.",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 13,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1 Application of Methodology",
+          "3.1.3"
+        ],
+        "spanId": "manual:page-13:section-3.1.3",
+        "sectionHeading": "3.1.3 Modules and tools shall be applied in accordance with the VCS Program rules and the applied methodology.",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "page": 13,
+      "section": "3.1.4 The version of a methodology, module, or tool that is applied shall be active",
+      "quote": "At the time of submission of the project for\nlisting to Verra, the applied methodology\nVM0007 REDD+ Methodology Framework v1.8\nand any associated modules and tools are\nactive on the Verra website.",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 13,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1 Application of Methodology",
+          "3.1.4"
+        ],
+        "spanId": "manual:page-13:section-3.1.4",
+        "sectionHeading": "3.1.4 The version of a methodology, module, or tool that is applied shall be active",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "page": 61,
+      "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+      "quote": "As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date.",
+      "contradictionState": "DRAFTING_CONTRADICTION",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 61,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1 Application of Methodology",
+          "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+        ],
+        "spanId": "manual:page-61:section-3.1.1-v1.7",
+        "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "page": 61,
+      "section": "Table 30. Methodologies, modules, and tools applied",
+      "table": "Table 30",
+      "quote": "Applied\nMethodology\nVM0007 REDD+ Methodology Framework (REDD+MF)\n(Avoided Planned Deforestation)\n1.8",
+      "contradictionState": "FORMAL_V1_8_DECLARATION",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 61,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1 Application of Methodology",
+          "Table 30. Methodologies, modules, and tools applied"
+        ],
+        "spanId": "manual:page-61:table-30-v1.8",
+        "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "page": 61,
+      "section": "Table 31. Applicability conditions and justification of conformance",
+      "table": "Table 31",
+      "quote": "VM0007 v1.8",
+      "contradictionState": "FORMAL_V1_8_DECLARATION",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 61,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1 Application of Methodology",
+          "Table 31. Applicability conditions and justification of conformance"
+        ],
+        "spanId": "manual:page-61:table-31-v1.8",
+        "sectionHeading": "Table 31. Applicability conditions and justification of conformance",
+        "sourceType": "PDD"
+      }
+    }
+  ]
+}
