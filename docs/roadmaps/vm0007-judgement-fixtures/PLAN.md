@@ -27,7 +27,7 @@ Envira's historical VM0007 v1.5 mismatch material remains quarantined regression
 
 ### Phase 0 — Roadmap Boundary — done
 
-Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7. Delivered by PR #895.
+Phase 0 is documentation-only. Fixtures must use PDF truth, not current app output. Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7. Delivered by PR #895.
 
 ### Phase 1 — Envira VM0007 Judgment Fixtures — done
 
@@ -74,12 +74,22 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
 ### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — planned
 
-- Marcondes REDD+ is the first forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy
+- Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy
 - preserve the raw 58-row machine output
 - support `reviewedRuleIds` or equivalent partial coverage
 - store reviewed truth, corrections, provenance, reviewer notes, and `REVIEW.md`
 - review high-value and uncertain rows first
 - unreviewed rows must not count as gold or accuracy evidence
+
+#### Phase 7 completion criteria
+
+- page 61 v1.7 wording is preserved exactly
+- Tables 30 and 31 v1.8 declarations are preserved exactly
+- a reviewer records the reconciled methodology version and rationale
+- the decision is stored in metadata and `REVIEW.md`
+- unresolved conflict blocks gold promotion and Evidence Map truth claims
+- no silent normalization is permitted
+- after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth
 
 ### Phase 8 — Marcondes Generic System Improvement — planned
 

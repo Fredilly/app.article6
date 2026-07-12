@@ -9,7 +9,7 @@
       "Phases 3–4 blocked/quarantined: Envira full-audit and report material is legacy REDD-MF / VM0007 v1.5 mismatch regression data, not VM0007 v1.8 truth.",
       "Phase 5 complete: the internal-preview/client-readiness boundary and legacy-fixture quarantine are documented.",
       "Phase 6 active: define and enforce the two-PR truth-intake and generic-system-improvement learning contract.",
-      "Phase 7 planned: begin Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake with an explicit internal v1.7/v1.8 discrepancy."
+      "Phase 7 planned: begin Marcondes REDD+ as the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy."
     ],
     "not_active_now": [
       "Production logic changes in truth-intake PRs",
@@ -124,12 +124,19 @@
       "status": "planned",
       "dependsOn": ["phase_6_evidence_map_learning_contract"],
       "doneCriteria": [
-        "Marcondes REDD+ is validated as a forward VM0007 v1.8 Evidence Map learning case with an explicit internal v1.7/v1.8 discrepancy",
+        "Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy",
         "Raw 58-row machine output is preserved",
         "Partial coverage uses reviewedRuleIds or an equivalent explicit mechanism",
         "Reviewed truth, corrections, provenance, reviewer notes, and REVIEW.md are stored",
         "High-value and uncertain rows are reviewed first",
-        "Unreviewed rows do not count as gold or accuracy evidence"
+        "Unreviewed rows do not count as gold or accuracy evidence",
+        "page 61 v1.7 wording is preserved exactly",
+        "Tables 30 and 31 v1.8 declarations are preserved exactly",
+        "a reviewer records the reconciled methodology version and rationale",
+        "the decision is stored in metadata and REVIEW.md",
+        "unresolved conflict blocks gold promotion and Evidence Map truth claims",
+        "no silent normalization is permitted",
+        "after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth"
       ]
     },
     {

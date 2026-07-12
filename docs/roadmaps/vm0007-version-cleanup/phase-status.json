@@ -2,7 +2,7 @@
   "roadmap": "vm0007-version-cleanup",
   "phase_meta": {
     "status": "active",
-    "summary": "Phase 6 Forward Path is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, the legacy Envira fixture remains pending versioned re-audit, and a normalized VM0007 v1.8 path can pass the version lock without building a full Marcondes evidence map.",
+    "summary": "Phase 6 Forward Path is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, the legacy Envira fixture remains pending versioned re-audit, and a normalized VM0007 v1.8 path can pass the version lock without building a full project Evidence Map.",
     "current_focus": [
       "Keep Envira quarantined as a blocked legacy REDD-MF / VM0007 v1.5 mismatch regression case",
       "Keep the existing quote/page/section integrity gates intact",
@@ -46,7 +46,7 @@
     "phase_6_forward_path": {
       "title": "Phase 6: Forward Path",
       "status": "done",
-      "summary": "A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Marcondes evidence map."
+      "summary": "A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full project Evidence Map."
     }
   }
 }

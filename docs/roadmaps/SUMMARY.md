@@ -348,7 +348,7 @@ Current focus:
 - Phases 3–4 blocked/quarantined: Envira full-audit and report material is legacy REDD-MF / VM0007 v1.5 mismatch regression data, not VM0007 v1.8 truth.
 - Phase 5 complete: the internal-preview/client-readiness boundary and legacy-fixture quarantine are documented.
 - Phase 6 active: define and enforce the two-PR truth-intake and generic-system-improvement learning contract.
-- Phase 7 planned: begin Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake with an explicit internal v1.7/v1.8 discrepancy.
+- Phase 7 planned: begin Marcondes REDD+ as the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy.
 
 Not active now:
 - Production logic changes in truth-intake PRs
@@ -375,7 +375,7 @@ Not active now:
 Status SSOT: `docs/roadmaps/vm0007-version-cleanup/phase-status.json`
 
 Lane status: Active
-Phase 6 Forward Path is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, the legacy Envira fixture remains pending versioned re-audit, and a normalized VM0007 v1.8 path can pass the version lock without building a full Marcondes evidence map.
+Phase 6 Forward Path is complete: contaminated VM0007 evidence-map/report roadmap states are quarantined, mismatched VM0007 versions are blocked from normal evidence, report, PDF, and client-readiness trust paths, the legacy Envira fixture remains pending versioned re-audit, and a normalized VM0007 v1.8 path can pass the version lock without building a full project Evidence Map.
 
 Current focus:
 - Keep Envira quarantined as a blocked legacy REDD-MF / VM0007 v1.5 mismatch regression case
@@ -394,7 +394,7 @@ Not active now:
 3) RC3 — Phase 3: Report and PDF Blocking: Done — Prevent mismatched versions from producing normal evidence maps, reports, PDFs, or readiness claims.
 4) RC4 — Phase 4: Gate Strengthening: Done — Add tests and gates so mismatches cannot produce judgments, reports, PDFs, or client-readiness output.
 5) RC5 — Phase 5: Roadmap Correction: Done — Correct contaminated done states, mark VM0007 evidence-map work pending versioned re-audit, and preserve the legacy Envira fixture as quarantined historical regression data rather than validated VM0007 v1.8 truth.
-6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full Marcondes evidence map.
+6) RC6 — Phase 6: Forward Path: Done — A normalized VM0007 v1.8 PDD path can pass the version lock while the legacy Envira v1.5 mismatch fixture remains blocked, without building a full project Evidence Map.
 
 ## vvb-report-presentation-layer
 
