@@ -144,6 +144,12 @@ Do not change:
 - unrelated fixtures
 - unrelated dirty files
 
+## CI gate scope
+
+GitHub automatically uses the fast pr-gate when every changed file is under `docs/`.
+Mixed or non-docs PRs use the full gate.
+Codex must not manually bypass or mislabel the PR scope.
+
 8. Testing
 
 Run the focused fixture test for the new PDD.
