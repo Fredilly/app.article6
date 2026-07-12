@@ -1,0 +1,465 @@
+{
+  "extractedTextSha256": "320276d72ea5f9940081fe250ab012a2085ed7e9f978828aa2da94b6b754d599",
+  "parserAdapterId": "pymupdf",
+  "methodologyAnswer": {
+    "checkName": "methodology",
+    "status": "FOUND",
+    "answer": "VM0007 REDD+ Methodology Framework v1.8",
+    "evidence": {
+      "sourceType": "fact_contract",
+      "quote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+      "page": 61,
+      "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+      "sectionPath": [
+        "3",
+        "3.1",
+        "3.1.1"
+      ],
+      "spanId": "quick-check-review-question:p61:b2516:407f84e9"
+    },
+    "reason": "answer_and_provenance_complete",
+    "methodology": {
+      "methodologyId": "VM0007",
+      "methodologyName": "REDD+ Methodology Framework",
+      "methodologyAlias": "REDD+MF",
+      "pddDeclaredMethodologyVersion": "v1.8",
+      "versionStatus": "DECLARED",
+      "evidencePage": 61,
+      "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+      "evidenceQuote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2"
+    },
+    "evidenceStack": [
+      {
+        "role": "primary",
+        "page": 61,
+        "quote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+        "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+        "sectionPath": [
+          "3",
+          "3.1",
+          "3.1.1"
+        ],
+        "spanId": "quick-check-review-question:p61:b2516:407f84e9",
+        "sourceType": "fact_contract"
+      }
+    ]
+  },
+  "answerResults": [
+    {
+      "checkName": "host_country",
+      "status": "FOUND",
+      "answer": "Brazil",
+      "evidence": {
+        "sourceType": "fact_contract",
+        "quote": "Project location Brazil, municipalities of Nhamundá, Parintins and Barreirinha, State of Amazonas Project proponent(s) Organica Consultoria LTDA Rémi Denecheau Chief Executive Officer admin@organica-consulting.com Validation/verification body To Be Confirmed History of CCB status No previous CCB validation has been conducted. This is the first submission of the project for CCB listing.",
+        "page": 1,
+        "sectionHeading": null,
+        "sectionPath": [
+          "1"
+        ],
+        "spanId": "quick-check-review-question:p1:b19:6a6f9f4f"
+      },
+      "reason": "answer_and_provenance_complete",
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 1,
+          "quote": "Project location Brazil, municipalities of Nhamundá, Parintins and Barreirinha, State of Amazonas Project proponent(s) Organica Consultoria LTDA Rémi Denecheau Chief Executive Officer admin@organica-consulting.com Validation/verification body To Be Confirmed History of CCB status No previous CCB validation has been conducted. This is the first submission of the project for CCB listing.",
+          "sectionHeading": null,
+          "sectionPath": [
+            "1"
+          ],
+          "spanId": "quick-check-review-question:p1:b19:6a6f9f4f",
+          "sourceType": "fact_contract"
+        }
+      ]
+    },
+    {
+      "checkName": "methodology",
+      "status": "FOUND",
+      "answer": "VM0007 REDD+ Methodology Framework v1.8",
+      "evidence": {
+        "sourceType": "fact_contract",
+        "quote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+        "page": 61,
+        "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+        "sectionPath": [
+          "3",
+          "3.1",
+          "3.1.1"
+        ],
+        "spanId": "quick-check-review-question:p61:b2516:407f84e9"
+      },
+      "reason": "answer_and_provenance_complete",
+      "methodology": {
+        "methodologyId": "VM0007",
+        "methodologyName": "REDD+ Methodology Framework",
+        "methodologyAlias": "REDD+MF",
+        "pddDeclaredMethodologyVersion": "v1.8",
+        "versionStatus": "DECLARED",
+        "evidencePage": 61,
+        "evidenceSection": "Title and Reference of Methodology (VCS, 3.1)",
+        "evidenceQuote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2"
+      },
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 61,
+          "quote": "Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+          "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+          "sectionPath": [
+            "3",
+            "3.1",
+            "3.1.1"
+          ],
+          "spanId": "quick-check-review-question:p61:b2516:407f84e9",
+          "sourceType": "fact_contract"
+        }
+      ]
+    },
+    {
+      "checkName": "baseline_scenario",
+      "status": "UNCLEAR",
+      "answer": "Legal deforestation of 20% of the property (APD), where land use conversion is allowed by law, i.e., forest suppression for pasture (livestock), is considered the most plausible baseline scenario.",
+      "evidence": {
+        "sourceType": "exact_section",
+        "quote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
+        "page": 42,
+        "sectionHeading": "Most-Likely Scenario Justification (CCB, G2.1)",
+        "sectionPath": [
+          "2",
+          "2.2",
+          "2.2.2"
+        ],
+        "spanId": "quick-check-review-question:p42:b1863:50dee72b"
+      },
+      "reason": "under_development_stub",
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 42,
+          "quote": "The most likely scenario observed for the Marcondes project area is the conversion of land use and land cover from forest to livestock areas, legally (APD). Legal deforestation of 20% of the property (Scenario 2) is considered the most plausible baseline scenario because the land is expected to be converted to non-forest land and the conversion is legally authorized and documented, following VM0007 v1.8.",
+          "sectionHeading": "Most-Likely Scenario Justification (CCB, G2.1)",
+          "sectionPath": [
+            "2",
+            "2.2",
+            "2.2.2"
+          ],
+          "spanId": "quick-check-review-question:p42:b1863:50dee72b",
+          "sourceType": "exact_section"
+        },
+        {
+          "role": "blocker",
+          "page": 67,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Baseline Scenario (VCS, 3.13)",
+          "sectionPath": [
+            "3",
+            "3.1",
+            "3.1.4"
+          ],
+          "spanId": "quick-check-review-question:p67:b2878:9b1418ff",
+          "sourceType": "exact_section",
+          "label": "Formal baseline section incomplete",
+          "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 68,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Baseline Emissions (VCS, 3.15)",
+          "sectionPath": [
+            "3",
+            "3.2",
+            "3.2.1"
+          ],
+          "spanId": "quick-check-review-question:p68:b2903:6f51ae37",
+          "sourceType": "exact_section",
+          "label": "Formal baseline section incomplete",
+          "reason": "Formal baseline scenario section is under development or not required at the Under Development stage."
+        }
+      ]
+    },
+    {
+      "checkName": "additionality",
+      "status": "UNCLEAR",
+      "answer": "The project activities would not occur without carbon finance due to substantial financial barriers",
+      "evidence": {
+        "sourceType": "fact_contract",
+        "quote": "The project activities would not occur without carbon finance due to substantial financial barriers.",
+        "page": 43,
+        "sectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
+        "sectionPath": [
+          "2",
+          "2.2",
+          "2.2.3"
+        ],
+        "spanId": "quick-check-review-question:p43:b1898:8f67b526"
+      },
+      "reason": "provenance_incomplete",
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 43,
+          "quote": "The project activities would not occur without carbon finance due to substantial financial barriers.",
+          "sectionHeading": "Community and Biodiversity Additionality (CCB, G2.2)",
+          "sectionPath": [
+            "2",
+            "2.2",
+            "2.2.3"
+          ],
+          "spanId": "quick-check-review-question:p43:b1898:8f67b526",
+          "sourceType": "fact_contract"
+        },
+        {
+          "role": "blocker",
+          "page": 67,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Additionality (VCS, 3.14)",
+          "sectionPath": [
+            "3",
+            "3.1",
+            "3.1.5"
+          ],
+          "spanId": "quick-check-review-question:p67:b2882:3a40fa5a",
+          "sourceType": "exact_section",
+          "label": "Formal additionality section incomplete",
+          "reason": "Formal additionality section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 67,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Regulatory Surplus (VCS, 3.14)",
+          "sectionPath": [
+            "3",
+            "3.1",
+            "3.1.5",
+            "3.1.5.1"
+          ],
+          "spanId": "quick-check-review-question:p67:b2886:35f6022e",
+          "sourceType": "exact_section",
+          "label": "Formal additionality section incomplete",
+          "reason": "Formal additionality section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 67,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Additionality Methods (VCS, 3.14)",
+          "sectionPath": [
+            "3",
+            "3.1",
+            "3.1.5",
+            "3.1.5.2"
+          ],
+          "spanId": "quick-check-review-question:p67:b2890:ea548081",
+          "sourceType": "exact_section",
+          "label": "Formal additionality section incomplete",
+          "reason": "Formal additionality section is incomplete at the Under Development stage."
+        }
+      ]
+    },
+    {
+      "checkName": "leakage",
+      "status": "UNCLEAR",
+      "answer": null,
+      "evidence": {
+        "sourceType": "exact_section",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided",
+        "page": 60,
+        "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
+        "sectionPath": [
+          "2",
+          "2.6",
+          "2.6.1"
+        ],
+        "spanId": "quick-check-review-question:p60:b2493:fc147308"
+      },
+      "reason": "answer_missing",
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 60,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided",
+          "sectionHeading": "Leakage Management (VCS, 3.11, 3.15)",
+          "sectionPath": [
+            "2",
+            "2.6",
+            "2.6.1"
+          ],
+          "spanId": "quick-check-review-question:p60:b2493:fc147308",
+          "sourceType": "exact_section"
+        },
+        {
+          "role": "blocker",
+          "page": 68,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of",
+          "sectionHeading": "Leakage Emissions (VCS 2.5, 3.2, 3.6, 3.15, 4.3)",
+          "sectionPath": [
+            "3",
+            "3.2",
+            "3.2.3"
+          ],
+          "spanId": "quick-check-review-question:p68:b2911:25a5d6f4",
+          "sourceType": "exact_section",
+          "label": "Formal leakage section incomplete",
+          "reason": "Formal leakage section is incomplete at the Under Development stage."
+        }
+      ]
+    },
+    {
+      "checkName": "stakeholder_consultation",
+      "status": "UNCLEAR",
+      "answer": "Exploratory visit, formal presentation, benefit-sharing negotiation, follow-up meetings, and the 6 May 2025 FPIC Principal Assembly were conducted with community participation.",
+      "evidence": {
+        "sourceType": "fact_contract",
+        "quote": "Phase 2 — On-Site Field Engagement and Validation Field visits and community engagement for the Marcondes REDD+ project have been conducted as follows: 1. November/December 2022 — Exploratory visit: First visit by the project team to the Comunidade São Tomé do Mocambo do Arari. Initial presentation of the REDD+ concept to community leaders, identification of community structure and representatives, and preliminary assessment of community interest and needs. 2. February 2023 — Formal presentation: Formal presentation of the Marcondes REDD+ project to the community association (Associação comunitária local). Detailed explanation of the REDD+ mechanism, voluntary carbon market, VCU generation process, and the role of VCS v4.4/CCB v3.0 certification standards. 3. April 2023 — Benefit-sharing negotiation: Presentation and negotiation of the Benefit-Sharing Plan (Plano de Repartição de Benefícios — PRB). Discussion of benefit categories: direct",
+        "page": 46,
+        "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+        "sectionPath": [
+          "2",
+          "2.3",
+          "2.3.1"
+        ],
+        "spanId": "quick-check-review-question:p46:b1959:10badf6e"
+      },
+      "reason": "provenance_incomplete",
+      "evidenceStack": [
+        {
+          "role": "primary",
+          "page": 46,
+          "quote": "Phase 2 — On-Site Field Engagement and Validation Field visits and community engagement for the Marcondes REDD+ project have been conducted as follows: 1. November/December 2022 — Exploratory visit: First visit by the project team to the Comunidade São Tomé do Mocambo do Arari. Initial presentation of the REDD+ concept to community leaders, identification of community structure and representatives, and preliminary assessment of community interest and needs. 2. February 2023 — Formal presentation: Formal presentation of the Marcondes REDD+ project to the community association (Associação comunitária local). Detailed explanation of the REDD+ mechanism, voluntary carbon market, VCU generation process, and the role of VCS v4.4/CCB v3.0 certification standards. 3. April 2023 — Benefit-sharing negotiation: Presentation and negotiation of the Benefit-Sharing Plan (Plano de Repartição de Benefícios — PRB). Discussion of benefit categories: direct",
+          "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.1"
+          ],
+          "spanId": "quick-check-review-question:p46:b1959:10badf6e",
+          "sourceType": "fact_contract"
+        },
+        {
+          "role": "supporting",
+          "page": 47,
+          "quote": "5. Second semester 2023 — Follow-up meeting: First semi-annual follow-up meeting with the",
+          "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.1"
+          ],
+          "spanId": "quick-check-review-question:p47:b1979:ba7e8777",
+          "sourceType": "exact_section",
+          "label": "Supporting stakeholder evidence",
+          "reason": "Related consultation, consent, approval, assembly, meeting, or follow-up evidence."
+        },
+        {
+          "role": "supporting",
+          "page": 47,
+          "quote": "6. First semester 2024 — Annual assembly 2024: Community general assembly with broad",
+          "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.1"
+          ],
+          "spanId": "quick-check-review-question:p47:b1981:e49c91fb",
+          "sourceType": "exact_section",
+          "label": "Supporting stakeholder evidence",
+          "reason": "Related consultation, consent, approval, assembly, meeting, or follow-up evidence."
+        },
+        {
+          "role": "supporting",
+          "page": 47,
+          "quote": "7. Second semester 2024 — Monitoring meeting: Socio-environmental monitoring meeting.",
+          "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.1"
+          ],
+          "spanId": "quick-check-review-question:p47:b1983:6a71e44e",
+          "sourceType": "exact_section",
+          "label": "Supporting stakeholder evidence",
+          "reason": "Related consultation, consent, approval, assembly, meeting, or follow-up evidence."
+        },
+        {
+          "role": "blocker",
+          "page": 51,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6",
+          "sectionHeading": "Stakeholder Consultations (VCS, 3.18; CCB, G3.4)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.10"
+          ],
+          "spanId": "quick-check-review-question:p51:b2154:ea202fa6",
+          "sourceType": "exact_section",
+          "label": "Formal stakeholder section incomplete",
+          "reason": "Formal stakeholder consultation section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 51,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6",
+          "sectionHeading": "Continued Consultation and Adaptive Management (VCS, 3.18; CCB, G3.4)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.11"
+          ],
+          "spanId": "quick-check-review-question:p51:b2158:d814219a",
+          "sourceType": "exact_section",
+          "label": "Formal stakeholder section incomplete",
+          "reason": "Formal stakeholder consultation section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 51,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6",
+          "sectionHeading": "Stakeholder Consultation Channels (CCB, G3.5)",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.12"
+          ],
+          "spanId": "quick-check-review-question:p51:b2162:96f61fb9",
+          "sourceType": "exact_section",
+          "label": "Formal stakeholder section incomplete",
+          "reason": "Formal stakeholder consultation section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 52,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6",
+          "sectionHeading": "Stakeholder Participation in Decision-Making and Implementation (VCS, 3.18,",
+          "sectionPath": [
+            "2",
+            "2.3",
+            "2.3.13"
+          ],
+          "spanId": "quick-check-review-question:p52:b2171:c2482f4e",
+          "sourceType": "exact_section",
+          "label": "Formal stakeholder section incomplete",
+          "reason": "Formal stakeholder consultation section is incomplete at the Under Development stage."
+        },
+        {
+          "role": "blocker",
+          "page": 58,
+          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6",
+          "sectionHeading": "Free, Prior and Informed Consent (VCS, 3.18; CCB, G5.2)",
+          "sectionPath": [
+            "2",
+            "2.5",
+            "2.5.7"
+          ],
+          "spanId": "quick-check-review-question:p58:b2420:9ad5926f",
+          "sourceType": "exact_section",
+          "label": "Formal stakeholder section incomplete",
+          "reason": "Formal stakeholder consultation section is incomplete at the Under Development stage."
+        }
+      ]
+    }
+  ]
+}

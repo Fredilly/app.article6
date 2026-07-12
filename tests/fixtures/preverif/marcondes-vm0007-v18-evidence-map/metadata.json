@@ -1,0 +1,42 @@
+{
+  "stableProjectId": "marcondes-redd-5953",
+  "projectTitle": "MARCONDES REDD+",
+  "registryProjectId": "5953",
+  "documentType": "Project Description / PD",
+  "sourcePdfName": "5953-Marcondes-Brazil-pdd.pdf",
+  "sourcePdfSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea",
+  "sourcePdfCommitted": false,
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "5953-Marcondes-Brazil-pdd.pdf",
+    "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
+  },
+  "methodology": {
+    "reconciled": "VM0007 v1.8",
+    "declarations": "See source-excerpts.json",
+    "versionConflict": true,
+    "conflictState": "VISIBLE_DRAFTING_CONTRADICTION",
+    "page61Wording": "VM0007 v1.7",
+    "formalInventory": "Table 30 identifies VM0007 REDD+ Methodology Framework version 1.8",
+    "rationale": "Table 30 is the formal methodology inventory and the PDD repeatedly declares v1.8 elsewhere",
+    "silentNormalization": false
+  },
+  "machineProposal": {
+    "rowCount": 58,
+    "proposalState": "MACHINE_PROPOSED",
+    "evidenceStates": {
+      "supported_by_pdd": 58,
+      "partially_supported": 0,
+      "missing_evidence": 0,
+      "not_applicable": 0,
+      "manual_review_needed": 0
+    }
+  },
+  "review": {
+    "reviewedRuleIds": [],
+    "reviewedRowCount": 0,
+    "goldPromotion": "BLOCKED",
+    "reportReleaseState": "BLOCKED_PENDING_REVIEW_AND_CONTRADICTION_RECONCILIATION"
+  },
+  "productionLogicChanged": false
+}
