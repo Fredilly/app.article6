@@ -15,7 +15,15 @@
     "Verra.AFOLU.VM0007.v1-8.R-3-0001",
     "Verra.AFOLU.VM0007.v1-8.R-3-0005",
     "Verra.AFOLU.VM0007.v1-8.R-6-0001",
-    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012"
   ],
   "rows": [
     {
@@ -213,28 +221,29 @@
       "requirementText": "Three criteria must ALL be met. Excludes large-scale industrial agriculture/aquaculture.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 13 CCB v3.0, VCS v4.4 3.1.3 Modules and tools shall be applied in accordance with the VCS Program rules and the applied methodology. Modules and tools have been applied in accordance with the requirements of the VM0007 REDD+ Methodology Framework v1.8 and consistent with the rules of the VCS Program. Details of the modules and tools applied are provided in Section 3.1.1. 3.1.4 The version of a methodology, module, or tool that is applied shall be active on the date that the respective project request is submitted to Verra for the following types of requests: 1) Registration 2) Verification approval where the verification includes: a) baseline reassessment and/or b) a methodology change through a project description deviation 3) Crediting period renewal 4) Requantification At the time of submission of the project for listing to Verra, the applied methodology VM0007 REDD+ Methodology Framework v1.8 and any associated modules and tools are active on the Verra website. The project proponent will ensure that the versions applied remain valid at the time of registration and will incorporate any updates or changes to the methodology, modules, or tools in accordance with VCS Program requirements, if applicable. 3.1.5 The project proponent may continue to apply the versions described in Section 3.1.4 for the remainder of the project crediting period or baseline reassessment period, whichever is shorter, unless otherwise specified on the Verra website. VM0007 REDD+ Methodology Framework v1.8 and any associated modules and tools will continue to be applied for the duration of the project crediting period or baseline reassessment period, whichever is shorter, unless otherwise specified on the Verra website. 3.1.6 Project proponents shall conduct themselves lawfully at all times and ensure that the project and implementation of project activities do not lead to the violation of any national, state or provincial, local or municipal, or any other applicable law, regardless of whether the law is enforced. Where laws conflict, the more restrictive requirement shall prevail. The project activities are implemented in compliance with all applicable national, state, provincial, and local laws and regulations as detailed in Section 2.5. In cases where multiple legal requirements apply and conflicts arise, the more restrictive requirement shall prevail to ensure full legal compliance throughout the implementation of the project activities.",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 13,
           "sectionPath": [
-            "Application of Methodology"
+            "2 PROJECT DETAILS",
+            "Marcondes PDD page 13"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:13:project-evidence",
+          "sectionHeading": "Marcondes PDD page 13",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "Add the controlling legal documents, the named rightsholders, and the citations tying those rights to the project area and timeframe.",
-      "confidence": "high",
+      "clientAction": "Retain the APDef classification and legal-authority evidence; AUDef-agent criteria do not apply to this planned-deforestation project.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -247,22 +256,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 13 CCB v3.0, VCS v4.4 3.1.3 Modules and tools shall be applied in accordance with the VCS Program rules and the applied methodology. Modules and tools have been applied in accordance with the requirements of the VM0007 REDD+ Methodology Framework v1.8 and consistent with the rules of the VCS Program. Details of the modules and tools applied are provided in Section 3.1.1. 3.1.4 The version of a methodology, module, or tool that is applied shall be active on the date that the respective project request is submitted to Verra for the following types of requests: 1) Registration 2) Verification approval where the verification includes: a) baseline reassessment and/or b) a methodology change through a project description deviation 3) Crediting period renewal 4) Requantification At the time of submission of the project for listing to Verra, the applied methodology VM0007 REDD+ Methodology Framework v1.8 and any associated modules and tools are active on the Verra website. The project proponent will ensure that the versions applied remain valid at the time of registration and will incorporate any updates or changes to the methodology, modules, or tools in accordance with VCS Program requirements, if applicable. 3.1.5 The project proponent may continue to apply the versions described in Section 3.1.4 for the remainder of the project crediting period or baseline reassessment period, whichever is shorter, unless otherwise specified on the Verra website. VM0007 REDD+ Methodology Framework v1.8 and any associated modules and tools will continue to be applied for the duration of the project crediting period or baseline reassessment period, whichever is shorter, unless otherwise specified on the Verra website. 3.1.6 Project proponents shall conduct themselves lawfully at all times and ensure that the project and implementation of project activities do not lead to the violation of any national, state or provincial, local or municipal, or any other applicable law, regardless of whether the law is enforced. Where laws conflict, the more restrictive requirement shall prevail. The project activities are implemented in compliance with all applicable national, state, provincial, and local laws and regulations as detailed in Section 2.5. In cases where multiple legal requirements apply and conflicts arise, the more restrictive requirement shall prevail to ensure full legal compliance throughout the implementation of the project activities.",
+      "page": 13,
+      "section": "Marcondes PDD page 13",
+      "spanId": "marcondes-pdd:page:13:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 13,
         "sectionPath": [
-          "Application of Methodology"
+          "2 PROJECT DETAILS",
+          "Marcondes PDD page 13"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:13:project-evidence",
+        "sectionHeading": "Marcondes PDD page 13",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -271,9 +281,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+          "quote": "The APDef category is applicable.",
+          "page": 63,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-63:r-1-0003",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 63,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-63:r-1-0003",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0004",
@@ -470,28 +502,29 @@
       "requirementText": "Absolute prohibition on organic soil burning as a project activity.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 61,
           "sectionPath": [
-            "Application of Methodology"
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:61:project-evidence",
+          "sectionHeading": "3.1 Application of Methodology",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the WRC exclusion for validation review.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -504,22 +537,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+      "page": 61,
+      "section": "3.1 Application of Methodology",
+      "spanId": "marcondes-pdd:page:61:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 61,
         "sectionPath": [
-          "Application of Methodology"
+          "3 CLIMATE",
+          "3.1 Application of Methodology"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:61:project-evidence",
+        "sectionHeading": "3.1 Application of Methodology",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -528,9 +562,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0006",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0006",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0007",
@@ -541,28 +597,29 @@
       "requirementText": "No nitrogen fertilizer application allowed during entire crediting period.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the per…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 20 CCB v3.0, VCS v4.4 for each new instance in a batch, demonstrated in accordance with Section 3.6 of the VCS Standard v5.0. granting the PP the right to implement the project activities and the right to the VCUs generated from the respective properties. Through these agreements, the PP holds full control over the VCUs generated from each project activity instance, while a defined proportion of the benefits from the sale of VCUs will be shared with the participating landowners. Accordingly, the PP will demonstrate the right to operate and the right to VCUs for each new instance added in future, in accordance with Section 3.6 of the VCS Standard v5.0. 3.5.10 All instances within a batch shall: • be within a single eligibility area. • conform to the eligibility criteria established for the eligibility area. • have been implemented during the monitoring period being verified. • only be eligible for crediting up to the end of the project crediting period. • never have been enrolled in another project registered with the VCS Program, unless authorized by Verra. All new project activity instances added in a batch will be located within the single defined eligibility area in the Amazon Biome within the state of Amazonas. Each instance will conform to the eligibility criteria established for the eligibility area and will have been implemented during the monitoring period being verified. All instances included in a batch will be eligible for crediting only up to the end of the project crediting period and will be verified to ensure that they have not been previously enrolled in any other project registered under the VCS Program, unless otherwise authorized by Verra. 3.5.11 Where the addition of a new batch of project activity instances impacts the leakage assessment of the existing instances, activity- shifting, market, and ecological leakage shall be reassessed for the entire project area. Where a new batch of project activity instances is added, the project proponent will assess whether the inclusion of these instances affects the existing leakage assessment. If any impact is identified, activity-shifting, market, and ecological leakage will be reassessed for the entire project area within the eligibility area located in the Amazon Biome in the state of Amazonas, in accordance with the applicable methodology requirements. 2.1.7 Project Proponent (VCS, 3.7; CCB, G1.1) Organization name Organica Consultoria LTDA Contact person Rémi Denecheau Title Chief Executive Officer",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 20,
           "sectionPath": [
-            "Proponents of AFOLU projects shall"
+            "2 PROJECT DETAILS",
+            "Marcondes PDD page 20"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.8.5",
-          "sectionHeading": "Proponents of AFOLU projects shall",
+          "spanId": "marcondes-pdd:page:20:project-evidence",
+          "sectionHeading": "Marcondes PDD page 20",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether this wetland rule applies, and if it does, add the no-fertilizer commitment and the land-management evidence supporting it.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the WRC exclusion for validation review.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -575,22 +632,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the per…",
-      "page": 1,
-      "section": "Proponents of AFOLU projects shall",
-      "spanId": "quick-check-review-question:element:paragraph:3.8.5",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 20 CCB v3.0, VCS v4.4 for each new instance in a batch, demonstrated in accordance with Section 3.6 of the VCS Standard v5.0. granting the PP the right to implement the project activities and the right to the VCUs generated from the respective properties. Through these agreements, the PP holds full control over the VCUs generated from each project activity instance, while a defined proportion of the benefits from the sale of VCUs will be shared with the participating landowners. Accordingly, the PP will demonstrate the right to operate and the right to VCUs for each new instance added in future, in accordance with Section 3.6 of the VCS Standard v5.0. 3.5.10 All instances within a batch shall: • be within a single eligibility area. • conform to the eligibility criteria established for the eligibility area. • have been implemented during the monitoring period being verified. • only be eligible for crediting up to the end of the project crediting period. • never have been enrolled in another project registered with the VCS Program, unless authorized by Verra. All new project activity instances added in a batch will be located within the single defined eligibility area in the Amazon Biome within the state of Amazonas. Each instance will conform to the eligibility criteria established for the eligibility area and will have been implemented during the monitoring period being verified. All instances included in a batch will be eligible for crediting only up to the end of the project crediting period and will be verified to ensure that they have not been previously enrolled in any other project registered under the VCS Program, unless otherwise authorized by Verra. 3.5.11 Where the addition of a new batch of project activity instances impacts the leakage assessment of the existing instances, activity- shifting, market, and ecological leakage shall be reassessed for the entire project area. Where a new batch of project activity instances is added, the project proponent will assess whether the inclusion of these instances affects the existing leakage assessment. If any impact is identified, activity-shifting, market, and ecological leakage will be reassessed for the entire project area within the eligibility area located in the Amazon Biome in the state of Amazonas, in accordance with the applicable methodology requirements. 2.1.7 Project Proponent (VCS, 3.7; CCB, G1.1) Organization name Organica Consultoria LTDA Contact person Rémi Denecheau Title Chief Executive Officer",
+      "page": 20,
+      "section": "Marcondes PDD page 20",
+      "spanId": "marcondes-pdd:page:20:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 20,
         "sectionPath": [
-          "Proponents of AFOLU projects shall"
+          "2 PROJECT DETAILS",
+          "Marcondes PDD page 20"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.8.5",
-        "sectionHeading": "Proponents of AFOLU projects shall",
+        "spanId": "marcondes-pdd:page:20:project-evidence",
+        "sectionHeading": "Marcondes PDD page 20",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -599,9 +657,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0007",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0007",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0008",
@@ -612,28 +692,29 @@
       "requirementText": "Spillover emissions from hydrological changes must be assessed using the stepwise significance procedure in Appendix 1 (alternative to T-SIG). Procedure covers GHG emissions by source, carbon stock changes by pool, and leakage GHG emissions.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 61,
           "sectionPath": [
-            "Application of Methodology"
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:61:project-evidence",
+          "sectionHeading": "3.1 Application of Methodology",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the WRC exclusion for validation review.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -646,22 +727,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+      "page": 61,
+      "section": "3.1 Application of Methodology",
+      "spanId": "marcondes-pdd:page:61:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 61,
         "sectionPath": [
-          "Application of Methodology"
+          "3 CLIMATE",
+          "3.1 Application of Methodology"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:61:project-evidence",
+        "sectionHeading": "3.1 Application of Methodology",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -670,9 +752,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0008",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0008",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0009",
@@ -683,28 +787,29 @@
       "requirementText": "Three alternative conditions. Must demonstrate one with verifiable evidence.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 14 CCB v3.0, VCS v4.4 3.1.7 Where a methodology permits the project proponent to choose a model: 1) the model shall conform to the VCS Methodology Requirements. 2) it shall be demonstrated at validation that the model is appropriate to the project circumstances and its use will lead to an appropriate quantification of reductions and/or removals. Where the applied methodology VM0007 REDD+ Methodology Framework v1.8 allows the selection of a model, the selected model shall conform to the VCS Methodology Requirements. The appropriateness of the model for the project circumstances and its suitability for accurately quantifying GHG emission reductions will be demonstrated at validation. 3.1.8 Where a methodology permits the project proponent to choose a third-party default factor or standard to ascertain GHG emission data and any supporting data for establishing baseline scenarios and demonstrating additionality, the default factor or standard shall conform to the relevant requirements in the VCS Methodology Requirements. Where the applied methodology VM0007 REDD+ Methodology Framework v1.8 permits the use of third-party default factors or standards to determine GHG emission data or supporting information for establishing the baseline scenario and demonstrating additionality, such factors will be sourced from recognized references such as the Intergovernmental Panel on Climate Change (IPCC) guidelines, peer-reviewed scientific literature, and other internationally accepted datasets. All selected default factors and standards shall conform to the relevant requirements specified in the VCS Methodology Requirements. 3.1.9 Implementing partners working with the project proponent shall be identified in the project description, including their roles and responsibilities over the project crediting period with respect to at least implementation, management, and monitoring of the project. All implementing partners involved in the project are identified in Section 2.1.8, including their respective roles and responsibilities related to the implementation, management, and monitoring of project activities during the project crediting period. Detailed information will be provided during the validation stage in Section 2.4. 3.1.10 Project proponents shall demonstrate that during each verification period: 1) project activities have been implemented in accordance with the project design. During each verification period, it will be demonstrated that the project activities have been implemented in accordance with the project design. Where no new project activities are implemented, evidence will confirm that previously implemented activities have",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 14,
           "sectionPath": [
-            "Application of Methodology"
+            "2 PROJECT DETAILS",
+            "Marcondes PDD page 14"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:14:project-evidence",
+          "sectionHeading": "Marcondes PDD page 14",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-type classification showing that this is an APD REDD project rather than an RWE activity.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -717,22 +822,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 14 CCB v3.0, VCS v4.4 3.1.7 Where a methodology permits the project proponent to choose a model: 1) the model shall conform to the VCS Methodology Requirements. 2) it shall be demonstrated at validation that the model is appropriate to the project circumstances and its use will lead to an appropriate quantification of reductions and/or removals. Where the applied methodology VM0007 REDD+ Methodology Framework v1.8 allows the selection of a model, the selected model shall conform to the VCS Methodology Requirements. The appropriateness of the model for the project circumstances and its suitability for accurately quantifying GHG emission reductions will be demonstrated at validation. 3.1.8 Where a methodology permits the project proponent to choose a third-party default factor or standard to ascertain GHG emission data and any supporting data for establishing baseline scenarios and demonstrating additionality, the default factor or standard shall conform to the relevant requirements in the VCS Methodology Requirements. Where the applied methodology VM0007 REDD+ Methodology Framework v1.8 permits the use of third-party default factors or standards to determine GHG emission data or supporting information for establishing the baseline scenario and demonstrating additionality, such factors will be sourced from recognized references such as the Intergovernmental Panel on Climate Change (IPCC) guidelines, peer-reviewed scientific literature, and other internationally accepted datasets. All selected default factors and standards shall conform to the relevant requirements specified in the VCS Methodology Requirements. 3.1.9 Implementing partners working with the project proponent shall be identified in the project description, including their roles and responsibilities over the project crediting period with respect to at least implementation, management, and monitoring of the project. All implementing partners involved in the project are identified in Section 2.1.8, including their respective roles and responsibilities related to the implementation, management, and monitoring of project activities during the project crediting period. Detailed information will be provided during the validation stage in Section 2.4. 3.1.10 Project proponents shall demonstrate that during each verification period: 1) project activities have been implemented in accordance with the project design. During each verification period, it will be demonstrated that the project activities have been implemented in accordance with the project design. Where no new project activities are implemented, evidence will confirm that previously implemented activities have",
+      "page": 14,
+      "section": "Marcondes PDD page 14",
+      "spanId": "marcondes-pdd:page:14:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 14,
         "sectionPath": [
-          "Application of Methodology"
+          "2 PROJECT DETAILS",
+          "Marcondes PDD page 14"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:14:project-evidence",
+        "sectionHeading": "Marcondes PDD page 14",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -741,9 +847,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+          "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+          "page": 12,
+          "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "spanId": "manual:marcondes-pdd:page-12:r-1-0009",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 12,
+            "sectionPath": [
+              "2 PROJECT DETAILS",
+              "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"
+            ],
+            "spanId": "manual:marcondes-pdd:page-12:r-1-0009",
+            "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0010",
@@ -754,28 +882,29 @@
       "requirementText": "Must meet VCS peatland definition based on IPCC organic soil thresholds.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 61,
           "sectionPath": [
-            "Application of Methodology"
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:61:project-evidence",
+          "sectionHeading": "3.1 Application of Methodology",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the exclusion of the peatland definition requirement.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -788,22 +917,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 61 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project. 3 CLIMATE 3.1 Application of Methodology 3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels. As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. Methodology VM0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. Table 30. Methodologies, modules, and tools applied Type Reference ID Title Version Applied Methodology VM0007 REDD+ Methodology Framework (REDD+MF) (Avoided Planned Deforestation) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1 Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3 Module VMD0011 Estimation of emissions from market leakage (LK- ME) 1.2",
+      "page": 61,
+      "section": "3.1 Application of Methodology",
+      "spanId": "marcondes-pdd:page:61:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 61,
         "sectionPath": [
-          "Application of Methodology"
+          "3 CLIMATE",
+          "3.1 Application of Methodology"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:61:project-evidence",
+        "sectionHeading": "3.1 Application of Methodology",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -812,9 +942,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0010",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0010",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0011",
@@ -825,28 +977,29 @@
       "requirementText": "Must include at least one defined restoration activity type.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 16 CCB v3.0, VCS v4.4 3.8.2 Project proponents shall submit a pipeline listing request within one year of the initial crediting period start date. The requirement under section 3.8.2 of the VCS Standard v5.0 requires project proponents to submit a pipeline listing request within one year of the initial crediting period start date. However, as clarified in the document “VCS Version 5: Overview of VCS Program Updates and Effective Dates” released by Verra on 16 December 2025, this requirement is only effective for pipeline listing requests submitted on or after 1 January 2027. Therefore, this requirement is not applicable to the present project, and the project remains eligible for pipeline listing even though the submission occurs more than one year after the initial crediting period start date. 3.8.3 Project proponents shall submit an initial registration request within the timelines set out in Table 7 in the VCS Standard v5.0 As per Table 7 in the VCS Standard v5.0, AFOLU projects are required to submit the registration request within eight years from the start of the initial crediting period. The present project complies with this requirement, as the registration request will be submitted within the applicable timeline from the initial crediting period start date. Project Crediting Period Length 3.8.4 The project crediting period shall be determined as set out in Table 8 in the VCS Standard v5.0 The crediting period for the present project is 40 years, spanning 01 May 2023 to 30 April 2063. 3.8.5 Proponents of AFOLU projects shall have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the permanence of the project’s carbon stocks shall be monitored in accordance with the requirements in Sections 3.2.25–3.2.26. The present project has established a comprehensive project implementation and management plan that includes institutional arrangements, monitoring procedures, and verification provisions to ensure effective implementation throughout the crediting period. The project has a crediting period of 40 years (01 May 2023 to 30 April 2063). Since the crediting period is 40 years, the requirement related to additional permanence monitoring for projects with a crediting period of less than 40 years, as referenced in",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 16,
           "sectionPath": [
-            "Application of Methodology"
+            "2 PROJECT DETAILS",
+            "Marcondes PDD page 16"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:16:project-evidence",
+          "sectionHeading": "Marcondes PDD page 16",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the exclusion of tidal-wetland restoration scope.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -859,22 +1012,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 16 CCB v3.0, VCS v4.4 3.8.2 Project proponents shall submit a pipeline listing request within one year of the initial crediting period start date. The requirement under section 3.8.2 of the VCS Standard v5.0 requires project proponents to submit a pipeline listing request within one year of the initial crediting period start date. However, as clarified in the document “VCS Version 5: Overview of VCS Program Updates and Effective Dates” released by Verra on 16 December 2025, this requirement is only effective for pipeline listing requests submitted on or after 1 January 2027. Therefore, this requirement is not applicable to the present project, and the project remains eligible for pipeline listing even though the submission occurs more than one year after the initial crediting period start date. 3.8.3 Project proponents shall submit an initial registration request within the timelines set out in Table 7 in the VCS Standard v5.0 As per Table 7 in the VCS Standard v5.0, AFOLU projects are required to submit the registration request within eight years from the start of the initial crediting period. The present project complies with this requirement, as the registration request will be submitted within the applicable timeline from the initial crediting period start date. Project Crediting Period Length 3.8.4 The project crediting period shall be determined as set out in Table 8 in the VCS Standard v5.0 The crediting period for the present project is 40 years, spanning 01 May 2023 to 30 April 2063. 3.8.5 Proponents of AFOLU projects shall have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the permanence of the project’s carbon stocks shall be monitored in accordance with the requirements in Sections 3.2.25–3.2.26. The present project has established a comprehensive project implementation and management plan that includes institutional arrangements, monitoring procedures, and verification provisions to ensure effective implementation throughout the crediting period. The project has a crediting period of 40 years (01 May 2023 to 30 April 2063). Since the crediting period is 40 years, the requirement related to additional permanence monitoring for projects with a crediting period of less than 40 years, as referenced in",
+      "page": 16,
+      "section": "Marcondes PDD page 16",
+      "spanId": "marcondes-pdd:page:16:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 16,
         "sectionPath": [
-          "Application of Methodology"
+          "2 PROJECT DETAILS",
+          "Marcondes PDD page 16"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:16:project-evidence",
+        "sectionHeading": "Marcondes PDD page 16",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -883,9 +1037,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0011",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0011",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0012",
@@ -896,28 +1072,29 @@
       "requirementText": "Must include at least one defined conservation activity type.",
       "methodologyId": "VM0007",
       "methodologyVersion": "v1.8",
-      "rawAuditStatus": "supported_by_pdd",
-      "upstreamStatus": "FOUND",
-      "proposedEvidenceStatus": "FOUND",
+      "rawAuditStatus": "partially_supported",
+      "upstreamStatus": "PARTIAL",
+      "proposedEvidenceStatus": "PARTIAL",
       "proposedApplicability": "APPLICABLE",
       "proposedAcceptedEvidence": {
-        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 16 CCB v3.0, VCS v4.4 3.8.2 Project proponents shall submit a pipeline listing request within one year of the initial crediting period start date. The requirement under section 3.8.2 of the VCS Standard v5.0 requires project proponents to submit a pipeline listing request within one year of the initial crediting period start date. However, as clarified in the document “VCS Version 5: Overview of VCS Program Updates and Effective Dates” released by Verra on 16 December 2025, this requirement is only effective for pipeline listing requests submitted on or after 1 January 2027. Therefore, this requirement is not applicable to the present project, and the project remains eligible for pipeline listing even though the submission occurs more than one year after the initial crediting period start date. 3.8.3 Project proponents shall submit an initial registration request within the timelines set out in Table 7 in the VCS Standard v5.0 As per Table 7 in the VCS Standard v5.0, AFOLU projects are required to submit the registration request within eight years from the start of the initial crediting period. The present project complies with this requirement, as the registration request will be submitted within the applicable timeline from the initial crediting period start date. Project Crediting Period Length 3.8.4 The project crediting period shall be determined as set out in Table 8 in the VCS Standard v5.0 The crediting period for the present project is 40 years, spanning 01 May 2023 to 30 April 2063. 3.8.5 Proponents of AFOLU projects shall have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the permanence of the project’s carbon stocks shall be monitored in accordance with the requirements in Sections 3.2.25–3.2.26. The present project has established a comprehensive project implementation and management plan that includes institutional arrangements, monitoring procedures, and verification provisions to ensure effective implementation throughout the crediting period. The project has a crediting period of 40 years (01 May 2023 to 30 April 2063). Since the crediting period is 40 years, the requirement related to additional permanence monitoring for projects with a crediting period of less than 40 years, as referenced in",
         "provenance": {
           "docId": "quick-check-review-question",
-          "page": 1,
+          "page": 16,
           "sectionPath": [
-            "Application of Methodology"
+            "2 PROJECT DETAILS",
+            "Marcondes PDD page 16"
           ],
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "sectionHeading": "Application of Methodology",
+          "spanId": "marcondes-pdd:page:16:project-evidence",
+          "sectionHeading": "Marcondes PDD page 16",
           "sourceType": "PDD"
         }
       },
       "proposedRejectedEvidence": null,
-      "assessmentReason": "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
+      "assessmentReason": "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
-      "confidence": "high",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the exclusion of tidal-wetland conservation scope.",
+      "confidence": "low",
       "searchCoverage": {
         "searched": true,
         "searchedDocumentIds": [
@@ -930,22 +1107,23 @@
         "documentName": "5953-Marcondes-Brazil-pdd.pdf",
         "contentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea"
       },
-      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
-      "page": 1,
-      "section": "Application of Methodology",
-      "spanId": "quick-check-review-question:element:paragraph:3.1",
+      "quote": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 16 CCB v3.0, VCS v4.4 3.8.2 Project proponents shall submit a pipeline listing request within one year of the initial crediting period start date. The requirement under section 3.8.2 of the VCS Standard v5.0 requires project proponents to submit a pipeline listing request within one year of the initial crediting period start date. However, as clarified in the document “VCS Version 5: Overview of VCS Program Updates and Effective Dates” released by Verra on 16 December 2025, this requirement is only effective for pipeline listing requests submitted on or after 1 January 2027. Therefore, this requirement is not applicable to the present project, and the project remains eligible for pipeline listing even though the submission occurs more than one year after the initial crediting period start date. 3.8.3 Project proponents shall submit an initial registration request within the timelines set out in Table 7 in the VCS Standard v5.0 As per Table 7 in the VCS Standard v5.0, AFOLU projects are required to submit the registration request within eight years from the start of the initial crediting period. The present project complies with this requirement, as the registration request will be submitted within the applicable timeline from the initial crediting period start date. Project Crediting Period Length 3.8.4 The project crediting period shall be determined as set out in Table 8 in the VCS Standard v5.0 The crediting period for the present project is 40 years, spanning 01 May 2023 to 30 April 2063. 3.8.5 Proponents of AFOLU projects shall have a credible and robust plan for managing and implementing the project over the project crediting period, including for monitoring and verifying the project’s performance. Where the project crediting period is less than 40 years, the permanence of the project’s carbon stocks shall be monitored in accordance with the requirements in Sections 3.2.25–3.2.26. The present project has established a comprehensive project implementation and management plan that includes institutional arrangements, monitoring procedures, and verification provisions to ensure effective implementation throughout the crediting period. The project has a crediting period of 40 years (01 May 2023 to 30 April 2063). Since the crediting period is 40 years, the requirement related to additional permanence monitoring for projects with a crediting period of less than 40 years, as referenced in",
+      "page": 16,
+      "section": "Marcondes PDD page 16",
+      "spanId": "marcondes-pdd:page:16:project-evidence",
       "provenance": {
         "docId": "quick-check-review-question",
-        "page": 1,
+        "page": 16,
         "sectionPath": [
-          "Application of Methodology"
+          "2 PROJECT DETAILS",
+          "Marcondes PDD page 16"
         ],
-        "spanId": "quick-check-review-question:element:paragraph:3.1",
-        "sectionHeading": "Application of Methodology",
+        "spanId": "marcondes-pdd:page:16:project-evidence",
+        "sectionHeading": "Marcondes PDD page 16",
         "sourceType": "PDD"
       },
       "finalizationState": "draft",
-      "reviewState": "pending review",
+      "reviewState": "reviewed",
       "reviewHistory": [],
       "rowVersion": 1,
       "finalizationActorRef": null,
@@ -954,9 +1132,31 @@
       "reviewHistoryRef": null,
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
-      "reviewerOutcome": "NOT_ASSESSED",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "draftFindingCandidate": null,
-      "contradictionState": "NOT_REVIEWED"
+      "contradictionState": "NONE_IDENTIFIED",
+      "finalEvidenceState": "N/A",
+      "reviewerEvidence": [
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+          "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+          "page": 62,
+          "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0012",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 62,
+            "sectionPath": [
+              "3 CLIMATE",
+              "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+            ],
+            "spanId": "manual:marcondes-pdd:page-62:r-1-0012",
+            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        }
+      ]
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0013",
