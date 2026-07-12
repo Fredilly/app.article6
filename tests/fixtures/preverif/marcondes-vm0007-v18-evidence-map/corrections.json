@@ -1,8 +1,474 @@
 {
   "stableProjectId": "marcondes-redd-5953",
-  "reviewedRuleIds": [],
-  "acceptedEvidence": [],
-  "rejectedEvidence": [],
-  "reviewerCorrections": [],
+  "reviewedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
+  "acceptedEvidence": [
+    {
+      "quote": "The project area qualifies as forest and has remained forested for more than 10 years prior to the project start date, meeting the applicable forest definition thresholds.",
+      "page": 12,
+      "section": "2.1.4 Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+      "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 12,
+        "sectionPath": [
+          "3 CLIMATE",
+          "2.1.4 Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+        "sectionHeading": "2.1.4 Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "Baseline deforestation in the project area falls within either of the following categories:\na) Unplanned deforestation (VCS category AUDef)\nb) Planned deforestation (VCS category APDef)\nREDD activity types are not applicable under the following condition:",
+      "page": 63,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-deforestation-category",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 63,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-deforestation-category",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "All 36 project properties are classified as forest. In the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property.\nDeforestation is authorized under the Brazilian Forest Code (Law 12.651/2012).\nAll 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance.",
+      "page": 63,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-legal-authorization",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 63,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-legal-authorization",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+      "page": 62,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-wetland-applicability",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 62,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-table-31-wetland-applicability",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "The baseline scenario and additionality assessment are based on the prevailing deforestation drivers, land-use practices, and regulatory conditions observed within the initial project activity instances, supported by proxy area analysis to ensure representativeness across the eligibility area. Since these conditions are representative of the broader forest areas within the defined eligibility area, the same baseline scenario and additionality justification are applied consistently across the entire eligibility area.",
+      "page": "18-19",
+      "section": "3.5.5 Grouped project eligibility area baseline and additionality requirements",
+      "spanId": "quick-check-review-question:element:paragraph:3.5.5",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": "18-19",
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.5.5 Grouped project eligibility area baseline and additionality requirements"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.5.5",
+        "sectionHeading": "3.5.5 Grouped project eligibility area baseline and additionality requirements",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module.",
+      "page": 63,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0001 applicability",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0001-pool",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 63,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0001 applicability"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0001-pool",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0001 applicability",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "The determination of the baseline scenario and additionality follows the stepwise procedures outlined in the applicable methodology.",
+      "page": 66,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VT0001 v3.0",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-vt0001",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 66,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VT0001 v3.0"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-vt0001",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VT0001 v3.0",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land.",
+      "page": 63,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0006",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 63,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0006",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "A monitoring protocol combining automated deforestation alerts with periodic field verification ensures early detection and response to any unauthorized clearing. Monitoring reports are produced quarterly and shared with landowners and community stakeholders.",
+      "page": 38,
+      "section": "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
+      "spanId": "quick-check-review-question:element:paragraph:2.1.17-monitoring",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 38,
+        "sectionPath": [
+          "3 CLIMATE",
+          "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:2.1.17-monitoring",
+        "sectionHeading": "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
+        "sourceType": "PDD"
+      }
+    },
+    {
+      "quote": "The project therefore quantifies uncertainties related to the determination of deforestation and degradation rates, estimation of carbon stock levels and changes in carbon stocks, and assessment of project emissions.",
+      "page": 66,
+      "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0017 v2.2",
+      "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0017",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 66,
+        "sectionPath": [
+          "3 CLIMATE",
+          "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0017 v2.2"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1.2-vmd0017",
+        "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0017 v2.2",
+        "sourceType": "PDD"
+      }
+    }
+  ],
+  "rejectedEvidence": [
+    {
+      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+      "page": 1,
+      "section": "Application of Methodology",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Application of Methodology"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1",
+        "sectionHeading": "Application of Methodology",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+      "page": 1,
+      "section": "Application of Methodology",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Application of Methodology"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1",
+        "sectionHeading": "Application of Methodology",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+      "page": 1,
+      "section": "Application of Methodology",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Application of Methodology"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1",
+        "sectionHeading": "Application of Methodology",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+      "page": 1,
+      "section": "Application of Methodology",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Application of Methodology"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1",
+        "sectionHeading": "Application of Methodology",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+      "page": 1,
+      "section": "Application of Methodology",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Application of Methodology"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.1",
+        "sectionHeading": "Application of Methodology",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.2.1 Baseline Emissions (VCS, 3.15) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 68 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Reg…",
+      "page": 1,
+      "section": "Quantification of Estimated GHG Emission Reductions and Removals",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Quantification of Estimated GHG Emission Reductions and Removals"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.2",
+        "sectionHeading": "Quantification of Estimated GHG Emission Reductions and Removals",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+      "page": 1,
+      "section": "The determination of baseline scenario and",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "The determination of baseline scenario and"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.5.5",
+        "sectionHeading": "The determination of baseline scenario and",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+      "page": 1,
+      "section": "The determination of baseline scenario and",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "The determination of baseline scenario and"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.5.5",
+        "sectionHeading": "The determination of baseline scenario and",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "2.4.1 Project Governance Structures (CCB, G4.1) The project is managed by the proponent Organica Consultoria LTDA, under the direction of Rémi Denecheau, who conducts the overall coordination of the project. His responsibilities include coo…",
+      "page": 1,
+      "section": "Management Capacity",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Management Capacity"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:2.4",
+        "sectionHeading": "Management Capacity",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    },
+    {
+      "quote": "3.3.1 Data and Parameters Available at Validation (VCS, 3.16) This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be…",
+      "page": 1,
+      "section": "Monitoring",
+      "provenance": {
+        "docId": "quick-check-review-question",
+        "page": 1,
+        "sectionPath": [
+          "Monitoring"
+        ],
+        "spanId": "quick-check-review-question:element:paragraph:3.3",
+        "sectionHeading": "Monitoring",
+        "sourceType": "PDD"
+      },
+      "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed"
+    }
+  ],
+  "reviewerCorrections": [
+    {
+      "summary": "forest eligibility",
+      "correction": "Replaced the truncated page-1 methodology paragraph with the complete project-specific eligibility statement on PDF page 12."
+    },
+    {
+      "summary": "planned-deforestation classification",
+      "correction": "Replaced the truncated page-1 quote with the complete Table 31 category text on PDF page 63; the project-specific APDef justification is recorded separately in the accepted evidence note."
+    },
+    {
+      "summary": "legal authorization",
+      "correction": "Replaced the truncated page-1 quote with the complete project-specific Table 31 justification on PDF page 63."
+    },
+    {
+      "summary": "wetland applicability",
+      "correction": "Corrected the machine proposal from generic page-1 support to a supported NOT_APPLICABLE decision based on the explicit Table 31 project-area statement on PDF page 62."
+    },
+    {
+      "summary": "proxy areas",
+      "correction": "Replaced the truncated page-1 quote with the complete proxy-area statement spanning PDF pages 18–19 and corrected the section provenance."
+    },
+    {
+      "summary": "carbon pools",
+      "correction": "Replaced the truncated page-1 quote with the explicit VMD0001 pool requirement on PDF page 63."
+    },
+    {
+      "summary": "additionality",
+      "correction": "Replaced the truncated page-1 quote with the project-specific VT0001 statement on PDF page 66 and kept the conclusion separate from the evidence state."
+    },
+    {
+      "summary": "module/tool selection",
+      "correction": "Replaced the truncated page-1 quote with the project-specific VMD0006 module-selection justification on PDF page 63."
+    },
+    {
+      "summary": "monitoring",
+      "correction": "Replaced the machine’s unrelated truncated page-1 project-management quote with the complete monitoring statement on PDF page 38."
+    },
+    {
+      "summary": "data-source requirements",
+      "correction": "Corrected the machine proposal from truncated page-1 support to the complete PDF page-66 uncertainty statement. This supports the need for source documentation but does not prove the VM0007 data-source hierarchy, so the final state remains UNCLEAR."
+    }
+  ],
+  "finalTruth": [
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the forest-history evidence and the referenced forest-definition records for validation review.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the Table 31 classification and supporting baseline evidence showing why APDef applies.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the ASV, SIGEF, CAR, and Forest Code records supporting the legal-conversion claim for validation.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "clientAction": "Retain the project-area soil and wetland assessment supporting the WRC exclusion and provide it for validation review.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the proxy-area analysis and its representativeness rationale, including the maps and source data used.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the carbon-pool inclusion rationale and reconcile it with the baseline, project, leakage, and inventory calculations.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the VT0001 stepwise additionality analysis and its supporting barrier, investment, and baseline records.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the APD classification and the module-selection rationale tying VMD0006 to the documented project baseline.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the monitoring protocol, alert sources, field-verification records, quarterly reports, and assigned responsibilities for validation.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "clientAction": "Provide the data-source register and source-tier justification for each monitored parameter, distinguishing literature, IPCC defaults, and expert judgment, with retained supporting records.",
+      "draftFindingCandidate": "OFI_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    }
+  ],
   "unreviewedRowsRemainMachineProposed": true
 }

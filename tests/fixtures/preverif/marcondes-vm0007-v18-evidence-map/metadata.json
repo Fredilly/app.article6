@@ -19,7 +19,9 @@
     "page61Wording": "VM0007 v1.7",
     "formalInventory": "Table 30 identifies VM0007 REDD+ Methodology Framework version 1.8",
     "rationale": "Table 30 is the formal methodology inventory and the PDD repeatedly declares v1.8 elsewhere",
-    "silentNormalization": false
+    "silentNormalization": false,
+    "versionQualified": true,
+    "reconciliationStatus": "VERSION_QUALIFIED"
   },
   "machineProposal": {
     "rowCount": 58,
@@ -33,10 +35,28 @@
     }
   },
   "review": {
-    "reviewedRuleIds": [],
-    "reviewedRowCount": 0,
-    "goldPromotion": "BLOCKED",
-    "reportReleaseState": "BLOCKED_PENDING_REVIEW_AND_CONTRADICTION_RECONCILIATION"
+    "reviewedRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+    ],
+    "reviewedRowCount": 10,
+    "goldPromotion": "BLOCKED_PENDING_REVIEW_COVERAGE",
+    "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
+    "versionReconciliationPending": false,
+    "evidenceStateCounts": {
+      "FOUND": 8,
+      "UNCLEAR": 1,
+      "MISSING": 0,
+      "N/A": 1
+    }
   },
   "productionLogicChanged": false
 }

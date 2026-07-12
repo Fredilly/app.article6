@@ -1,7 +1,22 @@
 {
   "stableProjectId": "marcondes-redd-5953",
-  "methodology": "VM0007 v1.8",
-  "reviewedRuleIds": [],
+  "methodology": {
+    "reconciled": "VM0007 v1.8",
+    "versionQualified": true,
+    "visibleContradiction": "Page 61 Section 3.1.1 says VM0007 v1.7; Table 30 and repeated project declarations say v1.8."
+  },
+  "reviewedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
   "rows": [
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0001",
@@ -71,7 +86,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0002",
@@ -141,7 +157,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0003",
@@ -211,7 +228,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0004",
@@ -281,7 +299,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0005",
@@ -351,7 +370,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0006",
@@ -421,7 +441,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0007",
@@ -491,7 +512,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0008",
@@ -561,7 +583,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0009",
@@ -631,7 +654,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0010",
@@ -701,7 +725,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0011",
@@ -771,7 +796,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0012",
@@ -841,7 +867,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0013",
@@ -911,7 +938,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0014",
@@ -981,7 +1009,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-1-0015",
@@ -1051,7 +1080,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0001",
@@ -1121,7 +1151,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0002",
@@ -1191,7 +1222,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0003",
@@ -1261,7 +1293,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0004",
@@ -1331,7 +1364,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0005",
@@ -1401,7 +1435,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0006",
@@ -1471,7 +1506,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0007",
@@ -1541,7 +1577,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0008",
@@ -1611,7 +1648,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0009",
@@ -1681,7 +1719,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0010",
@@ -1751,7 +1790,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0011",
@@ -1821,7 +1861,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0012",
@@ -1891,7 +1932,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0013",
@@ -1961,7 +2003,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0014",
@@ -2031,7 +2074,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0015",
@@ -2101,7 +2145,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-2-0016",
@@ -2171,7 +2216,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0001",
@@ -2241,7 +2287,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0002",
@@ -2311,7 +2358,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0003",
@@ -2381,7 +2429,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0004",
@@ -2451,7 +2500,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0005",
@@ -2521,7 +2571,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0006",
@@ -2591,7 +2642,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0007",
@@ -2661,7 +2713,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-3-0008",
@@ -2731,7 +2784,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-4-0001",
@@ -2801,7 +2855,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-4-0002",
@@ -2871,7 +2926,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0001",
@@ -2941,7 +2997,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0002",
@@ -3011,7 +3068,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0003",
@@ -3081,7 +3139,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0004",
@@ -3151,7 +3210,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0005",
@@ -3221,7 +3281,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0006",
@@ -3291,7 +3352,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0007",
@@ -3361,7 +3423,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0008",
@@ -3431,7 +3494,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-5-0009",
@@ -3501,7 +3565,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0001",
@@ -3571,7 +3636,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0002",
@@ -3641,7 +3707,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0003",
@@ -3711,7 +3778,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0004",
@@ -3781,7 +3849,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0005",
@@ -3851,7 +3920,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0006",
@@ -3921,7 +3991,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0007",
@@ -3991,7 +4062,8 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     },
     {
       "rowId": "marcondes-redd-5953-vm0007-v18-evidence-map:Verra.AFOLU.VM0007.v1-8.R-6-0008",
@@ -4061,8 +4133,10 @@
       "proposalSource": "VM0007_QUICK_CHECK_AUDIT",
       "proposalTimestamp": "2026-07-12T00:00:00.000Z",
       "reviewerOutcome": "NOT_ASSESSED",
-      "draftFindingCandidate": null
+      "draftFindingCandidate": null,
+      "contradictionState": "NOT_REVIEWED"
     }
   ],
-  "goldPromotionBlocked": true
+  "goldPromotionBlocked": true,
+  "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE"
 }
