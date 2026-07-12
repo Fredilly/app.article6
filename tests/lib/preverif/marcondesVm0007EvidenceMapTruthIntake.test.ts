@@ -59,7 +59,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(normalize(rawText)).toContain(normalize(evidence.quote));
         expect(expectedPages[id]).toContain(evidence.page);
         expect(evidence.provenance.page).toBe(evidence.page);
-        expect(evidence.provenance.sectionPath[0]).toBe(evidence.page < 62 ? "2 PROJECT DETAILS" : "3 CLIMATE");
+        expect(evidence.provenance.sectionPath[0]).toBe(evidence.page < 61 ? "2 PROJECT DETAILS" : "3 CLIMATE");
         expect(evidence.provenance.provenanceKind).toBe("manual");
         expect(evidence.provenance.spanId).toMatch(/^manual:/);
         expect(evidence.spanId).toMatch(/^manual:/);
