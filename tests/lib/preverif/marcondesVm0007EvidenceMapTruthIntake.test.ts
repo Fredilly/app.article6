@@ -23,7 +23,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const draft = read("gold.draft.json");
     const gold = read("gold.json");
     const reviewedRuleIds = read("reviewedRuleIds.json").reviewedRuleIds;
-    expect(sha256("raw-document-extraction.json")).toBe("7031b49bf70d541679788e65efef09921712a506a0ba4aa2da94b6b754d599");
+    expect(sha256("raw-document-extraction.json")).toBe("7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747");
     expect(sha256("raw-quick-check-output.txt")).toBe("320276d72ea5f9940081fe250ab012a2085ed7e9f978828aa2da94b6b754d599");
     expect(sha256("quick-check-output.json")).toBe("a7f251fa2f2f90ad8f2969963a0f8459fa3124dab9838ba75f8cfae63efe8642");
     expect(sha256("raw-evidence-map.json")).toBe("bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e");
