@@ -39,7 +39,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
-        "quote": "Baseline deforestation in the project area falls within either of the following categories:\na) Unplanned deforestation (VCS category AUDef)\nb) Planned deforestation (VCS category APDef)\nREDD activity types are not applicable under the following condition:",
+        "quote": "a) Unplanned deforestation (VCS category AUDef)\nb) Planned deforestation (VCS category APDef)",
         "page": 63,
         "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
         "spanId": "manual:marcondes-pdd:page-63:r-1-0002",
@@ -61,7 +61,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
-        "quote": "All 36 project owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance.",
+        "quote": "All 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance.",
         "page": 63,
         "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
         "spanId": "manual:marcondes-pdd:page-63:r-1-0004",
@@ -303,7 +303,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
-        "quote": "The project therefore quantifies uncertainties related to the determination of deforestation and degradation rates, estimation of carbon stock levels and changes in carbon stocks, and assessment of project emissions.",
+        "quote": "The project therefore quantifies uncertainties related to the determination of deforestation and degradation rates, estimation of carbon stock levels and changes in carbon pools, and assessment of project emissions.",
         "page": 66,
         "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0017 v2.2",
         "spanId": "manual:marcondes-pdd:page-66:r-6-0008",
