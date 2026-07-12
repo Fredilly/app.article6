@@ -154,15 +154,15 @@ describe("auditEvidence with VM0007 contracts", () => {
     }
   });
 
-  it("keeps complete source quotes and emits separate records for evidence on separate pages", () => {
+  it("keeps the complete selected source quote without promoting a weak secondary span", () => {
     const first = "The project area qualifies as forest under the applicable forest definition thresholds and has remained forested for more than 10 years prior to the project start date.";
     const second = "The land-use history and area-specific evidence confirm the forest qualification for the project area.";
     const result = byRuleId(auditSynthetic("R-1-0001", [span(12, "p12", first), span(13, "p13", second)]).results, "R-1-0001");
 
     expect(result.bestEvidenceQuote).not.toContain("…");
     expect(result.bestEvidenceQuote).toBe(first);
-    expect(result.evidence?.map((item) => item.page)).toEqual([12, 13]);
-    expect(result.evidence?.map((item) => item.span)).toEqual(["p12", "p13"]);
+    expect(result.evidence?.map((item) => item.page)).toEqual([12]);
+    expect(result.evidence?.map((item) => item.span)).toEqual(["p12"]);
   });
 
   it.each([

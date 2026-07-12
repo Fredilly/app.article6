@@ -140,10 +140,27 @@ describe("legacy mismatch fixture quality gate", () => {
   });
 
   it("fails if bad evidence is promoted to supported wording", () => {
-    const audit = buildMixedAudit();
+    // The shared classifier no longer marks the old Envira row as supported.
+    // Keep this gate test focused by explicitly constructing one supported
+    // report row, then verify that URL evidence is still rejected.
+    const baseAudit = buildMixedAudit();
+    const results = baseAudit.results.map((result) => result.ruleId === "R-1-0001"
+      ? withStatus(result, { status: "supported_by_pdd", gap: "", clientAction: "" })
+      : result);
+    const audit: MethodologyEvidenceAuditSummary = {
+      ...baseAudit,
+      results,
+      totals: {
+        supported_by_pdd: results.filter((entry) => entry.status === "supported_by_pdd").length,
+        partially_supported: results.filter((entry) => entry.status === "partially_supported").length,
+        missing_evidence: results.filter((entry) => entry.status === "missing_evidence").length,
+        not_applicable: results.filter((entry) => entry.status === "not_applicable").length,
+        manual_review_needed: results.filter((entry) => entry.status === "manual_review_needed").length,
+      },
+    };
     const report = JSON.parse(JSON.stringify(buildReport(audit))) as ReturnType<typeof buildReport>;
-    const supportedRow = report.fullRuleAuditTable.find((row) => row.ruleId === "R-2-0003");
-    const appendixRow = report.evidenceAppendix.find((row) => row.ruleId === "R-2-0003");
+    const supportedRow = report.fullRuleAuditTable.find((row) => row.ruleId === "R-1-0001");
+    const appendixRow = report.evidenceAppendix.find((row) => row.ruleId === "R-1-0001");
     expect(supportedRow).toBeDefined();
     expect(appendixRow).toBeDefined();
     if (supportedRow) {

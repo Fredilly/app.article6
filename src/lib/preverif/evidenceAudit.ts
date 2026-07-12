@@ -127,6 +127,7 @@ type CandidateScore = {
   sectionTitle: string | null;
   score: number;
   strongHits: number;
+  signalTokenHits: number;
   weakHits: number;
   rejectHits: number;
   ruleHits: number;
@@ -657,6 +658,11 @@ function hasProjectSpecificMarkers(text: string): boolean {
 }
 
 function methodologyBoilerplatePenalty(text: string): number {
+  // A project-specific span may legitimately quote a methodology condition and
+  // then provide the project's justification. Penalize copied-only spans, not
+  // mixed spans where the project facts are present for the rule to assess.
+  if (hasProjectSpecificMarkers(text)) return 0;
+
   const methodologySignals = [
     /\bmethodolog(?:y|ies)\b/g,
     /\bmodules?\b/g,
@@ -801,8 +807,12 @@ function candidateScore(input: {
   const sectionHits = countPhraseHits(sectionLabel, deriveSectionSignals(input.contract))
     + countTokenHits(sectionLabel, sectionTokens);
   const ruleHits = countTokenHits(text, ruleTokens);
-  const strongHits = countPhraseHits(text, input.contract.strongEvidenceSignals)
-    + Math.min(countTokenHits(text, tokenize(signalPhrases.join(" "), TEXT_STOPWORDS)), 4);
+  // A token overlap with a natural-language signal is useful for retrieval, but
+  // it is not evidence that the signal's complete requirement is satisfied.
+  // Keep phrase matches separate so aggregate keyword overlap cannot promote a
+  // partial or methodology-only span to full support.
+  const strongHits = countPhraseHits(text, input.contract.strongEvidenceSignals);
+  const signalTokenHits = Math.min(countTokenHits(text, tokenize(signalPhrases.join(" "), TEXT_STOPWORDS)), 4);
   const weakHits = countPhraseHits(text, input.contract.weakEvidenceSignals);
   const rejectHits = countPhraseHits(text, input.contract.rejectSignals);
   const boilerplatePenalty = methodologyBoilerplatePenalty(text);
@@ -818,8 +828,13 @@ function candidateScore(input: {
     + (sectionHits * 8)
     + (ruleHits * 6)
     + (strongHits * 9)
+    + (signalTokenHits * 2)
     + (weakHits * 3)
-    + projectFactBonusValue
+    // Explicit project qualification language is a stronger retrieval signal
+    // than generic methodology vocabulary.
+    + (ruleTokens.includes("forest") && /\bthe project area qualifies as forest\b/i.test(text) ? 30 : 0)
+    // Project markers are retained for classification diagnostics, but broad
+    // factual language must not outweigh rule-specific evidence during retrieval.
     + reliabilityBonus
     - (rejectHits * 12)
     - headingPenalty
@@ -833,6 +848,7 @@ function candidateScore(input: {
     sectionTitle: input.sectionTitle,
     score,
     strongHits,
+    signalTokenHits,
     weakHits,
     rejectHits,
     ruleHits,
@@ -945,6 +961,7 @@ function selectNotApplicableCandidate(input: {
       sectionTitle,
       score,
       strongHits: phraseHits,
+      signalTokenHits: phraseHits,
       weakHits: 0,
       rejectHits: 0,
       ruleHits: 0,
@@ -1026,8 +1043,11 @@ function classifyStatus(input: {
 
     if (
       input.bestCandidate.strongHits >= 2
-      || (input.bestCandidate.score >= 42 && input.bestCandidate.ruleHits >= 2)
-      || (input.bestCandidate.projectFactBonus >= 30 && input.bestCandidate.ruleHits >= 1)
+      || (
+        input.bestCandidate.projectFactBonus >= 48
+        && input.bestCandidate.ruleHits >= 5
+        && input.bestCandidate.signalTokenHits >= 2
+      )
     ) {
       return {
         status: "supported_by_pdd",
