@@ -27,7 +27,7 @@ Envira's historical VM0007 v1.5 mismatch material remains quarantined regression
 
 ### Phase 0 — Roadmap Boundary — done
 
-Phase 0 is documentation-only. Fixtures must use PDF truth, not current app output. Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7. Delivered by PR #895.
+Phase 0 is documentation-only. fixtures must use PDF truth, not current app output. Define the scope of VM0007 judgment fixtures and lock the separation from production logic and Quick Check v2 Phase 7. Delivered by PR #895.
 
 ### Phase 1 — Envira VM0007 Judgment Fixtures — done
 
