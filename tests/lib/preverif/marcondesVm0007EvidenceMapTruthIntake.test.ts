@@ -8,10 +8,11 @@ const rawText = fs.readFileSync(path.join(dir, "raw-quick-check-output.txt"), "u
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
 const sha256 = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(dir, name))).digest("hex");
 const stable = (id: string) => "Verra.AFOLU.VM0007.v1-8." + id;
-const previousReviewed = ["R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008", "R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012"];
-const batchReviewed = ["R-1-0013", "R-1-0014", "R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
-const independentAuditIds = ["R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008"];
-const reviewed = [...previousReviewed, ...batchReviewed];
+const batchOne = ["R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008"];
+const batchTwo = ["R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014"];
+const finalEight = ["R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
+const independentAuditIds = [...batchOne, ...batchTwo];
+const reviewed = [...independentAuditIds, ...finalEight];
 const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
@@ -40,8 +41,9 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(gold.reviewedRuleIds).toEqual(reviewedRuleIds);
     expect(gold.rows.map((row: any) => row.ruleId)).toEqual(reviewedRuleIds);
     expect(reviewedRuleIds).toHaveLength(28);
-    expect(reviewedRuleIds.slice(0, 18)).toEqual(previousReviewed.map(stable));
-    expect(reviewedRuleIds.slice(18)).toEqual(batchReviewed.map(stable));
+    expect(reviewedRuleIds.slice(0, 10)).toEqual(batchOne.map(stable));
+    expect(reviewedRuleIds.slice(10, 20)).toEqual(batchTwo.map(stable));
+    expect(reviewedRuleIds.slice(20)).toEqual(finalEight.map(stable));
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review")).toHaveLength(40);
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
     expect(gold.goldPromotionBlocked).toBe(true);
@@ -96,14 +98,15 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     }
   });
 
-  it("records an independent audit for exactly the requested ten rows", () => {
+  it("records the cumulative independent audit and the exact batch-two rows", () => {
     const gold = read("gold.json");
     const audit = read("independent-audit.json");
     const rawDocument = read("raw-document-extraction.json");
     const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, page.text]));
     const goldByRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(audit.rows.map((row: any) => row.ruleReference)).toEqual(independentAuditIds);
-    expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(10);
+    expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(20);
+    expect(audit.rows.slice(10).map((row: any) => row.ruleReference)).toEqual(batchTwo);
     expect(audit.rows.every((row: any) => row.auditResult && row.rationale && row.requirementReviewed && row.pagesInspected.length > 0)).toBe(true);
     expect(audit.rows.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
     expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005"]);
@@ -120,6 +123,16 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(sourcePages.has(evidence.page)).toBe(true);
         expect((sourcePages.get(evidence.page) ?? "").replace(/\s+/g, " ").trim()).toContain(evidence.quote.replace(/\s+/g, " ").trim());
       }
+    }
+    const batchTwoAudit = audit.rows.filter((row: any) => batchTwo.includes(row.ruleReference));
+    expect(batchTwoAudit).toHaveLength(10);
+    for (const row of batchTwoAudit) {
+      expect(row.finalState).toBe("N/A");
+      expect(row.reviewerOutcome).toBe("NOT_APPLICABLE");
+      expect(row.applicabilityTrigger).toBeTruthy();
+      expect(row.applicabilityReason).toBeTruthy();
+      expect(row.rationale).toMatch(/page/i);
+      expect(row.clientActionAssessment).toBeTruthy();
     }
     const source = rawDocument.pages.map((page: any) => page.text).join("\n");
     const normalizeAudit = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -149,25 +162,33 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(row.reviewerOutcome).not.toBe("CONFORMS");
         expect(row.draftFindingCandidate).not.toBe("OFI_CANDIDATE");
       }
+      if (row.draftFindingCandidate === "NCR_CANDIDATE") {
+        expect(row.finalEvidenceState).toBe("FOUND");
+        expect(row.reviewerOutcome).not.toBe("NOT_ASSESSED");
+        expect(row.rationale ?? row.clientAction ?? "").toMatch(/nonconform|prohibit|violate|contradict/i);
+      }
     }
-    expect(gold.counts).toEqual({ FOUND: 7, UNCLEAR: 8, MISSING: 0, "N/A": 13 });
+    const calculatedCounts = gold.rows.reduce((counts: Record<string, number>, row: any) => {
+      counts[row.finalEvidenceState] = (counts[row.finalEvidenceState] ?? 0) + 1;
+      return counts;
+    }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
+    expect(gold.counts).toEqual(calculatedCounts);
+    expect(calculatedCounts).toEqual({ FOUND: 7, UNCLEAR: 8, MISSING: 0, "N/A": 13 });
   });
 
-  it("leaves the other 18 reviewed rows unchanged and excludes the remaining 30", () => {
+  it("keeps the final eight reviewed rows unchanged and excludes the remaining 30", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
-    const otherReviewed = ["R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014", "R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
-    expect(otherReviewed.every((id) => byRule.has(id))).toBe(true);
-    expect(otherReviewed.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
-      ["R-1-0003", "N/A", "NOT_APPLICABLE"], ["R-1-0006", "N/A", "NOT_APPLICABLE"], ["R-1-0007", "N/A", "NOT_APPLICABLE"], ["R-1-0008", "N/A", "NOT_APPLICABLE"], ["R-1-0009", "N/A", "NOT_APPLICABLE"], ["R-1-0010", "N/A", "NOT_APPLICABLE"], ["R-1-0011", "N/A", "NOT_APPLICABLE"], ["R-1-0012", "N/A", "NOT_APPLICABLE"],
-      ["R-1-0013", "N/A", "NOT_APPLICABLE"], ["R-1-0014", "N/A", "NOT_APPLICABLE"], ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "FOUND", "CONFORMS"], ["R-2-0002", "FOUND", "CONFORMS"], ["R-2-0006", "FOUND", "CONFORMS"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "FOUND", "CONFORMS"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
+    expect(finalEight.every((id) => byRule.has(id))).toBe(true);
+    expect(finalEight.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
+      ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "FOUND", "CONFORMS"], ["R-2-0002", "FOUND", "CONFORMS"], ["R-2-0006", "FOUND", "CONFORMS"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "FOUND", "CONFORMS"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
     ]);
     expect(gold.rows.some((row: any) => row.ruleReference === "R-4-0001")).toBe(false);
     expect(gold.rows).toHaveLength(28);
-    expect(gold.rows.every((row: any) => independentAuditIds.includes(row.ruleReference) || otherReviewed.includes(row.ruleReference))).toBe(true);
+    expect(gold.rows.every((row: any) => reviewed.includes(row.ruleReference))).toBe(true);
   });
 
-  it("keeps all prior reviewed outcomes stable and gives batch 3 complete provenance", () => {
+  it("keeps batch-one outcomes stable and gives the final eight complete provenance", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     const priorStates: Record<string, string> = {
@@ -178,7 +199,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       "R-1-0011": "N/A", "R-1-0012": "N/A"
     };
     for (const [ruleId, state] of Object.entries(priorStates)) expect(byRule.get(ruleId)?.finalEvidenceState).toBe(state);
-    for (const ruleId of batchReviewed) {
+    for (const ruleId of finalEight) {
       const row = byRule.get(ruleId)!;
       expect(row.acceptedEvidence.length).toBeGreaterThan(0);
       expect(row.acceptedEvidence[0].provenance.provenanceKind).toBe("manual");
@@ -197,13 +218,12 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(scenarioQuotes).toContain("SCENARIO 1:");
     expect(scenarioQuotes).toContain("SCENARIO 2:");
     expect(scenarioQuotes).toContain("SCENARIO 3:");
-    const unchangedBatchOutcomes: Record<string, [string, string]> = {
-      "R-1-0013": ["N/A", "NOT_APPLICABLE"], "R-1-0014": ["N/A", "NOT_APPLICABLE"],
+    const unchangedFinalEight: Record<string, [string, string]> = {
       "R-2-0002": ["FOUND", "CONFORMS"], "R-2-0006": ["FOUND", "CONFORMS"],
       "R-2-0008": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0016": ["N/A", "NOT_APPLICABLE"],
       "R-3-0002": ["FOUND", "CONFORMS"], "R-3-0006": ["N/A", "NOT_APPLICABLE"]
     };
-    for (const [ruleId, [state, outcome]] of Object.entries(unchangedBatchOutcomes)) {
+    for (const [ruleId, [state, outcome]] of Object.entries(unchangedFinalEight)) {
       expect(byRule.get(ruleId)?.finalEvidenceState).toBe(state);
       expect(byRule.get(ruleId)?.reviewerOutcome).toBe(outcome);
     }
