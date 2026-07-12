@@ -54,6 +54,44 @@
       }
     },
     {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+        "quote": "Land with woody vegetation that meets an internationally accepted definition (e.g., UNFCCC, FAO, or IPCC) of what constitutes a forest, which includes threshold parameters, such as minimum forest area, tree height and level of crown cover, and may include mature, secondary, degraded and wetland forests (VCS Program Definitions)",
+        "page": 6,
+        "section": "1.2 Standardized Benefit Metrics",
+        "spanId": "manual:marcondes-pdd:page-6:r-1-0001-definition",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 6,
+          "sectionPath": ["1 SUMMARY OF PROJECT BENEFITS", "1.2 Standardized Benefit Metrics"],
+          "spanId": "manual:marcondes-pdd:page-6:r-1-0001-definition",
+          "sectionHeading": "1.2 Standardized Benefit Metrics",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+        "quote": "MapBiomas Collection 10 and PRODES/INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption.",
+        "page": 62,
+        "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-1-0001-history",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"],
+          "spanId": "manual:marcondes-pdd:page-62:r-1-0001-history",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
@@ -264,6 +302,44 @@
             "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4"
           ],
           "spanId": "manual:marcondes-pdd:page-63:r-3-0005",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+        "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+        "page": 61,
+        "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-61:r-3-0005-table30",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": ["3 CLIMATE", "3.1 Application of Methodology", "Table 30. Methodologies, modules, and tools applied"],
+          "spanId": "manual:marcondes-pdd:page-61:r-3-0005-table30",
+          "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+        "quote": "VMD0006 v1.4 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land.",
+        "page": 63,
+        "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
+        "spanId": "manual:marcondes-pdd:page-63:r-3-0005-module",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 63,
+          "sectionPath": ["3 CLIMATE", "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4"],
+          "spanId": "manual:marcondes-pdd:page-63:r-3-0005-module",
           "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31, VMD0006 v1.4",
           "sourceType": "PDD",
           "provenanceKind": "manual"

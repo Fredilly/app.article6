@@ -13,8 +13,8 @@ const batchReviewed = ["R-1-0013", "R-1-0014", "R-1-0015", "R-2-0001", "R-2-0002
 const independentAuditIds = ["R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008"];
 const reviewed = [...previousReviewed, ...batchReviewed];
 const expectedPages: Record<string, Array<number>> = {
-  "R-1-0001": [12], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
-  "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [63],
+  "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
+  "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [64], "R-2-0016": [62],
   "R-3-0002": [41, 42], "R-3-0006": [62]
@@ -54,12 +54,14 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
   it("maps exact reviewed evidence to explicit rule IDs and correct PDF pages", () => {
     const gold = read("gold.json");
     const corrections = read("corrections.json");
+    const rawDocument = read("raw-document-extraction.json");
     const acceptedByRule = new Map<string, any[]>();
     for (const entry of corrections.acceptedEvidence) {
       expect(entry.ruleId).toBeTruthy();
       expect(reviewed).toContain(entry.ruleId.split(".").pop());
       acceptedByRule.set(entry.ruleId, [...(acceptedByRule.get(entry.ruleId) ?? []), entry.evidence]);
     }
+    const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, page.text]));
     for (const row of gold.rows) {
       const id = row.ruleReference as string;
       const ruleId = stable(id);
@@ -67,10 +69,15 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       expect(row.acceptedEvidence.length).toBeGreaterThan(0);
       expect(row.acceptedEvidence).toEqual(acceptedByRule.get(ruleId));
       for (const evidence of row.acceptedEvidence) {
-        expect(normalize(rawText)).toContain(normalize(evidence.quote));
+        if (independentAuditIds.includes(id)) {
+          expect(sourcePages.has(evidence.page)).toBe(true);
+          expect(normalize(sourcePages.get(evidence.page) ?? "")).toContain(normalize(evidence.quote));
+        } else {
+          expect(normalize(rawText)).toContain(normalize(evidence.quote));
+        }
         expect(expectedPages[id]).toContain(evidence.page);
         expect(evidence.provenance.page).toBe(evidence.page);
-        expect(evidence.provenance.sectionPath[0]).toBe(evidence.page < 61 ? "2 PROJECT DETAILS" : "3 CLIMATE");
+        expect(evidence.provenance.sectionPath[0]).toBe(evidence.page <= 9 ? "1 SUMMARY OF PROJECT BENEFITS" : evidence.page < 61 ? "2 PROJECT DETAILS" : "3 CLIMATE");
         expect(evidence.provenance.provenanceKind).toBe("manual");
         expect(evidence.provenance.spanId).toMatch(/^manual:/);
         expect(evidence.spanId).toMatch(/^manual:/);
@@ -92,21 +99,44 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
   it("records an independent audit for exactly the requested ten rows", () => {
     const gold = read("gold.json");
     const audit = read("independent-audit.json");
+    const rawDocument = read("raw-document-extraction.json");
+    const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, page.text]));
+    const goldByRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(audit.rows.map((row: any) => row.ruleReference)).toEqual(independentAuditIds);
     expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(10);
     expect(audit.rows.every((row: any) => row.auditResult && row.rationale && row.requirementReviewed && row.pagesInspected.length > 0)).toBe(true);
     expect(audit.rows.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
-    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0002"]);
+    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005"]);
     expect(audit.rows.find((row: any) => row.ruleReference === "R-1-0005")).toEqual(expect.objectContaining({ finalState: "N/A", applicabilityReason: expect.any(String) }));
     expect(audit.rows.filter((row: any) => row.finalState === "FOUND").every((row: any) => ["COMPLETE", "COMPLETE_AFTER_CORRECTION"].includes(row.evidenceCompleteness))).toBe(true);
     expect(audit.rows.filter((row: any) => row.finalState === "UNCLEAR").every((row: any) => row.reviewerOutcome === "ACTION_REQUIRED")).toBe(true);
     expect(audit.rows.filter((row: any) => row.multiPartRequirement && row.finalState === "FOUND").every((row: any) => ["COMPLETE", "COMPLETE_AFTER_CORRECTION"].includes(row.evidenceCompleteness))).toBe(true);
-    const raw = read("raw-document-extraction.json");
-    const source = raw.pages.map((page: any) => page.text).join("\n");
+    for (const auditRow of audit.rows) {
+      const goldRow = goldByRule.get(auditRow.ruleReference)!;
+      expect(auditRow.finalState).toBe(goldRow.finalEvidenceState);
+      expect(auditRow.reviewerOutcome).toBe(goldRow.reviewerOutcome);
+      for (const page of auditRow.pagesInspected) expect(sourcePages.has(page)).toBe(true);
+      for (const evidence of goldRow.acceptedEvidence) {
+        expect(sourcePages.has(evidence.page)).toBe(true);
+        expect((sourcePages.get(evidence.page) ?? "").replace(/\s+/g, " ").trim()).toContain(evidence.quote.replace(/\s+/g, " ").trim());
+      }
+    }
+    const source = rawDocument.pages.map((page: any) => page.text).join("\n");
     const normalizeAudit = (value: string) => value.replace(/\s+/g, " ").trim();
+    const r1 = goldByRule.get("R-1-0001");
+    expect(r1.finalEvidenceState).toBe("UNCLEAR");
+    expect(r1.reviewerOutcome).toBe("ACTION_REQUIRED");
+    expect(r1.draftFindingCandidate).toBe("NIR_CANDIDATE");
+    expect(r1.acceptedEvidence.some((e: any) => e.page === 62 && /MapBiomas Collection 10/.test(e.quote) && /PRODES\/INPE/.test(e.quote))).toBe(true);
+    expect(r1.acceptedEvidence.some((e: any) => e.page === 6 && /minimum forest area/.test(e.quote) && /tree height/.test(e.quote) && /crown cover/.test(e.quote))).toBe(true);
+    expect(r1.finalEvidenceState).not.toBe("FOUND");
+    const r3 = goldByRule.get("R-3-0005");
+    expect(r3.acceptedEvidence.some((e: any) => e.page === 61 && /VMD0006/.test(e.quote) && /BL- ?PL/.test(e.quote))).toBe(true);
+    expect(r3.acceptedEvidence.some((e: any) => e.page === 63 && /VMD0006/.test(e.quote) && /applicable for estimating/.test(e.quote))).toBe(true);
+    expect(r3.acceptedEvidence.some((e: any) => e.page === 63 && /planned deforestation \(APD\)/.test(e.quote))).toBe(true);
     for (const id of independentAuditIds) {
       const row = gold.rows.find((candidate: any) => candidate.ruleReference === id)!;
-      for (const evidence of row.acceptedEvidence) expect(normalizeAudit(source)).toContain(normalizeAudit(evidence.quote));
+      for (const evidence of row.acceptedEvidence) expect(normalizeAudit(sourcePages.get(evidence.page) ?? "")).toContain(normalizeAudit(evidence.quote));
     }
   });
 
@@ -120,7 +150,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(row.draftFindingCandidate).not.toBe("OFI_CANDIDATE");
       }
     }
-    expect(gold.counts).toEqual({ FOUND: 8, UNCLEAR: 7, MISSING: 0, "N/A": 13 });
+    expect(gold.counts).toEqual({ FOUND: 7, UNCLEAR: 8, MISSING: 0, "N/A": 13 });
   });
 
   it("leaves the other 18 reviewed rows unchanged and excludes the remaining 30", () => {
@@ -141,7 +171,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     const priorStates: Record<string, string> = {
-      "R-1-0001": "FOUND", "R-1-0002": "FOUND", "R-1-0004": "UNCLEAR", "R-1-0005": "N/A",
+      "R-1-0001": "UNCLEAR", "R-1-0002": "FOUND", "R-1-0004": "UNCLEAR", "R-1-0005": "N/A",
       "R-2-0005": "UNCLEAR", "R-2-0007": "UNCLEAR", "R-3-0001": "UNCLEAR", "R-3-0005": "FOUND",
       "R-6-0001": "UNCLEAR", "R-6-0008": "UNCLEAR", "R-1-0003": "N/A", "R-1-0006": "N/A",
       "R-1-0007": "N/A", "R-1-0008": "N/A", "R-1-0009": "N/A", "R-1-0010": "N/A",

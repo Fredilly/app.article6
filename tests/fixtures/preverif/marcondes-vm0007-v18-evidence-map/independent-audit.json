@@ -6,14 +6,14 @@
     {
       "ruleReference": "R-1-0001",
       "requirementReviewed": "Project land must meet forest definition threshold for 10+ years. Mangroves exempt from height.",
-      "pagesInspected": [12, 62],
-      "evidenceCompleteness": "COMPLETE",
-      "finalState": "FOUND",
-      "reviewerOutcome": "CONFORMS",
-      "auditResult": "CONFIRMED",
-      "rationale": "Page 12 directly ties the project area to forest status for more than 10 years and says the applicable thresholds are met. Page 62 independently repeats the 10-year forest condition and historical forest-cover support. The accepted page-12 quote is present in the preserved extraction; the generic methodology-only proposal is correctly rejected.",
+      "pagesInspected": [6, 12, 62],
+      "evidenceCompleteness": "INCOMPLETE",
+      "finalState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "auditResult": "CORRECTED",
+      "rationale": "Page 6 identifies VCS Program Definitions and the threshold categories (minimum forest area, tree height, and crown cover), but does not preserve numeric threshold values. Page 12 asserts that applicable thresholds are met, while page 62 provides direct project-specific MapBiomas Collection 10 and PRODES/INPE continuity evidence for all 36 properties from 2013–2023. The 10-year history is supported, but the numeric threshold record is not, so FOUND/CONFORMS cannot be retained.",
       "multiPartRequirement": true,
-      "clientActionAssessment": "Retaining the forest-history and definition records is proportionate; no unsupported conclusion is added."
+      "clientActionAssessment": "Requesting the governing numeric thresholds and project-area compliance evidence is directly supported and not overstated."
     },
     {
       "ruleReference": "R-1-0002",
@@ -67,7 +67,7 @@
     {
       "ruleReference": "R-2-0007",
       "requirementReviewed": "Pool inclusion/exclusion must be justified. If included in baseline, must also be in project and leakage.",
-      "pagesInspected": [63],
+      "pagesInspected": [61, 63],
       "evidenceCompleteness": "INCOMPLETE",
       "finalState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -91,12 +91,12 @@
     {
       "ruleReference": "R-3-0005",
       "requirementReviewed": "Module selection based on deforestation category.",
-      "pagesInspected": [63],
+      "pagesInspected": [61, 63],
       "evidenceCompleteness": "COMPLETE",
       "finalState": "FOUND",
       "reviewerOutcome": "CONFORMS",
-      "auditResult": "CONFIRMED",
-      "rationale": "Page 63 identifies planned deforestation (APD), legally authorized/documented conversion to non-forest land, and the applicable VMD0006 module. The accepted quote directly links category, project activity, and module; the generic additionality passage is correctly rejected.",
+      "auditResult": "CORRECTED",
+      "rationale": "The prior page-63 quote proved APD and legally authorized conversion but did not preserve the module-selection evidence. Page 61 Table 30 explicitly selects VMD0006 for planned deforestation (BL-PL), and page 63 separately preserves VMD0006 applicability plus the Marcondes APD rationale. Together these records complete the requirement; FOUND/CONFORMS is retained.",
       "multiPartRequirement": true,
       "clientActionAssessment": "Retaining the APD/VMD0006 rationale is supported and appropriately limited to the evidence shown."
     },

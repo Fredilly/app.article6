@@ -38,7 +38,7 @@
     "independentAudit": {
       "batch": 1,
       "rowCount": 10,
-      "results": { "CONFIRMED": 9, "CORRECTED": 1, "INSUFFICIENT_SOURCE_ACCESS": 0 }
+      "results": { "CONFIRMED": 7, "CORRECTED": 3, "INSUFFICIENT_SOURCE_ACCESS": 0 }
     },
     "reviewedRuleIds": [
       "Verra.AFOLU.VM0007.v1-8.R-1-0001",
@@ -74,9 +74,9 @@
     "goldPromotion": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "versionReconciliationPending": false,
-    "evidenceStateCounts": {
-      "FOUND": 8,
-      "UNCLEAR": 7,
+      "evidenceStateCounts": {
+      "FOUND": 7,
+      "UNCLEAR": 8,
       "MISSING": 0,
       "N/A": 13
     }
