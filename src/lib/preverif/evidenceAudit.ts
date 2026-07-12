@@ -71,6 +71,8 @@ export type MethodologyEvidenceAuditResult = {
   userAcceptedVersionWarning?: boolean;
   status: EvidenceAuditStatus;
   bestEvidenceQuote: string | null;
+  /** Lossless source-backed records; legacy scalar fields remain for compatibility. */
+  evidence?: readonly MethodologyEvidenceRecord[];
   page: number | null;
   section: string | null;
   span: string | null;
@@ -80,6 +82,13 @@ export type MethodologyEvidenceAuditResult = {
   clientAction: string;
   confidence: EvidenceAuditConfidence;
 };
+
+export type MethodologyEvidenceRecord = Readonly<{
+  quote: string;
+  page: number | null;
+  section: string | null;
+  span: string;
+}>;
 
 export type MethodologyEvidenceAuditSummary = {
   auditStatus?: "AUDITED" | "VERSION_WARNING_ACCEPTED" | "BLOCKED_VERSION_MISMATCH";
@@ -547,10 +556,9 @@ function countTokenHits(text: string, tokens: readonly string[]): number {
   return hits;
 }
 
-function compactQuote(text: string, maxLength = 240): string {
-  const compact = text.replace(/\s+/g, " ").trim();
-  if (compact.length <= maxLength) return compact;
-  return `${compact.slice(0, maxLength).trimEnd()}…`;
+function sourceQuote(text: string): string {
+  // Normalize layout whitespace, but never paraphrase or truncate the source span.
+  return text.replace(/\s+/g, " ").trim();
 }
 
 function normalizeRuleId(ruleId: string, normalize?: (ruleId: string) => string): string {
@@ -663,9 +671,26 @@ function candidateLooksLikeBoilerplate(input: {
   const overlapRatio = ruleTokens.length > 0 ? overlapWithRule / ruleTokens.length : 0;
   const methodologyVoice =
     /\b(must|shall|mandatory|required|is determined via|is additional because|in the absence of the project activity)\b/.test(candidateText);
+  const methodologyOrModuleOnly = /\b(methodology|module|tool|template|standard)\b/.test(candidateText)
+    && !hasProjectSpecificMarkers(candidateText);
 
   return !hasProjectSpecificMarkers(candidateText)
-    && (overlapRatio >= 0.45 || (overlapWithRule >= 4 && overlapWithSignals >= 2) || methodologyVoice);
+    && (overlapRatio >= 0.45 || (overlapWithRule >= 4 && overlapWithSignals >= 2) || methodologyVoice || methodologyOrModuleOnly);
+}
+
+function candidateDescribesFutureOrUnissuedEvidence(input: {
+  rule: MethodologyEvidenceAuditRule;
+  candidate: CandidateScore;
+}): boolean {
+  const text = normalizeText(input.candidate.span.text);
+  const futureWork = /\b(will be|to be|shall be|provided during|during the validation stage|future|planned|proposed|under development|not yet available|not required at the .* stage)\b/.test(text);
+  const authorizationRule = /\b(permit|permission|authorization|authorisation|license|licence|approval|legal right|legally authorized|legally authorised)\b/.test(
+    normalizeText(`${resolveRuleTitle(input.rule)} ${resolveRuleLogic(input.rule)}`),
+  );
+  const filedButNotIssued = authorizationRule
+    && /\b(filed|application|applied for|request(?:ed)?|pending)\b/.test(text)
+    && !/\b(issued|granted|approved|authorized|authorised|permit number|license number|licence number)\b/.test(text);
+  return futureWork || filedButNotIssued;
 }
 
 function deriveScopeKeywords(rule: MethodologyEvidenceAuditRule, contract: MethodologyEvidenceContract): string[] {
@@ -820,6 +845,38 @@ function selectBestCandidate(input: {
   return best;
 }
 
+function selectEvidenceCandidates(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  evidenceDocument: EvidenceDocument;
+  sections: readonly SectionLike[] | undefined;
+  bestCandidate: CandidateScore;
+}): CandidateScore[] {
+  const sectionLookup = buildSectionLookup(input.sections);
+  const preferredSectionIds = buildRelevantSectionIds({ contract: input.contract, rule: input.rule, sections: input.sections });
+  const scored = input.evidenceDocument.spans
+    .filter((span) => !span.noise?.includes("toc"))
+    .map((span) => candidateScore({
+      span,
+      sectionTitle: span.sectionId
+        ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
+        : null,
+      contract: input.contract,
+      rule: input.rule,
+      preferredSectionIds,
+    }))
+    .filter((candidate): candidate is CandidateScore => candidate !== null)
+    .filter((candidate) => candidate.score >= Math.max(24, input.bestCandidate.score - 12))
+    .sort((left, right) => right.score - left.score);
+
+  const seen = new Set<string>();
+  return scored.filter((candidate) => {
+    if (seen.has(candidate.span.spanId)) return false;
+    seen.add(candidate.span.spanId);
+    return true;
+  }).slice(0, 8);
+}
+
 function selectNotApplicableCandidate(input: {
   rule: MethodologyEvidenceAuditRule;
   contract: MethodologyEvidenceContract;
@@ -909,6 +966,15 @@ function classifyStatus(input: {
   }
 
   if (input.bestCandidate) {
+    if (candidateDescribesFutureOrUnissuedEvidence({ rule: input.rule, candidate: input.bestCandidate })) {
+      return {
+        status: "partially_supported",
+        confidence: "low",
+        assessmentReason: "The selected span describes planned future work or an unissued application, so it cannot be treated as completed project evidence.",
+        gap: input.contract.defaultGapMessage,
+      };
+    }
+
     if (input.bestCandidate.rejectHits > 0 && input.bestCandidate.strongHits === 0) {
       return {
         status: "manual_review_needed",
@@ -979,6 +1045,7 @@ function resultFromCandidate(input: {
   contract: MethodologyEvidenceContract;
   versionLock: MethodologyVersionLock;
   candidate: CandidateScore | null;
+  evidenceCandidates?: readonly CandidateScore[];
   status: EvidenceAuditStatus;
   confidence: EvidenceAuditConfidence;
   assessmentReason: string;
@@ -1005,7 +1072,13 @@ function resultFromCandidate(input: {
     versionMismatchReason: input.versionLock.versionMismatchReason,
     userAcceptedVersionWarning: input.versionLock.userAcceptedVersionWarning,
     status: input.status,
-    bestEvidenceQuote: input.candidate ? compactQuote(input.candidate.span.text) : null,
+    bestEvidenceQuote: input.candidate ? sourceQuote(input.candidate.span.text) : null,
+    evidence: (input.evidenceCandidates ?? (input.candidate ? [input.candidate] : [])).map((candidate) => ({
+      quote: sourceQuote(candidate.span.text),
+      page: candidate.span.page,
+      section: candidate.sectionTitle || candidate.span.heading || candidate.span.sectionId || null,
+      span: candidate.span.spanId,
+    })),
     page: input.candidate?.span.page ?? null,
     section: sectionLabel,
     span: input.candidate?.span.spanId ?? null,
@@ -1067,12 +1140,16 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       notApplicableCandidate,
     });
     const candidate = classified.status === "not_applicable" ? notApplicableCandidate : bestCandidate;
+    const evidenceCandidates = candidate
+      ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate: candidate })
+      : [];
 
     return resultFromCandidate({
       rule,
       contract,
       versionLock,
       candidate,
+      evidenceCandidates,
       status: classified.status,
       confidence: classified.confidence,
       assessmentReason: classified.assessmentReason,
