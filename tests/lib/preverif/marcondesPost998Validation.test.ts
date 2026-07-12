@@ -74,6 +74,8 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
   it("prefers project evidence while preserving conservative reviewed-row behavior", async () => {
     const rules = (await loadMethodRules("VM0007", "v1-8")).rules;
     const gold = readJson("gold.json");
+    const corrections = readJson("corrections.json");
+    const reviewedIds = readJson("reviewedRuleIds.json");
     const previousMachine = readJson("machine-proposal.json");
     const audit = auditEvidence({
       rules,
@@ -86,6 +88,8 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     expect(rules).toHaveLength(58);
     expect(audit.results).toHaveLength(58);
     expect(audit.totalRules).toBe(58);
+    expect(reviewedIds.reviewedRuleIds).toEqual(gold.reviewedRuleIds);
+    expect(corrections.reviewedRuleIds).toEqual(gold.reviewedRuleIds);
 
     const byRule = new Map(audit.results.map((result) => [normalizeVm0007RuleId(result.ruleId), result]));
     const previousByRule = new Map(previousMachine.rows.map((row: JsonRecord) => [row.ruleReference, row]));
@@ -117,6 +121,30 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     expect(r1.evidence?.[0]?.page).toBe(12);
     expect(r1.evidence?.[0]?.span).toBe(r1.span);
 
+    const conservativeFalsePromotions = [
+      "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-6-0001", "R-6-0008",
+    ];
+    for (const ruleId of conservativeFalsePromotions) {
+      expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
+    }
+
+    for (const ruleId of reviewedRuleIds) {
+      const reviewed = goldByRule.get(ruleId)!;
+      if (reviewed.finalEvidenceState === "UNCLEAR") {
+        expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
+      }
+    }
+
+    for (const ruleId of ["R-1-0002", "R-3-0005"]) {
+      const result = byRule.get(ruleId)!;
+      const accepted = goldByRule.get(ruleId)!.acceptedEvidence[0];
+      const matchingRecord = evidenceRecords(result).find((record) => record.page === accepted.page);
+      expect(matchingRecord).toBeDefined();
+      expect(normalize(matchingRecord?.quote ?? "")).toContain(normalize(accepted.quote));
+      expect(matchingRecord?.section).toEqual(expect.any(String));
+      expect(matchingRecord?.span).toEqual(expect.any(String));
+    }
+
     for (const ruleId of reviewedRuleIds.filter((id) => id !== "R-1-0001")) {
       const result = byRule.get(ruleId)!;
       const reviewed = goldByRule.get(ruleId)!;
@@ -147,5 +175,7 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     expect(singleRuleAudit("R-1-0004", "All property owners filed applications; the permits will be issued later.").status).not.toBe("supported_by_pdd");
     expect(singleRuleAudit("R-3-0001", "The alternative scenarios will be provided during the validation stage.").status).not.toBe("supported_by_pdd");
     expect(singleRuleAudit("R-1-0001", "Projects must meet the methodology forest definition.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-3-0001", "The alternative scenarios are listed in the methodology, but project analysis is pending.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-1-0001", "The methodology declares the forest definition, but the project evidence is not provided.").status).not.toBe("supported_by_pdd");
   });
 });
