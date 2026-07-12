@@ -2,8 +2,8 @@
 
 - Reviewed rows: 28 of 58
 - Remaining rows: 30, unreviewed and NOT_ASSESSED
-- Corrected evidence states: FOUND 7, UNCLEAR 7, MISSING 0, N/A 14
-- Reviewer outcomes: CONFORMS 7, ACTION_REQUIRED 7, NOT_APPLICABLE 14, NOT_ASSESSED 30
+- Corrected evidence states: FOUND 8, UNCLEAR 7, MISSING 0, N/A 13
+- Reviewer outcomes: CONFORMS 8, ACTION_REQUIRED 7, NOT_APPLICABLE 13, NOT_ASSESSED 30
 - Draft findings: NIR_CANDIDATE 7, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
 - Gold promotion: BLOCKED_PENDING_REVIEW_COVERAGE
 - Report release state: BLOCKED_PENDING_REVIEW_COVERAGE
@@ -23,6 +23,6 @@ Each accepted quote is PDF-backed with manual provenance, page, section, and spa
 
 ## Batch 3 review: R-1-0013, R-1-0014, R-1-0015, R-2-0001, R-2-0002, R-2-0006, R-2-0008, R-2-0016, R-3-0002, and R-3-0006
 
-Ten additional rules were reviewed directly against the source PDF. R-1-0013, R-1-0014, R-1-0015, R-2-0016, and R-3-0006 are N/A because the PDD identifies an APD project, excludes IFM/ARR activity, excludes the two prohibited leakage-prevention activities, and states that no peat soils or tidal wetlands are present. R-2-0001, R-2-0002, R-2-0006, and R-3-0002 are FOUND from the project-property inventory, non-overlapping SIGEF boundaries, stratification description, and the three listed land-use scenarios. R-2-0008 is UNCLEAR: aboveground tree biomass is explicitly mandatory, but the PDD does not fully document the conditional HWP and dead-wood comparison.
+Ten additional rules were reviewed directly against the source PDF. R-1-0013, R-1-0014, R-2-0016, and R-3-0006 are N/A because the PDD identifies an APD project, excludes IFM/ARR activity, and states that no peat soils or tidal wetlands are present. R-1-0015 is FOUND/CONFORMS because the PDD explicitly confirms that neither prohibited leakage-prevention activity is implemented. R-2-0001, R-2-0002, R-2-0006, and R-3-0002 are FOUND from the project-property inventory, non-overlapping SIGEF boundaries, stratification description, and the three listed land-use scenarios. R-2-0008 is UNCLEAR: aboveground tree biomass is explicitly mandatory, but the PDD does not fully document the conditional HWP and dead-wood comparison.
 
-Accepted evidence pages: 22–23, 42, 62–65. Rejected machine evidence is preserved for every new row; it is rejected because it is a stitched/truncated generic methodology span, a wrong section, or does not establish the complete project-specific requirement. No unreviewed row is promoted into gold. Review coverage is now 28 of 58, with 30 rows remaining NOT_ASSESSED.
+Accepted evidence pages: 22–25, 41–42, and 62–65. R-2-0001 now preserves Table 10 headers and representative parcel rows; R-3-0002 now preserves all three scenario records. Rejected machine evidence is preserved for every new row; it is rejected because it is a stitched/truncated generic methodology span, a wrong section, or does not establish the complete project-specific requirement. No unreviewed row is promoted into gold. Review coverage remains 28 of 58, with 30 rows remaining NOT_ASSESSED.

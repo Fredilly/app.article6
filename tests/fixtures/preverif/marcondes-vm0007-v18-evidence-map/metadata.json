@@ -70,10 +70,10 @@
     "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "versionReconciliationPending": false,
     "evidenceStateCounts": {
-      "FOUND": 7,
+      "FOUND": 8,
       "UNCLEAR": 7,
       "MISSING": 0,
-      "N/A": 14
+      "N/A": 13
     }
   },
   "productionLogicChanged": false

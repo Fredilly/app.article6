@@ -585,10 +585,10 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-        "quote": "Table 10. Inventory of Project Properties",
+        "quote": "Table 10. Inventory of Project Properties\n# Fazenda Owner/Entity Munici\npal\nContr.(ha) SIGEF(ha\n)\nContract SIGEF Status",
         "page": 23,
         "section": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
-        "spanId": "manual:marcondes-pdd:page-23:r-2-0001",
+        "spanId": "manual:marcondes-pdd:page-23:r-2-0001-headers",
         "provenance": {
           "docId": "quick-check-review-question",
           "page": 23,
@@ -596,7 +596,51 @@
             "2 PROJECT DETAILS",
             "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties"
           ],
-          "spanId": "manual:marcondes-pdd:page-23:r-2-0001",
+          "spanId": "manual:marcondes-pdd:page-23:r-2-0001-headers",
+          "sectionHeading": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+        "quote": "1 AnaLina I Laís Miller / Paulo R.\nM.N. da Motta\nNham. 500.1 506.3 Signed SIGEF Active — CDRU\nFiled",
+        "page": 23,
+        "section": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
+        "spanId": "manual:marcondes-pdd:page-23:r-2-0001-row-1",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 23,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties"
+          ],
+          "spanId": "manual:marcondes-pdd:page-23:r-2-0001-row-1",
+          "sectionHeading": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+        "quote": "20 Marconde\ns Q Corp.\nMarco Q Participações\nLtda\nNham. 15,658.6 15,671.\n4\n240901\n0\nSIGEF Active — CDRU\nFiled",
+        "page": 24,
+        "section": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
+        "spanId": "manual:marcondes-pdd:page-24:r-2-0001-row-20",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 24,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties"
+          ],
+          "spanId": "manual:marcondes-pdd:page-24:r-2-0001-row-20",
           "sectionHeading": "2.1.9 Project Ownership (VCS, 3.2, 3.7, 3.10; CCB, G5.8), Table 10. Inventory of Project Properties",
           "sourceType": "PDD",
           "provenanceKind": "manual"
@@ -695,10 +739,32 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
       "evidence": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-        "quote": "SCENARIO 3: Illegal deforestation exceeding 20%",
+        "quote": "SCENARIO 1: Maintenance of forest cover (conservation without project)\nMaintenance of the forest cover of 20% of the property, where land use conversion is allowed by law: the area is maintained without economic activities or conservation measures, but exposed to invasions and illegal deforestation, antecedents to livestock a common practice in the region. The landowner remains responsible for taxes to maintain ownership.",
+        "page": 41,
+        "section": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+        "spanId": "manual:marcondes-pdd:page-41:r-3-0002-scenario-1",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 41,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-41:r-3-0002-scenario-1",
+          "sectionHeading": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+        "quote": "SCENARIO 2: Legal deforestation of 20% of the property (APD)\nLegal deforestation of 20% of the property (deforestation with allowances), where land use conversion is allowed by law, i.e., forest suppression for pasture (livestock). Under the Brazilian Forest Code (Law No. 12.651/2012), rural properties in the Legal Amazon must maintain an 80% Legal Reserve, meaning up to 20% may be legally converted.",
         "page": 42,
         "section": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
-        "spanId": "manual:marcondes-pdd:page-42:r-3-0002",
+        "spanId": "manual:marcondes-pdd:page-42:r-3-0002-scenario-2",
         "provenance": {
           "docId": "quick-check-review-question",
           "page": 42,
@@ -706,7 +772,29 @@
             "2 PROJECT DETAILS",
             "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)"
           ],
-          "spanId": "manual:marcondes-pdd:page-42:r-3-0002",
+          "spanId": "manual:marcondes-pdd:page-42:r-3-0002-scenario-2",
+          "sectionHeading": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+        "quote": "SCENARIO 3: Illegal deforestation exceeding 20%\nIllegal deforestation of over 20% of the property (deforestation without a grant), where the conversion of land use exceeds the legal limit, driven by pasture expansion, agricultural purposes, or real estate speculation.",
+        "page": 42,
+        "section": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
+        "spanId": "manual:marcondes-pdd:page-42:r-3-0002-scenario-3",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 42,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-42:r-3-0002-scenario-3",
           "sectionHeading": "2.2.1 Conditions Prior to Project Initiation and Land Use Scenarios without the Project (VCS, 3.13; CCB, G2.1)",
           "sourceType": "PDD",
           "provenanceKind": "manual"
@@ -1451,14 +1539,14 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-        "correction": "Manual review replaced the machine-selected evidence for R-1-0015 with PDF-backed evidence. The PDD explicitly states that neither prohibited leakage-prevention activity is implemented, so the prohibition does not apply to the project activity scope."
+        "correction": "Manual review replaced the machine-selected evidence for R-1-0015 with PDF-backed evidence. The PDD directly confirms that neither prohibited leakage-prevention activity is implemented, so the project conforms to this prohibition."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-        "correction": "Manual review replaced the machine-selected evidence for R-2-0001 with PDF-backed evidence. Table 10 is a project-specific inventory for the discrete properties and presents the parcel identifier, property, owner/entity, municipality, contracted area, SIGEF area, contract, and SIGEF status fields."
+        "correction": "Manual review replaced the machine-selected evidence for R-2-0001 with PDF-backed Table 10 evidence. The table headers and representative parcel rows directly document the parcel identifier, property, owner/entity, municipality, contracted area, SIGEF area, contract, and SIGEF status fields."
       }
     },
     {
@@ -1493,7 +1581,7 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-        "correction": "Manual review replaced the machine-selected evidence for R-3-0002 with PDF-backed evidence. The PDD explicitly lists three alternative without-project land-use scenarios: maintenance of forest cover, legal deforestation of 20%, and illegal deforestation exceeding 20%."
+        "correction": "Manual review replaced the machine-selected evidence for R-3-0002 with three PDF-backed evidence records covering Scenario 1 maintenance of forest cover, Scenario 2 legal deforestation of 20%, and Scenario 3 illegal deforestation exceeding 20%."
       }
     },
     {

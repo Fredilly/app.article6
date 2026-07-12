@@ -15,8 +15,8 @@ const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [12], "R-1-0002": [63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [63], "R-1-0015": [63],
-  "R-2-0001": [23], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [64], "R-2-0016": [62],
-  "R-3-0002": [42], "R-3-0006": [62]
+  "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [64], "R-2-0016": [62],
+  "R-3-0002": [41, 42], "R-3-0006": [62]
 };
 
 describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
@@ -98,7 +98,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
         expect(row.draftFindingCandidate).not.toBe("OFI_CANDIDATE");
       }
     }
-    expect(gold.counts).toEqual({ FOUND: 7, UNCLEAR: 7, MISSING: 0, "N/A": 14 });
+    expect(gold.counts).toEqual({ FOUND: 8, UNCLEAR: 7, MISSING: 0, "N/A": 13 });
   });
 
   it("keeps all prior reviewed outcomes stable and gives batch 3 complete provenance", () => {
@@ -114,7 +114,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     for (const [ruleId, state] of Object.entries(priorStates)) expect(byRule.get(ruleId)?.finalEvidenceState).toBe(state);
     for (const ruleId of batchReviewed) {
       const row = byRule.get(ruleId)!;
-      expect(row.acceptedEvidence).toHaveLength(1);
+      expect(row.acceptedEvidence.length).toBeGreaterThan(0);
       expect(row.acceptedEvidence[0].provenance.provenanceKind).toBe("manual");
       expect(row.acceptedEvidence[0].provenance.page).toBe(row.acceptedEvidence[0].page);
       expect(row.acceptedEvidence[0].provenance.sectionPath.length).toBeGreaterThanOrEqual(2);
@@ -122,8 +122,25 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       expect(row.rejectedEvidence).toHaveLength(1);
       expect(row.rejectedEvidence[0].rejectionReason).toContain("stitched or paraphrased");
     }
+    expect(byRule.get("R-1-0015")?.finalEvidenceState).toBe("FOUND");
+    expect(byRule.get("R-1-0015")?.reviewerOutcome).toBe("CONFORMS");
     expect(byRule.get("R-2-0008")?.finalEvidenceState).toBe("UNCLEAR");
     expect(byRule.get("R-2-0008")?.reviewerOutcome).toBe("ACTION_REQUIRED");
+    expect(byRule.get("R-2-0001")?.acceptedEvidence.some((evidence: any) => /Fazenda Owner\/Entity/.test(evidence.quote) && /Contr\.\(ha\)/.test(evidence.quote) && /SIGEF/.test(evidence.quote))).toBe(true);
+    const scenarioQuotes = byRule.get("R-3-0002")?.acceptedEvidence.map((evidence: any) => evidence.quote).join(" ") ?? "";
+    expect(scenarioQuotes).toContain("SCENARIO 1:");
+    expect(scenarioQuotes).toContain("SCENARIO 2:");
+    expect(scenarioQuotes).toContain("SCENARIO 3:");
+    const unchangedBatchOutcomes: Record<string, [string, string]> = {
+      "R-1-0013": ["N/A", "NOT_APPLICABLE"], "R-1-0014": ["N/A", "NOT_APPLICABLE"],
+      "R-2-0002": ["FOUND", "CONFORMS"], "R-2-0006": ["FOUND", "CONFORMS"],
+      "R-2-0008": ["UNCLEAR", "ACTION_REQUIRED"], "R-2-0016": ["N/A", "NOT_APPLICABLE"],
+      "R-3-0002": ["FOUND", "CONFORMS"], "R-3-0006": ["N/A", "NOT_APPLICABLE"]
+    };
+    for (const [ruleId, [state, outcome]] of Object.entries(unchangedBatchOutcomes)) {
+      expect(byRule.get(ruleId)?.finalEvidenceState).toBe(state);
+      expect(byRule.get(ruleId)?.reviewerOutcome).toBe(outcome);
+    }
   });
 
   it("keeps R-6-0008 on the canonical uncertainty-reduction semantics", () => {
