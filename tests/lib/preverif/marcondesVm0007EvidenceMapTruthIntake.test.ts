@@ -16,7 +16,7 @@ const reviewed = [...independentAuditIds, ...finalEight];
 const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
-  "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [63], "R-1-0015": [63],
+  "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [12, 61, 63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [64], "R-2-0016": [62],
   "R-3-0002": [41, 42], "R-3-0006": [62]
 };
@@ -109,7 +109,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(audit.rows.slice(10).map((row: any) => row.ruleReference)).toEqual(batchTwo);
     expect(audit.rows.every((row: any) => row.auditResult && row.rationale && row.requirementReviewed && row.pagesInspected.length > 0)).toBe(true);
     expect(audit.rows.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
-    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005"]);
+    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005", "R-1-0014"]);
     expect(audit.rows.find((row: any) => row.ruleReference === "R-1-0005")).toEqual(expect.objectContaining({ finalState: "N/A", applicabilityReason: expect.any(String) }));
     expect(audit.rows.filter((row: any) => row.finalState === "FOUND").every((row: any) => ["COMPLETE", "COMPLETE_AFTER_CORRECTION"].includes(row.evidenceCompleteness))).toBe(true);
     expect(audit.rows.filter((row: any) => row.finalState === "UNCLEAR").every((row: any) => row.reviewerOutcome === "ACTION_REQUIRED")).toBe(true);
@@ -126,13 +126,23 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     }
     const batchTwoAudit = audit.rows.filter((row: any) => batchTwo.includes(row.ruleReference));
     expect(batchTwoAudit).toHaveLength(10);
+    expect(batchTwoAudit.filter((row: any) => row.auditResult === "CONFIRMED")).toHaveLength(9);
+    expect(batchTwoAudit.filter((row: any) => row.auditResult === "CORRECTED")).toHaveLength(1);
+    expect(batchTwoAudit.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
     for (const row of batchTwoAudit) {
+      expect(row.rationale).toMatch(/page/i);
+      expect(row.clientActionAssessment).toBeTruthy();
+    }
+    const correctedBatchTwo = audit.rows.find((row: any) => row.ruleReference === "R-1-0014");
+    expect(correctedBatchTwo).toEqual(expect.objectContaining({ finalState: "FOUND", reviewerOutcome: "CONFORMS", auditResult: "CORRECTED", evidenceCompleteness: "COMPLETE" }));
+    expect(correctedBatchTwo.methodologyTraceability).toEqual(expect.objectContaining({ methodology: "VM0007 v1.8", section: "4.3.4", methodologyPage: 18 }));
+    expect(correctedBatchTwo.methodologyTraceability.officialRequirementQuote).toContain("does not apply to ARR project activities");
+    expect(correctedBatchTwo.projectEvidence.map((evidence: any) => evidence.page)).toEqual([12, 61, 63]);
+    for (const row of batchTwoAudit.filter((row: any) => row.ruleReference !== "R-1-0014")) {
       expect(row.finalState).toBe("N/A");
       expect(row.reviewerOutcome).toBe("NOT_APPLICABLE");
       expect(row.applicabilityTrigger).toBeTruthy();
       expect(row.applicabilityReason).toBeTruthy();
-      expect(row.rationale).toMatch(/page/i);
-      expect(row.clientActionAssessment).toBeTruthy();
     }
     const source = rawDocument.pages.map((page: any) => page.text).join("\n");
     const normalizeAudit = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -173,7 +183,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       return counts;
     }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
     expect(gold.counts).toEqual(calculatedCounts);
-    expect(calculatedCounts).toEqual({ FOUND: 7, UNCLEAR: 8, MISSING: 0, "N/A": 13 });
+    expect(calculatedCounts).toEqual({ FOUND: 8, UNCLEAR: 8, MISSING: 0, "N/A": 12 });
   });
 
   it("keeps the final eight reviewed rows unchanged and excludes the remaining 30", () => {
@@ -227,6 +237,8 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       expect(byRule.get(ruleId)?.finalEvidenceState).toBe(state);
       expect(byRule.get(ruleId)?.reviewerOutcome).toBe(outcome);
     }
+    expect(byRule.get("R-1-0014")?.finalEvidenceState).toBe("FOUND");
+    expect(byRule.get("R-1-0014")?.reviewerOutcome).toBe("CONFORMS");
   });
 
   it("keeps R-6-0008 on the canonical uncertainty-reduction semantics", () => {
