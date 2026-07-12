@@ -1581,6 +1581,38 @@
       "acceptedEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+          "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+          "page": 12,
+          "section": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "spanId": "manual:marcondes-pdd:page-12:r-1-0014",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 12,
+            "sectionPath": ["2 PROJECT DETAILS", "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)"],
+            "spanId": "manual:marcondes-pdd:page-12:r-1-0014",
+            "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+          "quote": "Module VMD0006 Estimation of baseline carbon stock changes and GHG emissions from planned deforestation (BL- PL) 1.4",
+          "page": 61,
+          "section": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "spanId": "manual:marcondes-pdd:page-61:r-1-0014-table30",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 61,
+            "sectionPath": ["3 CLIMATE", "3.1 Application of Methodology", "Table 30. Methodologies, modules, and tools applied"],
+            "spanId": "manual:marcondes-pdd:page-61:r-1-0014-table30",
+            "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
           "quote": "The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land.",
           "page": 63,
           "section": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
@@ -1620,11 +1652,18 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
-        "correction": "Manual review replaced the machine-selected evidence for R-1-0014 with PDF-backed evidence. The PDD identifies the project activity as APD, not IFM or ARR; the IFM/ARR exclusion condition is out of scope for this project."
+        "correction": "Manual re-adjudication corrected R-1-0014 from N/A/NOT_APPLICABLE to FOUND/CONFORMS. Section 4.3.4 excludes ARR project activities from VM0007; pages 12, 61, and 63 establish an APD-only project with no ARR, IFM, or WRC activity. The ARR exclusion is therefore satisfied, while the separate WRC-plus-ARR accounting clause is not triggered."
       },
-      "finalEvidenceState": "N/A",
-      "reviewerOutcome": "NOT_APPLICABLE",
-      "clientAction": "Retain the APD activity classification; IFM and ARR exclusions are not applicable to this project.",
+      "methodologyTraceability": {
+        "methodology": "VM0007 v1.8",
+        "section": "4.3.4",
+        "methodologyPage": 18,
+        "sourceUrl": "https://verra.org/documents/vm0007-redd-methodology-framework-v1-8-clean/",
+        "officialRequirementQuote": "20) This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass combined with a WRC module to account for other carbon pools (e.g., BL-PEAT, M-PEAT, BL-TW, and M-TW)."
+      },
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "clientAction": "Retain the APD-only scope and Table 30 module selection as evidence that the ARR exclusion is satisfied; reassess the separate WRC-plus-ARR clause only if ARR or WRC activity is added.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     },
@@ -2274,10 +2313,10 @@
     }
   ],
   "counts": {
-    "FOUND": 7,
+    "FOUND": 8,
     "UNCLEAR": 8,
     "MISSING": 0,
-    "N/A": 13
+    "N/A": 12
   },
   "goldPromotionBlocked": true,
   "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE"

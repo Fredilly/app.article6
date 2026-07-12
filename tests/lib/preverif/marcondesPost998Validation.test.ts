@@ -11,7 +11,7 @@ const reviewedRuleIds = [
   "R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005",
   "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008",
   "R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009",
-  "R-1-0010", "R-1-0011", "R-1-0012",
+  "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014",
 ] as const;
 
 type JsonRecord = Record<string, any>;
@@ -150,7 +150,7 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     }
 
     const notApplicableIds = reviewedRuleIds.filter((ruleId) => goldByRule.get(ruleId)!.finalEvidenceState === "N/A");
-    expect(notApplicableIds).toHaveLength(9);
+    expect(notApplicableIds).toHaveLength(10);
     for (const ruleId of notApplicableIds) {
       expect(goldByRule.get(ruleId)!.acceptedEvidence.length).toBeGreaterThan(0);
       expect(byRule.get(ruleId)?.evidence?.every((record) => record.page !== null && record.section && record.span)).toBe(true);
