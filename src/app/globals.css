@@ -46,3 +46,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), "Segoe UI", Helvetica, Arial, sans-serif;
 }
+
+@keyframes evidence-map-slide-in {
+  from { opacity: 0; transform: translateX(1rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes evidence-map-detail-in {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.evidence-map-review-panel { animation: evidence-map-slide-in 180ms ease-out; }
+.evidence-map-details { animation: evidence-map-detail-in 140ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .evidence-map-review-panel,
+  .evidence-map-details { animation: none; }
+}
