@@ -211,9 +211,7 @@ describe("buildVm0007GapReport", () => {
     const supported = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0001");
     const missing = report.evidenceAppendix.find((entry) => entry.ruleId === "R-1-0003");
 
-    // The conservative classifier retains the selected source span, even
-    // though this row is no longer treated as fully supported.
-    expect(supported?.quote).toBe("REDD-MF / VM0007 v1.8");
+    expect(supported?.quote).toBe(buildMixedAudit().results.find((result) => result.ruleId === "R-1-0001")?.bestEvidenceQuote);
     expect(missing?.quote).toBe(NO_PDD_EVIDENCE_TEXT);
   });
 

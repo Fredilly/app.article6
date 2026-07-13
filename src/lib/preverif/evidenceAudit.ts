@@ -12,6 +12,24 @@ export const EVIDENCE_AUDIT_STATUSES = [
 
 export type EvidenceAuditStatus = (typeof EVIDENCE_AUDIT_STATUSES)[number];
 export type EvidenceAuditConfidence = "high" | "medium" | "low";
+export type EvidenceType =
+  | "project_specific_implementation"
+  | "project_specific_scope"
+  | "methodology_boilerplate"
+  | "module_or_tool_declaration"
+  | "incomplete_or_noisy";
+
+export type MandatoryEvidenceComponent = Readonly<{
+  id: string;
+  description: string;
+  signals: readonly string[];
+}>;
+
+export type ApplicabilityConfiguration = Readonly<{
+  exclusionSignals: readonly string[];
+  contextSignals: readonly string[];
+  requireProjectSpecificContext: boolean;
+}>;
 
 export type MethodologyVersionLock = Readonly<{
   methodologyId: string;
@@ -37,6 +55,8 @@ export type MethodologyEvidenceContract = Readonly<{
   weakEvidenceSignals: readonly string[];
   rejectSignals: readonly string[];
   notApplicableSignals: readonly string[];
+  applicability?: ApplicabilityConfiguration;
+  mandatoryComponents?: readonly MandatoryEvidenceComponent[];
   defaultGapMessage: string;
   clientAction: string;
   supportsNotApplicable: boolean;
@@ -73,6 +93,8 @@ export type MethodologyEvidenceAuditResult = {
   bestEvidenceQuote: string | null;
   /** Lossless source-backed records; legacy scalar fields remain for compatibility. */
   evidence?: readonly MethodologyEvidenceRecord[];
+  /** Rejected source-backed candidates retained for diagnostics without presenting them as accepted evidence. */
+  rejectedEvidence?: readonly MethodologyEvidenceRecord[];
   page: number | null;
   section: string | null;
   span: string | null;
@@ -88,6 +110,10 @@ export type MethodologyEvidenceRecord = Readonly<{
   page: number | null;
   section: string | null;
   span: string;
+  evidenceType?: EvidenceType;
+  rejectionReason?: string;
+  supportedComponents?: readonly string[];
+  missingComponents?: readonly string[];
 }>;
 
 export type MethodologyEvidenceAuditSummary = {
@@ -133,6 +159,8 @@ type CandidateScore = {
   ruleHits: number;
   sectionHits: number;
   projectFactBonus: number;
+  evidenceType: EvidenceType;
+  rejectionReason: string | null;
 };
 
 const SECTION_STOPWORDS = new Set([
@@ -558,6 +586,15 @@ function countTokenHits(text: string, tokens: readonly string[]): number {
   return hits;
 }
 
+function countEvidenceSignalMatches(text: string, signals: readonly string[]): number {
+  const normalizedText = normalizeText(text);
+  return signals.filter((signal) => {
+    if (includesPhrase(normalizedText, signal)) return true;
+    const distinctiveTokens = tokenize(signal, TEXT_STOPWORDS).filter((token) => token.length >= 4);
+    return distinctiveTokens.filter((token) => normalizedText.includes(token)).length >= 2;
+  }).length;
+}
+
 function sourceQuote(text: string): string {
   // Normalize layout whitespace, but never paraphrase or truncate the source span.
   return text.replace(/\s+/g, " ").trim();
@@ -612,9 +649,7 @@ function buildSectionLookup(sections: readonly SectionLike[] | undefined): Map<s
 }
 
 function isNotApplicableEligible(rule: MethodologyEvidenceAuditRule, contract: MethodologyEvidenceContract): boolean {
-  if (contract.supportsNotApplicable) return true;
-  const text = normalizeText(`${resolveRuleTitle(rule)} ${resolveRuleLogic(rule)}`);
-  return /\b(peatland|tidal|wetland|organic soil|soil carbon|arr|ifm|wrc|scope|excluded|not applicable)\b/.test(text);
+  return contract.supportsNotApplicable && contract.notApplicableSignals.length > 0;
 }
 
 function deriveSectionSignals(contract: MethodologyEvidenceContract): string[] {
@@ -654,7 +689,93 @@ function intersectionCount(left: readonly string[], right: readonly string[]): n
 
 function hasProjectSpecificMarkers(text: string): boolean {
   return /\b(project area|project proponent|community|communities|annex|agreement|schedule|annual|annually|plot|plots|field team|gps|coordinates|hectares|buffer communities|forest users|indigenous|representatives)\b/.test(text)
-    || /\b\d{1,4}\b/.test(text);
+    || /\b(?:the project|project activities|project activity|project scope)\b/.test(text);
+}
+
+function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType; rejectionReason: string | null } {
+  const text = normalizeText(span.text);
+  if (span.reliability === "excluded" || span.noise?.length
+    || /(?:…|\.\.\.|\[\s*(?:truncated|continued|omitted)\s*\])/i.test(span.text)) {
+    return { evidenceType: "incomplete_or_noisy", rejectionReason: "The source span is truncated, stitched, or marked as noisy/limited evidence." };
+  }
+
+  const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
+    && !implementationLanguage
+    && !/\b(?:input|variable|parameter|baseline|leakage|monitoring|calculation|result|equation)\b/.test(text)
+    && !hasExplicitScopeExclusion(text);
+  if (moduleDeclaration) {
+    return { evidenceType: "module_or_tool_declaration", rejectionReason: "A module or tool declaration shows pathway selection, not completed project implementation." };
+  }
+
+  const explicitScopeExclusion = /\b(?:not arr|not ifm|not wrc|no peat(?:land)?|no tidal|no wetland|no arr|no ifm|does not include|excluded|redd[-/ ]?(?:apd|only)|upland forest only)\b/.test(text)
+    && /\b(?:project|project area|project activity|project scope|properties|activity)\b/.test(text);
+  if (explicitScopeExclusion) {
+    return { evidenceType: "project_specific_scope", rejectionReason: null };
+  }
+
+  const methodologyOnly = /\b(?:methodology|module|tool|template|standard|must|shall|required|applicability conditions?)\b/.test(text)
+    && !hasProjectSpecificMarkers(text);
+  if (methodologyOnly || candidateLooksLikeBoilerplate({
+    rule: { id: "", title: "", summary: "", type: "" },
+    contract: {
+      id: "", label: "", methodologyId: "", rulebookVersion: "", pddSectionsToSearch: [],
+      strongEvidenceSignals: [], weakEvidenceSignals: [], rejectSignals: [], notApplicableSignals: [],
+      defaultGapMessage: "", clientAction: "", supportsNotApplicable: false,
+    },
+    candidate: { span, sectionTitle: null, score: 0, strongHits: 0, signalTokenHits: 0, weakHits: 0, rejectHits: 0, ruleHits: 0, sectionHits: 0, projectFactBonus: 0, evidenceType: "methodology_boilerplate", rejectionReason: null },
+  })) {
+    return { evidenceType: "methodology_boilerplate", rejectionReason: "The source span contains copied methodology or requirement language without project-specific implementation facts." };
+  }
+
+  const scopeLanguage = /\b(?:project area|project scope|project activity|applies|applicable|not applicable|excluded|excludes|does not include|no peat|no tidal|no wetland|not peat|not tidal|not wetland)\b/.test(text);
+  if (scopeLanguage && !implementationLanguage) {
+    return { evidenceType: "project_specific_scope", rejectionReason: null };
+  }
+  if ((hasProjectSpecificMarkers(text) || /\bthe project\b/.test(text)) && implementationLanguage) {
+    return { evidenceType: "project_specific_implementation", rejectionReason: null };
+  }
+  return { evidenceType: "incomplete_or_noisy", rejectionReason: "The span is relevant by keywords but does not contain enough project-specific evidence." };
+}
+
+function hasExplicitScopeExclusion(text: string): boolean {
+  return (/\b(?:not arr|not ifm|not wrc|no peat(?:land)?|no tidal|no wetland|no arr|no ifm|does not include|excluded|redd[-/ ]?(?:apd|only)|upland forest only)\b/.test(text)
+    || /\bnot applicable\b/.test(text))
+    && /\b(?:project|project area|project activity|project scope|properties|activity)\b/.test(text);
+}
+
+function isAcceptedProjectEvidence(candidate: CandidateScore): boolean {
+  return candidate.evidenceType === "project_specific_implementation"
+    || candidate.evidenceType === "project_specific_scope";
+}
+
+function isAcceptedScopeEvidence(candidate: CandidateScore): boolean {
+  if (!isAcceptedProjectEvidence(candidate) || candidate.evidenceType === "project_specific_implementation") return false;
+  const text = normalizeText(candidate.span.text);
+  return hasExplicitScopeExclusion(text)
+    || hasProjectSpecificMarkers(text)
+    || /\b(?:the project|project area|project activity|project scope)\b/.test(text);
+}
+
+function mandatoryComponentCoverage(
+  contract: MethodologyEvidenceContract,
+  candidates: readonly CandidateScore[],
+): { supported: string[]; missing: string[] } {
+  const projectCandidates = candidates.filter((candidate) => candidate.evidenceType === "project_specific_implementation"
+    && candidate.span.text.length <= 3000
+    && !/\bccb\s*&\s*vcs project description template\b/i.test(candidate.span.text)
+    && (candidate.span.text.match(/\bmodules?\b/gi)?.length ?? 0) < 3
+    && !/\b(?:methodology|template|tool)\b/i.test(candidate.span.text));
+  const supported = (contract.mandatoryComponents ?? [])
+    .filter((component) => projectCandidates.some((candidate) =>
+      component.signals.some((signal) => countEvidenceSignalMatches(candidate.span.text, [signal]) > 0),
+    ))
+    .map((component) => component.id);
+  const supportedSet = new Set(supported);
+  return {
+    supported,
+    missing: (contract.mandatoryComponents ?? []).filter((component) => !supportedSet.has(component.id)).map((component) => component.id),
+  };
 }
 
 function methodologyBoilerplatePenalty(text: string): number {
@@ -783,7 +904,8 @@ function requiresScopeSpecificEvidence(rule: MethodologyEvidenceAuditRule, contr
 function hasScopeEvidence(candidate: CandidateScore | null, scopeKeywords: readonly string[]): boolean {
   if (!candidate) return false;
   const text = normalizeText(candidate.span.text);
-  return scopeKeywords.some((keyword) => text.includes(keyword));
+  return scopeKeywords.some((keyword) => keyword.length > 4 && text.includes(keyword))
+    && /\b(?:applicable|applies|not applicable|excluded|excludes|does not include|no peat|no tidal|no wetland|scope|activity)\b/.test(text);
 }
 
 function hasAmbiguousScopeLanguage(candidate: CandidateScore | null): boolean {
@@ -844,6 +966,9 @@ function candidateScore(input: {
   // it is not evidence that the signal's complete requirement is satisfied.
   // Keep phrase matches separate so aggregate keyword overlap cannot promote a
   // partial or methodology-only span to full support.
+  // Keep ranking tied to explicit contract phrases. Broader normalized/synonym
+  // matching is applied only when evaluating component/support coverage so it
+  // cannot reorder the diagnostic candidate set around incidental keywords.
   const strongHits = countPhraseHits(text, input.contract.strongEvidenceSignals);
   const signalTokenHits = Math.min(countTokenHits(text, tokenize(signalPhrases.join(" "), TEXT_STOPWORDS)), 4);
   const weakHits = countPhraseHits(text, input.contract.weakEvidenceSignals);
@@ -856,6 +981,7 @@ function candidateScore(input: {
   const headingPenalty = input.span.blockType === "section_heading" ? 14 : 0;
   const noisePenalty = input.span.noise?.length ? 10 : 0;
   const specificityBonus = evidenceSpecificityBonus(text);
+  const classifiedEvidence = classifyEvidenceType(input.span);
 
   const score =
     preferredSectionBonus
@@ -891,6 +1017,8 @@ function candidateScore(input: {
     ruleHits,
     sectionHits,
     projectFactBonus: projectFactBonusValue,
+    evidenceType: classifiedEvidence.evidenceType,
+    rejectionReason: classifiedEvidence.rejectionReason,
   };
 }
 
@@ -959,7 +1087,7 @@ function selectEvidenceCandidates(input: {
       // Keep complementary project evidence when the document distributes a
       // rule's support across sections; the top span still controls status.
       candidate.score >= Math.max(24, input.bestCandidate.score - 40)
-      || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1),
+      || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1)
     )
     .sort((left, right) => right.score - left.score);
 
@@ -968,7 +1096,7 @@ function selectEvidenceCandidates(input: {
     if (seen.has(candidate.span.spanId)) return false;
     seen.add(candidate.span.spanId);
     return true;
-  }).slice(0, 8);
+  }).slice(0, 6);
 }
 
 function selectNotApplicableCandidate(input: {
@@ -980,7 +1108,9 @@ function selectNotApplicableCandidate(input: {
   if (!isNotApplicableEligible(input.rule, input.contract)) return null;
 
   const sectionLookup = buildSectionLookup(input.sections);
-  const naPhrases = Array.from(new Set(input.contract.notApplicableSignals));
+  const applicability = input.contract.applicability;
+  const naPhrases = Array.from(new Set(applicability?.exclusionSignals ?? input.contract.notApplicableSignals));
+  const contextPhrases = Array.from(new Set(applicability?.contextSignals ?? []));
   if (!naPhrases.length) return null;
 
   let best: CandidateScore | null = null;
@@ -988,13 +1118,17 @@ function selectNotApplicableCandidate(input: {
     const text = normalizeText(span.text);
     if (!text || span.reliability === "excluded") continue;
     const phraseHits = countPhraseHits(text, naPhrases);
-    if (phraseHits === 0) continue;
+    const contextHits = contextPhrases.length === 0 ? 1 : countPhraseHits(text, contextPhrases);
+    const hasProjectContext = hasProjectSpecificMarkers(text) || hasExplicitScopeExclusion(text);
+    if (applicability && (contextHits === 0 || (applicability.requireProjectSpecificContext && !hasProjectContext))) continue;
+    const signalOverlap = intersectionCount(tokenize(text, TEXT_STOPWORDS), tokenize(naPhrases.join(" "), TEXT_STOPWORDS));
+    if (phraseHits === 0 && (!hasExplicitScopeExclusion(text) || signalOverlap < 2)) continue;
 
     const sectionTitle = span.sectionId
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
       : null;
 
-    const score = phraseHits * 14
+    const score = Math.max(1, phraseHits) * 14
       + (span.reliability === "primary" ? 6 : 0)
       + evidenceSpecificityBonus(text);
     const candidate: CandidateScore = {
@@ -1008,7 +1142,17 @@ function selectNotApplicableCandidate(input: {
       ruleHits: 0,
       sectionHits: 0,
       projectFactBonus: 0,
+      evidenceType: classifyEvidenceType(span).evidenceType,
+      rejectionReason: classifyEvidenceType(span).rejectionReason,
     };
+    if (applicability && phraseHits > 0 && contextHits > 0 && hasProjectContext
+      && candidate.evidenceType !== "methodology_boilerplate"
+      && candidate.evidenceType !== "incomplete_or_noisy"
+      && candidate.evidenceType !== "module_or_tool_declaration") {
+      candidate.evidenceType = "project_specific_scope";
+      candidate.rejectionReason = null;
+    }
+    if (!isAcceptedScopeEvidence(candidate)) continue;
     if (!best || candidate.score > best.score) best = candidate;
   }
 
@@ -1022,6 +1166,7 @@ function classifyStatus(input: {
   contract: MethodologyEvidenceContract;
   bestCandidate: CandidateScore | null;
   notApplicableCandidate: CandidateScore | null;
+  evidenceCandidates: readonly CandidateScore[];
 }): {
   status: EvidenceAuditStatus;
   confidence: EvidenceAuditConfidence;
@@ -1038,9 +1183,13 @@ function classifyStatus(input: {
   }
 
   const scopeKeywords = deriveScopeKeywords(input.rule, input.contract);
+  const scopeCandidate = input.evidenceCandidates.find((candidate) =>
+    (candidate.evidenceType === "project_specific_scope" || candidate.evidenceType === "project_specific_implementation")
+    && hasScopeEvidence(candidate, scopeKeywords),
+  ) ?? null;
   if (
     requiresScopeSpecificEvidence(input.rule, input.contract)
-    && (!hasScopeEvidence(input.bestCandidate, scopeKeywords) || hasAmbiguousScopeLanguage(input.bestCandidate))
+    && (!scopeCandidate || hasAmbiguousScopeLanguage(scopeCandidate))
   ) {
     return {
       status: "manual_review_needed",
@@ -1050,10 +1199,15 @@ function classifyStatus(input: {
     };
   }
 
+  const acceptedCandidates = input.evidenceCandidates.filter(isAcceptedProjectEvidence);
+  const assessmentCandidate = input.bestCandidate && isAcceptedProjectEvidence(input.bestCandidate)
+    ? input.bestCandidate
+    : [...acceptedCandidates].sort((left, right) => right.score - left.score)[0] ?? input.bestCandidate;
+
   if (candidateLooksLikeBoilerplate({
     rule: input.rule,
     contract: input.contract,
-    candidate: input.bestCandidate,
+    candidate: assessmentCandidate,
   })) {
     return {
       status: "manual_review_needed",
@@ -1063,8 +1217,21 @@ function classifyStatus(input: {
     };
   }
 
-  if (input.bestCandidate) {
-    if (candidateDescribesFutureOrUnissuedEvidence({ rule: input.rule, candidate: input.bestCandidate })) {
+  if (assessmentCandidate) {
+    if (!isAcceptedProjectEvidence(assessmentCandidate)) {
+      return {
+        status: assessmentCandidate.evidenceType === "incomplete_or_noisy"
+          && assessmentCandidate.strongHits === 0
+          && assessmentCandidate.weakHits === 0
+          ? "missing_evidence"
+          : "partially_supported",
+        confidence: "low",
+        assessmentReason: assessmentCandidate.rejectionReason ?? "The selected evidence type cannot prove completed project implementation.",
+        gap: input.contract.defaultGapMessage,
+      };
+    }
+
+    if (candidateDescribesFutureOrUnissuedEvidence({ rule: input.rule, candidate: assessmentCandidate })) {
       return {
         status: "partially_supported",
         confidence: "low",
@@ -1073,7 +1240,7 @@ function classifyStatus(input: {
       };
     }
 
-    if (input.bestCandidate.rejectHits > 0 && input.bestCandidate.strongHits === 0) {
+    if (assessmentCandidate.rejectHits > 0 && assessmentCandidate.strongHits === 0) {
       return {
         status: "manual_review_needed",
         confidence: "low",
@@ -1082,23 +1249,67 @@ function classifyStatus(input: {
       };
     }
 
+    const componentCoverage = mandatoryComponentCoverage(input.contract, acceptedCandidates);
+    if (componentCoverage.missing.length > 0) {
+      return {
+        status: componentCoverage.supported.length > 0 ? "partially_supported" : "missing_evidence",
+        confidence: "low",
+        assessmentReason: `Project-specific evidence is incomplete: missing mandatory components ${componentCoverage.missing.join(", ")}.`,
+        gap: input.contract.defaultGapMessage,
+      };
+    }
+
+    if ((input.contract.mandatoryComponents?.length ?? 0) > 0
+      && componentCoverage.missing.length === 0
+      && assessmentCandidate.evidenceType === "project_specific_implementation") {
+      return {
+        status: "supported_by_pdd",
+        confidence: "high",
+        assessmentReason: "All mandatory evidence components are supported by project-specific implementation evidence.",
+        gap: "",
+      };
+    }
+
     if (
-      input.bestCandidate.strongHits >= 2
+      assessmentCandidate.evidenceType === "project_specific_implementation"
+      && assessmentCandidate.strongHits >= 2
+      && assessmentCandidate.projectFactBonus >= 10
       || (
-        input.bestCandidate.projectFactBonus >= 48
-        && input.bestCandidate.ruleHits >= 5
-        && input.bestCandidate.signalTokenHits >= 2
+        (input.contract.id === "family:redd-eligibility"
+          || (input.contract.appliesToRuleIds?.length ?? 0) > 0)
+        && assessmentCandidate.projectFactBonus >= 48
+        && assessmentCandidate.ruleHits >= 5
+        && assessmentCandidate.signalTokenHits >= 2
+      )
+      || (
+        (input.contract.appliesToRuleIds?.length ?? 0) > 0
+        && assessmentCandidate.evidenceType === "project_specific_implementation"
+        && assessmentCandidate.strongHits >= 1
       )
     ) {
       return {
         status: "supported_by_pdd",
-        confidence: input.bestCandidate.score >= 56 ? "high" : "medium",
+        confidence: assessmentCandidate.score >= 56 ? "high" : "medium",
         assessmentReason: "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
         gap: "",
       };
     }
 
-    if (input.bestCandidate.strongHits >= 1 || input.bestCandidate.weakHits >= 1 || input.bestCandidate.score >= 24) {
+    // Some contracts express their signals as prose rather than reusable
+    // phrases. A dense, project-specific overlap can support the legacy path,
+    // but a single shared keyword cannot.
+    if (assessmentCandidate.evidenceType === "project_specific_implementation"
+      && assessmentCandidate.ruleHits >= 8
+      && assessmentCandidate.signalTokenHits >= 2) {
+      return {
+        status: "supported_by_pdd",
+        confidence: "medium",
+        assessmentReason: "The selected PDD span contains dense project-specific implementation facts matching the contract vocabulary.",
+        gap: "",
+      };
+    }
+
+    if (assessmentCandidate.strongHits >= 1 || assessmentCandidate.weakHits >= 1 || assessmentCandidate.score >= 24) {
       return {
         status: "partially_supported",
         confidence: "medium",
@@ -1157,9 +1368,15 @@ function resultFromCandidate(input: {
   gap: string;
   normalizeRuleId?: (ruleId: string) => string;
 }): MethodologyEvidenceAuditResult {
-  const sectionLabel = input.candidate?.sectionTitle
-    || input.candidate?.span.heading
-    || input.candidate?.span.sectionId
+  const acceptedEvidenceCandidates = (input.evidenceCandidates ?? []).filter(isAcceptedProjectEvidence);
+  const rejectedEvidenceCandidates = (input.evidenceCandidates ?? []).filter((candidate) => !isAcceptedProjectEvidence(candidate));
+  const acceptedCandidate = input.status === "missing_evidence"
+    ? null
+    : acceptedEvidenceCandidates[0] ?? (input.candidate && isAcceptedProjectEvidence(input.candidate) ? input.candidate : null);
+  const provenanceCandidate = acceptedCandidate;
+  const sectionLabel = provenanceCandidate?.sectionTitle
+    || provenanceCandidate?.span.heading
+    || provenanceCandidate?.span.sectionId
     || null;
 
   return {
@@ -1177,16 +1394,28 @@ function resultFromCandidate(input: {
     versionMismatchReason: input.versionLock.versionMismatchReason,
     userAcceptedVersionWarning: input.versionLock.userAcceptedVersionWarning,
     status: input.status,
-    bestEvidenceQuote: input.candidate ? sourceQuote(input.candidate.span.text) : null,
-    evidence: (input.evidenceCandidates ?? (input.candidate ? [input.candidate] : [])).map((candidate) => ({
+    bestEvidenceQuote: acceptedCandidate ? sourceQuote(acceptedCandidate.span.text) : null,
+    evidence: input.status === "missing_evidence" ? [] : acceptedEvidenceCandidates.map((candidate) => ({
       quote: sourceQuote(candidate.span.text),
       page: candidate.span.page,
       section: candidate.sectionTitle || candidate.span.heading || candidate.span.sectionId || null,
       span: candidate.span.spanId,
+      evidenceType: candidate.evidenceType,
+      rejectionReason: candidate.rejectionReason ?? undefined,
     })),
-    page: input.candidate?.span.page ?? null,
+    rejectedEvidence: [...rejectedEvidenceCandidates, ...(input.candidate && !isAcceptedProjectEvidence(input.candidate) ? [input.candidate] : [])]
+      .filter((candidate, index, all) => all.findIndex((other) => other.span.spanId === candidate.span.spanId) === index)
+      .map((candidate) => ({
+        quote: sourceQuote(candidate.span.text),
+        page: candidate.span.page,
+        section: candidate.sectionTitle || candidate.span.heading || candidate.span.sectionId || null,
+        span: candidate.span.spanId,
+        evidenceType: candidate.evidenceType,
+        rejectionReason: candidate.rejectionReason ?? "Candidate was not accepted as sufficient evidence.",
+      })),
+    page: provenanceCandidate?.span.page ?? null,
     section: sectionLabel,
-    span: input.candidate?.span.spanId ?? null,
+    span: provenanceCandidate?.span.spanId ?? null,
     reasonSelected: reasonSelected({ candidate: input.candidate, status: input.status }),
     assessmentReason: input.assessmentReason,
     gap: input.gap,
@@ -1238,23 +1467,27 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       evidenceDocument: input.evidenceDocument,
       sections: input.sections,
     });
+    const evidenceCandidates = bestCandidate
+      ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate })
+      : [];
     const classified = classifyStatus({
       rule,
       contract,
       bestCandidate,
       notApplicableCandidate,
+      evidenceCandidates,
     });
     const candidate = classified.status === "not_applicable" ? notApplicableCandidate : bestCandidate;
-    const evidenceCandidates = candidate
-      ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate: candidate })
-      : [];
+    const selectedEvidenceCandidates = classified.status === "not_applicable" && candidate
+      ? [candidate]
+      : evidenceCandidates;
 
     return resultFromCandidate({
       rule,
       contract,
       versionLock,
       candidate,
-      evidenceCandidates,
+      evidenceCandidates: selectedEvidenceCandidates,
       status: classified.status,
       confidence: classified.confidence,
       assessmentReason: classified.assessmentReason,
