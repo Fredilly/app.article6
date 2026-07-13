@@ -56,9 +56,9 @@
       ]
     },
     "independentAuditCumulative": {
-      "rowCount": 28,
+      "rowCount": 38,
       "results": {
-        "CONFIRMED": 20,
+        "CONFIRMED": 30,
         "CORRECTED": 8,
         "INSUFFICIENT_SOURCE_ACCESS": 0
       }
