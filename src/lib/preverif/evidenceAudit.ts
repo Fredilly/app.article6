@@ -25,6 +25,12 @@ export type MandatoryEvidenceComponent = Readonly<{
   signals: readonly string[];
 }>;
 
+export type ApplicabilityConfiguration = Readonly<{
+  exclusionSignals: readonly string[];
+  contextSignals: readonly string[];
+  requireProjectSpecificContext: boolean;
+}>;
+
 export type MethodologyVersionLock = Readonly<{
   methodologyId: string;
   rulebookVersionRaw: string;
@@ -49,6 +55,7 @@ export type MethodologyEvidenceContract = Readonly<{
   weakEvidenceSignals: readonly string[];
   rejectSignals: readonly string[];
   notApplicableSignals: readonly string[];
+  applicability?: ApplicabilityConfiguration;
   mandatoryComponents?: readonly MandatoryEvidenceComponent[];
   defaultGapMessage: string;
   clientAction: string;
@@ -1101,7 +1108,9 @@ function selectNotApplicableCandidate(input: {
   if (!isNotApplicableEligible(input.rule, input.contract)) return null;
 
   const sectionLookup = buildSectionLookup(input.sections);
-  const naPhrases = Array.from(new Set(input.contract.notApplicableSignals));
+  const applicability = input.contract.applicability;
+  const naPhrases = Array.from(new Set(applicability?.exclusionSignals ?? input.contract.notApplicableSignals));
+  const contextPhrases = Array.from(new Set(applicability?.contextSignals ?? []));
   if (!naPhrases.length) return null;
 
   let best: CandidateScore | null = null;
@@ -1109,6 +1118,9 @@ function selectNotApplicableCandidate(input: {
     const text = normalizeText(span.text);
     if (!text || span.reliability === "excluded") continue;
     const phraseHits = countPhraseHits(text, naPhrases);
+    const contextHits = contextPhrases.length === 0 ? 1 : countPhraseHits(text, contextPhrases);
+    const hasProjectContext = hasProjectSpecificMarkers(text) || hasExplicitScopeExclusion(text);
+    if (applicability && (contextHits === 0 || (applicability.requireProjectSpecificContext && !hasProjectContext))) continue;
     const signalOverlap = intersectionCount(tokenize(text, TEXT_STOPWORDS), tokenize(naPhrases.join(" "), TEXT_STOPWORDS));
     if (phraseHits === 0 && (!hasExplicitScopeExclusion(text) || signalOverlap < 2)) continue;
 
@@ -1133,7 +1145,10 @@ function selectNotApplicableCandidate(input: {
       evidenceType: classifyEvidenceType(span).evidenceType,
       rejectionReason: classifyEvidenceType(span).rejectionReason,
     };
-    if (input.contract.id === "family:jnr-data-use" && /\bnot applicable\b/.test(text)) {
+    if (applicability && phraseHits > 0 && contextHits > 0 && hasProjectContext
+      && candidate.evidenceType !== "methodology_boilerplate"
+      && candidate.evidenceType !== "incomplete_or_noisy"
+      && candidate.evidenceType !== "module_or_tool_declaration") {
       candidate.evidenceType = "project_specific_scope";
       candidate.rejectionReason = null;
     }
@@ -1358,9 +1373,10 @@ function resultFromCandidate(input: {
   const acceptedCandidate = input.status === "missing_evidence"
     ? null
     : acceptedEvidenceCandidates[0] ?? (input.candidate && isAcceptedProjectEvidence(input.candidate) ? input.candidate : null);
-  const sectionLabel = input.candidate?.sectionTitle
-    || input.candidate?.span.heading
-    || input.candidate?.span.sectionId
+  const provenanceCandidate = acceptedCandidate;
+  const sectionLabel = provenanceCandidate?.sectionTitle
+    || provenanceCandidate?.span.heading
+    || provenanceCandidate?.span.sectionId
     || null;
 
   return {
@@ -1397,9 +1413,9 @@ function resultFromCandidate(input: {
         evidenceType: candidate.evidenceType,
         rejectionReason: candidate.rejectionReason ?? "Candidate was not accepted as sufficient evidence.",
       })),
-    page: input.candidate?.span.page ?? null,
+    page: provenanceCandidate?.span.page ?? null,
     section: sectionLabel,
-    span: input.candidate?.span.spanId ?? null,
+    span: provenanceCandidate?.span.spanId ?? null,
     reasonSelected: reasonSelected({ candidate: input.candidate, status: input.status }),
     assessmentReason: input.assessmentReason,
     gap: input.gap,

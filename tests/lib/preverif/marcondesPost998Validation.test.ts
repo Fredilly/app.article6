@@ -260,9 +260,15 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
       const result = byRule.get(ruleId)!;
       expect(result.bestEvidenceQuote ?? "").not.toContain("…");
       expect(evidenceRecords(result).every((record) => record.page !== null && record.section && record.span)).toBe(true);
-      expect(result.page).toBe(evidenceRecords(result)[0]?.page ?? result.page);
-      expect(result.section).toEqual(expect.any(String));
-      expect(result.span).toEqual(expect.any(String));
+      if (result.status === "missing_evidence") {
+        expect(result.bestEvidenceQuote).toBeNull();
+        expect(result.evidence).toEqual([]);
+        expect({ page: result.page, section: result.section, span: result.span }).toEqual({ page: null, section: null, span: null });
+      } else {
+        expect(result.page).toBe(evidenceRecords(result)[0]?.page ?? result.page);
+        expect(result.section).toEqual(expect.any(String));
+        expect(result.span).toEqual(expect.any(String));
+      }
     }
 
     const singleRuleAudit = (ruleId: string, text: string) => auditEvidence({

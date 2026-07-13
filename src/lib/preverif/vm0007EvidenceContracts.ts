@@ -34,6 +34,13 @@ function defineContract(
     weakEvidenceSignals: Object.freeze([...input.weakEvidenceSignals]),
     rejectSignals: Object.freeze([...input.rejectSignals]),
     notApplicableSignals: Object.freeze([...input.notApplicableSignals]),
+    applicability: input.applicability
+      ? Object.freeze({
+        ...input.applicability,
+        exclusionSignals: Object.freeze([...input.applicability.exclusionSignals]),
+        contextSignals: Object.freeze([...input.applicability.contextSignals]),
+      })
+      : undefined,
     mandatoryComponents: input.mandatoryComponents
       ? Object.freeze(input.mandatoryComponents.map((component) => Object.freeze({
         ...component,
@@ -379,6 +386,11 @@ const JNR_DATA_CONTRACT = defineContract({
   weakEvidenceSignals: ["JNR data is mentioned without a project decision"],
   rejectSignals: ["JNR data appears only in copied methodology text"],
   notApplicableSignals: ["JNR data", "JNR data use", "not applicable"],
+  applicability: {
+    exclusionSignals: ["not applicable", "does not use JNR data", "JNR data is not applicable"],
+    contextSignals: ["JNR data", "JNR data use", "project activity", "project area"],
+    requireProjectSpecificContext: true,
+  },
   defaultGapMessage: "PDD does not yet show the project-specific decision on JNR data use.",
   clientAction: "State whether JNR data is used and cite the project-specific data source decision.",
   supportsNotApplicable: true,

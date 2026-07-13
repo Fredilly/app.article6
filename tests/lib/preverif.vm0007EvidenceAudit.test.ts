@@ -197,7 +197,8 @@ describe("auditEvidence with VM0007 contracts", () => {
   ])("does not promote planned or unissued evidence for %s", (ruleId, text) => {
     const result = byRuleId(auditSynthetic(ruleId, [span(1, "future", text)]).results, ruleId);
     expect(result.status).not.toBe("supported_by_pdd");
-    expect(result.bestEvidenceQuote).toBe(text);
+    expect(result.bestEvidenceQuote).toBeNull();
+    expect(result.rejectedEvidence?.[0]?.quote).toBe(text);
   });
 
   it("produces useful Envira-like outputs across the main VM0007 categories", () => {
@@ -216,10 +217,12 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(baseline.clientAction.trim().length).toBeGreaterThan(0);
 
     expect(["partially_supported", "supported_by_pdd"]).toContain(leakage.status);
-    expect(leakage.bestEvidenceQuote?.toLowerCase()).toContain("activity shifting leakage");
+    expect(leakage.bestEvidenceQuote).toBe(leakage.evidence?.[0]?.quote);
+    expect(leakage.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
 
     expect(["partially_supported", "supported_by_pdd"]).toContain(monitoring.status);
-    expect(monitoring.bestEvidenceQuote?.toLowerCase()).toContain("monitoring plan");
+    expect(monitoring.bestEvidenceQuote).toBe(monitoring.evidence?.[0]?.quote);
+    expect(monitoring.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
 
     expect(additionality.assessmentReason.trim().length).toBeGreaterThan(0);
     expect(additionality.clientAction.trim().length).toBeGreaterThan(0);

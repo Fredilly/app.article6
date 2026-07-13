@@ -16,6 +16,12 @@ const reviewedRuleIds = [
   "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
 ] as const;
 
+const expectedMismatchRuleIds = [
+  "R-1-0001", "R-1-0002", "R-1-0003", "R-1-0013", "R-1-0014", "R-1-0015",
+  "R-2-0002", "R-2-0004", "R-2-0007", "R-2-0008", "R-2-0010", "R-2-0012", "R-2-0014",
+  "R-3-0005", "R-4-0001",
+] as const;
+
 type JsonRecord = Record<string, any>;
 
 function readJson(name: string): JsonRecord {
@@ -103,6 +109,9 @@ describe("Marcondes reviewed gold comparison", () => {
 
     expect(audit.results).toHaveLength(58);
     expect(comparison).toHaveLength(48);
+    expect(comparison.length - mismatches.length).toBeGreaterThanOrEqual(33);
+    expect(comparison.length - mismatches.length).toBe(33);
+    expect(mismatches.map((row) => row.ruleId).sort()).toEqual([...expectedMismatchRuleIds].sort());
     expect(totals.supported_by_pdd).toBeGreaterThan(0);
     expect(totals.partially_supported).toBeLessThan(57);
     expect(totals.not_applicable).toBeGreaterThan(0);
