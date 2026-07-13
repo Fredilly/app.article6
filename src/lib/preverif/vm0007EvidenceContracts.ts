@@ -357,17 +357,31 @@ const QUANTIFICATION_CONTRACT = defineContract({
     {
       id: "inputs",
       description: "Project-specific variables and inputs",
-      signals: ["variables", "inputs", "parameters", "project data", "activity data"],
+      signals: ["project inputs", "parameters", "project data", "activity data"],
     },
     {
       id: "result",
       description: "Traceable project calculation result",
-      signals: ["result", "total", "emission reductions", "removals", "tco2e", "vcus"],
+      signals: ["quantification result", "emission reductions", "removals", "tco2e", "vcus"],
     },
   ],
   defaultGapMessage: "PDD does not yet show the quantification evidence needed for this rule.",
   clientAction: "Add the calculation pathway, the key variables and assumptions, and the citations that let a reviewer trace the stated result.",
   supportsNotApplicable: false,
+});
+
+const JNR_DATA_CONTRACT = defineContract({
+  id: "family:jnr-data-use",
+  label: "JNR data use",
+  appliesToFamily: "Rules governing the use of JNR data",
+  pddSectionsToSearch: ["S-3 Baseline Scenario", "S-5 Quantification"],
+  strongEvidenceSignals: ["JNR data is used as a conservative source"],
+  weakEvidenceSignals: ["JNR data is mentioned without a project decision"],
+  rejectSignals: ["JNR data appears only in copied methodology text"],
+  notApplicableSignals: ["JNR data", "JNR data use", "not applicable"],
+  defaultGapMessage: "PDD does not yet show the project-specific decision on JNR data use.",
+  clientAction: "State whether JNR data is used and cite the project-specific data source decision.",
+  supportsNotApplicable: true,
 });
 
 const MONITORING_CONTRACT = defineContract({
@@ -899,6 +913,10 @@ const CONTRACT_MATCHERS: readonly ContractMatcher[] = [
   {
     contract: ADDITIONALITY_CONTRACT,
     matches: (rule) => /^R-4-\d{4}$/.test(rule.shortId),
+  },
+  {
+    contract: JNR_DATA_CONTRACT,
+    matches: (rule) => /jnr data/.test(rule.text),
   },
   {
     contract: BASELINE_SCENARIO_CONTRACT,
