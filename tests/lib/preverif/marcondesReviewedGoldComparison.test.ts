@@ -16,6 +16,8 @@ const reviewedRuleIds = [
   "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
 ] as const;
 
+const resolvedIrrelevantScopeRows = ["R-2-0007", "R-2-0008", "R-2-0010", "R-2-0012"] as const;
+
 type JsonRecord = Record<string, any>;
 
 function readJson(name: string): JsonRecord {
@@ -103,13 +105,22 @@ describe("Marcondes reviewed gold comparison", () => {
 
     expect(audit.results).toHaveLength(58);
     expect(comparison).toHaveLength(48);
-    expect(comparison.length - mismatches.length).toBeGreaterThanOrEqual(33);
-    expect(comparison.length - mismatches.length).toBe(33);
+    expect(comparison.length - mismatches.length).toBeGreaterThanOrEqual(37);
+    expect(comparison.length - mismatches.length).toBe(37);
     const reconciliation = readJson("mismatch-reconciliation.json");
     expect(reconciliation.rows).toHaveLength(15);
     expect(new Set(reconciliation.rows.map((row: JsonRecord) => row.ruleId)).size).toBe(15);
     const stableRuleId = (ruleId: string) => ruleId.startsWith("Verra.") ? ruleId : `Verra.AFOLU.VM0007.v1-8.${ruleId}`;
-    expect(mismatches.map((row) => stableRuleId(row.ruleId)).sort()).toEqual(reconciliation.rows.map((row: JsonRecord) => row.ruleId).sort());
+    const activeReconciliationRows = reconciliation.rows.filter((row: JsonRecord) =>
+      !resolvedIrrelevantScopeRows.some((ruleId) => row.ruleId.endsWith(ruleId)),
+    );
+    expect(mismatches.map((row) => stableRuleId(row.ruleId)).sort()).toEqual(activeReconciliationRows.map((row: JsonRecord) => row.ruleId).sort());
+    for (const ruleId of resolvedIrrelevantScopeRows) {
+      expect(comparison.find((row) => row.ruleId === ruleId)).toEqual(expect.objectContaining({
+        exact: true,
+        gold: "UNCLEAR",
+      }));
+    }
     for (const mismatch of mismatches) {
       const record = reconciliation.rows.find((row: JsonRecord) => row.ruleId === stableRuleId(mismatch.ruleId))!;
       const goldRow = goldByRule.get(mismatch.ruleId)!;

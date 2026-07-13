@@ -324,6 +324,15 @@ const CARBON_POOLS_CONTRACT = defineContract({
     "A pool or source is excluded because the project activity does not create that pathway",
     "The project scope excludes the wetland or tidal activity that would trigger the pool or source",
   ],
+  applicability: {
+    exclusionSignals: [
+      "A pool or source is excluded because the project activity does not create that pathway",
+      "The project scope excludes the wetland or tidal activity that would trigger the pool or source",
+    ],
+    contextSignals: [],
+    requireProjectSpecificContext: true,
+    requireRuleSubjectAlignment: true,
+  },
   defaultGapMessage: "PDD does not yet show the pool or GHG source selection evidence needed for this rule.",
   clientAction: "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
   supportsNotApplicable: true,
@@ -670,6 +679,14 @@ const CARBON_POOL_SELECTION_CONTRACT = defineContract({
   notApplicableSignals: [
     "A pool is out of scope because the project activity does not create that carbon stock pathway",
   ],
+  applicability: {
+    exclusionSignals: [
+      "A pool is out of scope because the project activity does not create that carbon stock pathway",
+    ],
+    contextSignals: [],
+    requireProjectSpecificContext: true,
+    requireRuleSubjectAlignment: true,
+  },
   defaultGapMessage: "PDD does not yet show the include or exclude decision and justification for the carbon pools used in this project.",
   clientAction: "List each relevant carbon pool, state whether it is included or excluded, and add the project-specific reason and citation for that decision.",
   supportsNotApplicable: true,
