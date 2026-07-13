@@ -41,7 +41,7 @@ function makeRepo(legacyBaseline = false, noAudit = false): string {
   writeJson(dir, "tests/fixtures/preverif/demo/metadata.json", { review: { reviewedRuleIds: ["Demo.v1.R-1"] } });
   if (!noAudit) writeJson(dir, "tests/fixtures/preverif/demo/independent-audit.json", { rows: [{ ruleReference: "Demo.v1.R-1", finalState: "UNCLEAR", reviewerOutcome: "ACTION_REQUIRED", rationale: "Initial independent review is complete." }] });
   fs.mkdirSync(path.join(dir, "tests/lib/preverif"), { recursive: true });
-  fs.writeFileSync(path.join(dir, "tests/lib/preverif/demo.test.ts"), `import { expect } from "@jest/globals";\ntest("keeps demo truth", () => { expect(1).toBe(1); });\n`);
+  fs.writeFileSync(path.join(dir, "tests/lib/preverif/demo.test.ts"), `import { expect } from "@jest/globals";\ntest("keeps demo truth", () => { expect(1).toBe(1); });\n// tests/fixtures/preverif/demo is the fixture under review\n`);
   fs.writeFileSync(path.join(dir, "tests/lib/preverif/shared.test.ts"), `test("shared preverif regression", () => { expect(true).toBe(true); });\n`);
   git(dir, ["init", "-q"]); git(dir, ["config", "user.email", "test@example.com"]); git(dir, ["config", "user.name", "Test"]); git(dir, ["add", "."]); git(dir, ["commit", "-qm", "base"]); return dir;
 }
