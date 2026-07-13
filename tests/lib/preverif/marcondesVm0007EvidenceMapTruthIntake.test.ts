@@ -4,22 +4,22 @@ import crypto from "node:crypto";
 
 const dir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const read = (name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as Record<string, any>;
-const rawText = fs.readFileSync(path.join(dir, "raw-quick-check-output.txt"), "utf8");
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
 const sha256 = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(dir, name))).digest("hex");
 const stable = (id: string) => "Verra.AFOLU.VM0007.v1-8." + id;
 const batchOne = ["R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008"];
 const batchTwo = ["R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014"];
 const finalEight = ["R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
+const nextTen = ["R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003"];
 const previousIndependentAuditIds = [...batchOne, ...batchTwo];
 const independentAuditIds = [...previousIndependentAuditIds, ...finalEight];
-const reviewed = independentAuditIds;
+const reviewed = [...independentAuditIds, ...nextTen];
 const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [12, 61, 63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [63, 64], "R-2-0016": [62],
-  "R-3-0002": [41, 42], "R-3-0006": [12, 61, 62]
+  "R-3-0002": [41, 42], "R-3-0006": [12, 61, 62], "R-2-0003": [59], "R-2-0004": [12, 61], "R-2-0009": [12, 62], "R-2-0010": [65, 68], "R-2-0011": [12, 62], "R-2-0012": [64, 65, 68], "R-2-0013": [15, 62], "R-2-0014": [1, 10, 16], "R-2-0015": [12, 62], "R-3-0003": [18, 66]
 };
 
 describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
@@ -41,15 +41,16 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(metadata.review.reviewedRuleIds).toEqual(reviewedRuleIds);
     expect(gold.reviewedRuleIds).toEqual(reviewedRuleIds);
     expect(gold.rows.map((row: any) => row.ruleId)).toEqual(reviewedRuleIds);
-    expect(reviewedRuleIds).toHaveLength(28);
+    expect(reviewedRuleIds).toHaveLength(38);
     expect(reviewedRuleIds.slice(0, 10)).toEqual(batchOne.map(stable));
     expect(reviewedRuleIds.slice(10, 20)).toEqual(batchTwo.map(stable));
-    expect(reviewedRuleIds.slice(20)).toEqual(finalEight.map(stable));
+    expect(reviewedRuleIds.slice(20, 28)).toEqual(finalEight.map(stable));
+    expect(reviewedRuleIds.slice(28)).toEqual(nextTen.map(stable));
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review")).toHaveLength(40);
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
     expect(gold.goldPromotionBlocked).toBe(true);
     expect(gold.reportReleaseState).toBe("BLOCKED_PENDING_REVIEW_COVERAGE");
-    expect(gold.rows).toHaveLength(28);
+    expect(gold.rows).toHaveLength(38);
     expect(gold.rows.every((row: any) => reviewedRuleIds.includes(row.ruleId))).toBe(true);
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => !gold.rows.some((goldRow: any) => goldRow.ruleId === row.ruleId))).toBe(true);
   });
@@ -72,12 +73,8 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       expect(row.acceptedEvidence.length).toBeGreaterThan(0);
       expect(row.acceptedEvidence).toEqual(acceptedByRule.get(ruleId));
       for (const evidence of row.acceptedEvidence) {
-        if (independentAuditIds.includes(id)) {
-          expect(sourcePages.has(evidence.page)).toBe(true);
-          expect(normalize(sourcePages.get(evidence.page) ?? "")).toContain(normalize(evidence.quote));
-        } else {
-          expect(normalize(rawText)).toContain(normalize(evidence.quote));
-        }
+        expect(sourcePages.has(evidence.page)).toBe(true);
+        expect(normalize(sourcePages.get(evidence.page) ?? "")).toContain(normalize(evidence.quote));
         expect(expectedPages[id]).toContain(evidence.page);
         expect(evidence.provenance.page).toBe(evidence.page);
         expect(evidence.provenance.sectionPath[0]).toBe(evidence.page <= 9 ? "1 SUMMARY OF PROJECT BENEFITS" : evidence.page < 61 ? "2 PROJECT DETAILS" : "3 CLIMATE");
@@ -90,7 +87,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     for (const entry of corrections.rejectedEvidence) {
       expect(entry.ruleId).toBeTruthy();
       expect(reviewed).toContain(entry.ruleId.split(".").pop());
-      expect(entry.evidence.rejectionReason).toContain("stitched or paraphrased quote");
+      expect(entry.evidence.rejectionReason).toMatch(/stitched or paraphrased quote|generic-text false support/);
     }
     for (const entry of corrections.reviewerCorrections) {
       expect(entry.ruleId).toBeTruthy();
@@ -107,6 +104,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const goldByRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(audit.rows.map((row: any) => row.ruleReference)).toEqual(independentAuditIds);
     expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(28);
+    expect(sha256("independent-audit.json")).toBe("2f3cb3257fc12d6ec1693bd4606e3f7102d1d9427b672908266595fccead291f");
     expect(audit.rows.slice(20).map((row: any) => row.ruleReference)).toEqual(finalEight);
     expect(audit.rows.slice(10, 20).map((row: any) => row.ruleReference)).toEqual(batchTwo);
     expect(audit.rows.every((row: any) => row.auditResult && row.rationale && row.requirementReviewed && row.pagesInspected.length > 0)).toBe(true);
@@ -220,10 +218,10 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       return counts;
     }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
     expect(gold.counts).toEqual(calculatedCounts);
-    expect(calculatedCounts).toEqual({ FOUND: 4, UNCLEAR: 11, MISSING: 0, "N/A": 13 });
+    expect(calculatedCounts).toEqual({ FOUND: 5, UNCLEAR: 16, MISSING: 0, "N/A": 17 });
   });
 
-  it("keeps all 28 reviewed rows and excludes the remaining 30", () => {
+  it("keeps all 38 reviewed rows and excludes the remaining 20", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(finalEight.every((id) => byRule.has(id))).toBe(true);
@@ -231,8 +229,77 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0002", "N/A", "NOT_APPLICABLE"], ["R-2-0006", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
     ]);
     expect(gold.rows.some((row: any) => row.ruleReference === "R-4-0001")).toBe(false);
-    expect(gold.rows).toHaveLength(28);
+    expect(gold.rows).toHaveLength(38);
     expect(gold.rows.every((row: any) => reviewed.includes(row.ruleReference))).toBe(true);
+    expect(nextTen.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
+      ["R-2-0003", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0004", "N/A", "NOT_APPLICABLE"],
+      ["R-2-0009", "N/A", "NOT_APPLICABLE"], ["R-2-0010", "UNCLEAR", "ACTION_REQUIRED"],
+      ["R-2-0011", "N/A", "NOT_APPLICABLE"], ["R-2-0012", "UNCLEAR", "ACTION_REQUIRED"],
+      ["R-2-0013", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0014", "FOUND", "CONFORMS"],
+      ["R-2-0015", "N/A", "NOT_APPLICABLE"], ["R-3-0003", "UNCLEAR", "ACTION_REQUIRED"],
+    ]);
+  });
+
+  it("preserves the original machine proposals and enforces the next-batch rule judgments", () => {
+    const gold = read("gold.json");
+    const machine = read("machine-proposal.json").rows;
+    const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
+    for (const id of nextTen) {
+      const reviewed = byRule.get(id)!;
+      const original = machine.find((row: any) => row.ruleReference.endsWith(id));
+      expect(original).toBeDefined();
+      expect(reviewed.machineProposal).toEqual(original);
+      expect(JSON.stringify(reviewed.machineProposal)).not.toMatch(/Machine proposal evidence was broad|machine-proposal-post-999-review-candidate/);
+    }
+
+    for (const id of ["R-2-0009", "R-2-0011", "R-2-0015"]) {
+      const row = byRule.get(id)!;
+      expect(row.finalEvidenceState).toBe("N/A");
+      expect(row.applicabilityTrigger).toEqual(expect.any(String));
+      expect(row.applicabilityReason).toEqual(expect.any(String));
+      expect(row.applicabilityReason).toContain("APD");
+      expect(row.applicabilityReason).toContain("no peat");
+    }
+    expect(new Set(["R-2-0009", "R-2-0011", "R-2-0015"].map((id) => byRule.get(id)!.applicabilityReason)).size).toBe(3);
+
+    const sourceConsistency = byRule.get("R-2-0012")!;
+    expect(sourceConsistency.finalEvidenceState).toBe("UNCLEAR");
+    expect(sourceConsistency.reviewerOutcome).toBe("ACTION_REQUIRED");
+    expect(sourceConsistency.methodologyTraceability.plainLanguageSummary).toMatch(/baseline, project, and leakage/i);
+    expect(sourceConsistency.clientAction).toMatch(/baseline.*project.*leakage|project.*leakage.*baseline/i);
+
+    const historical = byRule.get("R-2-0013")!;
+    expect(historical.acceptedEvidence.some((e: any) => /2013/.test(e.quote) && /2023/.test(e.quote))).toBe(true);
+    expect(historical.acceptedEvidence.some((e: any) => /01 May 2023/.test(e.quote))).toBe(true);
+    expect(historical.reviewerCorrection.correction).toMatch(/exact calendar start\/end dates|ambiguous/i);
+
+    const crediting = byRule.get("R-2-0014")!;
+    expect(crediting.finalEvidenceState).toBe("FOUND");
+    expect(crediting.reviewerOutcome).toBe("CONFORMS");
+    expect(crediting.acceptedEvidence).toHaveLength(3);
+    expect(crediting.acceptedEvidence.every((e: any) => /01 May 2023/.test(e.quote) && /30 April 2063/.test(e.quote))).toBe(true);
+    expect(crediting.reviewerCorrection.correction).toMatch(/three cited PDD locations consistently establish a 40-year/);
+    expect(crediting.clientAction).toMatch(/^Retain/);
+    expect(crediting.draftFindingCandidate).toBeNull();
+
+    const barrier = byRule.get("R-3-0003")!;
+    expect(barrier.methodologyTraceability.section).toMatch(/barrier/i);
+    expect(barrier.clientAction).toMatch(/barrier categories|barriers affect/i);
+    expect(barrier.clientAction).not.toMatch(/^Provide (?:investment|common-practice) analysis/i);
+
+    const unclear = nextTen.filter((id) => byRule.get(id)?.finalEvidenceState === "UNCLEAR").map((id) => byRule.get(id)!.clientAction);
+    expect(unclear).toHaveLength(5);
+    expect(new Set(unclear).size).toBe(5);
+    expect(unclear.every((action: string) => action !== "Provide the complete project-specific evidence for every mandatory component; the current evidence is incomplete.")).toBe(true);
+
+    for (const row of gold.rows.filter((candidate: any) => nextTen.includes(candidate.ruleReference))) {
+      expect(row.methodologyTraceability.officialRequirementQuote).not.toMatch(/VM0007 v1\.8 §|p\.\d+/);
+      expect(row.methodologyTraceability.components.length).toBeGreaterThan(0);
+    }
+    for (const row of gold.rows.filter((candidate: any) => candidate.finalEvidenceState === "FOUND" && candidate.reviewerOutcome === "CONFORMS")) {
+      expect(row.clientAction).not.toMatch(/provide .*evidence|incomplete/i);
+      expect(row.reviewerCorrection.correction).not.toMatch(/incomplete|missing evidence/i);
+    }
   });
 
   it("keeps batch-one outcomes stable and gives the final eight complete provenance", () => {
@@ -301,6 +368,6 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(metadata.review.reportReleaseState).toBe("BLOCKED_PENDING_REVIEW_COVERAGE");
     expect(excerpts.methodologyDeclarations).toHaveLength(5);
     expect(review).toContain("VM0007 v1.8 is version-qualified");
-    expect(review).toContain("30, unreviewed and NOT_ASSESSED");
+    expect(review).toContain("20, unreviewed and NOT_ASSESSED");
   });
 });

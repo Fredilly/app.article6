@@ -28,7 +28,17 @@
     "Verra.AFOLU.VM0007.v1-8.R-2-0008",
     "Verra.AFOLU.VM0007.v1-8.R-2-0016",
     "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-    "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+    "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003"
   ],
   "acceptedEvidence": [
     {
@@ -1022,6 +1032,530 @@
           "provenanceKind": "manual"
         }
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "quote": "2.5.13.1 No Double Issuance\nIs the project receiving or seeking credit for reductions and removals from a project activity under another GHG program, or any other form of community, social, or biodiversity unit or credit?\n☐ Yes ☒ No",
+        "page": 59,
+        "section": "2 PROJECT DETAILS > 2.5 Legal Status and Property Rights > 2.5.13 Double Counting and Participation under Other GHG Programs",
+        "spanId": "manual:marcondes-pdd:page-59:r-r-2-0003-no-double-issuance",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 59,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.5 Legal Status and Property Rights",
+            "2.5.13 Double Counting and Participation under Other GHG Programs"
+          ],
+          "spanId": "manual:marcondes-pdd:page-59:no-double-issuance",
+          "sectionHeading": "2.5.13 Double Counting and Participation under Other GHG Programs",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "quote": "2.5.13.2 Registration in Other GHG Programs\nHas the project registered under any other GHG programs?\n☐ Yes ☒ No\nIs the project active under the other program?\n☐ Yes ☒ No",
+        "page": 59,
+        "section": "2 PROJECT DETAILS > 2.5 Legal Status and Property Rights > 2.5.13 Double Counting and Participation under Other GHG Programs",
+        "spanId": "manual:marcondes-pdd:page-59:r-r-2-0003-registration",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 59,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.5 Legal Status and Property Rights",
+            "2.5.13 Double Counting and Participation under Other GHG Programs"
+          ],
+          "spanId": "manual:marcondes-pdd:page-59:registration",
+          "sectionHeading": "2.5.13 Double Counting and Participation under Other GHG Programs",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "quote": "2.5.13.3 Projects Rejected by Other GHG Programs\nHas the project been rejected by any other GHG programs?\n☐ Yes ☒ No",
+        "page": 59,
+        "section": "2 PROJECT DETAILS > 2.5 Legal Status and Property Rights > 2.5.13 Double Counting and Participation under Other GHG Programs",
+        "spanId": "manual:marcondes-pdd:page-59:r-r-2-0003-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 59,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.5 Legal Status and Property Rights",
+            "2.5.13 Double Counting and Participation under Other GHG Programs"
+          ],
+          "spanId": "manual:marcondes-pdd:page-59:rejected",
+          "sectionHeading": "2.5.13 Double Counting and Participation under Other GHG Programs",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 2.1.3 Sectoral Scope and Project Type",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-2-0004-apd",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.3 Sectoral Scope and Project Type"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:apd",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "quote": "Table 30. Methodologies, modules, and tools applied\nType Reference ID Title Version\nApplied\nMethodology\nVM0007 REDD+ Methodology Framework (REDD+MF)\n(Avoided Planned Deforestation)\n1.8",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-61:r-r-2-0004-table-30",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:table-30",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 2.1.3 Sectoral Scope and Project Type",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-2-0009-apd",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.3 Sectoral Scope and Project Type"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:apd",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-2-0009-no-peat-no-tidal",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:no-peat-no-tidal",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+        "quote": "VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and/or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4.",
+        "page": 65,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-65:r-r-2-0010-vmd0013",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 65,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-65:vmd0013",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.2 Quantification of Estimated GHG Emission Reductions and Removals > 3.2.1 Baseline Emissions (VCS, 3.15)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-2-0010-deferred",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.2 Quantification of Estimated GHG Emission Reductions and Removals",
+            "3.2.1 Baseline Emissions (VCS, 3.15)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:deferred",
+          "sectionHeading": "3.2.1 Baseline Emissions (VCS, 3.15)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 2.1.3 Sectoral Scope and Project Type",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-2-0011-apd",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.3 Sectoral Scope and Project Type"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:apd",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-2-0011-no-peat-no-tidal",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:no-peat-no-tidal",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "quote": "The module is mandatory if the BL-PL Module is used to define the baseline, and the applicability conditions in the BL-PL Module must be met in full.",
+        "page": 64,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-64:r-r-2-0012-bl-pl",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 64,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-64:bl-pl",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "quote": "When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt.",
+        "page": 65,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-65:r-r-2-0012-consistency",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 65,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-65:consistency",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.2 Quantification of Estimated GHG Emission Reductions and Removals > 3.2.1 Baseline Emissions (VCS, 3.15)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-2-0012-deferred",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.2 Quantification of Estimated GHG Emission Reductions and Removals",
+            "3.2.1 Baseline Emissions (VCS, 3.15)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:deferred",
+          "sectionHeading": "3.2.1 Baseline Emissions (VCS, 3.15)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+        "quote": "MapBiomas Collection 10 and PRODES/INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-2-0013-historical-2013-2023",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:historical-2013-2023",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+        "quote": "The initial crediting period start date for the Marcondes REDD+ Project is 01 May 2023",
+        "page": 15,
+        "section": "2 PROJECT DETAILS > Project Crediting Period and Registration Timelines > 3.8.1",
+        "spanId": "manual:marcondes-pdd:page-15:r-r-2-0013-crediting-start",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 15,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "Project Crediting Period and Registration Timelines",
+            "3.8.1"
+          ],
+          "spanId": "manual:marcondes-pdd:page-15:crediting-start",
+          "sectionHeading": "3.8.1",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+        "quote": "Crediting period 01 May 2023 – 30 April 2063\nProject lifetime 01 May 2023 – 30 April 2063, 40 years",
+        "page": 1,
+        "section": "1 SUMMARY OF PROJECT BENEFITS",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-2-0014-cover-period",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "1 SUMMARY OF PROJECT BENEFITS"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:cover-period",
+          "sectionHeading": "1 SUMMARY OF PROJECT BENEFITS",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+        "quote": "The crediting period for the present project is 40 years, spanning 01 May 2023 to 30 April 2063.",
+        "page": 16,
+        "section": "2 PROJECT DETAILS > Project Crediting Period and Registration Timelines > Project Crediting Period Length > 3.8.4",
+        "spanId": "manual:marcondes-pdd:page-16:r-r-2-0014-period-length",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 16,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "Project Crediting Period and Registration Timelines",
+            "Project Crediting Period Length",
+            "3.8.4"
+          ],
+          "spanId": "manual:marcondes-pdd:page-16:period-length",
+          "sectionHeading": "3.8.4",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+        "quote": "The project crediting period spans 40 years, from 01 May 2023 to 30 April 2063.",
+        "page": 10,
+        "section": "2 PROJECT DETAILS > 2.1 Project Goals, Design and Long-Term Viability > 2.1.1 Summary Description of the Project",
+        "spanId": "manual:marcondes-pdd:page-10:r-r-2-0014-summary-period",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 10,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1 Project Goals, Design and Long-Term Viability",
+            "2.1.1 Summary Description of the Project"
+          ],
+          "spanId": "manual:marcondes-pdd:page-10:summary-period",
+          "sectionHeading": "2.1.1 Summary Description of the Project",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 2.1.3 Sectoral Scope and Project Type",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-2-0015-apd",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1.3 Sectoral Scope and Project Type"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:apd",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-2-0015-no-peat-no-tidal",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:no-peat-no-tidal",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "quote": "The determination of the baseline scenario and additionality follows the stepwise procedures outlined in the applicable methodology.",
+        "page": 66,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-66:r-r-3-0003-stepwise-assertion",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 66,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance"
+          ],
+          "spanId": "manual:marcondes-pdd:page-66:stepwise-assertion",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "quote": "3.5.5 The determination of baseline scenario and demonstration of additionality for an eligibility area shall:\n• be based on the initial project activity instances.\n• apply across the entire eligibility area.",
+        "page": 18,
+        "section": "2 PROJECT DETAILS > 2.1 Project Goals, Design and Long-Term Viability > 3.5.5",
+        "spanId": "manual:marcondes-pdd:page-18:r-r-3-0003-grouped-scope",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 18,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "2.1 Project Goals, Design and Long-Term Viability",
+            "3.5.5"
+          ],
+          "spanId": "manual:marcondes-pdd:page-18:grouped-scope",
+          "sectionHeading": "3.5.5",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
     }
   ],
   "rejectedEvidence": [
@@ -1592,6 +2126,236 @@
         },
         "rejectionReason": "stitched or paraphrased quote; wrong page or section; qualifying evidence missed; machine evidence was not project-specific or complete enough for truth intake"
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) deforestation compared to baseline levels.",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology",
+            "3.1.1 Title and Reference of Methodology (VCS, 3.1)"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:machine-generic",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
+      }
     }
   ],
   "reviewerCorrections": [
@@ -1796,6 +2560,76 @@
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
         "correction": "The blind audit confirms N/A/NOT_APPLICABLE. The substrate/activity-dependent WRC module-selection trigger is absent because page 62 states that no peat soils or tidal wetlands are present and the project is APD REDD."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "correction": "The page-59 declarations address no double issuance, registration, activity, and rejection, but do not establish parcel-level registry records, geographic overlap checks, partial-overlap treatment, or monitoring coverage required by VM0007 §5.1.1."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "correction": "Correctly N/A: VM0007 §5.1.2 assigns a reference region to avoiding unplanned deforestation, while the project-specific evidence identifies APD and the BL-PL pathway."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+        "correction": "Correctly N/A: the APD project-specific classification and the separate no-peat/no-tidal statement show that the WRC carbon-pool pathway is not triggered."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+        "correction": "The accepted fire/module evidence does not provide the complete Table 7 source decisions, significance treatment, or project-specific baseline/project/leakage accounting required by §5.4.1–5.4.2."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+        "correction": "Correctly N/A independently of R-2-0009: the WRC GHG-source trigger is absent because the project is APD and the PDD states that no peat soils or tidal wetlands are present."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "correction": "The accepted evidence explicitly reaches baseline/project/leakage consistency, but the PDD does not provide the source-by-source matrix needed to resolve whether each applicable source is treated consistently; UNCLEAR/ACTION_REQUIRED remains."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+        "correction": "The PDD records 2013–2023 and separately records a 01 May 2023 crediting-period start, but does not establish exact calendar start/end dates, permitted data-gap treatment, or the proxy/reference-region relationship required to resolve the historical period; UNCLEAR/ACTION_REQUIRED remains."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+        "correction": "The three cited PDD locations consistently establish a 40-year crediting period from 01 May 2023 through 30 April 2063; the 20–100-year duration requirement is satisfied."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+        "correction": "Correctly N/A independently of the other WRC rows: the APD classification and no-peat/no-tidal evidence show that the WRC 100-year SOC pathway is not triggered."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "correction": "The accepted assertion identifies a stepwise additionality process but does not identify the selected barrier path, barrier categories, supporting evidence, or differential effect on alternatives required by VM0007/VT0001; UNCLEAR/ACTION_REQUIRED remains."
       }
     }
   ],

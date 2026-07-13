@@ -1,12 +1,20 @@
 # Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake
 
-- Reviewed rows: 28 of 58
-- Remaining rows: 30, unreviewed and NOT_ASSESSED
-- Corrected evidence states: FOUND 4, UNCLEAR 11, MISSING 0, N/A 13
-- Reviewer outcomes: CONFORMS 4, ACTION_REQUIRED 11, NOT_APPLICABLE 13, NOT_ASSESSED 30
-- Draft findings: NIR_CANDIDATE 11, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
+- Reviewed rows: 38 of 58
+- Remaining rows: 20, unreviewed and NOT_ASSESSED
+- Corrected evidence states: FOUND 5, UNCLEAR 16, MISSING 0, N/A 17
+- Reviewer outcomes: CONFORMS 5, ACTION_REQUIRED 16, NOT_APPLICABLE 17, NOT_ASSESSED 20
+- Draft findings: NIR_CANDIDATE 16, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
 - Gold promotion: BLOCKED_PENDING_REVIEW_COVERAGE
 - Report release state: BLOCKED_PENDING_REVIEW_COVERAGE
+
+## First-review truth intake: next 10
+
+The next reviewed rows are exactly R-2-0003, R-2-0004, R-2-0009, R-2-0010, R-2-0011, R-2-0012, R-2-0013, R-2-0014, R-2-0015, and R-3-0003. R-2-0004 is N/A because reference regions are the AUDef pathway; Marcondes is APD using BL-PL. R-2-0009, R-2-0011, and R-2-0015 independently resolve WRC applicability as N/A from the APD classification and the project statement that no peat soils or tidal wetlands are present. R-2-0014 is FOUND/CONFORMS with a consistent 40-year period from 01 May 2023 through 30 April 2063. R-2-0003, R-2-0010, R-2-0012, R-2-0013, and R-3-0003 remain UNCLEAR/ACTION_REQUIRED because declarations or module references do not supply every mandatory project-specific component.
+
+The independent-audit fixture remains exactly 28 rows and is unchanged. The remaining 20 rows remain excluded from gold and NOT_ASSESSED. Raw extraction, machine proposals, methodology contracts, audit logic, production logic, report UI, and release gates were not changed.
+
+The ten new gold rows preserve their original machine-proposal row objects verbatim; reviewed truth and rejected evidence are recorded separately. Methodology traceability uses verbatim official excerpts and separately lists mandatory modules/tools. R-2-0014 is FOUND/CONFORMS: three PDD locations consistently establish 01 May 2023–30 April 2063, 40 years; the client action is retention-only.
 
 VM0007 v1.8 is version-qualified. The page 61 Section 3.1.1 VM0007 v1.7 wording remains a visible drafting contradiction; Table 30 and repeated project declarations identify v1.8. Version reconciliation is complete. Gold and report release remain blocked because review coverage is incomplete.
 
