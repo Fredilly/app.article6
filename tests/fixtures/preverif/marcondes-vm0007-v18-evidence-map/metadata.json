@@ -111,20 +111,42 @@
       "Verra.AFOLU.VM0007.v1-8.R-5-0002",
       "Verra.AFOLU.VM0007.v1-8.R-5-0003",
       "Verra.AFOLU.VM0007.v1-8.R-5-0004",
-      "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+      "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007"
     ],
-    "reviewedRowCount": 48,
-    "goldPromotion": "BLOCKED_PENDING_REVIEW_COVERAGE",
-    "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
+    "reviewedRowCount": 58,
+    "goldPromotion": "READY_FOR_REPORT_RELEASE",
+    "reportReleaseState": "READY_FOR_REPORT_RELEASE",
     "versionReconciliationPending": false,
     "evidenceStateCounts": {
       "FOUND": 6,
-      "UNCLEAR": 19,
-      "MISSING": 2,
-      "N/A": 21
+      "UNCLEAR": 20,
+      "MISSING": 10,
+      "N/A": 22
     },
-    "remainingUnreviewedRuleCount": 10,
-    "remainingUnreviewedState": "NOT_ASSESSED"
+    "remainingUnreviewedRuleCount": 0,
+    "remainingUnreviewedState": "NONE",
+    "reviewerOutcomes": {
+      "CONFORMS": 6,
+      "ACTION_REQUIRED": 30,
+      "NOT_APPLICABLE": 22,
+      "NOT_ASSESSED": 0
+    },
+    "releaseReadiness": {
+      "evidenceMapRows": 58,
+      "reviewedRows": 58,
+      "unreviewedRows": 0,
+      "structurallyReady": true
+    }
   },
   "productionLogicChanged": false
 }

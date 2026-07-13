@@ -12,18 +12,19 @@ const batchTwo = ["R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R
 const finalEight = ["R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
 const nextTen = ["R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003"];
 const batchFive = ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"];
+const batchSix = ["R-5-0006", "R-5-0007", "R-5-0008", "R-5-0009", "R-6-0002", "R-6-0003", "R-6-0004", "R-6-0005", "R-6-0006", "R-6-0007"];
 const authoritativeVm0007Rules = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"), "utf8")) as Array<Record<string, any>>;
 const batchFiveOfficialQuotes = new Map(batchFive.map((id) => [id, authoritativeVm0007Rules.find((rule) => rule.stable_id.endsWith(`.${id}`))?.source_span_text]));
 const previousIndependentAuditIds = [...batchOne, ...batchTwo];
 const independentAuditIds = [...previousIndependentAuditIds, ...finalEight, ...nextTen];
-const reviewed = [...independentAuditIds, ...batchFive];
+const reviewed = [...independentAuditIds, ...batchFive, ...batchSix];
 const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [12, 61, 63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [63, 64], "R-2-0016": [62],
   "R-3-0002": [41, 42], "R-3-0006": [12, 61, 62], "R-2-0003": [59], "R-2-0004": [12, 61], "R-2-0009": [12, 62], "R-2-0010": [65, 68], "R-2-0011": [12, 62], "R-2-0012": [64, 65, 68], "R-2-0013": [15, 62], "R-2-0014": [1, 10, 16], "R-2-0015": [12, 62], "R-3-0003": [18, 66]
-  , "R-3-0004": [62, 66], "R-3-0007": [68], "R-3-0008": [62], "R-4-0001": [62, 66], "R-4-0002": [12, 62], "R-5-0001": [68], "R-5-0002": [12, 62], "R-5-0003": [61, 64, 65], "R-5-0004": [12, 62], "R-5-0005": [68]
+  , "R-3-0004": [62, 66], "R-3-0007": [68], "R-3-0008": [62], "R-4-0001": [62, 66], "R-4-0002": [12, 62], "R-5-0001": [68], "R-5-0002": [12, 62], "R-5-0003": [61, 64, 65], "R-5-0004": [12, 62], "R-5-0005": [68], "R-5-0006": [68], "R-5-0007": [68], "R-5-0008": [61], "R-5-0009": [68], "R-6-0002": [68], "R-6-0003": [67], "R-6-0004": [68], "R-6-0005": [68], "R-6-0006": [62], "R-6-0007": [68]
 };
 
 describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
@@ -46,23 +47,22 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(gold.reviewedRuleIds).toEqual(reviewedRuleIds);
     expect(gold.rows.map((row: any) => row.ruleId)).toEqual(reviewedRuleIds);
     expect(crypto.createHash("sha256").update(JSON.stringify(gold.rows.slice(0, 38))).digest("hex")).toBe("169571058b8d0297b82753d3fc4beb5bd9fcbd71ef7c4e2bbf52d66cfaf11c16");
-    expect(reviewedRuleIds).toHaveLength(48);
+    expect(reviewedRuleIds).toHaveLength(58);
     expect(reviewedRuleIds.slice(0, 10)).toEqual(batchOne.map(stable));
     expect(reviewedRuleIds.slice(10, 20)).toEqual(batchTwo.map(stable));
     expect(reviewedRuleIds.slice(20, 28)).toEqual(finalEight.map(stable));
     expect(reviewedRuleIds.slice(28, 38)).toEqual(nextTen.map(stable));
-    expect(reviewedRuleIds.slice(38)).toEqual(batchFive.map(stable));
-    expect(new Set(reviewedRuleIds).size).toBe(48);
+    expect(reviewedRuleIds.slice(38, 48)).toEqual(batchFive.map(stable));
+    expect(reviewedRuleIds.slice(48)).toEqual(batchSix.map(stable));
+    expect(new Set(reviewedRuleIds).size).toBe(58);
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review")).toHaveLength(40);
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
     const unreviewed = draft.rows.filter((row: any) => !reviewedRuleIds.includes(row.ruleReference));
-    expect(unreviewed).toHaveLength(10);
-    expect(unreviewed.every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
-    expect(gold.goldPromotionBlocked).toBe(true);
-    expect(gold.reportReleaseState).toBe("BLOCKED_PENDING_REVIEW_COVERAGE");
-    expect(gold.rows).toHaveLength(48);
+    expect(unreviewed).toHaveLength(0);
+    expect(gold.goldPromotionBlocked).toBe(false);
+    expect(gold.reportReleaseState).toBe("READY_FOR_REPORT_RELEASE");
+    expect(gold.rows).toHaveLength(58);
     expect(gold.rows.every((row: any) => reviewedRuleIds.includes(row.ruleId))).toBe(true);
-    expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => !gold.rows.some((goldRow: any) => goldRow.ruleId === row.ruleId))).toBe(true);
   });
 
   it("maps exact reviewed evidence to explicit rule IDs and correct PDF pages", () => {
@@ -246,18 +246,19 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       return counts;
     }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
     expect(gold.counts).toEqual(calculatedCounts);
-    expect(calculatedCounts).toEqual({ FOUND: 6, UNCLEAR: 19, MISSING: 2, "N/A": 21 });
+    expect(calculatedCounts).toEqual({ FOUND: 6, UNCLEAR: 20, MISSING: 10, "N/A": 22 });
   });
 
-  it("keeps all 48 reviewed rows and excludes the remaining 10", () => {
+  it("keeps all 58 finalized rows with no unreviewed remainder", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
     expect(finalEight.every((id) => byRule.has(id))).toBe(true);
     expect(finalEight.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
       ["R-1-0015", "FOUND", "CONFORMS"], ["R-2-0001", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0002", "N/A", "NOT_APPLICABLE"], ["R-2-0006", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0016", "N/A", "NOT_APPLICABLE"], ["R-3-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0006", "N/A", "NOT_APPLICABLE"],
     ]);
-    expect(gold.rows.map((row: any) => row.ruleReference).slice(38)).toEqual(batchFive);
-    expect(gold.rows).toHaveLength(48);
+    expect(gold.rows.map((row: any) => row.ruleReference).slice(38, 48)).toEqual(batchFive);
+    expect(gold.rows.map((row: any) => row.ruleReference).slice(48)).toEqual(batchSix);
+    expect(gold.rows).toHaveLength(58);
     expect(gold.rows.every((row: any) => reviewed.includes(row.ruleReference))).toBe(true);
     expect(nextTen.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
       ["R-2-0003", "UNCLEAR", "ACTION_REQUIRED"], ["R-2-0004", "N/A", "NOT_APPLICABLE"],
@@ -270,6 +271,10 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       ["R-3-0004", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0007", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0008", "N/A", "NOT_APPLICABLE"],
       ["R-4-0001", "FOUND", "CONFORMS"], ["R-4-0002", "N/A", "NOT_APPLICABLE"], ["R-5-0001", "MISSING", "ACTION_REQUIRED"],
       ["R-5-0002", "N/A", "NOT_APPLICABLE"], ["R-5-0003", "UNCLEAR", "ACTION_REQUIRED"], ["R-5-0004", "N/A", "NOT_APPLICABLE"], ["R-5-0005", "MISSING", "ACTION_REQUIRED"],
+    ]);
+    expect(batchSix.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
+      ["R-5-0006", "MISSING", "ACTION_REQUIRED"], ["R-5-0007", "MISSING", "ACTION_REQUIRED"], ["R-5-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-5-0009", "MISSING", "ACTION_REQUIRED"],
+      ["R-6-0002", "MISSING", "ACTION_REQUIRED"], ["R-6-0003", "MISSING", "ACTION_REQUIRED"], ["R-6-0004", "MISSING", "ACTION_REQUIRED"], ["R-6-0005", "MISSING", "ACTION_REQUIRED"], ["R-6-0006", "N/A", "NOT_APPLICABLE"], ["R-6-0007", "MISSING", "ACTION_REQUIRED"],
     ]);
   });
 
@@ -438,7 +443,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(row.draftFindingCandidate).toBe("NIR_CANDIDATE");
   });
 
-  it("records completed version qualification while keeping release blocked", () => {
+  it("records completed version qualification and report-layer readiness", () => {
     const metadata = read("metadata.json");
     const excerpts = read("source-excerpts.json");
     const review = fs.readFileSync(path.join(dir, "REVIEW.md"), "utf8");
@@ -446,9 +451,9 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(metadata.methodology.versionQualified).toBe(true);
     expect(metadata.methodology.reconciliationStatus).toBe("VERSION_QUALIFIED");
     expect(metadata.review.versionReconciliationPending).toBe(false);
-    expect(metadata.review.reportReleaseState).toBe("BLOCKED_PENDING_REVIEW_COVERAGE");
+    expect(metadata.review.reportReleaseState).toBe("READY_FOR_REPORT_RELEASE");
     expect(excerpts.methodologyDeclarations).toHaveLength(5);
     expect(review).toContain("VM0007 v1.8 is version-qualified");
-    expect(review).toContain("10, unreviewed and NOT_ASSESSED");
+    expect(review).toContain("58 of 58");
   });
 });
