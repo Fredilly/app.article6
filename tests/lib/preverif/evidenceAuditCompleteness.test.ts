@@ -140,6 +140,82 @@ describe("generic evidence applicability and completeness contract", () => {
     expect(engineSource).not.toContain("family:jnr-data-use");
   });
 
+  it("does not apply a project-specific scope exclusion to an unrelated rule subject", () => {
+    const contract = {
+      ...baseContract,
+      label: "Pool and source selection",
+      supportsNotApplicable: true,
+      notApplicableSignals: [
+        "A pool or source is excluded because the project activity does not create that pathway",
+        "The project scope excludes the wetland or tidal activity that would trigger the pool or source",
+      ],
+      applicability: {
+        exclusionSignals: [
+          "A pool or source is excluded because the project activity does not create that pathway",
+          "The project scope excludes the wetland or tidal activity that would trigger the pool or source",
+        ],
+        contextSignals: [],
+        requireProjectSpecificContext: true,
+        requireRuleSubjectAlignment: true,
+      },
+    };
+    const scopeEvidence = "There is no peat soil or tidal wetland in the project area.";
+    const evidenceDocument: EvidenceDocument = {
+      docId: "test",
+      rawText: scopeEvidence,
+      spans: [span(scopeEvidence)],
+    };
+    const result = auditEvidence({
+      rules: [{
+        id: "R-POOL",
+        title: "Mandatory aboveground biomass pool",
+        logic: "Aboveground biomass is always mandatory and must be included consistently in baseline and project accounting.",
+      }],
+      evidenceDocument,
+      getContract: () => contract,
+      versionContext: { methodologyId: "TEST", rulebookVersion: "v1", pddDeclaredMethodologyVersion: "v1" },
+    }).results[0];
+
+    expect(result.status).not.toBe("not_applicable");
+  });
+
+  it("retains N/A when the exclusion addresses the rule subject", () => {
+    const contract = {
+      ...baseContract,
+      label: "Wetland soil carbon pool",
+      supportsNotApplicable: true,
+      notApplicableSignals: [
+        "The project scope excludes the wetland or tidal activity that would trigger the soil carbon pool",
+      ],
+      applicability: {
+        exclusionSignals: [
+          "The project scope excludes the wetland or tidal activity that would trigger the soil carbon pool",
+        ],
+        contextSignals: [],
+        requireProjectSpecificContext: true,
+        requireRuleSubjectAlignment: true,
+      },
+    };
+    const scopeEvidence = "There is no peat soil or tidal wetland in the project area.";
+    const evidenceDocument: EvidenceDocument = {
+      docId: "test",
+      rawText: scopeEvidence,
+      spans: [span(scopeEvidence)],
+    };
+    const result = auditEvidence({
+      rules: [{
+        id: "R-WETLAND-SOIL",
+        title: "Wetland soil carbon pool",
+        logic: "The wetland soil carbon pool applies to peat or tidal wetland activities.",
+      }],
+      evidenceDocument,
+      getContract: () => contract,
+      versionContext: { methodologyId: "TEST", rulebookVersion: "v1", pddDeclaredMethodologyVersion: "v1" },
+    }).results[0];
+
+    expect(result.status).toBe("not_applicable");
+  });
+
   it("keeps scalar provenance aligned with accepted evidence", () => {
     const evidenceDocument: EvidenceDocument = {
       docId: "test",

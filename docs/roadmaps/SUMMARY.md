@@ -346,7 +346,7 @@ Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machin
 Current focus:
 - Phase 6 complete: canonical system prompt and new-PDD playbook delivered by PR #994.
 - Phase 7 complete: Marcondes truth intake and v1.7/v1.8 reconciliation delivered by PR #1012.
-- Phase 8 active: generic system improvement after reviewed truth exists.
+- Phase 8 active: the first generic applicability increment reduced Marcondes machine-versus-gold mismatches from 15 to 11 by preventing unrelated scope exclusions from producing N/A.
 
 Not active now:
 - Production logic changes in truth-intake PRs
@@ -364,7 +364,7 @@ Not active now:
 6) RC5 — Client-Readiness Gate: Done — The internal-preview/client-readiness boundary is documented and legacy mismatch fixtures remain quarantined; no legacy Envira output is promoted as VM0007 v1.8 truth.
 7) RC6 — Evidence Map Learning Contract: Done — Defined the repeatable two-PR cycle for VM0007 evidence-map learning and delivered the canonical system prompt plus new-PDD playbook in PR #994.
 8) RC7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake: Done — Intake Marcondes REDD+ as the completed VM0007 v1.8 truth case while reconciling the internal v1.7/v1.8 discrepancy, preserving raw 58-row output, counting only explicitly reviewed rows as gold, and delivering the result in PR #1012.
-9) RC8 — Marcondes Generic System Improvement: Active — Use reviewed Marcondes truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures after the reviewed truth exists.
+9) RC8 — Marcondes Generic System Improvement: Active — Use reviewed Marcondes truth to classify and fix reusable shared-system failures. The first Phase 8 increment added rule-subject alignment for broad carbon-pool and GHG-source scope exclusions, reducing active machine-versus-gold mismatches from 15 to 11; Phase 8 remains active.
 10) RC9 — Review and Gold Promotion Tooling: Planned — Make partial review and correction generation easy while preserving machine proposal, reviewer correction, final truth, and explicit gold coverage separately.
 11) RC10 — Second Unseen VM0007 v1.8 PDD: Planned — Run the same truth-intake and generic-improvement cycle on an unseen eligible VM0007 v1.8 PDD to prove generalization and prevent regressions.
 

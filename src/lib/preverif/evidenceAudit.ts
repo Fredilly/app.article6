@@ -29,6 +29,7 @@ export type ApplicabilityConfiguration = Readonly<{
   exclusionSignals: readonly string[];
   contextSignals: readonly string[];
   requireProjectSpecificContext: boolean;
+  requireRuleSubjectAlignment?: boolean;
 }>;
 
 export type MethodologyVersionLock = Readonly<{
@@ -744,6 +745,46 @@ function hasExplicitScopeExclusion(text: string): boolean {
     && /\b(?:project|project area|project activity|project scope|properties|activity)\b/.test(text);
 }
 
+function explicitScopeExclusionFragments(text: string): string[] {
+  return text
+    .split(/(?<=[.!?;])\s+|\n+/)
+    .map((fragment) => normalizeText(fragment))
+    .filter((fragment) => hasExplicitScopeExclusion(fragment));
+}
+
+function applicabilitySubjectTokens(
+  rule: MethodologyEvidenceAuditRule,
+  contract: MethodologyEvidenceContract,
+): string[] {
+  return tokenize([
+    rule.summary ?? "",
+    resolveRuleLogic(rule),
+    contract.label,
+    contract.appliesToFamily ?? "",
+  ].join(" "), TEXT_STOPWORDS).filter((token) =>
+    !/^(?:verra|afolu|vm\d+|v\d|r-\d)/.test(token)
+    && token !== "table",
+  );
+}
+
+function hasApplicabilitySubjectAlignment(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  text: string;
+}): boolean {
+  const subjectTokens = applicabilitySubjectTokens(input.rule, input.contract);
+  if (subjectTokens.length === 0) return false;
+  const fragments = explicitScopeExclusionFragments(input.text);
+  return fragments.some((fragment) => {
+    const fragmentTokens = tokenize(fragment, TEXT_STOPWORDS);
+    return subjectTokens.some((subjectToken) => fragmentTokens.some((fragmentToken) =>
+      subjectToken === fragmentToken
+      || (Math.min(subjectToken.length, fragmentToken.length) >= 4
+        && (subjectToken.startsWith(fragmentToken) || fragmentToken.startsWith(subjectToken))),
+    ));
+  });
+}
+
 function isAcceptedProjectEvidence(candidate: CandidateScore): boolean {
   return candidate.evidenceType === "project_specific_implementation"
     || candidate.evidenceType === "project_specific_scope";
@@ -1122,7 +1163,12 @@ function selectNotApplicableCandidate(input: {
     const hasProjectContext = hasProjectSpecificMarkers(text) || hasExplicitScopeExclusion(text);
     if (applicability && (contextHits === 0 || (applicability.requireProjectSpecificContext && !hasProjectContext))) continue;
     const signalOverlap = intersectionCount(tokenize(text, TEXT_STOPWORDS), tokenize(naPhrases.join(" "), TEXT_STOPWORDS));
-    if (phraseHits === 0 && (!hasExplicitScopeExclusion(text) || signalOverlap < 2)) continue;
+    if (phraseHits === 0 && (
+      !hasExplicitScopeExclusion(text)
+      || signalOverlap < 2
+      || (applicability?.requireRuleSubjectAlignment
+        && !hasApplicabilitySubjectAlignment({ rule: input.rule, contract: input.contract, text: span.text }))
+    )) continue;
 
     const sectionTitle = span.sectionId
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)

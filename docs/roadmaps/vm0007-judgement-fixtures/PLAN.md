@@ -106,6 +106,7 @@ Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 - fix only reusable shared logic
 - rerun Quick Check and Evidence Map regressions
 - prohibit Marcondes-specific hardcoding
+- first generic increment: require rule-subject alignment before a broad carbon-pool or GHG-source scope exclusion can produce N/A; this reduced the active Marcondes mismatch set from 15 to 11 while Phase 8 remains active
 
 ### Phase 9 — Review and Gold Promotion Tooling — planned
 
