@@ -79,7 +79,7 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
 Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 
-### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — active
+### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — done
 
 - Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy
 - preserve the raw 58-row machine output
@@ -87,6 +87,7 @@ Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 - store reviewed truth, corrections, provenance, reviewer notes, and `REVIEW.md`
 - review high-value and uncertain rows first
 - unreviewed rows must not count as gold or accuracy evidence
+- delivered by PR #1012
 
 #### Phase 7 completion criteria
 
@@ -98,7 +99,7 @@ Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 - no silent normalization is permitted
 - after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth
 
-### Phase 8 — Marcondes Generic System Improvement — planned
+### Phase 8 — Marcondes Generic System Improvement — active
 
 - compare Marcondes machine proposals against reviewed truth after the reviewed truth exists
 - classify retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors

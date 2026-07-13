@@ -6,8 +6,8 @@
     "summary": "Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.",
     "current_focus": [
       "Phase 6 complete: canonical system prompt and new-PDD playbook delivered by PR #994.",
-      "Phase 7 active: Marcondes truth intake and v1.7/v1.8 reconciliation.",
-      "Phase 8 planned: generic system improvement after reviewed truth exists."
+      "Phase 7 complete: Marcondes truth intake and v1.7/v1.8 reconciliation delivered by PR #1012.",
+      "Phase 8 active: generic system improvement after reviewed truth exists."
     ],
     "not_active_now": [
       "Production logic changes in truth-intake PRs",
@@ -17,7 +17,7 @@
       "LLM final judgment",
       "Formal validation, verification, or VVB authority claims"
     ],
-    "last_updated_at": "2026-07-12T00:00:00Z"
+    "last_updated_at": "2026-07-13T00:00:00Z"
   },
   "goals": [
     {
@@ -121,7 +121,7 @@
     {
       "id": "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake",
       "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
-      "status": "active",
+      "status": "done",
       "dependsOn": ["phase_6_evidence_map_learning_contract"],
       "doneCriteria": [
         "Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy",
@@ -142,7 +142,7 @@
     {
       "id": "phase_8_marcondes_generic_system_improvement",
       "title": "Marcondes Generic System Improvement",
-      "status": "planned",
+      "status": "active",
       "dependsOn": ["phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake"],
       "doneCriteria": [
         "Marcondes proposals are compared against reviewed truth",
@@ -217,12 +217,12 @@
     },
     "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake": {
       "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
-      "status": "active",
-      "summary": "Intake Marcondes REDD+ as the active VM0007 v1.8 truth case while reconciling the internal v1.7/v1.8 discrepancy, preserving raw 58-row output, and counting only explicitly reviewed rows as gold."
+      "status": "done",
+      "summary": "Intake Marcondes REDD+ as the completed VM0007 v1.8 truth case while reconciling the internal v1.7/v1.8 discrepancy, preserving raw 58-row output, counting only explicitly reviewed rows as gold, and delivering the result in PR #1012."
     },
     "phase_8_marcondes_generic_system_improvement": {
       "title": "Marcondes Generic System Improvement",
-      "status": "planned",
+      "status": "active",
       "summary": "Use reviewed Marcondes truth to classify and fix reusable retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding failures after the reviewed truth exists."
     },
     "phase_9_review_and_gold_promotion_tooling": {
