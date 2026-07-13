@@ -1,12 +1,12 @@
 # Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake
 
-- Reviewed rows: 48 of 58
-- Remaining rows: 10, unreviewed and NOT_ASSESSED
-- Corrected evidence states: FOUND 6, UNCLEAR 19, MISSING 2, N/A 21
-- Reviewer outcomes: CONFORMS 6, ACTION_REQUIRED 21, NOT_APPLICABLE 21, NOT_ASSESSED 10
-- Draft findings: NIR_CANDIDATE 21, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
-- Gold promotion: BLOCKED_PENDING_REVIEW_COVERAGE
-- Report release state: BLOCKED_PENDING_REVIEW_COVERAGE
+- Reviewed rows: 58 of 58
+- Remaining rows: 0, no unreviewed rows remain
+- Finalized evidence states: FOUND 6, UNCLEAR 20, MISSING 10, N/A 22
+- Reviewer outcomes: CONFORMS 6, ACTION_REQUIRED 30, NOT_APPLICABLE 22, NOT_ASSESSED 0
+- Final findings: NIR_CANDIDATE 30, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for finalized N/A rows
+- Gold promotion: READY_FOR_REPORT_RELEASE
+- Report release state: READY_FOR_REPORT_RELEASE
 
 ## First-review truth intake: rules 39–48
 
@@ -27,7 +27,7 @@ Decisions and evidence basis:
 
 The source document SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea`. Accepted quotes are verbatim from `raw-document-extraction.json`, with manual page/section/span provenance. The machine’s generic stitched proposal evidence was rejected for every new row. The project is APD REDD; no external VVB validation or certification is claimed.
 
-Gold promotion and report release remain blocked. Gold coverage is now 48/58; 10 rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` is unchanged.
+Gold promotion and report release are no longer blocked by review coverage. Gold coverage is finalized at 58/58; no rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` is unchanged.
 
 The batch-five `officialRequirementQuote` fields were corrected to the exact verbatim `source_span_text` wording from the authoritative VM0007 v1.8 rule records. Citation suffixes, rule-title summaries, and synthesized interpretations remain in traceability summaries rather than official quotes. Batch-five quote integrity is tested against the authoritative rule records, including methodology/version/section/page traceability and manual project-evidence provenance.
 
@@ -49,7 +49,15 @@ The status normalization exhaustively covers every real `EvidenceAuditStatus`; n
 
 The next reviewed rows are exactly R-2-0003, R-2-0004, R-2-0009, R-2-0010, R-2-0011, R-2-0012, R-2-0013, R-2-0014, R-2-0015, and R-3-0003. R-2-0004 is N/A because reference regions are the AUDef pathway; Marcondes is APD using BL-PL. R-2-0009, R-2-0011, and R-2-0015 independently resolve WRC applicability as N/A from the APD classification and the project statement that no peat soils or tidal wetlands are present. R-2-0014 is FOUND/CONFORMS with a consistent 40-year period from 01 May 2023 through 30 April 2063. R-2-0003, R-2-0010, R-2-0012, R-2-0013, and R-3-0003 remain UNCLEAR/ACTION_REQUIRED because declarations or module references do not supply every mandatory project-specific component.
 
-The first 28 rows of the independent-audit fixture remain textually and semantically unchanged. The remaining 20 rules remain outside independent audit and excluded from gold and NOT_ASSESSED. Raw extraction, machine proposals, methodology contracts, audit logic, production logic, report UI, and release gates were not changed.
+## Final review: remaining 10 rules and reconciliation
+
+The final ten rules are R-5-0006, R-5-0007, R-5-0008, R-5-0009, R-6-0002, R-6-0003, R-6-0004, R-6-0005, R-6-0006, and R-6-0007. Quantification and monitoring sections in the PDD are explicitly deferred to validation, so the applicable rows remain MISSING or UNCLEAR where the PDD lacks the required project-specific calculations, plans, procedures, or records. R-6-0006 is N/A because the PDD states that no peat soils or tidal wetlands are present; the WRC monitoring trigger is absent.
+
+The 15 current machine-versus-gold mismatches were independently re-audited against the preserved PDD extraction and VM0007 v1.8 requirements. The conservative gold judgments remain where the machine selected broad, generic, or incomplete evidence; no machine artifact was rewritten and no conclusion was strengthened beyond the evidence. The mismatch set is regression-pinned in the Marcondes comparison test.
+
+The finalized Evidence Map contains 58 rows with unique reviewed rule IDs, exact methodology traceability, explicit accepted and rejected evidence, page/section/span provenance, finalized counts, and no `NOT_ASSESSED` rows. It is structurally ready for the presentation/report layer. No production audit, parser, router, retrieval, UI, report, or presentation files changed.
+
+The first 28 rows of the independent-audit fixture remain textually and semantically unchanged. The independent-audit fixture remains an internal 38-row audit record; all 58 rules are now finalized in gold, and no row remains NOT_ASSESSED. Raw extraction, machine proposals, methodology contracts, audit logic, production logic, report UI, and release gates were not changed.
 
 The ten new gold rows preserve their original machine-proposal row objects verbatim; reviewed truth and rejected evidence are recorded separately. Methodology traceability uses verbatim official excerpts and separately lists mandatory modules/tools. R-2-0014 is FOUND/CONFORMS: three PDD locations consistently establish 01 May 2023–30 April 2063, 40 years; the client action is retention-only.
 
@@ -86,4 +94,4 @@ Gold review coverage is 38/58 and independent audit coverage is 38/58. This batc
 
 The four disagreements preserve the original blind state, reviewer outcome, and finding candidate separately from the reconciled gold judgment. The evidence basis is the retained PDD extraction and official requirement text in the merged gold rows; no machine-proposal evidence was used as the audit basis. The PDD SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea`.
 
-Twenty rules remain outside independent audit. Gold promotion and report release remain blocked until full required coverage is complete. This fixture records an internal reconciled audit only and does not claim external VVB validation or certification.
+The independent-audit fixture remains limited to its 38 audited rows. Gold promotion and report release are ready because full required review coverage is complete. This fixture records an internal reconciled audit only and does not claim external VVB validation or certification.

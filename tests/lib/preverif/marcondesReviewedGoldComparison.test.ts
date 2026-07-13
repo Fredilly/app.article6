@@ -16,12 +16,6 @@ const reviewedRuleIds = [
   "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
 ] as const;
 
-const expectedMismatchRuleIds = [
-  "R-1-0001", "R-1-0002", "R-1-0003", "R-1-0013", "R-1-0014", "R-1-0015",
-  "R-2-0002", "R-2-0004", "R-2-0007", "R-2-0008", "R-2-0010", "R-2-0012", "R-2-0014",
-  "R-3-0005", "R-4-0001",
-] as const;
-
 type JsonRecord = Record<string, any>;
 
 function readJson(name: string): JsonRecord {
@@ -111,7 +105,25 @@ describe("Marcondes reviewed gold comparison", () => {
     expect(comparison).toHaveLength(48);
     expect(comparison.length - mismatches.length).toBeGreaterThanOrEqual(33);
     expect(comparison.length - mismatches.length).toBe(33);
-    expect(mismatches.map((row) => row.ruleId).sort()).toEqual([...expectedMismatchRuleIds].sort());
+    const reconciliation = readJson("mismatch-reconciliation.json");
+    expect(reconciliation.rows).toHaveLength(15);
+    expect(new Set(reconciliation.rows.map((row: JsonRecord) => row.ruleId)).size).toBe(15);
+    const stableRuleId = (ruleId: string) => ruleId.startsWith("Verra.") ? ruleId : `Verra.AFOLU.VM0007.v1-8.${ruleId}`;
+    expect(mismatches.map((row) => stableRuleId(row.ruleId)).sort()).toEqual(reconciliation.rows.map((row: JsonRecord) => row.ruleId).sort());
+    for (const mismatch of mismatches) {
+      const record = reconciliation.rows.find((row: JsonRecord) => row.ruleId === stableRuleId(mismatch.ruleId))!;
+      const goldRow = goldByRule.get(mismatch.ruleId)!;
+      expect(record.machineState).toBe(stateForStatus(mismatch.after));
+      expect(record.goldState).toBe(mismatch.gold);
+      expect(record.requirementReviewed).toBe(goldRow.requirement);
+      expect(record.methodologyTraceability).toEqual(goldRow.methodologyTraceability);
+      expect(record.pagesInspected).toEqual([...new Set(goldRow.acceptedEvidence.map((evidence: JsonRecord) => evidence.page))]);
+      expect(record.acceptedEvidenceReferences).toEqual(goldRow.acceptedEvidence.map((evidence: JsonRecord) => ({ page: evidence.page, section: evidence.section, spanId: evidence.spanId, quote: evidence.quote })));
+      expect(record.rejectedEvidenceReferences).toEqual(goldRow.rejectedEvidence.map((evidence: JsonRecord) => ({ page: evidence.page, section: evidence.section, spanId: evidence.spanId, quote: evidence.quote, rejectionReason: evidence.rejectionReason })));
+      expect(record.failureClassification).toEqual(expect.stringMatching(/^MACHINE_/));
+      expect(record.decision).toBe("GOLD_RETAINED");
+      expect(record.reconciliationRationale).toEqual(expect.any(String));
+    }
     expect(totals.supported_by_pdd).toBeGreaterThan(0);
     expect(totals.partially_supported).toBeLessThan(57);
     expect(totals.not_applicable).toBeGreaterThan(0);

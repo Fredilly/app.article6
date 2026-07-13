@@ -48,7 +48,17 @@
     "Verra.AFOLU.VM0007.v1-8.R-5-0002",
     "Verra.AFOLU.VM0007.v1-8.R-5-0003",
     "Verra.AFOLU.VM0007.v1-8.R-5-0004",
-    "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007"
   ],
   "acceptedEvidence": [
     {
@@ -1940,6 +1950,226 @@
           "provenanceKind": "manual"
         }
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-5-0006",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-5-0006",
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-5-0007",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-5-0007",
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "quote": "Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 Module VMD0002 Estimation of carbon stocks in the dead wood pool 1.1 Module VMD0003 Estimation of carbon stocks in the litter pool 1.1 Module VMD0005 Estimation of carbon stocks in the soil organic carbon (SOC) pool 1.1",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-61:r-r-5-0008",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:r-r-5-0008",
+          "sectionHeading": "3.1.1 Title and Reference of Methodology (VCS, 3.1), Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2.2 Project Emissions (VCS, 3.15)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-5-0009",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-5-0009",
+          "sectionHeading": "3.2.2 Project Emissions (VCS, 3.15)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-6-0002",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0002",
+          "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 67,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.3 Project Boundary (VCS, 3.12)",
+        "spanId": "manual:marcondes-pdd:page-67:r-r-6-0003",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 67,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-67:r-r-6-0003",
+          "sectionHeading": "3.1.3 Project Boundary (VCS, 3.12)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-6-0004",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0004",
+          "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-6-0005",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0005",
+          "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-6-0006",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-6-0006",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-6-0007",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0007",
+          "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
     }
   ],
   "rejectedEvidence": [
@@ -2950,6 +3180,236 @@
         },
         "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+        "quote": "3.3.1 Data and Parameters Available at Validation (VCS, 3.16) This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be…",
+        "page": 1,
+        "section": "Monitoring",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-5-0006-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-5-0006-rejected",
+          "sectionHeading": "Monitoring",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+        "quote": "2.4.1 Project Governance Structures (CCB, G4.1) The project is managed by the proponent Organica Consultoria LTDA, under the direction of Rémi Denecheau, who conducts the overall coordination of the project. His responsibilities include coo…",
+        "page": 1,
+        "section": "Management Capacity",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-5-0007-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-5-0007-rejected",
+          "sectionHeading": "Management Capacity",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "page": 1,
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-5-0008-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-5-0008-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+        "quote": "3.2.1 Baseline Emissions (VCS, 3.15) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 68 CCB v3.0, VCS v4.4 This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Reg…",
+        "page": 1,
+        "section": "Quantification of Estimated GHG Emission Reductions and Removals",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-5-0009-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-5-0009-rejected",
+          "sectionHeading": "Quantification of Estimated GHG Emission Reductions and Removals",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "quote": "3.3.1 Data and Parameters Available at Validation (VCS, 3.16) This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be…",
+        "page": 1,
+        "section": "Monitoring",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0002-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0002-rejected",
+          "sectionHeading": "Monitoring",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+        "quote": "• be within a single eligibility area. • conform to the eligibility criteria established for the eligibility area. • have been implemented during the monitoring period being verified. • only be eligible for crediting up to the end of the pr…",
+        "page": 1,
+        "section": "All instances within a batch shall:",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0003-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0003-rejected",
+          "sectionHeading": "All instances within a batch shall:",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "page": 1,
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0004-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0004-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "page": 1,
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0005-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0005-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+        "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) The Marcondes REDD+ project applies the Climate, Communities and Biodiversity (CCB) and Verified Carbon Standard (VCS) with the intention of reducing CO₂ emissions from planned (APD) defor…",
+        "page": 1,
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0006-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0006-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+        "quote": "2.4.1 Project Governance Structures (CCB, G4.1) The project is managed by the proponent Organica Consultoria LTDA, under the direction of Rémi Denecheau, who conducts the overall coordination of the project. His responsibilities include coo…",
+        "page": 1,
+        "section": "Management Capacity",
+        "spanId": "manual:marcondes-pdd:page-1:r-r-6-0007-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 1,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-1:r-r-6-0007-rejected",
+          "sectionHeading": "Management Capacity",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
     }
   ],
   "reviewerCorrections": [
@@ -3295,6 +3755,76 @@
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
         "correction": "The PDD defers the quantification sections to validation and contains no buffer percentage, T-BAR risk classification, baseline/project inputs, or contribution calculation."
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+        "correction": "Provide the complete project-specific uncertainty analysis, including the X-UNC inputs, combined uncertainty estimate, adjusted NERREDD+ values, and Equation (19) calculations."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+        "correction": "Provide the project-specific VCU calculation for the monitoring period, including adjusted NERREDD+ values and the buffer withholding."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "correction": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+        "correction": "Provide the project-specific project-emissions procedure and calculations required by M-REDD; the PDD currently defers the quantification sections to validation."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "correction": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+        "correction": "Provide the recorded and archived geographic coordinates for the project boundary and any stratification or buffer zones."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+        "correction": "Provide the SOPs and QA/QC procedures applied to inventory field data collection and data management."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+        "correction": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+        "correction": "No WRC activity trigger is established: the PDD states that no peat soils or tidal wetlands are present in the project area."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+        "correction": "Provide the project-specific expert-judgement records and IPCC guidance application used for method selection, input-data gaps, and uncertainty ranges."
+      }
     }
   ],
   "finalTruth": [
@@ -3557,7 +4087,97 @@
       "finalEvidenceState": "MISSING",
       "reviewerOutcome": "ACTION_REQUIRED",
       "rationale": "The PDD defers the quantification sections to validation and contains no buffer percentage, T-BAR risk classification, baseline/project inputs, or contribution calculation."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the complete project-specific uncertainty analysis, including the X-UNC inputs, combined uncertainty estimate, adjusted NERREDD+ values, and Equation (19) calculations.",
+      "clientAction": "Provide the complete project-specific uncertainty analysis, including the X-UNC inputs, combined uncertainty estimate, adjusted NERREDD+ values, and Equation (19) calculations.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the project-specific VCU calculation for the monitoring period, including adjusted NERREDD+ values and the buffer withholding.",
+      "clientAction": "Provide the project-specific VCU calculation for the monitoring period, including adjusted NERREDD+ values and the buffer withholding.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated.",
+      "clientAction": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the project-specific project-emissions procedure and calculations required by M-REDD; the PDD currently defers the quantification sections to validation.",
+      "clientAction": "Provide the project-specific project-emissions procedure and calculations required by M-REDD; the PDD currently defers the quantification sections to validation.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities.",
+      "clientAction": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the recorded and archived geographic coordinates for the project boundary and any stratification or buffer zones.",
+      "clientAction": "Provide the recorded and archived geographic coordinates for the project boundary and any stratification or buffer zones.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the SOPs and QA/QC procedures applied to inventory field data collection and data management.",
+      "clientAction": "Provide the SOPs and QA/QC procedures applied to inventory field data collection and data management.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes.",
+      "clientAction": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "rationale": "No WRC activity trigger is established: the PDD states that no peat soils or tidal wetlands are present in the project area.",
+      "clientAction": "No WRC activity trigger is established: the PDD states that no peat soils or tidal wetlands are present in the project area.",
+      "draftFindingCandidate": null,
+      "contradictionState": "NONE_IDENTIFIED"
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "Provide the project-specific expert-judgement records and IPCC guidance application used for method selection, input-data gaps, and uncertainty ranges.",
+      "clientAction": "Provide the project-specific expert-judgement records and IPCC guidance application used for method selection, input-data gaps, and uncertainty ranges.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "contradictionState": "NONE_IDENTIFIED"
     }
   ],
-  "unreviewedRowsRemainMachineProposed": true
+  "unreviewedRowsRemainMachineProposed": false
 }
