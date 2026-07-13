@@ -142,6 +142,13 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
       }
     }
 
+    const newlyUnclear = ["R-2-0003", "R-2-0010", "R-2-0012", "R-2-0013", "R-3-0003"];
+    for (const ruleId of newlyUnclear) {
+      expect(goldByRule.get(ruleId)?.finalEvidenceState).toBe("UNCLEAR");
+      expect(goldByRule.get(ruleId)?.reviewerOutcome).toBe("ACTION_REQUIRED");
+      expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
+    }
+
     for (const ruleId of ["R-1-0002", "R-3-0005"]) {
       const result = byRule.get(ruleId)!;
       const accepted = goldByRule.get(ruleId)!.acceptedEvidence[0];

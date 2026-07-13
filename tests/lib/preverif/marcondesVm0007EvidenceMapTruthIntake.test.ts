@@ -240,6 +240,68 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     ]);
   });
 
+  it("preserves the original machine proposals and enforces the next-batch rule judgments", () => {
+    const gold = read("gold.json");
+    const machine = read("machine-proposal.json").rows;
+    const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
+    for (const id of nextTen) {
+      const reviewed = byRule.get(id)!;
+      const original = machine.find((row: any) => row.ruleReference.endsWith(id));
+      expect(original).toBeDefined();
+      expect(reviewed.machineProposal).toEqual(original);
+      expect(JSON.stringify(reviewed.machineProposal)).not.toMatch(/Machine proposal evidence was broad|machine-proposal-post-999-review-candidate/);
+    }
+
+    for (const id of ["R-2-0009", "R-2-0011", "R-2-0015"]) {
+      const row = byRule.get(id)!;
+      expect(row.finalEvidenceState).toBe("N/A");
+      expect(row.applicabilityTrigger).toEqual(expect.any(String));
+      expect(row.applicabilityReason).toEqual(expect.any(String));
+      expect(row.applicabilityReason).toContain("APD");
+      expect(row.applicabilityReason).toContain("no peat");
+    }
+    expect(new Set(["R-2-0009", "R-2-0011", "R-2-0015"].map((id) => byRule.get(id)!.applicabilityReason)).size).toBe(3);
+
+    const sourceConsistency = byRule.get("R-2-0012")!;
+    expect(sourceConsistency.finalEvidenceState).toBe("UNCLEAR");
+    expect(sourceConsistency.reviewerOutcome).toBe("ACTION_REQUIRED");
+    expect(sourceConsistency.methodologyTraceability.plainLanguageSummary).toMatch(/baseline, project, and leakage/i);
+    expect(sourceConsistency.clientAction).toMatch(/baseline.*project.*leakage|project.*leakage.*baseline/i);
+
+    const historical = byRule.get("R-2-0013")!;
+    expect(historical.acceptedEvidence.some((e: any) => /2013/.test(e.quote) && /2023/.test(e.quote))).toBe(true);
+    expect(historical.acceptedEvidence.some((e: any) => /01 May 2023/.test(e.quote))).toBe(true);
+    expect(historical.reviewerCorrection.correction).toMatch(/exact calendar start\/end dates|ambiguous/i);
+
+    const crediting = byRule.get("R-2-0014")!;
+    expect(crediting.finalEvidenceState).toBe("FOUND");
+    expect(crediting.reviewerOutcome).toBe("CONFORMS");
+    expect(crediting.acceptedEvidence).toHaveLength(3);
+    expect(crediting.acceptedEvidence.every((e: any) => /01 May 2023/.test(e.quote) && /30 April 2063/.test(e.quote))).toBe(true);
+    expect(crediting.reviewerCorrection.correction).toMatch(/three cited PDD locations consistently establish a 40-year/);
+    expect(crediting.clientAction).toMatch(/^Retain/);
+    expect(crediting.draftFindingCandidate).toBeNull();
+
+    const barrier = byRule.get("R-3-0003")!;
+    expect(barrier.methodologyTraceability.section).toMatch(/barrier/i);
+    expect(barrier.clientAction).toMatch(/barrier categories|barriers affect/i);
+    expect(barrier.clientAction).not.toMatch(/^Provide (?:investment|common-practice) analysis/i);
+
+    const unclear = nextTen.filter((id) => byRule.get(id)?.finalEvidenceState === "UNCLEAR").map((id) => byRule.get(id)!.clientAction);
+    expect(unclear).toHaveLength(5);
+    expect(new Set(unclear).size).toBe(5);
+    expect(unclear.every((action: string) => action !== "Provide the complete project-specific evidence for every mandatory component; the current evidence is incomplete.")).toBe(true);
+
+    for (const row of gold.rows.filter((candidate: any) => nextTen.includes(candidate.ruleReference))) {
+      expect(row.methodologyTraceability.officialRequirementQuote).not.toMatch(/VM0007 v1\.8 §|p\.\d+/);
+      expect(row.methodologyTraceability.components.length).toBeGreaterThan(0);
+    }
+    for (const row of gold.rows.filter((candidate: any) => candidate.finalEvidenceState === "FOUND" && candidate.reviewerOutcome === "CONFORMS")) {
+      expect(row.clientAction).not.toMatch(/provide .*evidence|incomplete/i);
+      expect(row.reviewerCorrection.correction).not.toMatch(/incomplete|missing evidence/i);
+    }
+  });
+
   it("keeps batch-one outcomes stable and gives the final eight complete provenance", () => {
     const gold = read("gold.json");
     const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));

@@ -2566,70 +2566,70 @@
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The page-59 declarations address no double issuance, registration, activity, and rejection, but do not establish parcel-level registry records, geographic overlap checks, partial-overlap treatment, or monitoring coverage required by VM0007 §5.1.1."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Reference-region requirements are triggered by AUDef/avoiding unplanned deforestation; this project is APD and uses the BL-PL pathway."
+        "correction": "Correctly N/A: VM0007 §5.1.2 assigns a reference region to avoiding unplanned deforestation, while the project-specific evidence identifies APD and the BL-PL pathway."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
-        "correction": "Requirement and applicability were reviewed before machine evidence. WRC pool rules require a WRC substrate/activity; §4.2.1(2) triggers WRC modules where project land is peatland or tidal wetlands with significant SOC emissions."
+        "correction": "Correctly N/A: the APD project-specific classification and the separate no-peat/no-tidal statement show that the WRC carbon-pool pathway is not triggered."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The accepted fire/module evidence does not provide the complete Table 7 source decisions, significance treatment, or project-specific baseline/project/leakage accounting required by §5.4.1–5.4.2."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
-        "correction": "Requirement and applicability were reviewed before machine evidence. WRC source rules require a WRC activity/substrate; §4.2.1(2) triggers WRC modules only for peatland or tidal-wetland land with significant SOC emissions."
+        "correction": "Correctly N/A independently of R-2-0009: the WRC GHG-source trigger is absent because the project is APD and the PDD states that no peat soils or tidal wetlands are present."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The accepted evidence explicitly reaches baseline/project/leakage consistency, but the PDD does not provide the source-by-source matrix needed to resolve whether each applicable source is treated consistently; UNCLEAR/ACTION_REQUIRED remains."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The PDD records 2013–2023 and separately records a 01 May 2023 crediting-period start, but does not establish exact calendar start/end dates, permitted data-gap treatment, or the proxy/reference-region relationship required to resolve the historical period; UNCLEAR/ACTION_REQUIRED remains."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The three cited PDD locations consistently establish a 40-year crediting period from 01 May 2023 through 30 April 2063; the 20–100-year duration requirement is satisfied."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
-        "correction": "Requirement and applicability were reviewed before machine evidence. The 100-year SOC test is a WRC project-area/substrate requirement, triggered only for WRC activities; this project is APD with no peat soils or tidal wetlands."
+        "correction": "Correctly N/A independently of the other WRC rows: the APD classification and no-peat/no-tidal evidence show that the WRC 100-year SOC pathway is not triggered."
       }
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
       "correction": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
-        "correction": "Requirement and applicability were reviewed before machine evidence. Accepted evidence is relevant but does not establish every mandatory component."
+        "correction": "The accepted assertion identifies a stepwise additionality process but does not identify the selected barrier path, barrier categories, supporting evidence, or differential effect on alternatives required by VM0007/VT0001; UNCLEAR/ACTION_REQUIRED remains."
       }
     }
   ],
