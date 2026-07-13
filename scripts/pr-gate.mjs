@@ -68,6 +68,9 @@ async function main() {
   if (hasScript("quickcheck:guard:no-fixture-hardcoding")) {
     runStage("quickcheck:guard:no-fixture-hardcoding", "npm", ["run", "quickcheck:guard:no-fixture-hardcoding"]);
   }
+  if (hasScript("preverif:guard:truth-review")) {
+    runStage("preverif:guard:truth-review", "npm", ["run", "preverif:guard:truth-review"]);
+  }
 
   const port = process.env.PORT || "3000";
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;

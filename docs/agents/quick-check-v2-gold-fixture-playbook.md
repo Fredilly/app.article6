@@ -189,3 +189,10 @@ PDF: ~/Desktop/12-maya-forest-corridor-redd-belize.pdf
 Fixture ID: maya-forest-corridor-redd-belize
 Title: Maya Forest Corridor REDD+ Belize
 ```
+## Truth-review PR stages
+
+Keep truth review in separate pull requests, in this order:
+
+`gold intake → independent audit → reconciliation → production fix`
+
+The gold intake PR appends newly reviewed rows and preserves prior truth. The independent-audit PR records the separate audit. The reconciliation PR updates gold only when the audit supports it. Any production fix follows in its own PR. Do not combine stages, truth artifacts with production changes, or gold changes with independent-audit changes.
