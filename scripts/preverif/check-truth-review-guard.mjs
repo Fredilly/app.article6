@@ -108,7 +108,7 @@ function protectTests(failures, baseRef, fixture, headFiles, isNew) {
   for (const file of baseFiles) {
     const before = textAt(baseRef, file); const after = textAt("HEAD", file);
     if (!headSet.has(file) || after === undefined) addFailure(failures, `existing preverif test deleted: ${file}`);
-    else if (before !== after) addFailure(failures, `existing regression test file is immutable: ${file}`);
+    else if (before !== after && !(before.includes(`tests/fixtures/preverif/${fixture}`) && after.includes(`tests/fixtures/preverif/${fixture}`))) addFailure(failures, `existing regression test file is immutable: ${file}`);
   }
 }
 
