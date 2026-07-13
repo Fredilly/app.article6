@@ -4,6 +4,10 @@ import reviewed from "../../../tests/fixtures/preverif/marcondes-vm0007-v18-evid
 import draft from "../../../tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.draft.json";
 import metadata from "../../../tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/metadata.json";
 import { adaptReviewedEvidenceMap } from "./reviewedEvidenceMapAdapter";
+import {
+  matchesReviewedEvidenceMapIdentity,
+  type ReviewedEvidenceMapIdentity,
+} from "./reviewedEvidenceMapRegistry";
 import type { ReviewedEvidenceMapSnapshot } from "./reviewedEvidenceMapTypes";
 
 const marcondes = adaptReviewedEvidenceMap({ reviewed, draft, metadata });
@@ -14,10 +18,16 @@ if (!marcondes)
 
 const reviewedCases: readonly ReviewedEvidenceMapSnapshot[] = [marcondes];
 
+export function loadReviewedEvidenceMapCandidates(): readonly ReviewedEvidenceMapSnapshot[] {
+  return reviewedCases;
+}
+
 export function loadReviewedEvidenceMapCandidate(
-  auditId: string,
+  identity: ReviewedEvidenceMapIdentity,
 ): ReviewedEvidenceMapSnapshot | null {
   return (
-    reviewedCases.find((entry) => entry.canonicalAuditId === auditId) ?? null
+    reviewedCases.find((entry) =>
+      matchesReviewedEvidenceMapIdentity(identity, entry),
+    ) ?? null
   );
 }

@@ -285,11 +285,7 @@ function RuleDetails({
   );
 }
 
-function Summary({
-  rows,
-}: {
-  rows: readonly EvidenceMapPresentationRow[];
-}) {
+function Summary({ rows }: { rows: readonly EvidenceMapPresentationRow[] }) {
   const summary = summarizeEvidenceMapPresentation(rows);
   const items = [
     ["Total rules", summary.total],
@@ -319,7 +315,7 @@ function Summary({
 }
 
 type Props = {
-  pkg: Vm0007EvidenceMapDraftPackage;
+  pkg: Vm0007EvidenceMapDraftPackage | null;
   reviewedSnapshot?: ReviewedEvidenceMapSnapshot | null;
   mode: EvidenceMapMode;
   onModeChange: (mode: EvidenceMapMode) => void;
@@ -344,15 +340,19 @@ export default function EvidenceMapWorkspace({
     () =>
       mode === "reviewed" && reviewedSnapshot
         ? buildReviewedEvidenceMapPresentation(reviewedSnapshot)
-        : buildMachineEvidenceMapPresentation(pkg),
+        : pkg
+          ? buildMachineEvidenceMapPresentation(pkg)
+          : { mode: "reviewed" as const, rows: [], readOnly: true },
     [mode, pkg, reviewedSnapshot],
   );
   const rows = useMemo(
     () => filterEvidenceMapPresentation(presentation.rows, filters),
     [presentation.rows, filters],
   );
-  const finalized = pkg.finalizationState === "finalized";
-  const allApproved = pkg.rows.every((row) => row.reviewState === "approved");
+  const finalized = pkg?.finalizationState === "finalized";
+  const allApproved = Boolean(
+    pkg?.rows.every((row) => row.reviewState === "approved"),
+  );
   const toggle = (rowId: string) =>
     setExpanded((current) => {
       const next = new Set(current);
@@ -376,8 +376,10 @@ export default function EvidenceMapWorkspace({
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-blue-600" />
               <p className="text-sm font-medium text-slate-600">
-                {pkg.sourceDocument.documentName ||
-                  pkg.sourceDocument.documentId}
+                {pkg?.sourceDocument.documentName ||
+                  pkg?.sourceDocument.documentId ||
+                  reviewedSnapshot?.sourceDocument.documentName ||
+                  reviewedSnapshot?.sourceDocument.documentId}
               </p>
             </div>
             <h1 className="mt-2 text-2xl font-semibold">
@@ -385,11 +387,13 @@ export default function EvidenceMapWorkspace({
               {presentation.readOnly ? "Reviewed truth" : "Machine proposal"}
             </h1>
             <p className="mt-2 text-xs text-slate-500">
-              {pkg.methodologyId} {pkg.rulebookVersion} · Audit {pkg.auditId}
+              {pkg?.methodologyId || reviewedSnapshot?.methodologyId}{" "}
+              {pkg?.rulebookVersion || reviewedSnapshot?.methodologyVersion} ·
+              Audit {pkg?.auditId || reviewedSnapshot?.canonicalAuditId}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            {reviewedSnapshot ? (
+            {reviewedSnapshot && pkg ? (
               <div
                 aria-label="Evidence Map mode"
                 className="inline-flex rounded-lg border border-slate-300 bg-slate-100 p-1"
@@ -550,7 +554,7 @@ export default function EvidenceMapWorkspace({
                   readOnly={presentation.readOnly}
                   finalized={finalized}
                   onReview={() => {
-                    const machineRow = pkg.rows.find(
+                    const machineRow = pkg?.rows.find(
                       (item) => item.rowId === row.rowId,
                     );
                     if (machineRow) onReview(machineRow);

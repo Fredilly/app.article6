@@ -22,20 +22,35 @@ import type { EvidenceMapMode } from "@/components/preverif/evidence-map/evidenc
 export default function Vm0007EvidenceMapDraftPage({
   auditId,
   reviewedCandidate = null,
+  reviewedCandidates = [],
 }: {
   auditId: string;
   reviewedCandidate?: ReviewedEvidenceMapSnapshot | null;
+  reviewedCandidates?: readonly ReviewedEvidenceMapSnapshot[];
 }) {
   const [pkg, setPkg] = useState<Vm0007EvidenceMapDraftPackage | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [reviewRowId, setReviewRowId] = useState<string | null>(null);
-  const [mode, setMode] = useState<EvidenceMapMode>(
-    reviewedCandidate ? "reviewed" : "machine",
-  );
-  useEffect(() => setPkg(loadVm0007EvidenceMapDraft(auditId)), [auditId]);
+  const [mode, setMode] = useState<EvidenceMapMode>("reviewed");
+  useEffect(() => {
+    setPkg(loadVm0007EvidenceMapDraft(auditId));
+    setLoaded(true);
+  }, [auditId]);
 
   const closeReview = useCallback(() => setReviewRowId(null), []);
-  if (!pkg)
+  const reviewedSnapshot = pkg
+    ? (reviewedCandidates.find((candidate) =>
+        matchesReviewedEvidenceMapCase(pkg, candidate),
+      ) ??
+      (reviewedCandidate &&
+      matchesReviewedEvidenceMapCase(pkg, reviewedCandidate)
+        ? reviewedCandidate
+        : null))
+    : reviewedCandidate;
+  if (!loaded)
+    return <main className="min-h-screen bg-slate-50" aria-busy="true" />;
+  if (!pkg && !reviewedSnapshot)
     return (
       <main className="min-h-screen bg-slate-50 p-8">
         <div className="mx-auto max-w-4xl rounded-xl border border-amber-200 bg-white p-6 text-amber-900">
@@ -46,6 +61,7 @@ export default function Vm0007EvidenceMapDraftPage({
     );
 
   const finalize = () => {
+    if (!pkg) return;
     const result = finalizeVm0007EvidenceMap(pkg, "reviewer:local");
     if (result.ok) {
       setPkg(result.package);
@@ -59,6 +75,8 @@ export default function Vm0007EvidenceMapDraftPage({
     action: "approve" | "reopen",
     note: string,
   ): string | null => {
+    if (!pkg)
+      return "Machine proposal is not available for this reviewed snapshot.";
     const result =
       action === "approve"
         ? approveVm0007EvidenceMapRow(pkg, rowId, "reviewer:local", note)
@@ -74,6 +92,8 @@ export default function Vm0007EvidenceMapDraftPage({
     change: Vm0007EvidenceMapEdit,
     note: string,
   ): string | null => {
+    if (!pkg)
+      return "Machine proposal is not available for this reviewed snapshot.";
     const result = editVm0007EvidenceMapRow(
       pkg,
       rowId,
@@ -88,13 +108,10 @@ export default function Vm0007EvidenceMapDraftPage({
     );
     return null;
   };
-  const reviewedSnapshot =
-    reviewedCandidate && matchesReviewedEvidenceMapCase(pkg, reviewedCandidate)
-      ? reviewedCandidate
-      : null;
   const activeMode: EvidenceMapMode = reviewedSnapshot ? mode : "machine";
-  const reviewRow: Vm0007EvidenceMapDraftRow | null =
-    pkg.rows.find((row) => row.rowId === reviewRowId) ?? null;
+  const reviewRow: Vm0007EvidenceMapDraftRow | null = pkg
+    ? (pkg.rows.find((row) => row.rowId === reviewRowId) ?? null)
+    : null;
   return (
     <>
       <EvidenceMapWorkspace
@@ -108,7 +125,7 @@ export default function Vm0007EvidenceMapDraftPage({
       />
       <EvidenceMapReviewPanel
         row={reviewRow}
-        finalized={pkg.finalizationState === "finalized"}
+        finalized={pkg?.finalizationState === "finalized"}
         onClose={closeReview}
         onEdit={(change, note) =>
           reviewRow ? edit(reviewRow.rowId, change, note) : "Row not found."
