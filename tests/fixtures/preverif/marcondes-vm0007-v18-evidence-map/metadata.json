@@ -58,8 +58,8 @@
     "independentAuditCumulative": {
       "rowCount": 28,
       "results": {
-      "CONFIRMED": 20,
-      "CORRECTED": 8,
+        "CONFIRMED": 20,
+        "CORRECTED": 8,
         "INSUFFICIENT_SOURCE_ACCESS": 0
       }
     },
@@ -91,17 +91,27 @@
       "Verra.AFOLU.VM0007.v1-8.R-2-0008",
       "Verra.AFOLU.VM0007.v1-8.R-2-0016",
       "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-      "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+      "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0003"
     ],
-    "reviewedRowCount": 28,
+    "reviewedRowCount": 38,
     "goldPromotion": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "versionReconciliationPending": false,
     "evidenceStateCounts": {
-      "FOUND": 4,
-      "UNCLEAR": 11,
+      "FOUND": 5,
+      "UNCLEAR": 16,
       "MISSING": 0,
-      "N/A": 13
+      "N/A": 17
     }
   },
   "productionLogicChanged": false
