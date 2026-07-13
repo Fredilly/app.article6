@@ -752,6 +752,24 @@ function explicitScopeExclusionFragments(text: string): string[] {
     .filter((fragment) => hasExplicitScopeExclusion(fragment));
 }
 
+const APPLICABILITY_SUBJECT_STOPWORDS = new Set([
+  "apply",
+  "applies",
+  "applicable",
+  "exclude",
+  "excluded",
+  "excludes",
+  "excluding",
+  "exclusion",
+  "include",
+  "included",
+  "includes",
+  "including",
+  "inclusion",
+  "inclusion/exclusion",
+  "scope",
+]);
+
 function applicabilitySubjectTokens(
   rule: MethodologyEvidenceAuditRule,
   contract: MethodologyEvidenceContract,
@@ -763,7 +781,8 @@ function applicabilitySubjectTokens(
     contract.appliesToFamily ?? "",
   ].join(" "), TEXT_STOPWORDS).filter((token) =>
     !/^(?:verra|afolu|vm\d+|v\d|r-\d)/.test(token)
-    && token !== "table",
+    && token !== "table"
+    && !APPLICABILITY_SUBJECT_STOPWORDS.has(token),
   );
 }
 
@@ -1163,12 +1182,9 @@ function selectNotApplicableCandidate(input: {
     const hasProjectContext = hasProjectSpecificMarkers(text) || hasExplicitScopeExclusion(text);
     if (applicability && (contextHits === 0 || (applicability.requireProjectSpecificContext && !hasProjectContext))) continue;
     const signalOverlap = intersectionCount(tokenize(text, TEXT_STOPWORDS), tokenize(naPhrases.join(" "), TEXT_STOPWORDS));
-    if (phraseHits === 0 && (
-      !hasExplicitScopeExclusion(text)
-      || signalOverlap < 2
-      || (applicability?.requireRuleSubjectAlignment
-        && !hasApplicabilitySubjectAlignment({ rule: input.rule, contract: input.contract, text: span.text }))
-    )) continue;
+    if (applicability?.requireRuleSubjectAlignment
+      && !hasApplicabilitySubjectAlignment({ rule: input.rule, contract: input.contract, text: span.text })) continue;
+    if (phraseHits === 0 && (!hasExplicitScopeExclusion(text) || signalOverlap < 2)) continue;
 
     const sectionTitle = span.sectionId
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)

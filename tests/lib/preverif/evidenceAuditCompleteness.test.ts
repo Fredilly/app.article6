@@ -179,6 +179,39 @@ describe("generic evidence applicability and completeness contract", () => {
     expect(result.status).not.toBe("not_applicable");
   });
 
+  it("does not let an exact exclusion phrase bypass required rule-subject alignment", () => {
+    const exactExclusion = "The project activity does not include tidal wetland.";
+    const contract = {
+      ...baseContract,
+      label: "Pool and source selection",
+      supportsNotApplicable: true,
+      notApplicableSignals: [exactExclusion],
+      applicability: {
+        exclusionSignals: [exactExclusion],
+        contextSignals: [],
+        requireProjectSpecificContext: true,
+        requireRuleSubjectAlignment: true,
+      },
+    };
+    const evidenceDocument: EvidenceDocument = {
+      docId: "test",
+      rawText: exactExclusion,
+      spans: [span(exactExclusion)],
+    };
+    const result = auditEvidence({
+      rules: [{
+        id: "generic-biomass-rule",
+        title: "Mandatory aboveground biomass pool",
+        logic: "Aboveground biomass must be included consistently in baseline and project accounting.",
+      }],
+      evidenceDocument,
+      getContract: () => contract,
+      versionContext: { methodologyId: "TEST", rulebookVersion: "v1", pddDeclaredMethodologyVersion: "v1" },
+    }).results[0];
+
+    expect(result.status).not.toBe("not_applicable");
+  });
+
   it("retains N/A when the exclusion addresses the rule subject", () => {
     const contract = {
       ...baseContract,
