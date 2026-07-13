@@ -33,6 +33,8 @@ The batch-five `officialRequirementQuote` fields were corrected to the exact ver
 
 The post-998 runtime test continues to regenerate all 58 rules and now pins the batch-five machine baseline: all ten currently return `partially_supported`, with the selected page sets and gold states recorded in the test. The test intentionally records the current machine-versus-gold disagreements without requiring the known production retrieval behavior to match gold. No gold state or outcome changed.
 
+Batch-five methodology pages now use the authoritative `section_context.page_start` values: 21, 27, 25, 23, 16, 31, 31, 34, 36, and 38 in batch order. Stored sections include the authoritative section titles. Machine status disagreement is normalized explicitly (`partially_supported` → `UNCLEAR`, `supported_by_pdd` → `FOUND`, and so on), so equivalent machine/gold evidence states are not mislabeled as disagreements.
+
 ## Production improvement candidate
 
 - Pattern: generic methodology boilerplate or stitched page-level text is repeatedly selected as project evidence, and module naming is treated as proof of complete implementation or calculation.

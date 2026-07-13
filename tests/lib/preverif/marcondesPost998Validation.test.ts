@@ -18,16 +18,16 @@ const reviewedRuleIds = [
 ] as const;
 
 const batchFiveBaseline = [
-  { ruleId: "R-3-0004", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", disagreesWithGold: true },
-  { ruleId: "R-3-0007", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", disagreesWithGold: true },
-  { ruleId: "R-3-0008", machineStatus: "partially_supported", selectedPages: [66, 65, 63], goldState: "N/A", disagreesWithGold: true },
-  { ruleId: "R-4-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62], goldState: "FOUND", disagreesWithGold: true },
-  { ruleId: "R-4-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 62, 63, 61], goldState: "N/A", disagreesWithGold: true },
-  { ruleId: "R-5-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61, 12, 11], goldState: "MISSING", disagreesWithGold: true },
-  { ruleId: "R-5-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "N/A", disagreesWithGold: true },
-  { ruleId: "R-5-0003", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61], goldState: "UNCLEAR", disagreesWithGold: true },
-  { ruleId: "R-5-0004", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61, 62, 11], goldState: "N/A", disagreesWithGold: true },
-  { ruleId: "R-5-0005", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "MISSING", disagreesWithGold: true },
+  { ruleId: "R-3-0004", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-3-0007", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-3-0008", machineStatus: "partially_supported", selectedPages: [66, 65, 63], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-4-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62], goldState: "FOUND", statusDisagreesWithGold: true },
+  { ruleId: "R-4-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 62, 63, 61], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61, 12, 11], goldState: "MISSING", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0003", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-5-0004", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61, 62, 11], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0005", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "MISSING", statusDisagreesWithGold: true },
 ] as const;
 
 type JsonRecord = Record<string, any>;
@@ -38,6 +38,14 @@ function readJson(name: string): JsonRecord {
 
 function normalize(value: string): string {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function machineStatusToEvidenceState(status: string): string {
+  if (status === "supported_by_pdd") return "FOUND";
+  if (status === "partially_supported") return "UNCLEAR";
+  if (status === "not_applicable") return "N/A";
+  if (status === "not_supported" || status === "unsupported_by_pdd") return "MISSING";
+  return status;
 }
 
 function evidenceRecords(result: MethodologyEvidenceAuditResult) {
@@ -135,7 +143,7 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
       machineStatus: row.newStatus,
       selectedPages: row.newPages,
       goldState: row.reviewedState,
-      disagreesWithGold: row.newStatus !== (row.reviewedState === "FOUND" ? "supported_by_pdd" : "not_applicable"),
+      statusDisagreesWithGold: machineStatusToEvidenceState(row.newStatus) !== row.reviewedState,
     }))).toEqual(batchFiveBaseline);
 
     const r1 = byRule.get("R-1-0001")!;

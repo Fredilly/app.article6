@@ -350,8 +350,12 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, normalize(page.text)]));
     for (const id of batchFive) {
       const row = gold.rows.find((candidate: any) => candidate.ruleReference === id)!;
-      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: expect.any(String), version: "v1.8", section: expect.any(String), methodologyPage: expect.any(Number) }));
+      const authoritativeRule = authoritativeVm0007Rules.find((rule) => rule.stable_id.endsWith(`.${id}`))!;
+      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: expect.any(String), version: "v1.8", section: expect.any(String), methodologyPage: authoritativeRule.section_context.page_start }));
+      expect(row.methodologyTraceability.methodologyPage).toBe(authoritativeRule.section_context.page_start);
+      expect(row.methodologyTraceability.officialRequirementQuote).toBe(authoritativeRule.source_span_text);
       expect(row.methodologyTraceability.officialRequirementQuote).toBe(batchFiveOfficialQuotes.get(id));
+      expect(row.methodologyTraceability.section).toContain(authoritativeRule.section_context.section_title);
       expect(row.methodologyTraceability.officialRequirementQuote).toEqual(expect.any(String));
       expect(row.methodologyTraceability.officialRequirementQuote).not.toMatch(/\s+(?:VM0007|VT0001|VMD\d{4}|T-BAR) v?\d/);
       expect(row.methodologyTraceability.officialRequirementQuote).not.toBe(row.requirement);
