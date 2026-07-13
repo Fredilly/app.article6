@@ -1234,6 +1234,7 @@ function classifyStatus(input: {
   confidence: EvidenceAuditConfidence;
   assessmentReason: string;
   gap: string;
+  componentCoverage?: { supported: readonly string[]; missing: readonly string[] };
 } {
   if (input.notApplicableCandidate) {
     return {
@@ -1318,6 +1319,7 @@ function classifyStatus(input: {
         confidence: "low",
         assessmentReason: `Project-specific evidence is incomplete: missing mandatory components ${componentCoverage.missing.join(", ")}.`,
         gap: input.contract.defaultGapMessage,
+        componentCoverage,
       };
     }
 
@@ -1329,6 +1331,7 @@ function classifyStatus(input: {
         confidence: "high",
         assessmentReason: "All mandatory evidence components are supported by project-specific implementation evidence.",
         gap: "",
+        componentCoverage,
       };
     }
 
@@ -1354,6 +1357,7 @@ function classifyStatus(input: {
         confidence: assessmentCandidate.score >= 56 ? "high" : "medium",
         assessmentReason: "The selected PDD span contains project-specific language that aligns well with the rule logic and contract evidence signals.",
         gap: "",
+        componentCoverage,
       };
     }
 
@@ -1368,6 +1372,7 @@ function classifyStatus(input: {
         confidence: "medium",
         assessmentReason: "The selected PDD span contains dense project-specific implementation facts matching the contract vocabulary.",
         gap: "",
+        componentCoverage,
       };
     }
 
@@ -1377,6 +1382,7 @@ function classifyStatus(input: {
         confidence: "medium",
         assessmentReason: "The PDD contains a relevant span for this rule, but it does not fully cover the evidence expected by the contract.",
         gap: input.contract.defaultGapMessage,
+        componentCoverage,
       };
     }
 
@@ -1385,6 +1391,7 @@ function classifyStatus(input: {
       confidence: "low",
       assessmentReason: "The PDD contains a possible match, but the evidence is too weak or ambiguous to classify confidently.",
       gap: input.contract.defaultGapMessage,
+      componentCoverage,
     };
   }
 
@@ -1428,6 +1435,7 @@ function resultFromCandidate(input: {
   confidence: EvidenceAuditConfidence;
   assessmentReason: string;
   gap: string;
+  componentCoverage?: { supported: readonly string[]; missing: readonly string[] };
   normalizeRuleId?: (ruleId: string) => string;
 }): MethodologyEvidenceAuditResult {
   const acceptedEvidenceCandidates = (input.evidenceCandidates ?? []).filter(isAcceptedProjectEvidence);
@@ -1464,6 +1472,10 @@ function resultFromCandidate(input: {
       span: candidate.span.spanId,
       evidenceType: candidate.evidenceType,
       rejectionReason: candidate.rejectionReason ?? undefined,
+      ...(input.componentCoverage && (input.contract.mandatoryComponents?.length ?? 0) > 0
+        && candidate.evidenceType === "project_specific_implementation"
+        ? { supportedComponents: input.componentCoverage.supported, missingComponents: input.componentCoverage.missing }
+        : {}),
     })),
     rejectedEvidence: [...rejectedEvidenceCandidates, ...(input.candidate && !isAcceptedProjectEvidence(input.candidate) ? [input.candidate] : [])]
       .filter((candidate, index, all) => all.findIndex((other) => other.span.spanId === candidate.span.spanId) === index)
@@ -1554,6 +1566,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       confidence: classified.confidence,
       assessmentReason: classified.assessmentReason,
       gap: classified.gap,
+      componentCoverage: classified.componentCoverage,
       normalizeRuleId: input.normalizeRuleId,
     });
   });

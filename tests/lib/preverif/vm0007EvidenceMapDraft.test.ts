@@ -5,7 +5,9 @@ import { validateVm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007Evid
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
+import { auditEvidence } from "@/lib/preverif/evidenceAudit";
 import type { MethodologyEvidenceAuditResult, MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
+import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
 
 const sourceDocument = { documentId: "pdd-1", documentName: "project-pdd.pdf", contentSha256: null };
 const rules: RuleSummary[] = Array.from({ length: 58 }, (_, index) => ({ id: `R-${String(index + 1).padStart(2, "0")}-0001`, title: `Rule ${index + 1}`, snippet: `Requirement ${index + 1}`, text: `Requirement ${index + 1}`, tags: [] }));
@@ -120,6 +122,102 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     expect(row.proposedAcceptedEvidence?.quote).toBe(firstResult.bestEvidenceQuote);
     expect(auditResults.map((item) => item.status)).toEqual(statusesBefore);
     expect(validateVm0007EvidenceMapDraftPackage(built.package, "rich-evidence-audit")).toBe(true);
+  });
+
+  it("carries real audit mandatory component coverage into the draft without changing decisions", () => {
+    const exactQuote = "The project calculated the equation using project inputs.";
+    const evidenceDocument: EvidenceDocument = {
+      docId: sourceDocument.documentId,
+      rawText: exactQuote,
+      spans: [{
+        spanId: "real-audit-span",
+        docId: sourceDocument.documentId,
+        page: 7,
+        sectionId: "project-evidence",
+        heading: "Project evidence",
+        headingPath: ["Project evidence"],
+        sectionPath: ["Project evidence"],
+        blockType: "paragraph",
+        text: exactQuote,
+        normalizedText: exactQuote.toLowerCase(),
+        charStart: null,
+        charEnd: null,
+        reliability: "primary",
+        confidence: 1,
+      }],
+    };
+    const realAudit = auditEvidence({
+      rules: rules.map((rule) => ({ id: rule.id, title: rule.title, logic: "project implementation" })),
+      evidenceDocument,
+      getContract: () => ({
+        id: "test:component-coverage",
+        label: "Project implementation",
+        methodologyId: "VM0007",
+        rulebookVersion: "v1.8",
+        pddSectionsToSearch: ["Project evidence"],
+        strongEvidenceSignals: ["project implementation"],
+        weakEvidenceSignals: [],
+        rejectSignals: ["methodology requires"],
+        notApplicableSignals: [],
+        mandatoryComponents: [
+          { id: "equation", description: "Equation", signals: ["equation"] },
+          { id: "inputs", description: "Inputs", signals: ["inputs"] },
+          { id: "result", description: "Result", signals: ["result"] },
+        ],
+        defaultGapMessage: "Add the missing project evidence.",
+        clientAction: "Add the missing project evidence.",
+        supportsNotApplicable: false,
+      }),
+      versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
+    });
+    const auditedResult = realAudit.results[0];
+    const outcomeBeforeDraft = {
+      status: auditedResult.status,
+      confidence: auditedResult.confidence,
+      assessmentReason: auditedResult.assessmentReason,
+      bestEvidenceQuote: auditedResult.bestEvidenceQuote,
+      span: auditedResult.span,
+    };
+
+    expect(auditedResult).toEqual(expect.objectContaining({
+      status: "partially_supported",
+      confidence: "low",
+      bestEvidenceQuote: exactQuote,
+      span: "real-audit-span",
+    }));
+    expect(auditedResult.bestEvidenceQuote).toBe(auditedResult.evidence?.[0]?.quote);
+    expect(auditedResult.span).toBe(auditedResult.evidence?.[0]?.span);
+    expect(auditedResult.evidence?.[0]).toEqual(expect.objectContaining({
+      quote: exactQuote,
+      supportedComponents: ["equation", "inputs"],
+      missingComponents: ["result"],
+    }));
+    const built = buildVm0007EvidenceMapDraft({
+      auditId: "real-component-coverage-audit",
+      generatedAt: "2026-07-13T00:00:00.000Z",
+      rules,
+      audit: realAudit,
+      sourceDocument,
+    });
+
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+    const row = built.package.rows[0];
+    expect(row.acceptedEvidence?.[0]).toEqual(expect.objectContaining({
+      quote: exactQuote,
+      supportedComponents: ["equation", "inputs"],
+      missingComponents: ["result"],
+      spanId: "real-audit-span",
+    }));
+    expect({
+      status: row.rawAuditStatus,
+      confidence: row.confidence,
+      assessmentReason: row.assessmentReason,
+      bestEvidenceQuote: row.proposedAcceptedEvidence?.quote,
+      span: row.acceptedEvidence?.[0]?.spanId,
+    }).toEqual(outcomeBeforeDraft);
+    expect(row.proposedApplicability).toBe("APPLICABLE");
+    expect(row.proposedEvidenceStatus).toBe("UNCLEAR");
   });
 
   it("maps evidence statuses without fabricating or finalizing evidence", () => {
