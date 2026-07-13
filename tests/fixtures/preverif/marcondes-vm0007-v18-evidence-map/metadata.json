@@ -38,16 +38,30 @@
     "independentAudit": {
       "batch": 1,
       "rowCount": 10,
-      "results": { "CONFIRMED": 7, "CORRECTED": 3, "INSUFFICIENT_SOURCE_ACCESS": 0 }
+      "results": {
+        "CONFIRMED": 7,
+        "CORRECTED": 3,
+        "INSUFFICIENT_SOURCE_ACCESS": 0
+      }
     },
     "independentAuditBatchTwo": {
       "rowCount": 10,
-      "results": { "CONFIRMED": 9, "CORRECTED": 1, "INSUFFICIENT_SOURCE_ACCESS": 0 },
-      "correctedRuleIds": ["Verra.AFOLU.VM0007.v1-8.R-1-0014"]
+      "results": {
+        "CONFIRMED": 9,
+        "CORRECTED": 1,
+        "INSUFFICIENT_SOURCE_ACCESS": 0
+      },
+      "correctedRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0014"
+      ]
     },
     "independentAuditCumulative": {
-      "rowCount": 20,
-      "results": { "CONFIRMED": 16, "CORRECTED": 4, "INSUFFICIENT_SOURCE_ACCESS": 0 }
+      "rowCount": 28,
+      "results": {
+      "CONFIRMED": 20,
+      "CORRECTED": 8,
+        "INSUFFICIENT_SOURCE_ACCESS": 0
+      }
     },
     "reviewedRuleIds": [
       "Verra.AFOLU.VM0007.v1-8.R-1-0001",
@@ -83,11 +97,11 @@
     "goldPromotion": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "reportReleaseState": "BLOCKED_PENDING_REVIEW_COVERAGE",
     "versionReconciliationPending": false,
-      "evidenceStateCounts": {
-      "FOUND": 8,
-      "UNCLEAR": 8,
+    "evidenceStateCounts": {
+      "FOUND": 4,
+      "UNCLEAR": 11,
       "MISSING": 0,
-      "N/A": 12
+      "N/A": 13
     }
   },
   "productionLogicChanged": false
