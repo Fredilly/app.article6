@@ -66,20 +66,19 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
         {
           quote: "Exact accepted quote one.", page: 4, section: "Project design", span: "accepted-1",
           evidenceType: "project_specific_implementation" as const,
-          supportedComponents: ["implementation"], missingComponents: ["monitoring"],
         },
         {
           quote: "Exact accepted quote two.", page: 5, section: "Monitoring", span: "accepted-2",
           evidenceType: "project_specific_scope" as const,
-          supportedComponents: ["scope", "monitoring"], missingComponents: [],
         },
       ],
       rejectedEvidence: [{
         quote: "Exact rejected methodology quote.", page: 9, section: "Methodology", span: "rejected-1",
         evidenceType: "methodology_boilerplate" as const,
         rejectionReason: "Methodology instructions are not project evidence.",
-        supportedComponents: [], missingComponents: ["implementation", "monitoring"],
       }],
+      supportedComponents: ["implementation"],
+      missingComponents: ["monitoring"],
     };
     const auditResults = rules.map((rule, index) => index === 0 ? firstResult : result(rule.id, "missing_evidence", index));
     const statusesBefore = auditResults.map((item) => item.status);
@@ -101,18 +100,20 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     ]);
     expect(row.acceptedEvidence?.[0]).toEqual(expect.objectContaining({
       evidenceType: "project_specific_implementation",
-      supportedComponents: ["implementation"],
-      missingComponents: ["monitoring"],
       provenance: expect.objectContaining({ docId: "pdd-1", page: 4, spanId: "accepted-1", sectionHeading: "Project design" }),
     }));
+    expect(row.acceptedEvidence?.[0]).not.toHaveProperty("supportedComponents");
+    expect(row.acceptedEvidence?.[0]).not.toHaveProperty("missingComponents");
     expect(row.rejectedEvidence?.[0]).toEqual(expect.objectContaining({
       quote: "Exact rejected methodology quote.",
       evidenceType: "methodology_boilerplate",
       rejectionReason: "Methodology instructions are not project evidence.",
-      supportedComponents: [],
-      missingComponents: ["implementation", "monitoring"],
       provenance: expect.objectContaining({ docId: "pdd-1", page: 9, spanId: "rejected-1", sectionHeading: "Methodology" }),
     }));
+    expect(row.rejectedEvidence?.[0]).not.toHaveProperty("supportedComponents");
+    expect(row.rejectedEvidence?.[0]).not.toHaveProperty("missingComponents");
+    expect(row.supportedComponents).toEqual(["implementation"]);
+    expect(row.missingComponents).toEqual(["monitoring"]);
     expect(row.reasonSelected).toBe("Strongest project-specific candidate retained.");
     expect(row.assessmentReason).toBe(firstResult.assessmentReason);
     expect(row.rawAuditStatus).toBe("partially_supported");
@@ -184,14 +185,14 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
       confidence: "low",
       bestEvidenceQuote: exactQuote,
       span: "real-audit-span",
-    }));
-    expect(auditedResult.bestEvidenceQuote).toBe(auditedResult.evidence?.[0]?.quote);
-    expect(auditedResult.span).toBe(auditedResult.evidence?.[0]?.span);
-    expect(auditedResult.evidence?.[0]).toEqual(expect.objectContaining({
-      quote: exactQuote,
       supportedComponents: ["equation", "inputs"],
       missingComponents: ["result"],
     }));
+    expect(auditedResult.bestEvidenceQuote).toBe(auditedResult.evidence?.[0]?.quote);
+    expect(auditedResult.span).toBe(auditedResult.evidence?.[0]?.span);
+    expect(auditedResult.evidence?.[0]?.quote).toBe(exactQuote);
+    expect(auditedResult.evidence?.[0]).not.toHaveProperty("supportedComponents");
+    expect(auditedResult.evidence?.[0]).not.toHaveProperty("missingComponents");
     const built = buildVm0007EvidenceMapDraft({
       auditId: "real-component-coverage-audit",
       generatedAt: "2026-07-13T00:00:00.000Z",
@@ -205,10 +206,12 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     const row = built.package.rows[0];
     expect(row.acceptedEvidence?.[0]).toEqual(expect.objectContaining({
       quote: exactQuote,
-      supportedComponents: ["equation", "inputs"],
-      missingComponents: ["result"],
       spanId: "real-audit-span",
     }));
+    expect(row.acceptedEvidence?.[0]).not.toHaveProperty("supportedComponents");
+    expect(row.acceptedEvidence?.[0]).not.toHaveProperty("missingComponents");
+    expect(row.supportedComponents).toEqual(["equation", "inputs"]);
+    expect(row.missingComponents).toEqual(["result"]);
     expect({
       status: row.rawAuditStatus,
       confidence: row.confidence,
@@ -218,6 +221,7 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     }).toEqual(outcomeBeforeDraft);
     expect(row.proposedApplicability).toBe("APPLICABLE");
     expect(row.proposedEvidenceStatus).toBe("UNCLEAR");
+    expect(validateVm0007EvidenceMapDraftPackage(built.package, "real-component-coverage-audit")).toBe(true);
   });
 
   it("maps evidence statuses without fabricating or finalizing evidence", () => {

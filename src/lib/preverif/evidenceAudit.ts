@@ -96,6 +96,8 @@ export type MethodologyEvidenceAuditResult = {
   evidence?: readonly MethodologyEvidenceRecord[];
   /** Rejected source-backed candidates retained for diagnostics without presenting them as accepted evidence. */
   rejectedEvidence?: readonly MethodologyEvidenceRecord[];
+  supportedComponents?: readonly string[];
+  missingComponents?: readonly string[];
   page: number | null;
   section: string | null;
   span: string | null;
@@ -113,8 +115,6 @@ export type MethodologyEvidenceRecord = Readonly<{
   span: string;
   evidenceType?: EvidenceType;
   rejectionReason?: string;
-  supportedComponents?: readonly string[];
-  missingComponents?: readonly string[];
 }>;
 
 export type MethodologyEvidenceAuditSummary = {
@@ -1472,10 +1472,6 @@ function resultFromCandidate(input: {
       span: candidate.span.spanId,
       evidenceType: candidate.evidenceType,
       rejectionReason: candidate.rejectionReason ?? undefined,
-      ...(input.componentCoverage && (input.contract.mandatoryComponents?.length ?? 0) > 0
-        && candidate.evidenceType === "project_specific_implementation"
-        ? { supportedComponents: input.componentCoverage.supported, missingComponents: input.componentCoverage.missing }
-        : {}),
     })),
     rejectedEvidence: [...rejectedEvidenceCandidates, ...(input.candidate && !isAcceptedProjectEvidence(input.candidate) ? [input.candidate] : [])]
       .filter((candidate, index, all) => all.findIndex((other) => other.span.spanId === candidate.span.spanId) === index)
@@ -1487,6 +1483,9 @@ function resultFromCandidate(input: {
         evidenceType: candidate.evidenceType,
         rejectionReason: candidate.rejectionReason ?? "Candidate was not accepted as sufficient evidence.",
       })),
+    ...(input.componentCoverage && (input.contract.mandatoryComponents?.length ?? 0) > 0
+      ? { supportedComponents: input.componentCoverage.supported, missingComponents: input.componentCoverage.missing }
+      : {}),
     page: provenanceCandidate?.span.page ?? null,
     section: sectionLabel,
     span: provenanceCandidate?.span.spanId ?? null,

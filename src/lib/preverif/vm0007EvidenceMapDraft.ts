@@ -32,8 +32,6 @@ export type Vm0007EvidenceMapDraftEvidenceRecord = {
   spanId: string;
   evidenceType?: EvidenceType;
   rejectionReason?: string;
-  supportedComponents?: readonly string[];
-  missingComponents?: readonly string[];
   provenance: EvidenceMapEvidenceProvenance;
 };
 
@@ -54,6 +52,8 @@ export type Vm0007EvidenceMapDraftRow = {
   proposedRejectedEvidence: { quote: string; reason: string; provenance: EvidenceMapEvidenceProvenance } | null;
   acceptedEvidence?: readonly Vm0007EvidenceMapDraftEvidenceRecord[];
   rejectedEvidence?: readonly Vm0007EvidenceMapDraftEvidenceRecord[];
+  supportedComponents?: readonly string[];
+  missingComponents?: readonly string[];
   reasonSelected?: string;
   assessmentReason: string;
   gap: string;
@@ -107,7 +107,7 @@ const DRAFT_ROW_KEYS = new Set([
   "rowId", "auditId", "stableRuleId", "ruleReference", "ruleTitle", "requirementText",
   "methodologyId", "methodologyVersion", "rawAuditStatus", "upstreamStatus",
   "proposedEvidenceStatus", "proposedApplicability", "proposedAcceptedEvidence",
-  "proposedRejectedEvidence", "acceptedEvidence", "rejectedEvidence", "reasonSelected",
+  "proposedRejectedEvidence", "acceptedEvidence", "rejectedEvidence", "supportedComponents", "missingComponents", "reasonSelected",
   "assessmentReason", "gap", "clientAction", "confidence",
   "searchCoverage", "sourceDocument", "quote", "page", "section", "spanId", "provenance",
   "finalizationState", "proposalSource", "proposalTimestamp",
@@ -163,9 +163,7 @@ function isEvidenceRecord(value: unknown, rejectionReasonRequired: boolean): val
   return isRecord(value) && hasText(value.quote) && (value.page === null || (typeof value.page === "number" && Number.isFinite(value.page))) &&
     hasNullableText(value.section) && hasText(value.spanId) && isProvenance(value.provenance) &&
     (value.evidenceType === undefined || (EVIDENCE_TYPES as readonly unknown[]).includes(value.evidenceType)) &&
-    (rejectionReasonRequired ? hasText(value.rejectionReason) : value.rejectionReason === undefined || hasText(value.rejectionReason)) &&
-    (value.supportedComponents === undefined || (Array.isArray(value.supportedComponents) && value.supportedComponents.every((component) => hasText(component)))) &&
-    (value.missingComponents === undefined || (Array.isArray(value.missingComponents) && value.missingComponents.every((component) => hasText(component))));
+    (rejectionReasonRequired ? hasText(value.rejectionReason) : value.rejectionReason === undefined || hasText(value.rejectionReason));
 }
 
 function evidenceRecordFor(record: MethodologyEvidenceRecord, sourceDocument: EvidenceMapSourceDocumentIdentity): Vm0007EvidenceMapDraftEvidenceRecord {
@@ -176,8 +174,6 @@ function evidenceRecordFor(record: MethodologyEvidenceRecord, sourceDocument: Ev
     spanId: record.span,
     ...(record.evidenceType !== undefined ? { evidenceType: record.evidenceType } : {}),
     ...(record.rejectionReason !== undefined ? { rejectionReason: record.rejectionReason } : {}),
-    ...(record.supportedComponents !== undefined ? { supportedComponents: record.supportedComponents } : {}),
-    ...(record.missingComponents !== undefined ? { missingComponents: record.missingComponents } : {}),
     provenance: {
       docId: sourceDocument.documentId,
       page: record.page,
@@ -263,6 +259,8 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
       (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true)) ||
       (row.acceptedEvidence !== undefined && (!Array.isArray(row.acceptedEvidence) || row.acceptedEvidence.some((record) => !isEvidenceRecord(record, false)))) ||
       (row.rejectedEvidence !== undefined && (!Array.isArray(row.rejectedEvidence) || row.rejectedEvidence.some((record) => !isEvidenceRecord(record, true)))) ||
+      (row.supportedComponents !== undefined && (!Array.isArray(row.supportedComponents) || row.supportedComponents.some((component) => !hasText(component)))) ||
+      (row.missingComponents !== undefined && (!Array.isArray(row.missingComponents) || row.missingComponents.some((component) => !hasText(component)))) ||
       (row.reasonSelected !== undefined && !hasText(row.reasonSelected))) return false;
     rowIds.add(row.rowId);
     ruleIds.add(row.ruleReference);
@@ -337,6 +335,8 @@ export function buildVm0007EvidenceMapDraft(input: {
       proposedRejectedEvidence: mapped.rejected,
       ...(result.evidence !== undefined ? { acceptedEvidence: result.evidence.map((record) => evidenceRecordFor(record, sourceDocument)) } : {}),
       ...(result.rejectedEvidence !== undefined ? { rejectedEvidence: result.rejectedEvidence.map((record) => evidenceRecordFor(record, sourceDocument)) } : {}),
+      ...(result.supportedComponents !== undefined ? { supportedComponents: result.supportedComponents } : {}),
+      ...(result.missingComponents !== undefined ? { missingComponents: result.missingComponents } : {}),
       reasonSelected: result.reasonSelected,
       assessmentReason: result.assessmentReason,
       gap: result.gap,

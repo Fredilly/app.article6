@@ -57,6 +57,7 @@ describe("VM0007 draft package storage validation", () => {
     ["wrong version", (pkg: Vm0007EvidenceMapDraftPackage) => ({ ...pkg, rulebookVersion: "v1.7" })],
     ["malformed provenance", (pkg: Vm0007EvidenceMapDraftPackage) => ({ ...pkg, rows: pkg.rows.map((row, index) => index === 0 ? { ...row, proposedAcceptedEvidence: { quote: "evidence", provenance: { docId: "doc-1" } } } : row) })],
     ["malformed rich evidence", (pkg: Vm0007EvidenceMapDraftPackage) => ({ ...pkg, rows: pkg.rows.map((row, index) => index === 0 ? { ...row, rejectedEvidence: [{ quote: "evidence", page: 1, section: "Evidence", spanId: "span-1", rejectionReason: "Rejected.", provenance: { docId: "doc-1" } }] } : row) })],
+    ["malformed component coverage", (pkg: Vm0007EvidenceMapDraftPackage) => ({ ...pkg, rows: pkg.rows.map((row, index) => index === 0 ? { ...row, supportedComponents: ["valid", " "] } : row) })],
   ])("rejects %s without throwing or saving", (_, mutate) => {
     const invalid = mutate(makePackage());
     expect(() => saveVm0007EvidenceMapDraft(invalid)).not.toThrow();
@@ -73,10 +74,17 @@ describe("VM0007 draft package storage validation", () => {
 
   test("accepts persisted draft packages created before rich presentation fields were added", () => {
     const legacyPackage = makePackage();
-    expect(legacyPackage.rows.every((row) => !("acceptedEvidence" in row) && !("rejectedEvidence" in row) && !("reasonSelected" in row))).toBe(true);
+    expect(legacyPackage.rows.every((row) => !("acceptedEvidence" in row) && !("rejectedEvidence" in row) && !("supportedComponents" in row) && !("missingComponents" in row) && !("reasonSelected" in row))).toBe(true);
     expect(validateVm0007EvidenceMapDraftPackage(legacyPackage, legacyPackage.auditId)).toBe(true);
     expect(saveVm0007EvidenceMapDraft(legacyPackage)).toBe(true);
     expect(loadVm0007EvidenceMapDraft(legacyPackage.auditId)).not.toBeNull();
+  });
+
+  test("accepts optional aggregate component coverage on a row", () => {
+    const pkg = makePackage();
+    pkg.rows[0] = { ...pkg.rows[0], supportedComponents: ["equation", "inputs"], missingComponents: ["result"] };
+
+    expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(true);
   });
 
   test("accepts rich accepted evidence without a rejection reason", () => {
