@@ -7,7 +7,9 @@ import type {
 } from "@/lib/evidence/evidenceMapDependencyContract";
 import type {
   EvidenceAuditStatus,
+  EvidenceType,
   MethodologyEvidenceAuditResult,
+  MethodologyEvidenceRecord,
   MethodologyEvidenceAuditSummary,
 } from "@/lib/preverif/evidenceAudit";
 import { EVIDENCE_AUDIT_STATUSES } from "@/lib/preverif/evidenceAudit";
@@ -22,6 +24,16 @@ export const VM0007_EVIDENCE_MAP_DRAFT_PROPOSAL_STATE = "MACHINE_PROPOSED" as co
 
 export type DraftApplicability = "APPLICABLE" | "NOT_APPLICABLE" | "UNKNOWN";
 export type DraftEvidenceStatus = "FOUND" | "UNCLEAR" | "MISSING";
+
+export type Vm0007EvidenceMapDraftEvidenceRecord = {
+  quote: string;
+  page: number | null;
+  section: string | null;
+  spanId: string;
+  evidenceType?: EvidenceType;
+  rejectionReason?: string;
+  provenance: EvidenceMapEvidenceProvenance;
+};
 
 export type Vm0007EvidenceMapDraftRow = {
   rowId: string;
@@ -38,6 +50,11 @@ export type Vm0007EvidenceMapDraftRow = {
   proposedApplicability: DraftApplicability;
   proposedAcceptedEvidence: { quote: string; provenance: EvidenceMapEvidenceProvenance } | null;
   proposedRejectedEvidence: { quote: string; reason: string; provenance: EvidenceMapEvidenceProvenance } | null;
+  acceptedEvidence?: readonly Vm0007EvidenceMapDraftEvidenceRecord[];
+  rejectedEvidence?: readonly Vm0007EvidenceMapDraftEvidenceRecord[];
+  supportedComponents?: readonly string[];
+  missingComponents?: readonly string[];
+  reasonSelected?: string;
   assessmentReason: string;
   gap: string;
   clientAction: string;
@@ -90,13 +107,21 @@ const DRAFT_ROW_KEYS = new Set([
   "rowId", "auditId", "stableRuleId", "ruleReference", "ruleTitle", "requirementText",
   "methodologyId", "methodologyVersion", "rawAuditStatus", "upstreamStatus",
   "proposedEvidenceStatus", "proposedApplicability", "proposedAcceptedEvidence",
-  "proposedRejectedEvidence", "assessmentReason", "gap", "clientAction", "confidence",
+  "proposedRejectedEvidence", "acceptedEvidence", "rejectedEvidence", "supportedComponents", "missingComponents", "reasonSelected",
+  "assessmentReason", "gap", "clientAction", "confidence",
   "searchCoverage", "sourceDocument", "quote", "page", "section", "spanId", "provenance",
   "finalizationState", "proposalSource", "proposalTimestamp",
   "reviewState", "reviewHistory", "rowVersion", "finalizationActorRef", "finalizedAt", "finalizationBasis", "reviewHistoryRef",
   "assessment",
 ]);
 const DRAFT_PACKAGE_KEYS = new Set(["auditId", "generatedAt", "methodologyId", "rulebookVersion", "pddDeclaredMethodologyVersion", "sourceDocument", "proposalState", "rows", "blockedBy", "contractVersion", "mapVersion", "finalizationState", "finalizedBy", "finalizedAt", "finalizationBasis"]);
+const EVIDENCE_TYPES: readonly EvidenceType[] = [
+  "project_specific_implementation",
+  "project_specific_scope",
+  "methodology_boilerplate",
+  "module_or_tool_declaration",
+  "incomplete_or_noisy",
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -132,6 +157,32 @@ function isSearchCoverage(value: unknown): value is EvidenceMapSearchCoverage {
 function isEvidence(value: unknown, rejected: boolean): boolean {
   if (!isRecord(value) || !hasText(value.quote) || !isProvenance(value.provenance)) return false;
   return !rejected || hasText(value.reason);
+}
+
+function isEvidenceRecord(value: unknown, rejectionReasonRequired: boolean): value is Vm0007EvidenceMapDraftEvidenceRecord {
+  return isRecord(value) && hasText(value.quote) && (value.page === null || (typeof value.page === "number" && Number.isFinite(value.page))) &&
+    hasNullableText(value.section) && hasText(value.spanId) && isProvenance(value.provenance) &&
+    (value.evidenceType === undefined || (EVIDENCE_TYPES as readonly unknown[]).includes(value.evidenceType)) &&
+    (rejectionReasonRequired ? hasText(value.rejectionReason) : value.rejectionReason === undefined || hasText(value.rejectionReason));
+}
+
+function evidenceRecordFor(record: MethodologyEvidenceRecord, sourceDocument: EvidenceMapSourceDocumentIdentity): Vm0007EvidenceMapDraftEvidenceRecord {
+  return {
+    quote: record.quote,
+    page: record.page,
+    section: record.section,
+    spanId: record.span,
+    ...(record.evidenceType !== undefined ? { evidenceType: record.evidenceType } : {}),
+    ...(record.rejectionReason !== undefined ? { rejectionReason: record.rejectionReason } : {}),
+    provenance: {
+      docId: sourceDocument.documentId,
+      page: record.page,
+      sectionPath: record.section ? [record.section] : [],
+      spanId: record.span,
+      sectionHeading: record.section,
+      sourceType: "PDD",
+    },
+  };
 }
 
 function isExplicitNotApplicableScopeBasis(reason: unknown): reason is string {
@@ -205,12 +256,20 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
       (row.rowVersion !== undefined && (typeof row.rowVersion !== "number" || !Number.isInteger(row.rowVersion) || row.rowVersion < 1)) ||
       (row.quote !== null && !hasText(row.quote)) || (row.page !== null && (typeof row.page !== "number" || !Number.isFinite(row.page))) ||
       !hasNullableText(row.section) || !hasNullableText(row.spanId) || (row.provenance !== null && !isProvenance(row.provenance)) ||
-      (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true))) return false;
+      (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true)) ||
+      (row.acceptedEvidence !== undefined && (!Array.isArray(row.acceptedEvidence) || row.acceptedEvidence.some((record) => !isEvidenceRecord(record, false)))) ||
+      (row.rejectedEvidence !== undefined && (!Array.isArray(row.rejectedEvidence) || row.rejectedEvidence.some((record) => !isEvidenceRecord(record, true)))) ||
+      (row.supportedComponents !== undefined && (!Array.isArray(row.supportedComponents) || row.supportedComponents.some((component) => !hasText(component)))) ||
+      (row.missingComponents !== undefined && (!Array.isArray(row.missingComponents) || row.missingComponents.some((component) => !hasText(component)))) ||
+      (row.reasonSelected !== undefined && !hasText(row.reasonSelected))) return false;
     rowIds.add(row.rowId);
     ruleIds.add(row.ruleReference);
     stableRuleIds.add(row.stableRuleId);
     if (row.sourceDocument.documentId !== value.sourceDocument.documentId || !row.searchCoverage.searchedDocumentIds.includes(value.sourceDocument.documentId)) return false;
     if (row.provenance && row.provenance.docId !== row.sourceDocument.documentId) return false;
+    const rowSourceDocumentId = row.sourceDocument.documentId;
+    if ([...(Array.isArray(row.acceptedEvidence) ? row.acceptedEvidence : []), ...(Array.isArray(row.rejectedEvidence) ? row.rejectedEvidence : [])]
+      .some((record) => !isRecord(record) || !isRecord(record.provenance) || record.provenance.docId !== rowSourceDocumentId)) return false;
   }
   if (value.finalizationState === "finalized" &&
       (!hasText(value.finalizedBy) || !hasText(value.finalizedAt) || !hasText(value.finalizationBasis) ||
@@ -274,6 +333,11 @@ export function buildVm0007EvidenceMapDraft(input: {
       proposedApplicability: mapped.proposedApplicability,
       proposedAcceptedEvidence: mapped.accepted,
       proposedRejectedEvidence: mapped.rejected,
+      ...(result.evidence !== undefined ? { acceptedEvidence: result.evidence.map((record) => evidenceRecordFor(record, sourceDocument)) } : {}),
+      ...(result.rejectedEvidence !== undefined ? { rejectedEvidence: result.rejectedEvidence.map((record) => evidenceRecordFor(record, sourceDocument)) } : {}),
+      ...(result.supportedComponents !== undefined ? { supportedComponents: result.supportedComponents } : {}),
+      ...(result.missingComponents !== undefined ? { missingComponents: result.missingComponents } : {}),
+      reasonSelected: result.reasonSelected,
       assessmentReason: result.assessmentReason,
       gap: result.gap,
       clientAction: result.clientAction,

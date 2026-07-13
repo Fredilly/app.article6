@@ -199,6 +199,8 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(result.status).not.toBe("supported_by_pdd");
     expect(result.bestEvidenceQuote).toBeNull();
     expect(result.rejectedEvidence?.[0]?.quote).toBe(text);
+    expect(result.rejectedEvidence?.[0]).not.toHaveProperty("supportedComponents");
+    expect(result.rejectedEvidence?.[0]).not.toHaveProperty("missingComponents");
   });
 
   it("produces useful Envira-like outputs across the main VM0007 categories", () => {
