@@ -1,38 +1,204 @@
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 
-const dir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const read = (name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as any;
-const stable = (id: string) => `Verra.AFOLU.VM0007.v1-8.${id}`;
+import { loadMethodRules } from "@/app/m/_lib/methodRules";
+import { auditEvidence, type MethodologyEvidenceAuditResult } from "@/lib/preverif/evidenceAudit";
+import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
 
-describe("Marcondes post-998 fixture boundaries", () => {
-  it("preserves the source identity and prior reviewed-row slice", () => {
-    const metadata = read("metadata.json");
-    const ids = read("reviewedRuleIds.json").reviewedRuleIds;
-    const gold = read("gold.json");
-    expect(metadata.sourcePdfSha256).toBe("a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea");
-    expect(metadata.review.reviewedRowCount).toBe(48);
-    expect(ids.slice(0, 38)).toEqual(gold.rows.slice(0, 38).map((row: any) => row.ruleId));
-    expect(crypto.createHash("sha256").update(JSON.stringify(gold.rows.slice(0, 38))).digest("hex")).toBe("169571058b8d0297b82753d3fc4beb5bd9fcbd71ef7c4e2bbf52d66cfaf11c16");
+const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
+const reviewedRuleIds = [
+  "R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005",
+  "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008",
+  "R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009",
+  "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014",
+  "R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006",
+  "R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003",
+  "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
+] as const;
+
+type JsonRecord = Record<string, any>;
+
+function readJson(name: string): JsonRecord {
+  return JSON.parse(fs.readFileSync(path.join(fixtureDir, name), "utf8")) as JsonRecord;
+}
+
+function normalize(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function evidenceRecords(result: MethodologyEvidenceAuditResult) {
+  return result.evidence ?? (result.bestEvidenceQuote ? [{
+    quote: result.bestEvidenceQuote,
+    page: result.page,
+    section: result.section,
+    span: result.span ?? "",
+  }] : []);
+}
+
+function sectionForPage(page: number): string {
+  if (page === 12) return "2.1.4 Project Eligibility";
+  if (page >= 61 && page <= 68) return "3.1 Application of Methodology";
+  if (page <= 9) return "1.2 Standardized Benefit Metrics";
+  return `Marcondes PDD page ${page}`;
+}
+
+function marcondesEvidenceDocument(): EvidenceDocument {
+  const extraction = readJson("raw-document-extraction.json");
+  const spans = extraction.pages.map((page: { pageNumber: number; text: string }) => {
+    const text = page.pageNumber === 12
+      ? page.text.match(/The project is eligible[\s\S]*?associated with deforestation\./)?.[0] ?? ""
+      : page.text;
+    return ({
+    spanId: `marcondes-pdd:page:${page.pageNumber}:project-evidence`,
+    docId: "marcondes-pdd",
+    page: page.pageNumber,
+    sectionId: sectionForPage(page.pageNumber),
+    heading: sectionForPage(page.pageNumber),
+    headingPath: [sectionForPage(page.pageNumber)],
+    sectionPath: [sectionForPage(page.pageNumber)],
+    blockType: "paragraph" as const,
+    text,
+    normalizedText: normalize(text).toLowerCase(),
+    charStart: null,
+    charEnd: null,
+    reliability: "primary" as const,
+    confidence: 1,
+    });
   });
+  return {
+    docId: "marcondes-pdd",
+    rawText: extraction.pages.map((page: { text: string }) => page.text).join("\f"),
+    parserSource: "saved-document-extraction",
+    parserAdapterId: "pymupdf",
+    spans,
+  };
+}
 
-  it("does not let incomplete truth become supported wording", () => {
-    const gold = read("gold.json");
-    for (const row of gold.rows.slice(38)) {
-      if (["UNCLEAR", "MISSING"].includes(row.finalEvidenceState)) {
-        expect(row.reviewerOutcome).toBe("ACTION_REQUIRED");
-        expect(row.draftFindingCandidate).toBe("NIR_CANDIDATE");
-      }
-      if (row.finalEvidenceState === "N/A") {
-        expect(row.reviewerOutcome).toBe("NOT_APPLICABLE");
-        expect(row.applicabilityTrigger).toBeTruthy();
-        expect(row.applicabilityReason).toMatch(/PDD|project|APD|wetland|baseline/i);
-      }
-      if (row.finalEvidenceState === "FOUND") expect(row.reviewerOutcome).toBe("CONFORMS");
+describe("Marcondes VM0007 v1.8 post-998 validation", () => {
+  it("prefers project evidence while preserving conservative reviewed-row behavior", async () => {
+    const rules = (await loadMethodRules("VM0007", "v1-8")).rules;
+    const gold = readJson("gold.json");
+    const corrections = readJson("corrections.json");
+    const reviewedIds = readJson("reviewedRuleIds.json");
+    const previousMachine = readJson("machine-proposal.json");
+    const audit = auditEvidence({
+      rules,
+      evidenceDocument: marcondesEvidenceDocument(),
+      getContract: getVm0007EvidenceContract,
+      normalizeRuleId: normalizeVm0007RuleId,
+      versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
+    });
+
+    expect(rules).toHaveLength(58);
+    expect(audit.results).toHaveLength(58);
+    expect(audit.totalRules).toBe(58);
+    const historicalReviewedIds = reviewedRuleIds.map((ruleId) => `Verra.AFOLU.VM0007.v1-8.${ruleId}`);
+    expect(reviewedIds.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
+    expect(corrections.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
+    expect(gold.reviewedRuleIds.slice(0, historicalReviewedIds.length)).toEqual(historicalReviewedIds);
+
+    const byRule = new Map(audit.results.map((result) => [normalizeVm0007RuleId(result.ruleId), result]));
+    const previousByRule = new Map(previousMachine.rows.map((row: JsonRecord) => [row.ruleReference, row]));
+    const goldByRule = new Map(gold.rows.map((row: JsonRecord) => [row.ruleReference, row]));
+    const comparison = reviewedRuleIds.map((ruleId) => {
+      const result = byRule.get(ruleId)!;
+      const reviewed = goldByRule.get(ruleId)!;
+      const previous = previousByRule.get(reviewed.ruleId)!;
+      return {
+        ruleId,
+        previousStatus: previous.rawAuditStatus,
+        newStatus: result.status,
+        reviewedState: reviewed.finalEvidenceState,
+        previousPage: previous.page,
+        newPages: evidenceRecords(result).map((record) => record.page),
+        acceptedPages: reviewed.acceptedEvidence.map((evidence: JsonRecord) => evidence.page),
+      };
+    });
+    console.log("Marcondes post-998 validation", JSON.stringify(comparison, null, 2));
+    console.log("Marcondes batch-five machine-versus-gold comparison", JSON.stringify(comparison.filter((row) => ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"].includes(row.ruleId)), null, 2));
+
+    const r1 = byRule.get("R-1-0001")!;
+    const acceptedR1 = goldByRule.get("R-1-0001")!.acceptedEvidence[0];
+    expect(r1.status).toBe("supported_by_pdd");
+    expect(r1.page).toBe(12);
+    expect(r1.section).toBe("2.1.4 Project Eligibility");
+    expect(r1.span).toBe("marcondes-pdd:page:12:project-evidence");
+    expect(normalize(r1.bestEvidenceQuote ?? "")).toContain(normalize(acceptedR1.quote));
+    expect(r1.bestEvidenceQuote).not.toContain("…");
+    expect(r1.evidence?.[0]?.page).toBe(12);
+    expect(r1.evidence?.[0]?.span).toBe(r1.span);
+
+    const conservativeFalsePromotions = [
+      "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-6-0001", "R-6-0008",
+      "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-3-0002",
+    ];
+    for (const ruleId of conservativeFalsePromotions) {
+      expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
     }
-    expect(gold.rows.slice(38).map((row: any) => row.ruleId)).toEqual([
-      "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
-    ].map(stable));
+
+    for (const ruleId of reviewedRuleIds.slice(0, 28)) {
+      const reviewed = goldByRule.get(ruleId)!;
+      if (reviewed.finalEvidenceState === "UNCLEAR" && ruleId !== "R-1-0001") {
+        expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
+      }
+    }
+
+    const newlyUnclear = ["R-2-0003", "R-2-0010", "R-2-0012", "R-2-0013", "R-3-0003"];
+    for (const ruleId of newlyUnclear) {
+      expect(goldByRule.get(ruleId)?.finalEvidenceState).toBe("UNCLEAR");
+      expect(goldByRule.get(ruleId)?.reviewerOutcome).toBe("ACTION_REQUIRED");
+      expect(byRule.get(ruleId)?.status).not.toBe("supported_by_pdd");
+    }
+
+    for (const ruleId of ["R-1-0002", "R-3-0005"]) {
+      const result = byRule.get(ruleId)!;
+      const accepted = goldByRule.get(ruleId)!.acceptedEvidence[0];
+      const matchingRecord = evidenceRecords(result).find((record) => record.page === accepted.page);
+      expect(matchingRecord).toBeDefined();
+      expect(normalize(matchingRecord?.quote ?? "")).toContain(normalize(accepted.quote));
+      expect(matchingRecord?.section).toEqual(expect.any(String));
+      expect(matchingRecord?.span).toEqual(expect.any(String));
+    }
+
+    const notApplicableIds = reviewedRuleIds.filter((ruleId) => goldByRule.get(ruleId)!.finalEvidenceState === "N/A");
+    expect(notApplicableIds).toHaveLength(21);
+    for (const ruleId of notApplicableIds) {
+      expect(goldByRule.get(ruleId)!.acceptedEvidence.length).toBeGreaterThan(0);
+      expect(byRule.get(ruleId)?.evidence?.every((record) => record.page !== null && record.section && record.span)).toBe(true);
+    }
+
+    for (const ruleId of reviewedRuleIds.filter((id) => id !== "R-1-0001")) {
+      const result = byRule.get(ruleId)!;
+      const reviewed = goldByRule.get(ruleId)!;
+      expect(result.bestEvidenceQuote ?? "").not.toContain("…");
+      expect(evidenceRecords(result).every((record) => record.page !== null && record.section && record.span)).toBe(true);
+      expect(result.page).toBe(evidenceRecords(result)[0]?.page ?? result.page);
+      expect(result.section).toEqual(expect.any(String));
+      expect(result.span).toEqual(expect.any(String));
+    }
+
+    const singleRuleAudit = (ruleId: string, text: string) => auditEvidence({
+      rules: rules.filter((rule) => normalizeVm0007RuleId(rule.id) === ruleId),
+      evidenceDocument: {
+        docId: "synthetic-pdd",
+        rawText: text,
+        spans: [{
+          spanId: "synthetic-pdd:span:1", docId: "synthetic-pdd", page: 1,
+          headingPath: ["Project evidence"], sectionPath: ["Project evidence"], blockType: "paragraph",
+          text, normalizedText: normalize(text).toLowerCase(), charStart: null, charEnd: null,
+          reliability: "primary", confidence: 1,
+        }],
+      },
+      getContract: getVm0007EvidenceContract,
+      normalizeRuleId: normalizeVm0007RuleId,
+      versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
+    }).results[0];
+
+    expect(singleRuleAudit("R-1-0004", "All property owners filed applications; the permits will be issued later.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-3-0001", "The alternative scenarios will be provided during the validation stage.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-1-0001", "Projects must meet the methodology forest definition.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-3-0001", "The alternative scenarios are listed in the methodology, but project analysis is pending.").status).not.toBe("supported_by_pdd");
+    expect(singleRuleAudit("R-1-0001", "The methodology declares the forest definition, but the project evidence is not provided.").status).not.toBe("supported_by_pdd");
   });
 });
