@@ -39,6 +39,14 @@ function makePackage(): Vm0007EvidenceMapDraftPackage {
   return { auditId, generatedAt: "2026-07-11T00:00:00.000Z", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "Version 1.8", sourceDocument: rows[0].sourceDocument, proposalState: "MACHINE_PROPOSED", rows, blockedBy: [], contractVersion: "vm0007-evidence-map-draft-v1" };
 }
 
+const richEvidenceRecord = {
+  quote: "Project-specific evidence.",
+  page: 1,
+  section: "Evidence",
+  spanId: "span-rich-1",
+  provenance: { docId: "doc-1", page: 1, sectionPath: ["Evidence"], spanId: "span-rich-1", sectionHeading: "Evidence", sourceType: "PDD" },
+};
+
 describe("VM0007 draft package storage validation", () => {
   beforeEach(() => localStorage.clear());
 
@@ -69,6 +77,29 @@ describe("VM0007 draft package storage validation", () => {
     expect(validateVm0007EvidenceMapDraftPackage(legacyPackage, legacyPackage.auditId)).toBe(true);
     expect(saveVm0007EvidenceMapDraft(legacyPackage)).toBe(true);
     expect(loadVm0007EvidenceMapDraft(legacyPackage.auditId)).not.toBeNull();
+  });
+
+  test("accepts rich accepted evidence without a rejection reason", () => {
+    const pkg = makePackage();
+    pkg.rows[0] = { ...pkg.rows[0], acceptedEvidence: [richEvidenceRecord] };
+
+    expect(pkg.rows[0].acceptedEvidence?.[0].rejectionReason).toBeUndefined();
+    expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(true);
+  });
+
+  test("accepts rich rejected evidence with a non-empty rejection reason", () => {
+    const pkg = makePackage();
+    pkg.rows[0] = { ...pkg.rows[0], rejectedEvidence: [{ ...richEvidenceRecord, rejectionReason: "Methodology boilerplate is not project evidence." }] };
+
+    expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(true);
+  });
+
+  test("rejects a rich rejected evidence record without a rejection reason", () => {
+    const pkg = makePackage();
+    pkg.rows[0] = { ...pkg.rows[0], rejectedEvidence: [richEvidenceRecord] };
+
+    expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(false);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(false);
   });
 
   test("allows supported and explicitly not-applicable rows with empty gaps", () => {

@@ -159,11 +159,11 @@ function isEvidence(value: unknown, rejected: boolean): boolean {
   return !rejected || hasText(value.reason);
 }
 
-function isEvidenceRecord(value: unknown): value is Vm0007EvidenceMapDraftEvidenceRecord {
+function isEvidenceRecord(value: unknown, rejectionReasonRequired: boolean): value is Vm0007EvidenceMapDraftEvidenceRecord {
   return isRecord(value) && hasText(value.quote) && (value.page === null || (typeof value.page === "number" && Number.isFinite(value.page))) &&
     hasNullableText(value.section) && hasText(value.spanId) && isProvenance(value.provenance) &&
     (value.evidenceType === undefined || (EVIDENCE_TYPES as readonly unknown[]).includes(value.evidenceType)) &&
-    (value.rejectionReason === undefined || hasText(value.rejectionReason)) &&
+    (rejectionReasonRequired ? hasText(value.rejectionReason) : value.rejectionReason === undefined || hasText(value.rejectionReason)) &&
     (value.supportedComponents === undefined || (Array.isArray(value.supportedComponents) && value.supportedComponents.every((component) => hasText(component)))) &&
     (value.missingComponents === undefined || (Array.isArray(value.missingComponents) && value.missingComponents.every((component) => hasText(component))));
 }
@@ -261,8 +261,8 @@ export function validateVm0007EvidenceMapDraftPackage(value: unknown, expectedAu
       (row.quote !== null && !hasText(row.quote)) || (row.page !== null && (typeof row.page !== "number" || !Number.isFinite(row.page))) ||
       !hasNullableText(row.section) || !hasNullableText(row.spanId) || (row.provenance !== null && !isProvenance(row.provenance)) ||
       (row.proposedAcceptedEvidence !== null && !isEvidence(row.proposedAcceptedEvidence, false)) || (row.proposedRejectedEvidence !== null && !isEvidence(row.proposedRejectedEvidence, true)) ||
-      (row.acceptedEvidence !== undefined && (!Array.isArray(row.acceptedEvidence) || row.acceptedEvidence.some((record) => !isEvidenceRecord(record)))) ||
-      (row.rejectedEvidence !== undefined && (!Array.isArray(row.rejectedEvidence) || row.rejectedEvidence.some((record) => !isEvidenceRecord(record)))) ||
+      (row.acceptedEvidence !== undefined && (!Array.isArray(row.acceptedEvidence) || row.acceptedEvidence.some((record) => !isEvidenceRecord(record, false)))) ||
+      (row.rejectedEvidence !== undefined && (!Array.isArray(row.rejectedEvidence) || row.rejectedEvidence.some((record) => !isEvidenceRecord(record, true)))) ||
       (row.reasonSelected !== undefined && !hasText(row.reasonSelected))) return false;
     rowIds.add(row.rowId);
     ruleIds.add(row.ruleReference);
