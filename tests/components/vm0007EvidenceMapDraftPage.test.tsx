@@ -122,4 +122,67 @@ describe("VM0007 Evidence Map review workspace", () => {
     expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore(); act(() => root.unmount());
   });
+
+  test("reopens a finalized row with a required note while preserving evidence truth and review history", async () => {
+    const auditId = "ui-finalized-reopen";
+    const finalizedAt = "2026-07-11T03:00:00.000Z";
+    const rows = makeRows(auditId).map((row) => ({
+      ...row,
+      finalizationState: "finalized" as const,
+      finalizationActorRef: "reviewer:local",
+      finalizedAt,
+      finalizationBasis: "Reviewer-approved Evidence Map finalization.",
+    }));
+    rows[0] = {
+      ...rows[0],
+      reviewState: "approved",
+      reviewHistoryRef: `${auditId}:${rows[0].rowId}:history:2`,
+      reviewHistory: [
+        { reviewerIdentity: "reviewer:local", timestamp: "2026-07-11T01:00:00.000Z", reasonOrNote: "Canonical assessment completed.", previousState: "pending review", newState: "edited", presentationContractVersion: "v1", reviewPolicyVersion: "policy-v1" },
+        { reviewerIdentity: "reviewer:local", timestamp: "2026-07-11T02:00:00.000Z", reasonOrNote: "Evidence and assessment approved.", previousState: "edited", newState: "approved", presentationContractVersion: "v1", reviewPolicyVersion: "policy-v1" },
+      ],
+      assessment: { evidenceMapRowId: rows[0].rowId, rowVersion: 1, applicability: { decision: "APPLICABLE", decisionBasis: "The requirement applies to the project." }, conformance: { requirementSupport: "SUPPORTED", searchCoverageAssessment: "ADEQUATE", provenanceAssessment: "COMPLETE", versionIdentityAssessment: "MATCHED", contradictionAssessment: "NONE" }, draftFinding: { draftFindingType: null, findingBasis: null, reviewerAssessment: null }, reviewState: "CURRENT" },
+    };
+    expect(saveVm0007EvidenceMapDraft({ auditId, generatedAt: "2026-07-11T00:00:00.000Z", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8", sourceDocument: rows[0].sourceDocument, proposalState: "MACHINE_PROPOSED", rows, blockedBy: [], contractVersion: "vm0007-evidence-map-draft-v1", finalizationState: "finalized", finalizedBy: "reviewer:local", finalizedAt, finalizationBasis: "Reviewer-approved Evidence Map finalization." } as Vm0007EvidenceMapDraftPackage)).toBe(true);
+    const truthBefore = loadVm0007EvidenceMapDraft(auditId)?.rows[0];
+
+    const { container, root } = await renderPage(auditId);
+    click(container.querySelector(`[data-evidence-map-row="${auditId}:R-1"] > button`));
+    expect(container.textContent).toContain("Latest review activity");
+    expect(container.textContent).not.toContain("Review history");
+    expect(container.textContent).toContain("2 event(s) · last by reviewer:local");
+    expect(container.textContent).toContain("Evidence and assessment approved.");
+    click(Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "View review decision") ?? null);
+
+    const dialog = document.querySelector('[role="dialog"]');
+    expect(dialog).not.toBeNull();
+    expect(Array.from(dialog?.querySelectorAll("select, input") ?? []).every((field) => (field as HTMLInputElement | HTMLSelectElement).disabled)).toBe(true);
+    expect(dialog?.querySelector<HTMLTextAreaElement>('textarea:not([placeholder])')?.disabled).toBe(true);
+    expect(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Save reviewer decision")?.hasAttribute("disabled")).toBe(true);
+    expect(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Approve row")?.hasAttribute("disabled")).toBe(true);
+    const note = dialog?.querySelector<HTMLTextAreaElement>('textarea[placeholder="Why are you making this decision?"]') ?? null;
+    expect(note?.disabled).toBe(false);
+
+    click(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Reopen") ?? null);
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(document.querySelector('[role="alert"]')?.textContent).toContain("Add a review note");
+    expect(loadVm0007EvidenceMapDraft(auditId)?.finalizationState).toBe("finalized");
+    expect(loadVm0007EvidenceMapDraft(auditId)?.rows[0].reviewHistory).toHaveLength(2);
+
+    change(note, "Reopening to review newly supplied context.");
+    click(Array.from(document.querySelectorAll('[role="dialog"] button')).find((button) => button.textContent === "Reopen") ?? null);
+    const reopened = loadVm0007EvidenceMapDraft(auditId);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    expect(reopened?.finalizationState).toBe("draft");
+    expect(reopened?.rows[0].finalizationState).toBe("draft");
+    expect(reopened?.rows[0].reviewState).toBe("reopened");
+    expect(reopened?.rows[0].reviewHistory).toHaveLength(3);
+    expect(reopened?.rows[0].reviewHistory?.at(-1)).toEqual(expect.objectContaining({ previousState: "approved", newState: "reopened", reasonOrNote: "Reopening to review newly supplied context." }));
+    expect(container.textContent).toContain(`Row ${auditId}:R-1 is now reopened.`);
+    expect(container.textContent).toContain("Latest review activity");
+    expect(container.textContent).toContain("3 event(s) · last by reviewer:local");
+    expect(container.textContent).toContain("Reopening to review newly supplied context.");
+    expect({ status: reopened?.rows[0].rawAuditStatus, confidence: reopened?.rows[0].confidence, applicability: reopened?.rows[0].proposedApplicability, accepted: reopened?.rows[0].acceptedEvidence, rejected: reopened?.rows[0].rejectedEvidence }).toEqual({ status: truthBefore?.rawAuditStatus, confidence: truthBefore?.confidence, applicability: truthBefore?.proposedApplicability, accepted: truthBefore?.acceptedEvidence, rejected: truthBefore?.rejectedEvidence });
+    act(() => root.unmount());
+  });
 });
