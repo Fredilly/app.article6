@@ -35,6 +35,8 @@ The post-998 runtime test continues to regenerate all 58 rules and now pins the 
 
 Batch-five methodology pages now use the authoritative `section_context.page_start` values: 21, 27, 25, 23, 16, 31, 31, 34, 36, and 38 in batch order. Stored sections include the authoritative section titles. Machine status disagreement is normalized explicitly (`partially_supported` → `UNCLEAR`, `supported_by_pdd` → `FOUND`, and so on), so equivalent machine/gold evidence states are not mislabeled as disagreements.
 
+The status normalization exhaustively covers every real `EvidenceAuditStatus`; nonexistent status names are not used.
+
 ## Production improvement candidate
 
 - Pattern: generic methodology boilerplate or stitched page-level text is repeatedly selected as project evidence, and module naming is treated as proof of complete implementation or calculation.

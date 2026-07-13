@@ -40,12 +40,24 @@ function normalize(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function machineStatusToEvidenceState(status: string): string {
-  if (status === "supported_by_pdd") return "FOUND";
-  if (status === "partially_supported") return "UNCLEAR";
-  if (status === "not_applicable") return "N/A";
-  if (status === "not_supported" || status === "unsupported_by_pdd") return "MISSING";
-  return status;
+function machineStatusToEvidenceState(
+  status: MethodologyEvidenceAuditResult["status"],
+): "FOUND" | "UNCLEAR" | "MISSING" | "N/A" {
+  switch (status) {
+    case "supported_by_pdd":
+      return "FOUND";
+    case "partially_supported":
+    case "manual_review_needed":
+      return "UNCLEAR";
+    case "missing_evidence":
+      return "MISSING";
+    case "not_applicable":
+      return "N/A";
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
 }
 
 function evidenceRecords(result: MethodologyEvidenceAuditResult) {
@@ -97,6 +109,17 @@ function marcondesEvidenceDocument(): EvidenceDocument {
 }
 
 describe("Marcondes VM0007 v1.8 post-998 validation", () => {
+  it("maps every real evidence-audit status to its gold evidence state", () => {
+    const mappings: Array<[MethodologyEvidenceAuditResult["status"], "FOUND" | "UNCLEAR" | "MISSING" | "N/A"]> = [
+      ["supported_by_pdd", "FOUND"],
+      ["partially_supported", "UNCLEAR"],
+      ["manual_review_needed", "UNCLEAR"],
+      ["missing_evidence", "MISSING"],
+      ["not_applicable", "N/A"],
+    ];
+    expect(mappings.map(([status]) => [status, machineStatusToEvidenceState(status)])).toEqual(mappings);
+  });
+
   it("prefers project evidence while preserving conservative reviewed-row behavior", async () => {
     const rules = (await loadMethodRules("VM0007", "v1-8")).rules;
     const gold = readJson("gold.json");
