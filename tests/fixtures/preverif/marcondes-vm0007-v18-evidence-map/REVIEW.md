@@ -1,14 +1,51 @@
 # Marcondes REDD+ VM0007 v1.8 Evidence Map truth intake
 
-- Reviewed rows: 38 of 58
-- Remaining rows: 20, unreviewed and NOT_ASSESSED
-- Corrected evidence states: FOUND 5, UNCLEAR 16, MISSING 0, N/A 17
-- Reviewer outcomes: CONFORMS 5, ACTION_REQUIRED 16, NOT_APPLICABLE 17, NOT_ASSESSED 20
-- Draft findings: NIR_CANDIDATE 16, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
+- Reviewed rows: 48 of 58
+- Remaining rows: 10, unreviewed and NOT_ASSESSED
+- Corrected evidence states: FOUND 6, UNCLEAR 19, MISSING 2, N/A 21
+- Reviewer outcomes: CONFORMS 6, ACTION_REQUIRED 21, NOT_APPLICABLE 21, NOT_ASSESSED 10
+- Draft findings: NIR_CANDIDATE 21, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for reviewed N/A and remaining rows
 - Gold promotion: BLOCKED_PENDING_REVIEW_COVERAGE
 - Report release state: BLOCKED_PENDING_REVIEW_COVERAGE
 
-## First-review truth intake: next 10
+## First-review truth intake: rules 39–48
+
+The exact reviewed batch, in order, is R-3-0004, R-3-0007, R-3-0008, R-4-0001, R-4-0002, R-5-0001, R-5-0002, R-5-0003, R-5-0004, and R-5-0005. The prior 38 gold rows and IDs were preserved; no other rule was promoted.
+
+Decisions and evidence basis:
+
+- R-3-0004 — UNCLEAR/ACTION_REQUIRED. Pages 62 and 66 list VT0001 and a stepwise baseline/additionality process, but do not identify the selected investment-analysis option or its cost, IRR/NPV, or benchmark evidence.
+- R-3-0007 — UNCLEAR/ACTION_REQUIRED. Page 68 defers the relevant quantification/monitoring information to validation; no reassessment frequency or next scheduled revision is provided.
+- R-3-0008 — N/A/NOT_APPLICABLE. Page 62 identifies MapBiomas/PRODES project data, not a qualifying VCS JNR jurisdictional baseline.
+- R-4-0001 — FOUND/CONFORMS. Pages 62 and 66 establish the VT0001 v3.0 tool and the project’s stepwise additionality procedure for the non-tidal APD activity.
+- R-4-0002 — N/A/NOT_APPLICABLE. Pages 12 and 62 establish APD scope and state that no peat soils or tidal wetlands are present; the tidal-wetland ADD-AM pathway is not triggered.
+- R-5-0001 — MISSING/ACTION_REQUIRED. Page 68 defers quantification; no complete REDD baseline/project/leakage equation or calculation is present.
+- R-5-0002 — N/A/NOT_APPLICABLE. Pages 12 and 62 establish APD scope and no peat/tidal wetlands, so the WRC equation is not applicable.
+- R-5-0003 — UNCLEAR/ACTION_REQUIRED. Pages 61, 64, and 65 identify LK-ASP and market-leakage context, but not the complete pathway, significance, and calculation evidence required by §8.3.
+- R-5-0004 — N/A/NOT_APPLICABLE. Pages 12 and 62 establish that the WRC-specific wetland leakage pathway is absent.
+- R-5-0005 — MISSING/ACTION_REQUIRED. Page 68 defers quantification; no T-BAR percentage, baseline/project inputs, or buffer contribution calculation is present.
+
+The source document SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea`. Accepted quotes are verbatim from `raw-document-extraction.json`, with manual page/section/span provenance. The machine’s generic stitched proposal evidence was rejected for every new row. The project is APD REDD; no external VVB validation or certification is claimed.
+
+Gold promotion and report release remain blocked. Gold coverage is now 48/58; 10 rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` is unchanged.
+
+The batch-five `officialRequirementQuote` fields were corrected to the exact verbatim `source_span_text` wording from the authoritative VM0007 v1.8 rule records. Citation suffixes, rule-title summaries, and synthesized interpretations remain in traceability summaries rather than official quotes. Batch-five quote integrity is tested against the authoritative rule records, including methodology/version/section/page traceability and manual project-evidence provenance.
+
+The post-998 runtime test continues to regenerate all 58 rules and now pins the batch-five machine baseline: all ten currently return `partially_supported`, with the selected page sets and gold states recorded in the test. The test intentionally records the current machine-versus-gold disagreements without requiring the known production retrieval behavior to match gold. No gold state or outcome changed.
+
+Batch-five methodology pages now use the authoritative `section_context.page_start` values: 21, 27, 25, 23, 16, 31, 31, 34, 36, and 38 in batch order. Stored sections include the authoritative section titles. Machine status disagreement is normalized explicitly (`partially_supported` → `UNCLEAR`, `supported_by_pdd` → `FOUND`, and so on), so equivalent machine/gold evidence states are not mislabeled as disagreements.
+
+The status normalization exhaustively covers every real `EvidenceAuditStatus`; nonexistent status names are not used.
+
+## Production improvement candidate
+
+- Pattern: generic methodology boilerplate or stitched page-level text is repeatedly selected as project evidence, and module naming is treated as proof of complete implementation or calculation.
+- Affected rules: R-3-0004, R-3-0007, R-3-0008, R-4-0001, R-4-0002, R-5-0001, R-5-0002, R-5-0003, R-5-0004, R-5-0005.
+- Current machine behavior: the same unrelated truncated baseline/additionality or methodology-application quote is proposed for all ten rows.
+- Safer generic behavior: resolve applicability first, require project-specific evidence for every mandatory component, reject truncated/stitched quotes, and treat module/tool declarations as scope evidence rather than proof of calculations or decisions.
+- Separate production PR required: YES.
+
+## Previous review history
 
 The next reviewed rows are exactly R-2-0003, R-2-0004, R-2-0009, R-2-0010, R-2-0011, R-2-0012, R-2-0013, R-2-0014, R-2-0015, and R-3-0003. R-2-0004 is N/A because reference regions are the AUDef pathway; Marcondes is APD using BL-PL. R-2-0009, R-2-0011, and R-2-0015 independently resolve WRC applicability as N/A from the APD classification and the project statement that no peat soils or tidal wetlands are present. R-2-0014 is FOUND/CONFORMS with a consistent 40-year period from 01 May 2023 through 30 April 2063. R-2-0003, R-2-0010, R-2-0012, R-2-0013, and R-3-0003 remain UNCLEAR/ACTION_REQUIRED because declarations or module references do not supply every mandatory project-specific component.
 

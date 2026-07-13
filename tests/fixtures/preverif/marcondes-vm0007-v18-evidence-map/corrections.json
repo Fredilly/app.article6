@@ -38,7 +38,17 @@
     "Verra.AFOLU.VM0007.v1-8.R-2-0013",
     "Verra.AFOLU.VM0007.v1-8.R-2-0014",
     "Verra.AFOLU.VM0007.v1-8.R-2-0015",
-    "Verra.AFOLU.VM0007.v1-8.R-3-0003"
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005"
   ],
   "acceptedEvidence": [
     {
@@ -1556,6 +1566,380 @@
           "provenanceKind": "manual"
         }
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "quote": "Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS-AFOLU Project Activities",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-3-0004",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-3-0004",
+          "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "quote": "The determination of the baseline scenario and additionality follows the stepwise procedures outlined in the applicable methodology.",
+        "page": 66,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-66:r-r-3-0004",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 66,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-66:r-r-3-0004",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2 Quantification of Estimated GHG Emission Reductions and Removals",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-3-0007",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-3-0007",
+          "sectionHeading": "3.2 Quantification of Estimated GHG Emission Reductions and Removals",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "quote": "MapBiomas Collection 10 and\nPRODES/INPE data confirm continuous forest cover for all 36 properties throughout\nthe historical reference period (2013–\n2023). Annual LULC maps demonstrate\nDense Ombrophilous Forest classification\nwithout interruption.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-3-0008",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-3-0008",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+        "quote": "Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS-AFOLU Project Activities",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-4-0001",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-4-0001",
+          "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+        "quote": "The determination of the baseline scenario and additionality follows the stepwise procedures outlined in the applicable methodology.",
+        "page": 66,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-66:r-r-4-0001",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 66,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-66:r-r-4-0001",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 3.1 Application of Methodology > 2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-4-0002",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:r-r-4-0002",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-4-0002",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-4-0002",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2.1 Baseline Emissions (VCS, 3.15)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-5-0001",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-5-0001",
+          "sectionHeading": "3.2.1 Baseline Emissions (VCS, 3.15)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 3.1 Application of Methodology > 2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-5-0002",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:r-r-5-0002",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-5-0002",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-5-0002",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "quote": "Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation/forest degradation and avoiding planned wetland degradation (LK-ASP) 1.3",
+        "page": 61,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > Table 30. Methodologies, modules, and tools applied",
+        "spanId": "manual:marcondes-pdd:page-61:r-r-5-0003",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 61,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-61:r-r-5-0003",
+          "sectionHeading": "Table 30. Methodologies, modules, and tools applied",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "quote": "The module is mandatory if the BL-PL Module is used to define the baseline, and the applicability conditions in the BL-PL Module must be met in full.",
+        "page": 64,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-64:r-r-5-0003",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 64,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-64:r-r-5-0003",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "quote": "The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas.",
+        "page": 65,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-65:r-r-5-0003",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 65,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-65:r-r-5-0003",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "quote": "Project activity type Avoiding Planned Deforestation (APD)",
+        "page": 12,
+        "section": "2 PROJECT DETAILS > 3.1 Application of Methodology > 2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+        "spanId": "manual:marcondes-pdd:page-12:r-r-5-0004",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 12,
+          "sectionPath": [
+            "2 PROJECT DETAILS",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-12:r-r-5-0004",
+          "sectionHeading": "2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "quote": "There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area.",
+        "page": 62,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+        "spanId": "manual:marcondes-pdd:page-62:r-r-5-0004",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 62,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-62:r-r-5-0004",
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31. Applicability conditions and justification of conformance",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+        "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
+        "page": 68,
+        "section": "3 CLIMATE > 3.1 Application of Methodology > 3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+        "spanId": "manual:marcondes-pdd:page-68:r-r-5-0005",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "page": 68,
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-68:r-r-5-0005",
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        }
+      }
     }
   ],
   "rejectedEvidence": [
@@ -2356,6 +2740,216 @@
         },
         "rejectionReason": "generic-text false support; wrong page or section; incomplete provenance; assessment too strong"
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0004-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0004-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0007-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0007-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0008-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-3-0008-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-4-0001-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-4-0001-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-4-0002-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-4-0002-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0001-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0001-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0002-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0002-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0003-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0003-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0004-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0004-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "evidence": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+        "quote": "demonstration of additionality for an eligibility area shall: • be based on the initial project activity instances. • apply across the entire eligibility area. The determination of the baseline scenario and demonstration of additionality fo…",
+        "section": "Application of Methodology",
+        "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0005-rejected",
+        "provenance": {
+          "docId": "quick-check-review-question",
+          "sectionPath": [
+            "3 CLIMATE",
+            "3.1 Application of Methodology"
+          ],
+          "spanId": "manual:marcondes-pdd:page-undefined:r-r-5-0005-rejected",
+          "sectionHeading": "Application of Methodology",
+          "sourceType": "PDD",
+          "provenanceKind": "manual"
+        },
+        "rejectionReason": "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence"
+      }
     }
   ],
   "reviewerCorrections": [
@@ -2631,6 +3225,76 @@
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
         "correction": "The accepted assertion identifies a stepwise additionality process but does not identify the selected barrier path, barrier categories, supporting evidence, or differential effect on alternatives required by VM0007/VT0001; UNCLEAR/ACTION_REQUIRED remains."
       }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "correction": "The PDD identifies VT0001 and a stepwise process, but it does not identify the selected investment-analysis option or provide the option-specific cost, IRR/NPV, or benchmark evidence required to select the baseline."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "correction": "The PDD defers the relevant climate/monitoring detail to validation and provides no project-specific reassessment frequency, next revision date, or treatment of changing deforestation drivers."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "correction": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+        "correction": "The project is APD rather than tidal-wetland restoration, and the PDD lists VT0001 v3.0 and states that baseline/additionality follows the applicable methodology’s stepwise procedure. This satisfies the rule’s tool-use requirement; it does not establish every separate VT0001 judgment."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "correction": "The PDD identifies an APD project and expressly states that no tidal wetlands are present; the tidal-wetland ADD-AM pathway is absent."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+        "correction": "The project is REDD/APD, so the equation applies, but the PDD defers quantification to validation and contains no project calculation or complete component evidence."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "correction": "The project is classified as APD and the PDD states that no peat soils or tidal wetlands are present; the WRC equation is not applicable."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "correction": "The PDD lists LK-ASP and describes possible market-effects leakage, but it does not provide the complete pathway-by-pathway applicability decision, significance determination, or leakage calculations required by §8.3."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "correction": "The PDD identifies APD and no peat soils or tidal wetlands, so the WRC-specific ecological leakage component is not triggered."
+      }
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "correction": {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+        "correction": "The PDD defers the quantification sections to validation and contains no buffer percentage, T-BAR risk classification, baseline/project inputs, or contribution calculation."
+      }
     }
   ],
   "finalTruth": [
@@ -2833,6 +3497,66 @@
       "reviewerOutcome": "NOT_APPLICABLE",
       "clientAction": "Retain the APD classification, VMD0006/BL-PL selection, and no-peat/no-tidal project evidence; WRC baseline modules BL-PEAT and BL-TW are not applicable unless peatland or tidal-wetland WRC scope is added.",
       "draftFindingCandidate": null
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "The PDD identifies VT0001 and a stepwise process, but it does not identify the selected investment-analysis option or provide the option-specific cost, IRR/NPV, or benchmark evidence required to select the baseline."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "The PDD defers the relevant climate/monitoring detail to validation and provides no project-specific reassessment frequency, next revision date, or treatment of changing deforestation drivers."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "rationale": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "finalEvidenceState": "FOUND",
+      "reviewerOutcome": "CONFORMS",
+      "rationale": "The project is APD rather than tidal-wetland restoration, and the PDD lists VT0001 v3.0 and states that baseline/additionality follows the applicable methodology’s stepwise procedure. This satisfies the rule’s tool-use requirement; it does not establish every separate VT0001 judgment."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "rationale": "The PDD identifies an APD project and expressly states that no tidal wetlands are present; the tidal-wetland ADD-AM pathway is absent."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "The project is REDD/APD, so the equation applies, but the PDD defers quantification to validation and contains no project calculation or complete component evidence."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "rationale": "The project is classified as APD and the PDD states that no peat soils or tidal wetlands are present; the WRC equation is not applicable."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "finalEvidenceState": "UNCLEAR",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "The PDD lists LK-ASP and describes possible market-effects leakage, but it does not provide the complete pathway-by-pathway applicability decision, significance determination, or leakage calculations required by §8.3."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+      "finalEvidenceState": "N/A",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "rationale": "The PDD identifies APD and no peat soils or tidal wetlands, so the WRC-specific ecological leakage component is not triggered."
+    },
+    {
+      "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "finalEvidenceState": "MISSING",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "rationale": "The PDD defers the quantification sections to validation and contains no buffer percentage, T-BAR risk classification, baseline/project inputs, or contribution calculation."
     }
   ],
   "unreviewedRowsRemainMachineProposed": true

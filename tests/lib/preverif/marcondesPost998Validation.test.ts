@@ -14,6 +14,20 @@ const reviewedRuleIds = [
   "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014",
   "R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006",
   "R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003",
+  "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
+] as const;
+
+const batchFiveBaseline = [
+  { ruleId: "R-3-0004", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-3-0007", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-3-0008", machineStatus: "partially_supported", selectedPages: [66, 65, 63], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-4-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62], goldState: "FOUND", statusDisagreesWithGold: true },
+  { ruleId: "R-4-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 62, 63, 61], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61, 12, 11], goldState: "MISSING", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0003", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61], goldState: "UNCLEAR", statusDisagreesWithGold: false },
+  { ruleId: "R-5-0004", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61, 62, 11], goldState: "N/A", statusDisagreesWithGold: true },
+  { ruleId: "R-5-0005", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "MISSING", statusDisagreesWithGold: true },
 ] as const;
 
 type JsonRecord = Record<string, any>;
@@ -24,6 +38,26 @@ function readJson(name: string): JsonRecord {
 
 function normalize(value: string): string {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function machineStatusToEvidenceState(
+  status: MethodologyEvidenceAuditResult["status"],
+): "FOUND" | "UNCLEAR" | "MISSING" | "N/A" {
+  switch (status) {
+    case "supported_by_pdd":
+      return "FOUND";
+    case "partially_supported":
+    case "manual_review_needed":
+      return "UNCLEAR";
+    case "missing_evidence":
+      return "MISSING";
+    case "not_applicable":
+      return "N/A";
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
 }
 
 function evidenceRecords(result: MethodologyEvidenceAuditResult) {
@@ -75,6 +109,17 @@ function marcondesEvidenceDocument(): EvidenceDocument {
 }
 
 describe("Marcondes VM0007 v1.8 post-998 validation", () => {
+  it("maps every real evidence-audit status to its gold evidence state", () => {
+    const mappings: Array<[MethodologyEvidenceAuditResult["status"], "FOUND" | "UNCLEAR" | "MISSING" | "N/A"]> = [
+      ["supported_by_pdd", "FOUND"],
+      ["partially_supported", "UNCLEAR"],
+      ["manual_review_needed", "UNCLEAR"],
+      ["missing_evidence", "MISSING"],
+      ["not_applicable", "N/A"],
+    ];
+    expect(mappings.map(([status]) => [status, machineStatusToEvidenceState(status)])).toEqual(mappings);
+  });
+
   it("prefers project evidence while preserving conservative reviewed-row behavior", async () => {
     const rules = (await loadMethodRules("VM0007", "v1-8")).rules;
     const gold = readJson("gold.json");
@@ -115,6 +160,14 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
       };
     });
     console.log("Marcondes post-998 validation", JSON.stringify(comparison, null, 2));
+    console.log("Marcondes batch-five machine-versus-gold comparison", JSON.stringify(comparison.filter((row) => ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"].includes(row.ruleId)), null, 2));
+    expect(comparison.filter((row) => batchFiveBaseline.some((expected) => expected.ruleId === row.ruleId)).map((row) => ({
+      ruleId: row.ruleId,
+      machineStatus: row.newStatus,
+      selectedPages: row.newPages,
+      goldState: row.reviewedState,
+      statusDisagreesWithGold: machineStatusToEvidenceState(row.newStatus) !== row.reviewedState,
+    }))).toEqual(batchFiveBaseline);
 
     const r1 = byRule.get("R-1-0001")!;
     const acceptedR1 = goldByRule.get("R-1-0001")!.acceptedEvidence[0];
@@ -160,7 +213,7 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     }
 
     const notApplicableIds = reviewedRuleIds.filter((ruleId) => goldByRule.get(ruleId)!.finalEvidenceState === "N/A");
-    expect(notApplicableIds).toHaveLength(17);
+    expect(notApplicableIds).toHaveLength(21);
     for (const ruleId of notApplicableIds) {
       expect(goldByRule.get(ruleId)!.acceptedEvidence.length).toBeGreaterThan(0);
       expect(byRule.get(ruleId)?.evidence?.every((record) => record.page !== null && record.section && record.span)).toBe(true);
