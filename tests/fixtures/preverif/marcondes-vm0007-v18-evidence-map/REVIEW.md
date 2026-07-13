@@ -29,6 +29,10 @@ The source document SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ea
 
 Gold promotion and report release remain blocked. Gold coverage is now 48/58; 10 rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` is unchanged.
 
+The batch-five `officialRequirementQuote` fields were corrected to the exact verbatim `source_span_text` wording from the authoritative VM0007 v1.8 rule records. Citation suffixes, rule-title summaries, and synthesized interpretations remain in traceability summaries rather than official quotes. Batch-five quote integrity is tested against the authoritative rule records, including methodology/version/section/page traceability and manual project-evidence provenance.
+
+The post-998 runtime test continues to regenerate all 58 rules and now pins the batch-five machine baseline: all ten currently return `partially_supported`, with the selected page sets and gold states recorded in the test. The test intentionally records the current machine-versus-gold disagreements without requiring the known production retrieval behavior to match gold. No gold state or outcome changed.
+
 ## Production improvement candidate
 
 - Pattern: generic methodology boilerplate or stitched page-level text is repeatedly selected as project evidence, and module naming is treated as proof of complete implementation or calculation.

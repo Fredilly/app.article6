@@ -17,6 +17,19 @@ const reviewedRuleIds = [
   "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
 ] as const;
 
+const batchFiveBaseline = [
+  { ruleId: "R-3-0004", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", disagreesWithGold: true },
+  { ruleId: "R-3-0007", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 61, 62], goldState: "UNCLEAR", disagreesWithGold: true },
+  { ruleId: "R-3-0008", machineStatus: "partially_supported", selectedPages: [66, 65, 63], goldState: "N/A", disagreesWithGold: true },
+  { ruleId: "R-4-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62], goldState: "FOUND", disagreesWithGold: true },
+  { ruleId: "R-4-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 62, 63, 61], goldState: "N/A", disagreesWithGold: true },
+  { ruleId: "R-5-0001", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61, 12, 11], goldState: "MISSING", disagreesWithGold: true },
+  { ruleId: "R-5-0002", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "N/A", disagreesWithGold: true },
+  { ruleId: "R-5-0003", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61], goldState: "UNCLEAR", disagreesWithGold: true },
+  { ruleId: "R-5-0004", machineStatus: "partially_supported", selectedPages: [65, 66, 63, 61, 62, 11], goldState: "N/A", disagreesWithGold: true },
+  { ruleId: "R-5-0005", machineStatus: "partially_supported", selectedPages: [66, 65, 63, 62, 61], goldState: "MISSING", disagreesWithGold: true },
+] as const;
+
 type JsonRecord = Record<string, any>;
 
 function readJson(name: string): JsonRecord {
@@ -117,6 +130,13 @@ describe("Marcondes VM0007 v1.8 post-998 validation", () => {
     });
     console.log("Marcondes post-998 validation", JSON.stringify(comparison, null, 2));
     console.log("Marcondes batch-five machine-versus-gold comparison", JSON.stringify(comparison.filter((row) => ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"].includes(row.ruleId)), null, 2));
+    expect(comparison.filter((row) => batchFiveBaseline.some((expected) => expected.ruleId === row.ruleId)).map((row) => ({
+      ruleId: row.ruleId,
+      machineStatus: row.newStatus,
+      selectedPages: row.newPages,
+      goldState: row.reviewedState,
+      disagreesWithGold: row.newStatus !== (row.reviewedState === "FOUND" ? "supported_by_pdd" : "not_applicable"),
+    }))).toEqual(batchFiveBaseline);
 
     const r1 = byRule.get("R-1-0001")!;
     const acceptedR1 = goldByRule.get("R-1-0001")!.acceptedEvidence[0];

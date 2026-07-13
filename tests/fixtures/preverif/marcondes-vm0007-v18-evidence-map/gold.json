@@ -4339,7 +4339,7 @@
         "version": "v1.8",
         "section": "VM0007 §6.2; VT0001 v3.0 investment analysis",
         "methodologyPage": 29,
-        "officialRequirementQuote": "Investment-analysis baseline selection requires the applicable VT0001 investment-analysis option and its complete selection criterion. VM0007 v1.8 §6.2 / VT0001 v3.0.",
+        "officialRequirementQuote": "Step 2b: Where the VT0001 investment analysis is used to demonstrate additionality, and if at least one land use scenario generates financial benefits other than carbon revenues, select the baseline scenario as below:\n\n1) Where VT0001 Option I is used, the baseline scenario is the land use scenario with the lowest costs over the crediting period). Option I may only be applied if the alternative scenarios do not include revenues.",
         "components": [
           [
             "VM0007 v1.8",
@@ -4485,7 +4485,7 @@
         "version": "v1.8",
         "section": "VM0007 §6.2 Baseline reassessment",
         "methodologyPage": 29,
-        "officialRequirementQuote": "The project baseline must be revised at the frequency set out in the latest VCS Standard, with the next scheduled revision specified. VM0007 v1.8 §6.2.",
+        "officialRequirementQuote": "6.2 Re-assessing the Baseline Scenario\n\nThe project baseline must be revised at the frequency set out in the latest version of the VCS Standard.\n\nThe date of the next scheduled revision must be specified. The starting point for the baseline revision of the project will be the forest cover projected to exist at the end of the baseline period. Projections for each baseline revision will be subject to independent validation as set out in the latest version of the VCS Standard.",
         "components": [
           [
             "VM0007 v1.8",
@@ -4631,7 +4631,7 @@
         "version": "v1.8",
         "section": "VM0007 §6; VCS JNR Requirements",
         "methodologyPage": 27,
-        "officialRequirementQuote": "Jurisdictional baseline data may be used only where the proponents use a jurisdictional baseline meeting VCS JNR Requirements and the data are conservative. VM0007 v1.8 §6.",
+        "officialRequirementQuote": "Where project proponents use available data sourced from a jurisdictional baseline that meets the requirements set out in the VCS JNR Requirements, those data sources may be used under this methodology, where conservative, even where data accuracy may be less stringent than required by this methodology.",
         "components": [
           [
             "VM0007 v1.8",
@@ -4796,7 +4796,7 @@
         "version": "v1.8",
         "section": "VM0007 §7.1; VT0001 v3.0",
         "methodologyPage": 29,
-        "officialRequirementQuote": "For all project activities other than tidal wetland conservation and restoration, VT0001 must be used to demonstrate additionality. VM0007 v1.8 §7.1.",
+        "officialRequirementQuote": "7 ADDITIONALITY\n\n7.1 Project Method – All Project Activities Other Than Tidal Wetland Conservation and Restoration\n\nVT0001 Tool for the Demonstration and Assessment of Additionality in VCS AFOLU Project Activities must be used to demonstrate the additionality of the project.",
         "components": [
           [
             "VM0007 v1.8",
@@ -4961,7 +4961,7 @@
         "version": "v1.8",
         "section": "VM0007 §7.2; VMD0052",
         "methodologyPage": 27,
-        "officialRequirementQuote": "For tidal wetland conservation and restoration activities, use ADD-AM for additionality instead of the project method. VM0007 v1.8 §7.2; VMD0052.",
+        "officialRequirementQuote": "7.2 Activity Method – All Tidal Wetlands Conservation and Restoration Project Activities\n\nThis methodology uses an activity method for the demonstration of additionality of tidal wetlands conservation and restoration project activities. For such project activities, use ADD-AM (Demonstration of Additionality of Tidal Wetland Restoration and Conservation Project Activities).",
         "components": [
           [
             "VM0007 v1.8",
@@ -5107,7 +5107,7 @@
         "version": "v1.8",
         "section": "VM0007 §8.4.2 REDD",
         "methodologyPage": 29,
-        "officialRequirementQuote": "REDD net emission reductions must be calculated as NERREDD = ΔC_BSL-REDD − ΔC_WPS-REDD − ΔC_LK-REDD, with the defined baseline, project, and leakage components. VM0007 v1.8 §8.4.2.",
+        "officialRequirementQuote": "8.4.2 REDD\n\nThe total net greenhouse gas emissions reductions of the REDD project activity are calculated as follows:\n\nNERREDD = ∆C_BSL-REDD − ∆C_WPS-REDD − ∆C_LK-REDD\n\nWhere:\nNERREDD+ = Total net GHG emission reductions of the REDD+ project activity up to year t* (tCO2e)\n∆C_BSL-REDD = Net GHG emissions in the REDD baseline scenario up to year t* (tCO2e)\n∆C_WPS-REDD = Net GHG emissions in the REDD project scenario up to year t* – from Module M-REDD (tCO2e)\n∆C_LK-REDD = Net GHG emissions due to leakage from the REDD project activity up to year t* (tCO2e)",
         "components": [
           [
             "VM0007 v1.8",
@@ -5272,7 +5272,7 @@
         "version": "v1.8",
         "section": "VM0007 §8.4.3 WRC",
         "methodologyPage": 27,
-        "officialRequirementQuote": "WRC net emission reductions must use NERWRC = GHGBSL-WRC − GHGWPS-WRC − GHGLK-WRC when WRC activities apply. VM0007 v1.8 §8.4.3.",
+        "officialRequirementQuote": "8.4.3 WRC\n\nThe total net GHG emission reduction of the WRC project activity is calculated as follows:\n\nNERWRC = GHGBSL−WRC − GHGWPS−WRC − GHGLK−WRC\n\nWhere:\nNERWRC = Total net GHG emission reductions in the WRC project up to year t* (tCO2e)\nGHGBSL-WRC = Net GHG emissions in the WRC baseline scenario up to year t* (tCO2e)\nGHGWPS-WRC = Net GHG emissions in the WRC project scenario up to year t* (tCO2e)\nGHGLK-WRC = Net GHG emissions due to leakage from the WRC project activity up to year t* (tCO2e)",
         "components": [
           [
             "VM0007 v1.8",
@@ -5456,7 +5456,7 @@
         "version": "v1.8",
         "section": "VM0007 §8.3; VMD0009/LK-ASP, VMD0010/LK-ASU, LK-ECO, LK-ME; T-SIG",
         "methodologyPage": 29,
-        "officialRequirementQuote": "Leakage must be considered for all activities using the applicable modules: LK-ASP for planned deforestation/degradation, LK-ASU for unplanned pathways, LK-ECO for WRC, and LK-ME where market effects apply; significance must be determined using T-SIG or Appendix 1. VM0007 v1.8 §8.3.",
+        "officialRequirementQuote": "8.3 Leakage\n\nLeakage must be considered for all activities, using the following leakage modules:\n\n• For planned deforestation/degradation and planned wetland degradation: Module LK-ASP\n• For unplanned deforestation and unplanned wetland degradation: Module LK-ASU\n• For WRC project activities: Module LK-ECO\n\nFor stand-alone CIW project activities, similar methods for leakage determination can be used as for REDD project activities, and Module LK-ASU, LK-ASP or LK-ME (whichever is relevant) must be used.\n\nThe significance of leakage and the significance of carbon pools must be determined using T-SIG or Appendix 1.",
         "components": [
           [
             "VM0007 v1.8",
@@ -5621,7 +5621,7 @@
         "version": "v1.8",
         "section": "VM0007 §8.3; LK-ECO",
         "methodologyPage": 27,
-        "officialRequirementQuote": "For WRC activities, leakage includes the ecological wetland component LK-ECO; applicable market/activity-shifting components and significance tests also apply. VM0007 v1.8 §8.3.",
+        "officialRequirementQuote": "For WRC project activities: Module LK-ECO.\n\nFor stand-alone CIW project activities, similar methods for leakage determination can be used as for REDD project activities, and Module LK-ASU, LK-ASP or LK-ME (whichever is relevant) must be used.\n\nThe significance of leakage and the significance of carbon pools must be determined using T-SIG or Appendix 1.\n\nWhere applicable, leakage due to market effects must be considered using Module LK-ME.",
         "components": [
           [
             "VM0007 v1.8",
@@ -5767,7 +5767,7 @@
         "version": "v1.8",
         "section": "VM0007 §8.4.4; T-BAR v4.2",
         "methodologyPage": 29,
-        "officialRequirementQuote": "The AFOLU pooled buffer contribution is calculated from the applicable baseline/project carbon-stock benefits and the buffer percentage determined under T-BAR; leakage does not factor into the buffer calculation. VM0007 v1.8 §8.4.4; T-BAR v4.2.",
+        "officialRequirementQuote": "8.4.4 Calculation of AFOLU Pooled Buffer Account Contribution\n\nThe number of credits to be held in the AFOLU pooled buffer account is determined as a percentage of the total carbon stock benefits. For REDD project activities, this is equal to the net emissions in the baseline minus emissions from fossil fuel use and fertilizer use minus the net emissions in the project case minus emissions from fossil fuels and fertilizer use. Leakage emissions do not factor into the buffer calculations.",
         "components": [
           [
             "VM0007 v1.8",

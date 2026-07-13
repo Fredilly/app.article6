@@ -12,6 +12,8 @@ const batchTwo = ["R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R
 const finalEight = ["R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006"];
 const nextTen = ["R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003"];
 const batchFive = ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"];
+const authoritativeVm0007Rules = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"), "utf8")) as Array<Record<string, any>>;
+const batchFiveOfficialQuotes = new Map(batchFive.map((id) => [id, authoritativeVm0007Rules.find((rule) => rule.stable_id.endsWith(`.${id}`))?.source_span_text]));
 const previousIndependentAuditIds = [...batchOne, ...batchTwo];
 const independentAuditIds = [...previousIndependentAuditIds, ...finalEight, ...nextTen];
 const reviewed = [...independentAuditIds, ...batchFive];
@@ -348,7 +350,12 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, normalize(page.text)]));
     for (const id of batchFive) {
       const row = gold.rows.find((candidate: any) => candidate.ruleReference === id)!;
-      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: expect.any(String), version: "v1.8", section: expect.any(String) }));
+      expect(row.methodologyTraceability).toEqual(expect.objectContaining({ methodology: expect.any(String), version: "v1.8", section: expect.any(String), methodologyPage: expect.any(Number) }));
+      expect(row.methodologyTraceability.officialRequirementQuote).toBe(batchFiveOfficialQuotes.get(id));
+      expect(row.methodologyTraceability.officialRequirementQuote).toEqual(expect.any(String));
+      expect(row.methodologyTraceability.officialRequirementQuote).not.toMatch(/\s+(?:VM0007|VT0001|VMD\d{4}|T-BAR) v?\d/);
+      expect(row.methodologyTraceability.officialRequirementQuote).not.toBe(row.requirement);
+      expect(row.methodologyTraceability.officialRequirementQuote).not.toContain(row.ruleReference);
       expect(row.rationale).toEqual(expect.any(String));
       for (const evidence of row.acceptedEvidence) {
         expect(sourcePages.get(evidence.page)).toContain(normalize(evidence.quote));
