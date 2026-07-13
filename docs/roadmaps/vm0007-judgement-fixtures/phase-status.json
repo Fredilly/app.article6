@@ -1,1 +1,267 @@
-{"name":"VM0007 Judgement Fixtures and Evidence Map Learning","roadmapId":"vm0007-judgement-fixtures","phase_meta":{"status":"active","summary":"Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.","current_focus":["Phase 7 complete: Marcondes 58/58 VM0007 v1.8 truth intake and 15-row mismatch reconciliation delivered by PR #1012.","Phase 8 active: use the reconciled failure classes to improve only reusable shared retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding logic.","Begin Phase 8 regression-first; prohibit Marcondes-specific hardcoding and preserve all existing fixtures."],"not_active_now":["Production logic changes that are not tied to a documented reusable failure class","Report UI redesign","Client-facing report changes","LLM final judgment","Maya truth intake before Phase 8 shared-logic changes are isolated and regression-safe","Formal validation, verification, or VVB authority claims"],"last_updated_at":"2026-07-13T00:00:00Z"},"goals":[{"id":"phase_0_roadmap_boundary","title":"Roadmap Boundary","status":"done","dependsOn":[],"branch":"docs/vm0007-judgement-fixtures-phase0-boundary","pr":895,"doneCriteria":["Roadmap scope is explicitly limited to VM0007 judgment fixtures","PDF truth is required instead of current app output","Fixture contract requires accepted evidence and rejected weak/generic evidence","Weak evidence is explicitly kept UNCLEAR, not FOUND","Missing evidence is explicitly kept MISSING","Quick Check v2 Phase 7 is explicitly out of scope","No production audit logic, report UI, or client-facing behavior changes are allowed in Phase 0","Future fixture PR acceptance criteria are documented","Tests and CI are not weakened"]},{"id":"phase_1_envira_vm0007_judgment_fixtures","title":"Envira VM0007 Judgment Fixtures","status":"done","dependsOn":["phase_0_roadmap_boundary"],"branch":"test/envira-vm0007-judgment-fixtures","pr":897,"doneCriteria":["5-10 rule-level judgment fixtures exist for Envira","Accepted evidence requirements are explicitly fixture-encoded","Rejected generic evidence examples are explicitly fixture-encoded","At least one false-supported case is covered","At least one case rejects generic methodology/module-table evidence as supported","Expected status is explicit for each fixture","Expected client action is explicit where status is weak or missing","GitHub pr-gate and Next.js build passed on the merged PR"]},{"id":"phase_2_pd_redd_vm0007_judgment_fixtures","title":"PD_REDD VM0007 Judgment Fixtures","status":"done","dependsOn":["phase_1_envira_vm0007_judgment_fixtures"],"doneCriteria":["PD_REDD judgments follow the same accepted/rejected evidence contract","Weak / missing / not-applicable logic is exercised with fixture coverage"]},{"id":"phase_3_full_58_rule_audit_fixture_shape","title":"Full 58-Rule Audit Fixture Shape","status":"blocked","dependsOn":["phase_2_pd_redd_vm0007_judgment_fixtures"],"doneCriteria":["All 58 VM0007 rules are represented in the fixture shape","Audit-level expected status is stable and reviewable","Fixture shape supports summary verification","Any legacy Envira material remains explicitly quarantined until versioned re-audit"]},{"id":"phase_4_report_fixture_layer","title":"Report Fixture Layer","status":"blocked","dependsOn":["phase_3_full_58_rule_audit_fixture_shape"],"branch":"test/vm0007-report-fixture-layer","pr":914,"doneCriteria":["Report summary expectations are fixture-driven","Row grouping and summary sections are testable from fixtures","Internal preview output is preserved as fixture data only and is not client-ready truth","Legacy Envira report output remains quarantined pending versioned re-audit"]},{"id":"phase_5_client_readiness_gate","title":"Client-Readiness Gate","status":"done","dependsOn":["phase_4_report_fixture_layer"],"doneCriteria":["A gate exists to prevent fixture drift from being mistaken for client-ready output","Client-readiness remains explicitly separate from internal preview work","Quarantined legacy mismatch fixtures are not promoted as VM0007 v1.8 truth"]},{"id":"phase_6_evidence_map_learning_contract","title":"Evidence Map Learning Contract","status":"done","dependsOn":["phase_5_client_readiness_gate"],"branch":"docs/vm0007-evidence-map-playbook","pr":994,"doneCriteria":["The repeatable two-PR truth-intake and generic-system-improvement cycle is documented","Truth intake preserves untouched machine output, supports partial review, records accepted/rejected evidence and corrections, and counts only reviewed rows as gold","Generic improvement classifies reusable failures, changes only shared logic, reruns previous fixtures, and tests an unseen eligible PDD","Truth-intake PRs do not change production logic"]},{"id":"phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake","title":"Marcondes VM0007 v1.8 Evidence Map Truth Intake","status":"done","dependsOn":["phase_6_evidence_map_learning_contract"],"doneCriteria":["Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy","Raw 58-row machine output is preserved","Partial coverage uses reviewedRuleIds or an equivalent explicit mechanism","Reviewed truth, corrections, provenance, reviewer notes, and REVIEW.md are stored","High-value and uncertain rows are reviewed first","Unreviewed rows do not count as gold or accuracy evidence","page 61 v1.7 wording is preserved exactly","Tables 30 and 31 v1.8 declarations are preserved exactly","a reviewer records the reconciled methodology version and rationale","the decision is stored in metadata and REVIEW.md","unresolved conflict blocks gold promotion and Evidence Map truth claims","no silent normalization is permitted","after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth"],"branch":"agent/marcondes-vm0007-truth-reconciliation","pr":1012},{"id":"phase_8_marcondes_generic_system_improvement","title":"Marcondes Generic System Improvement","status":"active","dependsOn":["phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake"],"doneCriteria":["The computed 15-row Marcondes machine-versus-gold mismatch set is the regression baseline","Reusable failure classes are mapped to the shared retrieval, routing, evidence-selection, applicability, provenance, contradiction, or finding layer responsible","Each behavior change is regression-first and fixes a reusable class rather than a Marcondes row","Only reusable shared logic is changed; no project IDs, Marcondes text, page numbers, or fixture-specific branches enter production logic","Quick Check, Evidence Map, Marcondes, earlier judgment fixtures, and version-mismatch regressions remain stable","Any changed machine judgments are explained against reviewed truth and do not rewrite frozen raw artifacts","An unseen eligible VM0007 v1.8 PDD remains the later generalization check"],"branch":"feat/vm0007-phase-8-generic-system-improvement"},{"id":"phase_9_review_and_gold_promotion_tooling","title":"Review and Gold Promotion Tooling","status":"planned","dependsOn":["phase_8_marcondes_generic_system_improvement"],"doneCriteria":["Partial row review is easy to perform","Corrections are generated from machine-versus-reviewer differences","Only explicitly reviewed rows are promoted to gold","Machine proposal, reviewer correction, and final truth remain separate","Coverage counts do not treat unreviewed rows as failures or passes"]},{"id":"phase_10_second_unseen_vm0007_v1_8_pdd","title":"Second Unseen VM0007 v1.8 PDD","status":"planned","dependsOn":["phase_9_review_and_gold_promotion_tooling"],"doneCriteria":["An unseen eligible PDD completes the same PR1/PR2 cycle","Marcondes improvements generalize to the unseen PDD","Marcondes, earlier judgment fixtures, and version-mismatch fixtures remain regression-safe"]}],"phases":{"phase_0_roadmap_boundary":{"title":"Roadmap Boundary","status":"done","summary":"Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895."},"phase_1_envira_vm0007_judgment_fixtures":{"title":"Envira VM0007 Judgment Fixtures","status":"done","summary":"Added 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897."},"phase_2_pd_redd_vm0007_judgment_fixtures":{"title":"PD_REDD VM0007 Judgment Fixtures","status":"done","summary":"Added PD_REDD VM0007 fixture coverage using the same judgment contract discipline, including accepted evidence, rejected weak or generic evidence, and explicit FOUND / UNCLEAR / MISSING / N/A expectations."},"phase_3_full_58_rule_audit_fixture_shape":{"title":"Full 58-Rule Audit Fixture Shape","status":"blocked","summary":"Envira VM0007's reviewed full 58-rule audit fixture is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data. The historical FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 split remains preserved as a regression fixture, but it is not validated VM0007 v1.8 truth."},"phase_4_report_fixture_layer":{"title":"Report Fixture Layer","status":"blocked","summary":"Report fixture output remains quarantined historical regression data. Report summary expectations and internal preview output are fixture-driven and testable, but the legacy Envira report fixture is not client-ready truth and is pending versioned re-audit. Historical delivery is preserved as PR #914."},"phase_5_client_readiness_gate":{"title":"Client-Readiness Gate","status":"done","summary":"The internal-preview/client-readiness boundary is documented and legacy mismatch fixtures remain quarantined; no legacy Envira output is promoted as VM0007 v1.8 truth."},"phase_6_evidence_map_learning_contract":{"title":"Evidence Map Learning Contract","status":"done","branch":"docs/vm0007-evidence-map-playbook","pr":994,"summary":"Defined the repeatable two-PR cycle for VM0007 evidence-map learning and delivered the canonical system prompt plus new-PDD playbook in PR #994."},"phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake":{"title":"Marcondes VM0007 v1.8 Evidence Map Truth Intake","status":"done","summary":"Finalized Marcondes as a version-qualified VM0007 v1.8 truth case with 58/58 reviewed rows, preserved raw machine output, explicit v1.7/v1.8 reconciliation, and a regression-pinned 15-row machine-versus-gold mismatch record. Delivered by PR #1012.","branch":"agent/marcondes-vm0007-truth-reconciliation","pr":1012},"phase_8_marcondes_generic_system_improvement":{"title":"Marcondes Generic System Improvement","status":"active","summary":"Use the finalized Marcondes truth and 15 documented mismatch records to implement regression-first improvements to reusable shared evidence logic. Failure classification is complete; shared-logic implementation is now active, with Marcondes-specific hardcoding prohibited.","branch":"feat/vm0007-phase-8-generic-system-improvement"},"phase_9_review_and_gold_promotion_tooling":{"title":"Review and Gold Promotion Tooling","status":"planned","summary":"Make partial review and correction generation easy while preserving machine proposal, reviewer correction, final truth, and explicit gold coverage separately."},"phase_10_second_unseen_vm0007_v1_8_pdd":{"title":"Second Unseen VM0007 v1.8 PDD","status":"planned","summary":"Run the same truth-intake and generic-improvement cycle on an unseen eligible VM0007 v1.8 PDD to prove generalization and prevent regressions."}}}
+{
+  "name": "VM0007 Judgement Fixtures and Evidence Map Learning",
+  "roadmapId": "vm0007-judgement-fixtures",
+  "phase_meta": {
+    "status": "active",
+    "summary": "Build a progressively improving VM0007 v1.8 Evidence Map using PDF-backed machine proposals, reviewed truth, explicit corrections, and generic retrieval/router improvements.",
+    "current_focus": [
+      "Phase 7 complete: Marcondes 58/58 VM0007 v1.8 truth intake and 15-row mismatch reconciliation delivered by PR #1012.",
+      "Phase 8 active: use the reconciled failure classes to improve only reusable shared retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding logic.",
+      "Begin Phase 8 regression-first; prohibit Marcondes-specific hardcoding and preserve all existing fixtures."
+    ],
+    "not_active_now": [
+      "Production logic changes that are not tied to a documented reusable failure class",
+      "Report UI redesign",
+      "Client-facing report changes",
+      "LLM final judgment",
+      "Maya truth intake before Phase 8 shared-logic changes are isolated and regression-safe",
+      "Formal validation, verification, or VVB authority claims"
+    ],
+    "last_updated_at": "2026-07-13T00:00:00Z"
+  },
+  "goals": [
+    {
+      "id": "phase_0_roadmap_boundary",
+      "title": "Roadmap Boundary",
+      "status": "done",
+      "dependsOn": [],
+      "branch": "docs/vm0007-judgement-fixtures-phase0-boundary",
+      "pr": 895,
+      "doneCriteria": [
+        "Roadmap scope is explicitly limited to VM0007 judgment fixtures",
+        "PDF truth is required instead of current app output",
+        "Fixture contract requires accepted evidence and rejected weak/generic evidence",
+        "Weak evidence is explicitly kept UNCLEAR, not FOUND",
+        "Missing evidence is explicitly kept MISSING",
+        "Quick Check v2 Phase 7 is explicitly out of scope",
+        "No production audit logic, report UI, or client-facing behavior changes are allowed in Phase 0",
+        "Future fixture PR acceptance criteria are documented",
+        "Tests and CI are not weakened"
+      ]
+    },
+    {
+      "id": "phase_1_envira_vm0007_judgment_fixtures",
+      "title": "Envira VM0007 Judgment Fixtures",
+      "status": "done",
+      "dependsOn": [
+        "phase_0_roadmap_boundary"
+      ],
+      "branch": "test/envira-vm0007-judgment-fixtures",
+      "pr": 897,
+      "doneCriteria": [
+        "5-10 rule-level judgment fixtures exist for Envira",
+        "Accepted evidence requirements are explicitly fixture-encoded",
+        "Rejected generic evidence examples are explicitly fixture-encoded",
+        "At least one false-supported case is covered",
+        "At least one case rejects generic methodology/module-table evidence as supported",
+        "Expected status is explicit for each fixture",
+        "Expected client action is explicit where status is weak or missing",
+        "GitHub pr-gate and Next.js build passed on the merged PR"
+      ]
+    },
+    {
+      "id": "phase_2_pd_redd_vm0007_judgment_fixtures",
+      "title": "PD_REDD VM0007 Judgment Fixtures",
+      "status": "done",
+      "dependsOn": [
+        "phase_1_envira_vm0007_judgment_fixtures"
+      ],
+      "doneCriteria": [
+        "PD_REDD judgments follow the same accepted/rejected evidence contract",
+        "Weak / missing / not-applicable logic is exercised with fixture coverage"
+      ]
+    },
+    {
+      "id": "phase_3_full_58_rule_audit_fixture_shape",
+      "title": "Full 58-Rule Audit Fixture Shape",
+      "status": "blocked",
+      "dependsOn": [
+        "phase_2_pd_redd_vm0007_judgment_fixtures"
+      ],
+      "doneCriteria": [
+        "All 58 VM0007 rules are represented in the fixture shape",
+        "Audit-level expected status is stable and reviewable",
+        "Fixture shape supports summary verification",
+        "Any legacy Envira material remains explicitly quarantined until versioned re-audit"
+      ]
+    },
+    {
+      "id": "phase_4_report_fixture_layer",
+      "title": "Report Fixture Layer",
+      "status": "blocked",
+      "dependsOn": [
+        "phase_3_full_58_rule_audit_fixture_shape"
+      ],
+      "branch": "test/vm0007-report-fixture-layer",
+      "pr": 914,
+      "doneCriteria": [
+        "Report summary expectations are fixture-driven",
+        "Row grouping and summary sections are testable from fixtures",
+        "Internal preview output is preserved as fixture data only and is not client-ready truth",
+        "Legacy Envira report output remains quarantined pending versioned re-audit"
+      ]
+    },
+    {
+      "id": "phase_5_client_readiness_gate",
+      "title": "Client-Readiness Gate",
+      "status": "done",
+      "dependsOn": [
+        "phase_4_report_fixture_layer"
+      ],
+      "doneCriteria": [
+        "A gate exists to prevent fixture drift from being mistaken for client-ready output",
+        "Client-readiness remains explicitly separate from internal preview work",
+        "Quarantined legacy mismatch fixtures are not promoted as VM0007 v1.8 truth"
+      ]
+    },
+    {
+      "id": "phase_6_evidence_map_learning_contract",
+      "title": "Evidence Map Learning Contract",
+      "status": "done",
+      "dependsOn": [
+        "phase_5_client_readiness_gate"
+      ],
+      "branch": "docs/vm0007-evidence-map-playbook",
+      "pr": 994,
+      "doneCriteria": [
+        "The repeatable two-PR truth-intake and generic-system-improvement cycle is documented",
+        "Truth intake preserves untouched machine output, supports partial review, records accepted/rejected evidence and corrections, and counts only reviewed rows as gold",
+        "Generic improvement classifies reusable failures, changes only shared logic, reruns previous fixtures, and tests an unseen eligible PDD",
+        "Truth-intake PRs do not change production logic"
+      ]
+    },
+    {
+      "id": "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake",
+      "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
+      "status": "done",
+      "dependsOn": [
+        "phase_6_evidence_map_learning_contract"
+      ],
+      "doneCriteria": [
+        "Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy",
+        "Raw 58-row machine output is preserved",
+        "Partial coverage uses reviewedRuleIds or an equivalent explicit mechanism",
+        "Reviewed truth, corrections, provenance, reviewer notes, and REVIEW.md are stored",
+        "High-value and uncertain rows are reviewed first",
+        "Unreviewed rows do not count as gold or accuracy evidence",
+        "page 61 v1.7 wording is preserved exactly",
+        "Tables 30 and 31 v1.8 declarations are preserved exactly",
+        "a reviewer records the reconciled methodology version and rationale",
+        "the decision is stored in metadata and REVIEW.md",
+        "unresolved conflict blocks gold promotion and Evidence Map truth claims",
+        "no silent normalization is permitted",
+        "after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth"
+      ],
+      "branch": "agent/marcondes-vm0007-truth-reconciliation",
+      "pr": 1012
+    },
+    {
+      "id": "phase_8_marcondes_generic_system_improvement",
+      "title": "Marcondes Generic System Improvement",
+      "status": "active",
+      "dependsOn": [
+        "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake"
+      ],
+      "doneCriteria": [
+        "The computed 15-row Marcondes machine-versus-gold mismatch set is the regression baseline",
+        "Reusable failure classes are mapped to the shared retrieval, routing, evidence-selection, applicability, provenance, contradiction, or finding layer responsible",
+        "Each behavior change is regression-first and fixes a reusable class rather than a Marcondes row",
+        "Only reusable shared logic is changed; no project IDs, Marcondes text, page numbers, or fixture-specific branches enter production logic",
+        "Quick Check, Evidence Map, Marcondes, earlier judgment fixtures, and version-mismatch regressions remain stable",
+        "Any changed machine judgments are explained against reviewed truth and do not rewrite frozen raw artifacts",
+        "An unseen eligible VM0007 v1.8 PDD remains the later generalization check"
+      ],
+      "branch": "feat/vm0007-phase-8-generic-system-improvement"
+    },
+    {
+      "id": "phase_9_review_and_gold_promotion_tooling",
+      "title": "Review and Gold Promotion Tooling",
+      "status": "planned",
+      "dependsOn": [
+        "phase_8_marcondes_generic_system_improvement"
+      ],
+      "doneCriteria": [
+        "Partial row review is easy to perform",
+        "Corrections are generated from machine-versus-reviewer differences",
+        "Only explicitly reviewed rows are promoted to gold",
+        "Machine proposal, reviewer correction, and final truth remain separate",
+        "Coverage counts do not treat unreviewed rows as failures or passes"
+      ]
+    },
+    {
+      "id": "phase_10_second_unseen_vm0007_v1_8_pdd",
+      "title": "Second Unseen VM0007 v1.8 PDD",
+      "status": "planned",
+      "dependsOn": [
+        "phase_9_review_and_gold_promotion_tooling"
+      ],
+      "doneCriteria": [
+        "An unseen eligible PDD completes the same PR1/PR2 cycle",
+        "Marcondes improvements generalize to the unseen PDD",
+        "Marcondes, earlier judgment fixtures, and version-mismatch fixtures remain regression-safe"
+      ]
+    }
+  ],
+  "phases": {
+    "phase_0_roadmap_boundary": {
+      "title": "Roadmap Boundary",
+      "status": "done",
+      "summary": "Define a boundary-only contract for VM0007 judgment fixtures: PDF truth over current output, accepted and rejected evidence requirements, UNCLEAR/MISSING discipline, no production or UI changes, and clear acceptance criteria for future fixture PRs. Delivered by PR #895."
+    },
+    "phase_1_envira_vm0007_judgment_fixtures": {
+      "title": "Envira VM0007 Judgment Fixtures",
+      "status": "done",
+      "summary": "Added 5-10 Envira VM0007 judgment fixtures with explicit accepted evidence, rejected generic evidence examples, false-supported coverage, and expected statuses plus client actions where weak or missing. Delivered by PR #897."
+    },
+    "phase_2_pd_redd_vm0007_judgment_fixtures": {
+      "title": "PD_REDD VM0007 Judgment Fixtures",
+      "status": "done",
+      "summary": "Added PD_REDD VM0007 fixture coverage using the same judgment contract discipline, including accepted evidence, rejected weak or generic evidence, and explicit FOUND / UNCLEAR / MISSING / N/A expectations."
+    },
+    "phase_3_full_58_rule_audit_fixture_shape": {
+      "title": "Full 58-Rule Audit Fixture Shape",
+      "status": "blocked",
+      "summary": "Envira VM0007's reviewed full 58-rule audit fixture is quarantined legacy REDD-MF / VM0007 v1.5 mismatch data. The historical FOUND 30 / UNCLEAR 8 / MISSING 3 / N/A 17 split remains preserved as a regression fixture, but it is not validated VM0007 v1.8 truth."
+    },
+    "phase_4_report_fixture_layer": {
+      "title": "Report Fixture Layer",
+      "status": "blocked",
+      "summary": "Report fixture output remains quarantined historical regression data. Report summary expectations and internal preview output are fixture-driven and testable, but the legacy Envira report fixture is not client-ready truth and is pending versioned re-audit. Historical delivery is preserved as PR #914."
+    },
+    "phase_5_client_readiness_gate": {
+      "title": "Client-Readiness Gate",
+      "status": "done",
+      "summary": "The internal-preview/client-readiness boundary is documented and legacy mismatch fixtures remain quarantined; no legacy Envira output is promoted as VM0007 v1.8 truth."
+    },
+    "phase_6_evidence_map_learning_contract": {
+      "title": "Evidence Map Learning Contract",
+      "status": "done",
+      "branch": "docs/vm0007-evidence-map-playbook",
+      "pr": 994,
+      "summary": "Defined the repeatable two-PR cycle for VM0007 evidence-map learning and delivered the canonical system prompt plus new-PDD playbook in PR #994."
+    },
+    "phase_7_marcondes_vm0007_v1_8_evidence_map_truth_intake": {
+      "title": "Marcondes VM0007 v1.8 Evidence Map Truth Intake",
+      "status": "done",
+      "summary": "Finalized Marcondes as a version-qualified VM0007 v1.8 truth case with 58/58 reviewed rows, preserved raw machine output, explicit v1.7/v1.8 reconciliation, and a regression-pinned 15-row machine-versus-gold mismatch record. Delivered by PR #1012.",
+      "branch": "agent/marcondes-vm0007-truth-reconciliation",
+      "pr": 1012
+    },
+    "phase_8_marcondes_generic_system_improvement": {
+      "title": "Marcondes Generic System Improvement",
+      "status": "active",
+      "summary": "Use the finalized Marcondes truth and 15 documented mismatch records to implement regression-first improvements to reusable shared evidence logic. Failure classification is complete; shared-logic implementation is now active, with Marcondes-specific hardcoding prohibited.",
+      "branch": "feat/vm0007-phase-8-generic-system-improvement"
+    },
+    "phase_9_review_and_gold_promotion_tooling": {
+      "title": "Review and Gold Promotion Tooling",
+      "status": "planned",
+      "summary": "Make partial review and correction generation easy while preserving machine proposal, reviewer correction, final truth, and explicit gold coverage separately."
+    },
+    "phase_10_second_unseen_vm0007_v1_8_pdd": {
+      "title": "Second Unseen VM0007 v1.8 PDD",
+      "status": "planned",
+      "summary": "Run the same truth-intake and generic-improvement cycle on an unseen eligible VM0007 v1.8 PDD to prove generalization and prevent regressions."
+    }
+  }
+}
