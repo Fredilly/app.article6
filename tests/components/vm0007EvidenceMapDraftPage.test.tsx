@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import Vm0007EvidenceMapDraftPage from "@/components/preverif/Vm0007EvidenceMapDraftPage";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import type { Vm0007EvidenceMapDraftPackage, Vm0007EvidenceMapDraftRow } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import type { ReviewedEvidenceMapSnapshot, ReviewedEvidenceState, ReviewedOutcome } from "@/lib/preverif/reviewedEvidenceMapTypes";
 
 const provenance = (spanId: string, page: number | null = 12) => ({ docId: "doc", page, sectionPath: ["Project implementation"], spanId, sectionHeading: "Project implementation", sourceType: "PDD" });
 
@@ -39,11 +40,11 @@ function savePackage(auditId: string, rows = makeRows(auditId)) {
   expect(saveVm0007EvidenceMapDraft({ auditId, generatedAt: "2026-07-11T00:00:00.000Z", methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8", sourceDocument: rows[0].sourceDocument, proposalState: "MACHINE_PROPOSED", rows, blockedBy: [], contractVersion: "vm0007-evidence-map-draft-v1" } as Vm0007EvidenceMapDraftPackage)).toBe(true);
 }
 
-async function renderPage(auditId: string): Promise<{ container: HTMLDivElement; root: Root }> {
+async function renderPage(auditId: string, reviewedCandidate?: ReviewedEvidenceMapSnapshot): Promise<{ container: HTMLDivElement; root: Root }> {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
-  await act(async () => { root.render(<Vm0007EvidenceMapDraftPage auditId={auditId} />); });
+  await act(async () => { root.render(<Vm0007EvidenceMapDraftPage auditId={auditId} reviewedCandidate={reviewedCandidate} />); });
   return { container, root };
 }
 
@@ -53,6 +54,37 @@ function change(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElem
 afterEach(() => { document.body.innerHTML = ""; window.localStorage.clear(); });
 
 describe("VM0007 Evidence Map review workspace", () => {
+  test("defaults a matching reviewed case to a read-only snapshot and switches without persistence", async () => {
+    const auditId = "reviewed-ui";
+    const rows = makeRows(auditId).map((row) => ({ ...row, sourceDocument: { ...row.sourceDocument, contentSha256: "reviewed-hash" } }));
+    savePackage(auditId, rows);
+    const reviewedRows = rows.map((row, index) => {
+      const finalEvidenceState: ReviewedEvidenceState = index < 6 ? "FOUND" : index < 26 ? "UNCLEAR" : index < 36 ? "MISSING" : "N/A";
+      const reviewerOutcome: ReviewedOutcome = index < 6 ? "CONFORMS" : index < 36 ? "ACTION_REQUIRED" : "NOT_APPLICABLE";
+      return { rowId: row.rowId, stableRuleId: row.stableRuleId, ruleReference: row.ruleReference, requirementText: row.requirementText, finalEvidenceState, reviewerOutcome, reviewerEvidence: index === 0 ? [{ quote: "Reviewed canonical quote.", page: 9, section: "Reviewed section", spanId: "reviewed-span", provenance: { docId: "doc", page: 9, sectionPath: ["Reviewed section"], spanId: "reviewed-span", sectionHeading: "Reviewed section", sourceType: "PDD" } }] : [], rejectedEvidence: [], draftFindingCandidate: reviewerOutcome === "ACTION_REQUIRED" ? "NIR_CANDIDATE" : null, contradictionState: "NONE_IDENTIFIED", clientAction: "Reviewed action." };
+    });
+    const snapshot: ReviewedEvidenceMapSnapshot = { canonicalAuditId: auditId, stableProjectId: "project", sourceDocument: { documentId: "doc", documentName: "Project PDD.pdf", contentSha256: "reviewed-hash" }, methodologyId: "VM0007", methodologyVersion: "v1.8", rows: reviewedRows, readOnly: true };
+    const before = window.localStorage.getItem(`article6:vm0007-evidence-map-draft:v1:${auditId}`);
+    const { container, root } = await renderPage(auditId, snapshot);
+    expect(container.textContent).toContain("Evidence Map · Reviewed truth");
+    expect(container.textContent).toContain("6Found");
+    expect(container.textContent).toContain("20Unclear");
+    expect(container.textContent).toContain("10Missing");
+    expect(container.textContent).toContain("22Not applicable");
+    expect(container.textContent).toContain("30Action required");
+    expect(Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes("Finalize Evidence Map"))?.hasAttribute("disabled")).toBe(true);
+    click(container.querySelector(`[data-evidence-map-row="${auditId}:R-1"] > button`));
+    expect(container.textContent).toContain("Reviewed canonical quote.");
+    expect(container.textContent).toContain("Page 9");
+    expect(container.textContent).toContain("Save, approve, reopen, and finalize controls are unavailable.");
+    click(Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "Machine proposal") ?? null);
+    expect(container.textContent).toContain("Evidence Map · Machine proposal");
+    expect(container.textContent).toContain("1Found");
+    expect(container.textContent).toContain("The implementation plan names the responsible team.");
+    expect(window.localStorage.getItem(`article6:vm0007-evidence-map-draft:v1:${auditId}`)).toBe(before);
+    act(() => root.unmount());
+  });
+
   test("shows all rows and truthful summary counts by default, including missing rows", async () => {
     const auditId = "ui-default"; savePackage(auditId);
     const { container, root } = await renderPage(auditId);
