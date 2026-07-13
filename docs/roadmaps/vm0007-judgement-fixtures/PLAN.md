@@ -79,14 +79,15 @@ Define the repeatable two-PR cycle for safely improving the Evidence Map.
 
 Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 
-### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — active
+### Phase 7 — Marcondes VM0007 v1.8 Evidence Map Truth Intake — done
 
-- Marcondes REDD+ is the first candidate forward VM0007 v1.8 Evidence Map learning case, pending explicit reconciliation of the internal v1.7/v1.8 discrepancy
-- preserve the raw 58-row machine output
-- support `reviewedRuleIds` or equivalent partial coverage
-- store reviewed truth, corrections, provenance, reviewer notes, and `REVIEW.md`
-- review high-value and uncertain rows first
-- unreviewed rows must not count as gold or accuracy evidence
+- Delivered by PR #1012 on branch `agent/marcondes-vm0007-truth-reconciliation`
+- finalized all 58 VM0007 v1.8 rows with zero unreviewed rows
+- preserved the raw 58-row machine output and source extraction
+- stored reviewed truth, corrections, provenance, reviewer notes, `REVIEW.md`, and explicit reviewed rule IDs
+- preserved the page 61 v1.7 wording and Tables 30/31 v1.8 declarations
+- recorded the reconciled VM0007 v1.8 decision and rationale in metadata and `REVIEW.md`
+- documented and regression-pinned the computed 15-row machine-versus-gold mismatch set
 
 #### Phase 7 completion criteria
 
@@ -98,13 +99,15 @@ Delivered by PR #994 on branch `docs/vm0007-evidence-map-playbook`.
 - no silent normalization is permitted
 - after reconciliation, Marcondes may be marked version-qualified VM0007 v1.8 truth
 
-### Phase 8 — Marcondes Generic System Improvement — planned
+### Phase 8 — Marcondes Generic System Improvement — active
 
-- compare Marcondes machine proposals against reviewed truth after the reviewed truth exists
-- classify retrieval, routing, evidence-selection, applicability, provenance, contradiction, and finding errors
-- fix only reusable shared logic
-- rerun Quick Check and Evidence Map regressions
-- prohibit Marcondes-specific hardcoding
+- use the finalized 15-row Marcondes mismatch record as the regression baseline
+- map each reusable failure class to the shared retrieval, routing, evidence-selection, applicability, provenance, contradiction, or finding layer responsible
+- write failing generic regression coverage before changing shared behavior
+- fix only reusable shared logic; never branch on Marcondes, project IDs, fixture text, or page numbers
+- preserve frozen raw artifacts and explain any changed machine judgment against reviewed truth
+- rerun Quick Check, Evidence Map, Marcondes, earlier judgment, and version-mismatch regressions
+- leave the unseen VM0007 v1.8 PDD as the later generalization check
 
 ### Phase 9 — Review and Gold Promotion Tooling — planned
 
