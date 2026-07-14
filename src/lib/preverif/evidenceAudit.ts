@@ -131,7 +131,25 @@ export type MethodologyEvidenceAuditSummary = {
   results: MethodologyEvidenceAuditResult[];
   totals: Record<EvidenceAuditStatus, number>;
   totalRules: number;
+  diagnosticTrace?: readonly EvidenceAuditDiagnosticTrace[];
 };
+
+export type EvidenceAuditDiagnosticCandidate = Readonly<{
+  spanId: string;
+  quote: string;
+  page: number | null;
+  score: number;
+  evidenceType: EvidenceType;
+  rejectionReason: string | null;
+}>;
+
+export type EvidenceAuditDiagnosticTrace = Readonly<{
+  stableId: string;
+  retrievalCandidates: readonly EvidenceAuditDiagnosticCandidate[];
+  postFilterCandidates: readonly EvidenceAuditDiagnosticCandidate[];
+  selectedCandidates: readonly EvidenceAuditDiagnosticCandidate[];
+  cutoffPosition: number;
+}>;
 
 export type MethodologyEvidenceAuditInput = {
   rules: readonly MethodologyEvidenceAuditRule[];
@@ -145,6 +163,7 @@ export type MethodologyEvidenceAuditInput = {
     "id" | "sectionNumber" | "titleRaw" | "titleClean" | "bodyRaw" | "bodyClean"
   >[];
   rawText?: string;
+  diagnosticTrace?: boolean;
 };
 
 type SectionLike = NonNullable<MethodologyEvidenceAuditInput["sections"]>[number];
@@ -1088,6 +1107,15 @@ function selectBestCandidate(input: {
   evidenceDocument: EvidenceDocument;
   sections: readonly SectionLike[] | undefined;
 }): CandidateScore | null {
+  return scoreCandidates(input)[0] ?? null;
+}
+
+function scoreCandidates(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  evidenceDocument: EvidenceDocument;
+  sections: readonly SectionLike[] | undefined;
+}): CandidateScore[] {
   const sectionLookup = buildSectionLookup(input.sections);
   const preferredSectionIds = buildRelevantSectionIds({
     contract: input.contract,
@@ -1103,7 +1131,7 @@ function selectBestCandidate(input: {
       return bPreferred - aPreferred;
     });
 
-  let best: CandidateScore | null = null;
+  const candidates: CandidateScore[] = [];
   for (const span of prioritized) {
     const sectionTitle = span.sectionId
       ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
@@ -1116,10 +1144,9 @@ function selectBestCandidate(input: {
       preferredSectionIds,
     });
     if (!scored) continue;
-    if (!best || scored.score > best.score) best = scored;
+    candidates.push(scored);
   }
-
-  return best;
+  return candidates.sort((left, right) => right.score - left.score || left.span.spanId.localeCompare(right.span.spanId));
 }
 
 function selectEvidenceCandidates(input: {
@@ -1129,20 +1156,7 @@ function selectEvidenceCandidates(input: {
   sections: readonly SectionLike[] | undefined;
   bestCandidate: CandidateScore;
 }): CandidateScore[] {
-  const sectionLookup = buildSectionLookup(input.sections);
-  const preferredSectionIds = buildRelevantSectionIds({ contract: input.contract, rule: input.rule, sections: input.sections });
-  const scored = input.evidenceDocument.spans
-    .filter((span) => !span.noise?.includes("toc"))
-    .map((span) => candidateScore({
-      span,
-      sectionTitle: span.sectionId
-        ? (sectionLookup.get(span.sectionId)?.titleClean || sectionLookup.get(span.sectionId)?.titleRaw || null)
-        : null,
-      contract: input.contract,
-      rule: input.rule,
-      preferredSectionIds,
-    }))
-    .filter((candidate): candidate is CandidateScore => candidate !== null)
+  const scored = scoreCandidates(input)
     .filter((candidate) =>
       // Keep complementary project evidence when the document distributes a
       // rule's support across sections; the top span still controls status.
@@ -1157,6 +1171,17 @@ function selectEvidenceCandidates(input: {
     seen.add(candidate.span.spanId);
     return true;
   }).slice(0, 6);
+}
+
+function diagnosticCandidate(candidate: CandidateScore): EvidenceAuditDiagnosticCandidate {
+  return {
+    spanId: candidate.span.spanId,
+    quote: sourceQuote(candidate.span.text),
+    page: candidate.span.page,
+    score: candidate.score,
+    evidenceType: candidate.evidenceType,
+    rejectionReason: candidate.rejectionReason,
+  };
 }
 
 function selectNotApplicableCandidate(input: {
@@ -1526,6 +1551,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
 
   const auditStatus = "AUDITED";
 
+  const diagnosticTrace: EvidenceAuditDiagnosticTrace[] = [];
   const results = input.rules.map((rule) => {
     const contract = input.getContract(rule);
     const bestCandidate = selectBestCandidate({
@@ -1543,6 +1569,19 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
     const evidenceCandidates = bestCandidate
       ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate })
       : [];
+    if (input.diagnosticTrace) {
+      const retrievalCandidates = scoreCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections });
+      const postFilterCandidates = bestCandidate
+        ? retrievalCandidates.filter((candidate) => candidate.score >= Math.max(24, bestCandidate.score - 40) || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1))
+        : [];
+      diagnosticTrace.push({
+        stableId: resolveStableId(rule),
+        retrievalCandidates: retrievalCandidates.map(diagnosticCandidate),
+        postFilterCandidates: postFilterCandidates.map(diagnosticCandidate),
+        selectedCandidates: evidenceCandidates.map(diagnosticCandidate),
+        cutoffPosition: 6,
+      });
+    }
     const classified = classifyStatus({
       rule,
       contract,
@@ -1595,5 +1634,6 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
     results,
     totals,
     totalRules: input.rules.length,
+    ...(input.diagnosticTrace ? { diagnosticTrace } : {}),
   };
 }
