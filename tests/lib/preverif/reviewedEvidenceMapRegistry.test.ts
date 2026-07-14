@@ -45,6 +45,15 @@ test("registry matches reviewed cases by stable audit and source identity", () =
     ),
   ).toBe(false);
   expect(
+    matchesReviewedEvidenceMapCase(
+      {
+        ...pkg,
+        sourceDocument: { ...pkg.sourceDocument, contentSha256: null },
+      },
+      snapshot,
+    ),
+  ).toBe(false);
+  expect(
     matchesReviewedEvidenceMapIdentity(
       {
         sourcePdfSha256: "hash-1",

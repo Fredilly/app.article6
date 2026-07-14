@@ -1214,6 +1214,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     methodologyId: string;
     methodologyVersion: string;
     evidenceFileName?: string;
+    sourcePdfSha256?: string | null;
     rawPddText: string;
     rules: readonly RuleSummary[];
   }) {
@@ -1268,6 +1269,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       loadedRulebookId: input.methodologyId,
       loadedRulebookVersion: input.methodologyVersion,
       evidenceFileName: input.evidenceFileName,
+      sourcePdfSha256: input.sourcePdfSha256,
       rawPddText: input.rawPddText,
       rules: input.rules,
       userAcceptedVersionWarning: !versionLock.versionMatch,
@@ -1290,6 +1292,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         methodologyId: detectedVm0007Method.methodologyId,
         methodologyVersion: detectedVm0007Method.methodologyVersion,
         evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel,
+        sourcePdfSha256: selectedUpload?.attachment.sha256 ?? selectedPins.find((pin) => pin.pdd_document)?.pdd_document?.sha256 ?? null,
         rawPddText,
         rules,
       });
@@ -1536,6 +1539,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             methodologyId: candidate.methodologyId,
             methodologyVersion: candidate.methodologyVersion,
             evidenceFileName: activeDraft.evidenceFileName,
+            sourcePdfSha256: (() => {
+              const activeUpload = activeSession.stagedUploads.find((upload) => activeDraft.evidenceIds.includes(upload.evidenceId));
+              const activePdfPin = coalesceEvidencePins(loadPins(candidate.methodologyId, candidate.methodologyVersion)).find((pin) => activeDraft.evidenceIds.includes(pin.id) && pin.pdd_document);
+              return activeUpload?.attachment.sha256 ?? activePdfPin?.pdd_document?.sha256 ?? null;
+            })(),
             rawPddText: sourceAnalysis.rawPddText,
             rules: auditRules,
           });
