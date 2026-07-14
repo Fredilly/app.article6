@@ -139,8 +139,8 @@ Not active now:
 Status SSOT: `docs/roadmaps/interactive-evidence-review-mvp/phase-status.json`
 Details: `docs/roadmaps/interactive-evidence-review-mvp/PLAN.md`
 
-1) RC0 — Roadmap contract: Active
-2) RC1 — Readable interactive workspace: Next
+1) RC0 — Roadmap contract: Done
+2) RC1 — Readable interactive workspace: Active
 3) RC2 — Accuracy benchmark: Planned
 4) RC3 — Generic accuracy improvements: Planned
 5) RC4 — Guided reviewer interaction: Planned
