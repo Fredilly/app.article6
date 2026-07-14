@@ -96,6 +96,18 @@ describe("VM0007 RC2 benchmark contract", () => {
     expect(() => evaluateVm0007Benchmark(input)).toThrow("reviewed row expected-01 has absent required benchmark field clientAction");
   });
 
+  it.each(["clientAction", "contradictionState"] as const)("rejects null reviewed %s", (field) => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values[field] = null;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(`reviewed row expected-01 has invalid null for ${field}; only draftFinding may be null`);
+  });
+
+  it.each(["clientAction", "contradictionState"] as const)("rejects non-string reviewed %s", (field) => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values[field] = 123;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(`reviewed row expected-01 has invalid ${field}; expected a string`);
+  });
+
   it("rejects contradictory reviewed applicability semantics", () => {
     const input = syntheticInput();
     input.reviewedRows[0].values.evidenceState = "N/A";

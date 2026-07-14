@@ -155,6 +155,14 @@ function requiredReviewedValue(row: Vm0007ReviewedTruthRow, field: keyof Vm0007R
   return row[field];
 }
 
+function requiredReviewedString(row: Vm0007ReviewedTruthRow, field: "contradictionState" | "clientAction", index: number): string {
+  const value = requiredReviewedValue(row, field, index);
+  if (typeof value !== "string") {
+    throw new Error(`reviewed row ${rowLabel(row, index)} has invalid ${field}; expected a string`);
+  }
+  return value;
+}
+
 export function deriveReviewedApplicability(finalEvidenceState: unknown, rowDescription = "reviewed row"): "APPLICABLE" | "NOT_APPLICABLE" {
   if (typeof finalEvidenceState !== "string" || !REVIEWED_EVIDENCE_STATES.has(finalEvidenceState)) {
     throw new Error(`${rowDescription} has invalid finalEvidenceState ${String(finalEvidenceState)}`);
@@ -176,9 +184,12 @@ function validateReviewedTruthRow(row: Vm0007ReviewedTruthRow, index: number): v
   if (Object.prototype.hasOwnProperty.call(row, "applicability") && row.applicability !== expectedApplicability) {
     throw new Error(`${description} applicability ${String(row.applicability)} contradicts canonical applicability ${expectedApplicability}`);
   }
-  requiredReviewedValue(row, "contradictionState", index);
-  requiredReviewedValue(row, "draftFindingCandidate", index);
-  requiredReviewedValue(row, "clientAction", index);
+  requiredReviewedString(row, "contradictionState", index);
+  const draftFindingCandidate = requiredReviewedValue(row, "draftFindingCandidate", index);
+  if (draftFindingCandidate !== null && typeof draftFindingCandidate !== "string") {
+    throw new Error(`${description} has invalid draftFindingCandidate; expected a string or null`);
+  }
+  requiredReviewedString(row, "clientAction", index);
 }
 
 export function machineProposalToBenchmarkRows(rows: readonly Vm0007MachineProposalRow[]): Vm0007BenchmarkSourceRow[] {
@@ -218,6 +229,9 @@ function validateReviewedBenchmarkRows(rows: ReadonlyMap<string, Vm0007Benchmark
       if (row.values[field] === undefined) {
         throw new Error(`reviewed row ${stableRuleId} has absent required benchmark field ${field}`);
       }
+      if (row.values[field] === null && field !== "draftFinding") {
+        throw new Error(`reviewed row ${stableRuleId} has invalid null for ${field}; only draftFinding may be null`);
+      }
     }
     const evidenceState = row.values.evidenceState;
     const reviewerOutcome = row.values.reviewerOutcome;
@@ -227,6 +241,15 @@ function validateReviewedBenchmarkRows(rows: ReadonlyMap<string, Vm0007Benchmark
     }
     if (typeof reviewerOutcome !== "string" || !REVIEWED_OUTCOMES.has(reviewerOutcome)) {
       throw new Error(`reviewed row ${stableRuleId} has invalid reviewerOutcome ${String(reviewerOutcome)}`);
+    }
+    if (typeof row.values.contradictionState !== "string") {
+      throw new Error(`reviewed row ${stableRuleId} has invalid contradictionState; expected a string`);
+    }
+    if (typeof row.values.clientAction !== "string") {
+      throw new Error(`reviewed row ${stableRuleId} has invalid clientAction; expected a string`);
+    }
+    if (row.values.draftFinding !== null && typeof row.values.draftFinding !== "string") {
+      throw new Error(`reviewed row ${stableRuleId} has invalid draftFinding; expected a string or null`);
     }
     const expectedApplicability = deriveReviewedApplicability(evidenceState, `reviewed row ${stableRuleId}`);
     if (applicability !== expectedApplicability || (expectedApplicability === "NOT_APPLICABLE") !== (reviewerOutcome === "NOT_APPLICABLE")) {
