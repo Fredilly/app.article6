@@ -1,6 +1,6 @@
 {
   "RC0": "done",
-  "currentPhase": "RC1",
+  "currentPhase": "RC2",
   "name": "Interactive Evidence Review MVP",
   "phases": {
     "phase_0_roadmap_contract": {
@@ -13,7 +13,7 @@
     },
     "phase_2_accuracy_benchmark": {
       "title": "Accuracy benchmark",
-      "status": "planned"
+      "status": "active"
     },
     "phase_3_generic_accuracy_improvements": {
       "title": "Generic accuracy improvements",
