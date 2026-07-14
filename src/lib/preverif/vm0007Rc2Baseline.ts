@@ -114,6 +114,13 @@ const REJECTION_REASON_TO_TAXONOMY: Readonly<Record<RejectionReasonLabel, string
   "wrong page or section": "wrong-page-or-section",
 };
 
+const MEASURED_REJECTION_REASON_TAXONOMY_IDS = new Set([
+  "incomplete-provenance",
+  "qualifying-evidence-missed",
+  "stitched-or-paraphrased-quote",
+  "wrong-page-or-section",
+]);
+
 function fieldCell(value: FieldCell): string {
   if (value.kind !== "value") return value.kind;
   return `${typeof value.value}:${String(value.value)}`;
@@ -146,6 +153,14 @@ function category(map: Map<string, FailureCategory>, taxonomyId: string, ruleId:
 
 function categoryExample(ruleId: string, field: string, machine: FieldCell, reviewed: FieldCell): string {
   return `${ruleId}: ${field} ${fieldCell(machine)} → ${fieldCell(reviewed)}`;
+}
+
+function annotateCategory(map: Map<string, FailureCategory>, taxonomyId: string, sourceLabel: string, example: string): void {
+  const existing = map.get(taxonomyId);
+  if (!existing) return;
+  if (!existing.sourceLabels.includes(sourceLabel)) existing.sourceLabels.push(sourceLabel);
+  existing.impact.reconciliationAnnotationCount = (existing.impact.reconciliationAnnotationCount ?? 0) + 1;
+  if (example && !existing.examples.includes(example) && existing.examples.length < 3) existing.examples.push(example);
 }
 
 function mappedClassification(value: unknown): { sourceLabel: ReconciliationClassification; taxonomyId: string } {
@@ -193,14 +208,9 @@ function makeFailureCategories(
       const result = row.fields[field];
       if (!result.matches) {
         const taxonomyId = field === "applicability" ? "applicability-mismatch" : field === "evidenceState" ? "evidence-state-mismatch" : `${field.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}-mismatch`;
-        const reconciliationLabel = reconciliation.get(row.stableRuleId);
-        category(categories, taxonomyId, row.stableRuleId, 1, { mismatchedRowCount: 1 }, categoryExample(row.stableRuleId, field, result.machine, result.reviewed), reconciliationLabel?.taxonomyId === taxonomyId ? reconciliationLabel.sourceLabel : undefined);
+        category(categories, taxonomyId, row.stableRuleId, 1, { mismatchedRowCount: 1 }, categoryExample(row.stableRuleId, field, result.machine, result.reviewed));
       }
     }
-  }
-  for (const reconciliationRow of reconciliationRows) {
-    const mapped = reconciliation.get(reconciliationRow.ruleId)!;
-    category(categories, mapped.taxonomyId, reconciliationRow.ruleId, 1, { reconciliationClassificationCount: 1 }, `${reconciliationRow.ruleId}: ${mapped.sourceLabel}`, mapped.sourceLabel);
   }
   for (const row of evidence.rows) {
     const checks = [
@@ -216,12 +226,20 @@ function makeFailureCategories(
       category(categories, taxonomyId, row.stableRuleId, count, impact, `${row.stableRuleId}: ${collection} ${count} affected record(s)`);
     }
   }
+  for (const reconciliationRow of reconciliationRows) {
+    const mapped = reconciliation.get(reconciliationRow.ruleId)!;
+    annotateCategory(categories, mapped.taxonomyId, mapped.sourceLabel, `${reconciliationRow.ruleId}: ${mapped.sourceLabel}`);
+  }
   for (const row of reconciliationRows) {
     const source = row.rejectedEvidenceReferences ?? [];
     for (const reference of source) {
       if (reference.rejectionReason === undefined) continue;
       for (const mapped of mappedReasonLabels(reference.rejectionReason)) {
-        category(categories, mapped.taxonomyId, row.ruleId, 1, { reconciliationReasonCount: 1 }, `${row.ruleId}: ${mapped.sourceLabel}`, mapped.sourceLabel);
+        if (MEASURED_REJECTION_REASON_TAXONOMY_IDS.has(mapped.taxonomyId)) {
+          category(categories, mapped.taxonomyId, row.ruleId, 1, { reconciliationReasonCount: 1 }, `${row.ruleId}: ${mapped.sourceLabel}`, mapped.sourceLabel);
+        } else {
+          annotateCategory(categories, mapped.taxonomyId, mapped.sourceLabel, `${row.ruleId}: ${mapped.sourceLabel}`);
+        }
       }
     }
   }

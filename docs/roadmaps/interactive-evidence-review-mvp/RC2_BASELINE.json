@@ -7304,105 +7304,22 @@
       ],
       "definition": "The machine selected accepted evidence that is not present in reviewed accepted evidence.",
       "measurableImpact": {
-        "eventCount": 63,
+        "eventCount": 58,
         "falseSupportCount": 58,
-        "reconciliationClassificationCount": 1,
-        "reconciliationReasonCount": 4
+        "reconciliationAnnotationCount": 5
       },
       "name": "accepted evidence false support",
       "recommendedGenericRc3Response": "Improve generic accepted-evidence retrieval and ranking to suppress weak or boilerplate support.",
       "representativeExamples": [
-        "Verra.AFOLU.VM0007.v1-8.R-1-0001: MACHINE_FALSE_POSITIVE_INCOMPLETE",
         "Verra.AFOLU.VM0007.v1-8.R-1-0001: accepted 1 affected record(s)",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0002: accepted 1 affected record(s)"
+        "Verra.AFOLU.VM0007.v1-8.R-1-0002: accepted 1 affected record(s)",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0003: accepted 1 affected record(s)"
       ],
       "sourceLabels": [
         "MACHINE_FALSE_POSITIVE_INCOMPLETE",
         "generic-text false support"
       ],
       "taxonomyId": "accepted-evidence-false-support"
-    },
-    {
-      "affectedRuleCount": 58,
-      "affectedStableRuleIds": [
-        "Verra.AFOLU.VM0007.v1-8.R-1-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0003",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0005",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0006",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0008",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0009",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0010",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0011",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0014",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0003",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0005",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0006",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0009",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0010",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0011",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0012",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0013",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0014",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0015",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0016",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0003",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0005",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0006",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-        "Verra.AFOLU.VM0007.v1-8.R-4-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-4-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0003",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0005",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0006",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0008",
-        "Verra.AFOLU.VM0007.v1-8.R-5-0009",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0001",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0002",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0003",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0005",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0006",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-6-0008"
-      ],
-      "definition": "The machine evidence state differs from reviewed evidence state; existing reconciliation labels MACHINE_FALSE_FOUND where applicable.",
-      "measurableImpact": {
-        "eventCount": 62,
-        "mismatchedRowCount": 52,
-        "reconciliationClassificationCount": 6,
-        "reconciliationReasonCount": 4
-      },
-      "name": "incorrect evidence state",
-      "recommendedGenericRc3Response": "Improve generic evidence-state calibration and support-strength handling.",
-      "representativeExamples": [
-        "Verra.AFOLU.VM0007.v1-8.R-1-0001: evidenceState string:FOUND → string:UNCLEAR",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0003: evidenceState string:FOUND → string:N/A",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0004: evidenceState string:FOUND → string:UNCLEAR"
-      ],
-      "sourceLabels": [
-        "MACHINE_FALSE_FOUND",
-        "assessment too strong"
-      ],
-      "taxonomyId": "evidence-state-mismatch"
     },
     {
       "affectedRuleCount": 58,
@@ -7790,7 +7707,82 @@
       "taxonomyId": "reviewer-outcome-mismatch"
     },
     {
-      "affectedRuleCount": 26,
+      "affectedRuleCount": 52,
+      "affectedStableRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+      ],
+      "definition": "The machine evidence state differs from reviewed evidence state; existing reconciliation labels MACHINE_FALSE_FOUND where applicable.",
+      "measurableImpact": {
+        "eventCount": 52,
+        "mismatchedRowCount": 52,
+        "reconciliationAnnotationCount": 10
+      },
+      "name": "incorrect evidence state",
+      "recommendedGenericRc3Response": "Improve generic evidence-state calibration and support-strength handling.",
+      "representativeExamples": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0001: evidenceState string:FOUND → string:UNCLEAR",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0003: evidenceState string:FOUND → string:N/A",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0004: evidenceState string:FOUND → string:UNCLEAR"
+      ],
+      "sourceLabels": [
+        "MACHINE_FALSE_FOUND",
+        "assessment too strong"
+      ],
+      "taxonomyId": "evidence-state-mismatch"
+    },
+    {
+      "affectedRuleCount": 22,
       "affectedStableRuleIds": [
         "Verra.AFOLU.VM0007.v1-8.R-1-0003",
         "Verra.AFOLU.VM0007.v1-8.R-1-0005",
@@ -7804,12 +7796,8 @@
         "Verra.AFOLU.VM0007.v1-8.R-1-0013",
         "Verra.AFOLU.VM0007.v1-8.R-2-0002",
         "Verra.AFOLU.VM0007.v1-8.R-2-0004",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0007",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0008",
         "Verra.AFOLU.VM0007.v1-8.R-2-0009",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0010",
         "Verra.AFOLU.VM0007.v1-8.R-2-0011",
-        "Verra.AFOLU.VM0007.v1-8.R-2-0012",
         "Verra.AFOLU.VM0007.v1-8.R-2-0015",
         "Verra.AFOLU.VM0007.v1-8.R-2-0016",
         "Verra.AFOLU.VM0007.v1-8.R-3-0006",
@@ -7821,9 +7809,9 @@
       ],
       "definition": "The machine applicability differs from reviewed applicability; reconciliation labels this as MACHINE_WRONG_APPLICABILITY where available.",
       "measurableImpact": {
-        "eventCount": 30,
+        "eventCount": 22,
         "mismatchedRowCount": 22,
-        "reconciliationClassificationCount": 8
+        "reconciliationAnnotationCount": 8
       },
       "name": "incorrect applicability",
       "recommendedGenericRc3Response": "Improve generic applicability gating from project activity and scope evidence.",
@@ -7990,42 +7978,42 @@
     },
     {
       "rank": 2,
-      "rationale": "58 affected rule(s); 63 measurable event(s).",
+      "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "accepted-evidence-false-support"
     },
     {
       "rank": 3,
-      "rationale": "58 affected rule(s); 62 measurable event(s).",
-      "taxonomyId": "evidence-state-mismatch"
-    },
-    {
-      "rank": 4,
       "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "client-action-mismatch"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "contradiction-state-mismatch"
     },
     {
-      "rank": 6,
+      "rank": 5,
       "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "draft-finding-mismatch"
     },
     {
-      "rank": 7,
+      "rank": 6,
       "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "rejected-evidence-missed"
     },
     {
-      "rank": 8,
+      "rank": 7,
       "rationale": "58 affected rule(s); 58 measurable event(s).",
       "taxonomyId": "reviewer-outcome-mismatch"
     },
     {
+      "rank": 8,
+      "rationale": "52 affected rule(s); 52 measurable event(s).",
+      "taxonomyId": "evidence-state-mismatch"
+    },
+    {
       "rank": 9,
-      "rationale": "26 affected rule(s); 30 measurable event(s).",
+      "rationale": "22 affected rule(s); 22 measurable event(s).",
       "taxonomyId": "applicability-mismatch"
     },
     {

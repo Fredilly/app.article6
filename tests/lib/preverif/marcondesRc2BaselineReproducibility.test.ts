@@ -53,6 +53,11 @@ describe("RC2 VM0007 official baseline", () => {
     expect(result.aggregate.categorical.totalAlignedRows).toBe(58);
     expect(result.aggregate.categorical.totalRowsWithAtLeastOneMismatch).toBe(result.rows.filter((row) => !row.categorical.fullyMatches).length);
     expect(result.aggregate.categorical.totalFullyMatchingRows).toBe(result.rows.filter((row) => row.categorical.fullyMatches).length);
+    const failureById = new Map(result.failureTaxonomy.map((category) => [category.taxonomyId, category]));
+    expect(failureById.get("accepted-evidence-missed")?.measurableImpact.eventCount).toBe(95);
+    expect(failureById.get("accepted-evidence-false-support")?.measurableImpact.eventCount).toBe(58);
+    expect(result.recommendedRc3Order[0]?.taxonomyId).toBe("accepted-evidence-missed");
+    expect(failureById.get("accepted-evidence-false-support")?.sourceLabels).toContain("MACHINE_FALSE_POSITIVE_INCOMPLETE");
     for (const collection of ["accepted", "rejected"] as const) {
       const rows = result.rows.map((row) => row.evidence[collection]);
       const aggregate = result.aggregate[collection === "accepted" ? "acceptedEvidence" : "rejectedEvidence"];
@@ -81,6 +86,23 @@ describe("RC2 VM0007 official baseline", () => {
     expect(serializeVm0007Rc2Baseline(result)).toBe(fs.readFileSync(path.join(artifactDir, "RC2_BASELINE.json"), "utf8"));
     expect(renderVm0007Rc2Summary(result)).toBe(fs.readFileSync(path.join(artifactDir, "RC2_BASELINE.md"), "utf8"));
     expect(serializeVm0007Rc2Baseline(result)).toBe(serializeVm0007Rc2Baseline(baseline()));
+  });
+
+  it("keeps historical classifications as non-measured annotations", () => {
+    const original = baseline();
+    const historical = buildVm0007Rc2Baseline({
+      ...input(),
+      reconciliationRows: input().reconciliationRows.map((row, index) => ({
+        ...row,
+        failureClassification: index % 2 === 0 ? "MACHINE_WRONG_APPLICABILITY" : "MACHINE_FALSE_FOUND",
+      })),
+    });
+    const originalById = new Map(original.failureTaxonomy.map((category) => [category.taxonomyId, category]));
+    for (const category of historical.failureTaxonomy) {
+      expect(category.measurableImpact.eventCount).toBe(originalById.get(category.taxonomyId)?.measurableImpact.eventCount);
+      expect(category.affectedStableRuleIds).toEqual(originalById.get(category.taxonomyId)?.affectedStableRuleIds);
+    }
+    expect(historical.recommendedRc3Order.map((item) => item.taxonomyId)).toEqual(original.recommendedRc3Order.map((item) => item.taxonomyId));
   });
 
   it.each([
