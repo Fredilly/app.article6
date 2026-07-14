@@ -456,6 +456,33 @@ describe("VM0007 Evidence Map review workspace", () => {
     act(() => root.unmount());
   });
 
+  test("uses deterministic full-quote disclosure with unique accessible controls", async () => {
+    const auditId = "ui-long-evidence";
+    const longQuote = Array.from({ length: 80 }, (_, index) => `evidence-word-${index}`).join(" ");
+    const rows = makeRows(auditId);
+    rows[0] = {
+      ...rows[0],
+      acceptedEvidence: rows[0].acceptedEvidence?.map((record) => ({ ...record, quote: longQuote })),
+    };
+    savePackage(auditId, rows);
+    const { container, root } = await renderPage(auditId);
+    click(container.querySelector(`[data-evidence-map-row="${auditId}:R-1"] > button`));
+    const disclosureButtons = Array.from(container.querySelectorAll("button")).filter((button) => button.textContent === "Show full evidence");
+    expect(disclosureButtons).toHaveLength(2);
+    const controls = disclosureButtons.map((button) => button.getAttribute("aria-controls"));
+    expect(new Set(controls).size).toBe(2);
+    for (const id of controls) expect(id && document.getElementById(id)).not.toBeNull();
+    expect(disclosureButtons[0]?.getAttribute("aria-expanded")).toBe("false");
+    expect(container.textContent).not.toContain(longQuote);
+    click(disclosureButtons[0] ?? null);
+    expect(disclosureButtons[0]?.getAttribute("aria-expanded")).toBe("true");
+    expect(container.textContent).toContain(longQuote);
+    expect(Array.from(container.querySelectorAll("button")).some((button) => button.textContent === "Show less")).toBe(true);
+    click(Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "Show less") ?? null);
+    expect(container.textContent).not.toContain(longQuote);
+    act(() => root.unmount());
+  });
+
   test("uses an accessible review panel and the existing reviewer workflow without browser prompts", async () => {
     const promptSpy = jest.spyOn(window, "prompt");
     const auditId = "ui-review";
