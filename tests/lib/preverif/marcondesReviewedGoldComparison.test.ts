@@ -1,145 +1,183 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadMethodRules } from "@/app/m/_lib/methodRules";
-import { auditEvidence, type EvidenceAuditStatus } from "@/lib/preverif/evidenceAudit";
-import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "@/lib/preverif/vm0007EvidenceContracts";
-import type { EvidenceDocument } from "@/lib/quickCheck/evidence/evidenceTypes";
+import {
+  compareBenchmarkValues,
+  evaluateVm0007Benchmark,
+  machineProposalToBenchmarkRows,
+  reviewedTruthToBenchmarkRows,
+  type Vm0007MachineProposalRow,
+  type Vm0007ReviewedTruthRow,
+} from "@/lib/preverif/vm0007Benchmark";
 
 const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const reviewedRuleIds = [
-  "R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008",
-  "R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014", "R-1-0015",
-  "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006", "R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010",
-  "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003", "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002",
-  "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
-] as const;
+const rulesPath = path.join(process.cwd(), "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");
 
-const resolvedIrrelevantScopeRows = ["R-2-0007", "R-2-0008", "R-2-0010", "R-2-0012"] as const;
-
-type JsonRecord = Record<string, any>;
+type JsonRecord = Record<string, unknown>;
 
 function readJson(name: string): JsonRecord {
   return JSON.parse(fs.readFileSync(path.join(fixtureDir, name), "utf8")) as JsonRecord;
 }
 
-function marcondesEvidenceDocument(): EvidenceDocument {
-  const extraction = readJson("raw-document-extraction.json");
-  const spans = extraction.pages.map((page: { pageNumber: number; text: string }) => ({
-    spanId: `marcondes-pdd:page:${page.pageNumber}:project-evidence`,
-    docId: "marcondes-pdd",
-    page: page.pageNumber,
-    sectionId: `Marcondes PDD page ${page.pageNumber}`,
-    heading: `Marcondes PDD page ${page.pageNumber}`,
-    headingPath: [`Marcondes PDD page ${page.pageNumber}`],
-    sectionPath: [`Marcondes PDD page ${page.pageNumber}`],
-    blockType: "paragraph" as const,
-    text: page.pageNumber === 12
-      ? page.text.match(/The project is eligible[\s\S]*?associated with deforestation\./)?.[0] ?? ""
-      : page.text,
-    normalizedText: page.text.toLowerCase(),
-    charStart: null,
-    charEnd: null,
-    reliability: "primary" as const,
-    confidence: 1,
-  }));
-  return {
-    docId: "marcondes-pdd",
-    rawText: extraction.pages.map((page: { text: string }) => page.text).join("\f"),
-    parserSource: "saved-document-extraction",
-    parserAdapterId: "pymupdf",
-    spans,
+function fixtureInputs() {
+  const machine = readJson("machine-proposal.json");
+  const reviewed = readJson("gold.json");
+  const registry = JSON.parse(fs.readFileSync(rulesPath, "utf8")) as { rules: Array<{ stable_id: string }> };
+  const machineRows = machineProposalToBenchmarkRows(machine.rows as Vm0007MachineProposalRow[]);
+  const reviewedRows = reviewedTruthToBenchmarkRows(reviewed.rows as Vm0007ReviewedTruthRow[]);
+  return { machineRows, reviewedRows, expectedStableRuleIds: registry.rules.map((rule) => rule.stable_id) };
+}
+
+function syntheticInput() {
+  const expectedStableRuleIds = Array.from({ length: 58 }, (_, index) => `expected-${String(index + 1).padStart(2, "0")}`);
+  const values = {
+    evidenceState: "FOUND",
+    applicability: "APPLICABLE",
+    reviewerOutcome: "CONFORMS",
+    contradictionState: "NONE_IDENTIFIED",
+    draftFinding: null,
+    clientAction: "retain",
   };
+  const machineRows = expectedStableRuleIds.map((stableRuleId) => ({ stableRuleId, values: { ...values } }));
+  const reviewedRows = expectedStableRuleIds.map((stableRuleId) => ({ stableRuleId, values: { ...values } }));
+  return { machineRows, reviewedRows, expectedStableRuleIds };
 }
 
-function stateForStatus(status: EvidenceAuditStatus): "FOUND" | "UNCLEAR" | "MISSING" | "N/A" {
-  if (status === "supported_by_pdd") return "FOUND";
-  if (status === "missing_evidence") return "MISSING";
-  if (status === "not_applicable") return "N/A";
-  return "UNCLEAR";
-}
+describe("VM0007 RC2 benchmark contract", () => {
+  it("aligns the real 58-row machine proposal and reviewed truth by the stable ID registry", () => {
+    const result = evaluateVm0007Benchmark(fixtureInputs());
+    expect(result.aggregate).toEqual(expect.objectContaining({ totalExpectedRows: 58, totalAlignedRows: 58 }));
+    expect(result.rows).toHaveLength(58);
+    expect(result.rows.map((row) => row.stableRuleId)).toEqual([...result.rows].map((row) => row.stableRuleId).sort());
+    expect(result.aggregate.mismatchedRuleIds.length).toBeGreaterThan(0);
+  });
 
-describe("Marcondes reviewed gold comparison", () => {
-  it("evaluates every reviewed row and reports exact matches, mismatches, and corrected false FOUND cases", async () => {
-    const rules = (await loadMethodRules("VM0007", "v1-8")).rules;
-    const gold = readJson("gold.json");
-    const previous = readJson("machine-proposal.json");
-    const audit = auditEvidence({
-      rules,
-      evidenceDocument: marcondesEvidenceDocument(),
-      getContract: getVm0007EvidenceContract,
-      normalizeRuleId: normalizeVm0007RuleId,
-      versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
-    });
-    const goldByRule = new Map(gold.rows.map((row: JsonRecord) => [row.ruleReference, row]));
-    const previousByRule = new Map(previous.rows.map((row: JsonRecord) => [row.ruleReference, row]));
-    const comparison = reviewedRuleIds.map((ruleId) => {
-      const result = audit.results.find((row) => row.ruleId === ruleId)!;
-      const reviewed = goldByRule.get(ruleId)!;
-      const prior = previousByRule.get(`Verra.AFOLU.VM0007.v1-8.${ruleId}`)!;
-      const machineState = stateForStatus(result.status);
-      return {
-        ruleId,
-        before: prior.rawAuditStatus,
-        after: result.status,
-        gold: reviewed.finalEvidenceState,
-        exact: machineState === reviewed.finalEvidenceState,
-        correctedFalseFound: prior.rawAuditStatus === "supported_by_pdd" && result.status !== "supported_by_pdd",
-        evidenceTypes: result.evidence?.map((evidence) => evidence.evidenceType),
-      };
-    });
-    const mismatches = comparison.filter((row) => !row.exact);
-    const corrections = comparison.filter((row) => row.correctedFalseFound);
-    const totals = Object.fromEntries([
-      "supported_by_pdd", "partially_supported", "missing_evidence", "not_applicable", "manual_review_needed",
-    ].map((status) => [status, audit.results.filter((row) => row.status === status).length]));
+  it("is independent of input order and deterministic across repeated runs", () => {
+    const input = fixtureInputs();
+    const first = evaluateVm0007Benchmark(input);
+    const reordered = {
+      ...input,
+      machineRows: [...input.machineRows].reverse(),
+      reviewedRows: [...input.reviewedRows].sort(() => -1),
+    };
+    expect(evaluateVm0007Benchmark(reordered)).toEqual(first);
+    expect(evaluateVm0007Benchmark(input)).toEqual(first);
+  });
 
-    console.log("Marcondes reviewed gold comparison", JSON.stringify({
-      reviewed: comparison.length,
-      exactMatches: comparison.length - mismatches.length,
-      mismatches,
-      correctedFalseFound: corrections.map((row) => row.ruleId),
-      totals,
-    }, null, 2));
+  it.each([
+    ["duplicate machine IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, machineRows: [...input.machineRows.slice(0, -1), input.machineRows[0]] }), "machine duplicate stable IDs"],
+    ["duplicate reviewed IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, reviewedRows: [...input.reviewedRows.slice(0, -1), input.reviewedRows[0]] }), "reviewed duplicate stable IDs"],
+    ["missing machine IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, machineRows: input.machineRows.slice(0, -1) }), "machine row count 57"],
+    ["missing reviewed IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, reviewedRows: input.reviewedRows.slice(0, -1) }), "reviewed row count 57"],
+    ["unexpected IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, machineRows: input.machineRows.map((row, index) => index === 0 ? { ...row, stableRuleId: "unexpected-id" } : row) }), "machine unexpected stable IDs"],
+    ["empty IDs", (input: ReturnType<typeof syntheticInput>) => ({ ...input, reviewedRows: input.reviewedRows.map((row, index) => index === 0 ? { ...row, stableRuleId: "" } : row) }), "reviewed missing or empty stable IDs"],
+  ])("rejects %s", (_name, mutate, expectedMessage) => {
+    expect(() => evaluateVm0007Benchmark(mutate(syntheticInput()))).toThrow(expectedMessage);
+  });
 
-    expect(audit.results).toHaveLength(58);
-    expect(comparison).toHaveLength(48);
-    expect(comparison.length - mismatches.length).toBeGreaterThanOrEqual(37);
-    expect(comparison.length - mismatches.length).toBe(37);
-    const reconciliation = readJson("mismatch-reconciliation.json");
-    expect(reconciliation.rows).toHaveLength(15);
-    expect(new Set(reconciliation.rows.map((row: JsonRecord) => row.ruleId)).size).toBe(15);
-    const stableRuleId = (ruleId: string) => ruleId.startsWith("Verra.") ? ruleId : `Verra.AFOLU.VM0007.v1-8.${ruleId}`;
-    const activeReconciliationRows = reconciliation.rows.filter((row: JsonRecord) =>
-      !resolvedIrrelevantScopeRows.some((ruleId) => row.ruleId.endsWith(ruleId)),
-    );
-    expect(mismatches.map((row) => stableRuleId(row.ruleId)).sort()).toEqual(activeReconciliationRows.map((row: JsonRecord) => row.ruleId).sort());
-    for (const ruleId of resolvedIrrelevantScopeRows) {
-      expect(comparison.find((row) => row.ruleId === ruleId)).toEqual(expect.objectContaining({
-        exact: true,
-        gold: "UNCLEAR",
-      }));
+  it("evaluates every supported field with explicit absent and null semantics", () => {
+    const input = syntheticInput();
+    input.machineRows[0].values.evidenceState = null;
+    input.reviewedRows[0].values.evidenceState = "FOUND";
+    input.machineRows[1].values.reviewerOutcome = undefined;
+    input.reviewedRows[1].values.reviewerOutcome = "CONFORMS";
+    const result = evaluateVm0007Benchmark(input);
+    expect(result.rows[0].fields.evidenceState).toEqual({ machine: { kind: "null" }, reviewed: { kind: "value", value: "FOUND" }, matches: false });
+    expect(result.rows[1].fields.reviewerOutcome).toEqual({ machine: { kind: "absent" }, reviewed: { kind: "value", value: "CONFORMS" }, matches: false });
+    expect(compareBenchmarkValues("evidenceState", { kind: "absent" }, { kind: "absent" })).toBe(false);
+    for (const field of ["evidenceState", "applicability", "reviewerOutcome", "contradictionState", "draftFinding", "clientAction"] as const) {
+      expect(result.aggregate.fields[field]).toEqual(expect.objectContaining({ matchedCount: expect.any(Number), mismatchedCount: expect.any(Number), agreementRate: expect.any(Number), mismatchedRuleIds: expect.any(Array) }));
     }
-    for (const mismatch of mismatches) {
-      const record = reconciliation.rows.find((row: JsonRecord) => row.ruleId === stableRuleId(mismatch.ruleId))!;
-      const goldRow = goldByRule.get(mismatch.ruleId)!;
-      expect(record.machineState).toBe(stateForStatus(mismatch.after));
-      expect(record.goldState).toBe(mismatch.gold);
-      expect(record.requirementReviewed).toBe(goldRow.requirement);
-      expect(record.methodologyTraceability).toEqual(goldRow.methodologyTraceability);
-      expect(record.pagesInspected).toEqual([...new Set(goldRow.acceptedEvidence.map((evidence: JsonRecord) => evidence.page))]);
-      expect(record.acceptedEvidenceReferences).toEqual(goldRow.acceptedEvidence.map((evidence: JsonRecord) => ({ page: evidence.page, section: evidence.section, spanId: evidence.spanId, quote: evidence.quote })));
-      expect(record.rejectedEvidenceReferences).toEqual(goldRow.rejectedEvidence.map((evidence: JsonRecord) => ({ page: evidence.page, section: evidence.section, spanId: evidence.spanId, quote: evidence.quote, rejectionReason: evidence.rejectionReason })));
-      expect(record.failureClassification).toEqual(expect.stringMatching(/^MACHINE_/));
-      expect(record.decision).toBe("GOLD_RETAINED");
-      expect(record.reconciliationRationale).toEqual(expect.any(String));
+  });
+
+  it("rejects an absent reviewed required value", () => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values.clientAction = undefined;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow("reviewed row expected-01 has absent required benchmark field clientAction");
+  });
+
+  it.each(["clientAction", "contradictionState"] as const)("rejects null reviewed %s", (field) => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values[field] = null;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(`reviewed row expected-01 has invalid null for ${field}; only draftFinding may be null`);
+  });
+
+  it.each(["clientAction", "contradictionState"] as const)("rejects non-string reviewed %s", (field) => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values[field] = 123;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(`reviewed row expected-01 has invalid ${field}; expected a string`);
+  });
+
+  it("rejects contradictory reviewed applicability semantics", () => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values.evidenceState = "N/A";
+    input.reviewedRows[0].values.applicability = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.reviewerOutcome = "CONFORMS";
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(/reviewed row expected-01 has contradictory applicability/);
+
+    input.reviewedRows[0].values.evidenceState = "FOUND";
+    input.reviewedRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(/reviewed row expected-01 has contradictory applicability/);
+  });
+
+  it("rejects explicit reviewed applicability that conflicts with the canonical derivation", () => {
+    expect(() => reviewedTruthToBenchmarkRows([{
+      ruleId: "rule-1",
+      finalEvidenceState: "N/A",
+      applicability: "APPLICABLE",
+      reviewerOutcome: "NOT_APPLICABLE",
+      contradictionState: "NONE_IDENTIFIED",
+      draftFindingCandidate: null,
+      clientAction: "retain",
+    }])).toThrow("applicability APPLICABLE contradicts canonical applicability NOT_APPLICABLE");
+  });
+
+  it("evaluates valid N/A and applicable reviewed rows using the canonical applicability", () => {
+    const input = syntheticInput();
+    input.machineRows[0].values.evidenceState = "N/A";
+    input.machineRows[0].values.applicability = "NOT_APPLICABLE";
+    input.machineRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.evidenceState = "N/A";
+    input.reviewedRows[0].values.applicability = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    const result = evaluateVm0007Benchmark(input);
+    expect(result.rows[0].fields.applicability.matches).toBe(true);
+    expect(result.rows[1].reviewedValues.applicability).toEqual({ kind: "value", value: "APPLICABLE" });
+  });
+
+  it("derives aggregate counts exclusively from per-row field results", () => {
+    const result = evaluateVm0007Benchmark(fixtureInputs());
+    for (const field of ["evidenceState", "applicability", "reviewerOutcome", "contradictionState", "draftFinding", "clientAction"] as const) {
+      const fieldResult = result.aggregate.fields[field];
+      expect(fieldResult.matchedCount).toBe(result.rows.filter((row) => row.fields[field].matches).length);
+      expect(fieldResult.mismatchedCount).toBe(result.rows.filter((row) => !row.fields[field].matches).length);
+      expect(fieldResult.agreementRate).toBe(fieldResult.matchedCount / result.rows.length);
+      expect(fieldResult.mismatchedRuleIds).toEqual(result.rows.filter((row) => !row.fields[field].matches).map((row) => row.stableRuleId));
     }
-    expect(totals.supported_by_pdd).toBeGreaterThan(0);
-    expect(totals.partially_supported).toBeLessThan(57);
-    expect(totals.not_applicable).toBeGreaterThan(0);
-    expect(corrections.length).toBeGreaterThan(0);
-    expect(comparison.some((row) => row.ruleId === "R-4-0001" && row.gold === "FOUND" && row.after === "partially_supported")).toBe(true);
-    expect(comparison.filter((row) => row.gold === "N/A" && row.after === "not_applicable").length).toBeGreaterThan(0);
+    expect(result.aggregate.totalFullyMatchingRows).toBe(result.rows.filter((row) => row.fullyMatches).length);
+    expect(result.aggregate.totalRowsWithAtLeastOneMismatch).toBe(result.rows.filter((row) => !row.fullyMatches).length);
+  });
+
+  it("does not mutate either source dataset", () => {
+    const machine = readJson("machine-proposal.json");
+    const reviewed = readJson("gold.json");
+    const registry = JSON.parse(fs.readFileSync(rulesPath, "utf8")) as { rules: Array<{ stable_id: string }> };
+    const machineRows = machineProposalToBenchmarkRows(machine.rows as Vm0007MachineProposalRow[]);
+    const reviewedRows = reviewedTruthToBenchmarkRows(reviewed.rows as Vm0007ReviewedTruthRow[]);
+    const input = { machineRows, reviewedRows, expectedStableRuleIds: registry.rules.map((rule) => rule.stable_id) };
+    const machineBefore = JSON.stringify(machine);
+    const reviewedBefore = JSON.stringify(reviewed);
+    const machineRowsBefore = JSON.stringify(machineRows);
+    const reviewedRowsBefore = JSON.stringify(reviewedRows);
+    evaluateVm0007Benchmark(input);
+    expect(JSON.stringify(machine)).toBe(machineBefore);
+    expect(JSON.stringify(reviewed)).toBe(reviewedBefore);
+    expect(JSON.stringify(machineRows)).toBe(machineRowsBefore);
+    expect(JSON.stringify(reviewedRows)).toBe(reviewedRowsBefore);
+  });
+
+  it("rejects an incomplete expected stable-ID registry", () => {
+    const input = syntheticInput();
+    expect(() => evaluateVm0007Benchmark({ ...input, expectedStableRuleIds: input.expectedStableRuleIds.slice(0, 57) })).toThrow("expected exactly 58");
   });
 });
