@@ -1,8 +1,7 @@
 {
-  "roadmapId": "interactive-evidence-review-mvp",
-  "name": "Interactive Evidence Review MVP",
-  "status": "active",
+  "RC0": "done",
   "currentPhase": "RC0",
+  "name": "Interactive Evidence Review MVP",
   "phases": {
     "phase_0_roadmap_contract": {
       "title": "Roadmap contract",
@@ -32,5 +31,7 @@
       "title": "Stellar MVP release",
       "status": "planned"
     }
-  }
+  },
+  "roadmapId": "interactive-evidence-review-mvp",
+  "status": "active"
 }
