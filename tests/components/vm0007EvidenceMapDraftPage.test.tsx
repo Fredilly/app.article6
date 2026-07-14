@@ -382,19 +382,25 @@ describe("VM0007 Evidence Map review workspace", () => {
     const auditId = "ui-filters";
     savePackage(auditId);
     const { container, root } = await renderPage(auditId);
+    const filtersToggle = Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes("Filters"));
+    expect(filtersToggle?.getAttribute("aria-expanded")).toBe("false");
+    click(filtersToggle ?? null);
+    expect(filtersToggle?.getAttribute("aria-expanded")).toBe("true");
     change(
       container.querySelector('select[aria-label="Evidence state"]'),
       "FOUND",
     );
+    expect(filtersToggle?.textContent).toContain("Filters (1)");
     expect(container.querySelectorAll("[data-evidence-map-row]")).toHaveLength(
       1,
     );
     expect(container.textContent).toContain("1 of 58 rules");
     click(
       Array.from(container.querySelectorAll("button")).find((button) =>
-        button.textContent?.includes("Clear all"),
+        button.textContent?.includes("Clear filters"),
       ) ?? null,
     );
+    expect(filtersToggle?.textContent).toBe(" Filters");
     expect(container.querySelectorAll("[data-evidence-map-row]")).toHaveLength(
       58,
     );

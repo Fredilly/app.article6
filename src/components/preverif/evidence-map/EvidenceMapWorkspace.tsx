@@ -6,6 +6,7 @@ import {
   FilterX,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type {
@@ -77,40 +78,7 @@ function EvidenceList({
           className={`mt-3 divide-y divide-slate-200 rounded-xl px-4 ${rejected ? "bg-amber-50/60" : "bg-emerald-50/50"}`}
         >
           {records.map((record, index) => (
-            <article
-              key={`${record.spanId}-${index}`}
-              data-evidence-record={rejected ? "rejected" : "accepted"}
-              className="py-4"
-            >
-              <blockquote className="whitespace-pre-wrap text-sm leading-6 text-slate-800">
-                “{record.quote}”
-              </blockquote>
-              {rejected && record.rejectionReason ? (
-                <p className="mt-3 text-sm text-amber-900">
-                  <strong>Rejected because:</strong> {record.rejectionReason}
-                </p>
-              ) : null}
-              <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
-                <div>
-                  <dt className="sr-only">Page</dt>
-                  <dd>Page {record.page ?? record.provenance.page ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt className="sr-only">Section</dt>
-                  <dd>
-                    {record.section ||
-                      record.provenance.sectionHeading ||
-                      "No section"}
-                  </dd>
-                </div>
-                <div title={record.provenance.spanId}>
-                  <dt className="sr-only">Source span</dt>
-                  <dd>
-                    {record.provenance.docId} · {record.provenance.spanId}
-                  </dd>
-                </div>
-              </dl>
-            </article>
+            <EvidenceRecord key={`${record.spanId}-${index}`} record={record} rejected={rejected} />
           ))}
         </div>
       ) : (
@@ -119,6 +87,38 @@ function EvidenceList({
         </p>
       )}
     </section>
+  );
+}
+
+function EvidenceRecord({
+  record,
+  rejected,
+}: {
+  record: EvidenceMapPresentationRow["acceptedEvidence"][number];
+  rejected: boolean;
+}) {
+  const [showFull, setShowFull] = useState(false);
+  const isLong = record.quote.length > 360 || record.quote.split("\n").length > 8;
+  const detailsId = `evidence-${record.spanId}-details`;
+  return (
+    <article data-evidence-record={rejected ? "rejected" : "accepted"} className="py-4 first:pt-0 last:pb-0">
+      <blockquote className={`whitespace-pre-wrap text-sm leading-6 text-slate-800 ${isLong && !showFull ? "line-clamp-6" : ""}`}>
+        “{record.quote}”
+      </blockquote>
+      {isLong ? (
+        <button type="button" aria-expanded={showFull} aria-controls={detailsId} onClick={() => setShowFull((current) => !current)} className="mt-2 min-h-10 text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+          {showFull ? "Show less" : "Show full evidence"}
+        </button>
+      ) : null}
+      <div id={detailsId}>
+        {rejected && record.rejectionReason ? <p className="mt-3 text-sm text-amber-900"><strong>Rejected because:</strong> {record.rejectionReason}</p> : null}
+        <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
+          <div><dt className="sr-only">Page</dt><dd>Page {record.page ?? record.provenance.page ?? "—"}</dd></div>
+          <div><dt className="sr-only">Section</dt><dd>{record.section || record.provenance.sectionHeading || "No section"}</dd></div>
+          <div title={record.provenance.spanId}><dt className="sr-only">Source span</dt><dd>{record.provenance.docId} · {record.provenance.spanId}</dd></div>
+        </dl>
+      </div>
+    </article>
   );
 }
 
@@ -298,14 +298,14 @@ function Summary({ rows }: { rows: readonly EvidenceMapPresentationRow[] }) {
   return (
     <nav
       aria-label="Evidence Map summary"
-      className="grid grid-cols-2 divide-x divide-y divide-slate-200 border-y border-slate-200 bg-white sm:grid-cols-3 lg:grid-cols-6"
+      className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-slate-200 py-3 text-sm"
     >
       {items.map(([name, count]) => (
-        <div key={name} className="px-4 py-4">
-          <span className="font-mono text-xl font-semibold tabular-nums">
+        <div key={name} className="flex items-baseline gap-1.5 border-l border-slate-200 pl-5 first:border-l-0 first:pl-0">
+          <span className={`font-mono font-semibold tabular-nums ${name === "Action required" ? "text-rose-700" : "text-slate-950"}`}>
             {count}
           </span>
-          <span className="mt-1 block text-xs font-medium text-slate-500">
+          <span className="text-xs font-medium text-slate-500">
             {name}
           </span>
         </div>
@@ -336,6 +336,7 @@ export default function EvidenceMapWorkspace({
     EMPTY_PRESENTATION_FILTERS,
   );
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const presentation = useMemo(
     () =>
       mode === "reviewed" && reviewedSnapshot
@@ -368,10 +369,21 @@ export default function EvidenceMapWorkspace({
   const reviewerOutcomes = [
     ...new Set(presentation.rows.map((row) => row.reviewerOutcome)),
   ];
+  const activeFilterCount = [
+    filters.evidenceState !== "ALL",
+    filters.applicability !== "ALL",
+    filters.reviewerOutcome !== "ALL",
+    filters.reviewState !== "ALL",
+  ].filter(Boolean).length;
+  const filtersActive = hasPresentationFilters(filters);
+  const setPresentationFilter = <K extends keyof EvidenceMapPresentationFilters>(
+    key: K,
+    value: EvidenceMapPresentationFilters[K],
+  ) => setFilters((current) => ({ ...current, [key]: value }));
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
-      <header className="border-b border-slate-200 bg-white px-4 py-5 sm:px-6">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <main className="min-h-screen w-full bg-slate-50 text-slate-950">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-8 md:px-8">
+        <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-blue-600" />
@@ -382,10 +394,8 @@ export default function EvidenceMapWorkspace({
                   reviewedSnapshot?.sourceDocument.documentId}
               </p>
             </div>
-            <h1 className="mt-2 text-2xl font-semibold">
-              Evidence Map ·{" "}
-              {presentation.readOnly ? "Reviewed truth" : "Machine proposal"}
-            </h1>
+            <p className="mt-3 text-xs font-medium uppercase tracking-[.08em] text-slate-500">Evidence Map</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">Evidence Map · {presentation.readOnly ? "Reviewed truth" : "Machine proposal"}</h1>
             <p className="mt-2 text-xs text-slate-500">
               {pkg?.methodologyId || reviewedSnapshot?.methodologyId}{" "}
               {pkg?.rulebookVersion || reviewedSnapshot?.methodologyVersion} ·
@@ -432,18 +442,14 @@ export default function EvidenceMapWorkspace({
               Finalize Evidence Map
             </button>
           </div>
-        </div>
-      </header>
-      <div className="mx-auto max-w-[1600px]">
-        <div
-          className={`border-b px-4 py-3 text-sm sm:px-6 ${presentation.readOnly ? "border-blue-200 bg-blue-50 text-blue-900" : "border-amber-200 bg-amber-50 text-amber-900"}`}
-        >
+        </header>
+        <div className={`rounded-md border px-3 py-2 text-sm ${presentation.readOnly ? "border-blue-200 bg-blue-50/70 text-blue-900" : "border-amber-200 bg-amber-50/70 text-amber-900"}`}>
           {presentation.readOnly
             ? "Reviewed truth snapshot. Historical reviewed evidence and outcomes are shown separately from the live machine proposal."
             : "Machine proposal. Live proposal fields are shown unchanged; switch modes to compare reviewed truth."}
         </div>
         <Summary rows={presentation.rows} />
-        <div className="sticky top-0 z-20 border-b border-slate-200 bg-slate-50/95 px-4 py-3 sm:px-6">
+        <section aria-label="Search and filters" className="border-b border-slate-200 pb-4">
           <div className="flex flex-wrap gap-2">
             <label className="relative min-w-64 flex-1">
               <Search
@@ -454,57 +460,32 @@ export default function EvidenceMapWorkspace({
                 aria-label="Search rules"
                 type="search"
                 value={filters.query}
-                onChange={(event) =>
-                  setFilters({ ...filters, query: event.target.value })
-                }
+                onChange={(event) => setPresentationFilter("query", event.target.value)}
                 placeholder="Search rules"
                 className="min-h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm"
               />
             </label>
-            <select
-              aria-label="Evidence state"
-              value={filters.evidenceState}
-              onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  evidenceState: event.target
-                    .value as EvidenceMapPresentationFilters["evidenceState"],
-                })
-              }
-              className="rounded-lg border border-slate-300 bg-white px-3 text-sm"
-            >
-              <option value="ALL">Evidence state: All</option>
-              {["FOUND", "UNCLEAR", "MISSING", "N/A"].map((value) => (
-                <option key={value}>{value}</option>
-              ))}
-            </select>
-            <select
-              aria-label="Reviewer outcome"
-              value={filters.reviewerOutcome}
-              onChange={(event) =>
-                setFilters({ ...filters, reviewerOutcome: event.target.value })
-              }
-              className="rounded-lg border border-slate-300 bg-white px-3 text-sm"
-            >
-              <option value="ALL">Reviewer outcome: All</option>
-              {reviewerOutcomes.map((value) => (
-                <option key={value}>{value}</option>
-              ))}
-            </select>
+            <button type="button" aria-expanded={filtersOpen} aria-controls="evidence-map-secondary-filters" onClick={() => setFiltersOpen((current) => !current)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"><SlidersHorizontal size={16} /> Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}</button>
             <button
               type="button"
-              disabled={!hasPresentationFilters(filters)}
+              disabled={!filtersActive}
               onClick={() => setFilters(EMPTY_PRESENTATION_FILTERS)}
               className="inline-flex items-center gap-1.5 px-3 text-sm font-medium text-blue-700 disabled:text-slate-400"
             >
               <FilterX size={14} />
-              Clear all
+              Clear filters
             </button>
           </div>
+          {filtersOpen ? <div id="evidence-map-secondary-filters" className="mt-3 grid gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="grid gap-1 text-xs font-medium text-slate-600">Evidence state<select aria-label="Evidence state" value={filters.evidenceState} onChange={(event) => setPresentationFilter("evidenceState", event.target.value as EvidenceMapPresentationFilters["evidenceState"])} className="min-h-10 rounded-md border border-slate-300 bg-white px-2 text-sm font-normal text-slate-900"><option value="ALL">All</option>{["FOUND", "UNCLEAR", "MISSING", "N/A"].map((value) => <option key={value}>{value}</option>)}</select></label>
+            <label className="grid gap-1 text-xs font-medium text-slate-600">Applicability<select aria-label="Applicability" value={filters.applicability} onChange={(event) => setPresentationFilter("applicability", event.target.value as EvidenceMapPresentationFilters["applicability"])} className="min-h-10 rounded-md border border-slate-300 bg-white px-2 text-sm font-normal text-slate-900"><option value="ALL">All</option><option value="APPLICABLE">Applicable</option><option value="NOT_APPLICABLE">Not applicable</option><option value="UNKNOWN">Unknown</option></select></label>
+            <label className="grid gap-1 text-xs font-medium text-slate-600">Reviewer outcome<select aria-label="Reviewer outcome" value={filters.reviewerOutcome} onChange={(event) => setPresentationFilter("reviewerOutcome", event.target.value)} className="min-h-10 rounded-md border border-slate-300 bg-white px-2 text-sm font-normal text-slate-900"><option value="ALL">All</option>{reviewerOutcomes.map((value) => <option key={value}>{value}</option>)}</select></label>
+            <label className="grid gap-1 text-xs font-medium text-slate-600">Review state<select aria-label="Review state" value={filters.reviewState} onChange={(event) => setPresentationFilter("reviewState", event.target.value)} className="min-h-10 rounded-md border border-slate-300 bg-white px-2 text-sm font-normal text-slate-900"><option value="ALL">All</option>{[...new Set(presentation.rows.map((row) => row.reviewState))].map((value) => <option key={value}>{value}</option>)}</select></label>
+          </div> : null}
           <p className="mt-2 text-xs text-slate-500">
             {rows.length} of {presentation.rows.length} rules
           </p>
-        </div>
+        </section>
         {message && !presentation.readOnly ? (
           <p
             role="status"
@@ -513,7 +494,7 @@ export default function EvidenceMapWorkspace({
             {message}
           </p>
         ) : null}
-        <section aria-label="Evidence Map rules" className="bg-white">
+        <section aria-label="Evidence Map rules" className="overflow-hidden rounded-lg border border-slate-200 bg-white">
           {rows.map((row) => (
             <article
               key={row.rowId}
@@ -524,7 +505,8 @@ export default function EvidenceMapWorkspace({
                 type="button"
                 onClick={() => toggle(row.rowId)}
                 aria-expanded={expanded.has(row.rowId)}
-                className="grid w-full gap-3 px-4 py-4 text-left sm:px-6 lg:grid-cols-[8rem_minmax(12rem,.8fr)_minmax(16rem,1.4fr)_auto] lg:items-center"
+                aria-controls={`${row.rowId}-details`}
+                className="grid min-h-20 w-full gap-3 px-4 py-4 text-left transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-blue-600 sm:px-6 lg:grid-cols-[8rem_minmax(12rem,.8fr)_minmax(16rem,1.4fr)_auto] lg:items-center motion-reduce:transition-none"
               >
                 <span className="font-mono text-xs font-semibold text-blue-700">
                   {row.ruleReference}
