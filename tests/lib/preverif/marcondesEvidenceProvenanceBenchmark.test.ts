@@ -37,8 +37,12 @@ describe("VM0007 evidence selection and provenance benchmark", () => {
     const result = evaluateVm0007EvidenceBenchmark({ machineRows: machine.rows, reviewedRows: reviewed.rows, expectedStableRuleIds: ids });
     expect(result.rows).toHaveLength(58);
     expect(result.rows.map((row) => row.stableRuleId)).toEqual([...ids].sort());
-    expect(result.aggregate.accepted.machineCollectionAbsentStableRuleIds).toHaveLength(58);
+    expect(result.aggregate.accepted.machineCollectionAbsentStableRuleIds).toHaveLength(0);
+    expect(result.rows.find((row) => row.stableRuleId.endsWith("R-1-0001"))?.accepted.machineCollectionState).toBe("present");
+    expect(result.aggregate.accepted.machineRecordCount).toBeGreaterThan(0);
+    expect(result.aggregate.accepted.precision).not.toBe(null);
     expect(result.aggregate.accepted.reviewedRecordCount).toBe(95);
+    expect(result.aggregate.acceptedProvenance.comparedPairCount).toBeGreaterThanOrEqual(0);
   });
 
   it("is deterministic and independent of row or evidence input order", () => {
@@ -87,10 +91,34 @@ describe("VM0007 evidence selection and provenance benchmark", () => {
     delete input.machineRows[0].acceptedEvidence;
     const result = evaluateVm0007EvidenceBenchmark(input);
     expect(result.rows[0].accepted.machineCollectionState).toBe("absent");
-    expect(result.rows[0].accepted.exactCollectionMatch).toBe(true);
+    expect(result.rows[0].accepted.exactCollectionMatch).toBe(false);
+    expect(result.aggregate.accepted.mismatchedStableRuleIds).toContain(result.rows[0].stableRuleId);
+    expect(result.aggregate.accepted.machineCollectionAbsentStableRuleIds).toContain(result.rows[0].stableRuleId);
+    expect(result.aggregate.accepted.exactRowMatchCount).toBe(57);
     expect(result.aggregate.accepted.precision).toBe(null);
     expect(result.aggregate.accepted.recall).toBe(null);
     expect(result.aggregate.accepted.f1).toBe(null);
+  });
+
+  it("adapts proposed evidence only when rich collections are absent", () => {
+    const input = inputs();
+    delete input.machineRows[0].acceptedEvidence;
+    delete input.machineRows[0].rejectedEvidence;
+    input.machineRows[0].proposedAcceptedEvidence = { quote: "proposed accepted", provenance: provenance(3) };
+    input.machineRows[0].proposedRejectedEvidence = { quote: "proposed rejected", provenance: provenance(4), reason: "proposed reason" };
+    input.reviewedRows[0].rejectedEvidence = [evidence("proposed rejected", 4, "span-1", "proposed reason")];
+    const result = evaluateVm0007EvidenceBenchmark(input);
+    expect(result.rows[0].accepted).toEqual(expect.objectContaining({ machineCollectionState: "present", machineRecordCount: 1 }));
+    expect(result.rows[0].rejected).toEqual(expect.objectContaining({ machineCollectionState: "present", machineRecordCount: 1, matchedRecordCount: 1 }));
+    expect(result.rows[0].rejected.rejectionReasons).toEqual(expect.objectContaining({ matchedCount: 1, mismatchedCount: 0 }));
+
+    input.machineRows[0].acceptedEvidence = [];
+    input.machineRows[0].proposedAcceptedEvidence = { quote: "ignored", provenance: provenance(5) };
+    expect(evaluateVm0007EvidenceBenchmark(input).rows[0].accepted.machineRecordCount).toBe(0);
+
+    delete input.machineRows[0].acceptedEvidence;
+    input.machineRows[0].proposedAcceptedEvidence = null;
+    expect(evaluateVm0007EvidenceBenchmark(input).rows[0].accepted).toEqual(expect.objectContaining({ machineCollectionState: "present", machineRecordCount: 0 }));
   });
 
   it.each([

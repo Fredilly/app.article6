@@ -15,9 +15,18 @@ export type EvidenceBenchmarkRecord = Readonly<{
   rejectionReason?: unknown;
 }>;
 
+export type Vm0007ProposedEvidence = Readonly<{
+  quote: unknown;
+  provenance: unknown;
+  reason?: unknown;
+  rejectionReason?: unknown;
+}>;
+
 export type Vm0007EvidenceBenchmarkMachineRow = Vm0007MachineProposalRow & Readonly<{
   acceptedEvidence?: unknown;
   rejectedEvidence?: unknown;
+  proposedAcceptedEvidence?: Vm0007ProposedEvidence | null;
+  proposedRejectedEvidence?: Vm0007ProposedEvidence | null;
 }>;
 
 export type Vm0007EvidenceBenchmarkReviewedRow = Vm0007ReviewedTruthRow & Readonly<{
@@ -119,6 +128,27 @@ export const normalizeRejectionReason = normalizeText;
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasOwn(value: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function machineEvidenceCollection(
+  row: Vm0007EvidenceBenchmarkMachineRow,
+  richField: "acceptedEvidence" | "rejectedEvidence",
+  proposedField: "proposedAcceptedEvidence" | "proposedRejectedEvidence",
+): unknown {
+  if (hasOwn(row, richField)) return row[richField];
+  if (!hasOwn(row, proposedField)) return undefined;
+  const proposed = row[proposedField];
+  if (proposed === null) return [];
+  if (!record(proposed)) return proposed;
+  return [{
+    quote: proposed.quote,
+    provenance: proposed.provenance,
+    ...(proposedField === "proposedRejectedEvidence" ? { rejectionReason: proposed.reason } : {}),
+  }];
 }
 
 function requiredText(value: unknown, label: string): string {
@@ -229,9 +259,9 @@ function evaluateCollection(machineValue: unknown, reviewedValue: unknown, stabl
     }
     rejectionReasons!.mismatchedCount = rejectionReasons!.comparedPairCount - rejectionReasons!.matchedCount;
     const agreementRate = rejectionReasons!.comparedPairCount ? rejectionReasons!.matchedCount / rejectionReasons!.comparedPairCount : null;
-    return { machineCollectionState, machineRecordCount: machine.length, reviewedRecordCount: reviewed.length, matchedRecordCount: pairs.length, falsePositiveRecords, falseNegativeRecords, exactCollectionMatch: falsePositiveRecords.length === 0 && falseNegativeRecords.length === 0, matchedPairs: pairs, provenance, rejectionReasons: { ...rejectionReasons!, agreementRate } };
+    return { machineCollectionState, machineRecordCount: machine.length, reviewedRecordCount: reviewed.length, matchedRecordCount: pairs.length, falsePositiveRecords, falseNegativeRecords, exactCollectionMatch: machineCollectionState === "present" && falsePositiveRecords.length === 0 && falseNegativeRecords.length === 0, matchedPairs: pairs, provenance, rejectionReasons: { ...rejectionReasons!, agreementRate } };
   }
-  return { machineCollectionState, machineRecordCount: machine.length, reviewedRecordCount: reviewed.length, matchedRecordCount: pairs.length, falsePositiveRecords, falseNegativeRecords, exactCollectionMatch: falsePositiveRecords.length === 0 && falseNegativeRecords.length === 0, matchedPairs: pairs, provenance, ...(rejectionReasons ? { rejectionReasons } : {}) };
+  return { machineCollectionState, machineRecordCount: machine.length, reviewedRecordCount: reviewed.length, matchedRecordCount: pairs.length, falsePositiveRecords, falseNegativeRecords, exactCollectionMatch: machineCollectionState === "present" && falsePositiveRecords.length === 0 && falseNegativeRecords.length === 0, matchedPairs: pairs, provenance, ...(rejectionReasons ? { rejectionReasons } : {}) };
 }
 
 function aggregate(rows: readonly Vm0007EvidenceBenchmarkRow[], collection: EvidenceBenchmarkCollection): EvidenceSelectionAggregate {
@@ -252,9 +282,13 @@ export function evaluateVm0007EvidenceBenchmark(input: Readonly<{ machineRows: r
   const machineById = new Map(input.machineRows.map((row) => [typeof row.stableRuleId === "string" ? row.stableRuleId.trim() : "", row]));
   const reviewedById = new Map(input.reviewedRows.map((row) => [typeof row.ruleId === "string" ? row.ruleId.trim() : "", row]));
   const rows = aligned.rows.map(({ stableRuleId }) => {
-    const machine = machineById.get(stableRuleId)! as Record<string, unknown>;
-    const reviewed = reviewedById.get(stableRuleId)! as Record<string, unknown>;
-    return { stableRuleId, accepted: evaluateCollection(machine.acceptedEvidence, reviewed.acceptedEvidence, stableRuleId, false), rejected: evaluateCollection(machine.rejectedEvidence, reviewed.rejectedEvidence, stableRuleId, true) };
+    const machine = machineById.get(stableRuleId)!;
+    const reviewed = reviewedById.get(stableRuleId)!;
+    return {
+      stableRuleId,
+      accepted: evaluateCollection(machineEvidenceCollection(machine, "acceptedEvidence", "proposedAcceptedEvidence"), reviewed.acceptedEvidence, stableRuleId, false),
+      rejected: evaluateCollection(machineEvidenceCollection(machine, "rejectedEvidence", "proposedRejectedEvidence"), reviewed.rejectedEvidence, stableRuleId, true),
+    };
   });
   const rejectionReasons = rows.flatMap((row) => row.rejected.rejectionReasons ? [row.rejected.rejectionReasons] : []);
   const rejectedReasonAgreement = rejectionReasons.reduce((acc, item) => ({ comparedPairCount: acc.comparedPairCount + item.comparedPairCount, matchedCount: acc.matchedCount + item.matchedCount, mismatchedCount: acc.mismatchedCount + item.mismatchedCount, agreementRate: null, mismatched: [...acc.mismatched, ...item.mismatched] }), emptyReasonAggregate());
