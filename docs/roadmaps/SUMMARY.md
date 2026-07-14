@@ -134,6 +134,19 @@ Not active now:
 
 1) PR642: Done (PR #640, #641, #642)
 
+## interactive-evidence-review-mvp
+
+Status SSOT: `docs/roadmaps/interactive-evidence-review-mvp/phase-status.json`
+Details: `docs/roadmaps/interactive-evidence-review-mvp/PLAN.md`
+
+1) RC0 — Roadmap contract: Active
+2) RC1 — Readable interactive workspace: Next
+3) RC2 — Accuracy benchmark: Planned
+4) RC3 — Generic accuracy improvements: Planned
+5) RC4 — Guided reviewer interaction: Planned
+6) RC5 — Unseen-PDD validation: Planned
+7) RC6 — Stellar MVP release: Planned
+
 ## project-verification
 
 Status SSOT: `docs/roadmaps/project-verification/phase-status.json`
