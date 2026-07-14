@@ -276,4 +276,42 @@ describe("generic evidence applicability and completeness contract", () => {
     expect({ page: result.page, section: result.section, span: result.span }).toEqual({ page: null, section: null, span: null });
     expect(result.rejectedEvidence?.[0]?.span).toBe("missing");
   });
+
+  it("keeps production outputs identical when diagnostic tracing is enabled", () => {
+    const evidenceDocument: EvidenceDocument = {
+      docId: "test",
+      rawText: "The project implementation is documented.",
+      spans: [span("The project implementation is documented.", { spanId: "first" })],
+    };
+    const input = {
+      rules: [{ id: "R-1", title: "test requirement", logic: "project implementation" }],
+      evidenceDocument,
+      getContract: () => baseContract,
+      versionContext: { methodologyId: "TEST", rulebookVersion: "v1", pddDeclaredMethodologyVersion: "v1" },
+    };
+    const production = auditEvidence(input);
+    const traced = auditEvidence({ ...input, diagnosticTrace: true });
+    const { diagnosticTrace: _diagnosticTrace, ...tracedProduction } = traced;
+    expect(tracedProduction).toEqual(production);
+  });
+
+  it("preserves first-candidate ties and the original six-item ordering", () => {
+    const text = "The project implementation is documented.";
+    const evidenceDocument: EvidenceDocument = {
+      docId: "test",
+      rawText: text,
+      spans: Array.from({ length: 7 }, (_, index) => span(text, { spanId: `z-${index + 1}` })),
+    };
+    const result = auditEvidence({
+      rules: [{ id: "R-1", title: "test requirement", logic: "project implementation" }],
+      evidenceDocument,
+      getContract: () => baseContract,
+      versionContext: { methodologyId: "TEST", rulebookVersion: "v1", pddDeclaredMethodologyVersion: "v1" },
+      diagnosticTrace: true,
+    });
+
+    expect(result.results[0]?.span).toBe("z-1");
+    expect(result.results[0]?.evidence?.map((evidence) => evidence.span)).toEqual(["z-1", "z-2", "z-3", "z-4", "z-5", "z-6"]);
+    expect(result.diagnosticTrace?.[0]?.selectedCandidates.map((candidate) => candidate.spanId)).toEqual(["z-1", "z-2", "z-3", "z-4", "z-5", "z-6"]);
+  });
 });

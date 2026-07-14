@@ -1107,7 +1107,14 @@ function selectBestCandidate(input: {
   evidenceDocument: EvidenceDocument;
   sections: readonly SectionLike[] | undefined;
 }): CandidateScore | null {
-  return scoreCandidates(input)[0] ?? null;
+  const prioritized = scoreCandidates(input, "best");
+  let best: CandidateScore | null = null;
+  for (const candidate of prioritized) {
+    // Preserve the pre-trace behavior: preferred-section ordering is the
+    // first tie-breaker, and equal scores retain the first span encountered.
+    if (!best || candidate.score > best.score) best = candidate;
+  }
+  return best;
 }
 
 function scoreCandidates(input: {
@@ -1115,7 +1122,7 @@ function scoreCandidates(input: {
   contract: MethodologyEvidenceContract;
   evidenceDocument: EvidenceDocument;
   sections: readonly SectionLike[] | undefined;
-}): CandidateScore[] {
+}, order: "best" | "evidence"): CandidateScore[] {
   const sectionLookup = buildSectionLookup(input.sections);
   const preferredSectionIds = buildRelevantSectionIds({
     contract: input.contract,
@@ -1123,13 +1130,14 @@ function scoreCandidates(input: {
     sections: input.sections,
   });
 
-  const prioritized = input.evidenceDocument.spans
-    .filter((span) => !span.noise?.includes("toc"))
-    .sort((a, b) => {
+  const prioritized = input.evidenceDocument.spans.filter((span) => !span.noise?.includes("toc"));
+  if (order === "best") {
+    prioritized.sort((a, b) => {
       const aPreferred = a.sectionId && preferredSectionIds.has(a.sectionId) ? 1 : 0;
       const bPreferred = b.sectionId && preferredSectionIds.has(b.sectionId) ? 1 : 0;
       return bPreferred - aPreferred;
     });
+  }
 
   const candidates: CandidateScore[] = [];
   for (const span of prioritized) {
@@ -1146,7 +1154,7 @@ function scoreCandidates(input: {
     if (!scored) continue;
     candidates.push(scored);
   }
-  return candidates.sort((left, right) => right.score - left.score || left.span.spanId.localeCompare(right.span.spanId));
+  return candidates;
 }
 
 function selectEvidenceCandidates(input: {
@@ -1156,7 +1164,7 @@ function selectEvidenceCandidates(input: {
   sections: readonly SectionLike[] | undefined;
   bestCandidate: CandidateScore;
 }): CandidateScore[] {
-  const scored = scoreCandidates(input)
+  const scored = scoreCandidates(input, "evidence")
     .filter((candidate) =>
       // Keep complementary project evidence when the document distributes a
       // rule's support across sections; the top span still controls status.
@@ -1570,7 +1578,7 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate })
       : [];
     if (input.diagnosticTrace) {
-      const retrievalCandidates = scoreCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections });
+      const retrievalCandidates = scoreCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections }, "evidence");
       const postFilterCandidates = bestCandidate
         ? retrievalCandidates.filter((candidate) => candidate.score >= Math.max(24, bestCandidate.score - 40) || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1))
         : [];
