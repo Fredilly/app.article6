@@ -1,15 +1,15 @@
 {
   "RC0": "done",
-  "currentPhase": "RC0",
+  "currentPhase": "RC1",
   "name": "Interactive Evidence Review MVP",
   "phases": {
     "phase_0_roadmap_contract": {
       "title": "Roadmap contract",
-      "status": "active"
+      "status": "done"
     },
     "phase_1_readable_interactive_workspace": {
       "title": "Readable interactive workspace",
-      "status": "next"
+      "status": "active"
     },
     "phase_2_accuracy_benchmark": {
       "title": "Accuracy benchmark",
