@@ -13,10 +13,27 @@ import {
 
 export const VM0007_RC2_BASELINE_SCHEMA_VERSION = "vm0007-rc2-baseline-v1" as const;
 export const VM0007_RC2_TAXONOMY_VERSION = "vm0007-rc2-generic-failures-v1" as const;
+export const VM0007_MARCONDES_RECONCILIATION_ROW_COUNT = 15 as const;
+
+type ReconciliationClassification =
+  | "MACHINE_FALSE_FOUND"
+  | "MACHINE_FALSE_POSITIVE_INCOMPLETE"
+  | "MACHINE_WRONG_APPLICABILITY";
+
+type RejectionReasonLabel =
+  | "assessment too strong"
+  | "generic-text false support"
+  | "incomplete or non-project-specific evidence"
+  | "incomplete provenance"
+  | "qualifying evidence missed"
+  | "stitched or paraphrased quote"
+  | "wrong applicability pathway"
+  | "wrong page or section";
 
 type ReconciliationRow = Readonly<{
   ruleId: string;
   failureClassification?: string;
+  rejectedEvidenceReferences?: readonly Readonly<{ rejectionReason?: unknown }>[];
 }>;
 
 export type Vm0007Rc2BaselineInput = Readonly<{
@@ -70,10 +87,31 @@ const TAXONOMY_DEFINITIONS: Readonly<Record<string, Readonly<{ name: string; def
   "accepted-provenance-mismatch": { name: "accepted evidence provenance mismatch", definition: "Paired accepted evidence has one or more mismatched shared provenance fields.", response: "Improve generic provenance propagation and source-location linking." },
   "rejected-provenance-mismatch": { name: "rejected evidence provenance mismatch", definition: "Paired rejected evidence has one or more mismatched shared provenance fields.", response: "Improve generic provenance propagation for rejected candidates." },
   "rejection-reason-mismatch": { name: "rejection-reason disagreement", definition: "Paired rejected evidence has a different normalized rejection reason.", response: "Improve generic rejected-evidence reason generation and normalization at the source." },
+  "stitched-or-paraphrased-quote": { name: "stitched or paraphrased quote", definition: "The reviewed rejection reason identifies a stitched or paraphrased machine quote.", response: "Improve generic quote-boundary preservation and reject synthesized or paraphrased evidence." },
+  "wrong-page-or-section": { name: "wrong page or section", definition: "The reviewed rejection reason identifies an incorrect source page or section attribution.", response: "Improve generic source-location linking and provenance propagation." },
+  "qualifying-evidence-missed": { name: "qualifying evidence missed", definition: "The reviewed rejection reason identifies qualifying project evidence that the machine did not preserve or select.", response: "Improve generic retrieval coverage and evidence ranking for qualifying project evidence." },
+  "incomplete-provenance": { name: "incomplete provenance", definition: "The reviewed rejection reason identifies incomplete source attribution for selected evidence.", response: "Improve generic provenance completeness checks before evidence acceptance." },
   "reviewer-outcome-mismatch": { name: FIELD_DESCRIPTIONS.reviewerOutcome.name, definition: "The machine reviewer outcome differs from reviewed truth.", response: FIELD_DESCRIPTIONS.reviewerOutcome.response },
   "contradiction-state-mismatch": { name: FIELD_DESCRIPTIONS.contradictionState.name, definition: "The machine contradiction state differs from reviewed truth.", response: FIELD_DESCRIPTIONS.contradictionState.response },
   "draft-finding-mismatch": { name: FIELD_DESCRIPTIONS.draftFinding.name, definition: "The machine draft finding differs from reviewed truth.", response: FIELD_DESCRIPTIONS.draftFinding.response },
   "client-action-mismatch": { name: FIELD_DESCRIPTIONS.clientAction.name, definition: "The machine client action differs from reviewed truth.", response: FIELD_DESCRIPTIONS.clientAction.response },
+};
+
+const RECONCILIATION_CLASSIFICATION_TO_TAXONOMY: Readonly<Record<ReconciliationClassification, string>> = {
+  MACHINE_FALSE_FOUND: "evidence-state-mismatch",
+  MACHINE_FALSE_POSITIVE_INCOMPLETE: "accepted-evidence-false-support",
+  MACHINE_WRONG_APPLICABILITY: "applicability-mismatch",
+};
+
+const REJECTION_REASON_TO_TAXONOMY: Readonly<Record<RejectionReasonLabel, string>> = {
+  "assessment too strong": "evidence-state-mismatch",
+  "generic-text false support": "accepted-evidence-false-support",
+  "incomplete or non-project-specific evidence": "accepted-evidence-false-support",
+  "incomplete provenance": "incomplete-provenance",
+  "qualifying evidence missed": "qualifying-evidence-missed",
+  "stitched or paraphrased quote": "stitched-or-paraphrased-quote",
+  "wrong applicability pathway": "applicability-mismatch",
+  "wrong page or section": "wrong-page-or-section",
 };
 
 function fieldCell(value: FieldCell): string {
@@ -110,6 +148,22 @@ function categoryExample(ruleId: string, field: string, machine: FieldCell, revi
   return `${ruleId}: ${field} ${fieldCell(machine)} → ${fieldCell(reviewed)}`;
 }
 
+function mappedClassification(value: unknown): { sourceLabel: ReconciliationClassification; taxonomyId: string } {
+  if (typeof value !== "string" || !(value in RECONCILIATION_CLASSIFICATION_TO_TAXONOMY)) throw new Error(`Unknown reconciliation classification: ${String(value)}`);
+  const sourceLabel = value as ReconciliationClassification;
+  return { sourceLabel, taxonomyId: RECONCILIATION_CLASSIFICATION_TO_TAXONOMY[sourceLabel] };
+}
+
+function mappedReasonLabels(value: unknown): readonly Readonly<{ sourceLabel: RejectionReasonLabel; taxonomyId: string }>[] {
+  if (typeof value !== "string" || !value.trim()) throw new Error("Missing reconciliation rejection reason label");
+  const labels = Object.keys(REJECTION_REASON_TO_TAXONOMY) as RejectionReasonLabel[];
+  return value.split(";").map((part) => part.trim()).filter(Boolean).map((part) => {
+    const sourceLabel = labels.find((label) => part === label || part.startsWith(`${label}:`));
+    if (!sourceLabel) throw new Error(`Unknown reconciliation rejection reason label: ${part}`);
+    return { sourceLabel, taxonomyId: REJECTION_REASON_TO_TAXONOMY[sourceLabel] };
+  });
+}
+
 function makeFailureCategories(
   categorical: ReturnType<typeof evaluateVm0007Benchmark>,
   evidence: ReturnType<typeof evaluateVm0007EvidenceBenchmark>,
@@ -125,17 +179,28 @@ function makeFailureCategories(
   recommendedGenericRc3Response: string;
   sourceLabels: readonly string[];
 }>[] {
-  const reconciliation = new Map(reconciliationRows.map((row) => [row.ruleId, row.failureClassification]));
+  if (reconciliationRows.length !== VM0007_MARCONDES_RECONCILIATION_ROW_COUNT) throw new Error(`Expected exactly ${VM0007_MARCONDES_RECONCILIATION_ROW_COUNT} reconciliation rows; received ${reconciliationRows.length}`);
+  const categoricalIds = new Set(categorical.rows.map((row) => row.stableRuleId));
+  const reconciliation = new Map<string, { sourceLabel: ReconciliationClassification; taxonomyId: string }>();
+  for (const row of reconciliationRows) {
+    if (!categoricalIds.has(row.ruleId)) throw new Error(`Reconciliation row has unexpected stable rule ID: ${row.ruleId}`);
+    if (reconciliation.has(row.ruleId)) throw new Error(`Duplicate reconciliation row: ${row.ruleId}`);
+    reconciliation.set(row.ruleId, mappedClassification(row.failureClassification));
+  }
   const categories = new Map<string, FailureCategory>();
   for (const row of categorical.rows) {
     for (const field of Object.keys(FIELD_DESCRIPTIONS) as Vm0007BenchmarkField[]) {
       const result = row.fields[field];
       if (!result.matches) {
         const taxonomyId = field === "applicability" ? "applicability-mismatch" : field === "evidenceState" ? "evidence-state-mismatch" : `${field.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}-mismatch`;
-        const label = reconciliation.get(row.stableRuleId);
-        category(categories, taxonomyId, row.stableRuleId, 1, { mismatchedRowCount: 1 }, categoryExample(row.stableRuleId, field, result.machine, result.reviewed), label);
+        const reconciliationLabel = reconciliation.get(row.stableRuleId);
+        category(categories, taxonomyId, row.stableRuleId, 1, { mismatchedRowCount: 1 }, categoryExample(row.stableRuleId, field, result.machine, result.reviewed), reconciliationLabel?.taxonomyId === taxonomyId ? reconciliationLabel.sourceLabel : undefined);
       }
     }
+  }
+  for (const reconciliationRow of reconciliationRows) {
+    const mapped = reconciliation.get(reconciliationRow.ruleId)!;
+    category(categories, mapped.taxonomyId, reconciliationRow.ruleId, 1, { reconciliationClassificationCount: 1 }, `${reconciliationRow.ruleId}: ${mapped.sourceLabel}`, mapped.sourceLabel);
   }
   for (const row of evidence.rows) {
     const checks = [
@@ -149,6 +214,15 @@ function makeFailureCategories(
     ] as const;
     for (const [collection, taxonomyId, count, impact] of checks) if (count > 0) {
       category(categories, taxonomyId, row.stableRuleId, count, impact, `${row.stableRuleId}: ${collection} ${count} affected record(s)`);
+    }
+  }
+  for (const row of reconciliationRows) {
+    const source = row.rejectedEvidenceReferences ?? [];
+    for (const reference of source) {
+      if (reference.rejectionReason === undefined) continue;
+      for (const mapped of mappedReasonLabels(reference.rejectionReason)) {
+        category(categories, mapped.taxonomyId, row.ruleId, 1, { reconciliationReasonCount: 1 }, `${row.ruleId}: ${mapped.sourceLabel}`, mapped.sourceLabel);
+      }
     }
   }
   return [...categories.values()].map((item) => ({

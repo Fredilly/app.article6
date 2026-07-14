@@ -21,9 +21,9 @@ This committed baseline measures the current machine proposal against reviewed M
 
 1. **accepted evidence missed** (58 rules; accepted-evidence-missed) — Improve generic retrieval coverage and accepted-evidence ranking.
 2. **accepted evidence false support** (58 rules; accepted-evidence-false-support) — Improve generic accepted-evidence retrieval and ranking to suppress weak or boilerplate support.
-3. **client-action disagreement** (58 rules; client-action-mismatch) — Improve generic action drafting from evidence gaps and review outcomes.
-4. **contradiction-state disagreement** (58 rules; contradiction-state-mismatch) — Improve generic contradiction detection and decision reconciliation.
-5. **draft-finding disagreement** (58 rules; draft-finding-mismatch) — Improve generic finding-candidate derivation from reviewed outcomes.
+3. **incorrect evidence state** (58 rules; evidence-state-mismatch) — Improve generic evidence-state calibration and support-strength handling.
+4. **client-action disagreement** (58 rules; client-action-mismatch) — Improve generic action drafting from evidence gaps and review outcomes.
+5. **contradiction-state disagreement** (58 rules; contradiction-state-mismatch) — Improve generic contradiction detection and decision reconciliation.
 
 Recommended first RC3 fix: **accepted-evidence-missed** based on deterministic affected-rule ranking.
 

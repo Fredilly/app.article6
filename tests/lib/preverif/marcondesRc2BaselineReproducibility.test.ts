@@ -23,9 +23,9 @@ const reconciliationPath = path.join(fixtureDir, "mismatch-reconciliation.json")
 function json(filePath: string): any { return JSON.parse(fs.readFileSync(filePath, "utf8")); }
 function digest(filePath: string): string { return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex"); }
 
-function baseline() {
+function input() {
   const registry = json(registryPath);
-  return buildVm0007Rc2Baseline({
+  return {
     machineRows: json(machinePath).rows as Vm0007EvidenceBenchmarkMachineRow[],
     reviewedRows: json(reviewedPath).rows as Vm0007EvidenceBenchmarkReviewedRow[],
     expectedStableRuleIds: registry.rules.map((rule: { stable_id: string }) => rule.stable_id),
@@ -36,7 +36,11 @@ function baseline() {
       stableRuleRegistry: { path: path.relative(root, registryPath), sha256: digest(registryPath) },
       reconciliation: { path: path.relative(root, reconciliationPath), sha256: digest(reconciliationPath) },
     },
-  });
+  };
+}
+
+function baseline() {
+  return buildVm0007Rc2Baseline(input());
 }
 
 describe("RC2 VM0007 official baseline", () => {
@@ -58,7 +62,7 @@ describe("RC2 VM0007 official baseline", () => {
       expect(aggregate.falsePositiveCount).toBe(rows.reduce((sum, row) => sum + row.falsePositiveRecords.length, 0));
       expect(aggregate.falseNegativeCount).toBe(rows.reduce((sum, row) => sum + row.falseNegativeRecords.length, 0));
       expect(aggregate.exactRowMatchCount).toBe(rows.filter((row) => row.exactCollectionMatch).length);
-      expect(aggregate.mismatchedStableRuleIds).toEqual(rows.filter((row) => !row.exactCollectionMatch).map((_row, index) => result.rows[index].stableRuleId));
+      expect(aggregate.mismatchedStableRuleIds).toEqual(result.rows.filter((row) => !row.evidence[collection].exactCollectionMatch).map((row) => row.stableRuleId));
       const provenance = collection === "accepted" ? result.aggregate.acceptedProvenance : result.aggregate.rejectedProvenance;
       expect(provenance.comparedPairCount).toBe(rows.reduce((sum, row) => sum + row.provenance.comparedPairCount, 0));
       expect(provenance.fullProvenanceMatchCount).toBe(rows.reduce((sum, row) => sum + row.provenance.fullProvenanceMatchCount, 0));
@@ -77,5 +81,14 @@ describe("RC2 VM0007 official baseline", () => {
     expect(serializeVm0007Rc2Baseline(result)).toBe(fs.readFileSync(path.join(artifactDir, "RC2_BASELINE.json"), "utf8"));
     expect(renderVm0007Rc2Summary(result)).toBe(fs.readFileSync(path.join(artifactDir, "RC2_BASELINE.md"), "utf8"));
     expect(serializeVm0007Rc2Baseline(result)).toBe(serializeVm0007Rc2Baseline(baseline()));
+  });
+
+  it.each([
+    ["unknown reconciliation classification", (value: ReturnType<typeof input>) => ({ ...value, reconciliationRows: value.reconciliationRows.map((row, index) => index === 0 ? { ...row, failureClassification: "UNKNOWN" } : row) }), "Unknown reconciliation classification"],
+    ["unknown rejection reason label", (value: ReturnType<typeof input>) => ({ ...value, reconciliationRows: value.reconciliationRows.map((row, index) => index === 0 ? { ...row, rejectedEvidenceReferences: [{ rejectionReason: "unknown reason label" }] } : row) }), "Unknown reconciliation rejection reason label"],
+    ["duplicate reconciliation row", (value: ReturnType<typeof input>) => ({ ...value, reconciliationRows: value.reconciliationRows.map((row, index) => index === value.reconciliationRows.length - 1 ? value.reconciliationRows[0] : row) }), "Duplicate reconciliation row"],
+    ["missing reconciliation row", (value: ReturnType<typeof input>) => ({ ...value, reconciliationRows: value.reconciliationRows.slice(0, -1) }), "Expected exactly 15 reconciliation rows"],
+  ])("fails deterministically for %s", (_name, mutate, message) => {
+    expect(() => buildVm0007Rc2Baseline(mutate(input()))).toThrow(message);
   });
 });
