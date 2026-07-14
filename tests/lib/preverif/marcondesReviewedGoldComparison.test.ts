@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
+  compareBenchmarkValues,
   evaluateVm0007Benchmark,
   machineProposalToBenchmarkRows,
   reviewedTruthToBenchmarkRows,
@@ -77,15 +78,59 @@ describe("VM0007 RC2 benchmark contract", () => {
   it("evaluates every supported field with explicit absent and null semantics", () => {
     const input = syntheticInput();
     input.machineRows[0].values.evidenceState = null;
-    input.reviewedRows[0].values.evidenceState = undefined;
+    input.reviewedRows[0].values.evidenceState = "FOUND";
     input.machineRows[1].values.reviewerOutcome = undefined;
     input.reviewedRows[1].values.reviewerOutcome = "CONFORMS";
     const result = evaluateVm0007Benchmark(input);
-    expect(result.rows[0].fields.evidenceState).toEqual({ machine: { kind: "null" }, reviewed: { kind: "absent" }, matches: false });
+    expect(result.rows[0].fields.evidenceState).toEqual({ machine: { kind: "null" }, reviewed: { kind: "value", value: "FOUND" }, matches: false });
     expect(result.rows[1].fields.reviewerOutcome).toEqual({ machine: { kind: "absent" }, reviewed: { kind: "value", value: "CONFORMS" }, matches: false });
+    expect(compareBenchmarkValues("evidenceState", { kind: "absent" }, { kind: "absent" })).toBe(false);
     for (const field of ["evidenceState", "applicability", "reviewerOutcome", "contradictionState", "draftFinding", "clientAction"] as const) {
       expect(result.aggregate.fields[field]).toEqual(expect.objectContaining({ matchedCount: expect.any(Number), mismatchedCount: expect.any(Number), agreementRate: expect.any(Number), mismatchedRuleIds: expect.any(Array) }));
     }
+  });
+
+  it("rejects an absent reviewed required value", () => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values.clientAction = undefined;
+    expect(() => evaluateVm0007Benchmark(input)).toThrow("reviewed row expected-01 has absent required benchmark field clientAction");
+  });
+
+  it("rejects contradictory reviewed applicability semantics", () => {
+    const input = syntheticInput();
+    input.reviewedRows[0].values.evidenceState = "N/A";
+    input.reviewedRows[0].values.applicability = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.reviewerOutcome = "CONFORMS";
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(/reviewed row expected-01 has contradictory applicability/);
+
+    input.reviewedRows[0].values.evidenceState = "FOUND";
+    input.reviewedRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    expect(() => evaluateVm0007Benchmark(input)).toThrow(/reviewed row expected-01 has contradictory applicability/);
+  });
+
+  it("rejects explicit reviewed applicability that conflicts with the canonical derivation", () => {
+    expect(() => reviewedTruthToBenchmarkRows([{
+      ruleId: "rule-1",
+      finalEvidenceState: "N/A",
+      applicability: "APPLICABLE",
+      reviewerOutcome: "NOT_APPLICABLE",
+      contradictionState: "NONE_IDENTIFIED",
+      draftFindingCandidate: null,
+      clientAction: "retain",
+    }])).toThrow("applicability APPLICABLE contradicts canonical applicability NOT_APPLICABLE");
+  });
+
+  it("evaluates valid N/A and applicable reviewed rows using the canonical applicability", () => {
+    const input = syntheticInput();
+    input.machineRows[0].values.evidenceState = "N/A";
+    input.machineRows[0].values.applicability = "NOT_APPLICABLE";
+    input.machineRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.evidenceState = "N/A";
+    input.reviewedRows[0].values.applicability = "NOT_APPLICABLE";
+    input.reviewedRows[0].values.reviewerOutcome = "NOT_APPLICABLE";
+    const result = evaluateVm0007Benchmark(input);
+    expect(result.rows[0].fields.applicability.matches).toBe(true);
+    expect(result.rows[1].reviewedValues.applicability).toEqual({ kind: "value", value: "APPLICABLE" });
   });
 
   it("derives aggregate counts exclusively from per-row field results", () => {

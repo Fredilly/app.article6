@@ -77,6 +77,8 @@ export type Vm0007BenchmarkResult = Readonly<{
 }>;
 
 const FIELD_SET = new Set<string>(VM0007_BENCHMARK_FIELDS);
+const REVIEWED_EVIDENCE_STATES = new Set(["FOUND", "UNCLEAR", "MISSING", "N/A"]);
+const REVIEWED_OUTCOMES = new Set(["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -94,9 +96,10 @@ function normalizedValue(field: Vm0007BenchmarkField, value: BenchmarkValue): Be
   return value;
 }
 
-function valueEquals(field: Vm0007BenchmarkField, left: BenchmarkValue, right: BenchmarkValue): boolean {
+export function compareBenchmarkValues(field: Vm0007BenchmarkField, left: BenchmarkValue, right: BenchmarkValue): boolean {
   const a = normalizedValue(field, left);
   const b = normalizedValue(field, right);
+  if (a.kind === "absent" || b.kind === "absent") return false;
   if (a.kind !== b.kind) return false;
   if (a.kind !== "value" || b.kind !== "value") return true;
   return Object.is(a.value, b.value);
@@ -141,6 +144,43 @@ function sourceValues(values: Vm0007BenchmarkValues): Vm0007BenchmarkValues {
   return values;
 }
 
+function rowLabel(row: Vm0007ReviewedTruthRow, index: number): string {
+  return typeof row.ruleId === "string" && row.ruleId.trim() ? row.ruleId : `index ${index}`;
+}
+
+function requiredReviewedValue(row: Vm0007ReviewedTruthRow, field: keyof Vm0007ReviewedTruthRow, index: number): unknown {
+  if (!Object.prototype.hasOwnProperty.call(row, field) || row[field] === undefined) {
+    throw new Error(`reviewed row ${rowLabel(row, index)} has absent required field ${field}`);
+  }
+  return row[field];
+}
+
+export function deriveReviewedApplicability(finalEvidenceState: unknown, rowDescription = "reviewed row"): "APPLICABLE" | "NOT_APPLICABLE" {
+  if (typeof finalEvidenceState !== "string" || !REVIEWED_EVIDENCE_STATES.has(finalEvidenceState)) {
+    throw new Error(`${rowDescription} has invalid finalEvidenceState ${String(finalEvidenceState)}`);
+  }
+  return finalEvidenceState === "N/A" ? "NOT_APPLICABLE" : "APPLICABLE";
+}
+
+function validateReviewedTruthRow(row: Vm0007ReviewedTruthRow, index: number): void {
+  const description = `reviewed row ${rowLabel(row, index)}`;
+  const finalEvidenceState = requiredReviewedValue(row, "finalEvidenceState", index);
+  const reviewerOutcome = requiredReviewedValue(row, "reviewerOutcome", index);
+  const expectedApplicability = deriveReviewedApplicability(finalEvidenceState, description);
+  if (typeof reviewerOutcome !== "string" || !REVIEWED_OUTCOMES.has(reviewerOutcome)) {
+    throw new Error(`${description} has invalid reviewerOutcome ${String(reviewerOutcome)}`);
+  }
+  if ((expectedApplicability === "NOT_APPLICABLE") !== (reviewerOutcome === "NOT_APPLICABLE")) {
+    throw new Error(`${description} contradicts reviewed applicability: finalEvidenceState=${String(finalEvidenceState)} requires reviewerOutcome=${expectedApplicability === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : "CONFORMS or ACTION_REQUIRED"}`);
+  }
+  if (Object.prototype.hasOwnProperty.call(row, "applicability") && row.applicability !== expectedApplicability) {
+    throw new Error(`${description} applicability ${String(row.applicability)} contradicts canonical applicability ${expectedApplicability}`);
+  }
+  requiredReviewedValue(row, "contradictionState", index);
+  requiredReviewedValue(row, "draftFindingCandidate", index);
+  requiredReviewedValue(row, "clientAction", index);
+}
+
 export function machineProposalToBenchmarkRows(rows: readonly Vm0007MachineProposalRow[]): Vm0007BenchmarkSourceRow[] {
   return rows.map((row) => ({
     stableRuleId: row.stableRuleId,
@@ -156,19 +196,43 @@ export function machineProposalToBenchmarkRows(rows: readonly Vm0007MachinePropo
 }
 
 export function reviewedTruthToBenchmarkRows(rows: readonly Vm0007ReviewedTruthRow[]): Vm0007BenchmarkSourceRow[] {
-  return rows.map((row) => ({
+  return rows.map((row, index) => {
+    validateReviewedTruthRow(row, index);
+    return {
     stableRuleId: row.ruleId,
     values: sourceValues({
       evidenceState: row.finalEvidenceState,
-      applicability: Object.prototype.hasOwnProperty.call(row, "applicability")
-        ? row.applicability
-        : row.reviewerOutcome === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : row.reviewerOutcome === undefined ? undefined : "APPLICABLE",
+      applicability: deriveReviewedApplicability(row.finalEvidenceState, `reviewed row ${rowLabel(row, index)}`),
       reviewerOutcome: row.reviewerOutcome,
       contradictionState: row.contradictionState,
       draftFinding: row.draftFindingCandidate,
       clientAction: row.clientAction,
     }),
-  }));
+    };
+  });
+}
+
+function validateReviewedBenchmarkRows(rows: ReadonlyMap<string, Vm0007BenchmarkSourceRow>): void {
+  for (const [stableRuleId, row] of rows) {
+    for (const field of VM0007_BENCHMARK_FIELDS) {
+      if (row.values[field] === undefined) {
+        throw new Error(`reviewed row ${stableRuleId} has absent required benchmark field ${field}`);
+      }
+    }
+    const evidenceState = row.values.evidenceState;
+    const reviewerOutcome = row.values.reviewerOutcome;
+    const applicability = row.values.applicability;
+    if (typeof evidenceState !== "string" || !REVIEWED_EVIDENCE_STATES.has(evidenceState)) {
+      throw new Error(`reviewed row ${stableRuleId} has invalid evidenceState ${String(evidenceState)}`);
+    }
+    if (typeof reviewerOutcome !== "string" || !REVIEWED_OUTCOMES.has(reviewerOutcome)) {
+      throw new Error(`reviewed row ${stableRuleId} has invalid reviewerOutcome ${String(reviewerOutcome)}`);
+    }
+    const expectedApplicability = deriveReviewedApplicability(evidenceState, `reviewed row ${stableRuleId}`);
+    if (applicability !== expectedApplicability || (expectedApplicability === "NOT_APPLICABLE") !== (reviewerOutcome === "NOT_APPLICABLE")) {
+      throw new Error(`reviewed row ${stableRuleId} has contradictory applicability: evidenceState=${evidenceState}, applicability=${String(applicability)}, reviewerOutcome=${reviewerOutcome}`);
+    }
+  }
 }
 
 export function evaluateVm0007Benchmark(input: Readonly<{
@@ -182,6 +246,7 @@ export function evaluateVm0007Benchmark(input: Readonly<{
   if (expectedErrors) throw new Error(expectedErrors);
   const machineById = validateSourceRows("machine", input.machineRows, expected);
   const reviewedById = validateSourceRows("reviewed", input.reviewedRows, expected);
+  validateReviewedBenchmarkRows(reviewedById);
 
   const rows = [...expected].sort().map((stableRuleId) => {
     const machineValues = valuesFromRecord(machineById.get(stableRuleId)!.values);
@@ -189,7 +254,7 @@ export function evaluateVm0007Benchmark(input: Readonly<{
     const fields = Object.fromEntries(VM0007_BENCHMARK_FIELDS.map((field) => {
       const machine = machineValues[field];
       const reviewed = reviewedValues[field];
-      return [field, { machine, reviewed, matches: valueEquals(field, machine, reviewed) }];
+      return [field, { machine, reviewed, matches: compareBenchmarkValues(field, machine, reviewed) }];
     })) as Readonly<Record<Vm0007BenchmarkField, BenchmarkFieldResult>>;
     return { stableRuleId, machineValues, reviewedValues, fields, fullyMatches: VM0007_BENCHMARK_FIELDS.every((field) => fields[field].matches) };
   });
