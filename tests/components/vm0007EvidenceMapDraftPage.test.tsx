@@ -382,19 +382,25 @@ describe("VM0007 Evidence Map review workspace", () => {
     const auditId = "ui-filters";
     savePackage(auditId);
     const { container, root } = await renderPage(auditId);
+    const filtersToggle = Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes("Filters"));
+    expect(filtersToggle?.getAttribute("aria-expanded")).toBe("false");
+    click(filtersToggle ?? null);
+    expect(filtersToggle?.getAttribute("aria-expanded")).toBe("true");
     change(
       container.querySelector('select[aria-label="Evidence state"]'),
       "FOUND",
     );
+    expect(filtersToggle?.textContent).toContain("Filters (1)");
     expect(container.querySelectorAll("[data-evidence-map-row]")).toHaveLength(
       1,
     );
     expect(container.textContent).toContain("1 of 58 rules");
     click(
       Array.from(container.querySelectorAll("button")).find((button) =>
-        button.textContent?.includes("Clear all"),
+        button.textContent?.includes("Clear filters"),
       ) ?? null,
     );
+    expect(filtersToggle?.textContent).toBe(" Filters");
     expect(container.querySelectorAll("[data-evidence-map-row]")).toHaveLength(
       58,
     );
@@ -447,6 +453,33 @@ describe("VM0007 Evidence Map review workspace", () => {
     ).toHaveLength(1);
     for (const evidence of container.querySelectorAll("[data-evidence-record]"))
       expect(evidence.querySelector("[data-component-coverage]")).toBeNull();
+    act(() => root.unmount());
+  });
+
+  test("uses deterministic full-quote disclosure with unique accessible controls", async () => {
+    const auditId = "ui-long-evidence";
+    const longQuote = Array.from({ length: 80 }, (_, index) => `evidence-word-${index}`).join(" ");
+    const rows = makeRows(auditId);
+    rows[0] = {
+      ...rows[0],
+      acceptedEvidence: rows[0].acceptedEvidence?.map((record) => ({ ...record, quote: longQuote })),
+    };
+    savePackage(auditId, rows);
+    const { container, root } = await renderPage(auditId);
+    click(container.querySelector(`[data-evidence-map-row="${auditId}:R-1"] > button`));
+    const disclosureButtons = Array.from(container.querySelectorAll("button")).filter((button) => button.textContent === "Show full evidence");
+    expect(disclosureButtons).toHaveLength(2);
+    const controls = disclosureButtons.map((button) => button.getAttribute("aria-controls"));
+    expect(new Set(controls).size).toBe(2);
+    for (const id of controls) expect(id && document.getElementById(id)).not.toBeNull();
+    expect(disclosureButtons[0]?.getAttribute("aria-expanded")).toBe("false");
+    expect(container.textContent).not.toContain(longQuote);
+    click(disclosureButtons[0] ?? null);
+    expect(disclosureButtons[0]?.getAttribute("aria-expanded")).toBe("true");
+    expect(container.textContent).toContain(longQuote);
+    expect(Array.from(container.querySelectorAll("button")).some((button) => button.textContent === "Show less")).toBe(true);
+    click(Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "Show less") ?? null);
+    expect(container.textContent).not.toContain(longQuote);
     act(() => root.unmount());
   });
 
