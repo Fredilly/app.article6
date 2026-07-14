@@ -1,0 +1,36 @@
+{
+  "roadmapId": "interactive-evidence-review-mvp",
+  "name": "Interactive Evidence Review MVP",
+  "status": "active",
+  "currentPhase": "RC0",
+  "phases": {
+    "phase_0_roadmap_contract": {
+      "title": "Roadmap contract",
+      "status": "active"
+    },
+    "phase_1_readable_interactive_workspace": {
+      "title": "Readable interactive workspace",
+      "status": "next"
+    },
+    "phase_2_accuracy_benchmark": {
+      "title": "Accuracy benchmark",
+      "status": "planned"
+    },
+    "phase_3_generic_accuracy_improvements": {
+      "title": "Generic accuracy improvements",
+      "status": "planned"
+    },
+    "phase_4_guided_reviewer_interaction": {
+      "title": "Guided reviewer interaction",
+      "status": "planned"
+    },
+    "phase_5_unseen_pdd_validation": {
+      "title": "Unseen-PDD validation",
+      "status": "planned"
+    },
+    "phase_6_stellar_mvp_release": {
+      "title": "Stellar MVP release",
+      "status": "planned"
+    }
+  }
+}
