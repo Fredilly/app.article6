@@ -587,7 +587,16 @@
         "rowQuote": "(VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4) The project is eligible under the VCS Program REDD activity category of avoiding planned deforestation as per Appendix 1 of the VCS standard v5.0. The project area qualifies as forest and has remained forested for more than 10 years prior to the project start date, meeting the applicable forest definition thresholds. In the absence of the project, the area was legally authorized and documented for conversion to non-forest land, which would have resulted in significant loss of forest carbon stocks. The project activities prevent this planned conversion by maintaining the forest cover and protecting existing carbon stocks, thereby reducing net GHG emissions associated with deforestation. General Requirements General eligibility of the project as per Section 3.1 of the VCS Standard v5.0: General Eligibility as per VCS Standard v5.0 Justification",
         "rowSpanId": "quick-check-review-question:element:paragraph:2.1.4"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -851,7 +860,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0002",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "— afolu non-permanence risk tool 4.2 3.1.2 applicability of methodology (vcs, 3.1) the applicability conditions of the vm0007 methodology and its associated modules are detailed in the table below. table 31. applicability conditions and justification of conformance reference applicability condition justification of conformance vm0007 v1.8 1) land in the project area has qualified as forest (following the definition used by the vcs; in addition, see section 5.1.2) for at least the 10 years prior to the project start date. mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. map biomas collection 10 and prodes / inpe data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). annual lulc maps demonstrate dense ombrophilous forest classification without interruption. 2) where land within the project area is peatland or tidal wetlands and emissions from the soc pool are deemed significant, the relevant wrc modules (see table 3) are applied alongside other relevant modules. there are no peat soils and tidal wetlands present in the marcondes redd+ project area. 3) baseline deforestation in the project area falls within either of the following categories: deforestation in the project area is legally authorized under the brazilian forest code (law 12.651/2012), article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -1027,7 +1038,16 @@
         "rowQuote": "v3.0, VCS v4.4 a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) properties in the Legal Amazon. The AP Def category is applicable. REDD activity types are not applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons. Leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. Avoiding planned deforestation activities are applicable under the following condition: 7) Where conversion of forest lands to a deforested condition is legally permitted All 36 project properties are classified as forest. In the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. Deforestation is authorized under the Brazilian Forest Code (Law 12.651/2012). All 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance. VMD0006 v1.4 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land. VMD0001 v1.2 The module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in This module is applicable to all forest phyto physiognomies and age classes. The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module. -- 63 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:63"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -1371,7 +1391,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0004",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -1615,7 +1637,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -1788,7 +1819,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -1961,7 +2001,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -2134,7 +2183,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -2307,7 +2365,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -2480,7 +2547,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -2653,7 +2729,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -2826,7 +2911,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -3139,7 +3233,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0013",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "— afolu non-permanence risk tool 4.2 3.1.2 applicability of methodology (vcs, 3.1) the applicability conditions of the vm0007 methodology and its associated modules are detailed in the table below. table 31. applicability conditions and justification of conformance reference applicability condition justification of conformance vm0007 v1.8 1) land in the project area has qualified as forest (following the definition used by the vcs; in addition, see section 5.1.2) for at least the 10 years prior to the project start date. mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. map biomas collection 10 and prodes / inpe data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). annual lulc maps demonstrate dense ombrophilous forest classification without interruption. 2) where land within the project area is peatland or tidal wetlands and emissions from the soc pool are deemed significant, the relevant wrc modules (see table 3) are applied alongside other relevant modules. there are no peat soils and tidal wetlands present in the marcondes redd+ project area. 3) baseline deforestation in the project area falls within either of the following categories: deforestation in the project area is legally authorized under the brazilian forest code (law 12.651/2012), article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -3349,7 +3445,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -3497,7 +3602,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0014",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -3605,7 +3712,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -3753,7 +3869,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0015",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -3861,7 +3979,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -4117,7 +4244,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -4430,7 +4566,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-2-0007",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -4640,7 +4778,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -4813,7 +4960,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -4986,7 +5142,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -5159,7 +5324,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -5599,7 +5773,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -6039,7 +6222,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -6212,7 +6404,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -6385,7 +6586,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -6659,7 +6869,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -7016,7 +7235,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -7373,7 +7601,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -7539,7 +7776,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-3-0005",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -7647,7 +7886,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -7813,7 +8061,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-3-0005",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "v3.0, vcs v4.4 a) unplanned deforestation (vcs category au def) b) planned deforestation (vcs category ap def) properties in the legal amazon. the ap def category is applicable. redd activity types are not applicable under the following condition: 4) leakage prevention activities include: a) flooding agricultural lands to increase production (e.g., rice paddies); and / or b) intensifying livestock production through use of feed-lots and / or manure lagoons. leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. avoiding planned deforestation activities are applicable under the following condition: 7) where conversion of forest lands to a deforested condition is legally permitted all 36 project properties are classified as forest. in the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. deforestation is authorized under the brazilian forest code (law 12.651/2012). all 36 property owners have filed asv applications with ipaam. sigef and car registrations confirm legal property boundaries and forest code compliance. vmd0006 v1.4 the module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. the marcondes project reduces emissions from planned deforestation (apd) on forest land (privately owned) within the legal amazon that are legally authorized and documented to be converted to non-forest land. vmd0001 v1.2 the module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in this module is applicable to all forest phyto physiognomies and age classes. the inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the redd-mf module. -- 63 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4",
         "page": 1,
@@ -7921,7 +8171,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -8094,7 +8353,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -8368,7 +8636,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -8681,7 +8958,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-4-0001",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -8891,7 +9170,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -9414,7 +9702,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -9587,7 +9884,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -10110,7 +10416,16 @@
         "rowQuote": "v3.0, VCS v4.4 a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) properties in the Legal Amazon. The AP Def category is applicable. REDD activity types are not applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons. Leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. Avoiding planned deforestation activities are applicable under the following condition: 7) Where conversion of forest lands to a deforested condition is legally permitted All 36 project properties are classified as forest. In the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. Deforestation is authorized under the Brazilian Forest Code (Law 12.651/2012). All 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance. VMD0006 v1.4 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land. VMD0001 v1.2 The module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in This module is applicable to all forest phyto physiognomies and age classes. The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module. -- 63 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:63"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -10283,7 +10598,16 @@
         "rowQuote": "— AFOLU Non-Permanence Risk Tool 4.2 3.1.2 Applicability of Methodology (VCS, 3.1) The applicability conditions of the VM0007 methodology and its associated modules are detailed in the table below. Table 31. Applicability conditions and justification of conformance Reference Applicability Condition Justification of Conformance VM0007 v1.8 1) Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date. Mangrove forests are excluded from any tree height requirement in a forest definition, as they consist of 95 percent mangrove species, which often do not reach the same height as other tree species. Mangroves occupy contiguous areas and their functioning as a forest is independent of tree height. Map Biomas Collection 10 and PRODES / INPE data confirm continuous forest cover for all 36 properties throughout the historical reference period (2013– 2023). Annual LULC maps demonstrate Dense Ombrophilous Forest classification without interruption. 2) Where land within the project area is peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules (see Table 3) are applied alongside other relevant modules. There are no peat soils and tidal wetlands present in the Marcondes REDD+ Project Area. 3) Baseline deforestation in the project area falls within either of the following categories: Deforestation in the project area is legally authorized under the Brazilian Forest Code (Law 12.651/2012), Article 12, which permits clearing of up to 20% of rural -- 62 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:3.0"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -10622,7 +10946,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": true,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -11145,7 +11478,16 @@
         "rowQuote": "v3.0, VCS v4.4 a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) properties in the Legal Amazon. The AP Def category is applicable. REDD activity types are not applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons. Leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. Avoiding planned deforestation activities are applicable under the following condition: 7) Where conversion of forest lands to a deforested condition is legally permitted All 36 project properties are classified as forest. In the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. Deforestation is authorized under the Brazilian Forest Code (Law 12.651/2012). All 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance. VMD0006 v1.4 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land. VMD0001 v1.2 The module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in This module is applicable to all forest phyto physiognomies and age classes. The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module. -- 63 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:63"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -11489,7 +11831,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-5-0006",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -11733,7 +12077,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -12256,7 +12609,16 @@
         "rowQuote": "v3.0, VCS v4.4 a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) properties in the Legal Amazon. The AP Def category is applicable. REDD activity types are not applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons. Leakage mitigation activities under the project do not implement flooded agriculture or livestock intensification through feedlots or manure lagoons. Avoiding planned deforestation activities are applicable under the following condition: 7) Where conversion of forest lands to a deforested condition is legally permitted All 36 project properties are classified as forest. In the baseline scenario, landowners would exercise their legal right to deforest up to 20% of each property. Deforestation is authorized under the Brazilian Forest Code (Law 12.651/2012). All 36 property owners have filed ASV applications with IPAAM. SIGEF and CAR registrations confirm legal property boundaries and forest code compliance. VMD0006 v1.4 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non- forest land. The Marcondes project reduces emissions from planned deforestation (APD) on forest land (privately owned) within the Legal Amazon that are legally authorized and documented to be converted to non-forest land. VMD0001 v1.2 The module allows for the ex-ante estimation of carbon stocks in tree and non- tree above and below ground biomass in the baseline scenario (for both pre- and post-deforestation stocks) and in the project case and for the ex-post estimation of the change in This module is applicable to all forest phyto physiognomies and age classes. The inclusion of the above ground tree biomass pool as part of the project boundary is mandatory according to the REDD-MF module. -- 63 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:63"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -12613,7 +12975,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     },
     {
       "draftMapping": {
@@ -12927,6 +13298,7 @@
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0001",
       "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate",
         "duplicate_cardinality_mismatch"
       ],
       "selectedCandidate": {
@@ -13138,7 +13510,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": true,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -13452,6 +13833,7 @@
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0001",
       "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate",
         "duplicate_cardinality_mismatch"
       ],
       "selectedCandidate": {
@@ -13663,7 +14045,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": true,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -14007,7 +14398,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0002",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -14251,7 +14644,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -14595,7 +14997,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0003",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -14839,7 +15243,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -15183,7 +15596,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0004",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -15427,7 +15842,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -15771,7 +16195,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0005",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -16015,7 +16441,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -16359,7 +16794,9 @@
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0007",
-      "secondaryConditions": [],
+      "secondaryConditions": [
+        "same_run_proposal_contains_selected_candidate"
+      ],
       "selectedCandidate": {
         "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
         "page": 1,
@@ -16603,7 +17040,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+      "stagePresence": {
+        "bestEvidenceDivergence": true,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": true,
+        "selectedAfterSerializationReload": true,
+        "selectedInAuditEvidence": true,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": true
+      }
     },
     {
       "draftMapping": {
@@ -17126,7 +17572,16 @@
         "rowQuote": "v3.0, VCS v4.4 VMD0011 v1.2 This module is applicable for calculating market-effects leakage from projects that are anticipated to reduce levels of wood harvest substantially and permanently. When project activities result in reductions in wood harvest, it is likely that production could shift to other areas of the country to compensate for the reduction, including activity shifting to forested peatland that is drained as a consequence of project implementation. This tool shall be used in countries where wood harvest happens on forested peatland regardless of the absence of peatland within the project boundary. As referenced in the Framework (REDD MF), the module is mandatory where: The deforestation process involves harvesting timber for commercial markets. Baseline is calculated using BL-DFW and firewood or charcoal is harvested for commercial markets. In all other circumstances, the module should not be used. The module is mandatory when the deforestation process involves the extraction of timber for commercial markets. The module is applicable to the Marcondes Project as project activities are expected to substantially reduce and prevent wood harvesting within the project boundary through the protection and conservation of native forest areas. Such reductions in timber supply could potentially lead to market-effects leakage if wood production shifts to other regions within Brazil to meet market demand. The project therefore assesses the potential for market-effects leakage. VMD0013 v1.3 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with emissions from biomass and / or peat burning. This module is also applicable to RWE and ARR-RWE project activities with emissions from peat burning. In the baseline scenario, fire is used to clear land, resulting in emissions of CO2, N2O and CH4. When used in the baseline, accounting must occur both under the baseline and in the project scenario and both in the project area and in the leakage belt. Where fires occur ex- post in areas that coincide with deforested or degraded areas in the baseline, the module should be used to account for greenhouse gas emissions. VMD0016 v1.3 This module provides guidance on how to stratify the project area into discrete, relatively homogeneous units to improve the accuracy and precision of Strata are only used for forest classes under deforestation pressure and are the same in the case of the baseline and project scenario. -- 65 of 81 -- CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4",
         "rowSpanId": "quick-check-review-question:element:paragraph:65"
       },
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+      "stagePresence": {
+        "bestEvidenceDivergence": false,
+        "duplicateCardinalityComplication": false,
+        "sameRunProposalContainsSelectedCandidate": false,
+        "selectedAfterSerializationReload": false,
+        "selectedInAuditEvidence": false,
+        "selectedInBestAuditIdentity": false,
+        "selectedInDraftAcceptedEvidence": false
+      }
     }
   ],
   "frozenProposal": {
@@ -17160,6 +17615,15 @@
     "selected_present_in_evidence_but_not_best_evidence": 0.3617021276595745,
     "unresolved_insufficient_evidence": 0
   },
-  "schemaVersion": "vm0007-rc3-same-run-handoff-v1",
+  "schemaVersion": "vm0007-rc3-same-run-handoff-v2",
+  "stagePresenceTotals": {
+    "bestEvidenceDivergence": 17,
+    "duplicateCardinalitySecondary": 2,
+    "sameRunProposalSurvival": 34,
+    "selectedAfterSerializationReload": 34,
+    "selectedInBestMainAuditIdentity": 17,
+    "selectedInDraftAcceptedEvidence": 34,
+    "selectedInFinalAuditEvidence": 34
+  },
   "traceVersion": "same-run-audit-proposal-handoff-v1"
 }

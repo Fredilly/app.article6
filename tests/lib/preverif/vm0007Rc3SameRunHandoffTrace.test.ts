@@ -13,6 +13,7 @@ const result = (overrides: Partial<MethodologyEvidenceAuditResult> = {}): Method
   rejectedEvidence: [], page: 2, section: "S", span: "target-span", reasonSelected: "selected", assessmentReason: "reason", gap: "", clientAction: "action", confidence: "high", ...overrides,
 });
 const row = (overrides: Record<string, unknown> = {}) => ({
+  stableRuleId: "rule-1",
   acceptedEvidence: [{ quote: "target quote", page: 2, section: "S", spanId: "target-span", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" } }],
   proposedAcceptedEvidence: { quote: "target quote", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" } },
   quote: "target quote", spanId: "target-span", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" }, ...overrides,
@@ -26,24 +27,52 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     ["lost on serialization", "draft_present_but_serialization_dropped", result(), row(), row({ acceptedEvidence: [], proposedAcceptedEvidence: null, quote: null, spanId: null, provenance: null })],
     ["survives in same-run proposal", "same_run_proposal_contains_selected_candidate", result(), row(), row()],
   ] as const)("classifies a candidate %s", (_name, expected, audit, draft, reloaded) => {
-    expect(classifySameRunHandoff({ selectedCandidate: identity, auditResult: audit, draftRow: draft, reloadedRow: reloaded }).primaryStage).toBe(expected);
+    const classified = classifySameRunHandoff({ selectedCandidate: identity, auditResult: audit, draftRow: draft, reloadedRow: reloaded });
+    expect(classified.primaryStage).toBe(expected);
+    if (expected === "selected_present_in_evidence_but_not_best_evidence") {
+      expect(classified.stagePresence.bestEvidenceDivergence).toBe(true);
+      expect(classified.stagePresence.sameRunProposalContainsSelectedCandidate).toBe(true);
+      expect(classified.secondaryConditions).toContain("same_run_proposal_contains_selected_candidate");
+    }
   });
 
   it("keeps duplicate cardinality as a separate condition", () => {
     const classified = classifySameRunHandoff({ selectedCandidate: identity, auditResult: result(), draftRow: row(), reloadedRow: row(), duplicateCardinalityMismatch: true });
-    expect(classified.primaryStage).toBe("duplicate_cardinality_complication");
-    expect(classified.secondaryConditions).toEqual([]);
+    expect(classified.primaryStage).toBe("same_run_proposal_contains_selected_candidate");
+    expect(classified.secondaryConditions).toContain("duplicate_cardinality_mismatch");
+    expect(classified.stagePresence.duplicateCardinalityComplication).toBe(true);
   });
 
-  it("fails closed for missing, duplicate, and misaligned events", () => {
+  it("fails closed for empty, duplicate, and missing event IDs", () => {
     const value = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: value.events.slice(0, -1), parentEventCount: 47 })).toThrow("event count");
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: [...value.events.slice(0, -1), value.events[0]] })).toThrow("Duplicate");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: [{ ...value.events[0], eventId: "" }, ...value.events.slice(1)] })).toThrow("Missing same-run handoff event ID");
+  });
+
+  it("fails closed for missing selected candidates and each rule alignment", () => {
     expect(() => buildVm0007Rc3SameRunHandoffTrace({
       diagnosticEvents: Array.from({ length: 47 }, (_, index) => ({ eventId: `event-${index}`, stableRuleId: "missing", reviewedEvidence: { quote: "q", provenance: {} }, detail: { selectedCandidates: [] } })),
       audit: { results: [], totalRules: 0 } as any, draft: { rows: [] } as any, reloadedProposal: { rows: [] } as any,
       inputDocumentSha256: "doc", frozenRc2Baseline: { path: "base", sha256: "sha" }, frozenProposal: { path: "proposal", sha256: "sha" },
     })).toThrow("Missing selected candidate");
+    const events = Array.from({ length: 47 }, (_, index) => ({ eventId: `event-${index}`, stableRuleId: "rule-1", reviewedEvidence: { quote: "target quote", provenance: {} }, detail: { selectedCandidates: [{ spanId: "target-span", quote: "target quote", page: 2, score: 1, evidenceType: "project_specific_implementation" as const, rejectionReason: null }] } }));
+    const base = { diagnosticEvents: events, audit: { results: [result()], totalRules: 1 } as any, draft: { rows: [row()] } as any, reloadedProposal: { rows: [row()] } as any, inputDocumentSha256: "doc", frozenRc2Baseline: { path: "base", sha256: "sha" }, frozenProposal: { path: "proposal", sha256: "sha" } } as any;
+    expect(() => buildVm0007Rc3SameRunHandoffTrace({ ...base, audit: { results: [], totalRules: 0 } })).toThrow("Missing audit rule alignment");
+    expect(() => buildVm0007Rc3SameRunHandoffTrace({ ...base, draft: { rows: [] } })).toThrow("Missing draft rule alignment");
+    expect(() => buildVm0007Rc3SameRunHandoffTrace({ ...base, reloadedProposal: { rows: [] } })).toThrow("Missing reloaded-proposal rule alignment");
+  });
+
+  it("computes independent survival facts and deterministic equivalent builds", () => {
+    const events = Array.from({ length: 47 }, (_, index) => ({ eventId: `event-${index}`, stableRuleId: "rule-1", reviewedEvidence: { quote: "target quote", provenance: {} }, detail: { selectedCandidates: [{ spanId: "target-span", quote: "target quote", page: 2, score: 1, evidenceType: "project_specific_implementation" as const, rejectionReason: null }] } }));
+    const make = () => buildVm0007Rc3SameRunHandoffTrace({ diagnosticEvents: events, audit: { results: [result()], totalRules: 1 } as any, draft: { rows: [row()] } as any, reloadedProposal: { rows: [row()] } as any, inputDocumentSha256: "doc", frozenRc2Baseline: { path: "base", sha256: "sha" }, frozenProposal: { path: "proposal", sha256: "sha" } });
+    const first = make();
+    const second = make();
+    expect(first.stagePresenceTotals).toEqual({ selectedInFinalAuditEvidence: 47, selectedInBestMainAuditIdentity: 47, selectedInDraftAcceptedEvidence: 47, selectedAfterSerializationReload: 47, sameRunProposalSurvival: 47, bestEvidenceDivergence: 0, duplicateCardinalitySecondary: 0 });
+    expect(serializeVm0007Rc3SameRunHandoffTrace(first)).toBe(serializeVm0007Rc3SameRunHandoffTrace(second));
+    expect(Object.values(first.primaryStageCounts).reduce((sum, count) => sum + count, 0)).toBe(47);
+    expect(first.events).toHaveLength(47);
+    expect(new Set(first.events.map((event) => event.eventId)).size).toBe(47);
   });
 
   it("classifies the committed artifact exactly once and is deterministic", () => {

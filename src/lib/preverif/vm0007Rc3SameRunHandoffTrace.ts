@@ -12,7 +12,7 @@ import type {
   Vm0007EvidenceMapDraftRow,
 } from "./vm0007EvidenceMapDraft";
 
-export const VM0007_RC3_SAME_RUN_HANDOFF_SCHEMA_VERSION = "vm0007-rc3-same-run-handoff-v1" as const;
+export const VM0007_RC3_SAME_RUN_HANDOFF_SCHEMA_VERSION = "vm0007-rc3-same-run-handoff-v2" as const;
 export const VM0007_RC3_SAME_RUN_HANDOFF_TRACE_VERSION = "same-run-audit-proposal-handoff-v1" as const;
 export const VM0007_RC3_PARENT_EVENT_COUNT = 47 as const;
 
@@ -51,6 +51,15 @@ export type SameRunHandoffEvent = Readonly<{
   primaryStage: SameRunPrimaryStage;
   secondaryConditions: readonly string[];
   firstProvenLossPoint: SameRunPrimaryStage | "none";
+  stagePresence: Readonly<{
+    selectedInAuditEvidence: boolean;
+    selectedInBestAuditIdentity: boolean;
+    selectedInDraftAcceptedEvidence: boolean;
+    selectedAfterSerializationReload: boolean;
+    sameRunProposalContainsSelectedCandidate: boolean;
+    bestEvidenceDivergence: boolean;
+    duplicateCardinalityComplication: boolean;
+  }>;
   selectedCandidate: HandoffIdentity;
   finalAuditResult: Readonly<{
     status: string | null;
@@ -91,6 +100,15 @@ export type Vm0007Rc3SameRunHandoffTrace = Readonly<{
   parentEventCount: number;
   primaryStageCounts: Readonly<Record<SameRunPrimaryStage, number>>;
   primaryStagePercentages: Readonly<Record<SameRunPrimaryStage, number>>;
+  stagePresenceTotals: Readonly<{
+    selectedInFinalAuditEvidence: number;
+    selectedInBestMainAuditIdentity: number;
+    selectedInDraftAcceptedEvidence: number;
+    selectedAfterSerializationReload: number;
+    sameRunProposalSurvival: number;
+    bestEvidenceDivergence: number;
+    duplicateCardinalitySecondary: number;
+  }>;
   events: readonly SameRunHandoffEvent[];
 }>;
 
@@ -156,7 +174,7 @@ export function classifySameRunHandoff(input: Readonly<{
   draftRow: Vm0007EvidenceMapDraftRow | null;
   reloadedRow: Vm0007EvidenceMapDraftRow | null;
   duplicateCardinalityMismatch?: boolean;
-}>): { primaryStage: SameRunPrimaryStage; secondaryConditions: readonly string[]; firstProvenLossPoint: SameRunPrimaryStage | "none" } {
+}>): { primaryStage: SameRunPrimaryStage; secondaryConditions: readonly string[]; firstProvenLossPoint: SameRunPrimaryStage | "none"; stagePresence: SameRunHandoffEvent["stagePresence"] } {
   const selected = input.selectedCandidate;
   const auditEvidence = records(input.auditResult?.evidence);
   const auditHas = auditEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: undefined }));
@@ -166,13 +184,25 @@ export function classifySameRunHandoff(input: Readonly<{
   const draftHas = draftEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: record.provenance }));
   const reloadedEvidence = input.reloadedRow ? rowRecords(input.reloadedRow) : [];
   const serializedHas = reloadedEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.spanId, provenance: record.provenance }));
-  const secondary = input.duplicateCardinalityMismatch ? ["duplicate_cardinality_mismatch"] : [];
-  if (!auditHas && !bestHas) return { primaryStage: "selected_missing_from_audit_result", secondaryConditions: secondary, firstProvenLossPoint: "selected_missing_from_audit_result" };
-  if (auditHas && !bestHas) return { primaryStage: "selected_present_in_evidence_but_not_best_evidence", secondaryConditions: secondary, firstProvenLossPoint: "selected_present_in_evidence_but_not_best_evidence" };
-  if (!draftHas) return { primaryStage: "audit_result_present_but_draft_mapping_dropped", secondaryConditions: secondary, firstProvenLossPoint: "audit_result_present_but_draft_mapping_dropped" };
-  if (!serializedHas) return { primaryStage: "draft_present_but_serialization_dropped", secondaryConditions: secondary, firstProvenLossPoint: "draft_present_but_serialization_dropped" };
-  if (input.duplicateCardinalityMismatch) return { primaryStage: "duplicate_cardinality_complication", secondaryConditions: [], firstProvenLossPoint: "none" };
-  return { primaryStage: "same_run_proposal_contains_selected_candidate", secondaryConditions: [], firstProvenLossPoint: "none" };
+  const bestDivergence = auditHas && !bestHas;
+  const presence = {
+    selectedInAuditEvidence: auditHas,
+    selectedInBestAuditIdentity: bestHas,
+    selectedInDraftAcceptedEvidence: draftHas,
+    selectedAfterSerializationReload: serializedHas,
+    sameRunProposalContainsSelectedCandidate: serializedHas,
+    bestEvidenceDivergence: bestDivergence,
+    duplicateCardinalityComplication: Boolean(input.duplicateCardinalityMismatch),
+  } as const;
+  const secondary = [
+    ...(bestDivergence && serializedHas ? ["same_run_proposal_contains_selected_candidate"] : []),
+    ...(input.duplicateCardinalityMismatch ? ["duplicate_cardinality_mismatch"] : []),
+  ];
+  if (!auditHas && !bestHas) return { primaryStage: "selected_missing_from_audit_result", secondaryConditions: secondary, firstProvenLossPoint: "selected_missing_from_audit_result", stagePresence: presence };
+  if (bestDivergence) return { primaryStage: "selected_present_in_evidence_but_not_best_evidence", secondaryConditions: secondary, firstProvenLossPoint: "selected_present_in_evidence_but_not_best_evidence", stagePresence: presence };
+  if (!draftHas) return { primaryStage: "audit_result_present_but_draft_mapping_dropped", secondaryConditions: secondary, firstProvenLossPoint: "audit_result_present_but_draft_mapping_dropped", stagePresence: presence };
+  if (!serializedHas) return { primaryStage: "draft_present_but_serialization_dropped", secondaryConditions: secondary, firstProvenLossPoint: "draft_present_but_serialization_dropped", stagePresence: presence };
+  return { primaryStage: "same_run_proposal_contains_selected_candidate", secondaryConditions: secondary, firstProvenLossPoint: "none", stagePresence: presence };
 }
 
 export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
@@ -191,13 +221,16 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
   const draftById = new Map(input.draft.rows.map((row) => [row.stableRuleId, row]));
   const reloadedById = new Map(input.reloadedProposal.rows.map((row) => [row.stableRuleId, row]));
   const events = selectedEvents.map((event) => {
+    if (!event.eventId?.trim()) throw new Error("Missing same-run handoff event ID");
     const selected = event.detail.selectedCandidates[0];
     if (!selected) throw new Error(`Missing selected candidate for ${event.eventId}`);
     const candidate = candidateIdentity(selected, event.stableRuleId);
-    const result = auditById.get(event.stableRuleId) ?? null;
-    const row = draftById.get(event.stableRuleId) ?? null;
-    const reloaded = reloadedById.get(event.stableRuleId) ?? null;
-    if (!result || !row || !reloaded) throw new Error(`Missing aligned rule handoff input for ${event.eventId} (${event.stableRuleId})`);
+    const result = auditById.get(event.stableRuleId);
+    if (!result) throw new Error(`Missing audit rule alignment for ${event.eventId} (${event.stableRuleId})`);
+    const row = draftById.get(event.stableRuleId);
+    if (!row) throw new Error(`Missing draft rule alignment for ${event.eventId} (${event.stableRuleId})`);
+    const reloaded = reloadedById.get(event.stableRuleId);
+    if (!reloaded) throw new Error(`Missing reloaded-proposal rule alignment for ${event.eventId} (${event.stableRuleId})`);
     const classification = classifySameRunHandoff({ selectedCandidate: candidate, auditResult: result, draftRow: row, reloadedRow: reloaded, duplicateCardinalityMismatch: input.duplicateCardinalityEventIds?.has(event.eventId) });
     const evidence = records(result?.evidence);
     const rejected = records(result?.rejectedEvidence);
@@ -206,7 +239,7 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
     return {
       eventId: event.eventId, stableRuleId: event.stableRuleId, ruleId: result?.ruleId ?? event.stableRuleId,
       primaryStage: classification.primaryStage, secondaryConditions: classification.secondaryConditions,
-      firstProvenLossPoint: classification.firstProvenLossPoint, selectedCandidate: candidate,
+      firstProvenLossPoint: classification.firstProvenLossPoint, stagePresence: classification.stagePresence, selectedCandidate: candidate,
       finalAuditResult: {
         status: result?.status ?? null, bestEvidenceQuote: result?.bestEvidenceQuote ?? null,
         resultSpan: result?.span ?? null, resultPage: result?.page ?? null,
@@ -228,6 +261,15 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
   });
   const primaryStageCounts = counts();
   for (const event of events) primaryStageCounts[event.primaryStage] += 1;
+  const stagePresenceTotals = {
+    selectedInFinalAuditEvidence: events.filter((event) => event.stagePresence.selectedInAuditEvidence).length,
+    selectedInBestMainAuditIdentity: events.filter((event) => event.stagePresence.selectedInBestAuditIdentity).length,
+    selectedInDraftAcceptedEvidence: events.filter((event) => event.stagePresence.selectedInDraftAcceptedEvidence).length,
+    selectedAfterSerializationReload: events.filter((event) => event.stagePresence.selectedAfterSerializationReload).length,
+    sameRunProposalSurvival: events.filter((event) => event.stagePresence.sameRunProposalContainsSelectedCandidate).length,
+    bestEvidenceDivergence: events.filter((event) => event.stagePresence.bestEvidenceDivergence).length,
+    duplicateCardinalitySecondary: events.filter((event) => event.stagePresence.duplicateCardinalityComplication).length,
+  } as const;
   const auditExecutionSha256 = sha256(canonicalJsonStringify(input.audit));
   const generatedProposalSha256 = sha256(canonicalJsonStringify(input.reloadedProposal));
   return {
@@ -237,6 +279,7 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
     frozenRc2Baseline: input.frozenRc2Baseline, frozenProposal: input.frozenProposal,
     parentEventCount: events.length, primaryStageCounts,
     primaryStagePercentages: Object.fromEntries(STAGES.map((stage) => [stage, primaryStageCounts[stage] / events.length])) as Record<SameRunPrimaryStage, number>,
+    stagePresenceTotals,
     events,
   };
 }
@@ -245,10 +288,21 @@ export function validateVm0007Rc3SameRunHandoffTrace(value: Vm0007Rc3SameRunHand
   if (value.events.length !== value.parentEventCount || value.parentEventCount !== VM0007_RC3_PARENT_EVENT_COUNT) throw new Error("Same-run handoff event count does not equal 47");
   const ids = new Set<string>();
   for (const event of value.events) {
+    if (!event.eventId?.trim()) throw new Error("Missing same-run handoff event ID");
     if (ids.has(event.eventId)) throw new Error(`Duplicate same-run handoff event ID: ${event.eventId}`);
     ids.add(event.eventId);
     if (!event.stableRuleId || !event.ruleId || !event.selectedCandidate.spanId) throw new Error(`Incomplete same-run handoff identity: ${event.eventId}`);
   }
+  const presenceTotals = {
+    selectedInFinalAuditEvidence: value.events.filter((event) => event.stagePresence.selectedInAuditEvidence).length,
+    selectedInBestMainAuditIdentity: value.events.filter((event) => event.stagePresence.selectedInBestAuditIdentity).length,
+    selectedInDraftAcceptedEvidence: value.events.filter((event) => event.stagePresence.selectedInDraftAcceptedEvidence).length,
+    selectedAfterSerializationReload: value.events.filter((event) => event.stagePresence.selectedAfterSerializationReload).length,
+    sameRunProposalSurvival: value.events.filter((event) => event.stagePresence.sameRunProposalContainsSelectedCandidate).length,
+    bestEvidenceDivergence: value.events.filter((event) => event.stagePresence.bestEvidenceDivergence).length,
+    duplicateCardinalitySecondary: value.events.filter((event) => event.stagePresence.duplicateCardinalityComplication).length,
+  };
+  if (STAGES.some((stage) => value.primaryStageCounts[stage] < 0) || Object.keys(presenceTotals).some((key) => presenceTotals[key as keyof typeof presenceTotals] !== value.stagePresenceTotals[key as keyof typeof presenceTotals])) throw new Error("Same-run handoff presence totals do not equal event facts");
   const counted = counts();
   for (const event of value.events) counted[event.primaryStage] += 1;
   if (STAGES.some((stage) => counted[stage] !== value.primaryStageCounts[stage]) || Object.values(counted).reduce((sum, count) => sum + count, 0) !== value.parentEventCount) throw new Error("Same-run handoff stage totals do not equal parent count");
