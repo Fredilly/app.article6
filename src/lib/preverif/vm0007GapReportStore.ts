@@ -152,6 +152,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   loadedRulebookId: string;
   loadedRulebookVersion: string;
   evidenceFileName?: string;
+  sourcePdfSha256?: string | null;
   rawPddText: string;
   rules: readonly RuleSummary[];
   userAcceptedVersionWarning?: boolean;
@@ -195,7 +196,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     evidenceFileName: input.evidenceFileName?.trim() || undefined,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
     audit,
-    sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: null },
+    sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: input.sourcePdfSha256?.trim() || null },
   };
   saveVm0007GapReportAudit(record);
   const auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
