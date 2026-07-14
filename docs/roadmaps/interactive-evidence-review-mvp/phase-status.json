@@ -13,7 +13,7 @@
     },
     "phase_2_accuracy_benchmark": {
       "title": "Accuracy benchmark",
-      "status": "active"
+      "status": "done"
     },
     "phase_3_generic_accuracy_improvements": {
       "title": "Generic accuracy improvements",
