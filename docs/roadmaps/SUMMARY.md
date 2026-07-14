@@ -7,6 +7,13 @@ Active lanes: verification-factory, project-readiness-verification-output, revie
 Frozen lanes: agentic-verification.
 
 
+## interactive-evidence-review-mvp
+
+Status SSOT: `docs/roadmaps/interactive-evidence-review-mvp/phase-status.json`
+Details: `docs/roadmaps/interactive-evidence-review-mvp/PLAN.md`
+
+1) PR1: Done
+
 ## data-integrity-exports
 
 Status SSOT: `docs/roadmaps/data-integrity-exports/phase-status.json`
@@ -133,19 +140,6 @@ Not active now:
 - Readiness note export (phase 5+)
 
 1) PR642: Done (PR #640, #641, #642)
-
-## interactive-evidence-review-mvp
-
-Status SSOT: `docs/roadmaps/interactive-evidence-review-mvp/phase-status.json`
-Details: `docs/roadmaps/interactive-evidence-review-mvp/PLAN.md`
-
-1) RC0 — Roadmap contract: Done
-2) RC1 — Readable interactive workspace: Done
-3) RC2 — Accuracy benchmark: Active
-4) RC3 — Generic accuracy improvements: Planned
-5) RC4 — Guided reviewer interaction: Planned
-6) RC5 — Unseen-PDD validation: Planned
-7) RC6 — Stellar MVP release: Planned
 
 ## project-verification
 
