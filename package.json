@@ -34,6 +34,7 @@
     "preverif:guard:truth-review": "node scripts/preverif/check-truth-review-guard.mjs",
     "preverif:rc2:baseline": "tsx scripts/preverif/generate-vm0007-rc2-baseline.ts",
     "preverif:rc3:diagnostic": "tsx scripts/preverif/generate-vm0007-rc3-diagnostic.ts",
+    "preverif:rc3:selected-match-subtaxonomy": "tsx scripts/preverif/generate-vm0007-rc3-selected-match-subtaxonomy.ts",
     "test:quickcheck:no-fixture-hardcoding": "jest tests/lib/quickCheckV2/no-fixture-hardcoding-guard.test.ts --runInBand",
     "check:golden": "bash scripts/check-golden-rich.sh",
     "build:audit-pack": "node scripts/build-audit-pack.mjs",
