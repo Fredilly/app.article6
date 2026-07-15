@@ -398,6 +398,47 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(result.rejectedEvidence?.some((record) => record.span === "factual-description")).toBe(false);
   });
 
+  it.each([
+    ["single descriptive module detail", "The project describes module M for the selected pathway and references community agreements."],
+    ["single descriptive tool detail", "The project defines tool T as applicable and mentions surveillance activities."],
+  ])("rejects a %s without co-occurring operational details", (_label, text) => {
+    const result = byRuleId(auditSynthetic("R-3-0005", [
+      span(63, "single-detail-declaration", text),
+    ]).results, "R-3-0005");
+
+    expect(result.evidence?.some((record) => record.span === "single-detail-declaration")).toBe(false);
+    expect(result.rejectedEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "single-detail-declaration",
+        evidenceType: "module_or_tool_declaration",
+        rejectionReason: "A module or tool declaration shows pathway selection, not completed project implementation.",
+      }),
+    ]));
+  });
+
+  it.each([
+    ["leakage", "R-5-0003", "Activity shifting leakage is addressed through community agreements and surveillance. Leakage management procedures are described for nearby forest users and buffer communities."],
+    ["monitoring", "R-6-0001", "The monitoring plan defines the sampling design, plot remeasurement schedule, QA/QC checks, and reporting workflow."],
+  ])("keeps concrete descriptive %s evidence accepted through the full pipeline", (_label, ruleId, text) => {
+    const result = byRuleId(auditSynthetic(ruleId, [
+      span(63, "operational-description", text),
+    ]).results, ruleId);
+
+    expect(result.evidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "operational-description",
+        evidenceType: "project_specific_implementation",
+      }),
+    ]));
+    expect(result.rejectedEvidence?.some((record) => record.span === "operational-description")).toBe(false);
+  });
+
   it("does not let a weak contract signal independently pass local alignment", () => {
     const rule = { id: "R-WEAK", title: "Water quality sampling", logic: "Project-specific sampling results" };
     const contract = {
