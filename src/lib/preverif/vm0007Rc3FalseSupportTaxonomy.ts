@@ -12,8 +12,21 @@ import {
 } from "./vm0007EvidenceBenchmark";
 import { canonicalEvidenceIdentity } from "./vm0007Rc3CurrentComparison";
 
-export const VM0007_RC3_FALSE_SUPPORT_TAXONOMY_SCHEMA_VERSION = "vm0007-rc3-false-support-taxonomy-v1" as const;
-export const VM0007_RC3_FALSE_SUPPORT_TAXONOMY_TRACE_VERSION = "rc3-current-false-support-taxonomy-v1" as const;
+export const VM0007_RC3_FALSE_SUPPORT_TAXONOMY_SCHEMA_VERSION = "vm0007-rc3-false-support-taxonomy-v2" as const;
+export const VM0007_RC3_FALSE_SUPPORT_TAXONOMY_TRACE_VERSION = "rc3-audited-v2-false-support-taxonomy-v1" as const;
+export const AUDITED_V2_IDENTITIES = {
+  reviewedTruthSha256: "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+  sourceExtractionSha256: "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747",
+  productionExecutionSha256: "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
+  generatedProposalSha256: "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
+  auditedBaselineSha256: "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+} as const;
+
+export function assertAuditedV2Identities(input: Readonly<typeof AUDITED_V2_IDENTITIES>): void {
+  for (const key of Object.keys(AUDITED_V2_IDENTITIES) as (keyof typeof AUDITED_V2_IDENTITIES)[]) {
+    if (input[key] !== AUDITED_V2_IDENTITIES[key]) throw new Error(`Audited V2 identity mismatch: ${key}`);
+  }
+}
 
 export const FALSE_SUPPORT_PRIMARY_SUBTYPES = [
   "broad_span_contains_reviewed_quote_same_rule",

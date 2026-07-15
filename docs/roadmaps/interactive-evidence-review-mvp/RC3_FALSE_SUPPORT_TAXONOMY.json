@@ -6812,7 +6812,7 @@
       "isBestMainCandidate": false,
       "isComplementarySelectedEvidence": true,
       "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
-      "primarySubtype": "broad_span_contains_reviewed_quote_same_rule",
+      "primarySubtype": "quote_reviewed_under_different_rule",
       "provenance": {
         "docId": "quick-check-review-question",
         "page": 1,
@@ -6827,7 +6827,7 @@
       "secondaryFlags": {
         "bestCandidate": false,
         "boilerplate": false,
-        "broadSpanMatch": true,
+        "broadSpanMatch": false,
         "complementaryCandidate": true,
         "crossRuleMatch": true,
         "fragmentMatch": false,
@@ -6965,7 +6965,7 @@
       "isBestMainCandidate": false,
       "isComplementarySelectedEvidence": true,
       "normalizedQuote": "-- 60 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 61 ccb v3.0, vcs v4.4 this section is not required at the under development stage in accordance with section 3.1.6 of the verra registration and issuance process v5.0. the relevant information will be provided during the validation stage of the project. 3 climate 3.1 application of methodology 3.1.1 title and reference of methodology (vcs, 3.1) the marcondes redd+ project applies the climate, communities and biodiversity (ccb) and verified carbon standard (vcs) with the intention of reducing co2 emissions from planned (apd) deforestation compared to baseline levels. as required by vm0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date. methodology vm0007 applies to project activities that prevent conversion of forest to non-forest and of native grassland to a non-native state. table 30. methodologies, modules, and tools applied type reference id title version applied methodology vm0007 redd+ methodology framework (redd+mf) (avoided planned deforestation) 1.8 module vmd0001 estimation of carbon stocks in the above- and below-ground biomass in live trees and non-tree pools 1.2 module vmd0002 estimation of carbon stocks in the dead wood pool 1.1 module vmd0003 estimation of carbon stocks in the litter pool 1.1 module vmd0005 estimation of carbon stocks in the soil organic carbon (soc) pool 1.1 module vmd0006 estimation of baseline carbon stock changes and ghg emissions from planned deforestation (bl- pl) 1.4 module vmd0009 estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (lk-asp) 1.3 module vmd0011 estimation of emissions from market leakage (lk- me) 1.2 -- 61 of 81 -- ccb & vcs project description template ccb version 3.0, vcs version 4.4 62 ccb v3.0, vcs v4.4 module vmd0015 methods for monitoring of greenhouse gas emissions and removals (m-redd) 2.3 module vmd0016 methods for stratification of the project area (x- str) 1.3 module vmd0017 estimation of uncertainty for redd project activities (x-unc) 2.2 tool vt0001 tool for the demonstration and assessment of additionality in vcs-afolu project activities",
-      "primarySubtype": "broad_span_contains_reviewed_quote_same_rule",
+      "primarySubtype": "quote_reviewed_under_different_rule",
       "provenance": {
         "docId": "quick-check-review-question",
         "page": 1,
@@ -6980,7 +6980,7 @@
       "secondaryFlags": {
         "bestCandidate": false,
         "boilerplate": false,
-        "broadSpanMatch": true,
+        "broadSpanMatch": false,
         "complementaryCandidate": true,
         "crossRuleMatch": true,
         "fragmentMatch": false,
@@ -8899,10 +8899,10 @@
     "accepted_methodology_boilerplate": 0,
     "accepted_module_or_tool_declaration": 0,
     "accepted_project_specific_but_unmatched": 2,
-    "broad_span_contains_reviewed_quote_same_rule": 36,
+    "broad_span_contains_reviewed_quote_same_rule": 34,
     "duplicated_across_multiple_rules": 29,
     "machine_fragment_of_reviewed_quote_same_rule": 0,
-    "quote_reviewed_under_different_rule": 107,
+    "quote_reviewed_under_different_rule": 109,
     "unresolved": 0
   },
   "primarySubtypePercentages": {
@@ -8910,10 +8910,10 @@
     "accepted_methodology_boilerplate": 0,
     "accepted_module_or_tool_declaration": 0,
     "accepted_project_specific_but_unmatched": 0.011494252873563218,
-    "broad_span_contains_reviewed_quote_same_rule": 0.20689655172413793,
+    "broad_span_contains_reviewed_quote_same_rule": 0.19540229885057472,
     "duplicated_across_multiple_rules": 0.16666666666666666,
     "machine_fragment_of_reviewed_quote_same_rule": 0,
-    "quote_reviewed_under_different_rule": 0.6149425287356322,
+    "quote_reviewed_under_different_rule": 0.6264367816091954,
     "unresolved": 0
   },
   "primarySubtypePrecedence": [
@@ -8928,14 +8928,14 @@
     "unresolved"
   ],
   "repeatedEmissionCount": 162,
-  "schemaVersion": "vm0007-rc3-false-support-taxonomy-v1",
+  "schemaVersion": "vm0007-rc3-false-support-taxonomy-v2",
   "source": {
-    "auditExecutionSha256": "c35eb8957a068ca791bde8b0851a8f884b313309d6b30353719f60b946ba7c2b",
+    "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
     "currentProposalKind": "same_run_serialized_reload",
-    "frozenRc2BaselineSha256": "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf",
-    "generatedProposalSha256": "27bb22ae48d11239cff66f79a016de9ce1d8fb069bcb87f5bf64a5ee6a080a57",
+    "frozenRc2BaselineSha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+    "generatedProposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
     "machineProposalFrozenSha256": "068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6",
-    "reviewedTruthSha256": "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127",
+    "reviewedTruthSha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
     "sourceExtractionSha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
   },
   "topRepeatedSpans": [
@@ -9173,6 +9173,6 @@
     }
   ],
   "totalEvents": 174,
-  "traceVersion": "rc3-current-false-support-taxonomy-v1",
+  "traceVersion": "rc3-audited-v2-false-support-taxonomy-v1",
   "uniqueSourceSpanCount": 12
 }

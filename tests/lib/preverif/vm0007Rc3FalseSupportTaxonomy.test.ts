@@ -3,11 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
-import { buildVm0007Rc3FalseSupportTaxonomy, serializeVm0007Rc3FalseSupportTaxonomy } from "@/lib/preverif/vm0007Rc3FalseSupportTaxonomy";
+import { assertAuditedV2Identities, AUDITED_V2_IDENTITIES, buildVm0007Rc3FalseSupportTaxonomy, serializeVm0007Rc3FalseSupportTaxonomy } from "@/lib/preverif/vm0007Rc3FalseSupportTaxonomy";
 
 const root = process.cwd();
 const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
-const comparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json");
+const comparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_CURRENT_COMPARISON.json");
 const goldPath = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json");
 const machinePath = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/machine-proposal.json");
 const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json");
@@ -31,11 +31,22 @@ describe("RC3-5 false-support taxonomy", () => {
   it("classifies all current false-support events exactly once and preserves canonical IDs", () => {
     const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
     const comparison = JSON.parse(fs.readFileSync(comparisonPath, "utf8"));
-    expect(artifact.totalEvents).toBe(174);
-    expect(artifact.events).toHaveLength(174);
-    expect(new Set(artifact.events.map((event: any) => event.eventId)).size).toBe(174);
-    expect(artifact.events.map((event: any) => event.eventId).sort()).toEqual(comparison.regressedEventIds.acceptedEvidenceFalseSupport.slice().sort());
-    expect(Object.values(artifact.primarySubtypeCounts).reduce((sum: number, count: any) => sum + count, 0)).toBe(174);
+    const auditedComparison = JSON.parse(fs.readFileSync(comparisonPath, "utf8"));
+    const auditedFalseSupportCount = auditedComparison.metrics.acceptedEvidenceFalseSupport.current;
+    expect(artifact.totalEvents).toBe(auditedFalseSupportCount);
+    expect(artifact.events).toHaveLength(auditedFalseSupportCount);
+    expect(new Set(artifact.events.map((event: any) => event.eventId)).size).toBe(auditedFalseSupportCount);
+    expect(artifact.events.map((event: any) => event.eventId).sort()).toEqual(auditedComparison.regressedEventIds.acceptedEvidenceFalseSupport.slice().sort());
+    expect(Object.values(artifact.primarySubtypeCounts).reduce((sum: number, count: any) => sum + count, 0)).toBe(auditedFalseSupportCount);
+    expect(artifact.schemaVersion).toBe("vm0007-rc3-false-support-taxonomy-v2");
+    expect(artifact.traceVersion).toBe("rc3-audited-v2-false-support-taxonomy-v1");
+    expect(artifact.source).toMatchObject({
+      reviewedTruthSha256: AUDITED_V2_IDENTITIES.reviewedTruthSha256,
+      sourceExtractionSha256: AUDITED_V2_IDENTITIES.sourceExtractionSha256,
+      auditExecutionSha256: AUDITED_V2_IDENTITIES.productionExecutionSha256,
+      generatedProposalSha256: AUDITED_V2_IDENTITIES.generatedProposalSha256,
+      frozenRc2BaselineSha256: AUDITED_V2_IDENTITIES.auditedBaselineSha256,
+    });
   });
 
   it("applies deterministic precedence for broad, fragment, cross-rule and duplicate evidence", () => {
@@ -87,8 +98,32 @@ describe("RC3-5 false-support taxonomy", () => {
   });
 
   it("protects reviewed truth, machine proposal and RC2 baseline", () => {
-    expect(crypto.createHash("sha256").update(fs.readFileSync(goldPath)).digest("hex")).toBe("b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127");
+    expect(crypto.createHash("sha256").update(fs.readFileSync(goldPath)).digest("hex")).toBe(AUDITED_V2_IDENTITIES.reviewedTruthSha256);
     expect(crypto.createHash("sha256").update(fs.readFileSync(machinePath)).digest("hex")).toBe("068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6");
     expect(crypto.createHash("sha256").update(fs.readFileSync(baselinePath)).digest("hex")).toBe("15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf");
+    const frozen = {
+      "RC2_BASELINE.md": "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b",
+      "RC3_DIAGNOSTIC.json": "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737",
+      "RC3_SELECTED_MATCH_SUBTAXONOMY.json": "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910",
+      "RC3_SAME_RUN_HANDOFF_TRACE.json": "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4",
+      "RC3_CURRENT_COMPARISON.json": "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964",
+      "RC3_AUDITED_PRE_FIX_BASELINE.json": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+      "RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json": "5b41f5650ad975757f4376c8ec7ff29dd1eb6738310637cf2eddb2191c436f8f",
+      "RC3_AUDITED_DIAGNOSTIC.json": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd",
+      "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json": "e36325c78ea3e998e71b97adb1bb9f5a8e7c3e43fd1946c38003188e041da490",
+      "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json": "21bbd255153d524896517e48b58a6bb40425d9c37168605ab593c9ccf5a99c74",
+      "RC3_AUDITED_CURRENT_COMPARISON.json": "f12754ca3e4c1eec6c9330139da46a3777276959c0b0dda569f6f93f023af329",
+      "gold.rc2-rc3.json": "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127",
+    };
+    for (const [name, expected] of Object.entries(frozen)) {
+      const file = name.startsWith("gold") ? path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map", name) : path.join(root, "docs/roadmaps/interactive-evidence-review-mvp", name);
+      expect(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")).toBe(expected);
+    }
+  });
+
+  it("rejects historical or mismatched audited V2 identities", () => {
+    expect(() => assertAuditedV2Identities({ ...AUDITED_V2_IDENTITIES, reviewedTruthSha256: "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127" })).toThrow("reviewedTruthSha256");
+    expect(() => assertAuditedV2Identities({ ...AUDITED_V2_IDENTITIES, generatedProposalSha256: "27bb22ae48d11239cff66f79a016de9ce1d8fb069bcb87f5bf64a5ee6a080a57" })).toThrow("generatedProposalSha256");
+    expect(() => assertAuditedV2Identities({ ...AUDITED_V2_IDENTITIES, productionExecutionSha256: "c35eb8957a068ca791bde8b0851a8f884b313309d6b30353719f60b946ba7c2b" })).toThrow("productionExecutionSha256");
   });
 });
