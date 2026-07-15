@@ -1,5 +1,7 @@
 {
+  "PR2": "done",
   "RC0": "done",
+  "RC3": "done",
   "currentPhase": "RC3",
   "name": "Interactive Evidence Review MVP",
   "phases": {
