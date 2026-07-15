@@ -56,7 +56,19 @@ function span(page: number, id: string, text: string): EvidenceSpan {
   };
 }
 
-function auditSynthetic(ruleId: string, spans: EvidenceSpan[]) {
+function auditSynthetic(
+  ruleId: string,
+  spans: EvidenceSpan[],
+  diagnosticTrace = false,
+  sections?: Array<{
+    id: string;
+    sectionNumber?: string;
+    titleRaw: string;
+    titleClean: string;
+    bodyRaw: string;
+    bodyClean: string;
+  }>,
+) {
   const rule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === ruleId);
   if (!rule) throw new Error(`Missing synced rule ${ruleId}`);
   const evidenceDocument: EvidenceDocument = { docId: "synthetic-pdd", rawText: spans.map((candidate) => candidate.text).join("\n"), spans };
@@ -66,6 +78,8 @@ function auditSynthetic(ruleId: string, spans: EvidenceSpan[]) {
     getContract: getVm0007EvidenceContract,
     normalizeRuleId: normalizeVm0007RuleId,
     versionContext: { methodologyId: "VM0007", rulebookVersion: "v1.8", pddDeclaredMethodologyVersion: "v1.8" },
+    diagnosticTrace,
+    sections,
   });
 }
 
@@ -237,17 +251,13 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(baseline.assessmentReason.trim().length).toBeGreaterThan(0);
     expect(baseline.clientAction.trim().length).toBeGreaterThan(0);
 
-    expect(["missing_evidence", "partially_supported", "supported_by_pdd"]).toContain(leakage.status);
-    if (leakage.status !== "missing_evidence") {
-      expect(leakage.bestEvidenceQuote).toBe(leakage.evidence?.[0]?.quote);
-      expect(leakage.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
-    }
+    expect(["partially_supported", "supported_by_pdd"]).toContain(leakage.status);
+    expect(leakage.bestEvidenceQuote).toBe(leakage.evidence?.[0]?.quote);
+    expect(leakage.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
 
-    expect(["missing_evidence", "partially_supported", "supported_by_pdd"]).toContain(monitoring.status);
-    if (monitoring.status !== "missing_evidence") {
-      expect(monitoring.bestEvidenceQuote).toBe(monitoring.evidence?.[0]?.quote);
-      expect(monitoring.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
-    }
+    expect(["partially_supported", "supported_by_pdd"]).toContain(monitoring.status);
+    expect(monitoring.bestEvidenceQuote).toBe(monitoring.evidence?.[0]?.quote);
+    expect(monitoring.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
 
     expect(additionality.assessmentReason.trim().length).toBeGreaterThan(0);
     expect(additionality.clientAction.trim().length).toBeGreaterThan(0);
@@ -300,6 +310,48 @@ describe("auditEvidence with VM0007 contracts", () => {
 
     expect(hasLocalRuleAlignment({ rule: forestRule, contract: getVm0007EvidenceContract(forestRule), text: source })).toBe(true);
     expect(hasLocalRuleAlignment({ rule: leakageRule, contract: getVm0007EvidenceContract(leakageRule), text: source })).toBe(false);
+  });
+
+  it("applies cross-rule alignment through the full audit pipeline and preserves the best candidate", () => {
+    const sharedSource = "The project activity documents the selected baseline module for planned deforestation (APD) in the project area. The project area covers 300 hectares; all 36 properties were measured, recorded, mapped, and confirmed in the project records.";
+    const aligned = auditSynthetic("R-3-0005", [
+      span(10, "baseline-best", "Deforestation category baseline. ".repeat(12)),
+      span(63, "shared-source", sharedSource),
+    ], true, [{ id: "section-10", sectionNumber: "S-5", titleRaw: "S-5 Quantification of Estimated GHG Emission Reductions and Removals", titleClean: "S-5 Quantification of Estimated GHG Emission Reductions and Removals", bodyRaw: "", bodyClean: "" }]);
+    const unrelated = auditSynthetic("R-1-0001", [
+      span(11, "forest-best", "Forest definition thresholds. ".repeat(12)),
+      span(63, "shared-source", sharedSource),
+    ], true, [{ id: "section-11", sectionNumber: "S-1", titleRaw: "Forest definition sections", titleClean: "Forest definition sections", bodyRaw: "", bodyClean: "" }]);
+    const alignedResult = byRuleId(aligned.results, "R-3-0005");
+    const unrelatedResult = byRuleId(unrelated.results, "R-1-0001");
+
+    expect(aligned.diagnosticTrace?.[0]?.selectedCandidates[0]?.spanId).toBe("baseline-best");
+    expect(alignedResult.evidence?.some((record) => record.span === "shared-source")).toBe(true);
+    expect(unrelated.diagnosticTrace?.[0]?.selectedCandidates[0]?.spanId).toBe("forest-best");
+    const rejected = unrelatedResult.rejectedEvidence?.find((record) => record.span === "shared-source");
+    expect(rejected).toEqual(expect.objectContaining({
+      quote: sharedSource,
+      page: 63,
+      section: "Project evidence",
+      span: "shared-source",
+      rejectionReason: "The span contains project-specific content but is not sufficiently aligned with the current rule.",
+    }));
+  });
+
+  it("does not let a weak contract signal independently pass local alignment", () => {
+    const rule = { id: "R-WEAK", title: "Water quality sampling", logic: "Project-specific sampling results" };
+    const contract = {
+      ...getVm0007EvidenceContract("R-5-0003"),
+      label: "Water quality sampling",
+      strongEvidenceSignals: ["Water quality results are tied to the project activity"],
+      weakEvidenceSignals: ["Monitoring is described generally without task detail"],
+    };
+
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project monitoring is described generally without task detail.",
+    })).toBe(false);
   });
 
   it("requires project facts and the rule subject in one fragment, while preserving the 58-rule surface", () => {

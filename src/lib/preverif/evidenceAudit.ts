@@ -723,6 +723,23 @@ const ALIGNMENT_STOPWORDS = new Set([
   "project",
   "requirement",
   "requirements",
+  "scenario",
+  "scenarios",
+  "plan",
+]);
+
+const GENERIC_ALIGNMENT_SUBJECT_TOKENS = new Set([
+  "applicable",
+  "application",
+  "baseline",
+  "condition",
+  "conditions",
+  "monitoring",
+  "project",
+  "activity",
+  "activities",
+  "requirement",
+  "requirements",
 ]);
 
 function alignmentFragments(text: string): string[] {
@@ -743,9 +760,10 @@ function ruleAlignmentSubjectTokens(
     contract.label,
     contract.appliesToFamily ?? "",
     ...contract.strongEvidenceSignals,
-    ...contract.weakEvidenceSignals,
     ...(contract.mandatoryComponents ?? []).flatMap((component) => component.signals),
-  ].join(" "), ALIGNMENT_STOPWORDS).filter((token) => token.length >= 4);
+  ].join(" "), ALIGNMENT_STOPWORDS).filter((token) =>
+    token.length >= 4 && !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token),
+  );
 }
 
 /**
@@ -758,22 +776,44 @@ export function hasLocalRuleAlignment(input: {
   rule: MethodologyEvidenceAuditRule;
   contract: MethodologyEvidenceContract;
   text: string;
+  evidenceType?: EvidenceType;
 }): boolean {
   const subjectTokens = ruleAlignmentSubjectTokens(input.rule, input.contract);
-  const subjectPhrases = [
-    ...input.contract.strongEvidenceSignals,
-    ...input.contract.weakEvidenceSignals,
-    input.contract.label,
-    input.contract.appliesToFamily ?? "",
-  ].filter(Boolean).map(normalizeText);
+  const strongSignalPhrases = input.contract.strongEvidenceSignals
+    .filter(Boolean)
+    .map(normalizeText);
+  const contractSubjectPhrases = [input.contract.label, input.contract.appliesToFamily ?? ""]
+    .filter(Boolean)
+    .map(normalizeText)
+    .filter((phrase) => phrase.length >= 4 && tokenize(phrase, ALIGNMENT_STOPWORDS)
+      .some((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token)));
   const directRuleSubjectPhrases = [
     resolveRuleTitle(input.rule),
     input.contract.label,
-  ].map(normalizeText).filter((phrase) => phrase.length >= 4);
+  ].map(normalizeText).filter((phrase) => {
+    const tokens = tokenize(phrase, ALIGNMENT_STOPWORDS);
+    return phrase.length >= 4
+      && tokens.some((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token));
+  });
+
+  const candidateEvidenceType = input.evidenceType ?? "project_specific_implementation";
 
   return alignmentFragments(input.text).some((fragment) => {
-    if (!hasProjectSpecificMarkers(fragment)) return false;
-    const exactPhraseHit = subjectPhrases.some((phrase) => phrase.length >= 12 && fragment.includes(phrase))
+    // The candidate was already classified as project-specific. For local
+    // context, reuse existing factuality signals instead of requiring every
+    // fragment to repeat the narrower project-marker vocabulary.
+    const hasLocalProjectFact = candidateEvidenceType === "project_specific_scope"
+      ? hasExplicitScopeExclusion(fragment) || evidenceSpecificityBonus(fragment) > 0
+      : hasProjectSpecificMarkers(fragment)
+        || projectFactBonus(fragment) > 0
+        || evidenceSpecificityBonus(fragment) > 0;
+    if (!hasLocalProjectFact) return false;
+
+    const strongPhraseHit = strongSignalPhrases.some((phrase) =>
+      phrase.length >= 12 && fragment.includes(phrase),
+    );
+    const exactPhraseHit = strongPhraseHit
+      || contractSubjectPhrases.some((phrase) => fragment.includes(phrase))
       || directRuleSubjectPhrases.some((phrase) => fragment.includes(phrase));
     if (exactPhraseHit) return true;
     const fragmentTokens = tokenize(fragment, ALIGNMENT_STOPWORDS);
@@ -798,7 +838,12 @@ function applyComplementaryAlignmentGate(input: {
   return input.candidates.map((candidate) => {
     if (candidate.span.spanId === input.bestCandidate.span.spanId
       || !isAcceptedProjectEvidence(candidate)
-      || hasLocalRuleAlignment({ rule: input.rule, contract: input.contract, text: candidate.span.text })) {
+      || hasLocalRuleAlignment({
+        rule: input.rule,
+        contract: input.contract,
+        text: candidate.span.text,
+        evidenceType: candidate.evidenceType,
+      })) {
       return candidate;
     }
     return {
@@ -815,7 +860,7 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
     return { evidenceType: "incomplete_or_noisy", rejectionReason: "The source span is truncated, stitched, or marked as noisy/limited evidence." };
   }
 
-  const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|described|defines?|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
   const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
     && !implementationLanguage
     && !/\b(?:input|variable|parameter|baseline|leakage|monitoring|calculation|result|equation)\b/.test(text)
@@ -1376,10 +1421,10 @@ function classifyStatus(input: {
   }
 
   const scopeKeywords = deriveScopeKeywords(input.rule, input.contract);
-  const scopeCandidate = input.evidenceCandidates.find((candidate) =>
-    (candidate.evidenceType === "project_specific_scope" || candidate.evidenceType === "project_specific_implementation")
-    && hasScopeEvidence(candidate, scopeKeywords),
-  ) ?? null;
+  const scopeCandidate = input.evidenceCandidates
+    .filter(isAcceptedProjectEvidence)
+    .find((candidate) => hasScopeEvidence(candidate, scopeKeywords))
+    ?? null;
   if (
     requiresScopeSpecificEvidence(input.rule, input.contract)
     && (!scopeCandidate || hasAmbiguousScopeLanguage(scopeCandidate))
