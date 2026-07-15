@@ -66,7 +66,7 @@ describe("RC3-4 current same-run proposal comparison", () => {
     expect(serializeVm0007Rc3CurrentComparison(first)).toBe(serializeVm0007Rc3CurrentComparison(second));
     expect(first.frozenRc2Baseline.sha256).toBe("15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf");
     expect(first.fixtureProtection).toEqual({ reviewedTruthUnchanged: true, frozenProposalUnchanged: true, frozenRc2Unchanged: true });
-    expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json")).toString()).digest("hex")).toBe("b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127");
+    expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.rc2-rc3.json")).toString()).digest("hex")).toBe("b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127");
     expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/machine-proposal.json")).toString()).digest("hex")).toBe("068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6");
   });
 

@@ -41,7 +41,7 @@ describe("VM0007 evidence selection and provenance benchmark", () => {
     expect(result.rows.find((row) => row.stableRuleId.endsWith("R-1-0001"))?.accepted.machineCollectionState).toBe("present");
     expect(result.aggregate.accepted.machineRecordCount).toBeGreaterThan(0);
     expect(result.aggregate.accepted.precision).not.toBe(null);
-    expect(result.aggregate.accepted.reviewedRecordCount).toBe(95);
+    expect(result.aggregate.accepted.reviewedRecordCount).toBe(97);
     expect(result.aggregate.acceptedProvenance.comparedPairCount).toBeGreaterThanOrEqual(0);
   });
 

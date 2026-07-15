@@ -12,8 +12,8 @@ describe("reviewed Evidence Map adapter", () => {
     expect(summarizeEvidenceMapPresentation(buildReviewedEvidenceMapPresentation(snapshot!).rows)).toEqual({
       total: 58,
       found: 6,
-      unclear: 20,
-      missing: 10,
+      unclear: 21,
+      missing: 9,
       notApplicable: 22,
       actionRequired: 30,
     });
@@ -24,6 +24,7 @@ describe("reviewed Evidence Map adapter", () => {
     const summary = summarizeEvidenceMapPresentation(buildReviewedEvidenceMapPresentation(snapshot).rows);
     expect({ FOUND: summary.found, UNCLEAR: summary.unclear, MISSING: summary.missing, "N/A": summary.notApplicable }).toEqual(metadata.review.evidenceStateCounts);
     expect(summary.actionRequired).toBe(metadata.review.reviewerOutcomes.ACTION_REQUIRED);
+    expect(snapshot.rows.flatMap((row) => row.reviewerEvidence)).toHaveLength(97);
     const evidence = snapshot.rows.flatMap((row) => row.reviewerEvidence);
     expect(evidence.length).toBeGreaterThan(0);
     expect(evidence.every((item) => item.quote && item.spanId && item.provenance.docId && item.provenance.spanId)).toBe(true);

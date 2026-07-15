@@ -17,6 +17,7 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(ids).toHaveLength(58);
     expect(new Set(ids).size).toBe(58);
     expect(gold.rows).toHaveLength(58);
+    expect(gold.rows.reduce((count: number, row: any) => count + row.acceptedEvidence.length, 0)).toBe(97);
     expect(gold.rows.map((row: any) => row.ruleId)).toEqual(ids);
     expect(draft.rows.filter((row: any) => !ids.includes(row.ruleReference))).toHaveLength(0);
     expect(metadata.review.remainingUnreviewedRuleCount).toBe(0);
@@ -95,4 +96,25 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(byRule.get("R-6-0002")?.acceptedEvidence.map((e: any) => e.page)).toEqual(expect.arrayContaining([11, 38]));
     expect(byRule.get("R-6-0005")?.acceptedEvidence.map((e: any) => e.page)).toEqual(expect.arrayContaining([11, 38]));
   });
+
+  it("pins the five reconciled rows and extraction-backed page-11 provenance", () => {
+    const current = read("gold.json");
+    const historical = read("gold.rc2-rc3.json");
+    const metadata = read("metadata.json");
+    const changed = current.rows.filter((row: any, index: number) => JSON.stringify(row) !== JSON.stringify(historical.rows[index]));
+    expect(changed.map((row: any) => row.ruleReference)).toEqual(["R-3-0007", "R-3-0008", "R-5-0008", "R-6-0002", "R-6-0005"]);
+    expect(metadata.review.reconciliation.map((row: any) => row.ruleId)).toEqual(changed.map((row: any) => row.ruleId));
+    const extraction = read("raw-document-extraction.json");
+    const page11 = extraction.pages.find((page: any) => page.pageNumber === 11).text.replace(/\s+/g, " ");
+    const audit = read("independent-audit.json");
+    for (const ruleReference of ["R-3-0008", "R-6-0002", "R-6-0005"]) {
+      const goldEvidence = byRule(current.rows, ruleReference).acceptedEvidence.find((e: any) => e.page === 11);
+      const auditEvidence = audit.rows.find((row: any) => row.ruleReference === ruleReference).projectEvidence.find((e: any) => e.page === 11);
+      expect(page11).toContain(goldEvidence.quote.replace(/\s+/g, " "));
+      expect(auditEvidence.section).toBe(goldEvidence.section);
+      expect(auditEvidence.provenance).toEqual(expect.objectContaining({ sectionPath: goldEvidence.provenance.sectionPath, sectionHeading: goldEvidence.provenance.sectionHeading }));
+    }
+  });
 });
+
+function byRule(rows: any[], ruleReference: string): any { return rows.find((row) => row.ruleReference === ruleReference); }

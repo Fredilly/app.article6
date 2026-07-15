@@ -16,7 +16,7 @@ const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
-const reviewedPath = path.join(fixtureDir, "gold.json");
+const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const registryPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");
 const reconciliationPath = path.join(fixtureDir, "mismatch-reconciliation.json");
 
@@ -32,7 +32,7 @@ function input() {
     reconciliationRows: json(reconciliationPath).rows,
     fixtureIdentity: {
       machineProposal: { path: path.relative(root, machinePath), sha256: digest(machinePath) },
-      reviewedTruth: { path: path.relative(root, reviewedPath), sha256: digest(reviewedPath) },
+      reviewedTruth: { path: path.relative(root, path.join(fixtureDir, "gold.json")), sha256: digest(reviewedPath) },
       stableRuleRegistry: { path: path.relative(root, registryPath), sha256: digest(registryPath) },
       reconciliation: { path: path.relative(root, reconciliationPath), sha256: digest(reconciliationPath) },
     },

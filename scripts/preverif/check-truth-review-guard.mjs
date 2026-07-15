@@ -78,7 +78,7 @@ function reconciliationRecords(metadata) {
   const value = metadata?.review?.reconciliation ?? metadata?.reconciliation;
   return Array.isArray(value) ? value : [];
 }
-function validateReconciliationMetadata(failures, metadata, oldRows, newRows, rules, allowEvidenceChanges = false) {
+function validateReconciliationMetadata(failures, metadata, oldRows, newRows, rules, acceptedEvidenceIds = new Set()) {
   const records = reconciliationRecords(metadata); const changedIds = new Set(newRows.map((row, index) => same(row, oldRows[index]) ? undefined : ruleId(row)).filter(Boolean));
   const recordIds = records.map((record) => record?.ruleId);
   if (new Set(recordIds).size !== recordIds.length || recordIds.some((id) => !id)) addFailure(failures, "reconciliation metadata rule IDs must be unique and non-empty");
@@ -91,7 +91,8 @@ function validateReconciliationMetadata(failures, metadata, oldRows, newRows, ru
     if (record.oldHash !== hash(before) || record.newHash !== hash(after)) addFailure(failures, `reconciliation hash record mismatch for ${id}`);
     if (!same(record.changedFields, fields)) addFailure(failures, `reconciliation changedFields mismatch for ${id}`);
     const supportedFields = ["finalEvidenceState", "reviewerOutcome", "rationale", "clientAction", "draftFindingCandidate", "reviewerCorrection", "contradictionState", "reviewStatus"];
-    if (allowEvidenceChanges) supportedFields.push("acceptedEvidence");
+    const evidenceExplicitlyReconciled = fields.includes("acceptedEvidence") && record.changedFields?.includes("acceptedEvidence") && acceptedEvidenceIds.has(id);
+    if (evidenceExplicitlyReconciled) supportedFields.push("acceptedEvidence");
     if (fields.some((field) => !supportedFields.includes(field))) addFailure(failures, `unsupported reconciliation field for ${id}`);
     if (typeof record.reviewerRationale !== "string" || !record.reviewerRationale.trim()) addFailure(failures, `reconciliation reviewer rationale missing for ${id}`);
     if (fields.includes("methodologyTraceability")) addFailure(failures, `reconciliation may not change methodology traceability for ${id}`);
@@ -202,7 +203,9 @@ function main() {
       if (!same(oldGoldIds, newGoldIds)) addFailure(failures, "reconciliation reordered reviewedRuleIds");
       if (!names.has("REVIEW.md")) addFailure(failures, "reconciliation must change REVIEW.md");
       if (!names.has("metadata.json")) addFailure(failures, "reconciliation must change metadata with explicit records");
-      validateReconciliationMetadata(failures, currentJson(`${dir}/metadata.json`), oldGoldRows, newGoldRows, rules, auditAppendPreserved);
+      const reconciliationMetadata = currentJson(`${dir}/metadata.json`);
+      const acceptedEvidenceIds = new Set(reconciliationRecords(reconciliationMetadata).filter((record) => record?.changedFields?.includes("acceptedEvidence")).map((record) => record.ruleId).filter((id) => rows(audit1).find((row) => canonicalAuditId(auditId(row), newGoldIds) === id && row.auditResult === "CORRECTED")));
+      validateReconciliationMetadata(failures, reconciliationMetadata, oldGoldRows, newGoldRows, rules, acceptedEvidenceIds);
       const changedIds = newGoldRows.filter((row, index) => !same(row, oldGoldRows[index])).map(ruleId);
       validateCorrections(failures, baseCorrections, currentCorrections, changedIds, newGoldRows);
       const auditRows = rows(audit1);

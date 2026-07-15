@@ -15,7 +15,7 @@ const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18
 const baselinePath = path.join(artifactDir, "RC2_BASELINE.json");
 const diagnosticPath = path.join(artifactDir, "RC3_DIAGNOSTIC.json");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
-const reviewedPath = path.join(fixtureDir, "gold.json");
+const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const outputPath = path.join(artifactDir, "RC3_SELECTED_MATCH_SUBTAXONOMY.json");
 const read = (filePath: string) => JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown;
 const digest = (filePath: string) => crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");

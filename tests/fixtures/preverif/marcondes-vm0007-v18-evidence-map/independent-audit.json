@@ -1834,17 +1834,17 @@
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
           "quote": "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.",
           "page": 11,
-          "section": "1 SUMMARY OF PROJECT BENEFITS > 1.1 Unique Project Benefits",
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
           "spanId": "manual:marcondes-pdd:page-11:r-r-3-0008-jurisdictional-redd-program",
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 11,
             "sectionPath": [
-              "1 SUMMARY OF PROJECT BENEFITS",
-              "1.1 Unique Project Benefits"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
             "spanId": "manual:marcondes-pdd:page-11:r-r-3-0008-jurisdictional-redd-program",
-            "sectionHeading": "1.1 Unique Project Benefits",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
@@ -2678,17 +2678,17 @@
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
           "quote": "Monitoring is carried out through an integrated system combining remote sensing (satellite imagery at multiple resolutions, drone surveys, FIRMS fire alerts), ground-based verification (permanent forest inventory plots, biodiversity transects, camera traps), and community-based surveillance (monthly patrols, fire detection and response). This multi-layered approach ensures early detection of threats and supports adaptive management.",
           "page": 11,
-          "section": "1 SUMMARY OF PROJECT BENEFITS > 1.1 Unique Project Benefits",
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
           "spanId": "manual:marcondes-pdd:page-11:r-r-6-0002-integrated-monitoring",
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 11,
             "sectionPath": [
-              "1 SUMMARY OF PROJECT BENEFITS",
-              "1.1 Unique Project Benefits"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
             "spanId": "manual:marcondes-pdd:page-11:r-r-6-0002-integrated-monitoring",
-            "sectionHeading": "1.1 Unique Project Benefits",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
@@ -2881,17 +2881,17 @@
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
           "quote": "Monitoring is carried out through an integrated system combining remote sensing (satellite imagery at multiple resolutions, drone surveys, FIRMS fire alerts), ground-based verification (permanent forest inventory plots, biodiversity transects, camera traps), and community-based surveillance (monthly patrols, fire detection and response). This multi-layered approach ensures early detection of threats and supports adaptive management.",
           "page": 11,
-          "section": "1 SUMMARY OF PROJECT BENEFITS > 1.1 Unique Project Benefits",
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
           "spanId": "manual:marcondes-pdd:page-11:r-r-6-0005-integrated-monitoring",
           "provenance": {
             "docId": "quick-check-review-question",
             "page": 11,
             "sectionPath": [
-              "1 SUMMARY OF PROJECT BENEFITS",
-              "1.1 Unique Project Benefits"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
             "spanId": "manual:marcondes-pdd:page-11:r-r-6-0005-integrated-monitoring",
-            "sectionHeading": "1.1 Unique Project Benefits",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
