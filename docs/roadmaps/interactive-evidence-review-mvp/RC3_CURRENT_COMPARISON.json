@@ -1,0 +1,814 @@
+{
+  "changedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
+  "currentAcceptedEvidenceMissTaxonomy": {
+    "categoryCounts": {
+      "never_retrieved": 13,
+      "ranked_below_cutoff": 0,
+      "retrieved_but_filtered": 35,
+      "selected_but_match_failed": 47,
+      "unresolved_insufficient_trace": 0
+    },
+    "count": 95,
+    "events": [
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:2",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:3",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0002:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0002:accepted:2",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0005:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0006:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0007:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0008:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0009:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0009"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0010:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0011:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0012:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0013:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0014:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0014:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0014:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-1-0015:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0001:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0001:accepted:2",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0001:accepted:3",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0002:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0003:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0003:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0003:accepted:3",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0004:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0004:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0005:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0005:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0005:accepted:3",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0006:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0007:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0008:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0009:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0009:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0010:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0010:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0011:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0011:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0013:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0013:accepted:2",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:3",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0014"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0015:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0015:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-2-0016:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0001:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0002:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0002:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0002:accepted:3",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0003:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0003:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0004:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0004:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0005:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0005:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0005:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0006:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0006:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0006:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0007:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-3-0008:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-4-0002:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-4-0002:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0001:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0002:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0002:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0003:accepted:1",
+        "primaryCause": "never_retrieved",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0003:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0003:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0004:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0004:accepted:2",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0005:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0007:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0008:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-5-0009:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:2",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:3",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0006:accepted:1",
+        "primaryCause": "retrieved_but_filtered",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007"
+      },
+      {
+        "eventId": "Verra.AFOLU.VM0007.v1-8.R-6-0008:accepted:1",
+        "primaryCause": "selected_but_match_failed",
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+      }
+    ]
+  },
+  "currentProposalSource": {
+    "auditExecutionSha256": "c35eb8957a068ca791bde8b0851a8f884b313309d6b30353719f60b946ba7c2b",
+    "generatedProposalSha256": "27bb22ae48d11239cff66f79a016de9ce1d8fb069bcb87f5bf64a5ee6a080a57",
+    "kind": "same_run_serialized_reload",
+    "rows": 58,
+    "sourceExtractionSha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+  },
+  "fieldMetrics": {
+    "applicability": {
+      "current": 6,
+      "frozenRc2": 22
+    },
+    "clientAction": {
+      "current": 58,
+      "frozenRc2": 58
+    },
+    "contradictionState": {
+      "current": 58,
+      "frozenRc2": 58
+    },
+    "draftFinding": {
+      "current": 58,
+      "frozenRc2": 58
+    },
+    "evidenceState": {
+      "current": 39,
+      "frozenRc2": 52
+    },
+    "reviewerOutcome": {
+      "current": 58,
+      "frozenRc2": 58
+    }
+  },
+  "fixtureProtection": {
+    "frozenProposalUnchanged": true,
+    "frozenRc2Unchanged": true,
+    "reviewedTruthUnchanged": true
+  },
+  "frozenProposal": {
+    "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/machine-proposal.json",
+    "sha256": "068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6"
+  },
+  "frozenRc2Baseline": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json",
+    "sha256": "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf"
+  },
+  "metrics": {
+    "acceptedEvidenceFalseSupport": {
+      "current": 174,
+      "delta": 116,
+      "direction": "regressed",
+      "frozenRc2": 58,
+      "percentageDelta": 2
+    },
+    "acceptedEvidenceMissed": {
+      "current": 95,
+      "delta": 0,
+      "direction": "unchanged",
+      "frozenRc2": 95,
+      "percentageDelta": 0
+    },
+    "applicabilityFailures": {
+      "current": 6,
+      "delta": -16,
+      "direction": "improved",
+      "frozenRc2": 22,
+      "percentageDelta": -0.7272727272727273
+    },
+    "clientActionFailures": {
+      "current": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "frozenRc2": 58,
+      "percentageDelta": 0
+    },
+    "contradictionFailures": {
+      "current": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "frozenRc2": 58,
+      "percentageDelta": 0
+    },
+    "draftFindingFailures": {
+      "current": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "frozenRc2": 58,
+      "percentageDelta": 0
+    },
+    "evidenceStateFailures": {
+      "current": 39,
+      "delta": -13,
+      "direction": "improved",
+      "frozenRc2": 52,
+      "percentageDelta": -0.25
+    },
+    "reviewerOutcomeFailures": {
+      "current": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "frozenRc2": 58,
+      "percentageDelta": 0
+    }
+  },
+  "rankedActionableFailures": [
+    {
+      "affectedEvents": 174,
+      "failure": "accepted_evidence_false_support",
+      "genericFixConfidence": "low",
+      "provenStage": false,
+      "rank": 1,
+      "rationale": "The benchmark proves false support but the current comparison does not localize its production stage.",
+      "sourceLayer": "unresolved among retrieval, filtering, ranking and evidence classification"
+    },
+    {
+      "affectedEvents": 35,
+      "failure": "retrieved_but_filtered",
+      "genericFixConfidence": "high",
+      "provenStage": true,
+      "rank": 2,
+      "rationale": "Candidate-level trace proves reviewed evidence was retrieved and removed by the generic evidence-selection filter.",
+      "sourceLayer": "evidenceAudit.selectEvidenceCandidates"
+    },
+    {
+      "affectedEvents": 13,
+      "failure": "never_retrieved",
+      "genericFixConfidence": "medium",
+      "provenStage": true,
+      "rank": 3,
+      "rationale": "Candidate-level trace proves the reviewed evidence was absent from the retrieval candidate set.",
+      "sourceLayer": "evidenceAudit.scoreCandidates"
+    }
+  ],
+  "recoveredEventIds": {
+    "acceptedEvidenceFalseSupport": [],
+    "acceptedEvidenceMissed": []
+  },
+  "regressedEventIds": {
+    "acceptedEvidenceFalseSupport": [
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0001:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0002:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0002:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0002:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0003:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0004:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0013:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0013:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0013:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0013:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0014:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0015:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0001:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0002:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0002:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0003:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0003:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0004:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0004:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0005:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0005:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0006:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0014:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0002:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0003:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0003:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0004:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0004:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0005:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0007:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-4-0001:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0001:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0001:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0001:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0003:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0003:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0005:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0005:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0005:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0005:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0008:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0008:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0009:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0009:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0002:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0005:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:false_support:5",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007:accepted:false_support:6",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008:accepted:false_support:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008:accepted:false_support:3",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008:accepted:false_support:4",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008:accepted:false_support:5"
+    ],
+    "acceptedEvidenceMissed": []
+  },
+  "reviewedTruth": {
+    "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+    "sha256": "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127"
+  },
+  "ruleCount": 58,
+  "schemaVersion": "vm0007-rc3-current-comparison-v1",
+  "traceVersion": "rc3-current-same-run-proposal-v1"
+}
