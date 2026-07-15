@@ -864,8 +864,7 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   const descriptiveProjectImplementation = /\b(?:described|defines?)\b/.test(text)
     && hasProjectSpecificMarkers(text)
     && !/\b(?:will be|to be|pending|future|not yet|shall|must)\b/.test(text)
-    && (projectFactBonus(text) >= 10
-      || (text.length > 120 && evidenceSpecificityBonus(text) >= 8));
+    && projectFactBonus(text) >= 10;
   const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
     && !implementationLanguage
     && !descriptiveProjectImplementation
@@ -1037,6 +1036,7 @@ function projectFactBonus(text: string): number {
     /\b(?:project area qualifies|has remained forested|project area is|project area covers)\b/i,
     /\b(?:properties|landowners|municipalities|historical reference period|project start date)\b/i,
     /\b(?:confirm|confirmed|classified|documented|measured|recorded|observed)\b/i,
+    /\b(?:community agreements|surveillance|sampling design|plot remeasurement|qa\s*\/\s*qc checks|reporting workflow|leakage observations|safeguards evidence)\b/i,
   ];
   return factualSignals.reduce((bonus, pattern) => bonus + (pattern.test(text) ? 10 : 0), 0);
 }

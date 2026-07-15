@@ -359,6 +359,45 @@ describe("auditEvidence with VM0007 contracts", () => {
     ]));
   });
 
+  it.each([
+    ["long descriptive module", "The project describes module M as the selected pathway for the activity and provides a general explanation of the module and its purpose within the methodology documentation."],
+    ["long descriptive tool", "The project defines tool T as the applicable tool and includes a general description of the tool and its methodological purpose for the selected project pathway."],
+  ])("rejects a %s without an independent project fact", (_label, text) => {
+    const result = byRuleId(auditSynthetic("R-3-0005", [
+      span(63, "long-declaration", text),
+    ]).results, "R-3-0005");
+
+    expect(result.evidence?.some((record) => record.span === "long-declaration")).toBe(false);
+    expect(result.rejectedEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "long-declaration",
+        evidenceType: "module_or_tool_declaration",
+        rejectionReason: "A module or tool declaration shows pathway selection, not completed project implementation.",
+      }),
+    ]));
+  });
+
+  it("accepts descriptive implementation when the same span contains an independent project fact", () => {
+    const text = "The project defines the selected baseline module for planned deforestation, and the project area covers 300 hectares across 36 properties.";
+    const result = byRuleId(auditSynthetic("R-3-0005", [
+      span(63, "factual-description", text),
+    ]).results, "R-3-0005");
+
+    expect(result.evidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "factual-description",
+        evidenceType: "project_specific_implementation",
+      }),
+    ]));
+    expect(result.rejectedEvidence?.some((record) => record.span === "factual-description")).toBe(false);
+  });
+
   it("does not let a weak contract signal independently pass local alignment", () => {
     const rule = { id: "R-WEAK", title: "Water quality sampling", logic: "Project-specific sampling results" };
     const contract = {
