@@ -914,7 +914,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:63",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -1485,7 +1485,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -3514,7 +3514,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -3923,7 +3923,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -4211,7 +4211,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -4969,7 +4969,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -8638,7 +8638,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -8982,7 +8982,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -10018,7 +10018,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -13171,7 +13171,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -14795,7 +14795,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -15389,7 +15389,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -15995,7 +15995,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -16615,7 +16615,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -17235,7 +17235,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -17855,7 +17855,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",
@@ -18475,7 +18475,7 @@
         "resultSpan": "quick-check-review-question:element:paragraph:65",
         "status": "partially_supported"
       },
-      "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "firstProvenLossPoint": "none",
       "matchBasis": {
         "acceptedAuditEvidence": "span_id",
         "bestMainAuditIdentity": "none",

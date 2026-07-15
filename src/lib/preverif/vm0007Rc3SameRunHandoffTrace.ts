@@ -230,13 +230,16 @@ export function matchHandoffIdentity(selected: HandoffIdentity, value: HandoffCo
 }
 
 function firstMatch(selected: HandoffIdentity, values: readonly HandoffComparedIdentity[]): HandoffMatchResult {
+  let spanMatch = false;
+  let quoteFallbackMatch = false;
   let conflict = false;
   for (const value of values) {
     const result = matchHandoffIdentity(selected, value);
     conflict = conflict || result.conflictingSpanAndSameQuote;
-    if (result.basis !== "none") return { ...result, conflictingSpanAndSameQuote: conflict || result.conflictingSpanAndSameQuote };
+    spanMatch = spanMatch || result.basis === "span_id";
+    quoteFallbackMatch = quoteFallbackMatch || result.basis === "normalized_quote_fallback";
   }
-  return { basis: "none", conflictingSpanAndSameQuote: conflict };
+  return { basis: spanMatch ? "span_id" : quoteFallbackMatch ? "normalized_quote_fallback" : "none", conflictingSpanAndSameQuote: conflict };
 }
 
 function counts(): Record<SameRunPrimaryStage, number> {
@@ -304,13 +307,20 @@ export function classifySameRunHandoff(input: Readonly<{
     ...(bestDivergence && serializedHas ? ["same_run_proposal_contains_selected_candidate"] : []),
     ...(input.duplicateCardinalityMismatch ? ["duplicate_cardinality_mismatch"] : []),
   ];
+  const firstProvenLossPoint = !auditHas
+    ? "selected_missing_from_audit_result"
+    : !draftHas
+      ? "audit_result_present_but_draft_mapping_dropped"
+      : !serializedHas
+        ? "draft_present_but_serialization_dropped"
+        : "none";
   const base = { secondaryConditions: secondary, stagePresence: presence, matchBasis, conflictingSpanAndSameQuote };
-  if (!auditHas) return { ...base, primaryStage: "selected_missing_from_audit_result", firstProvenLossPoint: "selected_missing_from_audit_result" };
-  if (rejectedOnly) return { ...base, primaryStage: "selected_present_only_in_rejected_audit_evidence", firstProvenLossPoint: "none" };
-  if (bestDivergence) return { ...base, primaryStage: "selected_present_in_evidence_but_not_best_evidence", firstProvenLossPoint: "selected_present_in_evidence_but_not_best_evidence" };
-  if (!draftHas) return { ...base, primaryStage: "audit_result_present_but_draft_mapping_dropped", firstProvenLossPoint: "audit_result_present_but_draft_mapping_dropped" };
-  if (!serializedHas) return { ...base, primaryStage: "draft_present_but_serialization_dropped", firstProvenLossPoint: "draft_present_but_serialization_dropped" };
-  return { ...base, primaryStage: "same_run_proposal_contains_selected_candidate", firstProvenLossPoint: "none" };
+  if (!auditHas) return { ...base, primaryStage: "selected_missing_from_audit_result", firstProvenLossPoint };
+  if (rejectedOnly) return { ...base, primaryStage: "selected_present_only_in_rejected_audit_evidence", firstProvenLossPoint };
+  if (bestDivergence) return { ...base, primaryStage: "selected_present_in_evidence_but_not_best_evidence", firstProvenLossPoint };
+  if (!draftHas) return { ...base, primaryStage: "audit_result_present_but_draft_mapping_dropped", firstProvenLossPoint };
+  if (!serializedHas) return { ...base, primaryStage: "draft_present_but_serialization_dropped", firstProvenLossPoint };
+  return { ...base, primaryStage: "same_run_proposal_contains_selected_candidate", firstProvenLossPoint };
 }
 
 export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
@@ -421,6 +431,14 @@ export function validateVm0007Rc3SameRunHandoffTrace(value: Vm0007Rc3SameRunHand
     if (!event.stableRuleId || !event.ruleId || !event.selectedCandidate.spanId) throw new Error(`Incomplete same-run handoff identity: ${event.eventId}`);
     if (!STAGES.includes(event.primaryStage)) throw new Error(`Unknown same-run handoff primary stage: ${event.eventId}`);
     if (HANDOFF_MATCH_STAGES.some((stage) => !HANDOFF_MATCH_BASES.includes(event.matchBasis[stage]) || typeof event.conflictingSpanAndSameQuote[stage] !== "boolean")) throw new Error(`Invalid same-run handoff match basis: ${event.eventId}`);
+    const expectedLossPoint = !event.stagePresence.selectedAnywhereInAuditResult
+      ? "selected_missing_from_audit_result"
+      : !event.stagePresence.selectedAnywhereInDraftRow
+        ? "audit_result_present_but_draft_mapping_dropped"
+        : !event.stagePresence.selectedAnywhereAfterSerializationReload
+          ? "draft_present_but_serialization_dropped"
+          : "none";
+    if (event.firstProvenLossPoint !== expectedLossPoint) throw new Error(`Inconsistent same-run handoff loss point: ${event.eventId}`);
   }
   if (Object.keys(value.primaryStageCounts).some((stage) => !STAGES.includes(stage as SameRunPrimaryStage)) || STAGES.some((stage) => !Number.isInteger(value.primaryStageCounts[stage]) || value.primaryStageCounts[stage] < 0)) throw new Error("Invalid same-run handoff primary stage counts");
   if (STAGES.some((stage) => !Number.isFinite(value.primaryStagePercentages[stage]) || value.primaryStagePercentages[stage] < 0 || value.primaryStagePercentages[stage] > 1 || value.primaryStagePercentages[stage] !== value.primaryStageCounts[stage] / value.parentEventCount)) throw new Error("Invalid same-run handoff primary stage percentages");

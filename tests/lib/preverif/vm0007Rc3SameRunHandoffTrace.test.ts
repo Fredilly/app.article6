@@ -33,6 +33,25 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     expect(matchHandoffIdentity(identity, { quote: "other", provenance: { spanId: "target-span" } }).basis).toBe("span_id");
     expect(matchHandoffIdentity(identity, { quote: "target quote", spanId: "conflict" }).conflictingSpanAndSameQuote).toBe(true);
   });
+
+  it("scans every identity and reports the strongest match plus all conflicts", () => {
+    const classifyEvidence = (evidence: Array<{ quote: string; span: string }>) => classifySameRunHandoff({
+      selectedCandidate: identity,
+      auditResult: result({ evidence, rejectedEvidence: [], bestEvidenceQuote: null, span: null }),
+      draftRow: null,
+      reloadedRow: null,
+    });
+    const exact = { quote: "target quote", span: "target-span" };
+    const conflict = { quote: "TARGET   quote", span: "other-span" };
+    expect(classifyEvidence([exact, conflict]).matchBasis.acceptedAuditEvidence).toBe("span_id");
+    expect(classifyEvidence([exact, conflict]).conflictingSpanAndSameQuote.acceptedAuditEvidence).toBe(true);
+    expect(classifyEvidence([conflict, exact]).matchBasis.acceptedAuditEvidence).toBe("span_id");
+    expect(classifyEvidence([conflict, exact]).conflictingSpanAndSameQuote.acceptedAuditEvidence).toBe(true);
+    const fallback = { quote: "target quote", span: "" };
+    expect(classifyEvidence([fallback, exact]).matchBasis.acceptedAuditEvidence).toBe("span_id");
+    expect(classifyEvidence([exact, conflict, { quote: "target quote", span: "third-span" }]).conflictingSpanAndSameQuote.acceptedAuditEvidence).toBe(true);
+    expect(classifyEvidence([conflict, { quote: "target quote", span: "third-span" }]).matchBasis.acceptedAuditEvidence).toBe("none");
+  });
   it.each([
     ["missing from audit", "selected_missing_from_audit_result", result({ bestEvidenceQuote: null, evidence: [], span: null }), null, null],
     ["present in evidence but not best", "selected_present_in_evidence_but_not_best_evidence", result({ bestEvidenceQuote: "other", span: "other-span" }), row(), row()],
@@ -42,11 +61,16 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
   ] as const)("classifies a candidate %s", (_name, expected, audit, draft, reloaded) => {
     const classified = classifySameRunHandoff({ selectedCandidate: identity, auditResult: audit, draftRow: draft, reloadedRow: reloaded });
     expect(classified.primaryStage).toBe(expected);
+    if (expected === "selected_missing_from_audit_result") expect(classified.firstProvenLossPoint).toBe("selected_missing_from_audit_result");
     if (expected === "selected_present_in_evidence_but_not_best_evidence") {
       expect(classified.stagePresence.bestEvidenceDivergence).toBe(true);
       expect(classified.stagePresence.sameRunProposalContainsSelectedCandidate).toBe(true);
       expect(classified.secondaryConditions).toContain("same_run_proposal_contains_selected_candidate");
+      expect(classified.firstProvenLossPoint).toBe("none");
     }
+    if (expected === "audit_result_present_but_draft_mapping_dropped") expect(classified.firstProvenLossPoint).toBe("audit_result_present_but_draft_mapping_dropped");
+    if (expected === "draft_present_but_serialization_dropped") expect(classified.firstProvenLossPoint).toBe("draft_present_but_serialization_dropped");
+    if (expected === "same_run_proposal_contains_selected_candidate") expect(classified.firstProvenLossPoint).toBe("none");
   });
 
   it("recognizes rejected-only audit evidence and does not call it missing", () => {
@@ -69,6 +93,7 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
       reloadedRow: row({ acceptedEvidence: [], proposedAcceptedEvidence: null, rejectedEvidence: [{ quote: "target quote", spanId: "target-span", provenance: row().provenance }], quote: null, spanId: null, provenance: null }),
     });
     expect(classified.primaryStage).toBe("selected_present_only_in_rejected_audit_evidence");
+    expect(classified.firstProvenLossPoint).toBe("none");
   });
 
   it.each([
@@ -112,6 +137,7 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, primaryStagePercentages: { ...value.primaryStagePercentages, selected_missing_from_audit_result: 2 } })).toThrow("percentages");
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, stagePresenceTotals: { ...value.stagePresenceTotals, selectedAnywhereInAuditResult: 0 } })).toThrow("presence totals");
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, matchBasisTotals: { ...value.matchBasisTotals, acceptedAuditEvidence: { ...value.matchBasisTotals.acceptedAuditEvidence, span_id: 0 } } })).toThrow("match-basis totals");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: [{ ...value.events[0], firstProvenLossPoint: "selected_missing_from_audit_result" }, ...value.events.slice(1)] })).toThrow("loss point");
   });
 
   it("fails closed for missing selected candidates and each rule alignment", () => {
