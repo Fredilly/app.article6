@@ -37,6 +37,12 @@ describe("RC3-5 false-support taxonomy", () => {
     expect(new Set(artifact.events.map((event: any) => event.eventId)).size).toBe(auditedFalseSupportCount);
     expect(artifact.events.map((event: any) => event.eventId).sort()).toEqual(auditedComparison.regressedEventIds.acceptedEvidenceFalseSupport.slice().sort());
     expect(Object.values(artifact.primarySubtypeCounts).reduce((sum: number, count: any) => sum + count, 0)).toBe(auditedFalseSupportCount);
+    expect(artifact.primarySubtypeCounts).toMatchObject({
+      quote_reviewed_under_different_rule: 109,
+      broad_span_contains_reviewed_quote_same_rule: 34,
+      duplicated_across_multiple_rules: 29,
+      accepted_project_specific_but_unmatched: 2,
+    });
     expect(artifact.schemaVersion).toBe("vm0007-rc3-false-support-taxonomy-v2");
     expect(artifact.traceVersion).toBe("rc3-audited-v2-false-support-taxonomy-v1");
     expect(artifact.source).toMatchObject({

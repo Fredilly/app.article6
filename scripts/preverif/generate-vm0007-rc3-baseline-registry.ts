@@ -26,6 +26,7 @@ const auditedDiagnostic = JSON.parse(fs.readFileSync(file("RC3_AUDITED_DIAGNOSTI
 const auditedSelectedMatch = JSON.parse(fs.readFileSync(file("RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"), "utf8"));
 const auditedHandoff = JSON.parse(fs.readFileSync(file("RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"), "utf8"));
 const auditedComparison = JSON.parse(fs.readFileSync(file("RC3_AUDITED_CURRENT_COMPARISON.json"), "utf8"));
+const falseSupportTaxonomy = file("RC3_FALSE_SUPPORT_TAXONOMY.json");
 
 const historicalArtifacts = [
   file("RC2_BASELINE.json"), file("RC2_BASELINE.md"), file("RC3_DIAGNOSTIC.json"),
@@ -64,25 +65,16 @@ const registry = {
       productionExecution: { auditExecutionSha256: auditedBaseline.productionExecution.auditExecutionSha256 },
       generatedSameRunProposal: ref(path.join(artifactDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json")),
       baselineArtifacts: [ref(file("RC3_AUDITED_PRE_FIX_BASELINE.json"))],
-      diagnosticArtifacts: auditedArtifacts.filter((artifact) => artifact.path.includes("DIAGNOSTIC") || artifact.path.includes("SUBTAXONOMY") || artifact.path.includes("HANDOFF") || artifact.path.includes("COMPARISON")),
+      diagnosticArtifacts: [
+        ...auditedArtifacts.filter((artifact) => artifact.path.includes("DIAGNOSTIC") || artifact.path.includes("SUBTAXONOMY") || artifact.path.includes("HANDOFF") || artifact.path.includes("COMPARISON")),
+        ref(falseSupportTaxonomy),
+      ],
       manifestArtifact: ref(file("RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json")),
       counts: auditedManifest.counts,
       createdByThisPr: true,
       immutable: true,
     },
   ],
-  provisional: {
-    logicalLabel: "rc3-5",
-    status: "provisional",
-    sourcePr: "#1046",
-    purpose: "existing false-support taxonomy pending audited-baseline regeneration",
-    officialFrozenBaseline: false,
-    mustRegenerateAfter: "PR 2",
-    artifactIsNotIndexedAsFrozen: true,
-    sourceBranch: "roadmap/rc3-5-false-support-taxonomy",
-    sourceArtifactPath: "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json",
-    note: "The provisional PR #1046 artifact is not present on main and is intentionally excluded from v2 until PR 3 regenerates it against the audited truth.",
-  },
   reproduction: {
     auditedCommand: "npm run preverif:rc3:audited-pre-fix-baseline",
     registryCommand: "npm run preverif:rc3:baseline-registry",
@@ -93,4 +85,4 @@ const registry = {
 };
 
 fs.writeFileSync(outputPath, `${canonicalJsonStringify(registry)}\n`, "utf8");
-console.log(`Wrote RC3 baseline registry: ${registry.versions.length} frozen versions; provisional=${registry.provisional.sourcePr}.`);
+console.log(`Wrote RC3 baseline registry: ${registry.versions.length} frozen versions; audited diagnostics=${registry.versions[1].diagnosticArtifacts.length}.`);
