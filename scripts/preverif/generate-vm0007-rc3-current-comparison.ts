@@ -16,7 +16,7 @@ const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18
 const rulesPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");
 const richRulesPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
-const reviewedPath = path.join(fixtureDir, "gold.json");
+const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const extractionPath = path.join(fixtureDir, "raw-document-extraction.json");
 const reconciliationPath = path.join(fixtureDir, "mismatch-reconciliation.json");
 const baselinePath = path.join(artifactDir, "RC2_BASELINE.json");
@@ -36,7 +36,7 @@ const baselineInput = {
   reconciliationRows: read(reconciliationPath).rows,
   fixtureIdentity: {
     machineProposal: { path: path.relative(root, machinePath), sha256: digest(machinePath) },
-    reviewedTruth: { path: path.relative(root, reviewedPath), sha256: digest(reviewedPath) },
+    reviewedTruth: { path: path.relative(root, path.join(fixtureDir, "gold.json")), sha256: digest(reviewedPath) },
     stableRuleRegistry: { path: path.relative(root, rulesPath), sha256: digest(rulesPath) },
     reconciliation: { path: path.relative(root, reconciliationPath), sha256: digest(reconciliationPath) },
   },
@@ -82,7 +82,7 @@ const comparison = buildVm0007Rc3CurrentComparison({
   expectedStableRuleIds,
   frozenRc2: { path: path.relative(root, baselinePath), sha256: digest(baselinePath), baseline: frozenBaseline },
   frozenProposal: { path: path.relative(root, machinePath), sha256: digest(machinePath) },
-  reviewedTruth: { path: path.relative(root, reviewedPath), sha256: digest(reviewedPath) },
+  reviewedTruth: { path: path.relative(root, path.join(fixtureDir, "gold.json")), sha256: digest(reviewedPath) },
   currentProposal: { serialized: serializedProposal, auditExecutionSha256: traceAuditSha, sourceExtractionSha256: digest(extractionPath) },
   diagnosticTrace: audit.diagnosticTrace ?? [],
   frozenRc2Unchanged: digest(baselinePath) === "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf",

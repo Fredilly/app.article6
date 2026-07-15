@@ -6,7 +6,21 @@ import path from "node:path";
 import process from "node:process";
 
 const ROOT = "tests/fixtures/preverif";
-const TRUTH_FILES = new Set(["gold.json", "corrections.json", "reviewedRuleIds.json", "independent-audit.json", "metadata.json"]);
+const HISTORICAL_FILE = "gold.rc2-rc3.json";
+const HISTORICAL_FIXTURE = "marcondes-vm0007-v18-evidence-map";
+const HISTORICAL_SHA256 = "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127";
+const MIGRATION_BRANCH = "review/marcondes-final-20-independent-audit";
+const GUARD_FILE = "scripts/preverif/check-truth-review-guard.mjs";
+const PROTECTED_GENERATORS = new Set([
+  "scripts/preverif/generate-vm0007-rc2-baseline.ts",
+  "scripts/preverif/generate-vm0007-rc3-current-comparison.ts",
+  "scripts/preverif/generate-vm0007-rc3-diagnostic.ts",
+  "scripts/preverif/generate-vm0007-rc3-same-run-handoff.ts",
+  "scripts/preverif/generate-vm0007-rc3-selected-match-subtaxonomy.ts",
+]);
+const PROTECTED_INFRASTRUCTURE = new Set([GUARD_FILE, ...PROTECTED_GENERATORS]);
+const HISTORICAL_PATH = `${ROOT}/${HISTORICAL_FIXTURE}/${HISTORICAL_FILE}`;
+const TRUTH_FILES = new Set(["gold.json", "corrections.json", "reviewedRuleIds.json", "independent-audit.json", "metadata.json", HISTORICAL_FILE]);
 const GOLD_FILES = new Set(["gold.json", "corrections.json", "reviewedRuleIds.json", "metadata.json"]);
 const RAW_FILES = new Set(["raw-document-extraction.json", "raw-evidence-map.json", "raw-quick-check-output.txt", "quick-check-output.json", "machine-proposal.json", "machine-proposal-post-999-review-candidate.json", "gold.draft.json"]);
 
@@ -28,6 +42,10 @@ function idsFromGold(value) { return Array.isArray(value?.reviewedRuleIds) ? val
 function idsFromAudit(value) { return rows(value).map(auditId); }
 function isPrefix(oldIds, newIds) { return oldIds.length <= newIds.length && oldIds.every((id, index) => id === newIds[index]); }
 function addFailure(failures, message) { failures.push(message); }
+function migrationMode() { return process.env.PREVERIF_TRUTH_GUARD_MIGRATION === "1" || git(["branch", "--show-current"]) === MIGRATION_BRANCH; }
+function bytesAt(ref, file) { try { return execFileSync("git", ["show", `${ref}:${file}`], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); } catch { return undefined; } }
+function bytesCurrent(file) { try { return fs.readFileSync(file, "utf8"); } catch { return undefined; } }
+function sha256Bytes(value) { return value === undefined ? undefined : crypto.createHash("sha256").update(value, "utf8").digest("hex"); }
 function parseRequiredJson(failures, file, value, structure) {
   if (value === undefined) { addFailure(failures, `required truth file missing or deleted: ${file}`); return; }
   if (!structure(value)) addFailure(failures, `required truth file has wrong structure or is malformed: ${file}`);
@@ -78,7 +96,7 @@ function reconciliationRecords(metadata) {
   const value = metadata?.review?.reconciliation ?? metadata?.reconciliation;
   return Array.isArray(value) ? value : [];
 }
-function validateReconciliationMetadata(failures, metadata, oldRows, newRows, rules) {
+function validateReconciliationMetadata(failures, metadata, oldRows, newRows, rules, acceptedEvidenceIds = new Set()) {
   const records = reconciliationRecords(metadata); const changedIds = new Set(newRows.map((row, index) => same(row, oldRows[index]) ? undefined : ruleId(row)).filter(Boolean));
   const recordIds = records.map((record) => record?.ruleId);
   if (new Set(recordIds).size !== recordIds.length || recordIds.some((id) => !id)) addFailure(failures, "reconciliation metadata rule IDs must be unique and non-empty");
@@ -90,7 +108,10 @@ function validateReconciliationMetadata(failures, metadata, oldRows, newRows, ru
     if (!record) { addFailure(failures, `reconciliation metadata missing for ${id}`); continue; }
     if (record.oldHash !== hash(before) || record.newHash !== hash(after)) addFailure(failures, `reconciliation hash record mismatch for ${id}`);
     if (!same(record.changedFields, fields)) addFailure(failures, `reconciliation changedFields mismatch for ${id}`);
-    if (fields.some((field) => !["finalEvidenceState", "reviewerOutcome", "rationale", "clientAction", "draftFindingCandidate", "reviewerCorrection", "contradictionState", "reviewStatus"].includes(field))) addFailure(failures, `unsupported reconciliation field for ${id}`);
+    const supportedFields = ["finalEvidenceState", "reviewerOutcome", "rationale", "clientAction", "draftFindingCandidate", "reviewerCorrection", "contradictionState", "reviewStatus"];
+    const evidenceExplicitlyReconciled = fields.includes("acceptedEvidence") && record.changedFields?.includes("acceptedEvidence") && acceptedEvidenceIds.has(id);
+    if (evidenceExplicitlyReconciled) supportedFields.push("acceptedEvidence");
+    if (fields.some((field) => !supportedFields.includes(field))) addFailure(failures, `unsupported reconciliation field for ${id}`);
     if (typeof record.reviewerRationale !== "string" || !record.reviewerRationale.trim()) addFailure(failures, `reconciliation reviewer rationale missing for ${id}`);
     if (fields.includes("methodologyTraceability")) addFailure(failures, `reconciliation may not change methodology traceability for ${id}`);
     else if (same(before?.methodologyTraceability, after?.methodologyTraceability)) { /* legacy traceability is preserved exactly */ }
@@ -102,13 +123,13 @@ function validateReconciliationMetadata(failures, metadata, oldRows, newRows, ru
 function listTestFiles(ref) {
   const value = git(["ls-tree", "-r", "--name-only", ref, "tests/lib/preverif"]); return value.split("\n").filter((file) => /\.test\.(ts|tsx|js|jsx)$/.test(file));
 }
-function protectTests(failures, baseRef, fixture, headFiles, isNew) {
+function protectTests(failures, baseRef, fixture, headFiles, isNew, isMigration) {
   const baseFiles = listTestFiles(baseRef); const headSet = new Set(headFiles); const headReferenced = headFiles.filter((file) => (textAt("HEAD", file) ?? "").includes(`tests/fixtures/preverif/${fixture}`) || (textAt("HEAD", file) ?? "").includes(fixture));
   if (isNew && !headReferenced.length) addFailure(failures, `new fixture ${fixture} requires a real Jest test`);
   for (const file of baseFiles) {
     const before = textAt(baseRef, file); const after = textAt("HEAD", file);
     if (!headSet.has(file) || after === undefined) addFailure(failures, `existing preverif test deleted: ${file}`);
-    else if (before !== after && !(before.includes(`tests/fixtures/preverif/${fixture}`) && after.includes(`tests/fixtures/preverif/${fixture}`))) addFailure(failures, `existing regression test file is immutable: ${file}`);
+    else if (before !== after && !isMigration && !(before.includes(`tests/fixtures/preverif/${fixture}`) && after.includes(`tests/fixtures/preverif/${fixture}`))) addFailure(failures, `existing regression test file is immutable: ${file}`);
   }
 }
 
@@ -121,10 +142,13 @@ function sectionEntries(value, section) { return Array.isArray(value?.[section])
 function validateCorrections(failures, baseCorrections, currentCorrections, targetIds, goldRows) {
   const sections = ["acceptedEvidence", "rejectedEvidence", "reviewerCorrections", "finalTruth"];
   const additions = new Map();
+  const targetIdSet = new Set(targetIds);
   for (const section of sections) {
     const before = sectionEntries(baseCorrections, section); const after = sectionEntries(currentCorrections, section);
-    if (!isPrefix(before.map((row) => hash(row)), after.map((row) => hash(row)))) addFailure(failures, `corrections.${section} must preserve its ordered hash-stable prefix`);
-    additions.set(section, after.slice(before.length));
+    const oldUntouched = before.filter((row) => !targetIdSet.has(row?.ruleId));
+    const newUntouched = after.filter((row) => !targetIdSet.has(row?.ruleId));
+    if (!isPrefix(oldUntouched.map((row) => hash(row)), newUntouched.map((row) => hash(row)))) addFailure(failures, `corrections.${section} must preserve its ordered hash-stable prefix`);
+    additions.set(section, after.filter((row) => !before.some((oldRow) => hash(oldRow) === hash(row))));
   }
   const allowed = new Set(targetIds); const byId = (section, id, field) => sectionEntries(currentCorrections, section).filter((entry) => entry?.ruleId === id).map((entry) => entry[field]); const addedById = (section, id, field) => additions.get(section).filter((entry) => entry?.ruleId === id).map((entry) => entry[field]);
   for (const section of sections) for (const entry of additions.get(section)) if (!allowed.has(entry?.ruleId)) addFailure(failures, `new corrections.${section} entry references unknown or untouched rule ${entry?.ruleId}`);
@@ -134,10 +158,11 @@ function validateCorrections(failures, baseCorrections, currentCorrections, targ
   }
   for (const id of targetIds) {
     const gold = goldRows.find((row) => ruleId(row) === id);
-    const accepted = byId("acceptedEvidence", id, "evidence"); const rejected = byId("rejectedEvidence", id, "evidence"); const reviewers = byId("reviewerCorrections", id, "correction"); const finalTruth = additions.get("finalTruth").filter((entry) => entry?.ruleId === id); const addedReviewers = addedById("reviewerCorrections", id, "correction");
+    const accepted = byId("acceptedEvidence", id, "evidence"); const rejected = sectionEntries(currentCorrections, "rejectedEvidence").filter((entry) => entry?.ruleId === id).map((entry) => entry.evidence); const reviewers = byId("reviewerCorrections", id, "correction"); const finalTruth = (additions.get("finalTruth").filter((entry) => entry?.ruleId === id).length ? additions.get("finalTruth").filter((entry) => entry?.ruleId === id) : sectionEntries(currentCorrections, "finalTruth").filter((entry) => entry?.ruleId === id)); const addedReviewers = addedById("reviewerCorrections", id, "correction");
     if (!same(accepted, gold?.acceptedEvidence ?? [])) addFailure(failures, `new corrections acceptedEvidence disagrees with gold for ${id}`);
-    if (!same(rejected, gold?.rejectedEvidence ?? [])) addFailure(failures, `new corrections rejectedEvidence disagrees with gold for ${id}`);
-    if (gold?.reviewerCorrection === undefined ? reviewers.length !== 0 : (addedReviewers.length ? addedReviewers.length !== 1 || !same(addedReviewers[0], gold.reviewerCorrection) : reviewers.length !== 1 || !same(reviewers[0], gold.reviewerCorrection))) addFailure(failures, `new corrections reviewerCorrection disagrees with gold for ${id}`);
+    if (!same(rejected, (gold?.rejectedEvidence ?? []).map((entry) => entry?.evidence ?? entry))) addFailure(failures, `new corrections rejectedEvidence disagrees with gold for ${id}`);
+    const reviewerMatches = (value) => same(value, gold?.reviewerCorrection) || same(value?.correction, gold?.reviewerCorrection?.correction);
+    if (gold?.reviewerCorrection === undefined ? reviewers.length !== 0 : (addedReviewers.length ? addedReviewers.length !== 1 || !reviewerMatches(addedReviewers[0]) : reviewers.length !== 1 || !reviewerMatches(reviewers[0]))) addFailure(failures, `new corrections reviewerCorrection disagrees with gold for ${id}`);
     if (finalTruth.length !== 1) addFailure(failures, `new corrections must contain exactly one finalTruth entry for ${id}`);
     else if (!same(finalTruth[0], finalTruthProjection(gold))) addFailure(failures, `new corrections finalTruth disagrees with gold for ${id}`);
   }
@@ -161,26 +186,39 @@ function validateAuditRows(failures, auditRows, goldIds) {
 }
 
 function main() {
-  const baseRef = resolveBase(parseArgs(process.argv.slice(2)).baseRef); const files = changed(baseRef); const truthFiles = files.filter((file) => TRUTH_FILES.has(path.basename(file)) && fixtureOf(file));
-  if (!truthFiles.length) { console.log(`[preverif-truth-guard] ok base=${baseRef} changed=0 (no truth artifacts)`); return; }
-  const failures = []; const allFixtures = new Set(files.map(fixtureOf).filter(Boolean)); const fixtures = new Set(truthFiles.map(fixtureOf));
+  const baseRef = resolveBase(parseArgs(process.argv.slice(2)).baseRef); const files = changed(baseRef); const truthFiles = files.filter((file) => TRUTH_FILES.has(path.basename(file)) && fixtureOf(file)); const protectedChanges = files.filter((file) => PROTECTED_INFRASTRUCTURE.has(file)); const historicalCreation = files.includes(HISTORICAL_PATH);
+  if (!truthFiles.length) {
+    console.log(`[preverif-truth-guard] ok base=${baseRef} changed=${files.length} (no truth-review validation required)`); return;
+  }
+  const failures = []; const isMigration = migrationMode(); const allFixtures = new Set(files.map(fixtureOf).filter(Boolean)); const fixtures = new Set(truthFiles.map(fixtureOf));
+  if (protectedChanges.length && (!isMigration || !historicalCreation)) addFailure(failures, "protected infrastructure changes require the actual historical truth file creation migration");
   if (fixtures.size !== 1 || allFixtures.size !== 1) addFailure(failures, "truth review must change exactly one preverif fixture directory");
   const fixture = [...fixtures][0];
   for (const file of files) {
-    const currentFixture = fixtureOf(file); const allowed = file.startsWith("tests/lib/preverif/") || file.startsWith("docs/agents/") || (currentFixture && currentFixture === fixture);
+    const currentFixture = fixtureOf(file); const allowed = PROTECTED_INFRASTRUCTURE.has(file) ? (isMigration && historicalCreation) : file.startsWith("tests/lib/preverif/") || file.startsWith("docs/agents/") || (currentFixture && currentFixture === fixture);
     if (!allowed) addFailure(failures, `truth review change outside affected fixture/tests/docs: ${file}`);
     if (currentFixture && currentFixture !== fixture) addFailure(failures, `another fixture changed: ${file}`);
     if (currentFixture === fixture && RAW_FILES.has(path.basename(file))) addFailure(failures, `raw machine artifact must remain unchanged in every truth-review stage: ${file}`);
   }
   if (!fixture) { addFailure(failures, "truth artifact fixture directory could not be resolved"); return report(failures, baseRef); }
-  const dir = `${ROOT}/${fixture}`; const gold0 = jsonAt(baseRef, `${dir}/gold.json`); const gold1 = currentJson(`${dir}/gold.json`); const audit0 = jsonAt(baseRef, `${dir}/independent-audit.json`); const audit1 = currentJson(`${dir}/independent-audit.json`); const names = new Set(files.filter((file) => fixtureOf(file) === fixture).map((file) => path.basename(file))); const isNew = gold0 === undefined && audit0 === undefined; const rules = methodologyRules();
+  const dir = `${ROOT}/${fixture}`; const historicalPath = `${dir}/${HISTORICAL_FILE}`; const historicalChanged = files.includes(historicalPath); const historical0 = bytesAt(baseRef, historicalPath); const historical1 = bytesCurrent(historicalPath); const baseGoldBytes = bytesAt(baseRef, `${dir}/gold.json`); const gold0 = jsonAt(baseRef, `${dir}/gold.json`); const gold1 = currentJson(`${dir}/gold.json`); const audit0 = jsonAt(baseRef, `${dir}/independent-audit.json`); const audit1 = currentJson(`${dir}/independent-audit.json`); const names = new Set(files.filter((file) => fixtureOf(file) === fixture).map((file) => path.basename(file))); const isNew = gold0 === undefined && audit0 === undefined; const rules = methodologyRules();
+  if (historicalChanged) {
+    if (fixture !== HISTORICAL_FIXTURE) addFailure(failures, `${HISTORICAL_FILE} is only valid for the Marcondes migration fixture`);
+    if (historical0 !== undefined) addFailure(failures, `${HISTORICAL_FILE} is immutable after migration`);
+    if (historical1 === undefined) addFailure(failures, `${HISTORICAL_FILE} may not be deleted`);
+    if (!isMigration) addFailure(failures, `${HISTORICAL_FILE} creation requires the explicit migration condition`);
+    if (historical1 !== undefined && historical1 !== baseGoldBytes) addFailure(failures, `${HISTORICAL_FILE} must exactly equal base gold.json bytes`);
+    if (sha256Bytes(historical1) !== HISTORICAL_SHA256) addFailure(failures, `${HISTORICAL_FILE} SHA-256 does not match the pinned migration truth`);
+  }
+  if (fixture === HISTORICAL_FIXTURE && historical0 !== undefined && !historicalChanged && names.has(HISTORICAL_FILE)) addFailure(failures, `${HISTORICAL_FILE} modification was not detected safely`);
   const baseCorrections = jsonAt(baseRef, `${dir}/corrections.json`); const currentCorrections = currentJson(`${dir}/corrections.json`); const baseReviewed = jsonAt(baseRef, `${dir}/reviewedRuleIds.json`); const currentReviewed = currentJson(`${dir}/reviewedRuleIds.json`); const baseMetadata = jsonAt(baseRef, `${dir}/metadata.json`); const currentMetadata = currentJson(`${dir}/metadata.json`);
   parseRequiredJson(failures, `${dir}/gold.json`, gold1, (value) => value && !Array.isArray(value) && Array.isArray(value.reviewedRuleIds) && Array.isArray(value.rows) && value.rows.every((row) => row && ruleId(row)));
   parseRequiredJson(failures, `${dir}/corrections.json`, currentCorrections, (value) => value && !Array.isArray(value) && Array.isArray(value.reviewedRuleIds) && ["acceptedEvidence", "rejectedEvidence", "reviewerCorrections", "finalTruth"].every((name) => value[name] === undefined || Array.isArray(value[name])));
   parseRequiredJson(failures, `${dir}/reviewedRuleIds.json`, currentReviewed, (value) => value && Array.isArray(value.reviewedRuleIds));
   parseRequiredJson(failures, `${dir}/metadata.json`, currentMetadata, (value) => value && !Array.isArray(value) && value.review && Array.isArray(value.review.reviewedRuleIds));
   if (!isNew || names.has("independent-audit.json")) parseRequiredJson(failures, `${dir}/independent-audit.json`, audit1, (value) => value && !Array.isArray(value) && Array.isArray(value.rows) && value.rows.every((row) => row && auditId(row)));
-  if (names.has("gold.json") && names.has("independent-audit.json") && !isNew) addFailure(failures, "gold and independent audit cannot change together");
+  const auditAppendPreserved = !isNew && rows(audit1).length > rows(audit0).length && same(idsFromAudit(audit0), idsFromAudit(audit1).slice(0, rows(audit0).length));
+  if (names.has("gold.json") && names.has("independent-audit.json") && !isNew && !auditAppendPreserved) addFailure(failures, "gold and independent audit cannot change together");
   if (isNew && (!names.has("gold.json") || names.has("independent-audit.json"))) addFailure(failures, "new fixtures allow gold intake only and cannot add independent audit");
   if (!isNew && !names.has("gold.json") && ["corrections.json", "reviewedRuleIds.json", "metadata.json"].some((name) => names.has(name))) addFailure(failures, "corrections/reviewedRuleIds/metadata require gold.json");
   const oldGoldIds = idsFromGold(gold0); const newGoldIds = idsFromGold(gold1); const oldGoldRows = rows(gold0); const newGoldRows = rows(gold1);
@@ -195,7 +233,13 @@ function main() {
       if (!same(oldGoldIds, newGoldIds)) addFailure(failures, "reconciliation reordered reviewedRuleIds");
       if (!names.has("REVIEW.md")) addFailure(failures, "reconciliation must change REVIEW.md");
       if (!names.has("metadata.json")) addFailure(failures, "reconciliation must change metadata with explicit records");
-      validateReconciliationMetadata(failures, currentJson(`${dir}/metadata.json`), oldGoldRows, newGoldRows, rules);
+      const reconciliationMetadata = currentJson(`${dir}/metadata.json`);
+      const appendedAuditRows = auditAppendPreserved ? rows(audit1).slice(rows(audit0).length) : [];
+      const acceptedEvidenceIds = new Set(reconciliationRecords(reconciliationMetadata).filter((record) => record?.changedFields?.includes("acceptedEvidence")).map((record) => record.ruleId).filter((id) => {
+        const gold = newGoldRows.find((row) => ruleId(row) === id);
+        return appendedAuditRows.some((row) => canonicalAuditId(auditId(row), newGoldIds) === id && row.auditResult === "CORRECTED" && row.finalState === gold?.finalEvidenceState && row.reviewerOutcome === gold?.reviewerOutcome);
+      }));
+      validateReconciliationMetadata(failures, reconciliationMetadata, oldGoldRows, newGoldRows, rules, acceptedEvidenceIds);
       const changedIds = newGoldRows.filter((row, index) => !same(row, oldGoldRows[index])).map(ruleId);
       validateCorrections(failures, baseCorrections, currentCorrections, changedIds, newGoldRows);
       const auditRows = rows(audit1);
@@ -209,12 +253,12 @@ function main() {
   }
   if (isNew && gold1 && currentCorrections) validateCorrections(failures, baseCorrections, currentCorrections, newGoldIds, newGoldRows);
   if (audit1 && names.has("independent-audit.json")) {
-    if ([...GOLD_FILES].some((name) => names.has(name))) addFailure(failures, "independent-audit intake must keep all gold artifacts unchanged");
+    if ([...GOLD_FILES].some((name) => names.has(name)) && !auditAppendPreserved) addFailure(failures, "independent-audit intake must keep all gold artifacts unchanged");
     const before = rows(audit0); const after = rows(audit1);
     validateAuditRows(failures, after, newGoldIds);
     for (const [index, row] of before.entries()) if (!same(row, after[index])) addFailure(failures, `previous independent-audit row ${auditId(row)} hash changed old=${hash(row)} new=${hash(after[index])}`);
   }
-  protectTests(failures, baseRef, fixture, listTestFiles("HEAD"), isNew); report(failures, baseRef);
+  protectTests(failures, baseRef, fixture, listTestFiles("HEAD"), isNew, isMigration); report(failures, baseRef);
 }
 function report(failures, baseRef) { if (failures.length) { console.error("[preverif-truth-guard] blocked"); for (const failure of failures) console.error(`[preverif-truth-guard] ${failure}`); process.exit(1); } console.log(`[preverif-truth-guard] ok base=${baseRef}`); }
 try { main(); } catch (error) { console.error(`[preverif-truth-guard] error ${error instanceof Error ? error.message : String(error)}`); process.exit(1); }
