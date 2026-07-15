@@ -1350,7 +1350,13 @@ function selectEvidenceCandidates(input: {
       candidate.score >= Math.max(24, input.bestCandidate.score - 40)
       || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1)
     )
-    .sort((left, right) => right.score - left.score);
+    .sort((left, right) => {
+      const scoreDifference = right.score - left.score;
+      if (scoreDifference !== 0) return scoreDifference;
+      if (left.span.spanId === input.bestCandidate.span.spanId) return -1;
+      if (right.span.spanId === input.bestCandidate.span.spanId) return 1;
+      return 0;
+    });
 
   const seen = new Set<string>();
   return scored.filter((candidate) => {
