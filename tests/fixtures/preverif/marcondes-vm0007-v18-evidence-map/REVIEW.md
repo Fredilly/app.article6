@@ -2,7 +2,7 @@
 
 - Reviewed rows: 58 of 58
 - Remaining rows: 0, no unreviewed rows remain
-- Finalized evidence states: FOUND 6, UNCLEAR 20, MISSING 10, N/A 22
+- Finalized evidence states: FOUND 6, UNCLEAR 21, MISSING 9, N/A 22
 - Reviewer outcomes: CONFORMS 6, ACTION_REQUIRED 30, NOT_APPLICABLE 22, NOT_ASSESSED 0
 - Final findings: NIR_CANDIDATE 30, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for finalized N/A rows
 - Gold promotion: READY_FOR_REPORT_RELEASE
@@ -27,7 +27,7 @@ Decisions and evidence basis:
 
 The source document SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea`. Accepted quotes are verbatim from `raw-document-extraction.json`, with manual page/section/span provenance. The machine’s generic stitched proposal evidence was rejected for every new row. The project is APD REDD; no external VVB validation or certification is claimed.
 
-Gold promotion and report release are no longer blocked by review coverage. Gold coverage is finalized at 58/58; no rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` is unchanged.
+Gold promotion and report release are no longer blocked by review coverage. Gold coverage is finalized at 58/58; no rules remain `NOT_ASSESSED`. Independent-audit coverage remains exactly 38/58 and `independent-audit.json` now contains all 58 ordered audit records.
 
 The batch-five `officialRequirementQuote` fields were corrected to the exact verbatim `source_span_text` wording from the authoritative VM0007 v1.8 rule records. Citation suffixes, rule-title summaries, and synthesized interpretations remain in traceability summaries rather than official quotes. Batch-five quote integrity is tested against the authoritative rule records, including methodology/version/section/page traceability and manual project-evidence provenance.
 
@@ -51,17 +51,17 @@ The next reviewed rows are exactly R-2-0003, R-2-0004, R-2-0009, R-2-0010, R-2-0
 
 ## Final review: remaining 10 rules and reconciliation
 
-The final ten rules are R-5-0006, R-5-0007, R-5-0008, R-5-0009, R-6-0002, R-6-0003, R-6-0004, R-6-0005, R-6-0006, and R-6-0007. Quantification and monitoring sections in the PDD are explicitly deferred to validation, so the applicable rows remain MISSING or UNCLEAR where the PDD lacks the required project-specific calculations, plans, procedures, or records. R-6-0006 is N/A because the PDD states that no peat soils or tidal wetlands are present; the WRC monitoring trigger is absent.
+The final twenty rules are R-5-0006, R-5-0007, R-5-0008, R-5-0009, R-6-0002, R-6-0003, R-6-0004, R-6-0005, R-6-0006, and R-6-0007. Quantification and monitoring sections in the PDD are explicitly deferred to validation, so the applicable rows remain MISSING or UNCLEAR where the PDD lacks the required project-specific calculations, plans, procedures, or records. R-6-0006 is N/A because the PDD states that no peat soils or tidal wetlands are present; the WRC monitoring trigger is absent.
 
 The 15 current machine-versus-gold mismatches were independently re-audited against the preserved PDD extraction and VM0007 v1.8 requirements. The conservative gold judgments remain where the machine selected broad, generic, or incomplete evidence; no machine artifact was rewritten and no conclusion was strengthened beyond the evidence. The mismatch set is regression-pinned in the Marcondes comparison test.
 
 The finalized Evidence Map contains 58 rows with unique reviewed rule IDs, exact methodology traceability, explicit accepted and rejected evidence, page/section/span provenance, finalized counts, and no `NOT_ASSESSED` rows. It is structurally ready for the presentation/report layer. No production audit, parser, router, retrieval, UI, report, or presentation files changed.
 
-The first 28 rows of the independent-audit fixture remain textually and semantically unchanged. The independent-audit fixture remains an internal 38-row audit record; all 58 rules are now finalized in gold, and no row remains NOT_ASSESSED. Raw extraction, machine proposals, methodology contracts, audit logic, production logic, report UI, and release gates were not changed.
+The first 38 rows of the independent-audit fixture remain textually and semantically unchanged. The independent-audit fixture now contains 58 ordered audit records; all 58 rules are now finalized in gold, and no row remains NOT_ASSESSED. Raw extraction, machine proposals, methodology contracts, audit logic, production logic, report UI, and release gates were not changed.
 
 The ten new gold rows preserve their original machine-proposal row objects verbatim; reviewed truth and rejected evidence are recorded separately. Methodology traceability uses verbatim official excerpts and separately lists mandatory modules/tools. R-2-0014 is FOUND/CONFORMS: three PDD locations consistently establish 01 May 2023–30 April 2063, 40 years; the client action is retention-only.
 
-VM0007 v1.8 is version-qualified. The page 61 Section 3.1.1 VM0007 v1.7 wording remains a visible drafting contradiction; Table 30 and repeated project declarations identify v1.8. Version reconciliation is complete. Gold and report release remain blocked because review coverage is incomplete.
+VM0007 v1.8 is version-qualified. The page 61 Section 3.1.1 VM0007 v1.7 wording remains a visible drafting contradiction; Table 30 and repeated project declarations identify v1.8. Version reconciliation is complete. Gold and report release are ready because review coverage is complete.
 
 Accepted evidence for pages 12, 18–19, and 38 is located under 2 PROJECT DETAILS. Accepted evidence for pages 62–66 is located under 3 CLIMATE. Manually adjudicated evidence uses explicit manual:... provenance IDs; no fabricated parser element IDs are used.
 

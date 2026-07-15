@@ -16,15 +16,15 @@ const batchSix = ["R-5-0006", "R-5-0007", "R-5-0008", "R-5-0009", "R-6-0002", "R
 const authoritativeVm0007Rules = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"), "utf8")) as Array<Record<string, any>>;
 const batchFiveOfficialQuotes = new Map(batchFive.map((id) => [id, authoritativeVm0007Rules.find((rule) => rule.stable_id.endsWith(`.${id}`))?.source_span_text]));
 const previousIndependentAuditIds = [...batchOne, ...batchTwo];
-const independentAuditIds = [...previousIndependentAuditIds, ...finalEight, ...nextTen];
-const reviewed = [...independentAuditIds, ...batchFive, ...batchSix];
+const independentAuditIds = [...previousIndependentAuditIds, ...finalEight, ...nextTen, ...batchFive, ...batchSix];
+const reviewed = independentAuditIds;
 const expectedPages: Record<string, Array<number>> = {
   "R-1-0001": [6, 12, 62], "R-1-0002": [62, 63], "R-1-0003": [63], "R-1-0004": [63], "R-1-0005": [62], "R-1-0006": [62], "R-1-0007": [62], "R-1-0008": [62], "R-1-0009": [12], "R-1-0010": [62], "R-1-0011": [62], "R-1-0012": [62],
   "R-2-0005": [18, 19, 37], "R-2-0007": [63], "R-3-0001": [67], "R-3-0005": [61, 63],
   "R-6-0001": [38, 68], "R-6-0008": [66], "R-1-0013": [62], "R-1-0014": [12, 61, 63], "R-1-0015": [63],
   "R-2-0001": [23, 24], "R-2-0002": [22], "R-2-0006": [65], "R-2-0008": [63, 64], "R-2-0016": [62],
   "R-3-0002": [41, 42], "R-3-0006": [12, 61, 62], "R-2-0003": [59], "R-2-0004": [12, 61], "R-2-0009": [12, 62], "R-2-0010": [65, 68], "R-2-0011": [12, 62], "R-2-0012": [64, 65, 68], "R-2-0013": [15, 62], "R-2-0014": [1, 10, 16], "R-2-0015": [12, 62], "R-3-0003": [18, 66]
-  , "R-3-0004": [62, 66], "R-3-0007": [68], "R-3-0008": [62], "R-4-0001": [62, 66], "R-4-0002": [12, 62], "R-5-0001": [68], "R-5-0002": [12, 62], "R-5-0003": [61, 64, 65], "R-5-0004": [12, 62], "R-5-0005": [68], "R-5-0006": [68], "R-5-0007": [68], "R-5-0008": [61], "R-5-0009": [68], "R-6-0002": [68], "R-6-0003": [67], "R-6-0004": [68], "R-6-0005": [68], "R-6-0006": [62], "R-6-0007": [68]
+  , "R-3-0004": [62, 66], "R-3-0007": [68], "R-3-0008": [11], "R-4-0001": [62, 66], "R-4-0002": [12, 62], "R-5-0001": [68], "R-5-0002": [12, 62], "R-5-0003": [61, 64, 65], "R-5-0004": [12, 62], "R-5-0005": [68], "R-5-0006": [68], "R-5-0007": [68], "R-5-0008": [61], "R-5-0009": [68], "R-6-0002": [11, 38, 68], "R-6-0003": [67], "R-6-0004": [68], "R-6-0005": [11, 38, 68], "R-6-0006": [62], "R-6-0007": [68]
 };
 
 describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
@@ -102,7 +102,8 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     for (const entry of corrections.reviewerCorrections) {
       expect(entry.ruleId).toBeTruthy();
       expect(reviewed).toContain(entry.ruleId.split(".").pop());
-      expect(entry.correction.ruleId).toBe(entry.ruleId);
+      if (typeof entry.correction === "object") expect(entry.correction.ruleId).toBe(entry.ruleId);
+      else expect(entry.correction).toEqual(expect.any(String));
     }
   });
 
@@ -112,16 +113,17 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     const rawDocument = read("raw-document-extraction.json");
     const sourcePages = new Map(rawDocument.pages.map((page: any) => [page.pageNumber, page.text]));
     const goldByRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
-    expect(audit.rows).toHaveLength(38);
+    expect(audit.rows).toHaveLength(58);
     expect(audit.rows.map((row: any) => row.ruleReference)).toEqual(independentAuditIds);
-    expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(38);
-    expect(sha256("independent-audit.json")).toBe("4e5a28337341aa5065a9c1a6045a21c3fd314e3a842c3324e3674ed5fbb0cff4");
+    expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(58);
+    expect(sha256("independent-audit.json")).toBe("e6ffd38cd6931d764fe336d9a7328e3b8338e6765a96005459880203737a3548");
+    expect(crypto.createHash("sha256").update(JSON.stringify(audit.rows.slice(0, 38))).digest("hex")).toBe("7104e9cc0ba8f82b42f2f2dfa7c2544af4cca9847ad5e24f4bb47f376d617da7");
     expect(crypto.createHash("sha256").update(JSON.stringify(audit.rows.slice(0, 28))).digest("hex")).toBe("c90510b3e2b4a69f60c415211515bb53f708debe178d2fd9ce4494e552d37207");
     expect(audit.rows.slice(20, 28).map((row: any) => row.ruleReference)).toEqual(finalEight);
     expect(audit.rows.slice(10, 20).map((row: any) => row.ruleReference)).toEqual(batchTwo);
     expect(audit.rows.every((row: any) => row.auditResult && row.rationale && row.requirementReviewed && row.pagesInspected.length > 0)).toBe(true);
     expect(audit.rows.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
-    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005", "R-1-0014", "R-2-0001", "R-2-0002", "R-2-0006", "R-3-0002"]);
+    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED").map((row: any) => row.ruleReference)).toEqual(["R-1-0001", "R-1-0002", "R-3-0005", "R-1-0014", "R-2-0001", "R-2-0002", "R-2-0006", "R-3-0002", "R-3-0007", "R-3-0008", "R-5-0008", "R-6-0002", "R-6-0005"]);
     expect(crypto.createHash("sha256").update(JSON.stringify(audit.rows.slice(0, 20))).digest("hex")).toBe("3c242daa48c2672bf4e92081710e6910e0482729c1bf13dc16fbd0698a35a155");
     expect(audit.rows.find((row: any) => row.ruleReference === "R-1-0005")).toEqual(expect.objectContaining({ finalState: "N/A", applicabilityReason: expect.any(String) }));
     expect(audit.rows.filter((row: any) => row.finalState === "FOUND").every((row: any) => ["COMPLETE", "COMPLETE_AFTER_CORRECTION"].includes(row.evidenceCompleteness))).toBe(true);
@@ -209,7 +211,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       for (const evidence of row.acceptedEvidence) expect(normalizeAudit(sourcePages.get(evidence.page) ?? "")).toContain(normalizeAudit(evidence.quote));
     }
 
-    const nextAudit = audit.rows.slice(28);
+    const nextAudit = audit.rows.slice(28, 38);
     expect(nextAudit.map((row: any) => row.ruleReference)).toEqual(nextTen);
     expect(nextAudit.every((row: any) => row.auditResult === "CONFIRMED")).toBe(true);
     expect(nextAudit.every((row: any) => row.finalState === goldByRule.get(row.ruleReference)!.finalEvidenceState && row.reviewerOutcome === goldByRule.get(row.ruleReference)!.reviewerOutcome)).toBe(true);
@@ -246,7 +248,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       return counts;
     }, { FOUND: 0, UNCLEAR: 0, MISSING: 0, "N/A": 0 });
     expect(gold.counts).toEqual(calculatedCounts);
-    expect(calculatedCounts).toEqual({ FOUND: 6, UNCLEAR: 20, MISSING: 10, "N/A": 22 });
+    expect(calculatedCounts).toEqual({ FOUND: 6, UNCLEAR: 21, MISSING: 9, "N/A": 22 });
   });
 
   it("keeps all 58 finalized rows with no unreviewed remainder", () => {
@@ -268,13 +270,13 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
       ["R-2-0015", "N/A", "NOT_APPLICABLE"], ["R-3-0003", "UNCLEAR", "ACTION_REQUIRED"],
     ]);
     expect(batchFive.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
-      ["R-3-0004", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0007", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0008", "N/A", "NOT_APPLICABLE"],
+      ["R-3-0004", "UNCLEAR", "ACTION_REQUIRED"], ["R-3-0007", "MISSING", "ACTION_REQUIRED"], ["R-3-0008", "N/A", "NOT_APPLICABLE"],
       ["R-4-0001", "FOUND", "CONFORMS"], ["R-4-0002", "N/A", "NOT_APPLICABLE"], ["R-5-0001", "MISSING", "ACTION_REQUIRED"],
       ["R-5-0002", "N/A", "NOT_APPLICABLE"], ["R-5-0003", "UNCLEAR", "ACTION_REQUIRED"], ["R-5-0004", "N/A", "NOT_APPLICABLE"], ["R-5-0005", "MISSING", "ACTION_REQUIRED"],
     ]);
     expect(batchSix.map((id) => [id, byRule.get(id)?.finalEvidenceState, byRule.get(id)?.reviewerOutcome])).toEqual([
       ["R-5-0006", "MISSING", "ACTION_REQUIRED"], ["R-5-0007", "MISSING", "ACTION_REQUIRED"], ["R-5-0008", "UNCLEAR", "ACTION_REQUIRED"], ["R-5-0009", "MISSING", "ACTION_REQUIRED"],
-      ["R-6-0002", "MISSING", "ACTION_REQUIRED"], ["R-6-0003", "MISSING", "ACTION_REQUIRED"], ["R-6-0004", "MISSING", "ACTION_REQUIRED"], ["R-6-0005", "MISSING", "ACTION_REQUIRED"], ["R-6-0006", "N/A", "NOT_APPLICABLE"], ["R-6-0007", "MISSING", "ACTION_REQUIRED"],
+      ["R-6-0002", "UNCLEAR", "ACTION_REQUIRED"], ["R-6-0003", "MISSING", "ACTION_REQUIRED"], ["R-6-0004", "MISSING", "ACTION_REQUIRED"], ["R-6-0005", "UNCLEAR", "ACTION_REQUIRED"], ["R-6-0006", "N/A", "NOT_APPLICABLE"], ["R-6-0007", "MISSING", "ACTION_REQUIRED"],
     ]);
   });
 

@@ -23,7 +23,11 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(metadata.review.releaseReadiness).toEqual(expect.objectContaining({ evidenceMapRows: 58, reviewedRows: 58, unreviewedRows: 0, structurallyReady: true }));
     expect(gold.goldPromotionBlocked).toBe(false);
     expect(gold.reportReleaseState).toBe("READY_FOR_REPORT_RELEASE");
-    expect(gold.counts).toEqual({ FOUND: 6, UNCLEAR: 20, MISSING: 10, "N/A": 22 });
+    expect(gold.counts).toEqual({ FOUND: 6, UNCLEAR: 21, MISSING: 9, "N/A": 22 });
+    expect(gold.rows.filter((row: any) => row.reviewerOutcome === "CONFORMS")).toHaveLength(6);
+    expect(gold.rows.filter((row: any) => row.reviewerOutcome === "ACTION_REQUIRED")).toHaveLength(30);
+    expect(gold.rows.filter((row: any) => row.reviewerOutcome === "NOT_APPLICABLE")).toHaveLength(22);
+    expect(gold.rows.filter((row: any) => row.reviewerOutcome === "NOT_ASSESSED")).toHaveLength(0);
 
     for (const row of gold.rows.slice(-10)) expect(row.machineProposal).toEqual(machine.rows.find((candidate: any) => candidate.ruleReference === row.machineProposal.ruleReference));
     expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(dir, "raw-document-extraction.json"))).digest("hex")).toBe("7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747");
@@ -56,5 +60,39 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(expected).toHaveLength(15);
     expect(new Set(expected).size).toBe(15);
     expect(expected.every((id) => read("gold.json").rows.some((row: any) => row.ruleReference === id))).toBe(true);
+  });
+
+  it("reconciles the final 20 audit records without changing the approved gold boundaries", () => {
+    const audit = read("independent-audit.json");
+    const gold = read("gold.json");
+    const final = audit.rows.slice(38);
+    expect(final.map((row: any) => row.ruleReference)).toEqual([
+      "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
+      "R-5-0006", "R-5-0007", "R-5-0008", "R-5-0009", "R-6-0002", "R-6-0003", "R-6-0004", "R-6-0005", "R-6-0006", "R-6-0007",
+    ]);
+    expect(audit.rows.filter((row: any) => row.auditResult === "CONFIRMED")).toHaveLength(45);
+    expect(audit.rows.filter((row: any) => row.auditResult === "CORRECTED")).toHaveLength(13);
+    expect(audit.rows.filter((row: any) => row.auditResult === "INSUFFICIENT_SOURCE_ACCESS")).toHaveLength(0);
+    expect(final.filter((row: any) => row.auditResult === "CONFIRMED")).toHaveLength(15);
+    expect(final.filter((row: any) => row.auditResult === "CORRECTED")).toHaveLength(5);
+    for (const row of final) {
+      expect(row.initialIndependentState).toBeDefined();
+      expect(row.initialIndependentOutcome).toBeDefined();
+      expect(Object.hasOwn(row, "initialDraftFindingCandidate")).toBe(true);
+    }
+    const byRule = new Map(gold.rows.map((row: any) => [row.ruleReference, row]));
+    expect(byRule.get("R-3-0004")).toEqual(expect.objectContaining({ finalEvidenceState: "UNCLEAR", reviewerOutcome: "ACTION_REQUIRED" }));
+    expect(byRule.get("R-4-0001")).toEqual(expect.objectContaining({ finalEvidenceState: "FOUND", reviewerOutcome: "CONFORMS" }));
+    expect(final.find((row: any) => row.ruleReference === "R-3-0004")).toEqual(expect.objectContaining({ initialIndependentState: "MISSING", initialComparison: "DISAGREEMENT", reconciliationResult: "GOLD_RETAINED" }));
+    expect(final.find((row: any) => row.ruleReference === "R-4-0001")).toEqual(expect.objectContaining({ initialIndependentState: "MISSING", initialComparison: "DISAGREEMENT", reconciliationResult: "GOLD_RETAINED" }));
+    expect(byRule.get("R-3-0007")?.finalEvidenceState).toBe("MISSING");
+    expect(byRule.get("R-6-0002")?.finalEvidenceState).toBe("UNCLEAR");
+    expect(byRule.get("R-6-0005")?.finalEvidenceState).toBe("UNCLEAR");
+    expect(byRule.get("R-3-0008")?.acceptedEvidence[0]).toEqual(expect.objectContaining({ page: 11, quote: "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program." }));
+    expect(byRule.get("R-5-0008")).toEqual(expect.objectContaining({ finalEvidenceState: "UNCLEAR", contradictionState: "DRAFTING_CONTRADICTION" }));
+    expect(byRule.get("R-5-0008")?.rationale).toMatch(/VMD0004.*mineral-soil SOC.*VMD0005.*long-term wood-products.*PDD.*VMD0005.*SOC/i);
+    expect(byRule.get("R-5-0008")?.clientAction).toMatch(/corrected carbon-pool\/module inventory.*every included and excluded pool/i);
+    expect(byRule.get("R-6-0002")?.acceptedEvidence.map((e: any) => e.page)).toEqual(expect.arrayContaining([11, 38]));
+    expect(byRule.get("R-6-0005")?.acceptedEvidence.map((e: any) => e.page)).toEqual(expect.arrayContaining([11, 38]));
   });
 });

@@ -56,10 +56,10 @@
       ]
     },
     "independentAuditCumulative": {
-      "rowCount": 38,
+      "rowCount": 58,
       "results": {
-        "CONFIRMED": 30,
-        "CORRECTED": 8,
+        "CONFIRMED": 45,
+        "CORRECTED": 13,
         "INSUFFICIENT_SOURCE_ACCESS": 0
       }
     },
@@ -129,8 +129,8 @@
     "versionReconciliationPending": false,
     "evidenceStateCounts": {
       "FOUND": 6,
-      "UNCLEAR": 20,
-      "MISSING": 10,
+      "UNCLEAR": 21,
+      "MISSING": 9,
       "N/A": 22
     },
     "remainingUnreviewedRuleCount": 0,
@@ -146,7 +146,94 @@
       "reviewedRows": 58,
       "unreviewedRows": 0,
       "structurallyReady": true
-    }
+    },
+    "independentAuditBatchFive": {
+      "rowCount": 10,
+      "results": {
+        "CONFIRMED": 8,
+        "CORRECTED": 2,
+        "INSUFFICIENT_SOURCE_ACCESS": 0
+      },
+      "correctedRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+      ]
+    },
+    "independentAuditBatchSix": {
+      "rowCount": 10,
+      "results": {
+        "CONFIRMED": 7,
+        "CORRECTED": 3,
+        "INSUFFICIENT_SOURCE_ACCESS": 0
+      },
+      "correctedRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-6-0005"
+      ]
+    },
+    "reconciliation": [
+      {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "oldHash": "44ad1bd4c26c75ab0fb54894df79eddd8139c8e50f3395f2feb7fa42a2250b27",
+        "newHash": "17d7db4e07bce47ebac17e8d8d04c901de574a8c0fd2ed9f52f16ec447fd57a2",
+        "changedFields": [
+          "finalEvidenceState",
+          "rationale",
+          "reviewerCorrection"
+        ],
+        "reviewerRationale": "Final human-approved reconciliation for R-3-0007."
+      },
+      {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "oldHash": "62d351d30b131d2634c35a457650620511325f41a51ecfaf2d763fcee816f067",
+        "newHash": "eb4c1971f618632e2df7e9f71d5934b484dfd640c8ad8f34e089a78aad366e65",
+        "changedFields": [
+          "acceptedEvidence",
+          "rationale",
+          "reviewerCorrection"
+        ],
+        "reviewerRationale": "Final human-approved reconciliation for R-3-0008."
+      },
+      {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+        "oldHash": "423aff8eb0ced29843fa6bb180fcb23d3064bf5be1c2e66a077b9a4fa8cdff3c",
+        "newHash": "cc9d350d3f252ec9b78a9c4689d1a7858323f42ecc6f81f28166f229883febb5",
+        "changedFields": [
+          "clientAction",
+          "contradictionState",
+          "rationale",
+          "reviewerCorrection"
+        ],
+        "reviewerRationale": "Final human-approved reconciliation for R-5-0008."
+      },
+      {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+        "oldHash": "988e39fead1d221b7bda32a4045a82a5d2c7e51d905734b02c7d7994ada13513",
+        "newHash": "0afca13436f3fdcae4633f4dd1476986964983380924cd8156d32aaafee6ef48",
+        "changedFields": [
+          "acceptedEvidence",
+          "clientAction",
+          "finalEvidenceState",
+          "rationale",
+          "reviewerCorrection"
+        ],
+        "reviewerRationale": "Final human-approved reconciliation for R-6-0002."
+      },
+      {
+        "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+        "oldHash": "247b5e4d7488ecdf4008b5a7fd66e986bec88cc748635d6e4321be0259d939d4",
+        "newHash": "e61b931703f153e30dd4226800708238a83f7b2c6bab465c746f5ce51c792c77",
+        "changedFields": [
+          "acceptedEvidence",
+          "clientAction",
+          "finalEvidenceState",
+          "rationale",
+          "reviewerCorrection"
+        ],
+        "reviewerRationale": "Final human-approved reconciliation for R-6-0005."
+      }
+    ]
   },
   "productionLogicChanged": false
 }

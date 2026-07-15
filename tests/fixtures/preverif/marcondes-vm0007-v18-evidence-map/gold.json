@@ -4483,9 +4483,9 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0007",
-        "correction": "The PDD defers the relevant climate/monitoring detail to validation and provides no project-specific reassessment frequency, next revision date, or treatment of changing deforestation drivers."
+        "correction": "The PDD provides no baseline reassessment frequency, no minimum cycle and no reassessment trigger. Deferring the information does not partially satisfy the requirement."
       },
-      "finalEvidenceState": "UNCLEAR",
+      "finalEvidenceState": "MISSING",
       "reviewerOutcome": "ACTION_REQUIRED",
       "clientAction": "Provide the applicable VCS baseline-reassessment frequency, next scheduled revision date, and the process for updating deforestation-driver assumptions.",
       "draftFindingCandidate": "NIR_CANDIDATE",
@@ -4508,7 +4508,7 @@
       },
       "applicabilityTrigger": "The VM0007 v1.8 rule applies to the project pathway unless its stated conditional trigger is absent.",
       "applicabilityReason": "The project is APD REDD; this row is applicable to that pathway and must be assessed against project-specific calculations or additionality evidence.",
-      "rationale": "The PDD defers the relevant climate/monitoring detail to validation and provides no project-specific reassessment frequency, next revision date, or treatment of changing deforestation drivers."
+      "rationale": "The PDD provides no baseline reassessment frequency, no minimum cycle and no reassessment trigger. Deferring the information does not partially satisfy the requirement."
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
@@ -4586,19 +4586,19 @@
       "acceptedEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-          "quote": "MapBiomas Collection 10 and\nPRODES/INPE data confirm continuous forest cover for all 36 properties throughout\nthe historical reference period (2013–\n2023). Annual LULC maps demonstrate\nDense Ombrophilous Forest classification\nwithout interruption.",
-          "page": 62,
-          "section": "3 CLIMATE > 3.1 Application of Methodology > 3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
-          "spanId": "manual:marcondes-pdd:page-62:r-r-3-0008",
+          "quote": "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.",
+          "page": 11,
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
+          "spanId": "manual:marcondes-pdd:page-11:r-r-3-0008-jurisdictional-redd-program",
           "provenance": {
             "docId": "quick-check-review-question",
-            "page": 62,
+            "page": 11,
             "sectionPath": [
-              "3 CLIMATE",
-              "3.1 Application of Methodology"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
-            "spanId": "manual:marcondes-pdd:page-62:r-r-3-0008",
-            "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1), Table 31",
+            "spanId": "manual:marcondes-pdd:page-11:r-r-3-0008-jurisdictional-redd-program",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
@@ -4629,7 +4629,7 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-        "correction": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered."
+        "correction": "The PDD states that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program. The jurisdictional REDD+ baseline/data pathway is therefore not applicable."
       },
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
@@ -4653,7 +4653,7 @@
         "plainLanguageSummary": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered."
       },
       "applicabilityTrigger": "Where proponents use available data sourced from a qualifying jurisdictional baseline.",
-      "rationale": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered.",
+      "rationale": "The PDD states that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program. The jurisdictional REDD+ baseline/data pathway is therefore not applicable.",
       "applicabilityReason": "The PDD identifies MapBiomas and PRODES/INPE project evidence, not a jurisdictional baseline meeting the VCS JNR Requirements; the JNR-data permission is therefore not triggered."
     },
     {
@@ -6199,13 +6199,13 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
-        "correction": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated."
+        "correction": "The authoritative VM0007 inventory identifies VMD0004 as the mineral-soil SOC module and VMD0005 as the long-term wood-products module, while the PDD inventory identifies VMD0005 as the SOC module. This is an explicit reviewed module-mapping contradiction. The complete carbon-pool/module inventory and project-specific inclusion or exclusion justification remain unclear."
       },
       "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated.",
+      "clientAction": "Provide a corrected carbon-pool/module inventory and project-specific justification for every included and excluded pool.",
       "draftFindingCandidate": "NIR_CANDIDATE",
-      "contradictionState": "NONE_IDENTIFIED",
+      "contradictionState": "DRAFTING_CONTRADICTION",
       "methodologyTraceability": {
         "methodology": "VM0007 REDD+ Methodology Framework",
         "version": "v1.8",
@@ -6225,7 +6225,7 @@
       },
       "applicabilityTrigger": "The VM0007 v1.8 rule applies to the project pathway and must be assessed against project-specific evidence.",
       "applicabilityReason": "The project is APD REDD; the PDD does not provide the complete project-specific evidence required by this rule.",
-      "rationale": "Provide the complete carbon-pool selection and project-specific evidence showing which applicable carbon pool modules are included and how their stocks are estimated."
+      "rationale": "The authoritative VM0007 inventory identifies VMD0004 as the mineral-soil SOC module and VMD0005 as the long-term wood-products module, while the PDD inventory identifies VMD0005 as the SOC module. This is an explicit reviewed module-mapping contradiction. The complete carbon-pool/module inventory and project-specific inclusion or exclusion justification remain unclear."
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
@@ -6447,19 +6447,38 @@
       "acceptedEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
-          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
-          "page": 68,
-          "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
-          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0002",
+          "quote": "Monitoring is carried out through an integrated system combining remote sensing (satellite imagery at multiple resolutions, drone surveys, FIRMS fire alerts), ground-based verification (permanent forest inventory plots, biodiversity transects, camera traps), and community-based surveillance (monthly patrols, fire detection and response). This multi-layered approach ensures early detection of threats and supports adaptive management.",
+          "page": 11,
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
+          "spanId": "manual:marcondes-pdd:page-11:r-r-6-0002-integrated-monitoring",
           "provenance": {
             "docId": "quick-check-review-question",
-            "page": 68,
+            "page": 11,
             "sectionPath": [
-              "3 CLIMATE",
-              "3.1 Application of Methodology"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
-            "spanId": "manual:marcondes-pdd:page-68:r-r-6-0002",
-            "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+            "spanId": "manual:marcondes-pdd:page-11:r-r-6-0002-integrated-monitoring",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+          "quote": "The project maintains the Avoided Planned Deforestation (APD) area approximately 14,940 hectares (20% of the total 74,698 ha project area) through continuous remote sensing (PRODES, DETER, and Planet imagery), drone surveillance, and ground patrols conducted in partnership with the Comunidade São Tomé do Mocambo. A monitoring protocol combining automated deforestation alerts with periodic field verification ensures early detection and response to any unauthorized clearing. Monitoring reports are produced quarterly and shared with landowners and community stakeholders.",
+          "page": 38,
+          "section": "2 PROJECT DETAILS > 2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
+          "spanId": "manual:marcondes-pdd:page-38:r-r-6-0002-forest-cover-monitoring",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 38,
+            "sectionPath": [
+              "2 PROJECT DETAILS",
+              "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring"
+            ],
+            "spanId": "manual:marcondes-pdd:page-38:r-r-6-0002-forest-cover-monitoring",
+            "sectionHeading": "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
@@ -6489,11 +6508,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
-        "correction": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities."
+        "correction": "Pages 11 and 38 provide meaningful project-specific monitoring evidence: remote sensing platforms, drones, permanent forest inventory plots, ground verification, community patrols, automated alerts, field verification, and quarterly reports. The complete six-element monitoring plan, including all parameters, procedures, QA/QC, archiving, and responsibilities, remains absent."
       },
-      "finalEvidenceState": "MISSING",
+      "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities.",
+      "clientAction": "Provide the complete monitoring plan with technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, responsibilities, and the project-specific monitoring evidence already described on pages 11 and 38.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED",
       "methodologyTraceability": {
@@ -6515,7 +6534,7 @@
       },
       "applicabilityTrigger": "The VM0007 v1.8 rule applies to the project pathway and must be assessed against project-specific evidence.",
       "applicabilityReason": "The project is APD REDD; the PDD does not provide the complete project-specific evidence required by this rule.",
-      "rationale": "Provide the monitoring plan with the technical task descriptions, data and parameters, collection procedures, QA/QC, archiving, and responsibilities."
+      "rationale": "Pages 11 and 38 provide meaningful project-specific monitoring evidence: remote sensing platforms, drones, permanent forest inventory plots, ground verification, community patrols, automated alerts, field verification, and quarterly reports. The complete six-element monitoring plan, including all parameters, procedures, QA/QC, archiving, and responsibilities, remains absent."
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
@@ -6882,19 +6901,38 @@
       "acceptedEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
-          "quote": "This section is not required at the Under Development stage in accordance with Section 3.1.6 of the Verra Registration and Issuance Process v5.0. The relevant information will be provided during the validation stage of the project.",
-          "page": 68,
-          "section": "3 CLIMATE > 3.1 Application of Methodology > 3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
-          "spanId": "manual:marcondes-pdd:page-68:r-r-6-0005",
+          "quote": "Monitoring is carried out through an integrated system combining remote sensing (satellite imagery at multiple resolutions, drone surveys, FIRMS fire alerts), ground-based verification (permanent forest inventory plots, biodiversity transects, camera traps), and community-based surveillance (monthly patrols, fire detection and response). This multi-layered approach ensures early detection of threats and supports adaptive management.",
+          "page": 11,
+          "section": "2 PROJECT DETAILS > 2.1.1 Summary Description of the Project",
+          "spanId": "manual:marcondes-pdd:page-11:r-r-6-0005-integrated-monitoring",
           "provenance": {
             "docId": "quick-check-review-question",
-            "page": 68,
+            "page": 11,
             "sectionPath": [
-              "3 CLIMATE",
-              "3.1 Application of Methodology"
+              "2 PROJECT DETAILS",
+              "2.1.1 Summary Description of the Project"
             ],
-            "spanId": "manual:marcondes-pdd:page-68:r-r-6-0005",
-            "sectionHeading": "3.3.3 Monitoring Plan (VCS, 3.16, 3.20)",
+            "spanId": "manual:marcondes-pdd:page-11:r-r-6-0005-integrated-monitoring",
+            "sectionHeading": "2.1.1 Summary Description of the Project",
+            "sourceType": "PDD",
+            "provenanceKind": "manual"
+          }
+        },
+        {
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+          "quote": "The project maintains the Avoided Planned Deforestation (APD) area approximately 14,940 hectares (20% of the total 74,698 ha project area) through continuous remote sensing (PRODES, DETER, and Planet imagery), drone surveillance, and ground patrols conducted in partnership with the Comunidade São Tomé do Mocambo. A monitoring protocol combining automated deforestation alerts with periodic field verification ensures early detection and response to any unauthorized clearing. Monitoring reports are produced quarterly and shared with landowners and community stakeholders.",
+          "page": 38,
+          "section": "2 PROJECT DETAILS > 2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
+          "spanId": "manual:marcondes-pdd:page-38:r-r-6-0005-forest-cover-monitoring",
+          "provenance": {
+            "docId": "quick-check-review-question",
+            "page": 38,
+            "sectionPath": [
+              "2 PROJECT DETAILS",
+              "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring"
+            ],
+            "spanId": "manual:marcondes-pdd:page-38:r-r-6-0005-forest-cover-monitoring",
+            "sectionHeading": "2.1.17 Project Activities and Theory of Change (VCS, 3.6; CCB, G1.8), Forest Cover Maintenance and Monitoring",
             "sourceType": "PDD",
             "provenanceKind": "manual"
           }
@@ -6924,11 +6962,11 @@
       ],
       "reviewerCorrection": {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
-        "correction": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes."
+        "correction": "Pages 11 and 38 describe a real project-specific forest-cover monitoring approach using PRODES, DETER, Planet imagery, drone surveillance, ground patrols, field verification, and stated monthly patrol and quarterly reporting frequencies. The complete M-REDD plan, monitored parameters, repeatable methods, and accuracy procedures remain absent."
       },
-      "finalEvidenceState": "MISSING",
+      "finalEvidenceState": "UNCLEAR",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "clientAction": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes.",
+      "clientAction": "Provide the complete M-REDD monitoring plan, monitored parameters, repeatable methods, accuracy procedures, and project-specific forest-cover monitoring records, including the PRODES/DETER/Planet, drone, field-verification, and patrol approach described on pages 11 and 38.",
       "draftFindingCandidate": "NIR_CANDIDATE",
       "contradictionState": "NONE_IDENTIFIED",
       "methodologyTraceability": {
@@ -6950,7 +6988,7 @@
       },
       "applicabilityTrigger": "The VM0007 v1.8 rule applies to the project pathway and must be assessed against project-specific evidence.",
       "applicabilityReason": "The project is APD REDD; the PDD does not provide the complete project-specific evidence required by this rule.",
-      "rationale": "Provide the M-REDD monitoring plan and all relevant monitored parameters for forest-cover and carbon-stock changes."
+      "rationale": "Pages 11 and 38 describe a real project-specific forest-cover monitoring approach using PRODES, DETER, Planet imagery, drone surveillance, ground patrols, field verification, and stated monthly patrol and quarterly reporting frequencies. The complete M-REDD plan, monitored parameters, repeatable methods, and accuracy procedures remain absent."
     },
     {
       "ruleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
@@ -7245,8 +7283,8 @@
   ],
   "counts": {
     "FOUND": 6,
-    "UNCLEAR": 20,
-    "MISSING": 10,
+    "UNCLEAR": 21,
+    "MISSING": 9,
     "N/A": 22
   },
   "goldPromotionBlocked": false,
