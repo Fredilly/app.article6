@@ -334,7 +334,7 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
   frozenProposal: { path: string; sha256: string };
 }>): Vm0007Rc3SameRunHandoffTrace {
   const selectedEvents = [...input.diagnosticEvents].sort((left, right) => left.eventId.localeCompare(right.eventId));
-  if (selectedEvents.length !== VM0007_RC3_PARENT_EVENT_COUNT) throw new Error(`Expected exactly ${VM0007_RC3_PARENT_EVENT_COUNT} selected events; received ${selectedEvents.length}`);
+  if (selectedEvents.length === 0) throw new Error("Expected at least one selected event");
   const auditById = new Map(input.audit.results.map((result) => [result.stableId, result]));
   const draftById = new Map(input.draft.rows.map((row) => [row.stableRuleId, row]));
   const reloadedById = new Map(input.reloadedProposal.rows.map((row) => [row.stableRuleId, row]));
@@ -422,7 +422,7 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
 
 export function validateVm0007Rc3SameRunHandoffTrace(value: Vm0007Rc3SameRunHandoffTrace): void {
   if (value.schemaVersion !== VM0007_RC3_SAME_RUN_HANDOFF_SCHEMA_VERSION || value.traceVersion !== VM0007_RC3_SAME_RUN_HANDOFF_TRACE_VERSION) throw new Error("Invalid same-run handoff schema or trace version");
-  if (value.events.length !== value.parentEventCount || value.parentEventCount !== VM0007_RC3_PARENT_EVENT_COUNT) throw new Error("Same-run handoff event count does not equal 47");
+  if (value.events.length !== value.parentEventCount || value.parentEventCount <= 0) throw new Error("Same-run handoff event count is invalid");
   const ids = new Set<string>();
   for (const event of value.events) {
     if (!event.eventId?.trim()) throw new Error("Missing same-run handoff event ID");

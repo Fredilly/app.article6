@@ -21,7 +21,7 @@ type EvidenceWithProvenance = EvidenceBenchmarkRecord & { quote: string; provena
 export type Vm0007Rc3Diagnostic = Readonly<{
   schemaVersion: typeof VM0007_RC3_DIAGNOSTIC_SCHEMA_VERSION;
   taxonomyVersion: typeof VM0007_RC3_DIAGNOSTIC_TAXONOMY_VERSION;
-  baseline: Readonly<{ artifactPath: string; artifactSha256: string; acceptedEvidenceMissed: 95; acceptedEvidenceFalseSupport: 58 }>;
+  baseline: Readonly<{ artifactPath: string; artifactSha256: string; acceptedEvidenceMissed: number; acceptedEvidenceFalseSupport: number }>;
   generation: Readonly<{ generator: string; generatedAt: null; productionProposalMetricsUnchanged: true }>;
   source: Readonly<{ documentId: string; documentSha256: string; extractionPath: string; candidateLevelInstrumentation: "opt_in_audit_evidence" }>;
   totals: Readonly<{ acceptedEvidenceMissed: number; classified: number; categoryCounts: Readonly<Record<Rc3MissCause, number>>; categoryPercentages: Readonly<Record<Rc3MissCause, number>> }>;
@@ -89,15 +89,17 @@ export function buildVm0007Rc3Diagnostic(input: Readonly<{
     };
   }));
   const categoryCounts = events.reduce<Record<Rc3MissCause, number>>((counts, event) => ({ ...counts, [event.primaryCause]: counts[event.primaryCause] + 1 }), { never_retrieved: 0, retrieved_but_filtered: 0, ranked_below_cutoff: 0, selected_but_match_failed: 0, unresolved_insufficient_trace: 0 });
-  if (events.length !== 95) throw new Error(`Expected exactly 95 accepted-evidence-missed events; received ${events.length}`);
+  const acceptedEvidenceMissed = input.benchmark.aggregate.accepted.falseNegativeCount;
+  const acceptedEvidenceFalseSupport = input.benchmark.aggregate.accepted.falsePositiveCount;
+  if (events.length !== acceptedEvidenceMissed) throw new Error(`Diagnostic event count does not equal benchmark accepted-evidence misses (${acceptedEvidenceMissed}); received ${events.length}`);
   if (new Set(events.map((event) => event.eventId)).size !== events.length) throw new Error("Duplicate RC3 diagnostic event ID");
   const result: Vm0007Rc3Diagnostic = {
     schemaVersion: VM0007_RC3_DIAGNOSTIC_SCHEMA_VERSION,
     taxonomyVersion: VM0007_RC3_DIAGNOSTIC_TAXONOMY_VERSION,
-    baseline: { artifactPath: input.baseline.artifactPath, artifactSha256: input.baseline.artifactSha256, acceptedEvidenceMissed: 95, acceptedEvidenceFalseSupport: 58 },
+    baseline: { artifactPath: input.baseline.artifactPath, artifactSha256: input.baseline.artifactSha256, acceptedEvidenceMissed, acceptedEvidenceFalseSupport },
     generation: { generator: "buildVm0007Rc3Diagnostic", generatedAt: null, productionProposalMetricsUnchanged: true },
     source: { documentId: input.sourceCorpus.documentId, documentSha256: input.sourceCorpus.documentSha256, extractionPath: input.sourceCorpus.extractionPath, candidateLevelInstrumentation: "opt_in_audit_evidence" },
-    totals: { acceptedEvidenceMissed: 95, classified: events.length, categoryCounts, categoryPercentages: Object.fromEntries(Object.entries(categoryCounts).map(([cause, count]) => [cause, count / 95])) as Record<Rc3MissCause, number> },
+    totals: { acceptedEvidenceMissed, classified: events.length, categoryCounts, categoryPercentages: Object.fromEntries(Object.entries(categoryCounts).map(([cause, count]) => [cause, acceptedEvidenceMissed === 0 ? 0 : count / acceptedEvidenceMissed])) as Record<Rc3MissCause, number> },
     events,
   };
   validateVm0007Rc3Diagnostic(result);
@@ -105,7 +107,7 @@ export function buildVm0007Rc3Diagnostic(input: Readonly<{
 }
 
 export function validateVm0007Rc3Diagnostic(value: Vm0007Rc3Diagnostic): void {
-  if (value.events.length !== value.totals.acceptedEvidenceMissed || value.events.length !== 95) throw new Error("RC3 diagnostic event count does not equal 95");
+  if (value.events.length !== value.totals.acceptedEvidenceMissed) throw new Error(value.totals.acceptedEvidenceMissed === 95 ? "RC3 diagnostic event count does not equal 95" : "RC3 diagnostic event count does not equal benchmark misses");
   const ids = new Set<string>();
   for (const event of value.events) {
     if (ids.has(event.eventId)) throw new Error(`Duplicate RC3 diagnostic event ID: ${event.eventId}`);
@@ -113,7 +115,7 @@ export function validateVm0007Rc3Diagnostic(value: Vm0007Rc3Diagnostic): void {
     if (!event.stableRuleId || !event.reviewedEvidence.provenance.spanId || !event.reviewedEvidence.provenance.docId) throw new Error(`RC3 diagnostic event lacks provenance: ${event.eventId}`);
   }
   const counted = value.events.reduce<Record<Rc3MissCause, number>>((counts, event) => ({ ...counts, [event.primaryCause]: counts[event.primaryCause] + 1 }), { never_retrieved: 0, retrieved_but_filtered: 0, ranked_below_cutoff: 0, selected_but_match_failed: 0, unresolved_insufficient_trace: 0 });
-  if (JSON.stringify(counted) !== JSON.stringify(value.totals.categoryCounts) || Object.values(counted).reduce((sum, count) => sum + count, 0) !== 95) throw new Error("RC3 diagnostic category totals do not equal 95");
+  if (JSON.stringify(counted) !== JSON.stringify(value.totals.categoryCounts) || Object.values(counted).reduce((sum, count) => sum + count, 0) !== value.totals.acceptedEvidenceMissed) throw new Error("RC3 diagnostic category totals do not equal benchmark misses");
 }
 
 export function serializeVm0007Rc3Diagnostic(value: Vm0007Rc3Diagnostic): string {
