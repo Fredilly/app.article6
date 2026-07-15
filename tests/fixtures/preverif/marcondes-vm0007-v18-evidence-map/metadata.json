@@ -187,9 +187,10 @@
       {
         "ruleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
         "oldHash": "62d351d30b131d2634c35a457650620511325f41a51ecfaf2d763fcee816f067",
-        "newHash": "eb4c1971f618632e2df7e9f71d5934b484dfd640c8ad8f34e089a78aad366e65",
+        "newHash": "a46e6d08f871a67f98d3a3e7ac433efe9c2de43d6465758b7ed5334c74adeefe",
         "changedFields": [
           "acceptedEvidence",
+          "clientAction",
           "rationale",
           "reviewerCorrection"
         ],

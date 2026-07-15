@@ -116,7 +116,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(audit.rows).toHaveLength(58);
     expect(audit.rows.map((row: any) => row.ruleReference)).toEqual(independentAuditIds);
     expect(new Set(audit.rows.map((row: any) => row.ruleReference)).size).toBe(58);
-    expect(sha256("independent-audit.json")).toBe("a9eff4b718c11b8f438e0222f6799d2fa9f26244648dfa67c1899e52cc0dc0f2");
+    expect(sha256("independent-audit.json")).toBe("aad500e67b7b8b9cfa34fe50b500b5e9ad25ad78f5ddc3968abffe970b58a89a");
     expect(crypto.createHash("sha256").update(JSON.stringify(audit.rows.slice(0, 38))).digest("hex")).toBe("7104e9cc0ba8f82b42f2f2dfa7c2544af4cca9847ad5e24f4bb47f376d617da7");
     expect(crypto.createHash("sha256").update(JSON.stringify(audit.rows.slice(0, 28))).digest("hex")).toBe("c90510b3e2b4a69f60c415211515bb53f708debe178d2fd9ce4494e552d37207");
     expect(audit.rows.slice(20, 28).map((row: any) => row.ruleReference)).toEqual(finalEight);

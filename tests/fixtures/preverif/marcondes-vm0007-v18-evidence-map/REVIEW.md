@@ -16,7 +16,7 @@ Decisions and evidence basis:
 
 - R-3-0004 — UNCLEAR/ACTION_REQUIRED. Pages 62 and 66 list VT0001 and a stepwise baseline/additionality process, but do not identify the selected investment-analysis option or its cost, IRR/NPV, or benchmark evidence.
 - R-3-0007 — UNCLEAR/ACTION_REQUIRED. Page 68 defers the relevant quantification/monitoring information to validation; no reassessment frequency or next scheduled revision is provided.
-- R-3-0008 — N/A/NOT_APPLICABLE. Page 62 identifies MapBiomas/PRODES project data, not a qualifying VCS JNR jurisdictional baseline.
+- R-3-0008 — N/A/NOT_APPLICABLE. Page 11 states that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program; reassess only if a qualifying VCS JNR jurisdictional baseline is later adopted.
 - R-4-0001 — FOUND/CONFORMS. Pages 62 and 66 establish the VT0001 v3.0 tool and the project’s stepwise additionality procedure for the non-tidal APD activity.
 - R-4-0002 — N/A/NOT_APPLICABLE. Pages 12 and 62 establish APD scope and state that no peat soils or tidal wetlands are present; the tidal-wetland ADD-AM pathway is not triggered.
 - R-5-0001 — MISSING/ACTION_REQUIRED. Page 68 defers quantification; no complete REDD baseline/project/leakage equation or calculation is present.

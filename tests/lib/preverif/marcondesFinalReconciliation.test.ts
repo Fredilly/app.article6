@@ -90,6 +90,7 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(byRule.get("R-6-0002")?.finalEvidenceState).toBe("UNCLEAR");
     expect(byRule.get("R-6-0005")?.finalEvidenceState).toBe("UNCLEAR");
     expect(byRule.get("R-3-0008")?.acceptedEvidence[0]).toEqual(expect.objectContaining({ page: 11, quote: "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program." }));
+    expect(byRule.get("R-3-0008")?.clientAction).toBe("Retain the page 11 statement that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program; reassess this conditional row only if a qualifying VCS JNR jurisdictional baseline is later adopted.");
     expect(byRule.get("R-5-0008")).toEqual(expect.objectContaining({ finalEvidenceState: "UNCLEAR", contradictionState: "DRAFTING_CONTRADICTION" }));
     expect(byRule.get("R-5-0008")?.rationale).toMatch(/VMD0004.*mineral-soil SOC.*VMD0005.*long-term wood-products.*PDD.*VMD0005.*SOC/i);
     expect(byRule.get("R-5-0008")?.clientAction).toMatch(/corrected carbon-pool\/module inventory.*every included and excluded pool/i);
@@ -114,6 +115,9 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
       expect(auditEvidence.section).toBe(goldEvidence.section);
       expect(auditEvidence.provenance).toEqual(expect.objectContaining({ sectionPath: goldEvidence.provenance.sectionPath, sectionHeading: goldEvidence.provenance.sectionHeading }));
     }
+    const r30008Audit = audit.rows.find((row: any) => row.ruleReference === "R-3-0008");
+    expect(r30008Audit.clientActionAssessment).toBe(byRule(current.rows, "R-3-0008").clientAction);
+    expect(read("corrections.json").finalTruth.find((row: any) => row.ruleId.endsWith("R-3-0008")).clientAction).toBe(byRule(current.rows, "R-3-0008").clientAction);
   });
 });
 

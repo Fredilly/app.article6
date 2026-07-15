@@ -4092,7 +4092,7 @@
       "finalEvidenceState": "N/A",
       "reviewerOutcome": "NOT_APPLICABLE",
       "rationale": "The PDD states that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program. The jurisdictional REDD+ baseline/data pathway is therefore not applicable.",
-      "clientAction": "Retain the project-specific MapBiomas/PRODES data-source statement; reassess this conditional row if a VCS JNR jurisdictional baseline is adopted.",
+      "clientAction": "Retain the page 11 statement that the project is not located within a jurisdiction covered by a jurisdictional REDD+ program; reassess this conditional row only if a qualifying VCS JNR jurisdictional baseline is later adopted.",
       "draftFindingCandidate": null,
       "contradictionState": "NONE_IDENTIFIED"
     },
