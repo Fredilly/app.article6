@@ -863,8 +863,10 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   }
 
   const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const descriptiveProjectContext = hasProjectSpecificMarkers(text)
+    || /\bmonitoring plan\b/i.test(text);
   const descriptiveProjectImplementation = /\b(?:describ\w*|defin\w*|address\w*)\b/.test(text)
-    && (hasProjectSpecificMarkers(text) || /\bmonitoring plan\b/i.test(text))
+    && descriptiveProjectContext
     && !/\b(?:will be|to be|pending|future|not yet|shall|must)\b/.test(text)
     && hasDescriptiveImplementationDetails(text)
     && (!/\b(?:module|modules|tool|tools)\b/.test(text) || implementationLanguage);
@@ -901,7 +903,13 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   if (scopeLanguage && !implementationLanguage && !descriptiveProjectImplementation) {
     return { evidenceType: "project_specific_scope", rejectionReason: null };
   }
-  if ((hasProjectSpecificMarkers(text) || /\bthe project\b/.test(text))
+  const acceptedImplementationContext = hasProjectSpecificMarkers(text)
+    || /\bthe project\b/.test(text)
+    || (
+      descriptiveProjectImplementation
+      && /\bmonitoring plan\b/i.test(text)
+    );
+  if (acceptedImplementationContext
     && (implementationLanguage || descriptiveProjectImplementation)) {
     return { evidenceType: "project_specific_implementation", rejectionReason: null };
   }

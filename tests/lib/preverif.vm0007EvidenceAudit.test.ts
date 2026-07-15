@@ -473,6 +473,63 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(result.rejectedEvidence?.some((record) => record.span === "operational-description")).toBe(false);
   });
 
+  it("accepts marker-free monitoring-plan descriptive evidence through the full pipeline", () => {
+    const text = "The monitoring plan defines the sampling design, QA/QC checks, and reporting workflow.";
+    const audit = auditSynthetic("R-6-0001", [
+      span(1, "implementation-best", "The project area documented the project activity implementation and recorded the relevant project conditions. Monitoring tasks, parameters, frequency, and responsibilities are described clearly for the project."),
+      span(63, "marker-free-monitoring", text),
+    ], true, [{
+      id: "section-63",
+      sectionNumber: "S-6",
+      titleRaw: "Monitoring Plan",
+      titleClean: "Monitoring Plan",
+      bodyRaw: "",
+      bodyClean: "",
+    }]);
+    const result = byRuleId(audit.results, "R-6-0001");
+
+    expect(result.evidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Monitoring Plan",
+        span: "marker-free-monitoring",
+        evidenceType: "project_specific_implementation",
+      }),
+    ]));
+    expect(result.rejectedEvidence?.some((record) => record.span === "marker-free-monitoring")).toBe(false);
+  });
+
+  it.each([
+    ["methodology-defined monitoring", "The methodology defines the monitoring plan, sampling design, and reporting workflow."],
+    ["future monitoring", "The monitoring plan shall define the sampling design, QA/QC checks, and reporting workflow."],
+    ["generic monitoring", "A monitoring plan defines general monitoring procedures."],
+  ])("rejects %s without project-specific descriptive context", (_label, text) => {
+    const spanId = `rejected-${_label.replace(/\s+/g, "-")}`;
+    const audit = auditSynthetic("R-6-0001", [
+      span(1, "implementation-best", "The project area documented the project activity implementation and recorded the relevant project conditions. Monitoring tasks, parameters, frequency, and responsibilities are described clearly for the project."),
+      span(63, spanId, text),
+    ], true, [{
+      id: "section-63",
+      sectionNumber: "S-6",
+      titleRaw: "Monitoring Plan",
+      titleClean: "Monitoring Plan",
+      bodyRaw: "",
+      bodyClean: "",
+    }]);
+    const result = byRuleId(audit.results, "R-6-0001");
+
+    expect(result.evidence?.some((record) => record.span === spanId)).toBe(false);
+    expect(result.rejectedEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Monitoring Plan",
+        span: spanId,
+      }),
+    ]));
+  });
+
   it("rejects stitched descriptive details when they are not in the module fragment", () => {
     const text = "The project defines module M as applicable. Community agreements and surveillance are described elsewhere.";
     const result = byRuleId(auditSynthetic("R-5-0003", [
