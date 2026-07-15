@@ -312,6 +312,23 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(hasLocalRuleAlignment({ rule: leakageRule, contract: getVm0007EvidenceContract(leakageRule), text: source })).toBe(false);
   });
 
+  it("does not let a one-word family label establish local alignment", () => {
+    const rule = { id: "R-FAMILY", title: "", summary: "", logic: "", type: "calc" };
+    const contract = {
+      ...getVm0007EvidenceContract("R-5-0003"),
+      label: "Leakage",
+      appliesToFamily: "Leakage",
+      strongEvidenceSignals: [],
+      mandatoryComponents: [],
+    };
+
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project discusses leakage generally.",
+    })).toBe(false);
+  });
+
   it("applies cross-rule alignment through the full audit pipeline and preserves the best candidate", () => {
     const sharedSource = "The project activity documents the selected baseline module for planned deforestation (APD) in the project area. The project area covers 300 hectares; all 36 properties were measured, recorded, mapped, and confirmed in the project records.";
     const aligned = auditSynthetic("R-3-0005", [
@@ -336,6 +353,29 @@ describe("auditEvidence with VM0007 contracts", () => {
       span: "shared-source",
       rejectionReason: "The span contains project-specific content but is not sufficiently aligned with the current rule.",
     }));
+  });
+
+  it("does not align a monitoring span to another same-family rule", () => {
+    const source = "The monitoring plan defines the sampling design, plot remeasurement schedule, QA/QC checks, and reporting workflow.";
+    const aligned = byRuleId(auditSynthetic("R-6-0001", [span(63, "shared-monitoring", source)], false, [{
+      id: "section-63",
+      sectionNumber: "S-6",
+      titleRaw: "Monitoring Plan Tasks Data Methods Frequency QA/QC",
+      titleClean: "Monitoring Plan Tasks Data Methods Frequency QA/QC",
+      bodyRaw: "",
+      bodyClean: "",
+    }]).results, "R-6-0001");
+    const unrelated = byRuleId(auditSynthetic("R-6-0002", [
+      span(1, "content-best", "The project area documented each monitoring task's data, methods, frequency, QA/QC, archiving, and responsibilities for the actual project workflow."),
+      span(63, "shared-monitoring", source),
+    ], false, [
+      { id: "section-1", sectionNumber: "S-6", titleRaw: "Monitoring Plan Content Requirements", titleClean: "Monitoring Plan Content Requirements", bodyRaw: "", bodyClean: "" },
+      { id: "section-63", sectionNumber: "S-6", titleRaw: "Monitoring Plan Content Requirements", titleClean: "Monitoring Plan Content Requirements", bodyRaw: "", bodyClean: "" },
+    ]).results, "R-6-0002");
+
+    expect(aligned.evidence?.some((record) => record.span === "shared-monitoring")).toBe(true);
+    expect(unrelated.evidence?.some((record) => record.span === "shared-monitoring")).toBe(false);
+    expect(unrelated.rejectedEvidence?.some((record) => record.span === "shared-monitoring")).toBe(true);
   });
 
   it.each([
@@ -380,24 +420,6 @@ describe("auditEvidence with VM0007 contracts", () => {
     ]));
   });
 
-  it("accepts descriptive implementation when the same span contains an independent project fact", () => {
-    const text = "The project defines the selected baseline module for planned deforestation, and the project area covers 300 hectares across 36 properties.";
-    const result = byRuleId(auditSynthetic("R-3-0005", [
-      span(63, "factual-description", text),
-    ]).results, "R-3-0005");
-
-    expect(result.evidence).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        quote: text,
-        page: 63,
-        section: "Project evidence",
-        span: "factual-description",
-        evidenceType: "project_specific_implementation",
-      }),
-    ]));
-    expect(result.rejectedEvidence?.some((record) => record.span === "factual-description")).toBe(false);
-  });
-
   it.each([
     ["single descriptive module detail", "The project describes module M for the selected pathway and references community agreements."],
     ["single descriptive tool detail", "The project defines tool T as applicable and mentions surveillance activities."],
@@ -423,20 +445,51 @@ describe("auditEvidence with VM0007 contracts", () => {
     ["leakage", "R-5-0003", "Activity shifting leakage is addressed through community agreements and surveillance. Leakage management procedures are described for nearby forest users and buffer communities."],
     ["monitoring", "R-6-0001", "The monitoring plan defines the sampling design, plot remeasurement schedule, QA/QC checks, and reporting workflow."],
   ])("keeps concrete descriptive %s evidence accepted through the full pipeline", (_label, ruleId, text) => {
-    const result = byRuleId(auditSynthetic(ruleId, [
+    const bestText = ruleId === "R-5-0003"
+      ? "The project area documented the project activity implementation and recorded the relevant project conditions. The PDD distinguishes the required REDD leakage components and ties activity-shifting and market leakage pathways to the project design."
+      : "The project area documented the project activity implementation and recorded the relevant project conditions. Monitoring tasks, parameters, frequency, and responsibilities are described clearly for the project.";
+    const audit = auditSynthetic(ruleId, [
+      span(1, "implementation-best", bestText),
       span(63, "operational-description", text),
-    ]).results, ruleId);
+    ], true, [{
+      id: "section-63",
+      sectionNumber: ruleId === "R-5-0003" ? "S-5-3" : "S-6",
+      titleRaw: ruleId === "R-5-0003" ? "Leakage" : "Monitoring Plan",
+      titleClean: ruleId === "R-5-0003" ? "Leakage" : "Monitoring Plan",
+      bodyRaw: "",
+      bodyClean: "",
+    }]);
+    const result = byRuleId(audit.results, ruleId);
 
     expect(result.evidence).toEqual(expect.arrayContaining([
       expect.objectContaining({
         quote: text,
         page: 63,
-        section: "Project evidence",
+        section: ruleId === "R-5-0003" ? "Leakage" : "Monitoring Plan",
         span: "operational-description",
         evidenceType: "project_specific_implementation",
       }),
     ]));
     expect(result.rejectedEvidence?.some((record) => record.span === "operational-description")).toBe(false);
+  });
+
+  it("rejects stitched descriptive details when they are not in the module fragment", () => {
+    const text = "The project defines module M as applicable. Community agreements and surveillance are described elsewhere.";
+    const result = byRuleId(auditSynthetic("R-5-0003", [
+      span(63, "stitched-description", text),
+    ]).results, "R-5-0003");
+
+    expect(result.evidence?.some((record) => record.span === "stitched-description")).toBe(false);
+    expect(result.rejectedEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "stitched-description",
+        evidenceType: "module_or_tool_declaration",
+        rejectionReason: "A module or tool declaration shows pathway selection, not completed project implementation.",
+      }),
+    ]));
   });
 
   it("does not let a weak contract signal independently pass local alignment", () => {

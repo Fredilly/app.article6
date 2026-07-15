@@ -744,9 +744,14 @@ const GENERIC_ALIGNMENT_SUBJECT_TOKENS = new Set([
 
 function alignmentFragments(text: string): string[] {
   return text
-    .split(/(?<=[.!?;:])\s+|\n+/)
+    .split(/(?<=[.!?;:])\s+|\n{2,}/)
     .map((fragment) => normalizeText(fragment))
     .filter(Boolean);
+}
+
+function meaningfulAlignmentTokenCount(text: string): number {
+  return tokenize(text, ALIGNMENT_STOPWORDS)
+    .filter((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token)).length;
 }
 
 function ruleAlignmentSubjectTokens(
@@ -764,6 +769,13 @@ function ruleAlignmentSubjectTokens(
   ].join(" "), ALIGNMENT_STOPWORDS).filter((token) =>
     token.length >= 4 && !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token),
   );
+}
+
+function hasSubstantiveLocalProjectFact(fragment: string): boolean {
+  return hasProjectSpecificMarkers(fragment)
+    || projectFactBonus(fragment) > 0
+    || hasExplicitScopeExclusion(fragment)
+    || /\b(?:project|project activity)\b[\s\S]{0,100}\b(?:reduces?|authori[sz]ed|documented|implemented)\b/i.test(fragment);
 }
 
 /**
@@ -785,28 +797,16 @@ export function hasLocalRuleAlignment(input: {
   const contractSubjectPhrases = [input.contract.label, input.contract.appliesToFamily ?? ""]
     .filter(Boolean)
     .map(normalizeText)
-    .filter((phrase) => phrase.length >= 4 && tokenize(phrase, ALIGNMENT_STOPWORDS)
-      .some((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token)));
+    .filter((phrase) => phrase.length >= 4 && meaningfulAlignmentTokenCount(phrase) >= 2);
   const directRuleSubjectPhrases = [
     resolveRuleTitle(input.rule),
     input.contract.label,
   ].map(normalizeText).filter((phrase) => {
-    const tokens = tokenize(phrase, ALIGNMENT_STOPWORDS);
-    return phrase.length >= 4
-      && tokens.some((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token));
+    return phrase.length >= 4 && meaningfulAlignmentTokenCount(phrase) >= 2;
   });
 
-  const candidateEvidenceType = input.evidenceType ?? "project_specific_implementation";
-
   return alignmentFragments(input.text).some((fragment) => {
-    // The candidate was already classified as project-specific. For local
-    // context, reuse existing factuality signals instead of requiring every
-    // fragment to repeat the narrower project-marker vocabulary.
-    const hasLocalProjectFact = candidateEvidenceType === "project_specific_scope"
-      ? hasExplicitScopeExclusion(fragment) || evidenceSpecificityBonus(fragment) > 0
-      : hasProjectSpecificMarkers(fragment)
-        || projectFactBonus(fragment) > 0
-        || evidenceSpecificityBonus(fragment) > 0;
+    const hasLocalProjectFact = hasSubstantiveLocalProjectFact(fragment);
     if (!hasLocalProjectFact) return false;
 
     const strongPhraseHit = strongSignalPhrases.some((phrase) =>
@@ -822,7 +822,9 @@ export function hasLocalRuleAlignment(input: {
       || (Math.min(token.length, fragmentToken.length) >= 5
         && (token.startsWith(fragmentToken) || fragmentToken.startsWith(token))),
     )));
-    return subjectHits.size >= 2;
+    const substantiveImplementation = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authori[sz]ed|reduces?|spans?|follows|implement)\b/i.test(fragment);
+    return subjectHits.size >= 2
+      || (subjectHits.size === 1 && substantiveImplementation);
   });
 }
 
@@ -861,10 +863,11 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   }
 
   const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
-  const descriptiveProjectImplementation = /\b(?:described|defines?)\b/.test(text)
-    && hasProjectSpecificMarkers(text)
+  const descriptiveProjectImplementation = /\b(?:describ\w*|defin\w*|address\w*)\b/.test(text)
+    && (hasProjectSpecificMarkers(text) || /\bmonitoring plan\b/i.test(text))
     && !/\b(?:will be|to be|pending|future|not yet|shall|must)\b/.test(text)
-    && (projectFactBonus(text) >= 10 || hasDescriptiveImplementationDetails(text));
+    && hasDescriptiveImplementationDetails(text)
+    && (!/\b(?:module|modules|tool|tools)\b/.test(text) || implementationLanguage);
   const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
     && !implementationLanguage
     && !descriptiveProjectImplementation
@@ -1041,20 +1044,23 @@ function projectFactBonus(text: string): number {
 }
 
 function hasDescriptiveImplementationDetails(text: string): boolean {
-  const detailPatterns = [
-    /\bcommunity agreements?\b/i,
-    /\bsurveillance\b/i,
-    /\bsampling design\b/i,
-    /\bplot remeasurement\b/i,
-    /\bqa\s*\/\s*qc checks?\b/i,
-    /\breporting workflow\b/i,
-    /\bleakage observations?\b/i,
-    /\bsafeguards evidence\b/i,
+  const detailCategories = [
+    /\b(?:community agreements?|controls?|safeguards?|management procedures?)\b/i,
+    /\b(?:surveillance|sampling design|plot remeasurement|measurements?|observations?)\b/i,
+    /\b(?:qa\s*\/\s*qc checks?|reporting workflow|recordkeeping|records?|workflow)\b/i,
   ];
 
-  return alignmentFragments(text).some((fragment) =>
-    detailPatterns.filter((pattern) => pattern.test(fragment)).length >= 2,
-  );
+  return alignmentFragments(text).some((fragment) => {
+    const hasCurrentAction = /\b(?:describ\w*|defin\w*|address\w*)\b/i.test(fragment);
+    const hasLocalProjectContext = hasProjectSpecificMarkers(fragment)
+      || /\bmonitoring plan\b/i.test(fragment);
+    const hasMethodologyOnlyLanguage = /\b(?:methodology|template|standard|shall|must|required|applicability conditions?)\b/i.test(fragment);
+    const detailCount = detailCategories.filter((pattern) => pattern.test(fragment)).length;
+    return hasCurrentAction
+      && hasLocalProjectContext
+      && !hasMethodologyOnlyLanguage
+      && detailCount >= 2;
+  });
 }
 
 function evidenceSpecificityBonus(text: string): number {
