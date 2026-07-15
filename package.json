@@ -37,6 +37,8 @@
     "preverif:rc3:same-run-handoff": "tsx scripts/preverif/generate-vm0007-rc3-same-run-handoff.ts",
     "preverif:rc3:current-comparison": "tsx scripts/preverif/generate-vm0007-rc3-current-comparison.ts",
     "preverif:rc3:selected-match-subtaxonomy": "tsx scripts/preverif/generate-vm0007-rc3-selected-match-subtaxonomy.ts",
+    "preverif:rc3:audited-pre-fix-baseline": "tsx scripts/preverif/generate-vm0007-rc3-audited-pre-fix-baseline.ts",
+    "preverif:rc3:baseline-registry": "tsx scripts/preverif/generate-vm0007-rc3-baseline-registry.ts",
     "test:quickcheck:no-fixture-hardcoding": "jest tests/lib/quickCheckV2/no-fixture-hardcoding-guard.test.ts --runInBand",
     "check:golden": "bash scripts/check-golden-rich.sh",
     "build:audit-pack": "node scripts/build-audit-pack.mjs",

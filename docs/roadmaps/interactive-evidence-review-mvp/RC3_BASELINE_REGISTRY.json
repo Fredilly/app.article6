@@ -1,0 +1,213 @@
+{
+  "generatedBy": "scripts/preverif/generate-vm0007-rc3-baseline-registry.ts",
+  "methodology": {
+    "fixture": "marcondes-vm0007-v18-evidence-map",
+    "id": "VM0007",
+    "version": "v1.8"
+  },
+  "provisional": {
+    "artifactIsNotIndexedAsFrozen": true,
+    "logicalLabel": "rc3-5",
+    "mustRegenerateAfter": "PR 2",
+    "note": "The provisional PR #1046 artifact is not present on main and is intentionally excluded from v2 until PR 3 regenerates it against the audited truth.",
+    "officialFrozenBaseline": false,
+    "purpose": "existing false-support taxonomy pending audited-baseline regeneration",
+    "sourceArtifactPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json",
+    "sourceBranch": "roadmap/rc3-5-false-support-taxonomy",
+    "sourcePr": "#1046",
+    "status": "provisional"
+  },
+  "reproduction": {
+    "auditedCommand": "npm run preverif:rc3:audited-pre-fix-baseline",
+    "diagnosticOutputsAreProductionOutputs": false,
+    "inputs": [
+      "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+      "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
+      "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/machine-proposal.json",
+      "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/mismatch-reconciliation.json"
+    ],
+    "productionPath": "auditEvidence → buildVm0007EvidenceMapDraft → serialized reload",
+    "registryCommand": "npm run preverif:rc3:baseline-registry"
+  },
+  "schemaVersion": "vm0007-rc3-baseline-registry-v1",
+  "versions": [
+    {
+      "baselineArtifacts": [
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json",
+          "sha256": "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.md",
+          "sha256": "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b"
+        }
+      ],
+      "diagnosticArtifacts": [
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_DIAGNOSTIC.json",
+          "sha256": "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json",
+          "sha256": "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json",
+          "sha256": "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json",
+          "sha256": "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964"
+        }
+      ],
+      "extraction": {
+        "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
+        "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+      },
+      "frozenMachineProposal": {
+        "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/machine-proposal.json",
+        "sha256": "068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6"
+      },
+      "immutable": true,
+      "logicalVersion": "v1",
+      "productionExecution": {
+        "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
+        "generatedProposalSha256": "27bb22ae48d11239cff66f79a016de9ce1d8fb069bcb87f5bf64a5ee6a080a57"
+      },
+      "purpose": "historical RC2 and original RC3-1 through RC3-4 measurement",
+      "reviewedTruth": {
+        "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.rc2-rc3.json",
+        "sha256": "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127"
+      },
+      "status": "frozen_historical"
+    },
+    {
+      "baselineArtifacts": [
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
+          "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+        }
+      ],
+      "counts": {
+        "acceptedEvidenceFalseSupport": 174,
+        "acceptedEvidenceMissCategories": {
+          "never_retrieved": 15,
+          "ranked_below_cutoff": 0,
+          "retrieved_but_filtered": 37,
+          "selected_but_match_failed": 45,
+          "unresolved_insufficient_trace": 0
+        },
+        "acceptedEvidenceMissed": 97,
+        "comparisonMetrics": {
+          "acceptedEvidenceFalseSupport": {
+            "current": 174,
+            "delta": 116,
+            "frozenRc2": 58
+          },
+          "acceptedEvidenceMissed": {
+            "current": 97,
+            "delta": 0,
+            "frozenRc2": 97
+          },
+          "applicabilityFailures": {
+            "current": 6,
+            "delta": -16,
+            "frozenRc2": 22
+          },
+          "clientActionFailures": {
+            "current": 58,
+            "delta": 0,
+            "frozenRc2": 58
+          },
+          "contradictionFailures": {
+            "current": 58,
+            "delta": 0,
+            "frozenRc2": 58
+          },
+          "draftFindingFailures": {
+            "current": 58,
+            "delta": 0,
+            "frozenRc2": 58
+          },
+          "evidenceStateFailures": {
+            "current": 38,
+            "delta": -14,
+            "frozenRc2": 52
+          },
+          "reviewerOutcomeFailures": {
+            "current": 58,
+            "delta": 0,
+            "frozenRc2": 58
+          }
+        },
+        "handoffPrimaryStages": {
+          "audit_result_present_but_draft_mapping_dropped": 0,
+          "draft_present_but_serialization_dropped": 0,
+          "duplicate_cardinality_complication": 0,
+          "other_proven_handoff_failure": 0,
+          "same_run_proposal_contains_selected_candidate": 17,
+          "selected_missing_from_audit_result": 2,
+          "selected_present_in_evidence_but_not_best_evidence": 15,
+          "selected_present_only_in_rejected_audit_evidence": 11,
+          "unresolved_insufficient_evidence": 0
+        },
+        "ruleCount": 58,
+        "selectedButMatchFailed": 45,
+        "selectedMatchSubtypes": {
+          "duplicate_cardinality_mismatch": 2,
+          "emitted_quote_differs_from_selected_candidate": 14,
+          "fixture_runtime_drift": 0,
+          "machine_quote_superset_of_reviewed": 17,
+          "normalization_gap": 0,
+          "other_proven_mismatch": 0,
+          "partial_overlap_without_containment": 0,
+          "reviewed_quote_superset_of_machine": 0,
+          "selected_candidate_not_emitted": 12,
+          "unresolved_insufficient_evidence": 0
+        }
+      },
+      "createdByThisPr": true,
+      "diagnosticArtifacts": [
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
+          "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json",
+          "sha256": "e36325c78ea3e998e71b97adb1bb9f5a8e7c3e43fd1946c38003188e041da490"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json",
+          "sha256": "21bbd255153d524896517e48b58a6bb40425d9c37168605ab593c9ccf5a99c74"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_CURRENT_COMPARISON.json",
+          "sha256": "f12754ca3e4c1eec6c9330139da46a3777276959c0b0dda569f6f93f023af329"
+        }
+      ],
+      "extraction": {
+        "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
+        "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+      },
+      "generatedSameRunProposal": {
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
+        "sha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85"
+      },
+      "immutable": true,
+      "logicalVersion": "v2",
+      "manifestArtifact": {
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json",
+        "sha256": "5b41f5650ad975757f4376c8ec7ff29dd1eb6738310637cf2eddb2191c436f8f"
+      },
+      "productionExecution": {
+        "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25"
+      },
+      "purpose": "official RC3 audited pre-fix starting point",
+      "reviewedTruth": {
+        "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+        "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+      },
+      "status": "frozen_current"
+    }
+  ]
+}
