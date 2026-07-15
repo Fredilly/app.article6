@@ -136,7 +136,7 @@ describe("audited RC3 pre-fix baseline", () => {
     expect(comparison.currentProposalSource.generatedProposalSha256).toBe(proposalSha);
   });
 
-  it("indexes frozen v1/v2 artifacts deterministically and keeps RC3-5 provisional", () => {
+  it("indexes frozen v1/v2 artifacts deterministically and finalizes RC3-5 under v2 diagnostics", () => {
     expect(registryArtifact.schemaVersion).toBe("vm0007-rc3-baseline-registry-v1");
     expect(new Set(registryArtifact.versions.map((version: { logicalVersion: string }) => version.logicalVersion)).size).toBe(registryArtifact.versions.length);
     expect(registryArtifact.versions.filter((version: { status: string }) => version.status === "frozen_current")).toHaveLength(1);
@@ -147,8 +147,12 @@ describe("audited RC3 pre-fix baseline", () => {
     expect(v1.reviewedTruth.path).toContain("gold.rc2-rc3.json");
     expect(v1.reviewedTruth.path).not.toContain("gold.json");
     expect(v2.reviewedTruth.path).toContain("gold.json");
-    expect(registryArtifact.provisional).toMatchObject({ status: "provisional", sourcePr: "#1046", officialFrozenBaseline: false, artifactIsNotIndexedAsFrozen: true });
-    expect(registryArtifact.provisional.sourceArtifactPath).toContain("RC3_FALSE_SUPPORT_TAXONOMY.json");
+    expect(registryArtifact.provisional).toBeUndefined();
+    expect(registryArtifact.versions.filter((version: { logicalVersion: string }) => version.logicalVersion === "v3")).toHaveLength(0);
+    const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => artifact.path === "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
+    expect(taxonomyEntries).toHaveLength(1);
+    expect(taxonomyEntries[0].sha256).toBe("32181d976bea24d01884c6c1d8586afd5e858ea40eb708a7f5156f2c71e11865");
+    expect(taxonomyEntries[0].sha256).toBe(sha256(path.join(artifactDir, "RC3_FALSE_SUPPORT_TAXONOMY.json")));
     expect(registryArtifact.reproduction.diagnosticOutputsAreProductionOutputs).toBe(false);
     for (const version of [v1, v2]) {
       const refs = [version.reviewedTruth, version.frozenMachineProposal, version.extraction, version.generatedSameRunProposal, version.manifestArtifact, ...(version.baselineArtifacts ?? []), ...(version.diagnosticArtifacts ?? [])].filter(Boolean);

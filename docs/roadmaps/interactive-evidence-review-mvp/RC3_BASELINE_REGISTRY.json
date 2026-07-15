@@ -5,18 +5,6 @@
     "id": "VM0007",
     "version": "v1.8"
   },
-  "provisional": {
-    "artifactIsNotIndexedAsFrozen": true,
-    "logicalLabel": "rc3-5",
-    "mustRegenerateAfter": "PR 2",
-    "note": "The provisional PR #1046 artifact is not present on main and is intentionally excluded from v2 until PR 3 regenerates it against the audited truth.",
-    "officialFrozenBaseline": false,
-    "purpose": "existing false-support taxonomy pending audited-baseline regeneration",
-    "sourceArtifactPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json",
-    "sourceBranch": "roadmap/rc3-5-false-support-taxonomy",
-    "sourcePr": "#1046",
-    "status": "provisional"
-  },
   "reproduction": {
     "auditedCommand": "npm run preverif:rc3:audited-pre-fix-baseline",
     "diagnosticOutputsAreProductionOutputs": false,
@@ -183,6 +171,10 @@
         {
           "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_CURRENT_COMPARISON.json",
           "sha256": "f12754ca3e4c1eec6c9330139da46a3777276959c0b0dda569f6f93f023af329"
+        },
+        {
+          "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json",
+          "sha256": "32181d976bea24d01884c6c1d8586afd5e858ea40eb708a7f5156f2c71e11865"
         }
       ],
       "extraction": {

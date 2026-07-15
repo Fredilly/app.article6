@@ -93,7 +93,7 @@ function metric(current: number, frozenRc2: number): MetricResult {
   return { current, frozenRc2, delta, percentageDelta: frozenRc2 === 0 ? null : delta / frozenRc2, direction: delta < 0 ? "improved" : delta > 0 ? "regressed" : "unchanged" };
 }
 
-function canonicalEvidenceIdentity(stableRuleId: string, record: { quote: unknown; provenance: unknown }): string {
+export function canonicalEvidenceIdentity(stableRuleId: string, record: { quote: unknown; provenance: unknown }): string {
   const provenance = record.provenance as Record<string, unknown>;
   return canonicalJsonStringify({
     stableRuleId,
