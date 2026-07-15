@@ -8,6 +8,7 @@ import {
 } from "./vm0007Benchmark";
 import {
   evaluateVm0007EvidenceBenchmark,
+  normalizeEvidenceQuote,
   type Vm0007EvidenceBenchmarkMachineRow,
   type Vm0007EvidenceBenchmarkReviewedRow,
   type Vm0007EvidenceBenchmarkRow,
@@ -15,7 +16,7 @@ import {
 import { classifyRc3MissCause, type Rc3MissCause } from "./vm0007Rc3Diagnostic";
 import type { EvidenceAuditDiagnosticTrace } from "./evidenceAudit";
 
-export const VM0007_RC3_CURRENT_COMPARISON_SCHEMA_VERSION = "vm0007-rc3-current-comparison-v1" as const;
+export const VM0007_RC3_CURRENT_COMPARISON_SCHEMA_VERSION = "vm0007-rc3-current-comparison-v2" as const;
 export const VM0007_RC3_CURRENT_COMPARISON_TRACE_VERSION = "rc3-current-same-run-proposal-v1" as const;
 export const CURRENT_COMPARISON_METRICS = [
   "acceptedEvidenceMissed",
@@ -38,6 +39,8 @@ type MetricResult = Readonly<{
 }>;
 
 type FieldMetric = Readonly<{ current: number; frozenRc2: number }>;
+
+const FROZEN_RC2_BASELINE_SHA256 = "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf";
 
 export type CurrentComparisonTaxonomyEvent = Readonly<{
   eventId: string;
@@ -90,11 +93,50 @@ function metric(current: number, frozenRc2: number): MetricResult {
   return { current, frozenRc2, delta, percentageDelta: frozenRc2 === 0 ? null : delta / frozenRc2, direction: delta < 0 ? "improved" : delta > 0 ? "regressed" : "unchanged" };
 }
 
+function canonicalEvidenceIdentity(stableRuleId: string, record: { quote: unknown; provenance: unknown }): string {
+  const provenance = record.provenance as Record<string, unknown>;
+  return canonicalJsonStringify({
+    stableRuleId,
+    normalizedQuote: normalizeEvidenceQuote(String(record.quote)),
+    provenance: {
+      docId: provenance.docId,
+      page: provenance.page,
+      sectionPath: provenance.sectionPath,
+      spanId: provenance.spanId,
+      sectionHeading: provenance.sectionHeading,
+      sourceType: provenance.sourceType,
+    },
+  });
+}
+
+function occurrenceIds(values: readonly string[], prefix: string): string[] {
+  const occurrences = new Map<string, number>();
+  return [...values].sort().map((value) => {
+    const occurrence = (occurrences.get(value) ?? 0) + 1;
+    occurrences.set(value, occurrence);
+    return `${prefix}:${sha256(value)}:${occurrence}`;
+  });
+}
+
 function idsForEvidence(rows: readonly Vm0007EvidenceBenchmarkRow[], collection: "falseNegativeRecords" | "falsePositiveRecords"): string[] {
-  return rows.flatMap((row) => {
-    const records = row.accepted[collection];
-    return records.map((_record, index) => `${row.stableRuleId}:accepted:${collection === "falseNegativeRecords" ? "missed" : "false_support"}:${index + 1}`);
-  }).sort();
+  const values = rows.flatMap((row) => row.accepted[collection].map((record) => canonicalEvidenceIdentity(row.stableRuleId, record as { quote: unknown; provenance: unknown })));
+  return occurrenceIds(values, collection === "falseNegativeRecords" ? "accepted:missed" : "accepted:false_support");
+}
+
+function machineEvidenceIdentitySignature(row: Vm0007EvidenceBenchmarkRow): Readonly<{ accepted: readonly string[]; rejected: readonly string[] }> {
+  const machineRecords = (result: Vm0007EvidenceBenchmarkRow["accepted"]) => [
+    ...result.matchedPairs.map((pair) => pair.machine),
+    ...result.falsePositiveRecords,
+  ];
+  return {
+    accepted: occurrenceIds(machineRecords(row.accepted).map((record) => canonicalEvidenceIdentity(row.stableRuleId, record)), "accepted:machine"),
+    rejected: occurrenceIds(machineRecords(row.rejected).map((record) => canonicalEvidenceIdentity(row.stableRuleId, record)), "rejected:machine"),
+  };
+}
+
+export function assertFrozenRc2Baseline(input: Readonly<{ committedSha256: string; rebuiltSerialized: string; committedSerialized: string }>): void {
+  if (input.committedSha256 !== FROZEN_RC2_BASELINE_SHA256) throw new Error("Frozen RC2 baseline SHA changed");
+  if (input.rebuiltSerialized !== input.committedSerialized) throw new Error("Regenerated RC2 baseline differs from committed frozen artifact");
 }
 
 function difference(left: readonly string[], right: readonly string[]): string[] {
@@ -111,11 +153,15 @@ function taxonomy(
   const traceById = new Map(traces.map((trace) => [trace.stableId, trace]));
   const events: CurrentComparisonTaxonomyEvent[] = [];
   for (const row of currentEvidence.rows) {
-    for (const [index, record] of row.accepted.falseNegativeRecords.entries()) {
+    const records = row.accepted.falseNegativeRecords.map((record) => ({ record, identity: canonicalEvidenceIdentity(row.stableRuleId, record as { quote: unknown; provenance: unknown }) })).sort((left, right) => left.identity.localeCompare(right.identity));
+    const occurrences = new Map<string, number>();
+    for (const { record, identity } of records) {
       const trace = traceById.get(row.stableRuleId);
       if (!reviewedById.has(row.stableRuleId)) throw new Error(`Missing reviewed row for ${row.stableRuleId}`);
       const primaryCause = classifyRc3MissCause(String(record.quote), trace);
-      events.push({ eventId: `${row.stableRuleId}:accepted:${index + 1}`, stableRuleId: row.stableRuleId, primaryCause });
+      const occurrence = (occurrences.get(identity) ?? 0) + 1;
+      occurrences.set(identity, occurrence);
+      events.push({ eventId: `accepted:missed:${sha256(identity)}:${occurrence}`, stableRuleId: row.stableRuleId, primaryCause });
     }
   }
   const categoryCounts = { never_retrieved: 0, retrieved_but_filtered: 0, ranked_below_cutoff: 0, selected_but_match_failed: 0, unresolved_insufficient_trace: 0 } as Record<Rc3MissCause, number>;
@@ -167,9 +213,10 @@ export function buildVm0007Rc3CurrentComparison(input: Readonly<{
   const changedRuleIds = input.expectedStableRuleIds.filter((id) => {
     const current = currentCategorical.rows.find((row) => row.stableRuleId === id);
     const frozen = frozenCategorical.rows.find((row) => row.stableRuleId === id);
+    const currentEvidenceRow = currentEvidence.rows.find((row) => row.stableRuleId === id);
+    const frozenEvidenceRow = frozenEvidence.rows.find((row) => row.stableRuleId === id);
     return JSON.stringify(current?.fields) !== JSON.stringify(frozen?.fields)
-      || currentEvidence.rows.find((row) => row.stableRuleId === id)?.accepted.falseNegativeRecords.length !== frozenEvidence.rows.find((row) => row.stableRuleId === id)?.accepted.falseNegativeRecords.length
-      || currentEvidence.rows.find((row) => row.stableRuleId === id)?.accepted.falsePositiveRecords.length !== frozenEvidence.rows.find((row) => row.stableRuleId === id)?.accepted.falsePositiveRecords.length;
+      || JSON.stringify(machineEvidenceIdentitySignature(currentEvidenceRow!)) !== JSON.stringify(machineEvidenceIdentitySignature(frozenEvidenceRow!));
   }).sort();
   const currentTaxonomy = taxonomy(currentEvidence, input.reviewedRows, input.diagnosticTrace);
   const rankedActionableFailures = [

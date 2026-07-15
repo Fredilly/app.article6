@@ -6,9 +6,9 @@ import { getStructuredQueryContext } from "../../src/lib/chat/quickCheckReviewQu
 import { auditEvidence } from "../../src/lib/preverif/evidenceAudit";
 import { buildVm0007EvidenceMapDraft } from "../../src/lib/preverif/vm0007EvidenceMapDraft";
 import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "../../src/lib/preverif/vm0007EvidenceContracts";
-import { buildVm0007Rc2Baseline } from "../../src/lib/preverif/vm0007Rc2Baseline";
+import { buildVm0007Rc2Baseline, serializeVm0007Rc2Baseline } from "../../src/lib/preverif/vm0007Rc2Baseline";
 import { evaluateVm0007EvidenceBenchmark, type Vm0007EvidenceBenchmarkMachineRow, type Vm0007EvidenceBenchmarkReviewedRow } from "../../src/lib/preverif/vm0007EvidenceBenchmark";
-import { buildVm0007Rc3CurrentComparison, serializeVm0007Rc3CurrentComparison } from "../../src/lib/preverif/vm0007Rc3CurrentComparison";
+import { assertFrozenRc2Baseline, buildVm0007Rc3CurrentComparison, serializeVm0007Rc3CurrentComparison } from "../../src/lib/preverif/vm0007Rc3CurrentComparison";
 
 const root = process.cwd();
 const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
@@ -42,10 +42,9 @@ const baselineInput = {
   },
 };
 const baseline = buildVm0007Rc2Baseline(baselineInput);
-const baselineSerialized = JSON.stringify(baseline);
 const frozenBaselineBytes = fs.readFileSync(baselinePath, "utf8");
-if (digest(baselinePath) !== "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf") throw new Error("Frozen RC2 baseline SHA changed");
-if (!frozenBaselineBytes.includes('"schemaVersion"')) throw new Error("Frozen RC2 baseline is malformed");
+assertFrozenRc2Baseline({ committedSha256: digest(baselinePath), rebuiltSerialized: serializeVm0007Rc2Baseline(baseline), committedSerialized: frozenBaselineBytes });
+const frozenBaseline = JSON.parse(frozenBaselineBytes) as typeof baseline;
 
 const context = getStructuredQueryContext(extraction.text);
 const rules = read(richRulesPath).map((rule: Record<string, unknown>) => ({
@@ -81,7 +80,7 @@ const comparison = buildVm0007Rc3CurrentComparison({
   frozenRows: machine.rows as Vm0007EvidenceBenchmarkMachineRow[],
   reviewedRows,
   expectedStableRuleIds,
-  frozenRc2: { path: path.relative(root, baselinePath), sha256: digest(baselinePath), baseline },
+  frozenRc2: { path: path.relative(root, baselinePath), sha256: digest(baselinePath), baseline: frozenBaseline },
   frozenProposal: { path: path.relative(root, machinePath), sha256: digest(machinePath) },
   reviewedTruth: { path: path.relative(root, reviewedPath), sha256: digest(reviewedPath) },
   currentProposal: { serialized: serializedProposal, auditExecutionSha256: traceAuditSha, sourceExtractionSha256: digest(extractionPath) },
@@ -90,6 +89,6 @@ const comparison = buildVm0007Rc3CurrentComparison({
   frozenProposalUnchanged: digest(machinePath) === baseline.fixtureIdentity.machineProposal.sha256,
   reviewedTruthUnchanged: digest(reviewedPath) === baseline.fixtureIdentity.reviewedTruth.sha256,
 });
-if (baselineSerialized.length === 0 || currentEvidence.aggregate.accepted.falseNegativeCount < 0) throw new Error("Unreachable benchmark guard");
+if (currentEvidence.aggregate.accepted.falseNegativeCount < 0) throw new Error("Unreachable benchmark guard");
 fs.writeFileSync(outputPath, serializeVm0007Rc3CurrentComparison(comparison), "utf8");
 console.log(`Wrote current same-run comparison: ${comparison.ruleCount} rules; accepted misses=${comparison.metrics.acceptedEvidenceMissed.current}; false support=${comparison.metrics.acceptedEvidenceFalseSupport.current}.`);
