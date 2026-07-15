@@ -15,7 +15,9 @@ const result = (overrides: Partial<MethodologyEvidenceAuditResult> = {}): Method
 const row = (overrides: Record<string, unknown> = {}) => ({
   stableRuleId: "rule-1",
   acceptedEvidence: [{ quote: "target quote", page: 2, section: "S", spanId: "target-span", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" } }],
+  rejectedEvidence: [],
   proposedAcceptedEvidence: { quote: "target quote", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" } },
+  proposedRejectedEvidence: null,
   quote: "target quote", spanId: "target-span", provenance: { docId: "doc", page: 2, sectionPath: ["S"], spanId: "target-span", sectionHeading: "S", sourceType: "PDD" }, ...overrides,
 } as any);
 
@@ -34,6 +36,36 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
       expect(classified.stagePresence.sameRunProposalContainsSelectedCandidate).toBe(true);
       expect(classified.secondaryConditions).toContain("same_run_proposal_contains_selected_candidate");
     }
+  });
+
+  it("recognizes rejected-only audit evidence and does not call it missing", () => {
+    const classified = classifySameRunHandoff({
+      selectedCandidate: identity,
+      auditResult: result({ bestEvidenceQuote: null, evidence: [], rejectedEvidence: [{ quote: "target quote", page: 2, section: "S", span: "target-span", rejectionReason: "insufficient" }], span: null }),
+      draftRow: null,
+      reloadedRow: null,
+    });
+    expect(classified.primaryStage).toBe("selected_present_only_in_rejected_audit_evidence");
+    expect(classified.stagePresence.selectedInRejectedAuditEvidence).toBe(true);
+    expect(classified.stagePresence.selectedAnywhereInAuditResult).toBe(true);
+  });
+
+  it.each([
+    ["proposed accepted evidence", row({ acceptedEvidence: [], proposedAcceptedEvidence: row().proposedAcceptedEvidence })],
+    ["row scalar identity", row({ acceptedEvidence: [], proposedAcceptedEvidence: null })],
+    ["proposed rejected evidence", row({ acceptedEvidence: [], proposedAcceptedEvidence: null, proposedRejectedEvidence: { quote: "target quote", reason: "rejected", provenance: row().provenance } })],
+  ])("recognizes candidate represented only by %s", (_name, draft) => {
+    const classified = classifySameRunHandoff({ selectedCandidate: identity, auditResult: result(), draftRow: draft as any, reloadedRow: draft as any });
+    expect(classified.primaryStage).toBe("same_run_proposal_contains_selected_candidate");
+    expect(classified.stagePresence.selectedAnywhereInDraftRow).toBe(true);
+  });
+
+  it("recognizes a candidate represented only by serialized row identity", () => {
+    const draft = row();
+    const reloaded = row({ acceptedEvidence: [], proposedAcceptedEvidence: null, quote: "target quote", spanId: "target-span", provenance: row().provenance });
+    const classified = classifySameRunHandoff({ selectedCandidate: identity, auditResult: result(), draftRow: draft, reloadedRow: reloaded });
+    expect(classified.primaryStage).toBe("same_run_proposal_contains_selected_candidate");
+    expect(classified.stagePresence.selectedAnywhereAfterSerializationReload).toBe(true);
   });
 
   it("keeps duplicate cardinality as a separate condition", () => {
@@ -68,7 +100,7 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     const make = () => buildVm0007Rc3SameRunHandoffTrace({ diagnosticEvents: events, audit: { results: [result()], totalRules: 1 } as any, draft: { rows: [row()] } as any, reloadedProposal: { rows: [row()] } as any, inputDocumentSha256: "doc", frozenRc2Baseline: { path: "base", sha256: "sha" }, frozenProposal: { path: "proposal", sha256: "sha" } });
     const first = make();
     const second = make();
-    expect(first.stagePresenceTotals).toEqual({ selectedInFinalAuditEvidence: 47, selectedInBestMainAuditIdentity: 47, selectedInDraftAcceptedEvidence: 47, selectedAfterSerializationReload: 47, sameRunProposalSurvival: 47, bestEvidenceDivergence: 0, duplicateCardinalitySecondary: 0 });
+    expect(first.stagePresenceTotals).toEqual({ selectedInAcceptedAuditEvidence: 47, selectedInRejectedAuditEvidence: 0, selectedInBestMainAuditIdentity: 47, selectedAnywhereInAuditResult: 47, selectedAnywhereInDraftRow: 47, selectedAnywhereAfterSerializationReload: 47, sameRunProposalSurvival: 47, bestEvidenceDivergence: 0, rejectedOnlyAuditPresence: 0, duplicateCardinalitySecondary: 0 });
     expect(serializeVm0007Rc3SameRunHandoffTrace(first)).toBe(serializeVm0007Rc3SameRunHandoffTrace(second));
     expect(Object.values(first.primaryStageCounts).reduce((sum, count) => sum + count, 0)).toBe(47);
     expect(first.events).toHaveLength(47);

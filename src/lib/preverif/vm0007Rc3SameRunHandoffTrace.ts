@@ -12,12 +12,13 @@ import type {
   Vm0007EvidenceMapDraftRow,
 } from "./vm0007EvidenceMapDraft";
 
-export const VM0007_RC3_SAME_RUN_HANDOFF_SCHEMA_VERSION = "vm0007-rc3-same-run-handoff-v2" as const;
+export const VM0007_RC3_SAME_RUN_HANDOFF_SCHEMA_VERSION = "vm0007-rc3-same-run-handoff-v3" as const;
 export const VM0007_RC3_SAME_RUN_HANDOFF_TRACE_VERSION = "same-run-audit-proposal-handoff-v1" as const;
 export const VM0007_RC3_PARENT_EVENT_COUNT = 47 as const;
 
 export type SameRunPrimaryStage =
   | "selected_missing_from_audit_result"
+  | "selected_present_only_in_rejected_audit_evidence"
   | "selected_present_in_evidence_but_not_best_evidence"
   | "audit_result_present_but_draft_mapping_dropped"
   | "draft_present_but_serialization_dropped"
@@ -52,12 +53,15 @@ export type SameRunHandoffEvent = Readonly<{
   secondaryConditions: readonly string[];
   firstProvenLossPoint: SameRunPrimaryStage | "none";
   stagePresence: Readonly<{
-    selectedInAuditEvidence: boolean;
+    selectedInAcceptedAuditEvidence: boolean;
+    selectedInRejectedAuditEvidence: boolean;
     selectedInBestAuditIdentity: boolean;
-    selectedInDraftAcceptedEvidence: boolean;
-    selectedAfterSerializationReload: boolean;
+    selectedAnywhereInAuditResult: boolean;
+    selectedAnywhereInDraftRow: boolean;
+    selectedAnywhereAfterSerializationReload: boolean;
     sameRunProposalContainsSelectedCandidate: boolean;
     bestEvidenceDivergence: boolean;
+    rejectedOnlyAuditPresence: boolean;
     duplicateCardinalityComplication: boolean;
   }>;
   selectedCandidate: HandoffIdentity;
@@ -73,7 +77,9 @@ export type SameRunHandoffEvent = Readonly<{
   }>;
   draftMapping: Readonly<{
     proposedAcceptedEvidence: unknown;
+    proposedRejectedEvidence: unknown;
     acceptedEvidence: readonly unknown[];
+    rejectedEvidence: readonly unknown[];
     rowQuote: string | null;
     rowSpanId: string | null;
     rowProvenance: unknown;
@@ -81,7 +87,9 @@ export type SameRunHandoffEvent = Readonly<{
   }>;
   serializedReloadedProposal: Readonly<{
     proposedAcceptedEvidence: unknown;
+    proposedRejectedEvidence: unknown;
     acceptedEvidence: readonly unknown[];
+    rejectedEvidence: readonly unknown[];
     rowQuote: string | null;
     rowSpanId: string | null;
     rowProvenance: unknown;
@@ -101,12 +109,15 @@ export type Vm0007Rc3SameRunHandoffTrace = Readonly<{
   primaryStageCounts: Readonly<Record<SameRunPrimaryStage, number>>;
   primaryStagePercentages: Readonly<Record<SameRunPrimaryStage, number>>;
   stagePresenceTotals: Readonly<{
-    selectedInFinalAuditEvidence: number;
+    selectedInAcceptedAuditEvidence: number;
+    selectedInRejectedAuditEvidence: number;
     selectedInBestMainAuditIdentity: number;
-    selectedInDraftAcceptedEvidence: number;
-    selectedAfterSerializationReload: number;
+    selectedAnywhereInAuditResult: number;
+    selectedAnywhereInDraftRow: number;
+    selectedAnywhereAfterSerializationReload: number;
     sameRunProposalSurvival: number;
     bestEvidenceDivergence: number;
+    rejectedOnlyAuditPresence: number;
     duplicateCardinalitySecondary: number;
   }>;
   events: readonly SameRunHandoffEvent[];
@@ -114,6 +125,7 @@ export type Vm0007Rc3SameRunHandoffTrace = Readonly<{
 
 const STAGES: readonly SameRunPrimaryStage[] = [
   "selected_missing_from_audit_result",
+  "selected_present_only_in_rejected_audit_evidence",
   "selected_present_in_evidence_but_not_best_evidence",
   "audit_result_present_but_draft_mapping_dropped",
   "draft_present_but_serialization_dropped",
@@ -155,8 +167,23 @@ function records(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null && !Array.isArray(item)) : [];
 }
 
-function rowRecords(row: Vm0007EvidenceMapDraftRow | null): Record<string, unknown>[] {
-  return records(row?.acceptedEvidence);
+function rowRecords(row: Vm0007EvidenceMapDraftRow | null, rejected: boolean): Record<string, unknown>[] {
+  return records(row?.[rejected ? "rejectedEvidence" : "acceptedEvidence"]);
+}
+
+function draftIdentitiesFor(
+  row: Vm0007EvidenceMapDraftRow | null,
+  accepted: readonly Record<string, unknown>[],
+  rejected: readonly Record<string, unknown>[],
+): readonly { quote?: unknown; spanId?: unknown; provenance?: unknown }[] {
+  if (!row) return [];
+  return [
+    ...accepted,
+    ...rejected,
+    row.proposedAcceptedEvidence,
+    row.proposedRejectedEvidence,
+    { quote: row.quote, spanId: row.spanId, provenance: row.provenance },
+  ].filter((value): value is { quote?: unknown; spanId?: unknown; provenance?: unknown } => typeof value === "object" && value !== null);
 }
 
 function matches(selected: HandoffIdentity, value: { quote?: unknown; spanId?: unknown; provenance?: unknown }): boolean {
@@ -176,29 +203,39 @@ export function classifySameRunHandoff(input: Readonly<{
   duplicateCardinalityMismatch?: boolean;
 }>): { primaryStage: SameRunPrimaryStage; secondaryConditions: readonly string[]; firstProvenLossPoint: SameRunPrimaryStage | "none"; stagePresence: SameRunHandoffEvent["stagePresence"] } {
   const selected = input.selectedCandidate;
-  const auditEvidence = records(input.auditResult?.evidence);
-  const auditHas = auditEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: undefined }));
+  const acceptedAuditEvidence = records(input.auditResult?.evidence);
+  const rejectedAuditEvidence = records(input.auditResult?.rejectedEvidence);
+  const acceptedAuditHas = acceptedAuditEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: undefined }));
+  const rejectedAuditHas = rejectedAuditEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: undefined }));
   const bestHas = Boolean(input.auditResult?.bestEvidenceQuote && normalizeEvidenceQuote(input.auditResult.bestEvidenceQuote) === selected.normalizedQuote)
     || input.auditResult?.span === selected.spanId;
-  const draftEvidence = input.draftRow ? rowRecords(input.draftRow) : [];
-  const draftHas = draftEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.span, provenance: record.provenance }));
-  const reloadedEvidence = input.reloadedRow ? rowRecords(input.reloadedRow) : [];
-  const serializedHas = reloadedEvidence.some((record) => matches(selected, { quote: record.quote, spanId: record.spanId, provenance: record.provenance }));
-  const bestDivergence = auditHas && !bestHas;
+  const draftAccepted = rowRecords(input.draftRow, false);
+  const draftRejected = rowRecords(input.draftRow, true);
+  const draftHas = draftIdentitiesFor(input.draftRow, draftAccepted, draftRejected).some((value) => matches(selected, value));
+  const reloadedAccepted = rowRecords(input.reloadedRow, false);
+  const reloadedRejected = rowRecords(input.reloadedRow, true);
+  const serializedHas = draftIdentitiesFor(input.reloadedRow, reloadedAccepted, reloadedRejected).some((value) => matches(selected, value));
+  const auditHas = acceptedAuditHas || rejectedAuditHas || bestHas;
+  const rejectedOnly = rejectedAuditHas && !acceptedAuditHas && !bestHas;
+  const bestDivergence = acceptedAuditHas && !bestHas;
   const presence = {
-    selectedInAuditEvidence: auditHas,
+    selectedInAcceptedAuditEvidence: acceptedAuditHas,
+    selectedInRejectedAuditEvidence: rejectedAuditHas,
     selectedInBestAuditIdentity: bestHas,
-    selectedInDraftAcceptedEvidence: draftHas,
-    selectedAfterSerializationReload: serializedHas,
+    selectedAnywhereInAuditResult: auditHas,
+    selectedAnywhereInDraftRow: draftHas,
+    selectedAnywhereAfterSerializationReload: serializedHas,
     sameRunProposalContainsSelectedCandidate: serializedHas,
     bestEvidenceDivergence: bestDivergence,
+    rejectedOnlyAuditPresence: rejectedOnly,
     duplicateCardinalityComplication: Boolean(input.duplicateCardinalityMismatch),
   } as const;
   const secondary = [
     ...(bestDivergence && serializedHas ? ["same_run_proposal_contains_selected_candidate"] : []),
     ...(input.duplicateCardinalityMismatch ? ["duplicate_cardinality_mismatch"] : []),
   ];
-  if (!auditHas && !bestHas) return { primaryStage: "selected_missing_from_audit_result", secondaryConditions: secondary, firstProvenLossPoint: "selected_missing_from_audit_result", stagePresence: presence };
+  if (!auditHas) return { primaryStage: "selected_missing_from_audit_result", secondaryConditions: secondary, firstProvenLossPoint: "selected_missing_from_audit_result", stagePresence: presence };
+  if (rejectedOnly) return { primaryStage: "selected_present_only_in_rejected_audit_evidence", secondaryConditions: secondary, firstProvenLossPoint: "none", stagePresence: presence };
   if (bestDivergence) return { primaryStage: "selected_present_in_evidence_but_not_best_evidence", secondaryConditions: secondary, firstProvenLossPoint: "selected_present_in_evidence_but_not_best_evidence", stagePresence: presence };
   if (!draftHas) return { primaryStage: "audit_result_present_but_draft_mapping_dropped", secondaryConditions: secondary, firstProvenLossPoint: "audit_result_present_but_draft_mapping_dropped", stagePresence: presence };
   if (!serializedHas) return { primaryStage: "draft_present_but_serialization_dropped", secondaryConditions: secondary, firstProvenLossPoint: "draft_present_but_serialization_dropped", stagePresence: presence };
@@ -234,8 +271,10 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
     const classification = classifySameRunHandoff({ selectedCandidate: candidate, auditResult: result, draftRow: row, reloadedRow: reloaded, duplicateCardinalityMismatch: input.duplicateCardinalityEventIds?.has(event.eventId) });
     const evidence = records(result?.evidence);
     const rejected = records(result?.rejectedEvidence);
-    const acceptedDraft = rowRecords(row);
-    const acceptedReloaded = rowRecords(reloaded);
+    const acceptedDraft = rowRecords(row, false);
+    const rejectedDraft = rowRecords(row, true);
+    const acceptedReloaded = rowRecords(reloaded, false);
+    const rejectedReloaded = rowRecords(reloaded, true);
     return {
       eventId: event.eventId, stableRuleId: event.stableRuleId, ruleId: result?.ruleId ?? event.stableRuleId,
       primaryStage: classification.primaryStage, secondaryConditions: classification.secondaryConditions,
@@ -249,11 +288,13 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
       },
       draftMapping: {
         proposedAcceptedEvidence: row?.proposedAcceptedEvidence ?? null, acceptedEvidence: acceptedDraft,
+        proposedRejectedEvidence: row?.proposedRejectedEvidence ?? null, rejectedEvidence: rejectedDraft,
         rowQuote: row?.quote ?? null, rowSpanId: row?.spanId ?? null, rowProvenance: row?.provenance ?? null,
         acceptedEvidenceIdentities: acceptedDraft.map((record) => evidenceIdentity(record, event.stableRuleId)),
       },
       serializedReloadedProposal: {
         proposedAcceptedEvidence: reloaded?.proposedAcceptedEvidence ?? null, acceptedEvidence: acceptedReloaded,
+        proposedRejectedEvidence: reloaded?.proposedRejectedEvidence ?? null, rejectedEvidence: rejectedReloaded,
         rowQuote: reloaded?.quote ?? null, rowSpanId: reloaded?.spanId ?? null, rowProvenance: reloaded?.provenance ?? null,
         acceptedEvidenceIdentities: acceptedReloaded.map((record) => evidenceIdentity(record, event.stableRuleId)),
       },
@@ -262,12 +303,15 @@ export function buildVm0007Rc3SameRunHandoffTrace(input: Readonly<{
   const primaryStageCounts = counts();
   for (const event of events) primaryStageCounts[event.primaryStage] += 1;
   const stagePresenceTotals = {
-    selectedInFinalAuditEvidence: events.filter((event) => event.stagePresence.selectedInAuditEvidence).length,
+    selectedInAcceptedAuditEvidence: events.filter((event) => event.stagePresence.selectedInAcceptedAuditEvidence).length,
+    selectedInRejectedAuditEvidence: events.filter((event) => event.stagePresence.selectedInRejectedAuditEvidence).length,
     selectedInBestMainAuditIdentity: events.filter((event) => event.stagePresence.selectedInBestAuditIdentity).length,
-    selectedInDraftAcceptedEvidence: events.filter((event) => event.stagePresence.selectedInDraftAcceptedEvidence).length,
-    selectedAfterSerializationReload: events.filter((event) => event.stagePresence.selectedAfterSerializationReload).length,
+    selectedAnywhereInAuditResult: events.filter((event) => event.stagePresence.selectedAnywhereInAuditResult).length,
+    selectedAnywhereInDraftRow: events.filter((event) => event.stagePresence.selectedAnywhereInDraftRow).length,
+    selectedAnywhereAfterSerializationReload: events.filter((event) => event.stagePresence.selectedAnywhereAfterSerializationReload).length,
     sameRunProposalSurvival: events.filter((event) => event.stagePresence.sameRunProposalContainsSelectedCandidate).length,
     bestEvidenceDivergence: events.filter((event) => event.stagePresence.bestEvidenceDivergence).length,
+    rejectedOnlyAuditPresence: events.filter((event) => event.stagePresence.rejectedOnlyAuditPresence).length,
     duplicateCardinalitySecondary: events.filter((event) => event.stagePresence.duplicateCardinalityComplication).length,
   } as const;
   const auditExecutionSha256 = sha256(canonicalJsonStringify(input.audit));
@@ -294,12 +338,15 @@ export function validateVm0007Rc3SameRunHandoffTrace(value: Vm0007Rc3SameRunHand
     if (!event.stableRuleId || !event.ruleId || !event.selectedCandidate.spanId) throw new Error(`Incomplete same-run handoff identity: ${event.eventId}`);
   }
   const presenceTotals = {
-    selectedInFinalAuditEvidence: value.events.filter((event) => event.stagePresence.selectedInAuditEvidence).length,
+    selectedInAcceptedAuditEvidence: value.events.filter((event) => event.stagePresence.selectedInAcceptedAuditEvidence).length,
+    selectedInRejectedAuditEvidence: value.events.filter((event) => event.stagePresence.selectedInRejectedAuditEvidence).length,
     selectedInBestMainAuditIdentity: value.events.filter((event) => event.stagePresence.selectedInBestAuditIdentity).length,
-    selectedInDraftAcceptedEvidence: value.events.filter((event) => event.stagePresence.selectedInDraftAcceptedEvidence).length,
-    selectedAfterSerializationReload: value.events.filter((event) => event.stagePresence.selectedAfterSerializationReload).length,
+    selectedAnywhereInAuditResult: value.events.filter((event) => event.stagePresence.selectedAnywhereInAuditResult).length,
+    selectedAnywhereInDraftRow: value.events.filter((event) => event.stagePresence.selectedAnywhereInDraftRow).length,
+    selectedAnywhereAfterSerializationReload: value.events.filter((event) => event.stagePresence.selectedAnywhereAfterSerializationReload).length,
     sameRunProposalSurvival: value.events.filter((event) => event.stagePresence.sameRunProposalContainsSelectedCandidate).length,
     bestEvidenceDivergence: value.events.filter((event) => event.stagePresence.bestEvidenceDivergence).length,
+    rejectedOnlyAuditPresence: value.events.filter((event) => event.stagePresence.rejectedOnlyAuditPresence).length,
     duplicateCardinalitySecondary: value.events.filter((event) => event.stagePresence.duplicateCardinalityComplication).length,
   };
   if (STAGES.some((stage) => value.primaryStageCounts[stage] < 0) || Object.keys(presenceTotals).some((key) => presenceTotals[key as keyof typeof presenceTotals] !== value.stagePresenceTotals[key as keyof typeof presenceTotals])) throw new Error("Same-run handoff presence totals do not equal event facts");
