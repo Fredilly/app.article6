@@ -128,7 +128,7 @@ export function buildVm0007Rc3CurrentComparison(input: Readonly<{
   frozenRows: readonly Vm0007EvidenceBenchmarkMachineRow[];
   reviewedRows: readonly Vm0007EvidenceBenchmarkReviewedRow[];
   expectedStableRuleIds: readonly string[];
-  frozenRc2: Readonly<{ path: string; sha256: string; baseline: any }>;
+  frozenRc2: Readonly<{ path: string; sha256: string; baseline: Readonly<{ aggregate: Readonly<{ acceptedEvidence: Readonly<{ falseNegativeCount: number; falsePositiveCount: number }> }> }> }>;
   frozenProposal: Readonly<{ path: string; sha256: string }>;
   reviewedTruth: Readonly<{ path: string; sha256: string }>;
   currentProposal: Readonly<{ serialized: string; auditExecutionSha256: string; sourceExtractionSha256: string }>;
