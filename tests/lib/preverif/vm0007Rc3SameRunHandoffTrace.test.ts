@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { auditEvidence, type MethodologyEvidenceAuditResult } from "@/lib/preverif/evidenceAudit";
-import { buildVm0007Rc3SameRunHandoffTrace, classifySameRunHandoff, serializeVm0007Rc3SameRunHandoffTrace, validateVm0007Rc3SameRunHandoffTrace, type HandoffIdentity } from "@/lib/preverif/vm0007Rc3SameRunHandoffTrace";
+import { buildVm0007Rc3SameRunHandoffTrace, classifySameRunHandoff, matchHandoffIdentity, serializeVm0007Rc3SameRunHandoffTrace, validateVm0007Rc3SameRunHandoffTrace, type HandoffIdentity } from "@/lib/preverif/vm0007Rc3SameRunHandoffTrace";
 
 const root = process.cwd();
 const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json");
@@ -22,6 +22,17 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 } as any);
 
 describe("RC3-3 same-run audit-to-proposal handoff", () => {
+  it("uses strict span-first identity with quote fallback only when a span is unavailable", () => {
+    expect(matchHandoffIdentity(identity, { quote: "target quote", spanId: "target-span" }).basis).toBe("span_id");
+    expect(matchHandoffIdentity(identity, { quote: "TARGET   quote", spanId: "target-span" }).basis).toBe("span_id");
+    expect(matchHandoffIdentity(identity, { quote: "target quote", spanId: "other-span" })).toEqual({ basis: "none", conflictingSpanAndSameQuote: true });
+    expect(matchHandoffIdentity(identity, { quote: "other", spanId: "other-span" }).basis).toBe("none");
+    expect(matchHandoffIdentity(identity, { quote: "TARGET   quote" }).basis).toBe("normalized_quote_fallback");
+    expect(matchHandoffIdentity({ ...identity, spanId: null }, { quote: "TARGET   quote", spanId: "other-span" }).basis).toBe("normalized_quote_fallback");
+    expect(matchHandoffIdentity(identity, { quote: "", spanId: "other-span" }).basis).toBe("none");
+    expect(matchHandoffIdentity(identity, { quote: "other", provenance: { spanId: "target-span" } }).basis).toBe("span_id");
+    expect(matchHandoffIdentity(identity, { quote: "target quote", spanId: "conflict" }).conflictingSpanAndSameQuote).toBe(true);
+  });
   it.each([
     ["missing from audit", "selected_missing_from_audit_result", result({ bestEvidenceQuote: null, evidence: [], span: null }), null, null],
     ["present in evidence but not best", "selected_present_in_evidence_but_not_best_evidence", result({ bestEvidenceQuote: "other", span: "other-span" }), row(), row()],
@@ -48,6 +59,16 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     expect(classified.primaryStage).toBe("selected_present_only_in_rejected_audit_evidence");
     expect(classified.stagePresence.selectedInRejectedAuditEvidence).toBe(true);
     expect(classified.stagePresence.selectedAnywhereInAuditResult).toBe(true);
+  });
+
+  it("keeps rejected-only classification strict when the rejected span conflicts", () => {
+    const classified = classifySameRunHandoff({
+      selectedCandidate: identity,
+      auditResult: result({ bestEvidenceQuote: null, evidence: [], rejectedEvidence: [{ quote: "target quote", page: 2, section: "S", span: "target-span", rejectionReason: "insufficient" }], span: null }),
+      draftRow: row({ acceptedEvidence: [], proposedAcceptedEvidence: null, rejectedEvidence: [{ quote: "target quote", spanId: "target-span", provenance: row().provenance }], quote: null, spanId: null, provenance: null }),
+      reloadedRow: row({ acceptedEvidence: [], proposedAcceptedEvidence: null, rejectedEvidence: [{ quote: "target quote", spanId: "target-span", provenance: row().provenance }], quote: null, spanId: null, provenance: null }),
+    });
+    expect(classified.primaryStage).toBe("selected_present_only_in_rejected_audit_evidence");
   });
 
   it.each([
@@ -82,6 +103,17 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: [{ ...value.events[0], eventId: "" }, ...value.events.slice(1)] })).toThrow("Missing same-run handoff event ID");
   });
 
+  it("rejects invalid schema, stages, match bases, percentages, and totals", () => {
+    const value = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, schemaVersion: "wrong" })).toThrow("schema or trace version");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, traceVersion: "wrong" })).toThrow("schema or trace version");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, events: [{ ...value.events[0], matchBasis: { ...value.events[0].matchBasis, draftRow: "wrong" } }, ...value.events.slice(1)] })).toThrow("match basis");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, primaryStageCounts: { ...value.primaryStageCounts, unknown: 0 } })).toThrow("primary stage counts");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, primaryStagePercentages: { ...value.primaryStagePercentages, selected_missing_from_audit_result: 2 } })).toThrow("percentages");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, stagePresenceTotals: { ...value.stagePresenceTotals, selectedAnywhereInAuditResult: 0 } })).toThrow("presence totals");
+    expect(() => validateVm0007Rc3SameRunHandoffTrace({ ...value, matchBasisTotals: { ...value.matchBasisTotals, acceptedAuditEvidence: { ...value.matchBasisTotals.acceptedAuditEvidence, span_id: 0 } } })).toThrow("match-basis totals");
+  });
+
   it("fails closed for missing selected candidates and each rule alignment", () => {
     expect(() => buildVm0007Rc3SameRunHandoffTrace({
       diagnosticEvents: Array.from({ length: 47 }, (_, index) => ({ eventId: `event-${index}`, stableRuleId: "missing", reviewedEvidence: { quote: "q", provenance: {} }, detail: { selectedCandidates: [] } })),
@@ -101,6 +133,8 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     const first = make();
     const second = make();
     expect(first.stagePresenceTotals).toEqual({ selectedInAcceptedAuditEvidence: 47, selectedInRejectedAuditEvidence: 0, selectedInBestMainAuditIdentity: 47, selectedAnywhereInAuditResult: 47, selectedAnywhereInDraftRow: 47, selectedAnywhereAfterSerializationReload: 47, sameRunProposalSurvival: 47, bestEvidenceDivergence: 0, rejectedOnlyAuditPresence: 0, duplicateCardinalitySecondary: 0 });
+    expect(first.matchBasisTotals.acceptedAuditEvidence).toEqual({ span_id: 47, normalized_quote_fallback: 0, none: 0 });
+    expect(first.conflictingSpanAndSameQuoteTotals.total).toBe(0);
     expect(serializeVm0007Rc3SameRunHandoffTrace(first)).toBe(serializeVm0007Rc3SameRunHandoffTrace(second));
     expect(Object.values(first.primaryStageCounts).reduce((sum, count) => sum + count, 0)).toBe(47);
     expect(first.events).toHaveLength(47);
@@ -115,6 +149,10 @@ describe("RC3-3 same-run audit-to-proposal handoff", () => {
     expect(serializeVm0007Rc3SameRunHandoffTrace(value)).toBe(serializeVm0007Rc3SameRunHandoffTrace(value));
     expect(value.auditExecutionSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(value.generatedProposalSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(value.events.filter((event: any) => event.stagePresence.duplicateCardinalityComplication).map((event: any) => event.eventId)).toEqual([
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:2",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0001:accepted:3",
+    ]);
   });
 
   it("does not alter production audit output when tracing is disabled", () => {

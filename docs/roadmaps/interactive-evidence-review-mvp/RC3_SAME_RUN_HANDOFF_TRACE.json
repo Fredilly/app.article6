@@ -1,7 +1,22 @@
 {
   "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
+  "conflictingSpanAndSameQuoteTotals": {
+    "acceptedAuditEvidence": 0,
+    "bestMainAuditIdentity": 0,
+    "draftRow": 0,
+    "rejectedAuditEvidence": 0,
+    "serializedReloadedProposal": 0,
+    "total": 0
+  },
   "events": [
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -343,6 +358,13 @@
         "status": "supported_by_pdd"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0001",
       "secondaryConditions": [],
@@ -606,6 +628,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -886,6 +915,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0002",
       "secondaryConditions": [
@@ -1102,6 +1138,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -1443,6 +1486,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0004",
       "secondaryConditions": [
@@ -1708,6 +1758,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -1804,6 +1861,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0005",
       "secondaryConditions": [],
@@ -1897,6 +1961,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -1993,6 +2064,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0006",
       "secondaryConditions": [],
@@ -2086,6 +2164,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -2182,6 +2267,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0007",
       "secondaryConditions": [],
@@ -2275,6 +2367,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -2371,6 +2470,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0008",
       "secondaryConditions": [],
@@ -2464,6 +2570,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -2560,6 +2673,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0010",
       "secondaryConditions": [],
@@ -2653,6 +2773,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -2749,6 +2876,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0011",
       "secondaryConditions": [],
@@ -2842,6 +2976,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -2938,6 +3079,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-1-0012",
       "secondaryConditions": [],
@@ -3031,6 +3179,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -3360,6 +3515,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0013",
       "secondaryConditions": [
@@ -3610,6 +3772,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -3755,6 +3924,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0014",
       "secondaryConditions": [
@@ -3884,6 +4060,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -4029,6 +4212,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-1-0015",
       "secondaryConditions": [
@@ -4158,6 +4348,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -4303,6 +4500,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-2-0006",
       "secondaryConditions": [],
@@ -4430,6 +4634,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -4759,6 +4970,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-2-0007",
       "secondaryConditions": [
@@ -5009,6 +5227,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -5105,6 +5330,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "selected_missing_from_audit_result",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "none",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "none"
+      },
       "primaryStage": "selected_missing_from_audit_result",
       "ruleId": "R-2-0008",
       "secondaryConditions": [],
@@ -5198,6 +5430,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -5294,6 +5533,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-2-0009",
       "secondaryConditions": [],
@@ -5387,6 +5633,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -5483,6 +5736,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "selected_missing_from_audit_result",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "none",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "none"
+      },
       "primaryStage": "selected_missing_from_audit_result",
       "ruleId": "R-2-0010",
       "secondaryConditions": [],
@@ -5576,6 +5836,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -5856,6 +6123,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-2-0012",
       "secondaryConditions": [],
@@ -6070,6 +6344,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -6350,6 +6631,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-2-0012",
       "secondaryConditions": [],
@@ -6564,6 +6852,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -6660,6 +6955,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-2-0015",
       "secondaryConditions": [],
@@ -6753,6 +7055,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -6849,6 +7158,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-2-0016",
       "secondaryConditions": [],
@@ -6942,6 +7258,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -7124,6 +7447,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-3-0001",
       "secondaryConditions": [],
@@ -7270,6 +7600,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -7501,6 +7838,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-3-0003",
       "secondaryConditions": [],
@@ -7681,6 +8025,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -7912,6 +8263,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-3-0004",
       "secondaryConditions": [],
@@ -8092,6 +8450,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -8274,6 +8639,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-3-0005",
       "secondaryConditions": [
@@ -8422,6 +8794,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -8604,6 +8983,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-3-0005",
       "secondaryConditions": [
@@ -8752,6 +9138,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -8848,6 +9241,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-3-0006",
       "secondaryConditions": [],
@@ -8941,6 +9341,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -9123,6 +9530,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-3-0007",
       "secondaryConditions": [],
@@ -9269,6 +9683,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -9598,6 +10019,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-4-0001",
       "secondaryConditions": [
@@ -9848,6 +10276,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -10177,6 +10612,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-4-0001",
       "secondaryConditions": [],
@@ -10425,6 +10867,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -10521,6 +10970,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-4-0002",
       "secondaryConditions": [],
@@ -10614,6 +11070,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -10943,6 +11406,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-5-0001",
       "secondaryConditions": [],
@@ -11191,6 +11661,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -11287,6 +11764,13 @@
         "status": "not_applicable"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-5-0002",
       "secondaryConditions": [],
@@ -11380,6 +11864,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -11574,6 +12065,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "span_id",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "same_run_proposal_contains_selected_candidate",
       "ruleId": "R-5-0003",
       "secondaryConditions": [],
@@ -11735,6 +12233,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -12064,6 +12569,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-5-0005",
       "secondaryConditions": [],
@@ -12312,6 +12824,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -12653,6 +13172,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-5-0006",
       "secondaryConditions": [
@@ -12918,6 +13444,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -13247,6 +13780,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-5-0007",
       "secondaryConditions": [],
@@ -13495,6 +14035,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -13726,6 +14273,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-5-0009",
       "secondaryConditions": [],
@@ -13906,6 +14460,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -14235,6 +14796,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0001",
       "secondaryConditions": [
@@ -14486,6 +15054,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -14815,6 +15390,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0001",
       "secondaryConditions": [
@@ -15066,6 +15648,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -15407,6 +15996,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0002",
       "secondaryConditions": [
@@ -15672,6 +16268,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -16013,6 +16616,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0003",
       "secondaryConditions": [
@@ -16278,6 +16888,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -16619,6 +17236,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0004",
       "secondaryConditions": [
@@ -16884,6 +17508,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -17225,6 +17856,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0005",
       "secondaryConditions": [
@@ -17490,6 +18128,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -17831,6 +18476,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "selected_present_in_evidence_but_not_best_evidence",
+      "matchBasis": {
+        "acceptedAuditEvidence": "span_id",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "none",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_in_evidence_but_not_best_evidence",
       "ruleId": "R-6-0007",
       "secondaryConditions": [
@@ -18096,6 +18748,13 @@
       }
     },
     {
+      "conflictingSpanAndSameQuote": {
+        "acceptedAuditEvidence": false,
+        "bestMainAuditIdentity": false,
+        "draftRow": false,
+        "rejectedAuditEvidence": false,
+        "serializedReloadedProposal": false
+      },
       "draftMapping": {
         "acceptedEvidence": [
           {
@@ -18425,6 +19084,13 @@
         "status": "partially_supported"
       },
       "firstProvenLossPoint": "none",
+      "matchBasis": {
+        "acceptedAuditEvidence": "none",
+        "bestMainAuditIdentity": "none",
+        "draftRow": "span_id",
+        "rejectedAuditEvidence": "span_id",
+        "serializedReloadedProposal": "span_id"
+      },
       "primaryStage": "selected_present_only_in_rejected_audit_evidence",
       "ruleId": "R-6-0008",
       "secondaryConditions": [],
@@ -18683,6 +19349,33 @@
   },
   "generatedProposalSha256": "e24c8d5925dfbb6937034ccf2d320edcc9dfe843aefcdc7a7a03db8051541346",
   "inputDocumentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea",
+  "matchBasisTotals": {
+    "acceptedAuditEvidence": {
+      "none": 13,
+      "normalized_quote_fallback": 0,
+      "span_id": 34
+    },
+    "bestMainAuditIdentity": {
+      "none": 30,
+      "normalized_quote_fallback": 0,
+      "span_id": 17
+    },
+    "draftRow": {
+      "none": 2,
+      "normalized_quote_fallback": 0,
+      "span_id": 45
+    },
+    "rejectedAuditEvidence": {
+      "none": 36,
+      "normalized_quote_fallback": 0,
+      "span_id": 11
+    },
+    "serializedReloadedProposal": {
+      "none": 2,
+      "normalized_quote_fallback": 0,
+      "span_id": 45
+    }
+  },
   "parentEventCount": 47,
   "primaryStageCounts": {
     "audit_result_present_but_draft_mapping_dropped": 0,
@@ -18706,7 +19399,7 @@
     "selected_present_only_in_rejected_audit_evidence": 0.23404255319148937,
     "unresolved_insufficient_evidence": 0
   },
-  "schemaVersion": "vm0007-rc3-same-run-handoff-v3",
+  "schemaVersion": "vm0007-rc3-same-run-handoff-v4",
   "stagePresenceTotals": {
     "bestEvidenceDivergence": 17,
     "duplicateCardinalitySecondary": 2,
