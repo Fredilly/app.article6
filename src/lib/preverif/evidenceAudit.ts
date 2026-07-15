@@ -712,6 +712,149 @@ function hasProjectSpecificMarkers(text: string): boolean {
     || /\b(?:the project|project activities|project activity|project scope)\b/.test(text);
 }
 
+const ALIGNMENT_STOPWORDS = new Set([
+  ...TEXT_STOPWORDS,
+  "applicable",
+  "application",
+  "condition",
+  "conditions",
+  "evidence",
+  "information",
+  "project",
+  "requirement",
+  "requirements",
+  "scenario",
+  "scenarios",
+  "plan",
+]);
+
+const GENERIC_ALIGNMENT_SUBJECT_TOKENS = new Set([
+  "applicable",
+  "application",
+  "baseline",
+  "condition",
+  "conditions",
+  "monitoring",
+  "project",
+  "activity",
+  "activities",
+  "requirement",
+  "requirements",
+]);
+
+function alignmentFragments(text: string): string[] {
+  return text
+    .split(/(?<=[.!?;:])\s+|\n{2,}/)
+    .map((fragment) => normalizeText(fragment))
+    .filter(Boolean);
+}
+
+function meaningfulAlignmentTokenCount(text: string): number {
+  return tokenize(text, ALIGNMENT_STOPWORDS)
+    .filter((token) => !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token)).length;
+}
+
+function ruleAlignmentSubjectTokens(
+  rule: MethodologyEvidenceAuditRule,
+  contract: MethodologyEvidenceContract,
+): string[] {
+  return tokenize([
+    resolveRuleTitle(rule),
+    rule.summary ?? "",
+    resolveRuleLogic(rule),
+    contract.label,
+    contract.appliesToFamily ?? "",
+    ...contract.strongEvidenceSignals,
+    ...(contract.mandatoryComponents ?? []).flatMap((component) => component.signals),
+  ].join(" "), ALIGNMENT_STOPWORDS).filter((token) =>
+    token.length >= 4 && !GENERIC_ALIGNMENT_SUBJECT_TOKENS.has(token),
+  );
+}
+
+function hasSubstantiveLocalProjectFact(fragment: string): boolean {
+  return hasProjectSpecificMarkers(fragment)
+    || projectFactBonus(fragment) > 0
+    || hasExplicitScopeExclusion(fragment)
+    || /\b(?:project|project activity)\b[\s\S]{0,100}\b(?:reduces?|authori[sz]ed|documented|implemented)\b/i.test(fragment);
+}
+
+/**
+ * Complementary evidence must prove both sides of the relationship locally.
+ * This deliberately operates on deterministic sentence/clause fragments so a
+ * project marker in one part of a stitched span cannot align unrelated rule
+ * vocabulary found elsewhere in that span.
+ */
+export function hasLocalRuleAlignment(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  text: string;
+  evidenceType?: EvidenceType;
+}): boolean {
+  const subjectTokens = ruleAlignmentSubjectTokens(input.rule, input.contract);
+  const strongSignalPhrases = input.contract.strongEvidenceSignals
+    .filter(Boolean)
+    .map(normalizeText);
+  const contractSubjectPhrases = [input.contract.label, input.contract.appliesToFamily ?? ""]
+    .filter(Boolean)
+    .map(normalizeText)
+    .filter((phrase) => phrase.length >= 4 && meaningfulAlignmentTokenCount(phrase) >= 2);
+  const directRuleSubjectPhrases = [
+    resolveRuleTitle(input.rule),
+    input.contract.label,
+  ].map(normalizeText).filter((phrase) => {
+    return phrase.length >= 4 && meaningfulAlignmentTokenCount(phrase) >= 2;
+  });
+
+  return alignmentFragments(input.text).some((fragment) => {
+    const hasLocalProjectFact = hasSubstantiveLocalProjectFact(fragment);
+    if (!hasLocalProjectFact) return false;
+
+    const strongPhraseHit = strongSignalPhrases.some((phrase) =>
+      phrase.length >= 12 && fragment.includes(phrase),
+    );
+    const exactPhraseHit = strongPhraseHit
+      || contractSubjectPhrases.some((phrase) => fragment.includes(phrase))
+      || directRuleSubjectPhrases.some((phrase) => fragment.includes(phrase));
+    if (exactPhraseHit) return true;
+    const fragmentTokens = tokenize(fragment, ALIGNMENT_STOPWORDS);
+    const subjectHits = new Set(subjectTokens.filter((token) => fragmentTokens.some((fragmentToken) =>
+      token === fragmentToken
+      || (Math.min(token.length, fragmentToken.length) >= 5
+        && (token.startsWith(fragmentToken) || fragmentToken.startsWith(token))),
+    )));
+    const substantiveImplementation = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authori[sz]ed|reduces?|spans?|follows|implement)\b/i.test(fragment);
+    return subjectHits.size >= 2
+      || (subjectHits.size === 1 && substantiveImplementation);
+  });
+}
+
+const COMPLEMENTARY_ALIGNMENT_REJECTION =
+  "The span contains project-specific content but is not sufficiently aligned with the current rule.";
+
+function applyComplementaryAlignmentGate(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  bestCandidate: CandidateScore;
+  candidates: readonly CandidateScore[];
+}): CandidateScore[] {
+  return input.candidates.map((candidate) => {
+    if (candidate.span.spanId === input.bestCandidate.span.spanId
+      || !isAcceptedProjectEvidence(candidate)
+      || hasLocalRuleAlignment({
+        rule: input.rule,
+        contract: input.contract,
+        text: candidate.span.text,
+        evidenceType: candidate.evidenceType,
+      })) {
+      return candidate;
+    }
+    return {
+      ...candidate,
+      rejectionReason: COMPLEMENTARY_ALIGNMENT_REJECTION,
+    };
+  });
+}
+
 function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType; rejectionReason: string | null } {
   const text = normalizeText(span.text);
   if (span.reliability === "excluded" || span.noise?.length
@@ -720,8 +863,16 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   }
 
   const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const descriptiveProjectContext = hasProjectSpecificMarkers(text)
+    || /\bmonitoring plan\b/i.test(text);
+  const descriptiveProjectImplementation = /\b(?:describ\w*|defin\w*|address\w*)\b/.test(text)
+    && descriptiveProjectContext
+    && !/\b(?:will be|to be|pending|future|not yet|shall|must)\b/.test(text)
+    && hasDescriptiveImplementationDetails(text)
+    && (!/\b(?:module|modules|tool|tools)\b/.test(text) || implementationLanguage);
   const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
     && !implementationLanguage
+    && !descriptiveProjectImplementation
     && !/\b(?:input|variable|parameter|baseline|leakage|monitoring|calculation|result|equation)\b/.test(text)
     && !hasExplicitScopeExclusion(text);
   if (moduleDeclaration) {
@@ -749,10 +900,17 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   }
 
   const scopeLanguage = /\b(?:project area|project scope|project activity|applies|applicable|not applicable|excluded|excludes|does not include|no peat|no tidal|no wetland|not peat|not tidal|not wetland)\b/.test(text);
-  if (scopeLanguage && !implementationLanguage) {
+  if (scopeLanguage && !implementationLanguage && !descriptiveProjectImplementation) {
     return { evidenceType: "project_specific_scope", rejectionReason: null };
   }
-  if ((hasProjectSpecificMarkers(text) || /\bthe project\b/.test(text)) && implementationLanguage) {
+  const acceptedImplementationContext = hasProjectSpecificMarkers(text)
+    || /\bthe project\b/.test(text)
+    || (
+      descriptiveProjectImplementation
+      && /\bmonitoring plan\b/i.test(text)
+    );
+  if (acceptedImplementationContext
+    && (implementationLanguage || descriptiveProjectImplementation)) {
     return { evidenceType: "project_specific_implementation", rejectionReason: null };
   }
   return { evidenceType: "incomplete_or_noisy", rejectionReason: "The span is relevant by keywords but does not contain enough project-specific evidence." };
@@ -824,8 +982,9 @@ function hasApplicabilitySubjectAlignment(input: {
 }
 
 function isAcceptedProjectEvidence(candidate: CandidateScore): boolean {
-  return candidate.evidenceType === "project_specific_implementation"
-    || candidate.evidenceType === "project_specific_scope";
+  return (candidate.evidenceType === "project_specific_implementation"
+    || candidate.evidenceType === "project_specific_scope")
+    && candidate.rejectionReason === null;
 }
 
 function isAcceptedScopeEvidence(candidate: CandidateScore): boolean {
@@ -890,6 +1049,26 @@ function projectFactBonus(text: string): number {
     /\b(?:confirm|confirmed|classified|documented|measured|recorded|observed)\b/i,
   ];
   return factualSignals.reduce((bonus, pattern) => bonus + (pattern.test(text) ? 10 : 0), 0);
+}
+
+function hasDescriptiveImplementationDetails(text: string): boolean {
+  const detailCategories = [
+    /\b(?:community agreements?|controls?|safeguards?|management procedures?)\b/i,
+    /\b(?:surveillance|sampling design|plot remeasurement|measurements?|observations?)\b/i,
+    /\b(?:qa\s*\/\s*qc checks?|reporting workflow|recordkeeping|records?|workflow)\b/i,
+  ];
+
+  return alignmentFragments(text).some((fragment) => {
+    const hasCurrentAction = /\b(?:describ\w*|defin\w*|address\w*)\b/i.test(fragment);
+    const hasLocalProjectContext = hasProjectSpecificMarkers(fragment)
+      || /\bmonitoring plan\b/i.test(fragment);
+    const hasMethodologyOnlyLanguage = /\b(?:methodology|template|standard|shall|must|required|applicability conditions?)\b/i.test(fragment);
+    const detailCount = detailCategories.filter((pattern) => pattern.test(fragment)).length;
+    return hasCurrentAction
+      && hasLocalProjectContext
+      && !hasMethodologyOnlyLanguage
+      && detailCount >= 2;
+  });
 }
 
 function evidenceSpecificityBonus(text: string): number {
@@ -1171,7 +1350,13 @@ function selectEvidenceCandidates(input: {
       candidate.score >= Math.max(24, input.bestCandidate.score - 40)
       || (candidate.projectFactBonus >= 10 && candidate.strongHits >= 1)
     )
-    .sort((left, right) => right.score - left.score);
+    .sort((left, right) => {
+      const scoreDifference = right.score - left.score;
+      if (scoreDifference !== 0) return scoreDifference;
+      if (left.span.spanId === input.bestCandidate.span.spanId) return -1;
+      if (right.span.spanId === input.bestCandidate.span.spanId) return 1;
+      return 0;
+    });
 
   const seen = new Set<string>();
   return scored.filter((candidate) => {
@@ -1279,10 +1464,10 @@ function classifyStatus(input: {
   }
 
   const scopeKeywords = deriveScopeKeywords(input.rule, input.contract);
-  const scopeCandidate = input.evidenceCandidates.find((candidate) =>
-    (candidate.evidenceType === "project_specific_scope" || candidate.evidenceType === "project_specific_implementation")
-    && hasScopeEvidence(candidate, scopeKeywords),
-  ) ?? null;
+  const scopeCandidate = input.evidenceCandidates
+    .filter(isAcceptedProjectEvidence)
+    .find((candidate) => hasScopeEvidence(candidate, scopeKeywords))
+    ?? null;
   if (
     requiresScopeSpecificEvidence(input.rule, input.contract)
     && (!scopeCandidate || hasAmbiguousScopeLanguage(scopeCandidate))
@@ -1574,8 +1759,16 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       evidenceDocument: input.evidenceDocument,
       sections: input.sections,
     });
-    const evidenceCandidates = bestCandidate
+    const retrievedEvidenceCandidates = bestCandidate
       ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate })
+      : [];
+    const evidenceCandidates = bestCandidate
+      ? applyComplementaryAlignmentGate({
+        rule,
+        contract,
+        bestCandidate,
+        candidates: retrievedEvidenceCandidates,
+      })
       : [];
     if (input.diagnosticTrace) {
       const retrievalCandidates = scoreCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections }, "evidence");
