@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import { buildVm0007Rc2Baseline, serializeVm0007Rc2Baseline } from "@/lib/preverif/vm0007Rc2Baseline";
@@ -22,6 +23,24 @@ const registryArtifact = read(registryFile);
 const auditedTruth = read(path.join(fixtureDir, "gold.json"));
 const machine = read(path.join(fixtureDir, "machine-proposal.json"));
 const ruleRegistry = read(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json"));
+
+const PROTECTED_HISTORICAL_ARTIFACTS = [
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json", sha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.md", sha256: "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_DIAGNOSTIC.json", sha256: "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json", sha256: "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json", sha256: "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json", sha256: "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964" },
+] as const;
+
+function assertHistoricalArtifactIntegrity(artifact: { path: string; sha256: string }, registryEntry: { path: string; sha256: string }): void {
+  const filePath = path.join(root, artifact.path);
+  if (!fs.existsSync(filePath)) throw new Error(`Missing protected historical artifact: ${artifact.path}`);
+  const actualSha256 = sha256(filePath);
+  if (actualSha256 !== artifact.sha256) throw new Error(`Protected historical artifact SHA changed: ${artifact.path}`);
+  if (registryEntry.path !== artifact.path || registryEntry.sha256 !== artifact.sha256) throw new Error(`Protected historical registry entry changed: ${artifact.path}`);
+  if (actualSha256 !== registryEntry.sha256) throw new Error(`Protected historical artifact and registry SHA disagree: ${artifact.path}`);
+}
 
 describe("audited RC3 pre-fix baseline", () => {
   it("is deterministic and rebuilt from the audited truth", () => {
@@ -73,17 +92,35 @@ describe("audited RC3 pre-fix baseline", () => {
     for (const file of ["generate-vm0007-rc2-baseline.ts", "generate-vm0007-rc3-diagnostic.ts", "generate-vm0007-rc3-selected-match-subtaxonomy.ts", "generate-vm0007-rc3-same-run-handoff.ts", "generate-vm0007-rc3-current-comparison.ts"]) {
       expect(fs.readFileSync(path.join(root, "scripts/preverif", file), "utf8")).toContain("gold.rc2-rc3.json");
     }
-    for (const file of [
-      "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.md",
-      "docs/roadmaps/interactive-evidence-review-mvp/RC3_DIAGNOSTIC.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json",
-    ]) {
-      expect(() => execFileSync("git", ["diff", "--quiet", "main", "--", file])).not.toThrow();
+    const v1 = registryArtifact.versions.find((version: { logicalVersion: string }) => version.logicalVersion === "v1");
+    for (const artifact of PROTECTED_HISTORICAL_ARTIFACTS) {
+      const registryEntry = [...v1.baselineArtifacts, ...v1.diagnosticArtifacts].find((entry: { path: string }) => entry.path === artifact.path);
+      expect(registryEntry).toBeDefined();
+      assertHistoricalArtifactIntegrity(artifact, registryEntry);
     }
     expect(read(path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json")).reviewedTruth.path).toContain("gold.json");
+  });
+
+  it("rejects one-byte artifact drift, registry-only drift, and coordinated artifact/registry drift", () => {
+    const original = PROTECTED_HISTORICAL_ARTIFACTS[0];
+    const registryEntry = { path: original.path, sha256: original.sha256 };
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "rc3-historical-integrity-"));
+    const tempPath = path.join(tempDir, "artifact");
+    try {
+      fs.copyFileSync(path.join(root, original.path), tempPath);
+      const altered = Buffer.from(fs.readFileSync(tempPath));
+      altered[0] ^= 1;
+      fs.writeFileSync(tempPath, altered);
+      const check = (artifact: { path: string; sha256: string }, entry: { path: string; sha256: string }) => {
+        const actual = sha256(tempPath);
+        if (actual !== artifact.sha256 || actual !== entry.sha256 || entry.path !== original.path) throw new Error("historical integrity failure");
+      };
+      expect(() => check(original, registryEntry)).toThrow("historical integrity failure");
+      expect(() => check(original, { ...registryEntry, sha256: "0".repeat(64) })).toThrow("historical integrity failure");
+      expect(() => check({ ...original, sha256: "0".repeat(64) }, { ...registryEntry, sha256: "0".repeat(64) })).toThrow("historical integrity failure");
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("records one same-run production identity across the audited outputs", () => {
