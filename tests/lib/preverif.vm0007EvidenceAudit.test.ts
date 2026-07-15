@@ -3,6 +3,7 @@ import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import {
   auditEvidence,
   EVIDENCE_AUDIT_STATUSES,
+  hasLocalRuleAlignment,
   type MethodologyEvidenceAuditResult,
 } from "@/lib/preverif/evidenceAudit";
 import type { EvidenceDocument, EvidenceSpan } from "@/lib/quickCheck/evidence/evidenceTypes";
@@ -76,6 +77,12 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(audit.results).toHaveLength(58);
     expect(audit.totalRules).toBe(58);
     expect(totalFromBuckets).toBe(58);
+    for (const result of audit.results) {
+      if (result.status === "supported_by_pdd") {
+        expect(result.evidence?.length ?? 0).toBeGreaterThan(0);
+        expect(result.bestEvidenceQuote).toBe(result.evidence?.[0]?.quote);
+      }
+    }
   });
 
   it("uses only allowed statuses", () => {
@@ -165,6 +172,18 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(result.evidence?.map((item) => item.span)).toEqual(["p12"]);
   });
 
+  it("preserves score ordering and first-encounter tie behavior for the best candidate", () => {
+    const first = "The project area qualifies as forest under the applicable forest definition thresholds and has remained forested for more than 10 years prior to the project start date.";
+    const equal = first;
+    const result = byRuleId(auditSynthetic("R-1-0001", [
+      span(20, "first-equal", first),
+      span(21, "second-equal", equal),
+    ]).results, "R-1-0001");
+
+    expect(result.span).toBe("first-equal");
+    expect(result.page).toBe(20);
+  });
+
   it("prefers a concise project assertion over a long methodology-heavy span", () => {
     const methodology = "The methodology requires the project proponent to demonstrate applicability, select the relevant modules, follow the applicable tools and standards, and document all required conditions. ".repeat(10);
     const projectFact = "The project area is upland forest and the APDef category is applicable to the project activity.";
@@ -218,15 +237,86 @@ describe("auditEvidence with VM0007 contracts", () => {
     expect(baseline.assessmentReason.trim().length).toBeGreaterThan(0);
     expect(baseline.clientAction.trim().length).toBeGreaterThan(0);
 
-    expect(["partially_supported", "supported_by_pdd"]).toContain(leakage.status);
-    expect(leakage.bestEvidenceQuote).toBe(leakage.evidence?.[0]?.quote);
-    expect(leakage.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
+    expect(["missing_evidence", "partially_supported", "supported_by_pdd"]).toContain(leakage.status);
+    if (leakage.status !== "missing_evidence") {
+      expect(leakage.bestEvidenceQuote).toBe(leakage.evidence?.[0]?.quote);
+      expect(leakage.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
+    }
 
-    expect(["partially_supported", "supported_by_pdd"]).toContain(monitoring.status);
-    expect(monitoring.bestEvidenceQuote).toBe(monitoring.evidence?.[0]?.quote);
-    expect(monitoring.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
+    expect(["missing_evidence", "partially_supported", "supported_by_pdd"]).toContain(monitoring.status);
+    if (monitoring.status !== "missing_evidence") {
+      expect(monitoring.bestEvidenceQuote).toBe(monitoring.evidence?.[0]?.quote);
+      expect(monitoring.evidence?.[0]?.evidenceType).toMatch(/project_specific/);
+    }
 
     expect(additionality.assessmentReason.trim().length).toBeGreaterThan(0);
     expect(additionality.clientAction.trim().length).toBeGreaterThan(0);
+  });
+
+  it("requires project-specific complementary evidence to align locally with the current rule", () => {
+    const rule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === "R-1-0001");
+    if (!rule) throw new Error("Missing R-1-0001");
+    const contract = getVm0007EvidenceContract(rule);
+
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project area qualifies as forest under the applicable forest definition thresholds.",
+    })).toBe(true);
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project team measured rainfall and community income for the leakage assessment.",
+    })).toBe(false);
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project team measured unrelated biodiversity indicators. The forest definition is copied from the methodology.",
+    })).toBe(false);
+  });
+
+  it("keeps aligned complementary evidence and rejects an unrelated selected span with provenance", () => {
+    const methodology = "The baseline scenario is the most likely land-use scenario in the absence of the project activity. Alternative scenarios shall be listed and the most plausible baseline scenario shall be selected.";
+    const aligned = "The alternative scenarios were assessed with the VT0001 decision path, and the most plausible baseline scenario was selected for the project activity.";
+    const unrelated = "The project activity was implemented with community agreements and annual plots. The baseline scenario and alternative scenarios are copied from an unrelated methodology fragment.";
+    const result = byRuleId(auditSynthetic("R-3-0001", [
+      span(11, "methodology", methodology),
+      span(12, "aligned", aligned),
+      span(13, "unrelated", unrelated),
+    ]).results, "R-3-0001");
+
+    expect(result.evidence?.map((item) => item.span)).toContain("aligned");
+    const rejected = result.rejectedEvidence?.find((item) => item.span === "unrelated");
+    expect(rejected?.quote).toBe(unrelated);
+    expect(rejected?.page).toBe(13);
+    expect(rejected?.rejectionReason).toBe("The span contains project-specific content but is not sufficiently aligned with the current rule.");
+  });
+
+  it("does not change alignment when the same source span is evaluated against another rule", () => {
+    const source = "The project area qualifies as forest under the applicable forest definition thresholds.";
+    const forestRule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === "R-1-0001");
+    const leakageRule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === "R-5-0003");
+    if (!forestRule || !leakageRule) throw new Error("Missing regression rules");
+
+    expect(hasLocalRuleAlignment({ rule: forestRule, contract: getVm0007EvidenceContract(forestRule), text: source })).toBe(true);
+    expect(hasLocalRuleAlignment({ rule: leakageRule, contract: getVm0007EvidenceContract(leakageRule), text: source })).toBe(false);
+  });
+
+  it("requires project facts and the rule subject in one fragment, while preserving the 58-rule surface", () => {
+    const rule = VM0007_SYNCED_RULES.find((candidate) => normalizeVm0007RuleId(candidate.id) === "R-1-0001");
+    if (!rule) throw new Error("Missing R-1-0001");
+    const contract = getVm0007EvidenceContract(rule);
+
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project area is described in the PDD. The forest definition appears in a copied methodology fragment.",
+    })).toBe(false);
+    expect(hasLocalRuleAlignment({
+      rule,
+      contract,
+      text: "The project area qualifies as forest under the applicable forest definition thresholds.",
+    })).toBe(true);
+    expect(auditText(ENVIRA_V18_TEXT).results).toHaveLength(58);
   });
 });

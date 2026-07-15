@@ -712,6 +712,102 @@ function hasProjectSpecificMarkers(text: string): boolean {
     || /\b(?:the project|project activities|project activity|project scope)\b/.test(text);
 }
 
+const ALIGNMENT_STOPWORDS = new Set([
+  ...TEXT_STOPWORDS,
+  "applicable",
+  "application",
+  "condition",
+  "conditions",
+  "evidence",
+  "information",
+  "project",
+  "requirement",
+  "requirements",
+]);
+
+function alignmentFragments(text: string): string[] {
+  return text
+    .split(/(?<=[.!?;:])\s+|\n+/)
+    .map((fragment) => normalizeText(fragment))
+    .filter(Boolean);
+}
+
+function ruleAlignmentSubjectTokens(
+  rule: MethodologyEvidenceAuditRule,
+  contract: MethodologyEvidenceContract,
+): string[] {
+  return tokenize([
+    resolveRuleTitle(rule),
+    rule.summary ?? "",
+    resolveRuleLogic(rule),
+    contract.label,
+    contract.appliesToFamily ?? "",
+    ...contract.strongEvidenceSignals,
+    ...contract.weakEvidenceSignals,
+    ...(contract.mandatoryComponents ?? []).flatMap((component) => component.signals),
+  ].join(" "), ALIGNMENT_STOPWORDS).filter((token) => token.length >= 4);
+}
+
+/**
+ * Complementary evidence must prove both sides of the relationship locally.
+ * This deliberately operates on deterministic sentence/clause fragments so a
+ * project marker in one part of a stitched span cannot align unrelated rule
+ * vocabulary found elsewhere in that span.
+ */
+export function hasLocalRuleAlignment(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  text: string;
+}): boolean {
+  const subjectTokens = ruleAlignmentSubjectTokens(input.rule, input.contract);
+  const subjectPhrases = [
+    ...input.contract.strongEvidenceSignals,
+    ...input.contract.weakEvidenceSignals,
+    input.contract.label,
+    input.contract.appliesToFamily ?? "",
+  ].filter(Boolean).map(normalizeText);
+  const directRuleSubjectPhrases = [
+    resolveRuleTitle(input.rule),
+    input.contract.label,
+  ].map(normalizeText).filter((phrase) => phrase.length >= 4);
+
+  return alignmentFragments(input.text).some((fragment) => {
+    if (!hasProjectSpecificMarkers(fragment)) return false;
+    const exactPhraseHit = subjectPhrases.some((phrase) => phrase.length >= 12 && fragment.includes(phrase))
+      || directRuleSubjectPhrases.some((phrase) => fragment.includes(phrase));
+    if (exactPhraseHit) return true;
+    const fragmentTokens = tokenize(fragment, ALIGNMENT_STOPWORDS);
+    const subjectHits = new Set(subjectTokens.filter((token) => fragmentTokens.some((fragmentToken) =>
+      token === fragmentToken
+      || (Math.min(token.length, fragmentToken.length) >= 5
+        && (token.startsWith(fragmentToken) || fragmentToken.startsWith(token))),
+    )));
+    return subjectHits.size >= 2;
+  });
+}
+
+const COMPLEMENTARY_ALIGNMENT_REJECTION =
+  "The span contains project-specific content but is not sufficiently aligned with the current rule.";
+
+function applyComplementaryAlignmentGate(input: {
+  rule: MethodologyEvidenceAuditRule;
+  contract: MethodologyEvidenceContract;
+  bestCandidate: CandidateScore;
+  candidates: readonly CandidateScore[];
+}): CandidateScore[] {
+  return input.candidates.map((candidate) => {
+    if (candidate.span.spanId === input.bestCandidate.span.spanId
+      || !isAcceptedProjectEvidence(candidate)
+      || hasLocalRuleAlignment({ rule: input.rule, contract: input.contract, text: candidate.span.text })) {
+      return candidate;
+    }
+    return {
+      ...candidate,
+      rejectionReason: COMPLEMENTARY_ALIGNMENT_REJECTION,
+    };
+  });
+}
+
 function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType; rejectionReason: string | null } {
   const text = normalizeText(span.text);
   if (span.reliability === "excluded" || span.noise?.length
@@ -824,8 +920,9 @@ function hasApplicabilitySubjectAlignment(input: {
 }
 
 function isAcceptedProjectEvidence(candidate: CandidateScore): boolean {
-  return candidate.evidenceType === "project_specific_implementation"
-    || candidate.evidenceType === "project_specific_scope";
+  return (candidate.evidenceType === "project_specific_implementation"
+    || candidate.evidenceType === "project_specific_scope")
+    && candidate.rejectionReason === null;
 }
 
 function isAcceptedScopeEvidence(candidate: CandidateScore): boolean {
@@ -1574,8 +1671,16 @@ export function auditEvidence(input: MethodologyEvidenceAuditInput): Methodology
       evidenceDocument: input.evidenceDocument,
       sections: input.sections,
     });
-    const evidenceCandidates = bestCandidate
+    const retrievedEvidenceCandidates = bestCandidate
       ? selectEvidenceCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections, bestCandidate })
+      : [];
+    const evidenceCandidates = bestCandidate
+      ? applyComplementaryAlignmentGate({
+        rule,
+        contract,
+        bestCandidate,
+        candidates: retrievedEvidenceCandidates,
+      })
       : [];
     if (input.diagnosticTrace) {
       const retrievalCandidates = scoreCandidates({ rule, contract, evidenceDocument: input.evidenceDocument, sections: input.sections }, "evidence");
