@@ -11,6 +11,15 @@ const HISTORICAL_FIXTURE = "marcondes-vm0007-v18-evidence-map";
 const HISTORICAL_SHA256 = "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127";
 const MIGRATION_BRANCH = "review/marcondes-final-20-independent-audit";
 const GUARD_FILE = "scripts/preverif/check-truth-review-guard.mjs";
+const PROTECTED_GENERATORS = new Set([
+  "scripts/preverif/generate-vm0007-rc2-baseline.ts",
+  "scripts/preverif/generate-vm0007-rc3-current-comparison.ts",
+  "scripts/preverif/generate-vm0007-rc3-diagnostic.ts",
+  "scripts/preverif/generate-vm0007-rc3-same-run-handoff.ts",
+  "scripts/preverif/generate-vm0007-rc3-selected-match-subtaxonomy.ts",
+]);
+const PROTECTED_INFRASTRUCTURE = new Set([GUARD_FILE, ...PROTECTED_GENERATORS]);
+const HISTORICAL_PATH = `${ROOT}/${HISTORICAL_FIXTURE}/${HISTORICAL_FILE}`;
 const TRUTH_FILES = new Set(["gold.json", "corrections.json", "reviewedRuleIds.json", "independent-audit.json", "metadata.json", HISTORICAL_FILE]);
 const GOLD_FILES = new Set(["gold.json", "corrections.json", "reviewedRuleIds.json", "metadata.json"]);
 const RAW_FILES = new Set(["raw-document-extraction.json", "raw-evidence-map.json", "raw-quick-check-output.txt", "quick-check-output.json", "machine-proposal.json", "machine-proposal-post-999-review-candidate.json", "gold.draft.json"]);
@@ -177,13 +186,17 @@ function validateAuditRows(failures, auditRows, goldIds) {
 }
 
 function main() {
-  const baseRef = resolveBase(parseArgs(process.argv.slice(2)).baseRef); const files = changed(baseRef); const truthFiles = files.filter((file) => TRUTH_FILES.has(path.basename(file)) && fixtureOf(file));
-  if (!truthFiles.length) { console.log(`[preverif-truth-guard] ok base=${baseRef} changed=0 (no truth artifacts)`); return; }
+  const baseRef = resolveBase(parseArgs(process.argv.slice(2)).baseRef); const files = changed(baseRef); const truthFiles = files.filter((file) => TRUTH_FILES.has(path.basename(file)) && fixtureOf(file)); const protectedChanges = files.filter((file) => PROTECTED_INFRASTRUCTURE.has(file)); const historicalCreation = files.includes(HISTORICAL_PATH);
+  if (!truthFiles.length) {
+    if (protectedChanges.length) return report(protectedChanges.map((file) => `protected infrastructure change ${file} requires the one-time historical truth migration`), baseRef);
+    console.log(`[preverif-truth-guard] ok base=${baseRef} changed=0 (no truth artifacts)`); return;
+  }
   const failures = []; const isMigration = migrationMode(); const allFixtures = new Set(files.map(fixtureOf).filter(Boolean)); const fixtures = new Set(truthFiles.map(fixtureOf));
+  if (protectedChanges.length && (!isMigration || !historicalCreation)) addFailure(failures, "protected infrastructure changes require the actual historical truth file creation migration");
   if (fixtures.size !== 1 || allFixtures.size !== 1) addFailure(failures, "truth review must change exactly one preverif fixture directory");
   const fixture = [...fixtures][0];
   for (const file of files) {
-    const currentFixture = fixtureOf(file); const allowed = file === GUARD_FILE ? isMigration : (isMigration && file.startsWith("scripts/preverif/generate-vm0007-rc")) || file.startsWith("tests/lib/preverif/") || file.startsWith("docs/agents/") || (currentFixture && currentFixture === fixture);
+    const currentFixture = fixtureOf(file); const allowed = PROTECTED_INFRASTRUCTURE.has(file) ? (isMigration && historicalCreation) : file.startsWith("tests/lib/preverif/") || file.startsWith("docs/agents/") || (currentFixture && currentFixture === fixture);
     if (!allowed) addFailure(failures, `truth review change outside affected fixture/tests/docs: ${file}`);
     if (currentFixture && currentFixture !== fixture) addFailure(failures, `another fixture changed: ${file}`);
     if (currentFixture === fixture && RAW_FILES.has(path.basename(file))) addFailure(failures, `raw machine artifact must remain unchanged in every truth-review stage: ${file}`);
