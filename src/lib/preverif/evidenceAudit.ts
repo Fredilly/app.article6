@@ -860,9 +860,15 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
     return { evidenceType: "incomplete_or_noisy", rejectionReason: "The source span is truncated, stitched, or marked as noisy/limited evidence." };
   }
 
-  const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|described|defines?|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const implementationLanguage = /\b(?:measured|calculated|quantified|implemented|monitored|recorded|surveyed|mapped|sampled|collected|analysed|analyzed|determined|estimated|verified|documented|qualifies|eligible|authorized|authorised|reduces|spans?|follows|implement)\b/.test(text);
+  const descriptiveProjectImplementation = /\b(?:described|defines?)\b/.test(text)
+    && hasProjectSpecificMarkers(text)
+    && !/\b(?:will be|to be|pending|future|not yet|shall|must)\b/.test(text)
+    && (projectFactBonus(text) >= 10
+      || (text.length > 120 && evidenceSpecificityBonus(text) >= 8));
   const moduleDeclaration = /\b(?:module|modules|tool|tools)\b/.test(text)
     && !implementationLanguage
+    && !descriptiveProjectImplementation
     && !/\b(?:input|variable|parameter|baseline|leakage|monitoring|calculation|result|equation)\b/.test(text)
     && !hasExplicitScopeExclusion(text);
   if (moduleDeclaration) {
@@ -890,10 +896,11 @@ function classifyEvidenceType(span: EvidenceSpan): { evidenceType: EvidenceType;
   }
 
   const scopeLanguage = /\b(?:project area|project scope|project activity|applies|applicable|not applicable|excluded|excludes|does not include|no peat|no tidal|no wetland|not peat|not tidal|not wetland)\b/.test(text);
-  if (scopeLanguage && !implementationLanguage) {
+  if (scopeLanguage && !implementationLanguage && !descriptiveProjectImplementation) {
     return { evidenceType: "project_specific_scope", rejectionReason: null };
   }
-  if ((hasProjectSpecificMarkers(text) || /\bthe project\b/.test(text)) && implementationLanguage) {
+  if ((hasProjectSpecificMarkers(text) || /\bthe project\b/.test(text))
+    && (implementationLanguage || descriptiveProjectImplementation)) {
     return { evidenceType: "project_specific_implementation", rejectionReason: null };
   }
   return { evidenceType: "incomplete_or_noisy", rejectionReason: "The span is relevant by keywords but does not contain enough project-specific evidence." };

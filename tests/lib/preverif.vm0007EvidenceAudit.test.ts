@@ -338,6 +338,27 @@ describe("auditEvidence with VM0007 contracts", () => {
     }));
   });
 
+  it.each([
+    ["descriptive module", "The project describes module M for the project pathway."],
+    ["descriptive tool", "The project defines tool T as the applicable tool."],
+  ])("keeps a %s as rejected declaration evidence", (_label, text) => {
+    const result = byRuleId(auditSynthetic("R-3-0005", [
+      span(63, "declaration", text),
+    ]).results, "R-3-0005");
+
+    expect(result.evidence?.some((record) => record.span === "declaration")).toBe(false);
+    expect(result.rejectedEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        quote: text,
+        page: 63,
+        section: "Project evidence",
+        span: "declaration",
+        evidenceType: "module_or_tool_declaration",
+        rejectionReason: "A module or tool declaration shows pathway selection, not completed project implementation.",
+      }),
+    ]));
+  });
+
   it("does not let a weak contract signal independently pass local alignment", () => {
     const rule = { id: "R-WEAK", title: "Water quality sampling", logic: "Project-specific sampling results" };
     const contract = {
