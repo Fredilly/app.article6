@@ -8,7 +8,7 @@ import { auditEvidence } from "../../src/lib/preverif/evidenceAudit";
 import { buildVm0007EvidenceMapDraft } from "../../src/lib/preverif/vm0007EvidenceMapDraft";
 import { getVm0007EvidenceContract, normalizeVm0007RuleId } from "../../src/lib/preverif/vm0007EvidenceContracts";
 import { type Vm0007EvidenceBenchmarkMachineRow, type Vm0007EvidenceBenchmarkReviewedRow } from "../../src/lib/preverif/vm0007EvidenceBenchmark";
-import { assertAuditedV2Identities, AUDITED_V2_IDENTITIES, buildVm0007Rc3FalseSupportTaxonomy, serializeVm0007Rc3FalseSupportTaxonomy } from "../../src/lib/preverif/vm0007Rc3FalseSupportTaxonomy";
+import { assertAuditedV2Identities, AUDITED_V2_IDENTITIES, buildVm0007Rc3FalseSupportTaxonomy } from "../../src/lib/preverif/vm0007Rc3FalseSupportTaxonomy";
 
 const root = process.cwd();
 const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
@@ -17,6 +17,7 @@ const richRulesPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
 const reviewedPath = path.join(fixtureDir, "gold.json");
 const extractionPath = path.join(fixtureDir, "raw-document-extraction.json");
+const frozenRc2BaselinePath = path.join(artifactDir, "RC2_BASELINE.json");
 const auditedBaselinePath = path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json");
 const auditedProposalPath = path.join(artifactDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json");
 const outputPath = path.join(artifactDir, "RC3_FALSE_SUPPORT_TAXONOMY.json");
@@ -31,9 +32,11 @@ const auditedProposalBytes = fs.readFileSync(auditedProposalPath, "utf8");
 const auditedTruthSha256 = digest(reviewedPath);
 const sourceExtractionSha256 = digest(extractionPath);
 const auditedBaselineSha256 = digest(auditedBaselinePath);
+const frozenRc2BaselineSha256 = digest(frozenRc2BaselinePath);
 if (auditedTruthSha256 !== AUDITED_V2_IDENTITIES.reviewedTruthSha256) throw new Error("False-support taxonomy requires audited V2 reviewed truth");
 if (sourceExtractionSha256 !== AUDITED_V2_IDENTITIES.sourceExtractionSha256) throw new Error("False-support taxonomy source extraction identity changed");
 if (auditedBaselineSha256 !== AUDITED_V2_IDENTITIES.auditedBaselineSha256) throw new Error("Audited V2 baseline identity changed");
+if (frozenRc2BaselineSha256 !== "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf") throw new Error("Frozen RC2 baseline identity changed");
 if (auditedBaseline.truth?.sha256 !== AUDITED_V2_IDENTITIES.reviewedTruthSha256 || auditedBaseline.generatedProposal?.sha256 !== AUDITED_V2_IDENTITIES.generatedProposalSha256 || auditedBaseline.productionExecution?.auditExecutionSha256 !== AUDITED_V2_IDENTITIES.productionExecutionSha256) throw new Error("Audited V2 baseline manifest identities do not match");
 const rules = read(richRulesPath).map((rule: Record<string, unknown>) => ({
   id: String(rule.id), title: String(rule.title ?? ""), summary: String(rule.summary ?? ""), logic: String(rule.logic ?? ""), text: String(rule.text ?? ""), type: String(rule.type ?? ""),
@@ -80,7 +83,8 @@ const artifact = {
     generatedProposalSha256: AUDITED_V2_IDENTITIES.generatedProposalSha256,
     auditExecutionSha256,
     sourceExtractionSha256,
-    frozenRc2BaselineSha256: auditedBaselineSha256,
+    frozenRc2BaselineSha256,
+    auditedV2BaselineSha256: auditedBaselineSha256,
     reviewedTruthSha256: auditedTruthSha256,
     machineProposalFrozenSha256: digest(machinePath),
   },

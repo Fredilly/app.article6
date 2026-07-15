@@ -30,7 +30,6 @@ function synthetic(rows: readonly any[], reviewed = ids.map((ruleId) => ({ ruleI
 describe("RC3-5 false-support taxonomy", () => {
   it("classifies all current false-support events exactly once and preserves canonical IDs", () => {
     const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
-    const comparison = JSON.parse(fs.readFileSync(comparisonPath, "utf8"));
     const auditedComparison = JSON.parse(fs.readFileSync(comparisonPath, "utf8"));
     const auditedFalseSupportCount = auditedComparison.metrics.acceptedEvidenceFalseSupport.current;
     expect(artifact.totalEvents).toBe(auditedFalseSupportCount);
@@ -45,7 +44,8 @@ describe("RC3-5 false-support taxonomy", () => {
       sourceExtractionSha256: AUDITED_V2_IDENTITIES.sourceExtractionSha256,
       auditExecutionSha256: AUDITED_V2_IDENTITIES.productionExecutionSha256,
       generatedProposalSha256: AUDITED_V2_IDENTITIES.generatedProposalSha256,
-      frozenRc2BaselineSha256: AUDITED_V2_IDENTITIES.auditedBaselineSha256,
+      frozenRc2BaselineSha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf",
+      auditedV2BaselineSha256: AUDITED_V2_IDENTITIES.auditedBaselineSha256,
     });
   });
 
