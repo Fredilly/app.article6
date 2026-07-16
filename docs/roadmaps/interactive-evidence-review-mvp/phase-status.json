@@ -1,6 +1,6 @@
 {
   "RC0": "done",
-  "currentPhase": "RC3",
+  "currentPhase": "RC4",
   "name": "Interactive Evidence Review MVP",
   "phases": {
     "phase_0_roadmap_contract": {
@@ -17,11 +17,11 @@
     },
     "phase_3_generic_accuracy_improvements": {
       "title": "Generic accuracy improvements",
-      "status": "active"
+      "status": "done"
     },
     "phase_4_guided_reviewer_interaction": {
       "title": "Guided reviewer interaction",
-      "status": "planned"
+      "status": "active"
     },
     "phase_5_unseen_pdd_validation": {
       "title": "Unseen-PDD validation",
