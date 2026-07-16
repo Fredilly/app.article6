@@ -117,6 +117,13 @@ Make correction and approval work efficient for the reviewer.
 - Require reasons for corrections.
 - Preserve save, approve, reopen, history, and finalization semantics.
 
+**RC4 implementation sequence**
+
+- RC4-1 — Evidence decision contract
+- RC4-2 — Complete reviewer editing UI
+- RC4-3 — Guided 58-rule workflow
+- RC4-4 — Full workflow gate
+
 **Gate**
 
 - A reviewer can complete all 58 decisions without leaving the Evidence Map.

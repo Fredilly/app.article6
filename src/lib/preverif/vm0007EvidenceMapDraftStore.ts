@@ -21,6 +21,24 @@ export function normalizeVm0007EvidenceMapDraftPackage(pkg: Vm0007EvidenceMapDra
     finalizationBasis: pkg.finalizationBasis ?? null,
     rows: pkg.rows.map((row) => ({
       ...row,
+      // v1 drafts may have only the singular machine proposal fields. Keep
+      // those proposals untouched while materializing the reviewer working
+      // collections used by the review contract.
+      acceptedEvidence: row.acceptedEvidence ?? (row.proposedAcceptedEvidence ? [{
+        quote: row.proposedAcceptedEvidence.quote,
+        page: row.proposedAcceptedEvidence.provenance.page,
+        section: row.proposedAcceptedEvidence.provenance.sectionHeading,
+        spanId: row.proposedAcceptedEvidence.provenance.spanId,
+        provenance: row.proposedAcceptedEvidence.provenance,
+      }] : []),
+      rejectedEvidence: row.rejectedEvidence ?? (row.proposedRejectedEvidence ? [{
+        quote: row.proposedRejectedEvidence.quote,
+        page: row.proposedRejectedEvidence.provenance.page,
+        section: row.proposedRejectedEvidence.provenance.sectionHeading,
+        spanId: row.proposedRejectedEvidence.provenance.spanId,
+        rejectionReason: row.proposedRejectedEvidence.reason,
+        provenance: row.proposedRejectedEvidence.provenance,
+      }] : []),
       reviewState: (row.reviewState ?? "pending review") as ReviewerWorkflowState,
       reviewHistory: row.reviewHistory ?? [],
       rowVersion: row.rowVersion ?? 1,
