@@ -1,6 +1,6 @@
 {
   "RC0": "done",
-  "RC4": "active",
+  "RC4": "done",
   "currentPhase": "RC4",
   "name": "Interactive Evidence Review MVP",
   "phases": {
@@ -22,7 +22,7 @@
     },
     "phase_4_guided_reviewer_interaction": {
       "title": "Guided reviewer interaction",
-      "status": "active"
+      "status": "done"
     },
     "phase_5_unseen_pdd_validation": {
       "title": "Unseen-PDD validation",
