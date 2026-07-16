@@ -51,7 +51,7 @@ describe("Phase 9 readiness report consumer", () => {
   test("accepts every supported transition and rejects unsupported transitions", () => {
     const transitions: Array<[ReviewerWorkflowState, ReviewerWorkflowState]> = [
       ["pending review", "approved"], ["pending review", "edited"], ["approved", "edited"], ["approved", "reopened"],
-      ["edited", "approved"], ["edited", "reopened"], ["reopened", "edited"], ["reopened", "approved"],
+      ["edited", "approved"], ["edited", "edited"], ["edited", "reopened"], ["reopened", "edited"], ["reopened", "approved"],
     ];
     for (const [previousState, newState] of transitions) {
       const event: ReviewerWorkflowEvent = { reviewerIdentity: "reviewer-1", timestamp: "2026-07-11T00:00:00Z", reasonOrNote: `Move to ${newState}.`, previousState, newState, presentationContractVersion: "v1", reviewPolicyVersion: "policy-v1" };

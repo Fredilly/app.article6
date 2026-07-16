@@ -105,14 +105,14 @@ export type ReviewerWorkflowTransitionResult =
 const allowedTransitions: Readonly<Record<ReviewerWorkflowState, readonly ReviewerWorkflowState[]>> = {
   "pending review": ["approved", "edited"],
   approved: ["edited", "reopened"],
-  edited: ["approved", "reopened"],
+  edited: ["approved", "edited", "reopened"],
   reopened: ["edited", "approved"],
 };
 
 const actionTargets: Readonly<Record<ReviewerWorkflowState, Readonly<Record<ReviewerWorkflowAction, ReviewerWorkflowState | undefined>>>> = {
   "pending review": { approve: "approved", edit: "edited", reopen: undefined },
   approved: { approve: undefined, edit: "edited", reopen: "reopened" },
-  edited: { approve: "approved", edit: undefined, reopen: "reopened" },
+  edited: { approve: "approved", edit: "edited", reopen: "reopened" },
   reopened: { approve: "approved", edit: "edited", reopen: undefined },
 };
 
