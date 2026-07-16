@@ -1,5 +1,26 @@
 export const VM0007_BENCHMARK_ROW_COUNT = 58 as const;
 
+export type BenchmarkMetricDirection = "lower_is_better" | "higher_is_better";
+export type BenchmarkMetricResult = Readonly<{
+  baseline: number | null;
+  postFix: number | null;
+  delta: number | null;
+  direction: "improved" | "regressed" | "unchanged" | "not_comparable";
+}>;
+
+/** Compare a metric with its quality direction explicit; null is never comparable. */
+export function compareBenchmarkMetric(
+  baseline: number | null,
+  postFix: number | null,
+  direction: BenchmarkMetricDirection,
+): BenchmarkMetricResult {
+  if (baseline === null || postFix === null) return { baseline, postFix, delta: null, direction: "not_comparable" };
+  const delta = postFix - baseline;
+  const improved = direction === "lower_is_better" ? postFix < baseline : postFix > baseline;
+  const regressed = direction === "lower_is_better" ? postFix > baseline : postFix < baseline;
+  return { baseline, postFix, delta, direction: improved ? "improved" : regressed ? "regressed" : "unchanged" };
+}
+
 export const VM0007_BENCHMARK_FIELDS = [
   "evidenceState",
   "applicability",

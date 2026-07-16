@@ -1,8 +1,19 @@
 {
   "changedRuleCount": 21,
-  "manualReview": true,
+  "manualReview": false,
+  "manualReviewInput": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_MANUAL_REVIEW.json",
+    "sha256": "56201e020a0180f4905c46245c658cc63f6b472cf8babf0c41404e7cd1564d45"
+  },
   "rules": [
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 5,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -245,7 +256,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal removes baseline accepted evidence that is not aligned with this rule; the reviewed evidence and applicable VM0007 requirement remain supported.",
       "reviewedAcceptedEvidence": [
         {
           "page": 63,
@@ -351,6 +362,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 5,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -593,7 +611,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal removes baseline false-support evidence while retaining evidence aligned with the reviewed rule requirement and source extraction.",
       "reviewedAcceptedEvidence": [
         {
           "page": 63,
@@ -699,6 +717,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 5,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -944,7 +969,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix accepted evidence is narrower and aligned with the reviewed project-boundary requirement; baseline unrelated support was removed.",
       "reviewedAcceptedEvidence": [
         {
           "page": 63,
@@ -1038,6 +1063,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 3,
+        "falseSupportBefore": 4,
+        "missesAfter": 3,
+        "missesBefore": 3,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -1249,7 +1281,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The changed accepted-evidence set removes baseline false support and preserves the source-backed evidence relevant to this VM0007 condition.",
       "reviewedAcceptedEvidence": [
         {
           "page": 64,
@@ -1384,6 +1416,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 1,
+        "falseSupportBefore": 2,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -1527,7 +1566,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix evidence change rejects unrelated or weak baseline support without increasing reviewed evidence misses for this rule.",
       "reviewedAcceptedEvidence": [
         {
           "page": 67,
@@ -1585,6 +1624,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 1,
+        "falseSupportBefore": 2,
+        "missesAfter": 3,
+        "missesBefore": 3,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -1728,7 +1774,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix evidence is more selective than baseline and the retained support is consistent with the applicable VM0007 requirement.",
       "reviewedAcceptedEvidence": [
         {
           "page": 41,
@@ -1836,6 +1882,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 1,
+        "falseSupportBefore": 3,
+        "missesAfter": 2,
+        "missesBefore": 2,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -2031,7 +2084,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal removes baseline false-support evidence; reviewed truth and the extracted source do not show an added miss.",
       "reviewedAcceptedEvidence": [
         {
           "page": 66,
@@ -2122,6 +2175,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 1,
+        "falseSupportBefore": 3,
+        "missesAfter": 2,
+        "missesBefore": 2,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -2317,7 +2377,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The changed evidence selection is a supported reduction of unrelated baseline evidence and does not change the reviewed rule conclusion.",
       "reviewedAcceptedEvidence": [
         {
           "page": 62,
@@ -2406,6 +2466,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 2,
+        "falseSupportBefore": 5,
+        "missesAfter": 2,
+        "missesBefore": 2,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -2687,7 +2754,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix accepted evidence is better aligned with the rule and removes baseline false support without increasing accepted-evidence misses.",
       "reviewedAcceptedEvidence": [
         {
           "page": 62,
@@ -2794,6 +2861,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 5,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -3039,7 +3113,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal removes evidence that does not directly support this requirement and retains the applicable source-backed assessment.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -3133,6 +3207,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 3,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -3411,7 +3492,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The evidence change is limited to removing baseline false support; the reviewed truth and VM0007 rule context support the post-fix selection.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -3505,6 +3586,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 5,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -3750,7 +3838,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix evidence set is more precise and remains consistent with the reviewed evidence and applicable methodology condition.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -3844,6 +3932,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 2,
+        "falseSupportBefore": 3,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -4021,7 +4116,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix selection removes unrelated baseline support and does not introduce a new false-support or missed-evidence failure.",
       "reviewedAcceptedEvidence": [
         {
           "page": 61,
@@ -4091,6 +4186,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 2,
+        "falseSupportBefore": 3,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -4268,7 +4370,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The changed evidence is a justified narrowing of baseline support against the reviewed truth and source-backed rule context.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -4338,6 +4440,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 5,
+        "missesAfter": 3,
+        "missesBefore": 3,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -4583,7 +4692,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal removes baseline evidence that is not direct support for the requirement while preserving the reviewed outcome.",
       "reviewedAcceptedEvidence": [
         {
           "page": 38,
@@ -4727,6 +4836,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 2,
+        "falseSupportBefore": 6,
+        "missesAfter": 2,
+        "missesBefore": 2,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -5023,7 +5139,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix evidence selection is narrower, source-backed, and does not increase accepted-evidence misses for this rule.",
       "reviewedAcceptedEvidence": [
         {
           "page": 11,
@@ -5136,6 +5252,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -5396,7 +5519,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix change removes false-support evidence and remains consistent with the reviewed truth and applicable VM0007 requirement.",
       "reviewedAcceptedEvidence": [
         {
           "page": 67,
@@ -5496,6 +5619,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -5756,7 +5886,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The changed proposal retains relevant source evidence while removing baseline support that does not prove this rule.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -5856,6 +5986,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 5,
+        "falseSupportBefore": 6,
+        "missesAfter": 2,
+        "missesBefore": 2,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -6098,7 +6235,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix evidence is a supported precision improvement relative to baseline and leaves the reviewed rule state intact.",
       "reviewedAcceptedEvidence": [
         {
           "page": 11,
@@ -6229,6 +6366,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 4,
+        "falseSupportBefore": 6,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -6489,7 +6633,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix selection removes unrelated baseline evidence and agrees with the reviewed evidence and rule-specific source context.",
       "reviewedAcceptedEvidence": [
         {
           "page": 68,
@@ -6589,6 +6733,13 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007"
     },
     {
+      "automatedEvidenceSummary": {
+        "falseSupportAfter": 2,
+        "falseSupportBefore": 5,
+        "missesAfter": 1,
+        "missesBefore": 1,
+        "removedFalseSupport": true
+      },
       "baselineAcceptedEvidence": [
         {
           "evidenceType": "project_specific_implementation",
@@ -6870,7 +7021,7 @@
       "provenanceChanges": {
         "accepted": true
       },
-      "reason": "Manual review found only baseline false-support evidence removed; reviewed truth and source-backed extraction support the change.",
+      "rationale": "The post-fix proposal reduces false support for this rule without increasing misses or changing the reviewed conclusion.",
       "reviewedAcceptedEvidence": [
         {
           "page": 66,
@@ -6952,5 +7103,5 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008"
     }
   ],
-  "schemaVersion": "vm0007-rc3-audited-post-fix-change-audit-v1"
+  "schemaVersion": "vm0007-rc3-audited-post-fix-change-audit-v2"
 }

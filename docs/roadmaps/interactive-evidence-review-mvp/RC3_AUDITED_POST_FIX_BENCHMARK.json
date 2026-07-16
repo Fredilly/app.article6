@@ -42,6 +42,7 @@
     "Verra.AFOLU.VM0007.v1-8.R-6-0007",
     "Verra.AFOLU.VM0007.v1-8.R-6-0008"
   ],
+  "diagnosticTraceChangedRuleIds": [],
   "extractionIdentity": {
     "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
     "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
@@ -50,6 +51,10 @@
   "improvements": [
     "acceptedEvidenceFalseSupport"
   ],
+  "manualReviewIdentity": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_MANUAL_REVIEW.json",
+    "sha256": "56201e020a0180f4905c46245c658cc63f6b472cf8babf0c41404e7cd1564d45"
+  },
   "metricDeltas": {
     "acceptedEvidenceF1": {
       "baseline": null,
@@ -142,7 +147,7 @@
     "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
   },
   "ruleCount": 58,
-  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v1",
+  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v2",
   "stableRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0001",
     "Verra.AFOLU.VM0007.v1-8.R-1-0002",

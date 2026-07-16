@@ -4,12 +4,22 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 import { evaluateVm0007Benchmark, machineProposalToBenchmarkRows, reviewedTruthToBenchmarkRows } from "@/lib/preverif/vm0007Benchmark";
+import { compareBenchmarkMetric } from "@/lib/preverif/vm0007Benchmark";
+import { changedVm0007RuleIds, validateVm0007ManualReview } from "@/lib/preverif/vm0007BenchmarkIntegrity";
 import { evaluateVm0007EvidenceBenchmark } from "@/lib/preverif/vm0007EvidenceBenchmark";
 
 const root = process.cwd();
 const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const benchmarkPath = path.join(artifactDir, "RC3_AUDITED_POST_FIX_BENCHMARK.json");
+const generatedArtifacts = [
+  path.join(artifactDir, "RC3_AUDITED_POST_FIX_PROPOSAL.json"),
+  benchmarkPath,
+  path.join(artifactDir, "RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json"),
+  path.join(artifactDir, "RC3_AUDITED_POST_FIX_BENCHMARK.md"),
+  path.join(artifactDir, "RC3_AUDITED_POST_FIX_MANIFEST.json"),
+];
+const manualReviewPath = path.join(artifactDir, "RC3_AUDITED_POST_FIX_MANUAL_REVIEW.json");
 const generator = path.join(root, "scripts/preverif/generate-vm0007-rc3-post-fix-benchmark.ts");
 const sha256 = (file: string) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const read = (file: string) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -34,23 +44,22 @@ describe("RC3-7 audited post-fix benchmark", () => {
     expect(selected[0].generatedSameRunProposal.path).toBe("docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json");
   });
 
-  it("contains exact frozen hashes and cannot select historical inputs", () => {
-    expect(sha256(path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json"))).toBe(frozen[path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json")]);
-    expect(sha256(path.join(fixtureDir, "gold.json"))).toBe(frozen[path.join(fixtureDir, "gold.json")]);
-    const source = fs.readFileSync(generator, "utf8");
-    expect(source).not.toContain("gold.rc2-rc3.json");
-    expect(source).not.toContain("RC2_BASELINE.json");
-    expect(source).not.toContain("machine-proposal.json");
+  it("contains exact frozen hashes", () => {
+    for (const [file, expected] of Object.entries(frozen)) expect(sha256(file)).toBe(expected);
+    const registry = read(path.join(artifactDir, "RC3_BASELINE_REGISTRY.json"));
+    expect(registry.versions.filter((version: any) => version.logicalVersion === "v2" && version.status === "frozen_current")).toHaveLength(1);
+    expect(read(path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json")).generatedProposal.path).toContain("RC3_AUDITED_PRE_FIX_PROPOSAL.json");
   });
 
-  it("reproduces the production path, metrics, classifications, and deterministic artifacts", () => {
-    const before = fs.readFileSync(benchmarkPath);
+  it("reproduces every committed artifact and protects the authored review input", () => {
+    const before = new Map(generatedArtifacts.map((file) => [file, fs.readFileSync(file)]));
+    const manualBefore = fs.readFileSync(manualReviewPath);
     execFileSync("npx", ["tsx", generator], { cwd: root, stdio: "ignore" });
-    const first = fs.readFileSync(benchmarkPath);
+    const first = new Map(generatedArtifacts.map((file) => [file, fs.readFileSync(file)]));
+    for (const file of generatedArtifacts) expect(first.get(file)).toEqual(before.get(file));
+    expect(fs.readFileSync(manualReviewPath)).toEqual(manualBefore);
     execFileSync("npx", ["tsx", generator], { cwd: root, stdio: "ignore" });
-    expect(fs.readFileSync(benchmarkPath)).toEqual(first);
-    expect(first).toEqual(fs.readFileSync(benchmarkPath));
-    expect(before.length).toBeGreaterThan(0);
+    for (const file of generatedArtifacts) expect(fs.readFileSync(file)).toEqual(first.get(file));
 
     const artifact = read(benchmarkPath);
     const truth = read(path.join(fixtureDir, "gold.json"));
@@ -66,8 +75,30 @@ describe("RC3-7 audited post-fix benchmark", () => {
     expect(artifact.postFixMetrics.evidenceStateFailures).toBe(categorical.aggregate.fields.evidenceState.mismatchedCount);
     const audit = read(path.join(artifactDir, "RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json"));
     expect(audit.rules).toHaveLength(artifact.changedRuleIds.length);
-    expect(audit.rules.every((rule: any) => ["intended_improvement", "neutral_representation_change", "regression", "requires_follow_up"].includes(rule.classification))).toBe(true);
+    expect(audit.manualReview).toBe(false);
+    expect(audit.manualReviewInput.sha256).toBe(sha256(manualReviewPath));
+    expect(audit.rules.every((rule: any) => rule.rationale && rule.rationale.trim())).toBe(true);
+    expect(new Set(audit.rules.map((rule: any) => rule.stableRuleId))).toEqual(new Set(artifact.changedRuleIds));
     expect(artifact.gateResult).toBe("passed");
+  });
+
+  it("uses explicit metric directions and keeps null incomparable", () => {
+    expect(compareBenchmarkMetric(5, 3, "lower_is_better").direction).toBe("improved");
+    expect(compareBenchmarkMetric(3, 5, "lower_is_better").direction).toBe("regressed");
+    expect(compareBenchmarkMetric(0.2, 0.4, "higher_is_better").direction).toBe("improved");
+    expect(compareBenchmarkMetric(0.4, 0.2, "higher_is_better").direction).toBe("regressed");
+    expect(compareBenchmarkMetric(null, 0, "higher_is_better").direction).toBe("not_comparable");
+  });
+
+  it("detects substantive row and diagnostic changes and validates exact human coverage", () => {
+    const base = { stableRuleId: "r", gap: "", assessmentReason: "a", confidence: "low", page: 1, provenance: { spanId: "s" }, acceptedEvidence: [], supportedComponents: [] };
+    const changed = { ...base, gap: "new" };
+    expect(changedVm0007RuleIds([base], [changed], ["r"])).toEqual(["r"]);
+    expect(changedVm0007RuleIds([base], [{ ...base }], ["r"], new Map([["r", { score: 1 }]]), new Map([["r", { score: 2 }]]))).toEqual(["r"]);
+    expect(() => validateVm0007ManualReview({ reviews: [] }, ["r"])).toThrow(/exactly cover/);
+    expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "intended_improvement", rationale: "" }] }, ["r"])).toThrow(/Invalid/);
+    expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "regression", rationale: "bad" }, { stableRuleId: "r", classification: "regression", rationale: "duplicate" }] }, ["r"])).toThrow(/duplicate/);
+    expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "unknown", classification: "intended_improvement", rationale: "x" }] }, ["r"])).toThrow(/exactly cover/);
   });
 
   it("leaves every frozen artifact byte-for-byte unchanged", () => {
