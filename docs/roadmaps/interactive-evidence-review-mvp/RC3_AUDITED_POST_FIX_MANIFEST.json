@@ -1,0 +1,52 @@
+{
+  "artifacts": {
+    "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.json": {
+      "sha256": "8dce5e6b15d7e62f97529f4f56e26c8d9e72ba651d677c4c785ffa1ded021fce"
+    },
+    "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.md": {
+      "sha256": "be40a410c83e2920e0f6e81b8741171626ecff4cbfc86b5609d92c2e5aba76b0"
+    },
+    "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json": {
+      "sha256": "2904748b8d7f84873e0ef16231e79566c359c7451a230ed09642b279b7f5fa68"
+    },
+    "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_PROPOSAL.json": {
+      "sha256": "0e886ff8874b5ff950439a9b7853b3debe8caa9578248b8c7866fee0991d58ab"
+    }
+  },
+  "changedRuleCount": 21,
+  "command": "npm run preverif:rc3:post-fix-benchmark",
+  "gateResult": "passed",
+  "inputs": {
+    "baseline": {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
+      "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+    },
+    "baselineProposal": {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
+      "sha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85"
+    },
+    "extraction": {
+      "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
+      "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+    },
+    "registry": {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_BASELINE_REGISTRY.json",
+      "sha256": "ab5a62d39d44913962b5379183654aaa27a919a3cfc4649626a6bf453a15c6ba"
+    },
+    "richRules": {
+      "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+      "sha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49"
+    },
+    "rules": {
+      "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json",
+      "sha256": "bc318d26dd204af31e5bb6b6e7332988579d5bc8d545481df634c766bbf3ed58"
+    },
+    "truth": {
+      "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+      "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+    }
+  },
+  "postFixAuditExecutionSha256": "8257b8d8c16f9f71da0f2d5aad2fab9a083cc1e527ef34909ec6b5b88d0ae834",
+  "ruleCount": 58,
+  "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v1"
+}

@@ -39,6 +39,7 @@
     "preverif:rc3:false-support-taxonomy": "tsx scripts/preverif/generate-vm0007-rc3-false-support-taxonomy.ts",
     "preverif:rc3:selected-match-subtaxonomy": "tsx scripts/preverif/generate-vm0007-rc3-selected-match-subtaxonomy.ts",
     "preverif:rc3:audited-pre-fix-baseline": "tsx scripts/preverif/generate-vm0007-rc3-audited-pre-fix-baseline.ts",
+    "preverif:rc3:post-fix-benchmark": "tsx scripts/preverif/generate-vm0007-rc3-post-fix-benchmark.ts",
     "preverif:rc3:baseline-registry": "tsx scripts/preverif/generate-vm0007-rc3-baseline-registry.ts",
     "test:quickcheck:no-fixture-hardcoding": "jest tests/lib/quickCheckV2/no-fixture-hardcoding-guard.test.ts --runInBand",
     "check:golden": "bash scripts/check-golden-rich.sh",

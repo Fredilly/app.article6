@@ -1,0 +1,217 @@
+{
+  "baselineIdentity": {
+    "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
+    "proposalPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
+    "proposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
+    "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+  },
+  "baselineMetrics": {
+    "acceptedEvidenceF1": null,
+    "acceptedEvidenceFalseSupport": 174,
+    "acceptedEvidenceMissed": 97,
+    "acceptedEvidencePrecision": 0,
+    "acceptedEvidenceRecall": 0,
+    "applicabilityFailures": 6,
+    "clientActionFailures": 58,
+    "contradictionFailures": 58,
+    "draftFindingFailures": 58,
+    "evidenceStateFailures": 38,
+    "reviewerOutcomeFailures": 58
+  },
+  "changedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
+  "extractionIdentity": {
+    "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
+    "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+  },
+  "gateResult": "passed",
+  "improvements": [
+    "acceptedEvidenceFalseSupport"
+  ],
+  "metricDeltas": {
+    "acceptedEvidenceF1": {
+      "baseline": null,
+      "delta": null,
+      "direction": "not_comparable",
+      "postFix": null
+    },
+    "acceptedEvidenceFalseSupport": {
+      "baseline": 174,
+      "delta": -35,
+      "direction": "improved",
+      "postFix": 139
+    },
+    "acceptedEvidenceMissed": {
+      "baseline": 97,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 97
+    },
+    "acceptedEvidencePrecision": {
+      "baseline": 0,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 0
+    },
+    "acceptedEvidenceRecall": {
+      "baseline": 0,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 0
+    },
+    "applicabilityFailures": {
+      "baseline": 6,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 6
+    },
+    "clientActionFailures": {
+      "baseline": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 58
+    },
+    "contradictionFailures": {
+      "baseline": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 58
+    },
+    "draftFindingFailures": {
+      "baseline": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 58
+    },
+    "evidenceStateFailures": {
+      "baseline": 38,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 38
+    },
+    "reviewerOutcomeFailures": {
+      "baseline": 58,
+      "delta": 0,
+      "direction": "unchanged",
+      "postFix": 58
+    }
+  },
+  "postFixAuditExecutionSha256": "8257b8d8c16f9f71da0f2d5aad2fab9a083cc1e527ef34909ec6b5b88d0ae834",
+  "postFixMetrics": {
+    "acceptedEvidenceF1": null,
+    "acceptedEvidenceFalseSupport": 139,
+    "acceptedEvidenceMissed": 97,
+    "acceptedEvidencePrecision": 0,
+    "acceptedEvidenceRecall": 0,
+    "applicabilityFailures": 6,
+    "clientActionFailures": 58,
+    "contradictionFailures": 58,
+    "draftFindingFailures": 58,
+    "evidenceStateFailures": 38,
+    "reviewerOutcomeFailures": 58
+  },
+  "postFixProposalIdentity": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_PROPOSAL.json",
+    "sha256": "0e886ff8874b5ff950439a9b7853b3debe8caa9578248b8c7866fee0991d58ab"
+  },
+  "regressions": [],
+  "reviewedTruthIdentity": {
+    "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+    "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+  },
+  "ruleCount": 58,
+  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v1",
+  "stableRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
+  "unchangedMetrics": [
+    "acceptedEvidenceMissed",
+    "evidenceStateFailures",
+    "applicabilityFailures",
+    "reviewerOutcomeFailures",
+    "contradictionFailures",
+    "draftFindingFailures",
+    "clientActionFailures",
+    "acceptedEvidencePrecision",
+    "acceptedEvidenceRecall"
+  ]
+}

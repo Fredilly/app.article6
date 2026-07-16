@@ -27,8 +27,8 @@ truthfulness > reviewer usability > measurable accuracy > visual polish
 | 0 | Roadmap contract | Done | Roadmap files validate and no production code changes |
 | 1 | Readable interactive workspace | Done | A reviewer can scan all 58 rows and understand an expanded row without visual confusion |
 | 2 | Accuracy benchmark | Active | Highest-impact generic failure modes are ranked and reproducible |
-| 3 | Generic accuracy improvements | Planned | Accuracy improves without fixture regressions |
-| 4 | Guided reviewer interaction | Planned | A reviewer can complete all 58 decisions without leaving the Evidence Map |
+| 3 | Generic accuracy improvements | Done | Accuracy improves without fixture regressions |
+| 4 | Guided reviewer interaction | Active | A reviewer can complete all 58 decisions without leaving the Evidence Map |
 | 5 | Unseen-PDD validation | Planned | The same workflow works without project-specific fixes |
 | 6 | Stellar MVP release | Planned | Upload → review → finalize → trustworthy pre-validation output works end to end |
 
