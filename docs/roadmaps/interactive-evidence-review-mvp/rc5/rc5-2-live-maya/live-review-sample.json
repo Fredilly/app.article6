@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "rc5-2-live-maya-review-sample-v1",
+  "auditId": "vm0007-gap-abd63948-2722-4f9b-831c-8ce3d1dfe0cd",
+  "proposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+  "auditRecordPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/audit-record.json",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "proposalState": "MACHINE_PROPOSED",
+  "generatedAt": "2026-07-16T22:12:59.111Z",
+  "counts": {
+    "rules": 58,
+    "FOUND": 0,
+    "UNCLEAR": 44,
+    "MISSING": 14
+  },
+  "artifactSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "auditRecordSha256": "908f88ab4430cad99b3e9aa62714933100bde3a3cd521e175b22c3a249f7c5ef",
+  "rowSha256ByStableRuleId": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001": "6677e03b65408280ae4d9362d47fac6ea73e5be448dfed6012583e5b5f5b7231",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002": "f79f34e33011549df049ffdaf7188720314fcf4dbd49e56e790d2497d6a0d662",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003": "05512769ab9087f09c16080d50749c953bfda7fefd09868370a57f2d7cd2bb82",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004": "a0077681d65560946e856950d297f1b3ec0b2609597fbcf655757239314ea51d",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005": "d45759b006a86db415b43c620c156e539e3aedfdbdb9676bda65d247b28e9306",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0006": "925b643dcd983499a4ad4532fc1c4eeae6b740c1a45ed4722d4acd23ddabcecd",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0007": "ef69baa2c9245ab7ecc852a88055e2e965f2894cce571f821090eb05a7eb1384",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0008": "a9a86c3e51baf64baa586e7a95d2fef153409e5e770c885c78bda76e4972e8b0",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0009": "a9c4f758071247df2589b0eec1123e94a0a3c90e21773cbc7f9f9c454a546337",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010": "16eadf8f7ab6bfab36cbfddf4dcc79fa62cea2b39c0f4251246f72c3dcf08e4c",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011": "2e48bdcbc06c96c6b67a2786ec26b8705709ec8a5faa2b6d42a7f85ec31c1170",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014": "6ac929efafd663c8e4b237a906683f61ad269bf82e7f1c2a7ee7b995cb2d52aa",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015": "8855c6f677b65ce412bf9c6e27a90c222ea20d0b5bea3d44e248d1023d1b09d0",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001": "7ccaa893e2e2fe9207f6a3f73ae320f2bfb817a63582281cc505b3911018ad8b",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002": "28298e9a9700ae3e806071694832576fc22016ead632768ef401f995e2281cdc",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003": "8024eb5b2d40a6bfc8ee68b6935957491349d926938ddea4fce98ceb9b813c21",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004": "d4eea41a068f96ff59cb0e89ee6a804c6cecd37b17b71b628c22fd08b0b557b6",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0005": "8491d8e4585213abfed8761bf7a1cab8b41a74db4e92db75860b07eb19a67459",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006": "9762477d31751c882bb40ad83b1e24810424ac32d3da8a71fa3b07f63a469c40",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009": "34ad332a4efa0e4b88ba8f7d20dcbbdbc9c583f6dbc954641c31e68d8c8d63f6",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010": "2cb0540646571016cd63e9bc0c0a56a3359979bef90befe847671789ffe6580c",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011": "c602799cdacfc5e7117d586a08d5f61d9d900b8a1eb12620ca505fa710804683",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012": "73d1a1da44f46dad59dd19c2261949e3300474f284bdaceda198e21a84d8e7a1",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013": "8129c1b8de4079a82bc622db010cda6640d66760264a4658ae5a9a6f2d7b03ad",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0014": "c83633836a6fb958f281198bce8cfd6ae7f740bb051a3c7c93352078718e069d",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015": "50967681a5872e45fb4c72072dc57e04647c4ae69ae6ea7f506fe9750dc65128",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016": "47538eb478bb698563d9ca9836032470efd27a5bd93cc6e1d64032cafbe923b0",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001": "b00338bf5bf112bfa651e04fd57cf6b07a602f5b4ccbe70c840e943ddfddb9fb",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002": "ec8c01e5bb584140f8382d53d920f001092f96d9debdb28ce882f313f01926ee",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003": "0d320b90c174f31a375c4856b6476cafbddc49ea51db02e48bbd3c3ad25d88ec",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004": "a7361c35261093f78a26b645ec9bf0d76c191ff190950aaa00b309ef68be3d48",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005": "ac33066ef27d75b8bdb471e293d61db671d1efc3e41450f833e8558ced570b31",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0006": "ec40670dcdb7ddbf7e5bce9bda5d4289fe510d05ee16363fa531fe73a0fd2d43",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0007": "6271961c2f38dae03f89b5f4d624869de06c5f03b830a12fd791c383903519b2",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0002": "dcc130f6843ba426562f58f711242c986261433b15264e30a9b8cf09f5acb270",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0002": "d1945b44c6cebeb203c9ccb8634a2e469ff76aff0619af4b67fedb3d5057a9a2",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003": "804cad0063297d5f5346a2b318d76e90b2d77a141f44572b93b7d24ae05d5376",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0004": "bc880f4ee11d82a777a59e6b30a2135b08ae66d46171c393cfbbfd5d817036ab",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005": "f3f765f37549a236f399267a3a7b95e716eb1e5e72c0961a705f0cd5f81b30b1",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006": "908150ed12f3322c0be77dc2cda32d8d8264012ef0cde2afe9d6ebd5dedde8a3",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007": "ed59aa88bbf46a2cae9d47b5056f178c90b7be050d91b5a1fcd3e76ff059f4ac",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008": "87727bb3359fafd9e6ec9111bad745deb149b78f3cdaf05990df14be74463248",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009": "93e66e82ecab8dbb7bba6345ff6201cf7f41e2bf11a3da0048a20ff1e492b076",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001": "62c613e1ba3bb39e1dc613149d22f0570d6a5f5d53d58386c3d9b9608d87903b",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002": "59dd8c2b2ab0ac7c4d7ba3dde8c17419a1768ef0d53d9d2daf6ade5386e5e982",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003": "8db030b205ef8d76d524315966be417b7ed5f77d5956077a81299aa67b39b7cd",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004": "ea08681c459bb79cff0c46ca9a8c8debd170a94389cbcad0835b1b063a8264a1",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005": "25f88c9a1a0582df1fbfddbcaa83401d5cda16b8a8fd84d51d783c1da369923c",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006": "245548562972d58030b6b8b03c02782e75e76902beb62407be9842620103acab",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007": "0315e82e3920fac2459641fba55726669fb493d985761f210bce37117b46283e",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008": "a0098a251751a8680cb2658609c22e0a5606da81eadbdc893ee555f977b1250f"
+  },
+  "sample": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "status": "UNCLEAR",
+      "selectionReason": "Retrieval and assessment: broad accepted span plus rejected candidates.",
+      "rowSha256": "6677e03b65408280ae4d9362d47fac6ea73e5be448dfed6012583e5b5f5b7231"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+      "status": "UNCLEAR",
+      "selectionReason": "Retrieval and assessment: accepted evidence plus rejected candidates on a rule-family boundary.",
+      "rowSha256": "7ccaa893e2e2fe9207f6a3f73ae320f2bfb817a63582281cc505b3911018ad8b"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "status": "UNCLEAR",
+      "selectionReason": "Assessment/retrieval: UNCLEAR with no accepted evidence and one rejected candidate.",
+      "rowSha256": "ac33066ef27d75b8bdb471e293d61db671d1efc3e41450f833e8558ced570b31"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "status": "UNCLEAR",
+      "selectionReason": "Assessment/retrieval: UNCLEAR with no accepted evidence and one rejected candidate.",
+      "rowSha256": "87727bb3359fafd9e6ec9111bad745deb149b78f3cdaf05990df14be74463248"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "status": "UNCLEAR",
+      "selectionReason": "Assessment/retrieval: UNCLEAR with no accepted evidence and one rejected candidate.",
+      "rowSha256": "93e66e82ecab8dbb7bba6345ff6201cf7f41e2bf11a3da0048a20ff1e492b076"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "status": "UNCLEAR",
+      "selectionReason": "Assessment: accepted project-specific scope language still yields UNCLEAR.",
+      "rowSha256": "245548562972d58030b6b8b03c02782e75e76902beb62407be9842620103acab"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+      "status": "MISSING",
+      "selectionReason": "Retrieval: MISSING with three rejected candidates.",
+      "rowSha256": "8855c6f677b65ce412bf9c6e27a90c222ea20d0b5bea3d44e248d1023d1b09d0"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "status": "MISSING",
+      "selectionReason": "Retrieval: MISSING with one rejected candidate.",
+      "rowSha256": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "status": "MISSING",
+      "selectionReason": "Retrieval: MISSING with five rejected candidates and incomplete mandatory components.",
+      "rowSha256": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+      "status": "MISSING",
+      "selectionReason": "Retrieval: MISSING with four rejected candidates.",
+      "rowSha256": "a0098a251751a8680cb2658609c22e0a5606da81eadbdc893ee555f977b1250f"
+    }
+  ]
+}
