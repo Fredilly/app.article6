@@ -10,8 +10,10 @@ import type {
 } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import {
   approveVm0007EvidenceMapRow,
+  acceptVm0007EvidenceRecord,
   editVm0007EvidenceMapRow,
   finalizeVm0007EvidenceMap,
+  rejectVm0007EvidenceRecord,
   reopenVm0007EvidenceMapRow,
   type Vm0007EvidenceMapEdit,
 } from "@/lib/preverif/vm0007EvidenceMapReview";
@@ -108,6 +110,21 @@ export default function Vm0007EvidenceMapDraftPage({
     );
     return null;
   };
+  const decideEvidence = (
+    rowId: string,
+    evidenceIdentity: string,
+    action: "reject" | "reinstate",
+    note: string,
+  ): string | null => {
+    if (!pkg) return "Machine proposal is not available for this reviewed snapshot.";
+    const result = action === "reject"
+      ? rejectVm0007EvidenceRecord(pkg, rowId, evidenceIdentity, "reviewer:local", note)
+      : acceptVm0007EvidenceRecord(pkg, rowId, evidenceIdentity, "reviewer:local", note);
+    if (!result.ok) return `Evidence action blocked: ${result.reason}`;
+    setPkg(result.package);
+    setMessage(`Evidence ${action === "reject" ? "rejected" : "reinstated"}. Assessment needs review after this change.`);
+    return null;
+  };
   const activeMode: EvidenceMapMode = reviewedSnapshot ? mode : "machine";
   const reviewRow: Vm0007EvidenceMapDraftRow | null = pkg
     ? (pkg.rows.find((row) => row.rowId === reviewRowId) ?? null)
@@ -122,6 +139,7 @@ export default function Vm0007EvidenceMapDraftPage({
         message={message}
         onFinalize={finalize}
         onReview={(row) => setReviewRowId(row.rowId)}
+        onEvidenceDecision={decideEvidence}
       />
       <EvidenceMapReviewPanel
         row={reviewRow}

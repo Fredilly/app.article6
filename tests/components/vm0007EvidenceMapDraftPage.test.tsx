@@ -754,4 +754,35 @@ describe("VM0007 Evidence Map review workspace", () => {
     });
     act(() => root.unmount());
   });
+
+  test("edits evidence decisions and gap/client action through compact reviewer controls", async () => {
+    const auditId = "editing-ui";
+    savePackage(auditId);
+    const { container, root } = await renderPage(auditId);
+    click(container.querySelector(`[data-evidence-map-row="${auditId}:R-1"] > button`));
+    const accepted = container.querySelector('[data-evidence-record="accepted"]');
+    expect(accepted?.textContent).toContain("Reject");
+    click(accepted?.querySelector("button") ?? null);
+    click(Array.from(accepted?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Confirm") ?? null);
+    expect(accepted?.querySelector('[role="alert"]')?.textContent).toContain("rejection reason");
+    const reason = accepted?.querySelector("textarea") ?? null;
+    change(reason, "Not project-specific evidence.");
+    click(Array.from(accepted?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Confirm") ?? null);
+    expect(loadVm0007EvidenceMapDraft(auditId)?.rows[0].acceptedEvidence).toHaveLength(1);
+    expect(loadVm0007EvidenceMapDraft(auditId)?.rows[0].rejectedEvidence).toHaveLength(2);
+    expect(container.textContent).toContain("Assessment needs review after this change.");
+    click(Array.from(container.querySelectorAll("button")).find((button) => button.textContent === "Review decision") ?? null);
+    const dialog = document.querySelector('[role="dialog"]');
+    expect(dialog?.textContent).toContain("Gap and client action");
+    click(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Edit") ?? null);
+    const gap = dialog?.querySelector('textarea[aria-label="Edit gap"]') ?? null;
+    change(gap, "Supply the missing implementation record.");
+    click(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Save") ?? null);
+    expect(dialog?.querySelector('[role="alert"]')?.textContent).toContain("review note");
+    change(dialog?.querySelector('textarea[placeholder="Why are you making this decision?"]') ?? null, "Clarified the client action.");
+    click(Array.from(dialog?.querySelectorAll("button") ?? []).find((button) => button.textContent === "Save") ?? null);
+    expect(loadVm0007EvidenceMapDraft(auditId)?.rows[0].gap).toBe("Supply the missing implementation record.");
+    expect(loadVm0007EvidenceMapDraft(auditId)?.rows[0].assessment).toBeUndefined();
+    act(() => root.unmount());
+  });
 });
