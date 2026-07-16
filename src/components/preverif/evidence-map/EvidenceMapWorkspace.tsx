@@ -19,8 +19,10 @@ import {
   buildReviewedEvidenceMapPresentation,
   EMPTY_PRESENTATION_FILTERS,
   filterEvidenceMapPresentation,
-  hasPresentationFilters,
   summarizeEvidenceMapPresentation,
+  hasPresentationFilters,
+  summarizeEvidenceMapWorkflow,
+  findEvidenceMapNavigationTarget,
   type EvidenceMapMode,
   type EvidenceMapPresentationFilters,
   type EvidenceMapPresentationRow,
@@ -333,14 +335,18 @@ function RuleDetails({
 }
 
 function Summary({ rows }: { rows: readonly EvidenceMapPresentationRow[] }) {
-  const summary = summarizeEvidenceMapPresentation(rows);
+  const summary = summarizeEvidenceMapWorkflow(rows);
+  const legacy = summarizeEvidenceMapPresentation(rows);
   const items = [
     ["Total rules", summary.total],
-    ["Found", summary.found],
-    ["Unclear", summary.unclear],
-    ["Missing", summary.missing],
-    ["Not applicable", summary.notApplicable],
-    ["Action required", summary.actionRequired],
+    ["Complete", summary.complete],
+    ["Unresolved", summary.unresolved],
+    ["Blocked / stale", summary.blocked],
+    ["Found", legacy.found],
+    ["Unclear", legacy.unclear],
+    ["Missing", legacy.missing],
+    ["Not applicable", legacy.notApplicable],
+    ["Action required", legacy.actionRequired],
   ] as const;
   return (
     <nav
@@ -386,6 +392,7 @@ export default function EvidenceMapWorkspace({
   );
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const presentation = useMemo(
     () =>
       mode === "reviewed" && reviewedSnapshot
@@ -405,6 +412,7 @@ export default function EvidenceMapWorkspace({
   );
   const toggle = (rowId: string) =>
     setExpanded((current) => {
+      setSelectedRowId(rowId);
       const next = new Set(current);
       if (next.has(rowId)) next.delete(rowId);
       else next.add(rowId);
@@ -415,6 +423,22 @@ export default function EvidenceMapWorkspace({
     setExpanded(new Set());
     onModeChange(next);
   };
+  const selectedIndex = rows.findIndex((row) => row.rowId === selectedRowId);
+  const effectiveIndex = selectedIndex >= 0 ? selectedIndex : (rows.length ? 0 : -1);
+  const navigate = (target: "previous" | "next" | "unresolved" | "blocker") => {
+    const navigationRows = target === "unresolved" || target === "blocker" ? presentation.rows : rows;
+    const current = selectedRowId ?? navigationRows[0]?.rowId ?? null;
+    const destination = findEvidenceMapNavigationTarget(navigationRows, current, target);
+    if (!destination) return;
+    if (!rows.some((row) => row.rowId === destination.rowId)) {
+      setFilters(EMPTY_PRESENTATION_FILTERS);
+    }
+    setSelectedRowId(destination.rowId);
+    setExpanded((currentExpanded) => new Set(currentExpanded).add(destination.rowId));
+    const machineRow = pkg?.rows.find((row) => row.rowId === destination.rowId);
+    if (machineRow) onReview(machineRow);
+  };
+  const workflow = summarizeEvidenceMapWorkflow(presentation.rows);
   const reviewerOutcomes = [
     ...new Set(presentation.rows.map((row) => row.reviewerOutcome)),
   ];
@@ -497,6 +521,13 @@ export default function EvidenceMapWorkspace({
             : "Machine proposal. Live proposal fields are shown unchanged; switch modes to compare reviewed truth."}
         </div>
         <Summary rows={presentation.rows} />
+        {!presentation.readOnly ? <nav aria-label="Evidence Map rule navigation" className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <span className="mr-auto text-xs text-slate-500">{effectiveIndex >= 0 ? `Rule ${effectiveIndex + 1} of ${rows.length}` : "No rules"}</span>
+          <button type="button" onClick={() => navigate("previous")} disabled={effectiveIndex <= 0} aria-label="Previous rule" className="min-h-10 rounded-lg border border-slate-300 px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
+          <button type="button" onClick={() => navigate("next")} disabled={effectiveIndex < 0 || effectiveIndex >= rows.length - 1} aria-label="Next rule" className="min-h-10 rounded-lg border border-slate-300 px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40">Next</button>
+          <button type="button" onClick={() => navigate("unresolved")} disabled={!workflow.unresolved} aria-label="Next unresolved rule" className="min-h-10 rounded-lg border border-blue-300 px-3 text-sm font-semibold text-blue-800 disabled:cursor-not-allowed disabled:opacity-40">Next unresolved</button>
+          <button type="button" onClick={() => navigate("blocker")} disabled={!workflow.blocked} aria-label="Next blocked or stale rule" className="min-h-10 rounded-lg border border-amber-300 px-3 text-sm font-semibold text-amber-900 disabled:cursor-not-allowed disabled:opacity-40">Next blocker</button>
+        </nav> : null}
         <section aria-label="Search and filters" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex flex-wrap gap-2">
             <label className="relative min-w-64 flex-1">
@@ -575,6 +606,7 @@ export default function EvidenceMapWorkspace({
                   className={expanded.has(row.rowId) ? "rotate-180" : ""}
                 />
               </button>
+              {row.blockerReasons.length ? <p className="border-t border-amber-100 bg-amber-50/60 px-4 py-2 text-xs text-amber-900 sm:px-6"><strong>Needs attention:</strong> {row.blockerReasons.join(" · ")}</p> : null}
               {expanded.has(row.rowId) ? (
                 <RuleDetails
                   row={row}

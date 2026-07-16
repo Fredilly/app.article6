@@ -15,6 +15,7 @@ import {
   finalizeVm0007EvidenceMap,
   rejectVm0007EvidenceRecord,
   reopenVm0007EvidenceMapRow,
+  vm0007EvidenceMapRowRequiresAttention,
   type Vm0007EvidenceMapEdit,
 } from "@/lib/preverif/vm0007EvidenceMapReview";
 import { matchesReviewedEvidenceMapCase } from "@/lib/preverif/reviewedEvidenceMapRegistry";
@@ -85,8 +86,21 @@ export default function Vm0007EvidenceMapDraftPage({
         : reopenVm0007EvidenceMapRow(pkg, rowId, "reviewer:local", note);
     if (!result.ok) return `Review action blocked: ${result.reason}`;
     setPkg(result.package);
-    setMessage(`Row ${rowId} is now ${result.row.reviewState}.`);
-    setReviewRowId(null);
+    if (action === "approve") {
+      const approvedIndex = result.package.rows.findIndex((row) => row.rowId === rowId);
+      const next = result.package.rows.slice(approvedIndex + 1).find(vm0007EvidenceMapRowRequiresAttention)
+        ?? result.package.rows.slice(0, approvedIndex).find(vm0007EvidenceMapRowRequiresAttention);
+      if (next) {
+        setReviewRowId(next.rowId);
+        setMessage(`Row ${rowId} approved. Moved to the next unresolved rule, ${next.ruleReference}.`);
+      } else {
+        setReviewRowId(null);
+        setMessage(`Row ${rowId} approved. All rules are complete.`);
+      }
+    } else {
+      setReviewRowId(null);
+      setMessage(`Row ${rowId} is now ${result.row.reviewState}.`);
+    }
     return null;
   };
   const edit = (

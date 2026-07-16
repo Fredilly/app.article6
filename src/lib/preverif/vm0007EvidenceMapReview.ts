@@ -103,6 +103,23 @@ function currentAssessment(row: Vm0007EvidenceMapDraftRow): boolean {
   const canonicalRow = toEvidenceMapRow(row, now(), "reviewer:validation");
   return validateProjectEvidenceMapAssessment(canonicalRow, row.assessment).valid;
 }
+
+/** The single reviewer-attention/blocker derivation used by guided review UI. */
+export function vm0007EvidenceMapRowBlockers(row: Vm0007EvidenceMapDraftRow): readonly string[] {
+  const blockers: string[] = [];
+  if (row.reviewState !== "approved") blockers.push(`${row.reviewState ?? "pending review"} review`);
+  if (!row.assessment) blockers.push("canonical assessment missing");
+  else if (row.assessment.rowVersion !== (row.rowVersion ?? 1)) blockers.push("canonical assessment stale");
+  else {
+    const validation = validateProjectEvidenceMapAssessment(toEvidenceMapRow(row, now(), "reviewer:validation"), row.assessment);
+    if (!validation.valid) blockers.push(validation.reason.replaceAll("-", " "));
+  }
+  return Array.from(new Set(blockers));
+}
+
+export function vm0007EvidenceMapRowRequiresAttention(row: Vm0007EvidenceMapDraftRow): boolean {
+  return vm0007EvidenceMapRowBlockers(row).length > 0;
+}
 function eventFor(input: { reviewerIdentity: string; currentState: ReviewerWorkflowState; nextState: ReviewerWorkflowState; note: string; timestamp?: string }): ReviewerWorkflowEvent | null {
   const event: ReviewerWorkflowEvent = {
     reviewerIdentity: reviewerRef(input.reviewerIdentity),
