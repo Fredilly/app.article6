@@ -111,6 +111,7 @@ export type Vm0007EvidenceMapRowWorkflowState = Readonly<{
 export function vm0007EvidenceMapRowWorkflowState(row: Vm0007EvidenceMapDraftRow): Vm0007EvidenceMapRowWorkflowState {
   const blockers: string[] = [];
   if (!row.assessment) blockers.push("canonical assessment missing");
+  else if (row.assessment.evidenceMapRowId !== row.rowId) blockers.push("canonical assessment invalid");
   else if (row.assessment.rowVersion !== (row.rowVersion ?? 1)) blockers.push("canonical assessment stale");
   else {
     const validation = validateProjectEvidenceMapAssessment(toEvidenceMapRow(row, now(), "reviewer:validation"), row.assessment);
