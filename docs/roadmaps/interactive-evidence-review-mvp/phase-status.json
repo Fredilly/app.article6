@@ -1,7 +1,8 @@
 {
   "RC0": "done",
-  "RC4": "active",
-  "currentPhase": "RC4",
+  "RC4": "done",
+  "RC5": "active",
+  "currentPhase": "RC5",
   "name": "Interactive Evidence Review MVP",
   "phases": {
     "phase_0_roadmap_contract": {
@@ -22,11 +23,11 @@
     },
     "phase_4_guided_reviewer_interaction": {
       "title": "Guided reviewer interaction",
-      "status": "active"
+      "status": "done"
     },
     "phase_5_unseen_pdd_validation": {
       "title": "Unseen-PDD validation",
-      "status": "planned"
+      "status": "active"
     },
     "phase_6_stellar_mvp_release": {
       "title": "Stellar MVP release",
