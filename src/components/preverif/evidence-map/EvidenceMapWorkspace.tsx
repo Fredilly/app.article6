@@ -427,7 +427,7 @@ export default function EvidenceMapWorkspace({
   const effectiveIndex = selectedIndex >= 0 ? selectedIndex : (rows.length ? 0 : -1);
   const navigate = (target: "previous" | "next" | "unresolved" | "blocker") => {
     const navigationRows = target === "unresolved" || target === "blocker" ? presentation.rows : rows;
-    const current = selectedRowId ?? navigationRows[0]?.rowId ?? null;
+    const current = selectedRowId ?? (target === "previous" || target === "next" ? navigationRows[0]?.rowId ?? null : null);
     const destination = findEvidenceMapNavigationTarget(navigationRows, current, target);
     if (!destination) return;
     if (!rows.some((row) => row.rowId === destination.rowId)) {

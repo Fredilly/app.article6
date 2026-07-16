@@ -1,5 +1,5 @@
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
-import { vm0007EvidenceMapRowBlockers } from "@/lib/preverif/vm0007EvidenceMapReview";
+import { vm0007EvidenceMapRowWorkflowState } from "@/lib/preverif/vm0007EvidenceMapReview";
 import type {
   ReviewedEvidenceMapSnapshot,
   ReviewedEvidenceRecord,
@@ -83,7 +83,9 @@ export function buildMachineEvidenceMapPresentation(
   return {
     mode: "machine",
     readOnly: false,
-    rows: pkg.rows.map((row) => ({
+    rows: pkg.rows.map((row) => {
+      const workflow = vm0007EvidenceMapRowWorkflowState(row);
+      return {
       rowId: row.rowId,
       stableRuleId: row.stableRuleId,
       ruleReference: row.ruleReference,
@@ -108,9 +110,10 @@ export function buildMachineEvidenceMapPresentation(
       missingComponents: row.missingComponents ?? null,
       reasonSelected: row.reasonSelected ?? null,
       reviewHistory: row.reviewHistory,
-      unresolved: vm0007EvidenceMapRowBlockers(row).length > 0,
-      blockerReasons: vm0007EvidenceMapRowBlockers(row),
-    })),
+      unresolved: workflow.unresolved,
+      blockerReasons: workflow.blockerReasons,
+      };
+    }),
   };
 }
 

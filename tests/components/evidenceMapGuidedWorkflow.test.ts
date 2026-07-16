@@ -23,4 +23,8 @@ test("guided progress is derived from row data and navigation follows stable can
   expect(findEvidenceMapNavigationTarget(rows, "R-2", "blocker").rowId).toBe("R-3");
   expect(findEvidenceMapNavigationTarget(rows, "R-1", "previous")).toBeNull();
   expect(findEvidenceMapNavigationTarget(rows, "R-4", "next")).toBeNull();
+  expect(findEvidenceMapNavigationTarget(rows, null, "unresolved").rowId).toBe("R-2");
+  expect(findEvidenceMapNavigationTarget(rows, null, "blocker").rowId).toBe("R-2");
+  expect(findEvidenceMapNavigationTarget([row("only", true)], null, "unresolved")?.rowId).toBe("only");
+  expect(findEvidenceMapNavigationTarget(rows, "R-3", "unresolved").rowId).toBe("R-2");
 });
