@@ -10,6 +10,7 @@ import {
   reopenVm0007EvidenceMapRow,
   vm0007EvidenceIdentity,
   vm0007FinalizedEvidenceId,
+  vm0007EvidenceMapRowWorkflowState,
 } from "@/lib/preverif/vm0007EvidenceMapReview";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
@@ -82,6 +83,18 @@ function buildProductionDraft(): Vm0007EvidenceMapDraftPackage {
 
 describe("VM0007 persisted Evidence Map reviewer workflow", () => {
   beforeEach(() => localStorage.clear());
+
+  test("derives unresolved and canonical blockers separately from real draft rows", () => {
+    const base = makePackage().rows[0];
+    const current = { ...base, reviewState: "approved" as const };
+    expect(vm0007EvidenceMapRowWorkflowState(current)).toEqual({ unresolved: false, blockerReasons: [] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, reviewState: "pending review" })).toEqual({ unresolved: true, blockerReasons: [] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, reviewState: "edited" })).toEqual({ unresolved: true, blockerReasons: [] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, reviewState: "reopened" })).toEqual({ unresolved: true, blockerReasons: [] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, assessment: undefined })).toMatchObject({ unresolved: true, blockerReasons: ["canonical assessment missing"] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, rowVersion: 2 })).toMatchObject({ unresolved: true, blockerReasons: ["canonical assessment stale"] });
+    expect(vm0007EvidenceMapRowWorkflowState({ ...current, assessment: assessmentFor(current.rowId, { conformance: { ...assessmentFor(current.rowId).conformance, contradictionAssessment: "BLOCKING" } }) })).toMatchObject({ unresolved: true, blockerReasons: ["contradiction unresolved"] });
+  });
 
   test("draft opens with 58 pending rows and approval/edit survive save and reload", () => {
     const pkg = makePackage();

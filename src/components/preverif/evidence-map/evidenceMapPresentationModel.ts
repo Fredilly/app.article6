@@ -1,4 +1,5 @@
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { vm0007EvidenceMapRowWorkflowState } from "@/lib/preverif/vm0007EvidenceMapReview";
 import type {
   ReviewedEvidenceMapSnapshot,
   ReviewedEvidenceRecord,
@@ -31,6 +32,8 @@ export type EvidenceMapPresentationRow = Readonly<{
   missingComponents: readonly string[] | null;
   reasonSelected: string | null;
   reviewHistory: Vm0007EvidenceMapDraftPackage["rows"][number]["reviewHistory"];
+  unresolved: boolean;
+  blockerReasons: readonly string[];
 }>;
 
 export type EvidenceMapPresentation = Readonly<{
@@ -80,7 +83,9 @@ export function buildMachineEvidenceMapPresentation(
   return {
     mode: "machine",
     readOnly: false,
-    rows: pkg.rows.map((row) => ({
+    rows: pkg.rows.map((row) => {
+      const workflow = vm0007EvidenceMapRowWorkflowState(row);
+      return {
       rowId: row.rowId,
       stableRuleId: row.stableRuleId,
       ruleReference: row.ruleReference,
@@ -105,7 +110,10 @@ export function buildMachineEvidenceMapPresentation(
       missingComponents: row.missingComponents ?? null,
       reasonSelected: row.reasonSelected ?? null,
       reviewHistory: row.reviewHistory,
-    })),
+      unresolved: workflow.unresolved,
+      blockerReasons: workflow.blockerReasons,
+      };
+    }),
   };
 }
 
@@ -141,6 +149,8 @@ export function buildReviewedEvidenceMapPresentation(
       missingComponents: null,
       reasonSelected: null,
       reviewHistory: [],
+      unresolved: false,
+      blockerReasons: [],
     })),
   };
 }
@@ -222,4 +232,26 @@ export function hasPresentationFilters(
       ([key, value]) => key !== "query" && value !== "ALL",
     )
   );
+}
+
+export type EvidenceMapNavigationTarget = "previous" | "next" | "unresolved" | "blocker";
+
+/** Navigation always consumes the current canonical visible order and stable row IDs. */
+export function findEvidenceMapNavigationTarget(
+  rows: readonly EvidenceMapPresentationRow[],
+  currentRowId: string | null,
+  target: EvidenceMapNavigationTarget,
+): EvidenceMapPresentationRow | null {
+  if (!rows.length) return null;
+  const index = currentRowId ? rows.findIndex((row) => row.rowId === currentRowId) : -1;
+  if (target === "previous") return index > 0 ? rows[index - 1] : null;
+  if (target === "next") return index >= 0 && index < rows.length - 1 ? rows[index + 1] : null;
+  const candidates = target === "unresolved" ? rows.filter((row) => row.unresolved) : rows.filter((row) => row.blockerReasons.length > 0);
+  const after = index >= 0 ? rows.slice(index + 1).find((row) => candidates.some((candidate) => candidate.rowId === row.rowId)) : undefined;
+  return after ?? candidates.find((row) => row.rowId !== currentRowId) ?? null;
+}
+
+export function summarizeEvidenceMapWorkflow(rows: readonly EvidenceMapPresentationRow[]) {
+  const unresolved = rows.filter((row) => row.unresolved).length;
+  return { total: rows.length, complete: rows.length - unresolved, unresolved, blocked: rows.filter((row) => row.blockerReasons.length > 0).length };
 }

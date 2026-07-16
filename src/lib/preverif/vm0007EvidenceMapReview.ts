@@ -99,9 +99,36 @@ function rowFor(pkg: Vm0007EvidenceMapDraftPackage, rowId: string): Vm0007Eviden
   return pkg.rows.find((row) => row.rowId === rowId) ?? null;
 }
 function currentAssessment(row: Vm0007EvidenceMapDraftRow): boolean {
-  if (row.assessment === undefined || row.assessment.evidenceMapRowId !== row.rowId || row.assessment.rowVersion !== (row.rowVersion ?? 1)) return false;
-  const canonicalRow = toEvidenceMapRow(row, now(), "reviewer:validation");
-  return validateProjectEvidenceMapAssessment(canonicalRow, row.assessment).valid;
+  return vm0007EvidenceMapRowWorkflowState(row).blockerReasons.length === 0;
+}
+
+export type Vm0007EvidenceMapRowWorkflowState = Readonly<{
+  unresolved: boolean;
+  blockerReasons: readonly string[];
+}>;
+
+/** The single reviewer-attention/blocker derivation used by guided review UI. */
+export function vm0007EvidenceMapRowWorkflowState(row: Vm0007EvidenceMapDraftRow): Vm0007EvidenceMapRowWorkflowState {
+  const blockers: string[] = [];
+  if (!row.assessment) blockers.push("canonical assessment missing");
+  else if (row.assessment.evidenceMapRowId !== row.rowId) blockers.push("canonical assessment invalid");
+  else if (row.assessment.rowVersion !== (row.rowVersion ?? 1)) blockers.push("canonical assessment stale");
+  else {
+    const validation = validateProjectEvidenceMapAssessment(toEvidenceMapRow(row, now(), "reviewer:validation"), row.assessment);
+    if (!validation.valid) blockers.push(validation.reason.replaceAll("-", " "));
+  }
+  return {
+    unresolved: row.reviewState !== "approved" || blockers.length > 0,
+    blockerReasons: Array.from(new Set(blockers)),
+  };
+}
+
+export function vm0007EvidenceMapRowBlockers(row: Vm0007EvidenceMapDraftRow): readonly string[] {
+  return vm0007EvidenceMapRowWorkflowState(row).blockerReasons;
+}
+
+export function vm0007EvidenceMapRowRequiresAttention(row: Vm0007EvidenceMapDraftRow): boolean {
+  return vm0007EvidenceMapRowWorkflowState(row).unresolved;
 }
 function eventFor(input: { reviewerIdentity: string; currentState: ReviewerWorkflowState; nextState: ReviewerWorkflowState; note: string; timestamp?: string }): ReviewerWorkflowEvent | null {
   const event: ReviewerWorkflowEvent = {
