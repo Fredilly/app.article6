@@ -2,9 +2,12 @@
 
 import {
   approveVm0007EvidenceMapRow,
+  acceptVm0007EvidenceRecord,
   editVm0007EvidenceMapRow,
   finalizeVm0007EvidenceMap,
+  rejectVm0007EvidenceRecord,
   reopenVm0007EvidenceMapRow,
+  vm0007EvidenceIdentity,
 } from "@/lib/preverif/vm0007EvidenceMapReview";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
@@ -207,5 +210,72 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     expect(loadQuickCheckReadinessPayload(result.package.auditId)).toBeNull();
     expect(reopened.row.assessment?.reviewState).toBe("REOPENED");
     expect(approveVm0007EvidenceMapRow(reopened.package, reopened.row.rowId, "reviewer-1").ok).toBe(false);
+  });
+
+  test("rejects one accepted record by stable identity and preserves the other record", () => {
+    const first = { quote: "Accepted source quote", page: 3, section: "Evidence", spanId: "span-1", evidenceType: "project_specific_scope" as const, provenance };
+    const second = { ...first, quote: "Second accepted quote", page: 4, spanId: "span-2", provenance: { ...provenance, page: 4, spanId: "span-2" } };
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: [first, second], rejectedEvidence: [] } : row) });
+    const result = rejectVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, vm0007EvidenceIdentity(first), "reviewer-1", "This record is boilerplate.", "2026-07-12T04:00:00.000Z");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.row.acceptedEvidence).toEqual([second]);
+    expect(result.row.rejectedEvidence).toEqual([{ ...first, rejectionReason: "This record is boilerplate." }]);
+    expect(result.row.rowVersion).toBe(2);
+    expect(result.row.reviewState).toBe("edited");
+    expect(result.row.reviewHistory).toHaveLength(1);
+    expect(result.package.finalizationState).toBe("draft");
+  });
+
+  test("requires reviewer identity and a rejection reason", () => {
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: [{ quote: "Evidence", page: 1, section: "S", spanId: "s", provenance }] } : row) });
+    const identity = vm0007EvidenceIdentity(pkg.rows[0].acceptedEvidence![0]);
+    expect(rejectVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, identity, "reviewer-1", "   ")).toEqual({ ok: false, reason: "reviewer-metadata-required" });
+    expect(rejectVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, identity, "   ", "Reason")).toEqual({ ok: false, reason: "reviewer-metadata-required" });
+  });
+
+  test("accepts one rejected record, removes its reason, and persists the decision", () => {
+    const rejected = { quote: "Rejected source quote", page: 7, section: "Methodology", spanId: "span-rejected", evidenceType: "methodology_boilerplate" as const, rejectionReason: "Not project evidence.", provenance: { ...provenance, page: 7, sectionPath: ["Methodology"], sectionHeading: "Methodology", spanId: "span-rejected" } };
+    const other = { ...rejected, quote: "Other rejected quote", spanId: "span-other", provenance: { ...rejected.provenance, spanId: "span-other" } };
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: [], rejectedEvidence: [rejected, other] } : row) });
+    const result = acceptVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, vm0007EvidenceIdentity(rejected), "reviewer-1", "Reinstated after source review.", "2026-07-12T04:01:00.000Z");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.row.acceptedEvidence).toEqual([{ ...rejected, rejectionReason: undefined }].map(({ rejectionReason: _reason, ...record }) => record));
+    expect(result.row.rejectedEvidence).toEqual([other]);
+    expect(result.row.acceptedEvidence?.[0]).toEqual(expect.objectContaining({ quote: rejected.quote, page: 7, section: "Methodology", spanId: "span-rejected", evidenceType: rejected.evidenceType, provenance: rejected.provenance }));
+    expect(result.row.rowVersion).toBe(2);
+    expect(loadVm0007EvidenceMapDraft(pkg.auditId)?.rows[0].acceptedEvidence).toHaveLength(1);
+  });
+
+  test("fails safely for unknown, duplicate, and repeated evidence identities", () => {
+    const evidence = { quote: "Duplicate", page: 2, section: "Evidence", spanId: "same", provenance };
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: [evidence, evidence], rejectedEvidence: [] } : row) });
+    const identity = vm0007EvidenceIdentity(evidence);
+    expect(rejectVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, identity, "reviewer-1", "Reject duplicate.")).toEqual({ ok: false, reason: "unknown-or-ambiguous-evidence-identity" });
+    expect(rejectVm0007EvidenceRecord(pkg, pkg.rows[0].rowId, "unknown", "reviewer-1", "Reject unknown.")).toEqual({ ok: false, reason: "unknown-or-ambiguous-evidence-identity" });
+    const moved = rejectVm0007EvidenceRecord({ ...pkg, rows: pkg.rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: [evidence] } : row) }, pkg.rows[0].rowId, identity, "reviewer-1", "Reject once.");
+    expect(moved.ok).toBe(true);
+    if (!moved.ok) return;
+    expect(rejectVm0007EvidenceRecord(moved.package, moved.row.rowId, identity, "reviewer-1", "Reject twice.")).toEqual({ ok: false, reason: "unknown-or-ambiguous-evidence-identity" });
+    expect(moved.row.acceptedEvidence).toHaveLength(0);
+    expect(moved.row.rejectedEvidence).toHaveLength(1);
+  });
+
+  test("finalization emits every reviewed accepted and rejected record with unique deterministic IDs", () => {
+    const accepted = [1, 2].map((page) => ({ quote: `Accepted ${page}`, page, section: "Evidence", spanId: `accepted-${page}`, provenance: { ...provenance, page, spanId: `accepted-${page}` } }));
+    const rejected = [3, 4].map((page) => ({ quote: `Rejected ${page}`, page, section: "Evidence", spanId: `rejected-${page}`, rejectionReason: "Insufficient project support.", provenance: { ...provenance, page, spanId: `rejected-${page}` } }));
+    const pkg = makePackage({ rows: makePackage().rows.map((row, index) => index === 0 ? { ...row, acceptedEvidence: accepted, rejectedEvidence: rejected } : row) });
+    const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1", "2026-07-12T05:00:00.000Z");
+    expect(result.ok).toBe(true);
+    const presentations = loadQuickCheckReadinessPayload(pkg.auditId)?.gateResult.presentations[0];
+    expect(presentations?.acceptedEvidence).toHaveLength(2);
+    expect(presentations?.rejectedEvidence).toHaveLength(2);
+    expect(new Set([...(presentations?.acceptedEvidence ?? []), ...(presentations?.rejectedEvidence ?? [])].map((item) => item.evidenceId)).size).toBe(4);
+    expect(presentations?.acceptedEvidence.map((item) => item.provenance.spanId)).toEqual(["accepted-1", "accepted-2"]);
+    expect(presentations?.rejectedEvidence.map((item) => item.provenance.spanId)).toEqual(["rejected-3", "rejected-4"]);
+    const changed = rejectVm0007EvidenceRecord(result.ok ? result.package : pkg, pkg.rows[0].rowId, vm0007EvidenceIdentity(accepted[0]), "reviewer-1", "Correction after finalization.");
+    expect(changed.ok).toBe(true);
+    expect(loadQuickCheckReadinessPayload(pkg.auditId)).toBeNull();
   });
 });

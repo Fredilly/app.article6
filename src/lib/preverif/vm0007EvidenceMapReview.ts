@@ -17,6 +17,7 @@ import {
 } from "./vm0007EvidenceMapDraftStore";
 import type {
   Vm0007EvidenceMapDraftPackage,
+  Vm0007EvidenceMapDraftEvidenceRecord,
   Vm0007EvidenceMapDraftRow,
 } from "./vm0007EvidenceMapDraft";
 
@@ -25,7 +26,7 @@ export const VM0007_REVIEW_POLICY_VERSION = "policy-v1";
 export type Vm0007EvidenceMapEdit = Readonly<Partial<Pick<
   Vm0007EvidenceMapDraftRow,
   "assessmentReason" | "clientAction" | "proposedApplicability" | "proposedAcceptedEvidence" | "proposedRejectedEvidence"
-  | "assessment"
+  | "acceptedEvidence" | "rejectedEvidence" | "assessment"
 >>>;
 
 export type Vm0007ReviewResult =
@@ -38,6 +39,42 @@ export type Vm0007FinalizeResult =
 
 function now(): string { return new Date().toISOString(); }
 function reviewerRef(value: string): string { return value.trim(); }
+
+/** Stable identity for one evidence record; mutable array position is never used. */
+export function vm0007EvidenceIdentity(record: Pick<Vm0007EvidenceMapDraftEvidenceRecord, "quote" | "provenance">): string {
+  return JSON.stringify([
+    record.provenance.docId,
+    record.provenance.page,
+    record.provenance.sectionPath,
+    record.provenance.spanId,
+    record.quote,
+  ]);
+}
+
+function evidenceRecords(row: Vm0007EvidenceMapDraftRow, rejected: boolean): readonly Vm0007EvidenceMapDraftEvidenceRecord[] {
+  if (rejected) {
+    return row.rejectedEvidence ?? (row.proposedRejectedEvidence ? [{
+      quote: row.proposedRejectedEvidence.quote,
+      page: row.proposedRejectedEvidence.provenance.page,
+      section: row.proposedRejectedEvidence.provenance.sectionHeading,
+      spanId: row.proposedRejectedEvidence.provenance.spanId,
+      rejectionReason: row.proposedRejectedEvidence.reason,
+      provenance: row.proposedRejectedEvidence.provenance,
+    }] : []);
+  }
+  return row.acceptedEvidence ?? (row.proposedAcceptedEvidence ? [{
+    quote: row.proposedAcceptedEvidence.quote,
+    page: row.proposedAcceptedEvidence.provenance.page,
+    section: row.proposedAcceptedEvidence.provenance.sectionHeading,
+    spanId: row.proposedAcceptedEvidence.provenance.spanId,
+    provenance: row.proposedAcceptedEvidence.provenance,
+  }] : []);
+}
+
+function evidenceMatch(records: readonly Vm0007EvidenceMapDraftEvidenceRecord[], identity: string): { record: Vm0007EvidenceMapDraftEvidenceRecord; index: number } | null {
+  const matches = records.flatMap((record, index) => vm0007EvidenceIdentity(record) === identity ? [{ record, index }] : []);
+  return matches.length === 1 ? matches[0] : null;
+}
 function rowFor(pkg: Vm0007EvidenceMapDraftPackage, rowId: string): Vm0007EvidenceMapDraftRow | null {
   return pkg.rows.find((row) => row.rowId === rowId) ?? null;
 }
@@ -114,6 +151,48 @@ function applyTransition(pkgInput: Vm0007EvidenceMapDraftPackage, rowId: string,
   return { ok: true, package: updated, row: updatedRow };
 }
 
+function decideEvidence(input: {
+  pkg: Vm0007EvidenceMapDraftPackage;
+  rowId: string;
+  evidenceIdentity: string;
+  reviewerIdentity: string;
+  note: string;
+  reject: boolean;
+  timestamp?: string;
+}): Vm0007ReviewResult {
+  const pkg = normalizeVm0007EvidenceMapDraftPackage(input.pkg);
+  const row = rowFor(pkg, input.rowId);
+  if (!row) return { ok: false, reason: "row-not-found" };
+  if (!reviewerRef(input.reviewerIdentity) || !input.note.trim()) return { ok: false, reason: "reviewer-metadata-required" };
+  if (!input.evidenceIdentity.trim()) return { ok: false, reason: "evidence-identity-required" };
+
+  const from = evidenceRecords(row, !input.reject);
+  const target = evidenceMatch(from, input.evidenceIdentity);
+  if (!target) return { ok: false, reason: "unknown-or-ambiguous-evidence-identity" };
+  const other = evidenceRecords(row, input.reject);
+  if (other.some((record) => vm0007EvidenceIdentity(record) === input.evidenceIdentity)) return { ok: false, reason: "duplicate-evidence-identity" };
+
+  const moved = input.reject
+    ? { ...target.record, rejectionReason: input.note.trim() }
+    : (() => {
+      const accepted = { ...target.record };
+      delete accepted.rejectionReason;
+      return accepted;
+    })();
+  const edit: Vm0007EvidenceMapEdit = input.reject
+    ? { acceptedEvidence: from.filter((_, index) => index !== target.index), rejectedEvidence: [...other, moved] }
+    : { acceptedEvidence: [...other, moved], rejectedEvidence: from.filter((_, index) => index !== target.index) };
+  return applyTransition(pkg, input.rowId, { reviewerIdentity: input.reviewerIdentity, action: "edit", note: input.note, timestamp: input.timestamp, edit });
+}
+
+export function rejectVm0007EvidenceRecord(pkg: Vm0007EvidenceMapDraftPackage, rowId: string, evidenceIdentity: string, reviewerIdentity: string, reason: string, timestamp?: string): Vm0007ReviewResult {
+  return decideEvidence({ pkg, rowId, evidenceIdentity, reviewerIdentity, note: reason, reject: true, timestamp });
+}
+
+export function acceptVm0007EvidenceRecord(pkg: Vm0007EvidenceMapDraftPackage, rowId: string, evidenceIdentity: string, reviewerIdentity: string, note: string, timestamp?: string): Vm0007ReviewResult {
+  return decideEvidence({ pkg, rowId, evidenceIdentity, reviewerIdentity, note, reject: false, timestamp });
+}
+
 export function approveVm0007EvidenceMapRow(pkg: Vm0007EvidenceMapDraftPackage, rowId: string, reviewerIdentity: string, note = "Reviewed and approved.", timestamp?: string): Vm0007ReviewResult {
   return applyTransition(pkg, rowId, { reviewerIdentity, action: "approve", note, timestamp });
 }
@@ -133,8 +212,10 @@ export function reopenVm0007EvidenceMapRow(pkg: Vm0007EvidenceMapDraftPackage, r
 }
 
 function toEvidenceMapRow(row: Vm0007EvidenceMapDraftRow, finalizedAt: string, reviewerIdentity: string): EvidenceMapRow {
-  const acceptedEvidence = row.proposedAcceptedEvidence ? [{ evidenceId: `${row.rowId}:accepted`, quote: row.proposedAcceptedEvidence.quote, provenance: row.proposedAcceptedEvidence.provenance }] : [];
-  const rejectedEvidence = row.proposedRejectedEvidence ? [{ evidenceId: `${row.rowId}:rejected`, quote: row.proposedRejectedEvidence.quote, rejectionReason: row.proposedRejectedEvidence.reason, provenance: row.proposedRejectedEvidence.provenance }] : [];
+  const acceptedRecords = evidenceRecords(row, false);
+  const rejectedRecords = evidenceRecords(row, true);
+  const acceptedEvidence = acceptedRecords.map((record) => ({ evidenceId: `${row.rowId}:accepted:${vm0007EvidenceIdentity(record)}`, quote: record.quote, provenance: record.provenance }));
+  const rejectedEvidence = rejectedRecords.map((record) => ({ evidenceId: `${row.rowId}:rejected:${vm0007EvidenceIdentity(record)}`, quote: record.quote, rejectionReason: record.rejectionReason!, provenance: record.provenance }));
   const evidenceProvenance = [...acceptedEvidence, ...rejectedEvidence].map((item) => item.provenance);
   return {
     rowId: row.rowId,
