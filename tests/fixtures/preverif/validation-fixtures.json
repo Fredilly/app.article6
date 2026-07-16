@@ -1,0 +1,27 @@
+[
+  {
+    "fixtureId": "maya-forest-corridor-redd-belize-validation",
+    "caseType": "validation",
+    "pdf": {
+      "fileName": "12-maya-forest-corridor-redd-belize.pdf",
+      "sourcePath": "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf",
+      "sha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+    },
+    "methodology": { "id": "VM0007", "version": "v1.8" },
+    "project": {
+      "id": "5294",
+      "name": "Maya Forest Corridor REDD Project",
+      "region": "Belize and Cayo Districts, Belize",
+      "registry": "VCS",
+      "documentType": "Project Description / PD"
+    },
+    "generatedRuleCount": 58
+  },
+  {
+    "fixtureId": "unseen-vm0007-v18-validation",
+    "caseType": "validation",
+    "pdf": { "fileName": null, "sourcePath": null, "sha256": null },
+    "methodology": { "id": "VM0007", "version": "v1.8" },
+    "project": {}
+  }
+]

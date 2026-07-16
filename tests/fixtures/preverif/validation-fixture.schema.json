@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://app.article6.test/schemas/preverif/validation-fixture.schema.json",
+  "title": "Pre-verification validation fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fixtureId", "caseType", "pdf", "methodology", "project"],
+  "properties": {
+    "fixtureId": { "type": "string", "minLength": 1 },
+    "caseType": { "const": "validation" },
+    "pdf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fileName", "sourcePath", "sha256"],
+      "properties": {
+        "fileName": { "type": ["string", "null"] },
+        "sourcePath": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "methodology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "region": { "type": "string", "minLength": 1 },
+        "registry": { "type": "string", "minLength": 1 },
+        "documentType": { "type": "string", "minLength": 1 }
+      }
+    },
+    "generatedRuleCount": { "type": "integer", "minimum": 0 }
+  }
+}
