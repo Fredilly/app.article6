@@ -22,6 +22,6 @@
 | acceptedEvidenceRecall | 0 | 0 | 0 |
 | acceptedEvidenceF1 | null | null | null |
 
-Serialized-row changes: 21. Diagnostic-trace changes: 0. Changed rules reviewed from authored input: 21. Improvements: acceptedEvidenceFalseSupport. Regressions: none. Phase 3 gate: **passed**.
+Serialized-row changes: 21. Accepted-evidence-miss diagnostic changes: 0. Changed rules reviewed from authored input: 21. Improvements: acceptedEvidenceFalseSupport. Regressions: none. Phase 3 gate: **passed**.
 
 No production logic or reviewed/frozen artifact was changed by this benchmark.

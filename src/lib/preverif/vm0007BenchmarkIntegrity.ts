@@ -70,6 +70,13 @@ export function mapDiagnosticTracesByRuleId(
   return map;
 }
 
+export function removedEvidenceIsBaselineFalseSupport(
+  evidenceRemoved: readonly unknown[],
+  baselineFalseSupport: ReadonlySet<string>,
+): boolean {
+  return evidenceRemoved.length > 0 && evidenceRemoved.every((item) => baselineFalseSupport.has(canonicalJsonStringify(item)));
+}
+
 export function validateVm0007ManualReview(
   input: unknown,
   changedRuleIds: readonly string[],

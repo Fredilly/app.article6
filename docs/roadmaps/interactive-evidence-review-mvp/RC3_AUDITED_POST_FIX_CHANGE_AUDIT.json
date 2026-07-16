@@ -7,6 +7,7 @@
   },
   "rules": [
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 5,
         "falseSupportBefore": 6,
@@ -121,7 +122,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -364,6 +364,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 5,
         "falseSupportBefore": 6,
@@ -478,7 +479,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -721,6 +721,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 5,
@@ -837,7 +838,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1069,6 +1069,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 3,
         "falseSupportBefore": 4,
@@ -1168,7 +1169,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1424,6 +1424,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 1,
         "falseSupportBefore": 2,
@@ -1489,7 +1490,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1634,6 +1634,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 1,
         "falseSupportBefore": 2,
@@ -1699,7 +1700,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1894,6 +1894,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 1,
         "falseSupportBefore": 3,
@@ -1976,7 +1977,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2189,6 +2189,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 1,
         "falseSupportBefore": 3,
@@ -2271,7 +2272,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2482,6 +2482,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 2,
         "falseSupportBefore": 5,
@@ -2598,7 +2599,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2879,6 +2879,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 5,
@@ -2995,7 +2996,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3227,6 +3227,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 3,
         "falseSupportBefore": 6,
@@ -3341,7 +3342,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3608,6 +3608,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 5,
@@ -3724,7 +3725,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3956,6 +3956,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 2,
         "falseSupportBefore": 3,
@@ -4038,7 +4039,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4212,6 +4212,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 2,
         "falseSupportBefore": 3,
@@ -4294,7 +4295,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4468,6 +4468,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 5,
@@ -4584,7 +4585,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4866,6 +4866,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 2,
         "falseSupportBefore": 6,
@@ -4980,7 +4981,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -5284,6 +5284,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 6,
@@ -5398,7 +5399,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -5653,6 +5653,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 6,
@@ -5767,7 +5768,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -6022,6 +6022,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 5,
         "falseSupportBefore": 6,
@@ -6136,7 +6137,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -6404,6 +6404,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 4,
         "falseSupportBefore": 6,
@@ -6518,7 +6519,6 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -6773,6 +6773,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007"
     },
     {
+      "acceptedEvidenceMissDiagnosticChanged": false,
       "automatedEvidenceSummary": {
         "falseSupportAfter": 2,
         "falseSupportBefore": 5,
@@ -6889,7 +6890,6 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
-      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -7145,5 +7145,5 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008"
     }
   ],
-  "schemaVersion": "vm0007-rc3-audited-post-fix-change-audit-v2"
+  "schemaVersion": "vm0007-rc3-audited-post-fix-change-audit-v3"
 }

@@ -1,13 +1,14 @@
 {
+  "acceptedEvidenceMissDiagnosticChangedRuleCount": 0,
   "artifacts": {
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.json": {
-      "sha256": "6597af84ad0e96af504c927ea7cbc7921154d93bb296e6c359ab02576f431563"
+      "sha256": "12a4830a893e24535eff4f9c6421ed595752d60098708b3744bb0e49c713e511"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.md": {
-      "sha256": "1c308d944557b3985a8dcac1530af0630881feea4f5040d368b38f7451e4debb"
+      "sha256": "6ff928ad019579d03ee14ce2f46c8cff662a5e3a2671c3712c1cdd8fde95f55a"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json": {
-      "sha256": "4b9f1b953ff3314380cd942ea911004f0fa17a6cd2c39db5b5fc61d3aa52d0fd"
+      "sha256": "c3264beb29e5ad342555b8c0a2673ebaca185f57c16f6f1fd769bfe8281e9854"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_PROPOSAL.json": {
       "sha256": "0e886ff8874b5ff950439a9b7853b3debe8caa9578248b8c7866fee0991d58ab"
@@ -15,7 +16,6 @@
   },
   "changedRuleCount": 21,
   "command": "npm run preverif:rc3:post-fix-benchmark",
-  "diagnosticTraceChangedRuleCount": 0,
   "gateResult": "passed",
   "inputs": {
     "baseline": {
@@ -65,6 +65,6 @@
     "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
   },
   "ruleCount": 58,
-  "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v3",
+  "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v4",
   "serializedRowChangedRuleCount": 21
 }

@@ -1,4 +1,6 @@
 {
+  "acceptedEvidenceMissDiagnosticChangedRuleCount": 0,
+  "acceptedEvidenceMissDiagnosticChangedRuleIds": [],
   "baselineIdentity": {
     "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
     "diagnosticPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
@@ -45,8 +47,6 @@
     "Verra.AFOLU.VM0007.v1-8.R-6-0007",
     "Verra.AFOLU.VM0007.v1-8.R-6-0008"
   ],
-  "diagnosticTraceChangedRuleCount": 0,
-  "diagnosticTraceChangedRuleIds": [],
   "extractionIdentity": {
     "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
     "sha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
@@ -151,7 +151,7 @@
     "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
   },
   "ruleCount": 58,
-  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v3",
+  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v4",
   "serializedRowChangedRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0003",
     "Verra.AFOLU.VM0007.v1-8.R-1-0004",

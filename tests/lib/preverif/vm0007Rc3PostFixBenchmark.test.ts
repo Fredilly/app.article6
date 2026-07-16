@@ -5,7 +5,8 @@ import { execFileSync } from "node:child_process";
 
 import { evaluateVm0007Benchmark, machineProposalToBenchmarkRows, reviewedTruthToBenchmarkRows } from "@/lib/preverif/vm0007Benchmark";
 import { compareBenchmarkMetric } from "@/lib/preverif/vm0007Benchmark";
-import { changedVm0007RuleIds, mapDiagnosticTracesByRuleId, validateVm0007ManualReview } from "@/lib/preverif/vm0007BenchmarkIntegrity";
+import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
+import { changedVm0007RuleIds, mapDiagnosticTracesByRuleId, removedEvidenceIsBaselineFalseSupport, validateVm0007ManualReview } from "@/lib/preverif/vm0007BenchmarkIntegrity";
 import { evaluateVm0007EvidenceBenchmark } from "@/lib/preverif/vm0007EvidenceBenchmark";
 
 const root = process.cwd();
@@ -81,11 +82,16 @@ describe("RC3-7 audited post-fix benchmark", () => {
     expect(audit.rules.every((rule: any) => rule.rationale && rule.rationale.trim())).toBe(true);
     expect(new Set(audit.rules.map((rule: any) => rule.stableRuleId))).toEqual(new Set(artifact.changedRuleIds));
     expect(artifact.gateResult).toBe("passed");
-    expect(artifact.diagnosticTraceChangedRuleCount).toBe(artifact.diagnosticTraceChangedRuleIds.length);
+    expect(artifact.acceptedEvidenceMissDiagnosticChangedRuleCount).toBe(artifact.acceptedEvidenceMissDiagnosticChangedRuleIds.length);
+    expect(artifact).not.toHaveProperty("diagnosticTraceChangedRuleCount");
+    expect(artifact).not.toHaveProperty("diagnosticTraceChangedRuleIds");
     expect(artifact.changedRuleCount).toBe(artifact.changedRuleIds.length);
     expect(artifact.changedRuleIds).toEqual(artifact.serializedRowChangedRuleIds);
     expect(read(path.join(artifactDir, "RC3_AUDITED_POST_FIX_MANIFEST.json")).preFixDiagnostic.sha256).toBe(sha256(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")));
-    expect(audit.rules.every((rule: any) => rule.serializedRowChanged === true && rule.diagnosticTraceChanged === false)).toBe(true);
+    expect(audit.rules.every((rule: any) => rule.serializedRowChanged === true && rule.acceptedEvidenceMissDiagnosticChanged === false)).toBe(true);
+    expect(audit.rules.every((rule: any) => !Object.prototype.hasOwnProperty.call(rule, "diagnosticTraceChanged"))).toBe(true);
+    expect(read(path.join(artifactDir, "RC3_AUDITED_POST_FIX_MANIFEST.json")).acceptedEvidenceMissDiagnosticChangedRuleCount).toBe(artifact.acceptedEvidenceMissDiagnosticChangedRuleCount);
+    expect(fs.readFileSync(path.join(artifactDir, "RC3_AUDITED_POST_FIX_BENCHMARK.md"), "utf8")).toContain("Accepted-evidence-miss diagnostic changes: 0");
   });
 
   it("uses explicit metric directions and keeps null incomparable", () => {
@@ -105,6 +111,10 @@ describe("RC3-7 audited post-fix benchmark", () => {
     expect(() => mapDiagnosticTracesByRuleId([{ stableId: "r" }, { stableId: "r" }], ["r"])).toThrow(/duplicate/);
     expect(() => mapDiagnosticTracesByRuleId([{ stableId: "unknown" }], ["r"])).toThrow(/unknown/);
     expect(() => mapDiagnosticTracesByRuleId([], ["r"])).toThrow(/missing/);
+    const falseSupport = new Set([canonicalJsonStringify({ quote: "false" })]);
+    expect(removedEvidenceIsBaselineFalseSupport([], falseSupport)).toBe(false);
+    expect(removedEvidenceIsBaselineFalseSupport([{ quote: "false" }], falseSupport)).toBe(true);
+    expect(removedEvidenceIsBaselineFalseSupport([{ quote: "other" }], falseSupport)).toBe(false);
     expect(() => validateVm0007ManualReview({ reviews: [] }, ["r"])).toThrow(/exactly cover/);
     expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "intended_improvement", rationale: "" }] }, ["r"])).toThrow(/Invalid/);
     expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "regression", rationale: "bad" }, { stableRuleId: "r", classification: "regression", rationale: "duplicate" }] }, ["r"])).toThrow(/duplicate/);
