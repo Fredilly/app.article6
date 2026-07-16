@@ -1,13 +1,13 @@
 {
   "artifacts": {
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.json": {
-      "sha256": "84255515b6bb273531f9648c25c6062b9e5c914b05fe8312cb2beedca39f628d"
+      "sha256": "6597af84ad0e96af504c927ea7cbc7921154d93bb296e6c359ab02576f431563"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.md": {
-      "sha256": "7ab435fb69d33154d4d5f5be0041cda2da37b83a4c897115c8a9e4dd5d25d3c2"
+      "sha256": "1c308d944557b3985a8dcac1530af0630881feea4f5040d368b38f7451e4debb"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json": {
-      "sha256": "79af4c4fd693a7f4a4fa6ed91be012e79f5928d8f99d18409511a3db14e4c4bf"
+      "sha256": "4b9f1b953ff3314380cd942ea911004f0fa17a6cd2c39db5b5fc61d3aa52d0fd"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_PROPOSAL.json": {
       "sha256": "0e886ff8874b5ff950439a9b7853b3debe8caa9578248b8c7866fee0991d58ab"
@@ -25,6 +25,10 @@
     "baselineProposal": {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
       "sha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85"
+    },
+    "diagnostic": {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
+      "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
     },
     "extraction": {
       "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
@@ -56,6 +60,11 @@
     "sha256": "56201e020a0180f4905c46245c658cc63f6b472cf8babf0c41404e7cd1564d45"
   },
   "postFixAuditExecutionSha256": "8257b8d8c16f9f71da0f2d5aad2fab9a083cc1e527ef34909ec6b5b88d0ae834",
+  "preFixDiagnostic": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
+    "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
+  },
   "ruleCount": 58,
-  "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v2"
+  "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v3",
+  "serializedRowChangedRuleCount": 21
 }

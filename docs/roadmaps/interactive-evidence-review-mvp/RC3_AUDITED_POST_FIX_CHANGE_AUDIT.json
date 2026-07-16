@@ -121,6 +121,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -279,6 +280,7 @@
         }
       ],
       "reviewedStatus": "N/A",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -476,6 +478,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -634,6 +637,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -833,6 +837,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -992,6 +997,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -1162,6 +1168,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1345,6 +1352,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -1481,6 +1489,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1589,6 +1598,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -1689,6 +1699,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -1835,6 +1846,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -1964,6 +1976,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2128,6 +2141,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -2257,6 +2271,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2419,6 +2434,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -2582,6 +2598,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -2796,6 +2813,7 @@
         }
       ],
       "reviewedStatus": "FOUND",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -2977,6 +2995,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3136,6 +3155,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -3321,6 +3341,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3515,6 +3536,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -3702,6 +3724,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -3861,6 +3884,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -4014,6 +4038,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4139,6 +4164,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -4268,6 +4294,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4393,6 +4420,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -4556,6 +4584,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -4753,6 +4782,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -4950,6 +4980,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -5181,6 +5212,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -5366,6 +5398,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -5542,6 +5575,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -5733,6 +5767,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -5909,6 +5944,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -6100,6 +6136,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -6277,6 +6314,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -6480,6 +6518,7 @@
       "baselineRejectedEvidence": [],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -6656,6 +6695,7 @@
         }
       ],
       "reviewedStatus": "MISSING",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {
@@ -6849,6 +6889,7 @@
       ],
       "baselineStatus": "UNCLEAR",
       "classification": "intended_improvement",
+      "diagnosticTraceChanged": false,
       "evidenceAdded": [],
       "evidenceRemoved": [
         {
@@ -7044,6 +7085,7 @@
         }
       ],
       "reviewedStatus": "UNCLEAR",
+      "serializedRowChanged": true,
       "sourceBackedExtraction": {
         "baseline": [
           {

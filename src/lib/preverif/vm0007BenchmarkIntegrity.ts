@@ -19,7 +19,22 @@ export function substantiveVm0007ProposalRow(row: Record<string, unknown>): Reco
 }
 
 export function substantiveDiagnosticTrace(trace: unknown): unknown {
-  return trace;
+  if (trace === null || trace === undefined) return [];
+  if (!Array.isArray(trace)) return trace;
+  // Diagnostic event IDs, reviewed-evidence wrappers, event notes, and event
+  // ordering are benchmark wrappers. Candidate stages and cutoff are semantic.
+  return trace.map((event) => {
+    if (!event || typeof event !== "object" || Array.isArray(event)) return event;
+    const detail = (event as { detail?: unknown }).detail;
+    const source = detail && typeof detail === "object" && !Array.isArray(detail) ? detail : event;
+    const record = source as Record<string, unknown>;
+    return {
+      retrievalCandidates: record.retrievalCandidates ?? [],
+      postFilterCandidates: record.postFilterCandidates ?? [],
+      selectedCandidates: record.selectedCandidates ?? [],
+      cutoffPosition: record.cutoffPosition ?? null,
+    };
+  });
 }
 
 export function changedVm0007RuleIds(
@@ -36,6 +51,23 @@ export function changedVm0007RuleIds(
     const traceChanged = baselineTraces !== undefined && postFixTraces !== undefined && canonicalJsonStringify(substantiveDiagnosticTrace(baselineTraces.get(id))) !== canonicalJsonStringify(substantiveDiagnosticTrace(postFixTraces.get(id)));
     return rowChanged || traceChanged;
   }).sort();
+}
+
+export function mapDiagnosticTracesByRuleId(
+  traces: readonly { stableId?: unknown }[],
+  expectedRuleIds: readonly string[],
+): ReadonlyMap<string, unknown> {
+  const expected = new Set(expectedRuleIds);
+  const map = new Map<string, unknown>();
+  for (const trace of traces) {
+    const id = typeof trace?.stableId === "string" ? trace.stableId.trim() : "";
+    if (!id || !expected.has(id)) throw new Error(`Diagnostic trace has unknown or empty stable rule ID: ${id || "empty"}`);
+    if (map.has(id)) throw new Error(`Diagnostic trace has duplicate stable rule ID: ${id}`);
+    map.set(id, trace);
+  }
+  const missing = expectedRuleIds.filter((id) => !map.has(id));
+  if (missing.length) throw new Error(`Diagnostic trace map is missing stable rule IDs: ${missing.join(", ")}`);
+  return map;
 }
 
 export function validateVm0007ManualReview(

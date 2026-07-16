@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 
 import { evaluateVm0007Benchmark, machineProposalToBenchmarkRows, reviewedTruthToBenchmarkRows } from "@/lib/preverif/vm0007Benchmark";
 import { compareBenchmarkMetric } from "@/lib/preverif/vm0007Benchmark";
-import { changedVm0007RuleIds, validateVm0007ManualReview } from "@/lib/preverif/vm0007BenchmarkIntegrity";
+import { changedVm0007RuleIds, mapDiagnosticTracesByRuleId, validateVm0007ManualReview } from "@/lib/preverif/vm0007BenchmarkIntegrity";
 import { evaluateVm0007EvidenceBenchmark } from "@/lib/preverif/vm0007EvidenceBenchmark";
 
 const root = process.cwd();
@@ -49,6 +49,7 @@ describe("RC3-7 audited post-fix benchmark", () => {
     const registry = read(path.join(artifactDir, "RC3_BASELINE_REGISTRY.json"));
     expect(registry.versions.filter((version: any) => version.logicalVersion === "v2" && version.status === "frozen_current")).toHaveLength(1);
     expect(read(path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json")).generatedProposal.path).toContain("RC3_AUDITED_PRE_FIX_PROPOSAL.json");
+    expect(read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")).events).toHaveLength(97);
   });
 
   it("reproduces every committed artifact and protects the authored review input", () => {
@@ -80,6 +81,11 @@ describe("RC3-7 audited post-fix benchmark", () => {
     expect(audit.rules.every((rule: any) => rule.rationale && rule.rationale.trim())).toBe(true);
     expect(new Set(audit.rules.map((rule: any) => rule.stableRuleId))).toEqual(new Set(artifact.changedRuleIds));
     expect(artifact.gateResult).toBe("passed");
+    expect(artifact.diagnosticTraceChangedRuleCount).toBe(artifact.diagnosticTraceChangedRuleIds.length);
+    expect(artifact.changedRuleCount).toBe(artifact.changedRuleIds.length);
+    expect(artifact.changedRuleIds).toEqual(artifact.serializedRowChangedRuleIds);
+    expect(read(path.join(artifactDir, "RC3_AUDITED_POST_FIX_MANIFEST.json")).preFixDiagnostic.sha256).toBe(sha256(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")));
+    expect(audit.rules.every((rule: any) => rule.serializedRowChanged === true && rule.diagnosticTraceChanged === false)).toBe(true);
   });
 
   it("uses explicit metric directions and keeps null incomparable", () => {
@@ -95,6 +101,10 @@ describe("RC3-7 audited post-fix benchmark", () => {
     const changed = { ...base, gap: "new" };
     expect(changedVm0007RuleIds([base], [changed], ["r"])).toEqual(["r"]);
     expect(changedVm0007RuleIds([base], [{ ...base }], ["r"], new Map([["r", { score: 1 }]]), new Map([["r", { score: 2 }]]))).toEqual(["r"]);
+    expect(mapDiagnosticTracesByRuleId([{ stableId: "r" }], ["r"]).get("r")).toEqual({ stableId: "r" });
+    expect(() => mapDiagnosticTracesByRuleId([{ stableId: "r" }, { stableId: "r" }], ["r"])).toThrow(/duplicate/);
+    expect(() => mapDiagnosticTracesByRuleId([{ stableId: "unknown" }], ["r"])).toThrow(/unknown/);
+    expect(() => mapDiagnosticTracesByRuleId([], ["r"])).toThrow(/missing/);
     expect(() => validateVm0007ManualReview({ reviews: [] }, ["r"])).toThrow(/exactly cover/);
     expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "intended_improvement", rationale: "" }] }, ["r"])).toThrow(/Invalid/);
     expect(() => validateVm0007ManualReview({ reviews: [{ stableRuleId: "r", classification: "regression", rationale: "bad" }, { stableRuleId: "r", classification: "regression", rationale: "duplicate" }] }, ["r"])).toThrow(/duplicate/);

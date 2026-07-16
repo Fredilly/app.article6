@@ -1,6 +1,8 @@
 {
   "baselineIdentity": {
     "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
+    "diagnosticPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
+    "diagnosticSha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd",
     "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
     "proposalPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
     "proposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
@@ -19,6 +21,7 @@
     "evidenceStateFailures": 38,
     "reviewerOutcomeFailures": 58
   },
+  "changedRuleCount": 21,
   "changedRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0003",
     "Verra.AFOLU.VM0007.v1-8.R-1-0004",
@@ -42,6 +45,7 @@
     "Verra.AFOLU.VM0007.v1-8.R-6-0007",
     "Verra.AFOLU.VM0007.v1-8.R-6-0008"
   ],
+  "diagnosticTraceChangedRuleCount": 0,
   "diagnosticTraceChangedRuleIds": [],
   "extractionIdentity": {
     "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
@@ -147,7 +151,30 @@
     "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
   },
   "ruleCount": 58,
-  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v2",
+  "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v3",
+  "serializedRowChangedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
   "stableRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0001",
     "Verra.AFOLU.VM0007.v1-8.R-1-0002",
