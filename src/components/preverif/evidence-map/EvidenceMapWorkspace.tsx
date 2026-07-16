@@ -25,6 +25,7 @@ import {
   type EvidenceMapPresentationFilters,
   type EvidenceMapPresentationRow,
 } from "./evidenceMapPresentationModel";
+import { vm0007EvidenceIdentity } from "@/lib/preverif/vm0007EvidenceMapReview";
 
 function label(value: string): string {
   return value
@@ -65,9 +66,11 @@ function hasDistinctRuleTitle(row: EvidenceMapPresentationRow): boolean {
 function EvidenceList({
   row,
   rejected = false,
+  onEvidenceDecision,
 }: {
   row: EvidenceMapPresentationRow;
   rejected?: boolean;
+  onEvidenceDecision?: (rowId: string, evidenceIdentity: string, action: "reject" | "reinstate", note: string) => string | null;
 }) {
   const records = rejected ? row.rejectedEvidence : row.acceptedEvidence;
   const heading = rejected
@@ -85,9 +88,9 @@ function EvidenceList({
       </div>
       {records.length ? (
         <div className="mt-3 space-y-3">
-          {records.map((record, index) => (
-            <EvidenceRecord key={`${record.spanId}-${index}`} record={record} rejected={rejected} />
-          ))}
+            {records.map((record, index) => (
+              <EvidenceRecord key={`${record.spanId}-${index}`} record={record} rejected={rejected} rowId={row.rowId} onEvidenceDecision={onEvidenceDecision} />
+            ))}
         </div>
       ) : (
         <p className="mt-3 text-sm text-slate-500">
@@ -101,14 +104,34 @@ function EvidenceList({
 function EvidenceRecord({
   record,
   rejected,
+  rowId,
+  onEvidenceDecision,
 }: {
   record: EvidenceMapPresentationRow["acceptedEvidence"][number];
   rejected: boolean;
+  rowId: string;
+  onEvidenceDecision?: (rowId: string, evidenceIdentity: string, action: "reject" | "reinstate", note: string) => string | null;
 }) {
   const [showFull, setShowFull] = useState(false);
+  const [action, setAction] = useState<"reject" | "reinstate" | null>(null);
+  const [note, setNote] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const noteId = `evidence-note-${useId()}`;
   const quoteId = `evidence-quote-${useId()}`;
   const isLong = record.quote.length > 360;
   const visibleQuote = showFull ? record.quote : createEvidencePreview(record.quote);
+  const identity = vm0007EvidenceIdentity(record);
+  const openAction = (next: "reject" | "reinstate") => { setAction(next); setNote(""); setError(null); };
+  const cancelAction = () => { setAction(null); setNote(""); setError(null); };
+  const submitAction = () => {
+    if (!note.trim()) { setError(action === "reject" ? "Add a rejection reason." : "Add a reviewer note."); return; }
+    if (!onEvidenceDecision) return;
+    setPending(true);
+    const result = onEvidenceDecision(rowId, identity, action!, note.trim());
+    setPending(false);
+    if (result) setError(result); else cancelAction();
+  };
   return (
     <article data-evidence-record={rejected ? "rejected" : "accepted"} className={`rounded-xl border p-4 shadow-sm ${rejected ? "border-amber-200 bg-amber-50/30" : "border-slate-200 bg-white"}`}>
       <blockquote id={quoteId} className="whitespace-pre-wrap text-[15px] leading-7 text-slate-800">
@@ -126,6 +149,18 @@ function EvidenceRecord({
         <div><dt className="sr-only">Document</dt><dd>{record.provenance.docId}</dd></div>
         <div title={record.provenance.spanId}><dt className="sr-only">Source span</dt><dd>{record.provenance.spanId}</dd></div>
       </dl>
+      {onEvidenceDecision ? (
+        <div className="mt-4 border-t border-slate-200 pt-3">
+          {!action ? <button type="button" onClick={() => openAction(rejected ? "reinstate" : "reject")} className="min-h-9 rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-800 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">{rejected ? "Reinstate" : "Reject"}</button> : (
+            <div className="grid gap-2" onKeyDown={(event) => { if (event.key === "Escape") cancelAction(); }}>
+              <label htmlFor={noteId} className="text-sm font-medium text-slate-800">{rejected ? "Reviewer note" : "Rejection reason"} <span className="text-rose-600">*</span></label>
+              <textarea id={noteId} autoFocus value={note} onChange={(event) => setNote(event.target.value)} disabled={pending} rows={2} aria-describedby={error ? `${noteId}-error` : undefined} className="rounded-md border border-slate-300 p-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+              {error ? <p id={`${noteId}-error`} role="alert" className="text-sm text-rose-700">{error}</p> : null}
+              <div className="flex flex-wrap gap-2"><button type="button" onClick={submitAction} disabled={pending} aria-busy={pending} className="min-h-9 rounded-md bg-slate-900 px-3 text-sm font-semibold text-white disabled:opacity-50">{pending ? "Saving…" : "Confirm"}</button><button type="button" onClick={cancelAction} disabled={pending} className="min-h-9 rounded-md px-3 text-sm font-medium text-slate-700 hover:bg-slate-100">Cancel</button></div>
+            </div>
+          )}
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -135,11 +170,13 @@ function RuleDetails({
   readOnly,
   finalized,
   onReview,
+  onEvidenceDecision,
 }: {
   row: EvidenceMapPresentationRow;
   readOnly: boolean;
   finalized: boolean;
   onReview: () => void;
+  onEvidenceDecision: (rowId: string, evidenceIdentity: string, action: "reject" | "reinstate", note: string) => string | null;
 }) {
   return (
     <div
@@ -229,8 +266,8 @@ function RuleDetails({
         </section>
         </div>
         <div className="space-y-6">
-        <EvidenceList row={row} />
-          <EvidenceList row={row} rejected />
+          <EvidenceList row={row} onEvidenceDecision={readOnly ? undefined : onEvidenceDecision} />
+          <EvidenceList row={row} rejected onEvidenceDecision={readOnly ? undefined : onEvidenceDecision} />
         {row.supportedComponents || row.missingComponents ? (
           <section
             data-component-coverage
@@ -332,6 +369,7 @@ type Props = {
   message: string | null;
   onFinalize: () => void;
   onReview: (row: Vm0007EvidenceMapDraftRow) => void;
+  onEvidenceDecision: (rowId: string, evidenceIdentity: string, action: "reject" | "reinstate", note: string) => string | null;
 };
 export default function EvidenceMapWorkspace({
   pkg,
@@ -341,6 +379,7 @@ export default function EvidenceMapWorkspace({
   message,
   onFinalize,
   onReview,
+  onEvidenceDecision,
 }: Props) {
   const [filters, setFilters] = useState<EvidenceMapPresentationFilters>(
     EMPTY_PRESENTATION_FILTERS,
@@ -547,6 +586,7 @@ export default function EvidenceMapWorkspace({
                     );
                     if (machineRow) onReview(machineRow);
                   }}
+                  onEvidenceDecision={onEvidenceDecision}
                 />
               ) : null}
             </article>

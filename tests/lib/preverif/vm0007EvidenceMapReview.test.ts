@@ -98,6 +98,49 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     expect(reloaded.rows[0].rowVersion).toBe(2);
   });
 
+  test.each(["pending review", "approved", "reopened"] as const)("allows repeated explicit edits from %s", (startingState) => {
+    let current = makePackage();
+    const rowId = current.rows[0].rowId;
+    let expectedHistoryLength = 0;
+    let expectedVersion = 1;
+    if (startingState === "approved" || startingState === "reopened") {
+      const finalized = finalizeVm0007EvidenceMap(approveAll(current), "reviewer-1", "2026-07-12T02:00:00.000Z");
+      expect(finalized.ok).toBe(true);
+      if (!finalized.ok) return;
+      current = finalized.package;
+      expectedHistoryLength = 1;
+      if (startingState === "reopened") {
+        const reopened = reopenVm0007EvidenceMapRow(current, rowId, "reviewer-1", "Reopen before editing.", "2026-07-12T02:01:00.000Z");
+        expect(reopened.ok).toBe(true);
+        if (!reopened.ok) return;
+        current = reopened.package;
+        expectedHistoryLength += 1;
+        expectedVersion += 1;
+      }
+    }
+    const first = editVm0007EvidenceMapRow(current, rowId, { gap: "First reviewer edit." }, "reviewer-1", "First edit.", "2026-07-12T03:00:00.000Z");
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    current = first.package;
+    expectedHistoryLength += 1;
+    expectedVersion += 1;
+    const second = editVm0007EvidenceMapRow(current, rowId, { gap: "Second reviewer edit." }, "reviewer-1", "Second edit.", "2026-07-12T03:01:00.000Z");
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    current = second.package;
+    const row = current.rows[0];
+    expect(row.reviewState).toBe("edited");
+    expect(row.reviewHistory).toHaveLength(expectedHistoryLength + 1);
+    expect(row.reviewHistory?.at(-1)).toEqual(expect.objectContaining({ previousState: "edited", newState: "edited", reasonOrNote: "Second edit." }));
+    expect(row.rowVersion).toBe(expectedVersion + 1);
+    expect(row.assessment).toBeUndefined();
+    expect(row.finalizationState).toBe("draft");
+    expect(current.finalizationState).toBe("draft");
+    expect(loadVm0007EvidenceMapDraft(current.auditId)?.rows[0].gap).toBe("Second reviewer edit.");
+    expect(loadVm0007EvidenceMapDraft(current.auditId)?.rows[0].reviewHistory).toHaveLength(expectedHistoryLength + 1);
+    expect(loadQuickCheckReadinessPayload(current.auditId)).toBeNull();
+  });
+
   test("a buildVm0007EvidenceMapDraft production draft gets assessment through reviewer workflow and finalizes after reload", () => {
     let pkg = buildProductionDraft();
     expect(pkg.rows.every((row) => row.assessment === undefined)).toBe(true);

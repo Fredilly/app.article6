@@ -6,7 +6,7 @@ import {
   type ReviewerWorkflowState,
 } from "@/lib/evidence/readinessReport";
 import { PRESENTATION_CONTRACT_VERSION } from "@/lib/evidence/reportPresentationObject";
-import type { EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
+import type { EvidenceMapEvidenceProvenance, EvidenceMapRow } from "@/lib/evidence/evidenceMapDependencyContract";
 import { finalizeQuickCheckEvidenceMapForReadiness } from "@/lib/evidence/quickCheckReadinessProductionPipeline";
 import { clearQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
 import { validateProjectEvidenceMapAssessment, type ProjectReadinessPipelineResult } from "@/lib/evidence/projectReadinessProductionPipeline";
@@ -25,7 +25,7 @@ export const VM0007_REVIEW_POLICY_VERSION = "policy-v1";
 
 export type Vm0007EvidenceMapEdit = Readonly<Partial<Pick<
   Vm0007EvidenceMapDraftRow,
-  "assessmentReason" | "clientAction" | "proposedApplicability" | "proposedAcceptedEvidence" | "proposedRejectedEvidence"
+  "assessmentReason" | "gap" | "clientAction" | "proposedApplicability" | "proposedAcceptedEvidence" | "proposedRejectedEvidence"
   | "acceptedEvidence" | "rejectedEvidence" | "assessment"
 >>>;
 
@@ -41,7 +41,7 @@ function now(): string { return new Date().toISOString(); }
 function reviewerRef(value: string): string { return value.trim(); }
 
 /** Stable identity for one evidence record; mutable array position is never used. */
-export function vm0007EvidenceIdentity(record: Pick<Vm0007EvidenceMapDraftEvidenceRecord, "quote" | "provenance">): string {
+export function vm0007EvidenceIdentity(record: Pick<Vm0007EvidenceMapDraftEvidenceRecord, "quote"> & { provenance: Omit<Pick<EvidenceMapEvidenceProvenance, "docId" | "page" | "sectionPath" | "spanId">, "sectionPath"> & { sectionPath: readonly string[] } }): string {
   return JSON.stringify([
     record.provenance.docId,
     record.provenance.page,
