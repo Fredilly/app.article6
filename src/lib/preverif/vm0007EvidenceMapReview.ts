@@ -51,6 +51,26 @@ export function vm0007EvidenceIdentity(record: Pick<Vm0007EvidenceMapDraftEviden
   ]);
 }
 
+/**
+ * Compact deterministic non-cryptographic hash for public finalized IDs.
+ * Two independent 32-bit lanes keep this synchronous in browser and server
+ * callers while avoiding quote/provenance disclosure in the ID itself.
+ */
+export function compactEvidenceIdentityHash(identity: string): string {
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
+  for (let index = 0; index < identity.length; index += 1) {
+    const code = identity.charCodeAt(index);
+    first = Math.imul(first ^ code, 0x01000193) >>> 0;
+    second = Math.imul(second ^ (code + index), 0x85ebca6b) >>> 0;
+  }
+  return `${first.toString(16).padStart(8, "0")}${second.toString(16).padStart(8, "0")}`;
+}
+
+export function vm0007FinalizedEvidenceId(rowId: string, classification: "accepted" | "rejected", evidenceIdentity: string): string {
+  return `${rowId}:${classification}:${compactEvidenceIdentityHash(evidenceIdentity)}`;
+}
+
 function evidenceRecords(row: Vm0007EvidenceMapDraftRow, rejected: boolean): readonly Vm0007EvidenceMapDraftEvidenceRecord[] {
   if (rejected) {
     return row.rejectedEvidence ?? (row.proposedRejectedEvidence ? [{
@@ -214,8 +234,8 @@ export function reopenVm0007EvidenceMapRow(pkg: Vm0007EvidenceMapDraftPackage, r
 function toEvidenceMapRow(row: Vm0007EvidenceMapDraftRow, finalizedAt: string, reviewerIdentity: string): EvidenceMapRow {
   const acceptedRecords = evidenceRecords(row, false);
   const rejectedRecords = evidenceRecords(row, true);
-  const acceptedEvidence = acceptedRecords.map((record) => ({ evidenceId: `${row.rowId}:accepted:${vm0007EvidenceIdentity(record)}`, quote: record.quote, provenance: record.provenance }));
-  const rejectedEvidence = rejectedRecords.map((record) => ({ evidenceId: `${row.rowId}:rejected:${vm0007EvidenceIdentity(record)}`, quote: record.quote, rejectionReason: record.rejectionReason!, provenance: record.provenance }));
+  const acceptedEvidence = acceptedRecords.map((record) => ({ evidenceId: vm0007FinalizedEvidenceId(row.rowId, "accepted", vm0007EvidenceIdentity(record)), quote: record.quote, provenance: record.provenance }));
+  const rejectedEvidence = rejectedRecords.map((record) => ({ evidenceId: vm0007FinalizedEvidenceId(row.rowId, "rejected", vm0007EvidenceIdentity(record)), quote: record.quote, rejectionReason: record.rejectionReason!, provenance: record.provenance }));
   const evidenceProvenance = [...acceptedEvidence, ...rejectedEvidence].map((item) => item.provenance);
   return {
     rowId: row.rowId,

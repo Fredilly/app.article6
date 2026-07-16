@@ -3,11 +3,13 @@
 import {
   approveVm0007EvidenceMapRow,
   acceptVm0007EvidenceRecord,
+  compactEvidenceIdentityHash,
   editVm0007EvidenceMapRow,
   finalizeVm0007EvidenceMap,
   rejectVm0007EvidenceRecord,
   reopenVm0007EvidenceMapRow,
   vm0007EvidenceIdentity,
+  vm0007FinalizedEvidenceId,
 } from "@/lib/preverif/vm0007EvidenceMapReview";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { loadQuickCheckReadinessPayload } from "@/lib/evidence/quickCheckReadinessPayload";
@@ -269,11 +271,22 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
     const result = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1", "2026-07-12T05:00:00.000Z");
     expect(result.ok).toBe(true);
     const presentations = loadQuickCheckReadinessPayload(pkg.auditId)?.gateResult.presentations[0];
+    const repeated = finalizeVm0007EvidenceMap(approveAll(pkg), "reviewer-1", "2026-07-12T05:00:00.000Z");
+    expect(repeated.ok).toBe(true);
+    const repeatedPresentations = repeated.ok ? repeated.pipeline.presentations[0] : null;
     expect(presentations?.acceptedEvidence).toHaveLength(2);
     expect(presentations?.rejectedEvidence).toHaveLength(2);
     expect(new Set([...(presentations?.acceptedEvidence ?? []), ...(presentations?.rejectedEvidence ?? [])].map((item) => item.evidenceId)).size).toBe(4);
     expect(presentations?.acceptedEvidence.map((item) => item.provenance.spanId)).toEqual(["accepted-1", "accepted-2"]);
     expect(presentations?.rejectedEvidence.map((item) => item.provenance.spanId)).toEqual(["rejected-3", "rejected-4"]);
+    expect(presentations?.acceptedEvidence.map((item) => item.evidenceId)).toEqual(repeatedPresentations?.acceptedEvidence.map((item) => item.evidenceId));
+    expect(presentations?.rejectedEvidence.map((item) => item.evidenceId)).toEqual(repeatedPresentations?.rejectedEvidence.map((item) => item.evidenceId));
+    const allEvidence = [...(presentations?.acceptedEvidence ?? []), ...(presentations?.rejectedEvidence ?? [])];
+    expect(allEvidence.every((item) => !item.evidenceId.includes(item.quote))).toBe(true);
+    expect(allEvidence.every((item) => !item.evidenceId.includes(JSON.stringify(item.provenance)))).toBe(true);
+    expect(allEvidence.every((item) => /:((accepted)|(rejected)):[a-f0-9]{16}$/.test(item.evidenceId))).toBe(true);
+    expect(vm0007FinalizedEvidenceId(pkg.rows[0].rowId, "accepted", "same-identity")).not.toBe(vm0007FinalizedEvidenceId(pkg.rows[0].rowId, "rejected", "same-identity"));
+    expect(compactEvidenceIdentityHash("same-identity")).toBe(compactEvidenceIdentityHash("same-identity"));
     const changed = rejectVm0007EvidenceRecord(result.ok ? result.package : pkg, pkg.rows[0].rowId, vm0007EvidenceIdentity(accepted[0]), "reviewer-1", "Correction after finalization.");
     expect(changed.ok).toBe(true);
     expect(loadQuickCheckReadinessPayload(pkg.auditId)).toBeNull();
