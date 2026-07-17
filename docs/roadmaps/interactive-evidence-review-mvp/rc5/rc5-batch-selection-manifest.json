@@ -30,6 +30,21 @@
         "Verra.AFOLU.VM0007.v1-8.R-1-0010",
         "Verra.AFOLU.VM0007.v1-8.R-1-0011"
       ]
+    },
+    "3": {
+      "batchId": "RC5_BATCH_3",
+      "expectedRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+      ]
     }
   }
 }
