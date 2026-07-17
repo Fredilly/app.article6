@@ -27,6 +27,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -46,6 +47,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -65,6 +67,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -84,6 +87,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -103,6 +107,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -122,6 +127,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -141,6 +147,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -160,6 +167,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -179,6 +187,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     },
@@ -198,6 +207,7 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
       "reviewerConfidence": null
     }

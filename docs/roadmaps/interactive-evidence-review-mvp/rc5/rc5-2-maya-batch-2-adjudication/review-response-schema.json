@@ -124,6 +124,7 @@
         "gap",
         "clientAction",
         "correctionReason",
+        "provisionalReason",
         "genericFailureCategory",
         "reviewerConfidence"
       ],
@@ -234,6 +235,12 @@
             "null"
           ]
         },
+        "provisionalReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "genericFailureCategory": {
           "enum": [
             "NONE",
@@ -268,6 +275,9 @@
           },
           "then": {
             "properties": {
+              "expertReviewRequired": {
+                "const": false
+              },
               "finalEvidenceState": {
                 "type": "string"
               },
@@ -293,6 +303,67 @@
               },
               "reviewerConfidence": {
                 "type": "string"
+              },
+              "provisionalReason": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "PENDING_INDEPENDENT_ADJUDICATION"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": true
+              },
+              "finalEvidenceState": {
+                "type": "null"
+              },
+              "finalApplicability": {
+                "type": "null"
+              },
+              "reviewerOutcome": {
+                "type": "null"
+              },
+              "acceptedEvidence": {
+                "maxItems": 0
+              },
+              "rejectedEvidence": {
+                "maxItems": 0
+              },
+              "contradictionState": {
+                "type": "null"
+              },
+              "draftFindingCandidate": {
+                "type": "null"
+              },
+              "assessmentReason": {
+                "type": "null"
+              },
+              "gap": {
+                "type": "null"
+              },
+              "clientAction": {
+                "type": "null"
+              },
+              "correctionReason": {
+                "type": "null"
+              },
+              "provisionalReason": {
+                "type": "null"
+              },
+              "genericFailureCategory": {
+                "type": "null"
+              },
+              "reviewerConfidence": {
+                "type": "null"
               }
             }
           }
@@ -309,6 +380,10 @@
             "properties": {
               "expertReviewRequired": {
                 "const": true
+              },
+              "provisionalReason": {
+                "type": "string",
+                "minLength": 1
               }
             }
           }

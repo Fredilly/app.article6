@@ -79,7 +79,7 @@ describe("RC5-2 Maya adjudication packet", () => {
       schemaVersion: "rc5-2-maya-adjudication-response-v1",
       sourceDocument: template.sourceDocument,
       machineProposalRef: template.machineProposalRef,
-      decisions: template.decisions.map(({ stableRuleId, machineRowSha256, reviewStatus, expertReviewRequired }) => ({ stableRuleId, machineRowSha256, reviewStatus, expertReviewRequired, finalEvidenceState: "UNCLEAR", finalApplicability: "UNKNOWN", reviewerOutcome: "NOT_ASSESSED", acceptedEvidence: [], rejectedEvidence: [], contradictionState: "NONE", draftFindingCandidate: null, assessmentReason: "Independent review required further assessment.", gap: "", clientAction: "", correctionReason: "Independent review response.", genericFailureCategory: "NONE", reviewerConfidence: "LOW" })),
+      decisions: template.decisions.map(({ stableRuleId, machineRowSha256 }) => ({ stableRuleId, machineRowSha256, reviewStatus: "REVIEWED", expertReviewRequired: false, finalEvidenceState: "UNCLEAR", finalApplicability: "UNKNOWN", reviewerOutcome: "NOT_ASSESSED", acceptedEvidence: [], rejectedEvidence: [], contradictionState: "NONE", draftFindingCandidate: null, assessmentReason: "Independent review required further assessment.", gap: "", clientAction: "", correctionReason: "Independent review response.", provisionalReason: null, genericFailureCategory: "NONE", reviewerConfidence: "LOW" })),
     };
     const validator = new Ajv2020({ strict: false }).compile(schema);
     assert.equal(validator(response), true, JSON.stringify(validator.errors));

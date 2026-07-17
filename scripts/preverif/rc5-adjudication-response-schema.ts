@@ -1,26 +1,37 @@
-export type MayaDocumentIdentity = {
+export type Rc5DocumentIdentity = {
   documentId: string;
   documentName: string;
   contentSha256: string;
 };
 
-export type MayaMachineProposalRef = {
+export type Rc5MachineProposalRef = {
   path: string;
   sha256: string;
   proposalState: "MACHINE_PROPOSED";
 };
 
-export type MayaAdjudicationSchemaOptions = {
+export type Rc5AdjudicationSchemaOptions = {
   schemaVersion: string;
-  document: MayaDocumentIdentity;
-  machineProposalRef: MayaMachineProposalRef;
+  document: Rc5DocumentIdentity;
+  machineProposalRef: Rc5MachineProposalRef;
   ruleIds: string[];
   decisionCount: number;
 };
 
 const REVIEW_STATUSES = ["PENDING_INDEPENDENT_ADJUDICATION", "PROVISIONAL", "REVIEWED"] as const;
 
-export function buildMayaAdjudicationResponseSchema(options: MayaAdjudicationSchemaOptions) {
+export function assertRc5RuleCoverage(actualRuleIds: string[], expectedRuleIds: string[], label: string): void {
+  const actualSet = new Set(actualRuleIds);
+  const expectedSet = new Set(expectedRuleIds);
+  if (actualSet.size !== actualRuleIds.length) throw new Error(`${label}: duplicate stableRuleId`);
+  if (actualSet.size !== expectedSet.size || actualRuleIds.some((id) => !expectedSet.has(id))) {
+    const missing = expectedRuleIds.filter((id) => !actualSet.has(id));
+    const unexpected = actualRuleIds.filter((id) => !expectedSet.has(id));
+    throw new Error(`${label}: rule coverage mismatch; missing=${missing.join(",")}; unexpected=${unexpected.join(",")}`);
+  }
+}
+
+export function buildRc5AdjudicationResponseSchema(options: Rc5AdjudicationSchemaOptions) {
   const decisionProperties = {
     stableRuleId: { enum: options.ruleIds },
     machineRowSha256: { type: "string", pattern: "^[a-f0-9]{64}$" },
@@ -37,6 +48,7 @@ export function buildMayaAdjudicationResponseSchema(options: MayaAdjudicationSch
     gap: { type: ["string", "null"] },
     clientAction: { type: ["string", "null"] },
     correctionReason: { type: ["string", "null"] },
+    provisionalReason: { type: ["string", "null"] },
     genericFailureCategory: { enum: ["NONE", "RETRIEVAL", "ASSESSMENT", "APPLICABILITY", "PROVENANCE", "COMPONENT_COVERAGE", "RULE_MAPPING", "SOURCE_CONTRADICTION", "OTHER", null] },
     reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH", null] },
   };
@@ -95,13 +107,14 @@ export function buildMayaAdjudicationResponseSchema(options: MayaAdjudicationSch
       decision: {
         type: "object",
         additionalProperties: false,
-        required: ["stableRuleId", "machineRowSha256", "reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "rejectedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "genericFailureCategory", "reviewerConfidence"],
+        required: ["stableRuleId", "machineRowSha256", "reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "rejectedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "genericFailureCategory", "reviewerConfidence"],
         properties: decisionProperties,
         allOf: [
           {
             if: { properties: { reviewStatus: { const: "REVIEWED" } } },
             then: {
               properties: {
+                expertReviewRequired: { const: false },
                 finalEvidenceState: { type: "string" },
                 finalApplicability: { type: "string" },
                 reviewerOutcome: { type: "string" },
@@ -110,12 +123,40 @@ export function buildMayaAdjudicationResponseSchema(options: MayaAdjudicationSch
                 correctionReason: { type: "string", minLength: 1 },
                 genericFailureCategory: { type: "string" },
                 reviewerConfidence: { type: "string" },
+                provisionalReason: { type: "null" },
+              },
+            },
+          },
+          {
+            if: { properties: { reviewStatus: { const: "PENDING_INDEPENDENT_ADJUDICATION" } } },
+            then: {
+              properties: {
+                expertReviewRequired: { const: true },
+                finalEvidenceState: { type: "null" },
+                finalApplicability: { type: "null" },
+                reviewerOutcome: { type: "null" },
+                acceptedEvidence: { maxItems: 0 },
+                rejectedEvidence: { maxItems: 0 },
+                contradictionState: { type: "null" },
+                draftFindingCandidate: { type: "null" },
+                assessmentReason: { type: "null" },
+                gap: { type: "null" },
+                clientAction: { type: "null" },
+                correctionReason: { type: "null" },
+                provisionalReason: { type: "null" },
+                genericFailureCategory: { type: "null" },
+                reviewerConfidence: { type: "null" },
               },
             },
           },
           {
             if: { properties: { reviewStatus: { const: "PROVISIONAL" } } },
-            then: { properties: { expertReviewRequired: { const: true } } },
+            then: {
+              properties: {
+                expertReviewRequired: { const: true },
+                provisionalReason: { type: "string", minLength: 1 },
+              },
+            },
           },
         ],
       },

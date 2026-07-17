@@ -28,7 +28,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
@@ -47,7 +48,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
@@ -66,7 +68,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
@@ -85,7 +88,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
@@ -104,7 +108,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
@@ -123,7 +128,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
@@ -142,7 +148,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
@@ -161,7 +168,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
@@ -180,7 +188,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
@@ -199,7 +208,8 @@
       "clientAction": null,
       "correctionReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null
+      "reviewerConfidence": null,
+      "provisionalReason": null
     }
   ]
 }

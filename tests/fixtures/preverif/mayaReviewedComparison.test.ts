@@ -7,7 +7,7 @@ import { describe, it } from "@jest/globals";
 
 const root = process.cwd();
 const responsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json");
-const schemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response-schema.json");
+const schemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json");
 const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json");
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const canonicalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
@@ -91,7 +91,7 @@ function deriveComparison() {
     source: {
       responsePath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json",
       responseSha256: sha256(responsePath),
-      schemaPath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response-schema.json",
+      schemaPath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json",
       frozenProposalPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
       frozenProposalSha256: sha256(frozenPath),
       samplePath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json",

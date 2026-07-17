@@ -60,7 +60,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
@@ -111,7 +112,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
@@ -172,7 +174,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
@@ -213,7 +216,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
@@ -254,7 +258,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
@@ -295,7 +300,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
@@ -336,7 +342,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
@@ -377,7 +384,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
@@ -418,7 +426,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
@@ -459,7 +468,8 @@
       "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     }
   ]
 }

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
-import { buildArtifacts, packetDir } from "../../../scripts/preverif/generate-maya-rc5-2-batch2-packet";
+import { buildArtifacts, packetDir } from "../../../scripts/preverif/generate-rc5-adjudication-batch2";
 
 const root = process.cwd();
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");

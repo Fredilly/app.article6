@@ -50,7 +50,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
@@ -90,7 +91,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
@@ -131,7 +133,8 @@
       "genericFailureCategory": "APPLICABILITY",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
@@ -172,7 +175,8 @@
       "genericFailureCategory": "APPLICABILITY",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
@@ -213,7 +217,8 @@
       "genericFailureCategory": "APPLICABILITY",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
@@ -243,7 +248,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
@@ -284,7 +290,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
@@ -324,7 +331,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "MEDIUM",
       "expertReviewRequired": true,
-      "reviewStatus": "PROVISIONAL"
+      "reviewStatus": "PROVISIONAL",
+      "provisionalReason": "Expert review remains required because the full VT0001 analysis (Steps 2-4) is not yet complete."
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
@@ -354,7 +362,8 @@
       "genericFailureCategory": "RETRIEVAL",
       "reviewerConfidence": "MEDIUM",
       "expertReviewRequired": true,
-      "reviewStatus": "PROVISIONAL"
+      "reviewStatus": "PROVISIONAL",
+      "provisionalReason": "Expert review remains required because the complete net emission reduction equation and its project/leakage decomposition are not shown."
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
@@ -373,7 +382,8 @@
       "genericFailureCategory": "NONE",
       "reviewerConfidence": "HIGH",
       "expertReviewRequired": false,
-      "reviewStatus": "REVIEWED"
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     }
   ]
 }
