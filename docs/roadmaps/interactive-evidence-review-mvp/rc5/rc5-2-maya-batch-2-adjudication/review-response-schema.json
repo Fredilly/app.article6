@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "rc5-2-maya-adjudication-response-v1",
+  "$id": "rc5-2-maya-batch-2-adjudication-response-v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,7 +11,7 @@
   ],
   "properties": {
     "schemaVersion": {
-      "const": "rc5-2-maya-adjudication-response-v1"
+      "const": "rc5-2-maya-batch-2-adjudication-response-v1"
     },
     "sourceDocument": {
       "type": "object",
@@ -131,16 +131,16 @@
       "properties": {
         "stableRuleId": {
           "enum": [
-            "Verra.AFOLU.VM0007.v1-8.R-1-0001",
-            "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-            "Verra.AFOLU.VM0007.v1-8.R-3-0005",
-            "Verra.AFOLU.VM0007.v1-8.R-5-0008",
-            "Verra.AFOLU.VM0007.v1-8.R-5-0009",
-            "Verra.AFOLU.VM0007.v1-8.R-6-0006",
-            "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-            "Verra.AFOLU.VM0007.v1-8.R-4-0001",
-            "Verra.AFOLU.VM0007.v1-8.R-5-0001",
-            "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+            "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0011"
           ]
         },
         "machineRowSha256": {

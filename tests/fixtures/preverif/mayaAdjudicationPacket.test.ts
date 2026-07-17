@@ -71,17 +71,19 @@ describe("RC5-2 Maya adjudication packet", () => {
 
   it("validates the response contract shape and protects machine artifact hashes", () => {
     const schema = read<Record<string, unknown>>("review-response-schema.json");
-    const template = read<{ sourceDocument: unknown; machineProposalRef: unknown; decisions: Array<{ stableRuleId: string }> }>("review-template.json");
+    const template = read<{ sourceDocument: unknown; machineProposalRef: unknown; decisions: Array<{ stableRuleId: string; machineRowSha256: string; reviewStatus: string; expertReviewRequired: boolean }> }>("review-template.json");
     const manifest = read<{ frozenProposalSha256: string; auditRecordSha256: string; canonicalRawExtractionSha256: string; generatedPacketSha256: string; generatedAt: string; sourceCommitSha: string }>("manifest.json");
     const sample = JSON.parse(fs.readFileSync(samplePath, "utf8"));
+    const reviewedResponse = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json"), "utf8"));
     const response = {
       schemaVersion: "rc5-2-maya-adjudication-response-v1",
       sourceDocument: template.sourceDocument,
       machineProposalRef: template.machineProposalRef,
-      decisions: template.decisions.map(({ stableRuleId }) => ({ stableRuleId, finalEvidenceState: "UNCLEAR", finalApplicability: "UNKNOWN", reviewerOutcome: "NOT_ASSESSED", acceptedEvidence: [], rejectedEvidence: [], contradictionState: "NONE", draftFindingCandidate: null, assessmentReason: "Independent review required further assessment.", gap: "", clientAction: "", correctionReason: "Independent review response.", genericFailureCategory: "NONE", reviewerConfidence: "LOW" })),
+      decisions: template.decisions.map(({ stableRuleId, machineRowSha256 }) => ({ stableRuleId, machineRowSha256, reviewStatus: "REVIEWED", expertReviewRequired: false, finalEvidenceState: "UNCLEAR", finalApplicability: "UNKNOWN", reviewerOutcome: "NOT_ASSESSED", acceptedEvidence: [], rejectedEvidence: [], contradictionState: "NONE", draftFindingCandidate: null, assessmentReason: "Independent review required further assessment.", gap: "", clientAction: "", correctionReason: "Independent review response.", provisionalReason: null, genericFailureCategory: "NONE", reviewerConfidence: "LOW" })),
     };
     const validator = new Ajv2020({ strict: false }).compile(schema);
     assert.equal(validator(response), true, JSON.stringify(validator.errors));
+    assert.equal(validator(reviewedResponse), true, JSON.stringify(validator.errors));
     assert.deepEqual(template.decisions.map((decision) => decision.stableRuleId), sample.sample.map((rule: { stableRuleId: string }) => rule.stableRuleId));
     assert.equal(manifest.generatedPacketSha256, sha256(fs.readFileSync(path.join(packetDir, "review-packet.json"))));
     assert.equal(manifest.frozenProposalSha256, sha256(fs.readFileSync(frozenPath)));

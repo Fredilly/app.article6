@@ -1,0 +1,475 @@
+{
+  "schemaVersion": "rc5-2-maya-batch-2-adjudication-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+      "machineRowSha256": "f79f34e33011549df049ffdaf7188720314fcf4dbd49e56e790d2497d6a0d662",
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "CONFORMS",
+      "acceptedEvidence": [
+        {
+          "quote": "areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "The applicability conditions table in \u00a73.1.2 explicitly classifies the baseline deforestation as APDef because the deforestation activities are legally permitted. This directly satisfies the binary classification rule."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5...",
+          "page": 15,
+          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "Machine accepted this as evidence but it is a general eligibility statement that does not address the AUDef/APDef binary classification."
+        },
+        {
+          "quote": "Project activity. Sub-step 1a. Identify credible alternative land use scenarios...",
+          "page": 91,
+          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but it discusses baseline alternative scenarios, not the binary deforestation classification."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD's applicability conditions table (\u00a73.1.2, page 84) explicitly states: 'Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category.' This directly classifies the project as APDef, satisfying R-1-0002. The machine marked this as UNCLEAR with irrelevant accepted evidence (general eligibility statement + baseline scenarios). The correct evidence exists in the rejected ctx-003 span. Machine proposal is INCORRECT: evidence state should be FOUND, not UNCLEAR.",
+      "gap": "The APDef classification is clearly stated in the applicability table. No further action needed for this specific rule.",
+      "clientAction": "No action required for this rule. The APDef classification in \u00a73.1.2 is sufficient.",
+      "correctionReason": "The APDef classification evidence in ctx-003 (\u00a73.1.2 applicability table) was rejected as noisy but contains the exact classification needed. Should be accepted.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+      "machineRowSha256": "05512769ab9087f09c16080d50749c953bfda7fefd09868370a57f2d7cd2bb82",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "2.5.1 National and Local Laws (VCS, 3.1, 3.6. 3.7, 3.14, 3.18, 3.19; CCB, G5.6) The titles of the parcels of land that make up the MFC REDD project area were legally transferred from the previous landowner to the MFCT following the General Registry Act, Chapter 237 of the Substantive Law of Belize R.E 2000-2003, General Registry Rules. Copies of the Transfer Certificate of Title are in Appendix 8. There are no laws, statutes, nor regulatory frameworks that would prevent the land within the property from remaining in the same land use (forests) and being managed for conservation.",
+          "page": 74,
+          "sectionHeading": "Legal Status and Property Rights",
+          "spanId": "quick-check-review-question:element:paragraph:2.5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "PDD \u00a72.5.1 documents legal property rights, land titles, and confirms no laws prevent forest conservation. This addresses the legal-rights and land-tenure criteria required by the rule."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5...",
+          "page": 15,
+          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "Machine accepted this as evidence but it is a general legal-compliance statement, not the specific legal-rights documentation needed."
+        },
+        {
+          "quote": "Project activity. Sub-step 1a. Identify credible alternative land use scenarios...",
+          "page": 91,
+          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but it discusses baseline alternatives, not the three criteria for AUDef exclusion."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD \u00a72.5.1 provides legal documentation of property rights (land titles transferred under Belize's General Registry Act), which partially addresses R-1-0003. However, the three criteria for this rule are not explicitly proven: (1) the project forest area relative to the administrative region is not stated, (2) the exclusion of large-scale industrial agriculture/aquaculture is not explicitly confirmed, and (3) the evidence for both criteria is incomplete. The legal evidence is relevant but insufficient to fully satisfy the rule. Machine proposal of UNCLEAR/APPLICABLE is DEFENSIBLE \u2014 the evidence exists but is incomplete for a FOUND determination.",
+      "gap": "PDD documents legal property rights (\u00a72.5.1) but does not explicitly address all three required criteria: area relative to administrative region, exclusion of large-scale industrial agriculture/aquaculture, and complete evidence for both.",
+      "clientAction": "Accept the \u00a72.5.1 legal documentation as partial evidence. Add explicit statements addressing each of the three criteria: (1) project forest area as a proportion of the administrative region, (2) confirmation that deforestation is not primarily for large-scale industrial agriculture or aquaculture, and (3) supporting documentation for both.",
+      "correctionReason": "The legal evidence in ctx-005 (\u00a72.5.1) is relevant and was missed by the machine, but it does not fully satisfy all three criteria. UNCLEAR is more accurate than FOUND.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+      "machineRowSha256": "a0077681d65560946e856950d297f1b3ec0b2609597fbcf655757239314ea51d",
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "CONFORMS",
+      "acceptedEvidence": [
+        {
+          "quote": "Reference ID / Title Applicability condition Justification of conformance... 7) Where conversion of forest land to a deforested condition is legally permitted The conversion of the Project Activity Instance to agriculture is legal, as defined under the Land Utilization Act, Chapter 188, revised Edition 2000, the Private Forest (Conservation) Act, Chapter 217 Revised Edition 2000, and the Forest Act Chapter 213, Revised Edition 2003.",
+          "page": 85,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "The applicability conditions table (Condition 7) and module justification for VMD0006 confirm that conversion to agriculture is legally permitted under Belizean law, citing specific statutes. This directly provides the legal documentation authorizing conversion."
+        },
+        {
+          "quote": "2.5.1 National and Local Laws... The titles of the parcels of land that make up the MFC REDD project area were legally transferred... There are no laws, statutes, nor regulatory frameworks that would prevent the land within the property from remaining in the same land use (forests) and being managed for conservation.",
+          "page": 74,
+          "sectionHeading": "Legal Status and Property Rights",
+          "spanId": "quick-check-review-question:element:paragraph:2.5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "The legal status documentation confirms property rights and the legal framework for land use, supporting the authorization evidence."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "Project activity. Sub-step 1a. Identify credible alternative land use scenarios...",
+          "page": 91,
+          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but it discusses baseline alternatives, not the legal documentation authorizing conversion."
+        },
+        {
+          "quote": "Illegal activities that are a risk in the project area include illegal hunting, and associated with ...",
+          "page": 78,
+          "sectionHeading": "Illegal Activity Identification (VCS, 3.19; CCB, G5.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.5.10",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "Machine accepted this as evidence but it discusses illegal activity risks, not legal authorization for conversion."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD \u00a73.1.2 applicability conditions table (Condition 7) explicitly states that conversion is legally permitted and cites the controlling Belizean statutes: Land Utilization Act, Private Forest (Conservation) Act, and Forest Act. VMD0006 module justification also confirms legal authorization. The evidence exists in rejected ctx-003. Machine proposal of UNCLEAR/APPLICABLE is INCORRECT in evidence state \u2014 FOUND is more appropriate given the explicit legal citations.",
+      "gap": "Legal authorization is documented for conversion. The specific area and dates covered by each cited statute could be clarified.",
+      "clientAction": "Accept the applicability table evidence showing Condition 7 and the three cited Belizean statutes as sufficient legal authorization.",
+      "correctionReason": "The legal authorization evidence exists in the rejected ctx-003 span (applicability conditions + VMD0006 module justification) and should have been accepted.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+      "machineRowSha256": "d45759b006a86db415b43c620c156e539e3aedfdbdb9676bda65d247b28e9306",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands, which is the applicability trigger for WRC rules including the water-table lowering prohibition."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but it is an anti-discrimination policy statement completely irrelevant to water-table lowering rules. This is a retrieval error."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states 'The project area contains no peatlands or tidal wetlands' in the applicability conditions table (\u00a73.1.2). This rule prohibits water table lowering in WRC/peatland projects. Since the project has no peatlands or wetlands, this rule is NOT_APPLICABLE. The machine correctly determined NOT_APPLICABLE but accepted the anti-discrimination policy text as evidence, which is completely irrelevant. The correct evidence (no-peatlands statement in ctx-003) was not used.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 applicability conditions as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands applicability statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+      "machineRowSha256": "925b643dcd983499a4ad4532fc1c4eeae6b740c1a45ed4722d4acd23ddabcecd",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands, which is the applicability trigger for the organic soil burning prohibition rule."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but it is an anti-discrimination policy statement completely irrelevant to organic soil burning prohibitions."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist in the project area (\u00a73.1.2). This rule prohibits organic soil burning, which applies only to WRC/peatland projects. NOT_APPLICABLE is correct. Machine correctly determined NOT_APPLICABLE but accepted irrelevant evidence.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+      "machineRowSha256": "ef69baa2c9245ab7ecc852a88055e2e965f2894cce571f821090eb05a7eb1384",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands. The nitrogen fertilizer prohibition applies only to WRC/peatland projects."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "Not applicable as the project does not impact property rights.",
+          "page": 93,
+          "sectionHeading": "Benefit Sharing Mechanisms (VCS, 3.18, 3.19;)",
+          "spanId": "quick-check-review-question:element:paragraph:2.5.8",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but the statement about property rights is unrelated to the nitrogen fertilizer prohibition rule. This is a retrieval error."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist (\u00a73.1.2). The nitrogen fertilizer prohibition is a WRC-specific rule. NOT_APPLICABLE is correct. The machine accepted an irrelevant 'no impact on property rights' statement from \u00a72.5.8 as evidence \u2014 this does not address the nitrogen fertilizer rule. The correct evidence is the no-peatlands statement in ctx-003.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant 'property rights' evidence instead of the valid no-peatlands applicability statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+      "machineRowSha256": "a9a86c3e51baf64baa586e7a95d2fef153409e5e770c885c78bda76e4972e8b0",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands. Spillover emissions from hydrological changes is a WRC-specific rule."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but the anti-discrimination policy is completely irrelevant to hydrological spillover emissions assessment."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist (\u00a73.1.2). The spillover emissions assessment is a WRC-specific rule. NOT_APPLICABLE is correct. The machine accepted the anti-discrimination policy text as evidence, which is completely irrelevant. The correct evidence is the no-peatlands statement in ctx-003.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+      "machineRowSha256": "a9c4f758071247df2589b0eec1123e94a0a3c90e21773cbc7f9f9c454a546337",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands. The three alternative conditions for WRC restoration do not apply."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but the anti-discrimination policy is completely irrelevant to the WRC restoration conditions rule."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist (\u00a73.1.2). The three alternative conditions rule is WRC-specific. NOT_APPLICABLE is correct. The machine accepted the anti-discrimination policy text as evidence, which is irrelevant.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+      "machineRowSha256": "16eadf8f7ab6bfab36cbfddf4dcc79fa62cea2b39c0f4251246f72c3dcf08e4c",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands. The VCS peatland definition rule only applies if peatlands are present."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but the anti-discrimination policy is completely irrelevant to the peatland definition rule."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist (\u00a73.1.2). The VCS peatland definition rule applies only when peatlands exist in the project area. NOT_APPLICABLE is correct. The machine accepted irrelevant anti-discrimination evidence.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+      "machineRowSha256": "2e48bdcbc06c96c6b67a2786ec26b8705709ec8a5faa2b6d42a7f85ec31c1170",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands. The restoration activity type rule applies only to WRC projects."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS's anti-discrimination policies...",
+          "page": 70,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this as evidence but the anti-discrimination policy is completely irrelevant to the restoration activity types rule."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states no peatlands or tidal wetlands exist (\u00a73.1.2). The restoration activity type rule is WRC-specific. NOT_APPLICABLE is correct. The machine accepted irrelevant anti-discrimination evidence.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence instead of the valid no-peatlands statement.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
+    }
+  ]
+}

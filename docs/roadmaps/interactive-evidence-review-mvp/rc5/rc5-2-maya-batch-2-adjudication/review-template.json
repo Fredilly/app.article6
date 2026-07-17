@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "rc5-2-maya-adjudication-response-v1",
+  "schemaVersion": "rc5-2-maya-batch-2-adjudication-response-v1",
   "sourceDocument": {
     "documentId": "quick-check-review-question",
     "documentName": "12-maya-forest-corridor-redd-belize.pdf",
@@ -12,8 +12,8 @@
   },
   "decisions": [
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
-      "machineRowSha256": "6677e03b65408280ae4d9362d47fac6ea73e5be448dfed6012583e5b5f5b7231",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+      "machineRowSha256": "f79f34e33011549df049ffdaf7188720314fcf4dbd49e56e790d2497d6a0d662",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -27,13 +27,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
-      "machineRowSha256": "7ccaa893e2e2fe9207f6a3f73ae320f2bfb817a63582281cc505b3911018ad8b",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+      "machineRowSha256": "05512769ab9087f09c16080d50749c953bfda7fefd09868370a57f2d7cd2bb82",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -47,13 +47,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
-      "machineRowSha256": "ac33066ef27d75b8bdb471e293d61db671d1efc3e41450f833e8558ced570b31",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+      "machineRowSha256": "a0077681d65560946e856950d297f1b3ec0b2609597fbcf655757239314ea51d",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -67,13 +67,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
-      "machineRowSha256": "87727bb3359fafd9e6ec9111bad745deb149b78f3cdaf05990df14be74463248",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+      "machineRowSha256": "d45759b006a86db415b43c620c156e539e3aedfdbdb9676bda65d247b28e9306",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -87,13 +87,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
-      "machineRowSha256": "93e66e82ecab8dbb7bba6345ff6201cf7f41e2bf11a3da0048a20ff1e492b076",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+      "machineRowSha256": "925b643dcd983499a4ad4532fc1c4eeae6b740c1a45ed4722d4acd23ddabcecd",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -107,13 +107,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
-      "machineRowSha256": "245548562972d58030b6b8b03c02782e75e76902beb62407be9842620103acab",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+      "machineRowSha256": "ef69baa2c9245ab7ecc852a88055e2e965f2894cce571f821090eb05a7eb1384",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -127,13 +127,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
-      "machineRowSha256": "8855c6f677b65ce412bf9c6e27a90c222ea20d0b5bea3d44e248d1023d1b09d0",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+      "machineRowSha256": "a9a86c3e51baf64baa586e7a95d2fef153409e5e770c885c78bda76e4972e8b0",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -147,13 +147,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
-      "machineRowSha256": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+      "machineRowSha256": "a9c4f758071247df2589b0eec1123e94a0a3c90e21773cbc7f9f9c454a546337",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -167,13 +167,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
-      "machineRowSha256": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+      "machineRowSha256": "16eadf8f7ab6bfab36cbfddf4dcc79fa62cea2b39c0f4251246f72c3dcf08e4c",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -187,13 +187,13 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     },
     {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
-      "machineRowSha256": "a0098a251751a8680cb2658609c22e0a5606da81eadbdc893ee555f977b1250f",
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+      "machineRowSha256": "2e48bdcbc06c96c6b67a2786ec26b8705709ec8a5faa2b6d42a7f85ec31c1170",
       "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
       "expertReviewRequired": true,
       "finalEvidenceState": null,
@@ -207,9 +207,9 @@
       "gap": null,
       "clientAction": null,
       "correctionReason": null,
+      "provisionalReason": null,
       "genericFailureCategory": null,
-      "reviewerConfidence": null,
-      "provisionalReason": null
+      "reviewerConfidence": null
     }
   ]
 }
