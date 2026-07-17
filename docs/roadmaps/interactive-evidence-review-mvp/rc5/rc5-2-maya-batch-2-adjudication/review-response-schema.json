@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-batch-2-adjudication-response-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceDocument",
+    "machineProposalRef",
+    "decisions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-batch-2-adjudication-response-v1"
+    },
+    "sourceDocument": {
+      "type": "object",
+      "required": [
+        "documentId",
+        "documentName",
+        "contentSha256"
+      ],
+      "properties": {
+        "documentId": {
+          "const": "quick-check-review-question"
+        },
+        "documentName": {
+          "const": "12-maya-forest-corridor-redd-belize.pdf"
+        },
+        "contentSha256": {
+          "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      },
+      "additionalProperties": false
+    },
+    "machineProposalRef": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "proposalState"
+      ],
+      "properties": {
+        "path": {
+          "const": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"
+        },
+        "sha256": {
+          "const": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
+        },
+        "proposalState": {
+          "const": "MACHINE_PROPOSED"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "$defs": {
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quote",
+        "page",
+        "sectionHeading",
+        "spanId",
+        "documentId",
+        "documentSha256"
+      ],
+      "properties": {
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sectionHeading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spanId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "documentId": {
+          "const": "quick-check-review-question"
+        },
+        "documentSha256": {
+          "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stableRuleId",
+        "machineRowSha256",
+        "reviewStatus",
+        "expertReviewRequired",
+        "finalEvidenceState",
+        "finalApplicability",
+        "reviewerOutcome",
+        "acceptedEvidence",
+        "rejectedEvidence",
+        "contradictionState",
+        "draftFindingCandidate",
+        "assessmentReason",
+        "gap",
+        "clientAction",
+        "correctionReason",
+        "genericFailureCategory",
+        "reviewerConfidence"
+      ],
+      "properties": {
+        "stableRuleId": {
+          "enum": [
+            "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0011"
+          ]
+        },
+        "machineRowSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewStatus": {
+          "enum": [
+            "PENDING_INDEPENDENT_ADJUDICATION",
+            "PROVISIONAL"
+          ]
+        },
+        "expertReviewRequired": {
+          "const": true
+        },
+        "finalEvidenceState": {
+          "enum": [
+            "FOUND",
+            "UNCLEAR",
+            "MISSING",
+            "N/A",
+            null
+          ]
+        },
+        "finalApplicability": {
+          "enum": [
+            "APPLICABLE",
+            "NOT_APPLICABLE",
+            "UNKNOWN",
+            null
+          ]
+        },
+        "reviewerOutcome": {
+          "enum": [
+            "CONFORMS",
+            "ACTION_REQUIRED",
+            "NOT_APPLICABLE",
+            "NOT_ASSESSED",
+            null
+          ]
+        },
+        "acceptedEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceReference"
+          }
+        },
+        "rejectedEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceReference"
+          }
+        },
+        "contradictionState": {
+          "enum": [
+            "NONE",
+            "PRESENT",
+            "UNRESOLVED",
+            null
+          ]
+        },
+        "draftFindingCandidate": {
+          "enum": [
+            "NIR_CANDIDATE",
+            "NCR_CANDIDATE",
+            "OFI_CANDIDATE",
+            null
+          ]
+        },
+        "assessmentReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gap": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "clientAction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "genericFailureCategory": {
+          "enum": [
+            "NONE",
+            "RETRIEVAL",
+            "ASSESSMENT",
+            "APPLICABILITY",
+            "PROVENANCE",
+            "COMPONENT_COVERAGE",
+            "RULE_MAPPING",
+            "SOURCE_CONTRADICTION",
+            "OTHER",
+            null
+          ]
+        },
+        "reviewerConfidence": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            null
+          ]
+        }
+      }
+    }
+  }
+}

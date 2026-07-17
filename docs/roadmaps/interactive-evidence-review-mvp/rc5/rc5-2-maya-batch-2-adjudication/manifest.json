@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "rc5-2-maya-batch-2-adjudication-manifest-v1",
+  "generatedAt": "2026-07-17T00:00:00.000Z",
+  "sourceCommitSha": "0747920e839011e908d78e0d9280da13c5a7c85c",
+  "sourceDocumentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "canonicalRawExtractionSha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8",
+  "auditRecordSha256": "908f88ab4430cad99b3e9aa62714933100bde3a3cd521e175b22c3a249f7c5ef",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011"
+  ],
+  "reviewedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ],
+  "generatedPacketSha256": "9197b8653035b60c9c96f7476543ee26e178b92406512fba645e05169a80d48a",
+  "packetFiles": [
+    "review-packet.json",
+    "review-response-schema.json",
+    "review-template.json",
+    "review-instructions.md",
+    "agent-prompt.md"
+  ]
+}
