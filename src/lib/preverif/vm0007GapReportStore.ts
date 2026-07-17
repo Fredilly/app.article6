@@ -145,6 +145,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
       generatedAt: nowIso(),
       methodologyId: input.loadedRulebookId,
       methodologyVersion: input.loadedRulebookVersion,
+      methodology: input.methodology,
       evidenceFileName: input.evidenceFileName,
       sourcePdfSha256: input.sourcePdfSha256,
       rawPddText: input.rawPddText,
