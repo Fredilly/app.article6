@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "rc5-2-maya-adjudication-manifest-v1",
+  "generatedAt": "2026-07-17T00:00:00.000Z",
+  "sourceCommitSha": "58e9fb78d32a5d49e73a39df6e1a9d87eb493bb9",
+  "sourceDocumentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "auditRecordSha256": "908f88ab4430cad99b3e9aa62714933100bde3a3cd521e175b22c3a249f7c5ef",
+  "reviewSampleSha256": "33377d62d38645f794a6f30dc44820410b7a42ff5a1d4128be45c81de032076b",
+  "canonicalRawExtractionSha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8",
+  "sampledMachineRowSha256": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001": "6677e03b65408280ae4d9362d47fac6ea73e5be448dfed6012583e5b5f5b7231",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001": "7ccaa893e2e2fe9207f6a3f73ae320f2bfb817a63582281cc505b3911018ad8b",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005": "ac33066ef27d75b8bdb471e293d61db671d1efc3e41450f833e8558ced570b31",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008": "87727bb3359fafd9e6ec9111bad745deb149b78f3cdaf05990df14be74463248",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009": "93e66e82ecab8dbb7bba6345ff6201cf7f41e2bf11a3da0048a20ff1e492b076",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006": "245548562972d58030b6b8b03c02782e75e76902beb62407be9842620103acab",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015": "8855c6f677b65ce412bf9c6e27a90c222ea20d0b5bea3d44e248d1023d1b09d0",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008": "a0098a251751a8680cb2658609c22e0a5606da81eadbdc893ee555f977b1250f"
+  },
+  "generatedPacketSha256": "22d7451f54e652068b7e12e67849c7710168c7df45b8f8067d60bb429d0696c9",
+  "packetFiles": [
+    "review-packet.json",
+    "review-instructions.md",
+    "review-response-schema.json",
+    "review-template.json",
+    "agent-prompt.md"
+  ],
+  "sampledRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+  ]
+}
