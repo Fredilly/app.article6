@@ -5,6 +5,9 @@ import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { assertRc5RuleCoverage, buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc5-adjudication-response-schema";
+import { readRc5BatchSelection, rc5BatchSelectionManifestPath } from "../../../scripts/preverif/rc5-batch-selection-manifest";
+import { assertBatch1GeneratedRuleCoverage } from "../../../scripts/preverif/generate-rc5-adjudication-batch1";
+import { assertBatch2GeneratedRuleCoverage } from "../../../scripts/preverif/generate-rc5-adjudication-batch2";
 
 const root = process.cwd();
 const batch1Dir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication");
@@ -30,8 +33,8 @@ function fixture(dir: string) {
   const responsePath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json") : path.join(dir, "reviewed-truth.json");
   const response = read<any>(responsePath);
   const expectedPath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json") : path.join(dir, "review-packet.json");
-  const expected = read<any>(expectedPath);
-  return { template, schema, response, expectedRuleIds: dir === batch1Dir ? expected.sample.map((entry: any) => entry.stableRuleId) : expected.rules.map((entry: any) => entry.stableRuleId) };
+  read<any>(expectedPath);
+  return { template, schema, response, expectedRuleIds: readRc5BatchSelection(dir === batch1Dir ? 1 : 2) };
 }
 
 function validator(schema: any) {
@@ -73,11 +76,27 @@ describe("RC5 adjudication schema parity", () => {
       const { template, response, expectedRuleIds } = fixture(dir);
       assertRc5RuleCoverage(template.decisions.map((decision: any) => decision.stableRuleId), expectedRuleIds, dir);
       assertRc5RuleCoverage(response.decisions.map((decision: any) => decision.stableRuleId), expectedRuleIds, dir);
+      const schema = read<any>(path.join(dir, "review-response-schema.json"));
+      assert.deepEqual(schema.$defs.decision.properties.stableRuleId.enum, expectedRuleIds);
+      if (dir === batch2Dir) {
+        const packet = read<any>(path.join(dir, "review-packet.json"));
+        assertRc5RuleCoverage(packet.rules.map((rule: any) => rule.stableRuleId), expectedRuleIds, "Batch 2 packet");
+      }
     }
-    const expected = fixture(batch1Dir).expectedRuleIds;
-    assert.throws(() => assertRc5RuleCoverage([expected[0], expected[0], ...expected.slice(2)], expected, "duplicate"));
-    const otherValidRule = fixture(batch2Dir).expectedRuleIds[0];
-    assert.throws(() => assertRc5RuleCoverage([otherValidRule, ...expected.slice(1)], expected, "replacement"));
+    assert.equal(fs.existsSync(rc5BatchSelectionManifestPath), true);
+    for (const [batchNumber, dir] of [[1, batch1Dir], [2, batch2Dir]] as const) {
+      const expected = readRc5BatchSelection(batchNumber);
+      const otherBatch = readRc5BatchSelection(batchNumber === 1 ? 2 : 1)[0];
+      const validateGenerated = batchNumber === 1 ? assertBatch1GeneratedRuleCoverage : (ids: string[]) => assertBatch2GeneratedRuleCoverage(ids, `Batch ${batchNumber}`);
+      assert.throws(() => validateGenerated([expected[0], expected[0], ...expected.slice(2)]));
+      assert.throws(() => validateGenerated([otherBatch, ...expected.slice(1)]));
+      assert.throws(() => validateGenerated([...expected.slice(1), expected[0]]));
+      const template = read<any>(path.join(dir, "review-template.json"));
+      const generatedIds = template.decisions.map((decision: any) => decision.stableRuleId);
+      generatedIds[0] = "not-from-generated-template";
+      assert.deepEqual(readRc5BatchSelection(batchNumber), expected);
+      assert.notDeepEqual(generatedIds, readRc5BatchSelection(batchNumber));
+    }
   });
 
   it("enforces the REVIEWED, PROVISIONAL, and PENDING status invariants", () => {

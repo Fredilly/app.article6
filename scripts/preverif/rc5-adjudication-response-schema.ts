@@ -21,10 +21,12 @@ export type Rc5AdjudicationSchemaOptions = {
 const REVIEW_STATUSES = ["PENDING_INDEPENDENT_ADJUDICATION", "PROVISIONAL", "REVIEWED"] as const;
 
 export function assertRc5RuleCoverage(actualRuleIds: string[], expectedRuleIds: string[], label: string): void {
+  if (new Set(expectedRuleIds).size !== expectedRuleIds.length) throw new Error(`${label}: expected rule IDs contain duplicates`);
   const actualSet = new Set(actualRuleIds);
   const expectedSet = new Set(expectedRuleIds);
   if (actualSet.size !== actualRuleIds.length) throw new Error(`${label}: duplicate stableRuleId`);
-  if (actualSet.size !== expectedSet.size || actualRuleIds.some((id) => !expectedSet.has(id))) {
+  const reordered = actualRuleIds.length === expectedRuleIds.length && actualRuleIds.some((id, index) => id !== expectedRuleIds[index]);
+  if (actualSet.size !== expectedSet.size || actualRuleIds.some((id) => !expectedSet.has(id)) || reordered) {
     const missing = expectedRuleIds.filter((id) => !actualSet.has(id));
     const unexpected = actualRuleIds.filter((id) => !expectedSet.has(id));
     throw new Error(`${label}: rule coverage mismatch; missing=${missing.join(",")}; unexpected=${unexpected.join(",")}`);

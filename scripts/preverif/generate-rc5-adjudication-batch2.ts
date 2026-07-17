@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { assertRc5RuleCoverage, buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
+import { readRc5BatchSelection } from "./rc5-batch-selection-manifest";
 
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-2-adjudication");
@@ -15,6 +16,12 @@ const priorComparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-
 function readJson<T>(filePath: string): T { return JSON.parse(fs.readFileSync(filePath, "utf8")) as T; }
 function sha256(value: string | Buffer): string { return crypto.createHash("sha256").update(value).digest("hex"); }
 function writeJson(filePath: string, value: unknown): void { fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`); }
+
+export function assertBatch2GeneratedRuleCoverage(generatedDecisionIds: string[], label: string): string[] {
+  const frozenExpectedRuleIds = readRc5BatchSelection(2);
+  assertRc5RuleCoverage(generatedDecisionIds, frozenExpectedRuleIds, label);
+  return frozenExpectedRuleIds;
+}
 
 type Evidence = { quote: string; page: number; section: string; spanId: string; evidenceType?: string; rejectionReason?: string; provenance: Record<string, unknown> };
 type FrozenRow = Record<string, any> & { stableRuleId: string; rowSha256: string };
@@ -60,6 +67,7 @@ function evidenceReference(evidence: Evidence, contextId: string, index: number)
 }
 
 export function buildArtifacts() {
+  const frozenExpectedRuleIds = assertBatch2GeneratedRuleCoverage(readRc5BatchSelection(2), "RC5 Batch 2 frozen selection");
   const frozen = readJson<{ rows: FrozenRow[]; sourceDocument: Record<string, unknown>; proposalState: string; auditId: string }>(frozenPath);
   const audit = readJson<Record<string, unknown>>(auditPath);
   const raw = readJson<{ pages: Array<{ pageNumber: number; text: string }> }>(rawPath);
@@ -69,7 +77,11 @@ export function buildArtifacts() {
 
   const priorIds = [...new Set([...priorPacket.rules, ...priorResponse.decisions, ...priorComparison.rows].map((row) => row.stableRuleId))];
   const priorSet = new Set(priorIds);
-  const selected = frozen.rows.map((row, index) => ({ row, canonicalPosition: index + 1 })).filter(({ row }) => !priorSet.has(row.stableRuleId)).slice(0, 10);
+  const selected = frozenExpectedRuleIds.map((stableRuleId) => {
+    const row = frozen.rows.find((candidate) => candidate.stableRuleId === stableRuleId);
+    if (!row) throw new Error(`RC5 Batch 2 frozen proposal is missing manifest rule ${stableRuleId}`);
+    return { row, canonicalPosition: frozen.rows.findIndex((candidate) => candidate.stableRuleId === stableRuleId) + 1 };
+  });
   if (selected.length !== 10) throw new Error(`Expected 10 selected rows, got ${selected.length}`);
   if (selected.some(({ row }) => priorSet.has(row.stableRuleId))) throw new Error("Selected rule overlaps prior review");
 
@@ -112,7 +124,7 @@ export function buildArtifacts() {
     };
   });
   const selectedRuleIds = selected.map(({ row }) => row.stableRuleId);
-  assertRc5RuleCoverage(selectedRuleIds, selected.map(({ row }) => row.stableRuleId), "RC5 Batch 2 selection");
+  assertBatch2GeneratedRuleCoverage(selectedRuleIds, "RC5 Batch 2 selection");
   const document = { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", contentSha256: "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b" };
   const packet = {
     schemaVersion: "rc5-2-maya-batch-2-adjudication-review-packet-v1",
@@ -130,11 +142,13 @@ export function buildArtifacts() {
     schemaVersion: "rc5-2-maya-batch-2-adjudication-response-v1",
     document,
     machineProposalRef: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: sha256(fs.readFileSync(frozenPath)), proposalState: "MACHINE_PROPOSED" },
-    ruleIds: selectedRuleIds,
+    ruleIds: frozenExpectedRuleIds,
     decisionCount: 10,
   });
   const template = { schemaVersion: "rc5-2-maya-batch-2-adjudication-response-v1", sourceDocument: document, machineProposalRef: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: sha256(fs.readFileSync(frozenPath)), proposalState: "MACHINE_PROPOSED" }, decisions: rules.map((rule) => ({ stableRuleId: rule.stableRuleId, machineRowSha256: rule.frozenMachineRowHash, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], contradictionState: null, draftFindingCandidate: null, assessmentReason: null, gap: null, clientAction: null, correctionReason: null, provisionalReason: null, genericFailureCategory: null, reviewerConfidence: null })) };
-  return { packet, schema, template, selectedRuleIds, priorIds, frozen, audit, raw };
+  assertBatch2GeneratedRuleCoverage(rules.map((rule) => rule.stableRuleId), "RC5 Batch 2 packet");
+  assertBatch2GeneratedRuleCoverage(template.decisions.map((decision) => decision.stableRuleId), "RC5 Batch 2 template");
+  return { packet, schema, template, selectedRuleIds, frozenExpectedRuleIds, priorIds, frozen, audit, raw };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
