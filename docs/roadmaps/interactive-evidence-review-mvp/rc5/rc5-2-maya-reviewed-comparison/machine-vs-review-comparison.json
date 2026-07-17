@@ -1,0 +1,428 @@
+{
+  "schemaVersion": "rc5-2-maya-machine-vs-review-comparison-v1",
+  "source": {
+    "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json",
+    "responseSha256": "9efd0a1a8908673a3f4af5e08deec2b5b37a4ddce8869f93afd2c0cf19205a87",
+    "schemaPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response-schema.json",
+    "frozenProposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "samplePath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json"
+  },
+  "policy": {
+    "correctnessFields": [
+      "evidenceState",
+      "applicability",
+      "acceptedEvidence"
+    ],
+    "rejectedEvidenceIsDiagnosticOnly": true,
+    "reviewedTruthSeparate": true,
+    "machineProposalUnchanged": true
+  },
+  "counts": {
+    "sampledRules": 10,
+    "fullyCorrectRows": 1,
+    "rowsWithAnyDisagreement": 9,
+    "provisionalRows": 2,
+    "provisionalRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0001"
+    ],
+    "statusTransitions": {
+      "UNCLEAR->UNCLEAR": 4,
+      "UNCLEAR->MISSING": 1,
+      "UNCLEAR->N/A": 1,
+      "MISSING->FOUND": 1,
+      "MISSING->UNCLEAR": 2,
+      "MISSING->MISSING": 1
+    },
+    "fieldLevelMatchCounts": {
+      "evidenceState": {
+        "matches": 5,
+        "disagreements": 5
+      },
+      "applicability": {
+        "matches": 7,
+        "disagreements": 3
+      },
+      "acceptedEvidence": {
+        "matches": 1,
+        "disagreements": 9
+      },
+      "rejectedEvidence": {
+        "matches": 1,
+        "disagreements": 9
+      }
+    },
+    "failureTaxonomy": {
+      "RETRIEVAL": 6,
+      "APPLICABILITY": 3,
+      "NONE": 1
+    }
+  },
+  "expectedInterpretation": {
+    "fullyCorrectRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-6-0008"
+    ],
+    "rowsWithAnyDisagreement": 9,
+    "applicabilityOnlyMatchRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-6-0006"
+    ]
+  },
+  "genericFailureDocumentation": {
+    "RETRIEVAL": "Missed or incorrectly selected project evidence, including irrelevant accepted spans or rejected spans that directly support a rule.",
+    "APPLICABILITY": "Failed to resolve rule applicability from the project classification or selected methodology modules.",
+    "NONE": "The reviewer found the machine evidence state and applicability defensible for the sampled row."
+  },
+  "rows": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "shortRuleId": "R-1-0001",
+      "machineRowSha256": "6677e03b65408280ae4d9362d47fac6ea73e5be448dfed6012583e5b5f5b7231",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 3
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 1
+      },
+      "fieldMatches": {
+        "evidenceState": true,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+      "shortRuleId": "R-2-0001",
+      "machineRowSha256": "7ccaa893e2e2fe9207f6a3f73ae320f2bfb817a63582281cc505b3911018ad8b",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 2,
+        "rejectedEvidenceCount": 4
+      },
+      "review": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 2
+      },
+      "fieldMatches": {
+        "evidenceState": false,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "shortRuleId": "R-3-0005",
+      "machineRowSha256": "ac33066ef27d75b8bdb471e293d61db671d1efc3e41450f833e8558ced570b31",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "UNKNOWN",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 1
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 1
+      },
+      "fieldMatches": {
+        "evidenceState": true,
+        "applicability": false,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "APPLICABILITY"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "shortRuleId": "R-5-0008",
+      "machineRowSha256": "87727bb3359fafd9e6ec9111bad745deb149b78f3cdaf05990df14be74463248",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "UNKNOWN",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 1
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 1
+      },
+      "fieldMatches": {
+        "evidenceState": true,
+        "applicability": false,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "APPLICABILITY"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "shortRuleId": "R-5-0009",
+      "machineRowSha256": "93e66e82ecab8dbb7bba6345ff6201cf7f41e2bf11a3da0048a20ff1e492b076",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "UNKNOWN",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 1
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 1
+      },
+      "fieldMatches": {
+        "evidenceState": true,
+        "applicability": false,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "APPLICABILITY"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "shortRuleId": "R-6-0006",
+      "machineRowSha256": "245548562972d58030b6b8b03c02782e75e76902beb62407be9842620103acab",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "NOT_APPLICABLE",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 0
+      },
+      "review": {
+        "evidenceState": "N/A",
+        "applicability": "NOT_APPLICABLE",
+        "reviewerOutcome": "NOT_APPLICABLE",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 0
+      },
+      "fieldMatches": {
+        "evidenceState": false,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": true
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": null,
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+      "shortRuleId": "R-1-0015",
+      "machineRowSha256": "8855c6f677b65ce412bf9c6e27a90c222ea20d0b5bea3d44e248d1023d1b09d0",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 3
+      },
+      "review": {
+        "evidenceState": "FOUND",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "CONFORMS",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 1
+      },
+      "fieldMatches": {
+        "evidenceState": false,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "shortRuleId": "R-4-0001",
+      "machineRowSha256": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+      "reviewStatus": "PROVISIONAL",
+      "provisional": true,
+      "machine": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 1
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 2,
+        "rejectedEvidenceCount": 0
+      },
+      "fieldMatches": {
+        "evidenceState": false,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "shortRuleId": "R-5-0001",
+      "machineRowSha256": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a",
+      "reviewStatus": "PROVISIONAL",
+      "provisional": true,
+      "machine": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 5
+      },
+      "review": {
+        "evidenceState": "UNCLEAR",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 1,
+        "rejectedEvidenceCount": 0
+      },
+      "fieldMatches": {
+        "evidenceState": false,
+        "applicability": true,
+        "acceptedEvidence": false,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": false,
+      "anyDisagreement": true,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "RETRIEVAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+      "shortRuleId": "R-6-0008",
+      "machineRowSha256": "a0098a251751a8680cb2658609c22e0a5606da81eadbdc893ee555f977b1250f",
+      "reviewStatus": "REVIEWED",
+      "provisional": false,
+      "machine": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 4
+      },
+      "review": {
+        "evidenceState": "MISSING",
+        "applicability": "APPLICABLE",
+        "reviewerOutcome": "ACTION_REQUIRED",
+        "acceptedEvidenceCount": 0,
+        "rejectedEvidenceCount": 0
+      },
+      "fieldMatches": {
+        "evidenceState": true,
+        "applicability": true,
+        "acceptedEvidence": true,
+        "rejectedEvidence": false
+      },
+      "correctnessFields": [
+        "evidenceState",
+        "applicability",
+        "acceptedEvidence"
+      ],
+      "fullyCorrect": true,
+      "anyDisagreement": false,
+      "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
+      "genericFailureCategory": "NONE"
+    }
+  ]
+}
