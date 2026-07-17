@@ -37,6 +37,14 @@ function rowHash(row: Record<string, unknown>): string {
   return sha256(JSON.stringify(row));
 }
 
+function countByEvidenceStatus(rows: Record<string, unknown>[]): Record<string, number> {
+  return rows.reduce<Record<string, number>>((counts, row) => {
+    const status = String(row.proposedEvidenceStatus);
+    counts[status] = (counts[status] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
 describe("RC5-2 Maya canonical semantic parity", () => {
   it("matches all 58 substantive rows and the frozen 0/44/14 counts", () => {
     const canonical = JSON.parse(fs.readFileSync(canonicalPath, "utf8")) as { rows: Record<string, unknown>[]; [key: string]: unknown };
@@ -45,10 +53,10 @@ describe("RC5-2 Maya canonical semantic parity", () => {
 
     for (const proposal of [canonical, frozen]) {
       assert.equal(proposal.rows.length, 58);
-      const counts = Object.groupBy(proposal.rows, (row) => String(row.proposedEvidenceStatus));
-      assert.equal(counts.FOUND?.length ?? 0, 0);
-      assert.equal(counts.UNCLEAR?.length ?? 0, 44);
-      assert.equal(counts.MISSING?.length ?? 0, 14);
+      const counts = countByEvidenceStatus(proposal.rows);
+      assert.equal(counts.FOUND ?? 0, 0);
+      assert.equal(counts.UNCLEAR ?? 0, 44);
+      assert.equal(counts.MISSING ?? 0, 14);
     }
 
     const canonicalByRule = new Map(canonical.rows.map((row) => [row.stableRuleId, row]));
