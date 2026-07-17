@@ -113,8 +113,7 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
       const manifest = read<Record<string, any>>(batch3Config.batchManifestPath);
       manifest.batches["3"].expectedRuleIds[0] = "Verra.AFOLU.VM0007.v1-8.R-2-0009";
       fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-      const changedManifestSha = sha256(fs.readFileSync(manifestPath));
-      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath, expectedBatchSelectionSha256: changedManifestSha }), /RC5 Batch 3 selection SHA mismatch/);
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath }), /RC5 Batch 3 selection SHA mismatch/);
     });
   });
 
@@ -149,5 +148,19 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
 
   it("does not create Batch 4 artifacts", () => {
     assert.equal(fs.existsSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-4-adjudication")), false);
+  });
+
+  it("strictly validates canonical JSON values and deterministic ordering", () => {
+    class Example {}
+    const sparse = new Array(1);
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    for (const unsupported of [NaN, Infinity, -Infinity, new Date(), undefined, BigInt(1), () => null, Symbol("x"), new Map(), new Set(), new Example(), sparse, { nested: { value: NaN } }, circular]) {
+      assert.throws(() => canonicalSerialize(unsupported), /Unsupported|Circular canonical serialization value/);
+    }
+    const nested = { z: [2, { b: true, a: null }], a: "value" };
+    assert.equal(canonicalSerialize(nested), '{"a":"value","z":[2,{"a":null,"b":true}]}');
+    assert.equal(canonicalSerialize({ b: 2, a: 1 }), canonicalSerialize({ a: 1, b: 2 }));
+    assert.notEqual(canonicalSerialize([1, 2]), canonicalSerialize([2, 1]));
   });
 });

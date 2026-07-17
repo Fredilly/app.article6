@@ -45,10 +45,62 @@ export const sha256 = (value: string | Buffer): string => crypto.createHash("sha
 const writeJson = (filePath: string, value: unknown): void => fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 
 export function canonicalSerialize(value: unknown): string {
-  if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map((item) => canonicalSerialize(item)).join(",")}]`;
-  if (typeof value === "object") return `{${Object.keys(value as Record<string, unknown>).sort().map((key) => `${JSON.stringify(key)}:${canonicalSerialize((value as Record<string, unknown>)[key])}`).join(",")}}`;
-  throw new Error(`Cannot canonically serialize ${typeof value}`);
+  const active = new Set<object>();
+  const serialize = (current: unknown, location: string): string => {
+    if (current === null) return "null";
+    if (typeof current === "string" || typeof current === "boolean") return JSON.stringify(current);
+    if (typeof current === "number") {
+      if (!Number.isFinite(current)) throw new Error(`Unsupported canonical serialization value at ${location}: non-finite number`);
+      return JSON.stringify(current);
+    }
+    if (current === undefined || typeof current === "bigint" || typeof current === "function" || typeof current === "symbol") throw new Error(`Unsupported canonical serialization value at ${location}: ${typeof current}`);
+
+    if (Array.isArray(current)) {
+      if (Object.getPrototypeOf(current) !== Array.prototype) throw new Error(`Unsupported canonical serialization value at ${location}: non-plain array`);
+      if (active.has(current)) throw new Error(`Circular canonical serialization value at ${location}`);
+      active.add(current);
+      try {
+        const keys = Reflect.ownKeys(current);
+        const length = current.length;
+        for (let index = 0; index < length; index += 1) {
+          if (!Object.prototype.hasOwnProperty.call(current, index)) throw new Error(`Unsupported canonical serialization value at ${location}[${index}]: sparse array`);
+        }
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new Error(`Unsupported canonical serialization value at ${location}: symbol property`);
+          if (key === "length") continue;
+          const index = Number(key);
+          if (!Number.isInteger(index) || index < 0 || index >= length || String(index) !== key) throw new Error(`Unsupported canonical serialization value at ${location}: extra array property ${key}`);
+          const descriptor = Object.getOwnPropertyDescriptor(current, key);
+          if (!descriptor?.enumerable || !("value" in descriptor)) throw new Error(`Unsupported canonical serialization value at ${location}[${key}]: non-data property`);
+        }
+        return `[${current.map((item, index) => serialize(item, `${location}[${index}]`)).join(",")}]`;
+      } finally {
+        active.delete(current);
+      }
+    }
+
+    if (typeof current === "object") {
+      const prototype = Object.getPrototypeOf(current);
+      if (prototype !== Object.prototype && prototype !== null) throw new Error(`Unsupported canonical serialization value at ${location}: non-plain object`);
+      if (active.has(current)) throw new Error(`Circular canonical serialization value at ${location}`);
+      active.add(current);
+      try {
+        const keys = Reflect.ownKeys(current);
+        const stringKeys = Object.keys(current);
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new Error(`Unsupported canonical serialization value at ${location}: symbol property`);
+          const descriptor = Object.getOwnPropertyDescriptor(current, key);
+          if (!descriptor?.enumerable || !("value" in descriptor)) throw new Error(`Unsupported canonical serialization value at ${location}.${key}: non-data property`);
+        }
+        return `{${stringKeys.sort().map((key) => `${JSON.stringify(key)}:${serialize((current as Record<string, unknown>)[key], `${location}.${key}`)}`).join(",")}}`;
+      } finally {
+        active.delete(current);
+      }
+    }
+
+    throw new Error(`Unsupported canonical serialization value at ${location}: ${typeof current}`);
+  };
+  return serialize(value, "$");
 }
 
 function assertSha(actual: string, expected: string, label: string): void {
