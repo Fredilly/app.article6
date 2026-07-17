@@ -122,7 +122,7 @@ describe("RC3-5 false-support taxonomy", () => {
       "gold.rc2-rc3.json": "b53fc19a8316f88896b7f9564a8e2d2d0dd8b08c9e05868a7b427140f47e1127",
     };
     for (const [name, expected] of Object.entries(frozen)) {
-      const file = name.startsWith("gold") ? path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map", name) : path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3", name);
+      const file = name.startsWith("gold") ? path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map", name) : name.startsWith("RC2_BASELINE") ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2", name) : name.startsWith("RC3_AUDITED_PRE_FIX_BASELINE") || name.startsWith("RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST") ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3", name) : path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3", name);
       expect(crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")).toBe(expected);
     }
   });

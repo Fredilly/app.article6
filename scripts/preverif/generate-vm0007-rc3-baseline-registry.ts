@@ -10,8 +10,12 @@ const executionDir = path.join(root, "docs/roadmaps/interactive-evidence-review-
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const outputPath = path.join(artifactDir, "RC3_BASELINE_REGISTRY.json");
 const relative = (filePath: string) => path.relative(root, filePath);
+const legacyRelative = (filePath: string) => relative(filePath)
+  .replace("docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/", "docs/roadmaps/interactive-evidence-review-mvp/")
+  .replace("docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3/", "docs/roadmaps/interactive-evidence-review-mvp/")
+  .replace("docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/", "docs/roadmaps/interactive-evidence-review-mvp/");
 const sha256 = (filePath: string) => crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
-const ref = (filePath: string) => ({ path: relative(filePath), sha256: sha256(filePath) });
+const ref = (filePath: string) => ({ path: legacyRelative(filePath), sha256: sha256(filePath) });
 const file = (name: string) => path.join(artifactDir, name);
 const executionFile = (name: string) => path.join(executionDir, name);
 const fixture = (name: string) => path.join(fixtureDir, name);
@@ -24,11 +28,11 @@ const historicalComparison = JSON.parse(fs.readFileSync(executionFile("RC3_CURRE
 const historicalHandoff = JSON.parse(fs.readFileSync(executionFile("RC3_SAME_RUN_HANDOFF_TRACE.json"), "utf8"));
 const auditedBaseline = JSON.parse(fs.readFileSync(file("RC3_AUDITED_PRE_FIX_BASELINE.json"), "utf8"));
 const auditedManifest = JSON.parse(fs.readFileSync(file("RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json"), "utf8"));
-const auditedDiagnostic = JSON.parse(fs.readFileSync(file("RC3_AUDITED_DIAGNOSTIC.json"), "utf8"));
-const auditedSelectedMatch = JSON.parse(fs.readFileSync(file("RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"), "utf8"));
-const auditedHandoff = JSON.parse(fs.readFileSync(file("RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"), "utf8"));
-const auditedComparison = JSON.parse(fs.readFileSync(file("RC3_AUDITED_CURRENT_COMPARISON.json"), "utf8"));
-const falseSupportTaxonomy = file("RC3_FALSE_SUPPORT_TAXONOMY.json");
+const auditedDiagnostic = JSON.parse(fs.readFileSync(executionFile("RC3_AUDITED_DIAGNOSTIC.json"), "utf8"));
+const auditedSelectedMatch = JSON.parse(fs.readFileSync(executionFile("RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"), "utf8"));
+const auditedHandoff = JSON.parse(fs.readFileSync(executionFile("RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"), "utf8"));
+const auditedComparison = JSON.parse(fs.readFileSync(executionFile("RC3_AUDITED_CURRENT_COMPARISON.json"), "utf8"));
+const falseSupportTaxonomy = executionFile("RC3_FALSE_SUPPORT_TAXONOMY.json");
 
 const historicalArtifacts = [
   path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json"), path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.md"), executionFile("RC3_DIAGNOSTIC.json"),
@@ -36,8 +40,8 @@ const historicalArtifacts = [
 ].map(ref);
 const auditedArtifacts = [
   file("RC3_AUDITED_PRE_FIX_BASELINE.json"), file("RC3_AUDITED_PRE_FIX_PROPOSAL.json"),
-  file("RC3_AUDITED_DIAGNOSTIC.json"), file("RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"),
-  file("RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"), file("RC3_AUDITED_CURRENT_COMPARISON.json"),
+  executionFile("RC3_AUDITED_DIAGNOSTIC.json"), executionFile("RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"),
+  executionFile("RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"), executionFile("RC3_AUDITED_CURRENT_COMPARISON.json"),
   file("RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json"),
 ].map(ref);
 
