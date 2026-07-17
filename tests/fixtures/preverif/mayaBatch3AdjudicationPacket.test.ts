@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
-import { buildRc5BatchArtifacts, writeRc5BatchArtifacts } from "../../../scripts/preverif/generate-rc5-adjudication-batch";
+import { buildRc5BatchArtifacts, canonicalSerialize, writeRc5BatchArtifacts } from "../../../scripts/preverif/generate-rc5-adjudication-batch";
 import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc5-adjudication-response-schema";
 import { readRc5BatchSelection } from "../../../scripts/preverif/rc5-batch-selection-manifest";
 import { batch3Config, buildArtifacts, packetDir } from "../../../scripts/preverif/generate-rc5-adjudication-batch3";
@@ -90,7 +90,8 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
       ["Machine proposal", { expectedMachineProposalSha256: "0".repeat(64) }],
       ["Source document", { expectedDocumentSha256: "0".repeat(64) }],
       ["Canonical extraction", { expectedExtractionSha256: "0".repeat(64) }],
-      ["Batch selection manifest", { expectedBatchManifestSha256: "0".repeat(64) }],
+      ["RC5 Batch 3 selection", { expectedBatchSelectionSha256: "0".repeat(64) }],
+      ["Audit record", { expectedAuditSha256: "0".repeat(64) }],
     ] as const;
     for (const [label, override] of cases) withTempDir((directory) => {
       const outputDir = path.join(directory, "output");
@@ -113,7 +114,40 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
       manifest.batches["3"].expectedRuleIds[0] = "Verra.AFOLU.VM0007.v1-8.R-2-0009";
       fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
       const changedManifestSha = sha256(fs.readFileSync(manifestPath));
-      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath, expectedBatchManifestSha256: changedManifestSha }), /Frozen machine row hash manifest keys do not exactly match expected rule IDs/);
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath, expectedBatchSelectionSha256: changedManifestSha }), /RC5 Batch 3 selection SHA mismatch/);
     });
+  });
+
+  it("isolates Batch 3 from unrelated shared-manifest entries", () => {
+    withTempDir((directory) => {
+      const manifestPath = path.join(directory, "manifest-with-batch-4.json");
+      const manifest = read<Record<string, any>>(batch3Config.batchManifestPath);
+      manifest.batches["4"] = { batchId: "RC5_BATCH_4", expectedRuleIds: [] };
+      fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      const artifacts = buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath });
+      assert.deepEqual(artifacts.selectedRuleIds, buildArtifacts().selectedRuleIds);
+    });
+  });
+
+  it("rejects Batch 3 rule reordering and row-hash changes", () => {
+    withTempDir((directory) => {
+      const manifestPath = path.join(directory, "manifest.json");
+      const manifest = read<Record<string, any>>(batch3Config.batchManifestPath);
+      const selection = manifest.batches["3"];
+      [selection.expectedRuleIds[0], selection.expectedRuleIds[1]] = [selection.expectedRuleIds[1], selection.expectedRuleIds[0]];
+      fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath }), /RC5 Batch 3 selection SHA mismatch/);
+
+      const rowHashManifestPath = path.join(directory, "manifest-row-hash.json");
+      const rowHashManifest = read<Record<string, any>>(batch3Config.batchManifestPath);
+      rowHashManifest.batches["3"].expectedMachineRowSha256["Verra.AFOLU.VM0007.v1-8.R-1-0012"] = "0".repeat(64);
+      fs.writeFileSync(rowHashManifestPath, `${JSON.stringify(rowHashManifest, null, 2)}\n`);
+      const rowHashSelectionSha = sha256(canonicalSerialize(rowHashManifest.batches["3"]));
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: rowHashManifestPath, expectedBatchSelectionSha256: rowHashSelectionSha }), /Machine row Verra\.AFOLU\.VM0007\.v1-8\.R-1-0012 SHA mismatch/);
+    });
+  });
+
+  it("does not create Batch 4 artifacts", () => {
+    assert.equal(fs.existsSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-4-adjudication")), false);
   });
 });

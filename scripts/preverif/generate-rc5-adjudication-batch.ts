@@ -7,7 +7,7 @@ import { readRc5BatchSelectionEntry, type Rc5BatchSelectionManifest } from "./rc
 export type Rc5BatchGeneratorConfig = {
   batchNumber: number;
   batchManifestPath: string;
-  expectedBatchManifestSha256: string;
+  expectedBatchSelectionSha256: string;
   frozenProposalPath: string;
   machineProposalRefPath: string;
   auditPath: string;
@@ -16,6 +16,7 @@ export type Rc5BatchGeneratorConfig = {
   expectedMachineProposalSha256: string;
   expectedDocumentSha256: string;
   expectedExtractionSha256: string;
+  expectedAuditSha256: string;
   outputDir: string;
   sourceCommitSha: string;
   packetSchemaVersion: string;
@@ -43,6 +44,13 @@ const readJson = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath
 export const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const writeJson = (filePath: string, value: unknown): void => fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 
+export function canonicalSerialize(value: unknown): string {
+  if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((item) => canonicalSerialize(item)).join(",")}]`;
+  if (typeof value === "object") return `{${Object.keys(value as Record<string, unknown>).sort().map((key) => `${JSON.stringify(key)}:${canonicalSerialize((value as Record<string, unknown>)[key])}`).join(",")}}`;
+  throw new Error(`Cannot canonically serialize ${typeof value}`);
+}
+
 function assertSha(actual: string, expected: string, label: string): void {
   if (actual !== expected) throw new Error(`${label} SHA mismatch: expected ${expected}, got ${actual}`);
 }
@@ -64,16 +72,16 @@ function readPriorRuleIds(priorArtifactPaths: string[]): string[] {
 }
 
 function assertFrozenInputs(config: Rc5BatchGeneratorConfig): { selection: Rc5BatchSelectionManifest["batches"][string]; frozen: Proposal; raw: { pages: Array<{ pageNumber: number; text: string }> } } {
-  const manifestBytes = fs.readFileSync(config.batchManifestPath);
-  assertSha(sha256(manifestBytes), config.expectedBatchManifestSha256, "Batch selection manifest");
+  const selection = readRc5BatchSelectionEntry(config.batchNumber, config.batchManifestPath);
+  assertSha(sha256(canonicalSerialize(selection)), config.expectedBatchSelectionSha256, `RC5 Batch ${config.batchNumber} selection`);
   const proposalBytes = fs.readFileSync(config.frozenProposalPath);
   assertSha(sha256(proposalBytes), config.expectedMachineProposalSha256, "Machine proposal");
   const rawBytes = fs.readFileSync(config.extractionPath);
   assertSha(sha256(rawBytes), config.expectedExtractionSha256, "Canonical extraction");
+  assertSha(sha256(fs.readFileSync(config.auditPath)), config.expectedAuditSha256, "Audit record");
   const frozen = JSON.parse(proposalBytes.toString("utf8")) as Proposal;
   assertSha(frozen.sourceDocument.contentSha256, config.expectedDocumentSha256, "Source document");
   if (frozen.proposalState !== "MACHINE_PROPOSED") throw new Error(`Expected MACHINE_PROPOSED input, got ${frozen.proposalState}`);
-  const selection = readRc5BatchSelectionEntry(config.batchNumber, config.batchManifestPath);
   const expectedRowHashes = selection.expectedMachineRowSha256;
   if (!expectedRowHashes) throw new Error(`RC5 Batch ${config.batchNumber} is missing frozen machine row hashes`);
   assertExactKeys(Object.keys(expectedRowHashes), selection.expectedRuleIds, "Frozen machine row hash manifest");
