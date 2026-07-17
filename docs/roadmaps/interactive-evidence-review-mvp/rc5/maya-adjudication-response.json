@@ -1,0 +1,369 @@
+{
+  "schemaVersion": "rc5-2-maya-adjudication-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "auditId": "vm0007-gap-abd63948-2722-4f9b-831c-8ce3d1dfe0cd",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "The forests of the project area also meet the Belize national definition of forest according to its 2001-2015 Forest Reference Emission Level submitted to the UNFCCC (Forest Department, 2020). Only areas that met the definition of forests for a minimum of 10 years before the project start date were included to ensure that no ecosystems had been converted to generate GHG credits.",
+          "page": 15,
+          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "References Belize national forest definition and states 10-year minimum qualification. Supports the rule but does not include numeric threshold values (minimum area, tree height, crown cover)."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Rejected by machine as noisy/truncated but contains stronger and more direct 10-year forest cover evidence than the accepted span. Should be accepted alongside the \u00a72.1.4 quote."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The accepted evidence references the Belize national forest definition and 10-year qualification period, which partially satisfies the rule. However, numeric threshold values (minimum area, tree height, crown cover) are not explicitly stated. The rejected ctx-003 span contains stronger evidence (remote sensing analysis) that should have been accepted. Machine proposal is DEFENSIBLE in outcome (UNCLEAR/APPLICABLE) but WEAK in retrieval \u2014 stronger evidence was missed.",
+      "gap": "PDD does not preserve the governing numeric forest-definition threshold values but does demonstrate that the forest definition was applied and that the 10-year qualifying period was met.",
+      "clientAction": "Provide the governing numeric forest-definition thresholds (minimum forest area, tree height, and canopy/crown cover) that the Belize national definition uses, and confirm all project properties meet them for the required 10-year period.",
+      "correctionReason": "Accepted evidence is relevant but incomplete; stronger evidence (remote sensing analysis on page 84) was missed by retrieval.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0001",
+      "finalEvidenceState": "MISSING",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [],
+      "rejectedEvidence": [
+        {
+          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5... Only areas that met the definition of forests for a minimum of 10 years before the project start date were included...",
+          "page": 15,
+          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "Machine accepted this as evidence for R-2-0001 but it does not address geographic boundary definition. It discusses forest eligibility and 10-year qualification. This is an irrelevant retrieval for the boundary rule."
+        },
+        {
+          "quote": "There are three credible alternative land use scenarios: A. Clearing of Forest and Conversion to Agriculture... B. Continuation of Pre-Project Land Use... C. Project activity on the land within the Project boundary performed without being registered as the VCS AFOLU project...",
+          "page": 91,
+          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this for R-2-0001 but it discusses baseline alternatives, not geographic boundary definition. Completely irrelevant."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Neither piece of accepted evidence relates to geographic boundary definition (the six required data elements per land parcel). The PDD contains boundary evidence elsewhere (\u00a72.1.16 maps, coordinates, GIS references) that was not retrieved. Machine proposal is INCORRECT in evidence selection \u2014 both accepted spans are irrelevant to the rule. Evidence state should be MISSING, not UNCLEAR, because no relevant evidence was found.",
+      "gap": "No project-specific evidence for geographic boundary definition was retrieved. The PDD's \u00a72.1.16 contains maps, coordinates, and GIS data that were not captured.",
+      "clientAction": "Extract boundary evidence from \u00a72.1.16: project area maps, geodetic coordinates (SIRGAS 2000), individual parcel boundaries, and reference region/proxy area descriptions.",
+      "correctionReason": "Both accepted evidence items are irrelevant to the geographic boundary rule. Relevant evidence exists in \u00a72.1.16 but was not retrieved.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3",
+          "page": 83,
+          "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Table in \u00a73.1.1 explicitly lists VMD0006 (BL-PL) v1.3 as the selected baseline module, which is the correct module for APDef projects. This is direct, relevant evidence."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1)... Type (methodology, tool, module)... Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001... VMD0006... VMD0009... VMD0013...",
+          "page": 83,
+          "sectionHeading": "Application of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "incomplete_or_noisy",
+          "reason": "The machine rejected this span as noisy/truncated, but it contains the module selection table which directly lists VMD0006 (BL-PL). The truncation is acceptable because the key evidence (VMD0006 = correct baseline module for APDef) is present."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD clearly selects VMD0006 (BL-PL) v1.3 in Table 30 (\u00a73.1.1), which is the correct baseline module for APDef. The machine incorrectly marked applicability as UNKNOWN when it should be APPLICABLE (the project declares APDef in \u00a72.1.3 and \u00a73.1.2). No accepted evidence and one rejected candidate that actually contains the needed evidence. Machine proposal is INCORRECT: applicability error (should be APPLICABLE, not UNKNOWN) and missed evidence (the module table was rejected as noisy but contains valid evidence).",
+      "gap": "The module selection table (Table 30) shows VMD0006 (BL-PL) is selected but does not contain a narrative justification linking the module choice to the APDef classification.",
+      "clientAction": "Accept the Table 30 module selection evidence showing VMD0006 (BL-PL) v1.3 is selected. Add narrative justification explaining why BL-PL is the correct module for this APDef project.",
+      "correctionReason": "Applicability should be APPLICABLE (project is APDef, BL-PL is the correct module). Evidence exists in the rejected span and should be accepted.",
+      "genericFailureCategory": "APPLICABILITY",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1",
+          "page": 83,
+          "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Table 30 lists VMD0001 (AGB/BGB), VMD0002 (dead wood), and VMD0004 (SOC) \u2014 the carbon pool modules for REDD. VMD0003 (litter) is notably absent but VMD0004 (SOC) is included instead. This is relevant evidence of module selection."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1)... Type (methodology, tool, module)... Methodology VM0007...",
+          "page": 83,
+          "sectionHeading": "Application of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "incomplete_or_noisy",
+          "reason": "Rejected as noisy/truncated but contains the carbon pool module list which is directly relevant evidence."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Table 30 selects the carbon pool modules (VMD0001, VMD0002, VMD0004). Note: Maya uses VMD0004 (SOC) instead of VMD0005 (SOC) and does not select VMD0003 (litter) \u2014 this is a different module suite than Marcondes and should be verified against the methodology. The machine marked applicability as UNKNOWN, but the project is REDD APDef and REDD carbon pool modules are applicable. Machine proposal is INCORRECT: applicability error (should be APPLICABLE), evidence was rejected as noisy but is valid.",
+      "gap": "Carbon pool modules are listed in Table 30 but no explicit pool inclusion/exclusion table is provided. The choice of VMD0004 over VMD0005 and omission of VMD0003 (litter) is not justified.",
+      "clientAction": "Accept Table 30 module evidence showing VMD0001, VMD0002, VMD0004 selected. Provide an explicit carbon pool inclusion/exclusion table with justification for the choice of VMD0004 (SOC) over VMD0005 and the omission of VMD0003 (litter).",
+      "correctionReason": "Applicability should be APPLICABLE. Evidence exists in the rejected span and should be accepted. Module selection differs from Marcondes (VMD0004 vs VMD0005) and needs attention.",
+      "genericFailureCategory": "APPLICABILITY",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3",
+          "page": 83,
+          "sectionHeading": "Title and Reference of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Table 30 lists VMD0013 (E-BPB) v1.3 for biomass burning emissions. This is the project emissions module. The PDD also states at \u00a73.2.1.2.1 (page 104) that leaf litter, herbaceous vegetation, and lianas were not measured, which relates to excluded project emission sources."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "Baseline carbon stocks in forests include the following pools: aboveground tree... Leaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative estimation...",
+          "page": 104,
+          "sectionHeading": "Baseline Pre-Deforestation Carbon Stocks",
+          "spanId": "quick-check-review-question:element:paragraph:3.2.1.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "incomplete_or_noisy",
+          "reason": "Contains project-specific carbon pool inclusion/exclusion evidence that partially addresses project emissions. Rejected as noisy but the exclusion rationale is valid evidence."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "VMD0013 (E-BPB) is listed in Table 30, which is the correct module for biomass burning emissions. However, no VMD0014 (E-FFC) for fossil fuel combustion is selected despite the project likely using vehicles/equipment. The machine marked applicability as UNKNOWN but the project is REDD APDef and must account for project emissions. Machine proposal is INCORRECT: applicability error (should be APPLICABLE), evidence of VMD0013 selection in the rejected span was missed.",
+      "gap": "VMD0013 (E-BPB) is selected in Table 30 for biomass burning. VMD0014 (fossil fuel combustion) is absent without justification. No project emissions quantification is presented.",
+      "clientAction": "Accept VMD0013 as selected. Evaluate whether VMD0014 (fossil fuel combustion) should be selected or explicitly excluded with justification. Provide project emissions quantification.",
+      "correctionReason": "Applicability should be APPLICABLE. Evidence of VMD0013 selection exists in the rejected span and should be accepted. VMD0014 absence is a gap.",
+      "genericFailureCategory": "APPLICABILITY",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states the project area has no peatlands or tidal wetlands, which is the exact applicability trigger for this WRC rule."
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD explicitly states 'The project area contains no peatlands or tidal wetlands' in the applicability conditions table (\u00a73.1.2). The machine correctly determined NOT_APPLICABLE but accepted an irrelevant anti-discrimination policy quote as evidence instead of the applicability statement. The machine outcome is DEFENSIBLE but the machine accepted evidence is WEAK/INCORRECT. The proper evidence is ctx-003 which states the no-peat/no-tidal condition.",
+      "gap": "",
+      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 applicability conditions.",
+      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant evidence (anti-discrimination policy). The correct evidence (no-peatlands statement in ctx-003) was not used.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "CONFORMS",
+      "acceptedEvidence": [
+        {
+          "quote": "No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons.",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Directly states that the project does not engage in either category of prohibited leakage prevention activity (flooded agriculture, feedlots, manure lagoons). This directly satisfies Condition 4 of the methodology."
+        }
+      ],
+      "rejectedEvidence": [
+        {
+          "quote": "Reference ID / Title Applicability condition Justification of conformance... 4) Leakage prevention activities include: a) Flooding agricultural lands... b) Intensifying livestock production... No leakage preventions activities are planned...",
+          "page": 84,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "incomplete_or_noisy",
+          "reason": "Rejected as noisy/truncated but contains the same Condition 4 leakage prevention statement that satisfies the rule."
+        }
+      ],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PPD directly addresses Condition 4 in the applicability conditions table (\u00a73.1.2), explicitly stating that no flooded agriculture, feedlots, or manure lagoons are planned as leakage prevention. This is direct project-specific evidence. The machine marked this as MISSING with no accepted evidence, but the evidence exists in ctx-003 and was rejected as noisy. Machine proposal is INCORRECT: evidence state should be FOUND, not MISSING. The rule is satisfied.",
+      "gap": "The leakage prevention condition (Condition 4) is addressed. The full leakage management plan is presented in \u00a73.2.3.",
+      "clientAction": "No action required for this specific rule. The Condition 4 prohibition is clearly stated.",
+      "correctionReason": "Evidence exists in the rejected span and directly satisfies the rule. Machine should have accepted it.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "There are three credible alternative land use scenarios: A. Clearing of Forest and Conversion to Agriculture... B. Continuation of Pre-Project Land Use... C. Project activity on the land within the Project boundary performed without being registered as the VCS AFOLU project... Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations. Because the project is private property, all alternatives presented in 1a are legal under Belizean law...",
+          "page": 91,
+          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "PDD presents a structured VT0001 Step 1 (identification of alternative land use scenarios) and Step 1b (legal consistency check). Three alternatives are explicitly listed and evaluated for legal compliance."
+        },
+        {
+          "quote": "Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected.",
+          "page": 92,
+          "sectionHeading": "Additionality Methods (VCS, 3.14)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "States the baseline selection conclusion and identifies the simple cost analysis (Option I) as the additionality method. This is project-specific evidence of the VT0001 process."
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD contains a substantial VT0001 additionality discussion (\u00a73.1.5.2 including Steps 1 and 2). This was not retrieved by the machine, which marked the rule as MISSING. The accepted evidence I propose (from ctx-005) shows the project has performed Step 1 (alternative scenarios) and Step 2 (barrier/investment analysis is referenced by the simple cost analysis selection). However, the full VT0001 analysis (Steps 2-4 with complete barrier/investment analysis, common-practice test, and conclusion) is not yet complete. Machine proposal is INCORRECT: evidence exists for at least Step 1, so MISSING is too harsh; UNCLEAR is more appropriate.",
+      "gap": "VT0001 Step 1 (alternatives) is well-documented. Steps 2-4 need completion: the barrier or investment analysis needs full documentation, common-practice test needs to be addressed or explicitly excluded, and the additionality conclusion needs to be stated.",
+      "clientAction": "Complete the remaining VT0001 steps: barrier/investment analysis, common-practice test (or justification for omission), and formal additionality conclusion. The existing alternative scenario analysis in \u00a73.1.5.2 provides a good foundation.",
+      "correctionReason": "Evidence exists in ctx-005 (VT0001 Step 1) that was not accepted by the machine. The evidence state should be UNCLEAR, not MISSING.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "MEDIUM",
+      "expertReviewRequired": true,
+      "reviewStatus": "PROVISIONAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Baseline carbon stocks in forests include the following pools: aboveground tree (> 5 cm diameter at breast height - DBH) tree biomass, belowground biomass, aboveground biomass for palms, standing and lying dead wood biomass, and soil organic carbon. These were calculated following the guidance laid out in VMD0001 (v1.1), VMD0002 (v1.1), and VMD0004 (v1.1).",
+          "page": 104,
+          "sectionHeading": "Baseline Pre-Deforestation Carbon Stocks",
+          "spanId": "quick-check-review-question:element:paragraph:3.2.1.2.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "PDD describes carbon pool calculation methodology, identifies which modules were used (VMD0001, VMD0002, VMD0004), specifies what was measured and excluded, and references field data collection. This is partial evidence of the quantification pathway."
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD contains quantification evidence for baseline carbon stocks (\u00a73.2.1.2) but does not present the net emission reduction equation itself. The baseline deforestation rate (1,188.6 ha/year for 9 years), carbon stock calculations, and module references are present. However, the complete equation `NER = \u0394C_BSL - (\u0394C_ACTUAL + \u0394C_LEAKAGE)` is not shown, and project/leakage emissions quantification is separate. Machine proposal of MISSING is partially correct (the equation itself is absent) but understates the partial quantification evidence present. UNCLEAR is more appropriate.",
+      "gap": "The net emission reduction equation itself is not presented. Baseline carbon stock calculations exist (\u00a73.2.1.2) but the equation decomposition into baseline, project, and leakage components is not shown.",
+      "clientAction": "Present the complete REDD net emission reduction equation, decompose it into baseline, project, and leakage components, and show the project-specific values for each component.",
+      "correctionReason": "Partial quantification evidence exists in \u00a73.2.1.2 but was not retrieved as accepted evidence. The equation itself is absent. UNCLEAR is more precise than MISSING.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "MEDIUM",
+      "expertReviewRequired": true,
+      "reviewStatus": "PROVISIONAL"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",
+      "finalEvidenceState": "MISSING",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD contains no explicit uncertainty reduction analysis. VMD0017 (X-UNC) v2.2 is listed in Table 30 but not applied. No tiered data source approach (literature > IPCC defaults > expert opinion) is described. No uncertainty quantification or reduction steps are documented. Machine proposal of MISSING/APPLICABLE is DEFENSIBLE \u2014 the evidence does not exist in the PDD within the reviewed contexts.",
+      "gap": "No uncertainty reduction method, data source tiering, or uncertainty quantification is presented anywhere in the PDD. VMD0017 is selected in Table 30 but not applied.",
+      "clientAction": "Apply VMD0017 (X-UNC) to quantify uncertainty from each source. Describe the tiered data source approach (literature > IPCC defaults > expert opinion) and any uncertainty reduction steps used.",
+      "correctionReason": "Machine assessment is correct \u2014 no relevant evidence exists in the PDD for this rule within the reviewed contexts.",
+      "genericFailureCategory": "NONE",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED"
+    }
+  ]
+}
