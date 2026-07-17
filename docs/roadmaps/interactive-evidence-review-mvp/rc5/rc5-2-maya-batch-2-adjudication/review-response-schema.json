@@ -97,6 +97,9 @@
         "documentSha256": {
           "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
+        "evidenceType": {
+          "type": "string"
+        },
         "reason": {
           "type": "string"
         }
@@ -145,12 +148,13 @@
         },
         "reviewStatus": {
           "enum": [
+            "REVIEWED",
             "PENDING_INDEPENDENT_ADJUDICATION",
             "PROVISIONAL"
           ]
         },
         "expertReviewRequired": {
-          "const": true
+          "type": "boolean"
         },
         "finalEvidenceState": {
           "enum": [
