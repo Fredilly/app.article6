@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "RC5-2 Maya adjudication response",
+  "$id": "rc5-2-maya-adjudication-response-v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,42 +14,7 @@
       "const": "rc5-2-maya-adjudication-response-v1"
     },
     "sourceDocument": {
-      "$ref": "#/$defs/documentIdentity"
-    },
-    "machineProposalRef": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "path",
-        "auditId",
-        "proposalState"
-      ],
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "auditId": {
-          "type": "string"
-        },
-        "proposalState": {
-          "const": "MACHINE_PROPOSED"
-        }
-      }
-    },
-    "decisions": {
-      "type": "array",
-      "minItems": 10,
-      "maxItems": 10,
-      "uniqueItems": true,
-      "items": {
-        "$ref": "#/$defs/decision"
-      }
-    }
-  },
-  "$defs": {
-    "documentIdentity": {
-      "type": "object",
-      "additionalProperties": false,
       "required": [
         "documentId",
         "documentName",
@@ -65,8 +30,39 @@
         "contentSha256": {
           "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
-      }
+      },
+      "additionalProperties": false
     },
+    "machineProposalRef": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "proposalState"
+      ],
+      "properties": {
+        "path": {
+          "const": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"
+        },
+        "sha256": {
+          "const": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
+        },
+        "proposalState": {
+          "const": "MACHINE_PROPOSED"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "$defs": {
     "evidenceReference": {
       "type": "object",
       "additionalProperties": false,
@@ -114,6 +110,9 @@
       "additionalProperties": false,
       "required": [
         "stableRuleId",
+        "machineRowSha256",
+        "reviewStatus",
+        "expertReviewRequired",
         "finalEvidenceState",
         "finalApplicability",
         "reviewerOutcome",
@@ -143,19 +142,35 @@
             "Verra.AFOLU.VM0007.v1-8.R-6-0008"
           ]
         },
+        "machineRowSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewStatus": {
+          "enum": [
+            "PENDING_INDEPENDENT_ADJUDICATION",
+            "PROVISIONAL",
+            "REVIEWED"
+          ]
+        },
+        "expertReviewRequired": {
+          "type": "boolean"
+        },
         "finalEvidenceState": {
           "enum": [
             "FOUND",
             "UNCLEAR",
             "MISSING",
-            "N/A"
+            "N/A",
+            null
           ]
         },
         "finalApplicability": {
           "enum": [
             "APPLICABLE",
             "NOT_APPLICABLE",
-            "UNKNOWN"
+            "UNKNOWN",
+            null
           ]
         },
         "reviewerOutcome": {
@@ -163,7 +178,8 @@
             "CONFORMS",
             "ACTION_REQUIRED",
             "NOT_APPLICABLE",
-            "NOT_ASSESSED"
+            "NOT_ASSESSED",
+            null
           ]
         },
         "acceptedEvidence": {
@@ -182,7 +198,8 @@
           "enum": [
             "NONE",
             "PRESENT",
-            "UNRESOLVED"
+            "UNRESOLVED",
+            null
           ]
         },
         "draftFindingCandidate": {
@@ -194,18 +211,28 @@
           ]
         },
         "assessmentReason": {
-          "type": "string",
-          "minLength": 1
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "gap": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "clientAction": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "correctionReason": {
-          "type": "string",
-          "minLength": 1
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "genericFailureCategory": {
           "enum": [
@@ -217,17 +244,76 @@
             "COMPONENT_COVERAGE",
             "RULE_MAPPING",
             "SOURCE_CONTRADICTION",
-            "OTHER"
+            "OTHER",
+            null
           ]
         },
         "reviewerConfidence": {
           "enum": [
             "LOW",
             "MEDIUM",
-            "HIGH"
+            "HIGH",
+            null
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "REVIEWED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finalEvidenceState": {
+                "type": "string"
+              },
+              "finalApplicability": {
+                "type": "string"
+              },
+              "reviewerOutcome": {
+                "type": "string"
+              },
+              "contradictionState": {
+                "type": "string"
+              },
+              "assessmentReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "correctionReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "genericFailureCategory": {
+                "type": "string"
+              },
+              "reviewerConfidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "PROVISIONAL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

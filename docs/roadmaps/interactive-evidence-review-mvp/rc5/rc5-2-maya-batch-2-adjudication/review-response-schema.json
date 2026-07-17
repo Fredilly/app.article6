@@ -148,9 +148,9 @@
         },
         "reviewStatus": {
           "enum": [
-            "REVIEWED",
             "PENDING_INDEPENDENT_ADJUDICATION",
-            "PROVISIONAL"
+            "PROVISIONAL",
+            "REVIEWED"
           ]
         },
         "expertReviewRequired": {

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { buildMayaAdjudicationResponseSchema } from "./maya-adjudication-response-schema";
 
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-2-adjudication");
@@ -124,21 +125,13 @@ export function buildArtifacts() {
     rules,
     counts: { rules: rules.length, proposedEvidenceStates: Object.fromEntries(["FOUND", "UNCLEAR", "MISSING"].map((state) => [state, rules.filter((rule) => rule.proposedEvidenceState === state).length])) },
   };
-  const schema = {
-    $schema: "https://json-schema.org/draft/2020-12/schema",
-    $id: "rc5-2-maya-batch-2-adjudication-response-v1",
-    type: "object", additionalProperties: false, required: ["schemaVersion", "sourceDocument", "machineProposalRef", "decisions"],
-    properties: {
-      schemaVersion: { const: "rc5-2-maya-batch-2-adjudication-response-v1" },
-      sourceDocument: { type: "object", required: ["documentId", "documentName", "contentSha256"], properties: { documentId: { const: document.documentId }, documentName: { const: document.documentName }, contentSha256: { const: document.contentSha256 } }, additionalProperties: false },
-      machineProposalRef: { type: "object", required: ["path", "sha256", "proposalState"], properties: { path: { const: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json" }, sha256: { const: sha256(fs.readFileSync(frozenPath)) }, proposalState: { const: "MACHINE_PROPOSED" } }, additionalProperties: false },
-      decisions: { type: "array", minItems: 10, maxItems: 10, items: { $ref: "#/$defs/decision" } },
-    },
-    $defs: {
-      evidenceReference: { type: "object", additionalProperties: false, required: ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"], properties: { quote: { type: "string", minLength: 1 }, page: { type: "integer", minimum: 1 }, sectionHeading: { type: "string", minLength: 1 }, spanId: { type: "string", minLength: 1 }, documentId: { const: document.documentId }, documentSha256: { const: document.contentSha256 }, reason: { type: "string" } } },
-      decision: { type: "object", additionalProperties: false, required: ["stableRuleId", "machineRowSha256", "reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "rejectedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "genericFailureCategory", "reviewerConfidence"], properties: { stableRuleId: { enum: selectedRuleIds }, machineRowSha256: { type: "string", pattern: "^[a-f0-9]{64}$" }, reviewStatus: { enum: ["PENDING_INDEPENDENT_ADJUDICATION", "PROVISIONAL"] }, expertReviewRequired: { const: true }, finalEvidenceState: { enum: ["FOUND", "UNCLEAR", "MISSING", "N/A", null] }, finalApplicability: { enum: ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN", null] }, reviewerOutcome: { enum: ["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE", "NOT_ASSESSED", null] }, acceptedEvidence: { type: "array", items: { $ref: "#/$defs/evidenceReference" } }, rejectedEvidence: { type: "array", items: { $ref: "#/$defs/evidenceReference" } }, contradictionState: { enum: ["NONE", "PRESENT", "UNRESOLVED", null] }, draftFindingCandidate: { enum: ["NIR_CANDIDATE", "NCR_CANDIDATE", "OFI_CANDIDATE", null] }, assessmentReason: { type: ["string", "null"] }, gap: { type: ["string", "null"] }, clientAction: { type: ["string", "null"] }, correctionReason: { type: ["string", "null"] }, genericFailureCategory: { enum: ["NONE", "RETRIEVAL", "ASSESSMENT", "APPLICABILITY", "PROVENANCE", "COMPONENT_COVERAGE", "RULE_MAPPING", "SOURCE_CONTRADICTION", "OTHER", null] }, reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH", null] } } },
-    },
-  };
+  const schema = buildMayaAdjudicationResponseSchema({
+    schemaVersion: "rc5-2-maya-batch-2-adjudication-response-v1",
+    document,
+    machineProposalRef: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: sha256(fs.readFileSync(frozenPath)), proposalState: "MACHINE_PROPOSED" },
+    ruleIds: selectedRuleIds,
+    decisionCount: 10,
+  });
   const template = { schemaVersion: "rc5-2-maya-batch-2-adjudication-response-v1", sourceDocument: document, machineProposalRef: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: sha256(fs.readFileSync(frozenPath)), proposalState: "MACHINE_PROPOSED" }, decisions: rules.map((rule) => ({ stableRuleId: rule.stableRuleId, machineRowSha256: rule.frozenMachineRowHash, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], contradictionState: null, draftFindingCandidate: null, assessmentReason: null, gap: null, clientAction: null, correctionReason: null, genericFailureCategory: null, reviewerConfidence: null })) };
   return { packet, schema, template, selectedRuleIds, priorIds, frozen, audit, raw };
 }
