@@ -4,80 +4,89 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "@jest/globals";
 
-const baselinePath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
-const livePath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
+const canonicalPath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
+const frozenPath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const comparisonPath = path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/semantic-comparison.json");
 
-const expectedFields = [
-  "ruleReference", "ruleTitle", "requirementText", "methodologyId", "methodologyVersion",
-  "rawAuditStatus", "upstreamStatus", "proposedEvidenceStatus", "proposedApplicability",
-  "proposedAcceptedEvidence", "proposedRejectedEvidence", "acceptedEvidence", "rejectedEvidence",
-  "supportedComponents", "missingComponents", "reasonSelected", "assessmentReason", "gap", "clientAction",
-  "confidence", "searchCoverage", "sourceDocument", "quote", "page", "section", "spanId", "provenance",
-  "finalizationState", "reviewState", "reviewHistory", "rowVersion", "finalizationActorRef", "finalizedAt",
-  "finalizationBasis", "reviewHistoryRef", "proposalSource",
-];
+const ignoredIdentityFields = new Set(["auditId", "generatedAt", "runId", "rowId", "proposalTimestamp"]);
+const envelopeDefaults: Record<string, unknown> = {
+  mapVersion: 1,
+  finalizationState: "draft",
+  finalizedBy: null,
+  finalizedAt: null,
+  finalizationBasis: null,
+};
 
-function sha256(bytes: Buffer): string { return crypto.createHash("sha256").update(bytes).digest("hex"); }
-function serialized(value: unknown): string { return JSON.stringify(value); }
-function valueOrNull(row: Record<string, unknown>, field: string): unknown { return row[field] === undefined ? null : row[field]; }
+function sha256(value: string | Buffer): string {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
 
-describe("RC5-2 Maya semantic comparison", () => {
-  it("documents every changed rule and field, with matching aggregates", () => {
-    const baselineBytes = fs.readFileSync(baselinePath);
-    const liveBytes = fs.readFileSync(livePath);
-    const baseline = JSON.parse(baselineBytes.toString()) as { rows: Record<string, unknown>[] };
-    const live = JSON.parse(liveBytes.toString()) as { rows: Record<string, unknown>[] };
+function semanticValue(value: unknown, key?: string): unknown {
+  if (key && ignoredIdentityFields.has(key)) return undefined;
+  if (Array.isArray(value)) return value.map((item) => semanticValue(item));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).flatMap(([entryKey, entryValue]) => {
+      if (ignoredIdentityFields.has(entryKey)) return [];
+      return [[entryKey, semanticValue(entryValue, entryKey)]];
+    }));
+  }
+  return value;
+}
+
+function rowHash(row: Record<string, unknown>): string {
+  return sha256(JSON.stringify(row));
+}
+
+describe("RC5-2 Maya canonical semantic parity", () => {
+  it("matches all 58 substantive rows and the frozen 0/44/14 counts", () => {
+    const canonical = JSON.parse(fs.readFileSync(canonicalPath, "utf8")) as { rows: Record<string, unknown>[]; [key: string]: unknown };
+    const frozen = JSON.parse(fs.readFileSync(frozenPath, "utf8")) as { rows: Record<string, unknown>[]; [key: string]: unknown };
     const comparison = JSON.parse(fs.readFileSync(comparisonPath, "utf8"));
 
-    assert.equal(sha256(baselineBytes), "f1c04bfc2d4e4ed3504e4c48c5e946d26685e3818763a64e2751b4f12ea59844");
-    assert.equal(sha256(liveBytes), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
-    assert.deepEqual(comparison.comparisonFields, expectedFields);
-    assert.equal(baseline.rows.length, 58);
-    assert.equal(live.rows.length, 58);
-
-    const baselineById = new Map(baseline.rows.map((row) => [row.stableRuleId, row]));
-    const liveById = new Map(live.rows.map((row) => [row.stableRuleId, row]));
-    const expectedRules: Array<Record<string, unknown>> = [];
-    const fieldCounts: Record<string, number> = {};
-    const transitions: Array<{ stableRuleId: string; before: string; after: string }> = [];
-
-    for (const [stableRuleId, before] of baselineById) {
-      const after = liveById.get(stableRuleId);
-      assert.ok(after, `live row missing for ${String(stableRuleId)}`);
-      const changes: Record<string, { before: unknown; after: unknown }> = {};
-      for (const field of expectedFields) {
-        const beforeValue = valueOrNull(before, field);
-        const afterValue = valueOrNull(after!, field);
-        if (serialized(beforeValue) !== serialized(afterValue)) {
-          changes[field] = { before: beforeValue, after: afterValue };
-          fieldCounts[field] = (fieldCounts[field] ?? 0) + 1;
-        }
-      }
-      const beforeRanking = baseline.rows.indexOf(before);
-      const afterRanking = live.rows.indexOf(after!);
-      if (beforeRanking !== afterRanking) {
-        changes.ranking = { before: beforeRanking, after: afterRanking };
-        fieldCounts.ranking = (fieldCounts.ranking ?? 0) + 1;
-      }
-      if (Object.keys(changes).length > 0) {
-        expectedRules.push({ stableRuleId, baselineEvidenceState: before.proposedEvidenceStatus, liveEvidenceState: after!.proposedEvidenceStatus, changedFields: Object.keys(changes), changes });
-        if (before.proposedEvidenceStatus !== after!.proposedEvidenceStatus) transitions.push({ stableRuleId, before: String(before.proposedEvidenceStatus), after: String(after!.proposedEvidenceStatus) });
-      }
+    for (const proposal of [canonical, frozen]) {
+      assert.equal(proposal.rows.length, 58);
+      const counts = Object.groupBy(proposal.rows, (row) => String(row.proposedEvidenceStatus));
+      assert.equal(counts.FOUND?.length ?? 0, 0);
+      assert.equal(counts.UNCLEAR?.length ?? 0, 44);
+      assert.equal(counts.MISSING?.length ?? 0, 14);
     }
 
-    assert.deepEqual(comparison.rules, expectedRules);
-    assert.equal(comparison.aggregate.matchedRuleCount, 58);
-    assert.equal(comparison.aggregate.changedRuleCount, expectedRules.length);
-    assert.equal(comparison.aggregate.unchangedRuleCount, 58 - expectedRules.length);
-    assert.deepEqual(comparison.aggregate.fieldChangeCounts, fieldCounts);
-    assert.deepEqual(comparison.statusTransitions, transitions);
-
-    const transitionCounts: Record<string, number> = {};
-    for (const transition of transitions) {
-      const key = `${transition.before}->${transition.after}`;
-      transitionCounts[key] = (transitionCounts[key] ?? 0) + 1;
+    const canonicalByRule = new Map(canonical.rows.map((row) => [row.stableRuleId, row]));
+    const frozenByRule = new Map(frozen.rows.map((row) => [row.stableRuleId, row]));
+    assert.equal(canonicalByRule.size, 58);
+    assert.deepEqual([...canonicalByRule.keys()], [...frozenByRule.keys()]);
+    for (const [stableRuleId, canonicalRow] of canonicalByRule) {
+      assert.deepEqual(semanticValue(canonicalRow), semanticValue(frozenByRule.get(stableRuleId)));
     }
-    assert.deepEqual(comparison.aggregate.statusTransitionCounts, transitionCounts);
+
+    assert.deepEqual(comparison.aggregate, {
+      matchedRuleCount: 58,
+      changedRuleCount: 0,
+      unchangedRuleCount: 58,
+      fieldChangeCounts: {},
+    });
+    assert.deepEqual(comparison.ignoredRunIdentityFields, [...ignoredIdentityFields]);
+    assert.deepEqual(comparison.envelopeDefaults, envelopeDefaults);
+  });
+
+  it("detects substantive row changes but tolerates approved identity changes", () => {
+    const frozen = JSON.parse(fs.readFileSync(frozenPath, "utf8")) as { rows: Record<string, unknown>[] };
+    const original = frozen.rows[0];
+    const identityOnly = { ...original, rowId: "different-run:row", proposalTimestamp: "2099-01-01T00:00:00.000Z" };
+    assert.deepEqual(semanticValue(original), semanticValue(identityOnly));
+    assert.notEqual(rowHash(original), rowHash(identityOnly));
+
+    const substantiveChange = { ...original, clientAction: `${String(original.clientAction)} changed` };
+    assert.notDeepEqual(semanticValue(original), semanticValue(substantiveChange));
+    assert.notEqual(rowHash(original), rowHash(substantiveChange));
+  });
+
+  it("contains no reviewed truth or reviewer-outcome proposal", () => {
+    const frozen = JSON.parse(fs.readFileSync(frozenPath, "utf8")) as { rows: Record<string, unknown>[]; [key: string]: unknown };
+    assert.equal(frozen.proposalState, "MACHINE_PROPOSED");
+    assert.equal("outcomeCounts" in frozen, false);
+    assert.equal("reviewedTruth" in frozen, false);
+    assert.ok(frozen.rows.every((row) => row.finalizationState === "draft"));
+    assert.ok(frozen.rows.every((row) => !["CONFORMS", "ACTION_REQUIRED"].includes(String(row.outcome))));
   });
 });

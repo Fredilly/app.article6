@@ -36,6 +36,11 @@ describe("RC5-2 frozen live Maya proposal", () => {
     assert.equal(proposal.rows.filter((row: { proposedEvidenceStatus: string }) => row.proposedEvidenceStatus === "FOUND").length, 0);
     assert.equal(audit.auditId, proposal.auditId);
     assert.equal(audit.audit.results.length, 58);
+    for (const sample of manifest.sample) {
+      const row = proposal.rows.find((candidate: { stableRuleId: string }) => candidate.stableRuleId === sample.stableRuleId);
+      assert.ok(row, `sample rule missing from frozen proposal: ${sample.stableRuleId}`);
+      assert.equal(sample.status, row.proposedEvidenceStatus);
+    }
     assert.equal(sha256(proposalBytes), manifest.artifactSha256);
     assert.equal(sha256(auditBytes), manifest.auditRecordSha256);
 
