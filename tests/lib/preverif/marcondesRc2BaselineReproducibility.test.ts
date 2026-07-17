@@ -14,7 +14,7 @@ import type {
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
 const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const registryPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");

@@ -10,7 +10,7 @@ import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3");
 const read = (file: string) => JSON.parse(fs.readFileSync(file, "utf8"));
 const sha256 = (file: string) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
@@ -25,12 +25,12 @@ const machine = read(path.join(fixtureDir, "machine-proposal.json"));
 const ruleRegistry = read(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json"));
 
 const PROTECTED_HISTORICAL_ARTIFACTS = [
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json", sha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.md", sha256: "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_DIAGNOSTIC.json", sha256: "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json", sha256: "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json", sha256: "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json", sha256: "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json", sha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.md", sha256: "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_DIAGNOSTIC.json", sha256: "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SELECTED_MATCH_SUBTAXONOMY.json", sha256: "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SAME_RUN_HANDOFF_TRACE.json", sha256: "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_CURRENT_COMPARISON.json", sha256: "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964" },
 ] as const;
 
 function assertHistoricalArtifactIntegrity(artifact: { path: string; sha256: string }, registryEntry: { path: string; sha256: string }): void {
@@ -64,7 +64,7 @@ describe("audited RC3 pre-fix baseline", () => {
     for (const [file, reference] of Object.entries(manifest.artifacts) as [string, { sha256: string }][]) {
       expect(reference.sha256).toBe(sha256(path.join(root, file)));
     }
-    expect(manifest.artifacts["docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json"].sha256).toBe(sha256(baselineFile));
+    expect(manifest.artifacts["docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3/RC3_AUDITED_PRE_FIX_BASELINE.json"].sha256).toBe(sha256(baselineFile));
     expect(read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")).baseline.artifactSha256).toBe(sha256(baselineFile));
   });
 
@@ -149,7 +149,7 @@ describe("audited RC3 pre-fix baseline", () => {
     expect(v2.reviewedTruth.path).toContain("gold.json");
     expect(registryArtifact.provisional).toBeUndefined();
     expect(registryArtifact.versions.filter((version: { logicalVersion: string }) => version.logicalVersion === "v3")).toHaveLength(0);
-    const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => artifact.path === "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
+    const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => artifact.path === "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_FALSE_SUPPORT_TAXONOMY.json");
     expect(taxonomyEntries).toHaveLength(1);
     expect(taxonomyEntries[0].sha256).toBe("32181d976bea24d01884c6c1d8586afd5e858ea40eb708a7f5156f2c71e11865");
     expect(taxonomyEntries[0].sha256).toBe(sha256(path.join(artifactDir, "RC3_FALSE_SUPPORT_TAXONOMY.json")));

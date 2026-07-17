@@ -10,8 +10,8 @@ import { assertBatch1GeneratedRuleCoverage } from "../../../scripts/preverif/gen
 import { assertBatch2GeneratedRuleCoverage } from "../../../scripts/preverif/generate-rc5-adjudication-batch2";
 
 const root = process.cwd();
-const batch1Dir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication");
-const batch2Dir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-2-adjudication");
+const batch1Dir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication");
+const batch2Dir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication");
 const proposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const proposalSha256 = crypto.createHash("sha256").update(fs.readFileSync(proposalPath)).digest("hex");
@@ -30,9 +30,9 @@ function schemaFromTemplate(dir: string) {
 function fixture(dir: string) {
   const template = read<any>(path.join(dir, "review-template.json"));
   const schema = read<any>(path.join(dir, "review-response-schema.json"));
-  const responsePath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json") : path.join(dir, "reviewed-truth.json");
+  const responsePath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json") : path.join(dir, "reviewed-truth.json");
   const response = read<any>(responsePath);
-  const expectedPath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json") : path.join(dir, "review-packet.json");
+  const expectedPath = dir === batch1Dir ? path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/live-review-sample.json") : path.join(dir, "review-packet.json");
   read<any>(expectedPath);
   return { template, schema, response, expectedRuleIds: readRc5BatchSelection(dir === batch1Dir ? 1 : 2) };
 }

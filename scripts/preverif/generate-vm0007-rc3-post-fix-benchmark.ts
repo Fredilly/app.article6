@@ -13,11 +13,12 @@ import { changedVm0007RuleIds, mapDiagnosticTracesByRuleId, removedEvidenceIsBas
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3");
+const baselineDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3");
 const files = {
-  registry: path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_BASELINE_REGISTRY.json"),
-  baseline: path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json"),
-  baselineProposal: path.join(artifactDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json"),
+  registry: path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3/RC3_BASELINE_REGISTRY.json"),
+  baseline: path.join(baselineDir, "RC3_AUDITED_PRE_FIX_BASELINE.json"),
+  baselineProposal: path.join(baselineDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json"),
   diagnostic: path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json"),
   truth: path.join(fixtureDir, "gold.json"),
   extraction: path.join(fixtureDir, "raw-document-extraction.json"),

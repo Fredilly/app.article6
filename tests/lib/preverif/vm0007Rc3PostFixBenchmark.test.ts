@@ -10,7 +10,7 @@ import { changedVm0007RuleIds, mapDiagnosticTracesByRuleId, removedEvidenceIsBas
 import { evaluateVm0007EvidenceBenchmark } from "@/lib/preverif/vm0007EvidenceBenchmark";
 
 const root = process.cwd();
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3");
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const benchmarkPath = path.join(artifactDir, "RC3_AUDITED_POST_FIX_BENCHMARK.json");
 const generatedArtifacts = [
@@ -42,7 +42,7 @@ describe("RC3-7 audited post-fix benchmark", () => {
     const registry = read(path.join(artifactDir, "RC3_BASELINE_REGISTRY.json"));
     const selected = registry.versions.filter((version: any) => version.logicalVersion === "v2" && version.status === "frozen_current" && version.purpose === "official RC3 audited pre-fix starting point");
     expect(selected).toHaveLength(1);
-    expect(selected[0].generatedSameRunProposal.path).toBe("docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json");
+    expect(selected[0].generatedSameRunProposal.path).toBe("docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3/RC3_AUDITED_PRE_FIX_PROPOSAL.json");
   });
 
   it("contains exact frozen hashes", () => {

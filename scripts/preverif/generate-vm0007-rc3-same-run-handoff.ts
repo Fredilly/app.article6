@@ -12,7 +12,7 @@ import { evaluateVm0007EvidenceBenchmark } from "../../src/lib/preverif/vm0007Ev
 import { buildVm0007Rc3SameRunHandoffTrace, serializeVm0007Rc3SameRunHandoffTrace } from "../../src/lib/preverif/vm0007Rc3SameRunHandoffTrace";
 
 const root = process.cwd();
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3");
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const rulesPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json");
 const registryPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");
@@ -20,7 +20,7 @@ const machinePath = path.join(fixtureDir, "machine-proposal.json");
 const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const extractionPath = path.join(fixtureDir, "raw-document-extraction.json");
 const reconciliationPath = path.join(fixtureDir, "mismatch-reconciliation.json");
-const baselinePath = path.join(artifactDir, "RC2_BASELINE.json");
+const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json");
 const frozenProposalPath = machinePath;
 const outputPath = path.join(artifactDir, "RC3_SAME_RUN_HANDOFF_TRACE.json");
 const read = (filePath: string) => JSON.parse(fs.readFileSync(filePath, "utf8")) as any;

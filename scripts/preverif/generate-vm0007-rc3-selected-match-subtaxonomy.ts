@@ -10,9 +10,9 @@ import type { Vm0007EvidenceBenchmarkMachineRow, Vm0007EvidenceBenchmarkReviewed
 import type { Vm0007Rc3Diagnostic } from "../../src/lib/preverif/vm0007Rc3Diagnostic";
 
 const root = process.cwd();
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3");
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const baselinePath = path.join(artifactDir, "RC2_BASELINE.json");
+const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json");
 const diagnosticPath = path.join(artifactDir, "RC3_DIAGNOSTIC.json");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
 const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");

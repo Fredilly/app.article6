@@ -99,7 +99,7 @@ writeJson(path.join(outputDir, "raw-document-extraction.json"), {
 writeJson(path.join(outputDir, "machine-proposal.json"), draft.package);
 
 const relative = (filePath: string) => path.relative(root, filePath);
-const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-machine-proposal-baseline.md");
+const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc5/maya-machine-proposal-baseline.md");
 const proposalPath = path.join(outputDir, "machine-proposal.json");
 const evidenceCounts = Object.entries(evidenceStateCounts).map(([key, value]) => `${key} ${value}`).join(", ");
 const applicability = Object.entries(applicabilityCounts).map(([key, value]) => `${key} ${value}`).join(", ");

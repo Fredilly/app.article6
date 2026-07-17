@@ -5,13 +5,13 @@ import { assertRc5RuleCoverage, buildRc5AdjudicationResponseSchema } from "./rc5
 import { readRc5BatchSelection } from "./rc5-batch-selection-manifest";
 
 const root = process.cwd();
-export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-2-adjudication");
+export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication");
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const auditPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/audit-record.json");
 const rawPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json");
-const priorPacketPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication/review-packet.json");
-const priorResponsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json");
-const priorComparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json");
+const priorPacketPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication/review-packet.json");
+const priorResponsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json");
+const priorComparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json");
 
 function readJson<T>(filePath: string): T { return JSON.parse(fs.readFileSync(filePath, "utf8")) as T; }
 function sha256(value: string | Buffer): string { return crypto.createHash("sha256").update(value).digest("hex"); }
@@ -132,7 +132,7 @@ export function buildArtifacts() {
     sourceDocument: document,
     frozenMachineProposal: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: sha256(fs.readFileSync(frozenPath)), proposalState: frozen.proposalState, auditId: frozen.auditId },
     canonicalRawExtraction: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json", sha256: sha256(fs.readFileSync(rawPath)), pageCount: raw.pages.length, extractionEngine: "pdf-parse" },
-    reviewedRuleExclusion: { derivation: "Union of stableRuleId values from the prior packet rules, completed adjudication response decisions, and reviewed-comparison rows.", artifacts: ["docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication/review-packet.json", "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json", "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json"], reviewedRuleIds: frozen.rows.map((row) => row.stableRuleId).filter((id) => priorSet.has(id)) },
+    reviewedRuleExclusion: { derivation: "Union of stableRuleId values from the prior packet rules, completed adjudication response decisions, and reviewed-comparison rows.", artifacts: ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication/review-packet.json", "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json"], reviewedRuleIds: frozen.rows.map((row) => row.stableRuleId).filter((id) => priorSet.has(id)) },
     selectedRuleIds,
     contexts,
     rules,

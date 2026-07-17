@@ -11,14 +11,14 @@ import { buildVm0007Rc2Baseline, serializeVm0007Rc2Baseline } from "../../src/li
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3");
 const read = (filePath: string) => JSON.parse(fs.readFileSync(filePath, "utf8"));
 const digest = (filePath: string) => crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
 const machinePath = path.join(fixtureDir, "machine-proposal.json");
 const reviewedPath = path.join(fixtureDir, "gold.rc2-rc3.json");
 const registryPath = path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json");
 const reconciliationPath = path.join(fixtureDir, "mismatch-reconciliation.json");
-const baselinePath = path.join(artifactDir, "RC2_BASELINE.json");
+const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json");
 const extractionPath = path.join(fixtureDir, "raw-document-extraction.json");
 const machine = read(machinePath); const reviewed = read(reviewedPath); const registry = read(registryPath);
 const baselineInput = { machineRows: machine.rows, reviewedRows: reviewed.rows, expectedStableRuleIds: registry.rules.map((rule: { stable_id: string }) => rule.stable_id), reconciliationRows: read(reconciliationPath).rows, fixtureIdentity: { machineProposal: { path: path.relative(root, machinePath), sha256: digest(machinePath) }, reviewedTruth: { path: path.relative(root, path.join(fixtureDir, "gold.json")), sha256: digest(reviewedPath) }, stableRuleRegistry: { path: path.relative(root, registryPath), sha256: digest(registryPath) }, reconciliation: { path: path.relative(root, reconciliationPath), sha256: digest(reconciliationPath) } } };

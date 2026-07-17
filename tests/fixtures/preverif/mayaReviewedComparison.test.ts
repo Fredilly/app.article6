@@ -6,12 +6,12 @@ import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 
 const root = process.cwd();
-const responsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json");
-const schemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json");
-const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json");
+const responsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json");
+const schemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-adjudication-response-schema.json");
+const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/live-review-sample.json");
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const canonicalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
-const comparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json");
+const comparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json");
 
 function read<T>(filePath: string): T { return JSON.parse(fs.readFileSync(filePath, "utf8")) as T; }
 function sha256(filePath: string): string { return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex"); }

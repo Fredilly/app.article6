@@ -5,7 +5,7 @@ import { auditEvidence, type MethodologyEvidenceAuditResult } from "@/lib/prever
 import { buildVm0007Rc3SameRunHandoffTrace, classifySameRunHandoff, matchHandoffIdentity, serializeVm0007Rc3SameRunHandoffTrace, validateVm0007Rc3SameRunHandoffTrace, type HandoffIdentity } from "@/lib/preverif/vm0007Rc3SameRunHandoffTrace";
 
 const root = process.cwd();
-const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json");
+const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SAME_RUN_HANDOFF_TRACE.json");
 const identity: HandoffIdentity = { quote: "target quote", normalizedQuote: "target quote", spanId: "target-span", page: 2, ruleId: "rule-1", provenance: null };
 const result = (overrides: Partial<MethodologyEvidenceAuditResult> = {}): MethodologyEvidenceAuditResult => ({
   ruleId: "rule-1", stableId: "rule-1", title: "Rule", ruleLogic: "logic", status: "supported_by_pdd",
