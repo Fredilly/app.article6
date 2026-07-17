@@ -1,24 +1,12 @@
 import type { RuleSummary } from "@/app/m/_lib/methodRules";
-import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
-import { extractAnswersForAllChecks } from "@/lib/quickCheckV2/answers";
-import { parseExtractedText } from "@/lib/quickCheckV2/evidence";
-import { validateAnswerResults } from "@/lib/quickCheckV2/status";
 import {
-  buildQuickCheckMethodologyIdentity,
   type QuickCheckMethodologyIdentity,
 } from "@/lib/quickCheckV2/methodologyIdentity";
-import {
-  auditEvidence,
-  type MethodologyEvidenceAuditRule,
-  type MethodologyEvidenceAuditSummary,
-} from "@/lib/preverif/evidenceAudit";
-import {
-  getVm0007EvidenceContract,
-  normalizeVm0007RuleId,
-} from "@/lib/preverif/vm0007EvidenceContracts";
+import type { MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
-import { buildVm0007EvidenceMapDraft, type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
 
@@ -81,17 +69,6 @@ function storageKey(auditId: string): string {
 
 function nowIso(): string {
   return new Date().toISOString();
-}
-
-function mapRule(rule: RuleSummary): MethodologyEvidenceAuditRule {
-  return {
-    id: rule.id,
-    title: rule.title,
-    summary: rule.summary ?? rule.snippet,
-    type: rule.type,
-    logic: rule.logic,
-    text: rule.text,
-  };
 }
 
 export function createVm0007GapReportAuditId(): string {
@@ -160,53 +137,40 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return failedGeneration(["methodology_id_mismatch"]);
   if (!input.rawPddText.trim() || input.rules.length === 0) return failedGeneration(["malformed_audit_output"]);
 
-  const context = getStructuredQueryContext(input.rawPddText);
-  const parsedDocument = parseExtractedText(
-    input.rawPddText,
-    context.evidenceDocument.docId,
-    context.parsedDocument.adapterId ?? "quick-check-panel",
-  );
-  const methodologyResult = validateAnswerResults(
-    extractAnswersForAllChecks(parsedDocument),
-  ).find((result) => result.checkName === "methodology");
-  const methodology = methodologyResult?.methodology ?? buildQuickCheckMethodologyIdentity(methodologyResult?.evidence ?? null) ?? input.methodology;
-  const audit = auditEvidence({
-    rules: input.rules.map(mapRule),
-    evidenceDocument: context.evidenceDocument,
-    getContract: getVm0007EvidenceContract,
-    normalizeRuleId: normalizeVm0007RuleId,
-    sections: context.documentStructure.sections,
-    rawText: input.rawPddText,
-    versionContext: {
+  const auditId = createVm0007GapReportAuditId();
+  let built: ReturnType<typeof buildVm0007MachineProposal>;
+  try {
+    built = buildVm0007MachineProposal({
+      auditId,
+      generatedAt: nowIso(),
       methodologyId: input.loadedRulebookId,
-      rulebookVersion: input.loadedRulebookVersion,
-      pddDeclaredMethodologyVersion: methodology.pddDeclaredMethodologyVersion ?? "",
-    },
-    userAcceptedVersionWarning: input.userAcceptedVersionWarning,
-  });
+      methodologyVersion: input.loadedRulebookVersion,
+      methodology: input.methodology,
+      evidenceFileName: input.evidenceFileName,
+      sourcePdfSha256: input.sourcePdfSha256,
+      rawPddText: input.rawPddText,
+      rules: input.rules,
+      userAcceptedVersionWarning: input.userAcceptedVersionWarning,
+    });
+  } catch {
+    return failedGeneration(["malformed_audit_output"]);
+  }
 
   const record: Vm0007GapReportAuditRecord = {
-    auditId: createVm0007GapReportAuditId(),
+    auditId,
     methodologyId: input.loadedRulebookId.trim(),
     methodologyVersion: input.loadedRulebookVersion.trim(),
     loadedRulebookId: input.loadedRulebookId.trim(),
     loadedRulebookVersion: input.loadedRulebookVersion.trim(),
-    methodology,
-    generatedAt: nowIso(),
+    methodology: built.methodology ?? input.methodology,
+    generatedAt: built.draft.ok ? built.draft.package.generatedAt : nowIso(),
     evidenceFileName: input.evidenceFileName?.trim() || undefined,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
-    audit,
-    sourceDocument: { documentId: context.evidenceDocument.docId, documentName: input.evidenceFileName?.trim() || null, contentSha256: input.sourcePdfSha256?.trim() || null },
+    audit: built.audit,
+    sourceDocument: built.sourceDocument,
   };
   saveVm0007GapReportAudit(record);
   const auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
   if (!auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: record.auditId, audit: record };
-  const draft = buildVm0007EvidenceMapDraft({
-    auditId: record.auditId,
-    generatedAt: record.generatedAt,
-    rules: input.rules,
-    audit,
-    sourceDocument: record.sourceDocument,
-  });
-  return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft });
+  return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft: built.draft });
 }
