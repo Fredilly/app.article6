@@ -12,6 +12,7 @@ const canonicalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corri
 const packetPath = path.join(packetDir, "review-packet.json");
 const schemaPath = path.join(packetDir, "review-response-schema.json");
 const templatePath = path.join(packetDir, "review-template.json");
+const reviewedTruthPath = path.join(packetDir, "reviewed-truth.json");
 const manifestPath = path.join(packetDir, "manifest.json");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
@@ -71,6 +72,32 @@ describe("RC5-2 Maya Batch 2 adjudication packet", () => {
       assert.equal(decision.expertReviewRequired, true);
       assert.equal(decision.finalEvidenceState, null);
       assert.equal(decision.finalApplicability, null);
+    }
+  });
+
+  it("rejects incomplete REVIEWED decisions and accepts the ten reviewed decisions", () => {
+    const schema = read<Record<string, any>>(schemaPath);
+    const reviewedTruth = read<{ decisions: Array<Record<string, any>> }>(reviewedTruthPath);
+    const validate = new Ajv2020({ strict: false }).compile(schema);
+    const requiredReviewedFields = [
+      "finalEvidenceState",
+      "finalApplicability",
+      "reviewerOutcome",
+      "contradictionState",
+      "assessmentReason",
+      "correctionReason",
+      "genericFailureCategory",
+      "reviewerConfidence",
+    ];
+
+    assert.equal(reviewedTruth.decisions.length, 10);
+    assert.equal(validate({ ...read<Record<string, any>>(path.join(packetDir, "reviewed-truth.json")), decisions: reviewedTruth.decisions }), true);
+    for (const field of requiredReviewedFields) {
+      const incomplete = {
+        ...read<Record<string, any>>(path.join(packetDir, "reviewed-truth.json")),
+        decisions: reviewedTruth.decisions.map((decision, index) => index === 0 ? { ...decision, [field]: null } : decision),
+      };
+      assert.equal(validate(incomplete), false, `null ${field} must be rejected for REVIEWED`);
     }
   });
 

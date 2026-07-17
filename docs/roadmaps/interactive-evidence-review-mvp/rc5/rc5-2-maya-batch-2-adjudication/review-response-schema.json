@@ -256,7 +256,64 @@
             null
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "REVIEWED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finalEvidenceState": {
+                "type": "string"
+              },
+              "finalApplicability": {
+                "type": "string"
+              },
+              "reviewerOutcome": {
+                "type": "string"
+              },
+              "contradictionState": {
+                "type": "string"
+              },
+              "assessmentReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "correctionReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "genericFailureCategory": {
+                "type": "string"
+              },
+              "reviewerConfidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "PROVISIONAL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }
