@@ -1,0 +1,394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-batch-3-adjudication-response-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceDocument",
+    "machineProposalRef",
+    "decisions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-batch-3-adjudication-response-v1"
+    },
+    "sourceDocument": {
+      "type": "object",
+      "required": [
+        "documentId",
+        "documentName",
+        "contentSha256"
+      ],
+      "properties": {
+        "documentId": {
+          "const": "quick-check-review-question"
+        },
+        "documentName": {
+          "const": "12-maya-forest-corridor-redd-belize.pdf"
+        },
+        "contentSha256": {
+          "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      },
+      "additionalProperties": false
+    },
+    "machineProposalRef": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "proposalState"
+      ],
+      "properties": {
+        "path": {
+          "const": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"
+        },
+        "sha256": {
+          "const": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
+        },
+        "proposalState": {
+          "const": "MACHINE_PROPOSED"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "$defs": {
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quote",
+        "page",
+        "sectionHeading",
+        "spanId",
+        "documentId",
+        "documentSha256"
+      ],
+      "properties": {
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sectionHeading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spanId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "documentId": {
+          "const": "quick-check-review-question"
+        },
+        "documentSha256": {
+          "const": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        "evidenceType": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stableRuleId",
+        "machineRowSha256",
+        "reviewStatus",
+        "expertReviewRequired",
+        "finalEvidenceState",
+        "finalApplicability",
+        "reviewerOutcome",
+        "acceptedEvidence",
+        "rejectedEvidence",
+        "contradictionState",
+        "draftFindingCandidate",
+        "assessmentReason",
+        "gap",
+        "clientAction",
+        "correctionReason",
+        "provisionalReason",
+        "genericFailureCategory",
+        "reviewerConfidence"
+      ],
+      "properties": {
+        "stableRuleId": {
+          "enum": [
+            "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+            "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+            "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+          ]
+        },
+        "machineRowSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewStatus": {
+          "enum": [
+            "PENDING_INDEPENDENT_ADJUDICATION",
+            "PROVISIONAL",
+            "REVIEWED"
+          ]
+        },
+        "expertReviewRequired": {
+          "type": "boolean"
+        },
+        "finalEvidenceState": {
+          "enum": [
+            "FOUND",
+            "UNCLEAR",
+            "MISSING",
+            "N/A",
+            null
+          ]
+        },
+        "finalApplicability": {
+          "enum": [
+            "APPLICABLE",
+            "NOT_APPLICABLE",
+            "UNKNOWN",
+            null
+          ]
+        },
+        "reviewerOutcome": {
+          "enum": [
+            "CONFORMS",
+            "ACTION_REQUIRED",
+            "NOT_APPLICABLE",
+            "NOT_ASSESSED",
+            null
+          ]
+        },
+        "acceptedEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceReference"
+          }
+        },
+        "rejectedEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceReference"
+          }
+        },
+        "contradictionState": {
+          "enum": [
+            "NONE",
+            "PRESENT",
+            "UNRESOLVED",
+            null
+          ]
+        },
+        "draftFindingCandidate": {
+          "enum": [
+            "NIR_CANDIDATE",
+            "NCR_CANDIDATE",
+            "OFI_CANDIDATE",
+            null
+          ]
+        },
+        "assessmentReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gap": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "clientAction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provisionalReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "genericFailureCategory": {
+          "enum": [
+            "NONE",
+            "RETRIEVAL",
+            "ASSESSMENT",
+            "APPLICABILITY",
+            "PROVENANCE",
+            "COMPONENT_COVERAGE",
+            "RULE_MAPPING",
+            "SOURCE_CONTRADICTION",
+            "OTHER",
+            null
+          ]
+        },
+        "reviewerConfidence": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            null
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "REVIEWED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": false
+              },
+              "finalEvidenceState": {
+                "type": "string"
+              },
+              "finalApplicability": {
+                "type": "string"
+              },
+              "reviewerOutcome": {
+                "type": "string"
+              },
+              "contradictionState": {
+                "type": "string"
+              },
+              "assessmentReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "correctionReason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "genericFailureCategory": {
+                "type": "string"
+              },
+              "reviewerConfidence": {
+                "type": "string"
+              },
+              "provisionalReason": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "PENDING_INDEPENDENT_ADJUDICATION"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": true
+              },
+              "finalEvidenceState": {
+                "type": "null"
+              },
+              "finalApplicability": {
+                "type": "null"
+              },
+              "reviewerOutcome": {
+                "type": "null"
+              },
+              "acceptedEvidence": {
+                "maxItems": 0
+              },
+              "rejectedEvidence": {
+                "maxItems": 0
+              },
+              "contradictionState": {
+                "type": "null"
+              },
+              "draftFindingCandidate": {
+                "type": "null"
+              },
+              "assessmentReason": {
+                "type": "null"
+              },
+              "gap": {
+                "type": "null"
+              },
+              "clientAction": {
+                "type": "null"
+              },
+              "correctionReason": {
+                "type": "null"
+              },
+              "provisionalReason": {
+                "type": "null"
+              },
+              "genericFailureCategory": {
+                "type": "null"
+              },
+              "reviewerConfidence": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewStatus": {
+                "const": "PROVISIONAL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expertReviewRequired": {
+                "const": true
+              },
+              "provisionalReason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
