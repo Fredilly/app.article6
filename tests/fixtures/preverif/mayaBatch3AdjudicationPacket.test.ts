@@ -4,15 +4,21 @@ import fs from "node:fs";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
+import { buildRc5BatchArtifacts, writeRc5BatchArtifacts } from "../../../scripts/preverif/generate-rc5-adjudication-batch";
 import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc5-adjudication-response-schema";
 import { readRc5BatchSelection } from "../../../scripts/preverif/rc5-batch-selection-manifest";
-import { buildArtifacts, packetDir } from "../../../scripts/preverif/generate-rc5-adjudication-batch3";
+import { batch3Config, buildArtifacts, packetDir } from "../../../scripts/preverif/generate-rc5-adjudication-batch3";
 
 const root = process.cwd();
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const rawPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
+const tempDir = (): string => fs.mkdtempSync(path.join("/tmp", "rc5-batch3-test-"));
+const withTempDir = <T>(callback: (directory: string) => T): T => {
+  const directory = tempDir();
+  try { return callback(directory); } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+};
 
 describe("RC5-2 Maya Batch 3 adjudication packet", () => {
   it("selects exactly the next ten frozen rules with no prior overlap or duplicates", () => {
@@ -69,5 +75,45 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
     assert.equal(serialized.includes('"reviewerOutcome"'), false);
     assert.equal(serialized.includes('"finalEvidenceState"'), false);
     assert.equal(serialized.includes('"finalApplicability"'), false);
+  });
+
+  it("uses the reusable generator without Batch 3-specific logic", () => {
+    const genericPath = path.join(root, "scripts/preverif/generate-rc5-adjudication-batch.ts");
+    const genericSource = fs.readFileSync(genericPath, "utf8");
+    assert.equal(genericSource.includes("Batch 3"), false);
+    assert.equal(genericSource.includes("batch-3"), false);
+    assert.deepEqual(buildRc5BatchArtifacts(batch3Config), buildArtifacts());
+  });
+
+  it("fails closed for every frozen input identity mismatch before writing", () => {
+    const cases = [
+      ["Machine proposal", { expectedMachineProposalSha256: "0".repeat(64) }],
+      ["Source document", { expectedDocumentSha256: "0".repeat(64) }],
+      ["Canonical extraction", { expectedExtractionSha256: "0".repeat(64) }],
+      ["Batch selection manifest", { expectedBatchManifestSha256: "0".repeat(64) }],
+    ] as const;
+    for (const [label, override] of cases) withTempDir((directory) => {
+      const outputDir = path.join(directory, "output");
+      assert.throws(() => writeRc5BatchArtifacts({ ...batch3Config, ...override, outputDir }), new RegExp(`${label} SHA mismatch`));
+      assert.equal(fs.existsSync(outputDir), false, `${label} failure must not create output`);
+    });
+  });
+
+  it("fails closed when a machine row or manifest rule list changes", () => {
+    withTempDir((directory) => {
+      const proposalPath = path.join(directory, "machine-proposal.json");
+      const proposal = read<Record<string, any>>(batch3Config.frozenProposalPath);
+      proposal.rows.find((row: Record<string, any>) => row.stableRuleId === "Verra.AFOLU.VM0007.v1-8.R-1-0012").requirementText += " changed";
+      fs.writeFileSync(proposalPath, `${JSON.stringify(proposal, null, 2)}\n`);
+      const changedProposalSha = sha256(fs.readFileSync(proposalPath));
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, frozenProposalPath: proposalPath, expectedMachineProposalSha256: changedProposalSha }), /Machine row Verra\.AFOLU\.VM0007\.v1-8\.R-1-0012 SHA mismatch/);
+
+      const manifestPath = path.join(directory, "manifest.json");
+      const manifest = read<Record<string, any>>(batch3Config.batchManifestPath);
+      manifest.batches["3"].expectedRuleIds[0] = "Verra.AFOLU.VM0007.v1-8.R-2-0009";
+      fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      const changedManifestSha = sha256(fs.readFileSync(manifestPath));
+      assert.throws(() => buildRc5BatchArtifacts({ ...batch3Config, batchManifestPath: manifestPath, expectedBatchManifestSha256: changedManifestSha }), /Frozen machine row hash manifest keys do not exactly match expected rule IDs/);
+    });
   });
 });
