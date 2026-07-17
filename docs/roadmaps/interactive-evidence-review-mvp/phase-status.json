@@ -27,7 +27,7 @@
     },
     "phase_5_unseen_pdd_validation": {
       "title": "Unseen-PDD validation",
-      "status": "active"
+      "status": "done"
     },
     "phase_6_stellar_mvp_release": {
       "title": "Stellar MVP release",
