@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "rc5-2-maya-semantic-comparison-v2",
+  "matchKey": "stableRuleId",
+  "canonical": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json",
+    "proposalSha256": "2f32f2f02843e31535c75be85088fad8a846d3c548445515bbbac371f85556e8",
+    "auditId": "maya-forest-corridor-redd-belize-vm0007-v18-machine-proposal",
+    "counts": { "rules": 58, "FOUND": 0, "UNCLEAR": 44, "MISSING": 14 }
+  },
+  "frozen": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "proposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "auditId": "vm0007-gap-abd63948-2722-4f9b-831c-8ce3d1dfe0cd",
+    "counts": { "rules": 58, "FOUND": 0, "UNCLEAR": 44, "MISSING": 14 }
+  },
+  "sourcePdfSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "canonicalGenerationCommand": "npx tsx scripts/preverif/generate-vm0007-machine-proposal.ts --pdf \"$HOME/Desktop/vm0007_v18_pdds copy/12-maya-forest-corridor-redd-belize.pdf\" --output tests/fixtures/preverif/maya-forest-corridor-redd-belize --generated-at \"2026-07-17T00:00:00.000Z\"",
+  "ignoredRunIdentityFields": [
+    "auditId",
+    "generatedAt",
+    "runId",
+    "rowId",
+    "proposalTimestamp"
+  ],
+  "envelopeDefaults": {
+    "mapVersion": 1,
+    "finalizationState": "draft",
+    "finalizedBy": null,
+    "finalizedAt": null,
+    "finalizationBasis": null
+  },
+  "comparisonFields": "all substantive proposal and row fields",
+  "aggregate": {
+    "matchedRuleCount": 58,
+    "changedRuleCount": 0,
+    "unchangedRuleCount": 58,
+    "fieldChangeCounts": {}
+  },
+  "result": "SEMANTIC_PARITY",
+  "reviewedTruthCreated": false,
+  "reviewerOutcomesInferred": false,
+  "mayaSpecificProductionLogicAdded": false
+}
