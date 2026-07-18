@@ -6,7 +6,7 @@ export type Rc5BatchSelectionManifest = {
   batches: Record<string, { batchId: string; expectedRuleIds: string[]; expectedMachineRowSha256?: Record<string, string> }>;
 };
 
-export const rc5BatchSelectionManifestPath = path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-batch-selection-manifest.json");
+export const rc5BatchSelectionManifestPath = path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc5/rc5-batch-selection-manifest.json");
 
 export function readRc5BatchSelectionEntry(batchNumber: number, manifestPath = rc5BatchSelectionManifestPath): Rc5BatchSelectionManifest["batches"][string] {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as Rc5BatchSelectionManifest;

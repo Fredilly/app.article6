@@ -10,9 +10,12 @@ import { canonicalJsonStringify } from "@/lib/export/canonicalJson";
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3");
+const executionDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3");
 const read = (file: string) => JSON.parse(fs.readFileSync(file, "utf8"));
 const sha256 = (file: string) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+const resolveArtifactPath = (file: string) => { const prefix = "docs/roadmaps/interactive-evidence-review-mvp/"; if (!file.startsWith(prefix)) return path.join(root, file); const relative = file.replace(prefix, ""); if (relative.startsWith("baselines/") || relative.startsWith("rc/")) return path.join(root, file); if (relative.startsWith("RC2_BASELINE")) return path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2", relative); if (relative.startsWith("RC3_BASELINE_REGISTRY") || relative.startsWith("RC3_AUDITED_PRE_FIX_BASELINE") || relative.startsWith("RC3_AUDITED_PRE_FIX_PROPOSAL")) return path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3", relative); return path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3", relative); };
+const normalizeArtifactPath = (file: string) => file.replace("docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/", "docs/roadmaps/interactive-evidence-review-mvp/").replace("docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3/", "docs/roadmaps/interactive-evidence-review-mvp/").replace("docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/", "docs/roadmaps/interactive-evidence-review-mvp/");
 
 const baselineFile = path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE.json");
 const manifestFile = path.join(artifactDir, "RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json");
@@ -25,20 +28,20 @@ const machine = read(path.join(fixtureDir, "machine-proposal.json"));
 const ruleRegistry = read(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.json"));
 
 const PROTECTED_HISTORICAL_ARTIFACTS = [
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json", sha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.md", sha256: "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_DIAGNOSTIC.json", sha256: "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json", sha256: "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_SAME_RUN_HANDOFF_TRACE.json", sha256: "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4" },
-  { path: "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json", sha256: "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json", sha256: "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.md", sha256: "e8d1bc1d7172865f9709d31588887d8906b8520b76f31d47df2b3ced70c4816b" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_DIAGNOSTIC.json", sha256: "a4964f1f8aec6a11c35ec07e2fcc1a8e9a1d31e0661811b9cf70d4e77d32c737" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SELECTED_MATCH_SUBTAXONOMY.json", sha256: "583ca35f70c9c51a924f777d2a26062b83bb7b63d54380435f1dbdd3e45e5910" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SAME_RUN_HANDOFF_TRACE.json", sha256: "9e0959845029152506663e6c8ffb52051a17b4b8e8f69c983c84ea078acd2ab4" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_CURRENT_COMPARISON.json", sha256: "3e10f733f9a0630f2540e736295fdeb77d829911550bc2366361736ff9cdc964" },
 ] as const;
 
 function assertHistoricalArtifactIntegrity(artifact: { path: string; sha256: string }, registryEntry: { path: string; sha256: string }): void {
-  const filePath = path.join(root, artifact.path);
+  const filePath = resolveArtifactPath(artifact.path);
   if (!fs.existsSync(filePath)) throw new Error(`Missing protected historical artifact: ${artifact.path}`);
   const actualSha256 = sha256(filePath);
   if (actualSha256 !== artifact.sha256) throw new Error(`Protected historical artifact SHA changed: ${artifact.path}`);
-  if (registryEntry.path !== artifact.path || registryEntry.sha256 !== artifact.sha256) throw new Error(`Protected historical registry entry changed: ${artifact.path}`);
+  if (normalizeArtifactPath(registryEntry.path) !== normalizeArtifactPath(artifact.path) || registryEntry.sha256 !== artifact.sha256) throw new Error(`Protected historical registry entry changed: ${artifact.path}`);
   if (actualSha256 !== registryEntry.sha256) throw new Error(`Protected historical artifact and registry SHA disagree: ${artifact.path}`);
 }
 
@@ -60,19 +63,19 @@ describe("audited RC3 pre-fix baseline", () => {
   it("pins every referenced SHA to the referenced bytes and prevents baseline drift", () => {
     expect(baselineArtifact.truth.sha256).toBe(sha256(path.join(root, baselineArtifact.truth.path)));
     expect(baselineArtifact.extraction.sha256).toBe(sha256(path.join(root, baselineArtifact.extraction.path)));
-    expect(baselineArtifact.generatedProposal.sha256).toBe(sha256(path.join(root, baselineArtifact.generatedProposal.path)));
+    expect(baselineArtifact.generatedProposal.sha256).toBe(sha256(resolveArtifactPath(baselineArtifact.generatedProposal.path)));
     for (const [file, reference] of Object.entries(manifest.artifacts) as [string, { sha256: string }][]) {
-      expect(reference.sha256).toBe(sha256(path.join(root, file)));
+      expect(reference.sha256).toBe(sha256(resolveArtifactPath(file)));
     }
     expect(manifest.artifacts["docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json"].sha256).toBe(sha256(baselineFile));
-    expect(read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")).baseline.artifactSha256).toBe(sha256(baselineFile));
+    expect(read(path.join(executionDir, "RC3_AUDITED_DIAGNOSTIC.json")).baseline.artifactSha256).toBe(sha256(baselineFile));
   });
 
   it("derives audited diagnostic counts from artifact rows", () => {
-    const diagnostic = read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json"));
-    const taxonomy = read(path.join(artifactDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"));
-    const handoff = read(path.join(artifactDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"));
-    const comparison = read(path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json"));
+    const diagnostic = read(path.join(executionDir, "RC3_AUDITED_DIAGNOSTIC.json"));
+    const taxonomy = read(path.join(executionDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json"));
+    const handoff = read(path.join(executionDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"));
+    const comparison = read(path.join(executionDir, "RC3_AUDITED_CURRENT_COMPARISON.json"));
     const proposal = read(path.join(artifactDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json"));
     const benchmark = evaluateVm0007EvidenceBenchmark({ machineRows: proposal.rows, reviewedRows: auditedTruth.rows, expectedStableRuleIds: ruleRegistry.rules.map((rule: { stable_id: string }) => rule.stable_id) });
     const categoryCounts = diagnostic.events.reduce((counts: Record<string, number>, event: { primaryCause: string }) => ({ ...counts, [event.primaryCause]: (counts[event.primaryCause] ?? 0) + 1 }), { never_retrieved: 0, retrieved_but_filtered: 0, ranked_below_cutoff: 0, selected_but_match_failed: 0, unresolved_insufficient_trace: 0 });
@@ -94,11 +97,11 @@ describe("audited RC3 pre-fix baseline", () => {
     }
     const v1 = registryArtifact.versions.find((version: { logicalVersion: string }) => version.logicalVersion === "v1");
     for (const artifact of PROTECTED_HISTORICAL_ARTIFACTS) {
-      const registryEntry = [...v1.baselineArtifacts, ...v1.diagnosticArtifacts].find((entry: { path: string }) => entry.path === artifact.path);
+      const registryEntry = [...v1.baselineArtifacts, ...v1.diagnosticArtifacts].find((entry: { path: string }) => normalizeArtifactPath(entry.path) === normalizeArtifactPath(artifact.path));
       expect(registryEntry).toBeDefined();
       assertHistoricalArtifactIntegrity(artifact, registryEntry);
     }
-    expect(read(path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json")).reviewedTruth.path).toContain("gold.json");
+    expect(read(path.join(executionDir, "RC3_AUDITED_CURRENT_COMPARISON.json")).reviewedTruth.path).toContain("gold.json");
   });
 
   it("rejects one-byte artifact drift, registry-only drift, and coordinated artifact/registry drift", () => {
@@ -125,9 +128,9 @@ describe("audited RC3 pre-fix baseline", () => {
 
   it("records one same-run production identity across the audited outputs", () => {
     const baseline = read(baselineFile);
-    const diagnostic = read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json"));
-    const handoff = read(path.join(artifactDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"));
-    const comparison = read(path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json"));
+    const diagnostic = read(path.join(executionDir, "RC3_AUDITED_DIAGNOSTIC.json"));
+    const handoff = read(path.join(executionDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json"));
+    const comparison = read(path.join(executionDir, "RC3_AUDITED_CURRENT_COMPARISON.json"));
     const proposalSha = baseline.generatedProposal.sha256;
     expect(diagnostic.baseline.artifactSha256).toBe(sha256(baselineFile));
     expect(handoff.auditExecutionSha256).toBe(baseline.productionExecution.auditExecutionSha256);
@@ -149,22 +152,22 @@ describe("audited RC3 pre-fix baseline", () => {
     expect(v2.reviewedTruth.path).toContain("gold.json");
     expect(registryArtifact.provisional).toBeUndefined();
     expect(registryArtifact.versions.filter((version: { logicalVersion: string }) => version.logicalVersion === "v3")).toHaveLength(0);
-    const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => artifact.path === "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
+    const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => normalizeArtifactPath(artifact.path) === "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
     expect(taxonomyEntries).toHaveLength(1);
     expect(taxonomyEntries[0].sha256).toBe("32181d976bea24d01884c6c1d8586afd5e858ea40eb708a7f5156f2c71e11865");
-    expect(taxonomyEntries[0].sha256).toBe(sha256(path.join(artifactDir, "RC3_FALSE_SUPPORT_TAXONOMY.json")));
+    expect(taxonomyEntries[0].sha256).toBe(sha256(path.join(executionDir, "RC3_FALSE_SUPPORT_TAXONOMY.json")));
     expect(registryArtifact.reproduction.diagnosticOutputsAreProductionOutputs).toBe(false);
     for (const version of [v1, v2]) {
       const refs = [version.reviewedTruth, version.frozenMachineProposal, version.extraction, version.generatedSameRunProposal, version.manifestArtifact, ...(version.baselineArtifacts ?? []), ...(version.diagnosticArtifacts ?? [])].filter(Boolean);
       for (const reference of refs) {
-        expect(fs.existsSync(path.join(root, reference.path))).toBe(true);
-        expect(reference.sha256).toBe(sha256(path.join(root, reference.path)));
+        expect(fs.existsSync(resolveArtifactPath(reference.path))).toBe(true);
+        expect(reference.sha256).toBe(sha256(resolveArtifactPath(reference.path)));
       }
     }
     expect(v1.baselineArtifacts.map((artifact: { path: string }) => artifact.path)).toEqual(expect.arrayContaining([expect.stringContaining("RC2_BASELINE.json"), expect.stringContaining("RC2_BASELINE.md")]));
     expect(v2.baselineArtifacts[0].path).toContain("RC3_AUDITED_PRE_FIX_BASELINE.json");
-    expect(v2.counts.acceptedEvidenceMissed).toBe(read(path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")).events.length);
-    expect(v2.counts.selectedButMatchFailed).toBe(read(path.join(artifactDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json")).events.length);
+    expect(v2.counts.acceptedEvidenceMissed).toBe(read(path.join(executionDir, "RC3_AUDITED_DIAGNOSTIC.json")).events.length);
+    expect(v2.counts.selectedButMatchFailed).toBe(read(path.join(executionDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json")).events.length);
   });
 
   it("regenerates the registry byte-identically", () => {

@@ -7,7 +7,7 @@ import { describe, it } from "@jest/globals";
 const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live");
 const reviewManifestPath = path.join(
   process.cwd(),
-  "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/live-review-sample.json",
 );
 
 function sha256(value: string | Buffer): string {

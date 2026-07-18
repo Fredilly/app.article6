@@ -14,8 +14,8 @@ import type { Vm0007EvidenceBenchmarkMachineRow, Vm0007EvidenceBenchmarkReviewed
 import type { Vm0007Rc3Diagnostic } from "@/lib/preverif/vm0007Rc3Diagnostic";
 
 const root = process.cwd();
-const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_SELECTED_MATCH_SUBTAXONOMY.json");
-const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC2_BASELINE.json");
+const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_SELECTED_MATCH_SUBTAXONOMY.json");
+const baselinePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc2/RC2_BASELINE.json");
 
 function artifact() {
   return JSON.parse(fs.readFileSync(artifactPath, "utf8"));

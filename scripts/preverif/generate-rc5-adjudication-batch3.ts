@@ -4,10 +4,10 @@ import { assertRc5RuleCoverage } from "./rc5-adjudication-response-schema";
 import { readRc5BatchSelection } from "./rc5-batch-selection-manifest";
 
 const root = process.cwd();
-export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication");
+export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication");
 export const batch3Config: Rc5BatchGeneratorConfig = {
   batchNumber: 3,
-  batchManifestPath: path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-batch-selection-manifest.json"),
+  batchManifestPath: path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc5/rc5-batch-selection-manifest.json"),
   expectedBatchSelectionSha256: "34bbc2d6f1009a247dd8589cd47671eda0281398103e4ee0fb70a0bc38b6c1cc",
   frozenProposalPath: path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"),
   machineProposalRefPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
@@ -25,9 +25,9 @@ export const batch3Config: Rc5BatchGeneratorConfig = {
   manifestSchemaVersion: "rc5-2-maya-batch-3-adjudication-manifest-v1",
   reviewPurpose: "Independent adjudication of the next ten unreviewed frozen Maya machine-proposed rules.",
   priorArtifactPaths: [
-    "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication/review-packet.json",
-    "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-2-adjudication/review-packet.json",
-    "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication/review-packet.json",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/review-packet.json",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json",
   ],
   decisionCount: 10,
 };

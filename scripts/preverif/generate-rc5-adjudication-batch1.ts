@@ -5,8 +5,8 @@ import { assertRc5RuleCoverage, buildRc5AdjudicationResponseSchema } from "./rc5
 import { readRc5BatchSelection } from "./rc5-batch-selection-manifest";
 
 const root = process.cwd();
-const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication");
-const canonicalSchemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json");
+const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication");
+const canonicalSchemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-adjudication-response-schema.json");
 const templatePath = path.join(packetDir, "review-template.json");
 const proposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 

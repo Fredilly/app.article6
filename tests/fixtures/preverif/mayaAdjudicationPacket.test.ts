@@ -6,8 +6,8 @@ import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 
 const root = process.cwd();
-const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-adjudication");
-const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/live-review-sample.json");
+const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-adjudication");
+const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/live-review-sample.json");
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const canonicalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
 const auditPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/audit-record.json");
@@ -74,7 +74,7 @@ describe("RC5-2 Maya adjudication packet", () => {
     const template = read<{ sourceDocument: unknown; machineProposalRef: unknown; decisions: Array<{ stableRuleId: string; machineRowSha256: string; reviewStatus: string; expertReviewRequired: boolean }> }>("review-template.json");
     const manifest = read<{ frozenProposalSha256: string; auditRecordSha256: string; canonicalRawExtractionSha256: string; generatedPacketSha256: string; generatedAt: string; sourceCommitSha: string }>("manifest.json");
     const sample = JSON.parse(fs.readFileSync(samplePath, "utf8"));
-    const reviewedResponse = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json"), "utf8"));
+    const reviewedResponse = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json"), "utf8"));
     const response = {
       schemaVersion: "rc5-2-maya-adjudication-response-v1",
       sourceDocument: template.sourceDocument,

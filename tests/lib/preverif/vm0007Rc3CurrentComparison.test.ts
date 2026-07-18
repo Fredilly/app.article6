@@ -5,7 +5,7 @@ import path from "node:path";
 import { assertFrozenRc2Baseline, buildVm0007Rc3CurrentComparison, serializeVm0007Rc3CurrentComparison } from "@/lib/preverif/vm0007Rc3CurrentComparison";
 
 const root = process.cwd();
-const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/RC3_CURRENT_COMPARISON.json");
+const artifactPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc3/RC3_CURRENT_COMPARISON.json");
 const provenance = (spanId: string) => ({ docId: "doc", page: 1, sectionPath: ["S"], spanId, sectionHeading: "S", sourceType: "PDD" });
 const evidence = (quote: string, spanId: string) => ({ quote, provenance: provenance(spanId) });
 const ids = Array.from({ length: 58 }, (_, index) => `rule-${String(index + 1).padStart(2, "0")}`);

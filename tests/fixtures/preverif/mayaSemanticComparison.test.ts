@@ -6,7 +6,7 @@ import { describe, it } from "@jest/globals";
 
 const canonicalPath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
 const frozenPath = path.join(process.cwd(), "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
-const comparisonPath = path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-live-maya/semantic-comparison.json");
+const comparisonPath = path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/semantic-comparison.json");
 
 const ignoredIdentityFields = new Set(["auditId", "generatedAt", "runId", "rowId", "proposalTimestamp"]);
 const envelopeDefaults: Record<string, unknown> = {

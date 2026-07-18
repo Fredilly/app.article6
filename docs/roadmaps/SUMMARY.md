@@ -137,7 +137,7 @@ Not active now:
 ## interactive-evidence-review-mvp
 
 Status SSOT: `docs/roadmaps/interactive-evidence-review-mvp/phase-status.json`
-Details: `docs/roadmaps/interactive-evidence-review-mvp/PLAN.md`
+Details: `docs/roadmaps/interactive-evidence-review-mvp/plan.md`
 
 1) RC0 — Roadmap contract: Done
 2) RC1 — Readable interactive workspace: Done

@@ -16,7 +16,7 @@ import { buildVm0007Rc3CurrentComparison, serializeVm0007Rc3CurrentComparison } 
 
 const root = process.cwd();
 const fixtureDir = path.join(root, "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
-const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp");
+const artifactDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc3");
 const fixturePath = (name: string) => path.join(fixtureDir, name);
 const artifactPath = (name: string) => path.join(artifactDir, name);
 const read = (filePath: string): any => JSON.parse(fs.readFileSync(filePath, "utf8"));

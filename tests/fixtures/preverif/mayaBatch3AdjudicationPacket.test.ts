@@ -147,7 +147,7 @@ describe("RC5-2 Maya Batch 3 adjudication packet", () => {
   });
 
   it("does not create Batch 4 artifacts", () => {
-    assert.equal(fs.existsSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-4-adjudication")), false);
+    assert.equal(fs.existsSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication")), false);
   });
 
   it("strictly validates canonical JSON values and deterministic ordering", () => {
