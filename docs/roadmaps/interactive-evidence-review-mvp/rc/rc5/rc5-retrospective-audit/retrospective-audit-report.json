@@ -148,6 +148,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -186,6 +189,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -213,6 +219,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -240,6 +249,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -278,6 +290,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -305,6 +320,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -332,6 +350,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -359,6 +380,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -386,6 +410,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -401,6 +428,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -496,6 +526,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -591,6 +624,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -697,6 +733,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -775,6 +814,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -853,6 +895,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -907,6 +952,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -985,6 +1033,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1063,6 +1114,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1141,6 +1195,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1219,6 +1276,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1282,6 +1342,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1375,6 +1438,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1474,6 +1540,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1561,6 +1630,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1671,6 +1743,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1799,6 +1874,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1898,6 +1976,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -1996,6 +2077,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2065,6 +2149,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2092,6 +2179,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2161,6 +2251,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2224,6 +2317,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2293,6 +2389,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2356,6 +2455,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2480,6 +2582,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2615,6 +2720,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2684,6 +2792,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2753,6 +2864,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -2908,6 +3022,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3078,6 +3195,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3260,6 +3380,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3427,6 +3550,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3484,6 +3610,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3666,6 +3795,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3693,6 +3825,9 @@
       "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3750,6 +3885,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3807,6 +3945,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3856,6 +3997,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -3913,6 +4057,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
@@ -4039,6 +4186,9 @@
       ],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
+      "resolvedClientActionResult": "PASS",
+      "correctionReasonResult": "PASS",
+      "resolvedJudgmentEvidenceResult": "PASS",
       "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"

@@ -137,6 +137,16 @@ function buildAudit() {
       const rejectedKeys = new Set((decision.rejectedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
       const acceptedRejectedDuplicateEvidence = [...acceptedKeys].filter((key) => rejectedKeys.has(key));
       const notApplicableEvidenceResult = decision.finalApplicability === "NOT_APPLICABLE" && (decision.acceptedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
+      const resolvedNotApplicable = decision.finalApplicability === "NOT_APPLICABLE" && decision.reviewerOutcome === "NOT_APPLICABLE";
+      const resolvedConforms = decision.finalEvidenceState === "FOUND" && decision.reviewerOutcome === "CONFORMS";
+      const resolvedClientActionResult = (resolvedNotApplicable || resolvedConforms) && (decision.clientAction ?? "") !== "" ? "FAIL" : "PASS";
+      const staleAcceptanceClaim = /\b(?:should|ought to|needs? to)\b[^.\n]{0,80}\baccepted\b/i.test(decision.correctionReason ?? "")
+        || /\bshould have been accepted\b/i.test(decision.correctionReason ?? "");
+      const correctionReasonResult = staleAcceptanceClaim
+        && (decision.acceptedEvidence?.length ?? 0) > 0
+        && (decision.rejectedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
+      const resolvedJudgmentEvidenceResult = ((decision.finalEvidenceState === "FOUND" || decision.reviewerOutcome === "CONFORMS" || resolvedNotApplicable)
+        && (decision.acceptedEvidence?.length ?? 0) === 0) ? "FAIL" : "PASS";
       const result = {
         batch: config.batch,
         stableRuleId: decision.stableRuleId,
@@ -148,7 +158,14 @@ function buildAudit() {
         ambiguousContextMatches,
         acceptedRejectedDuplicateEvidence,
         notApplicableEvidenceResult,
-        semanticIntegrityResult: acceptedRejectedDuplicateEvidence.length === 0 && notApplicableEvidenceResult === "PASS" ? "PASS" : "FAIL",
+        resolvedClientActionResult,
+        correctionReasonResult,
+        resolvedJudgmentEvidenceResult,
+        semanticIntegrityResult: acceptedRejectedDuplicateEvidence.length === 0
+          && notApplicableEvidenceResult === "PASS"
+          && resolvedClientActionResult === "PASS"
+          && correctionReasonResult === "PASS"
+          && resolvedJudgmentEvidenceResult === "PASS" ? "PASS" : "FAIL",
         machineRowHashResult: machineRowHashResult ? "PASS" : "FAIL",
         schemaResult: schemaValid ? "PASS" : "FAIL",
       };

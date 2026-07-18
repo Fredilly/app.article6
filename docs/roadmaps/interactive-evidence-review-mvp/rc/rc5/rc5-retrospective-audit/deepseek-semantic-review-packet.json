@@ -174,7 +174,7 @@
       ],
       "rejectedEvidence": [],
       "assessmentReason": "The PDD clearly selects VMD0006 (BL-PL) v1.3 in Table 30 (\u00a73.1.1), which is the correct baseline module for APDef. The machine incorrectly marked applicability as UNKNOWN when it should be APPLICABLE (the project declares APDef in \u00a72.1.3 and \u00a73.1.2). No accepted evidence and one rejected candidate that actually contains the needed evidence. Machine proposal is INCORRECT: applicability error (should be APPLICABLE, not UNKNOWN) and missed evidence (the module table was rejected as noisy but contains valid evidence).",
-      "correctionReason": "Applicability should be APPLICABLE (project is APDef, BL-PL is the correct module). Evidence exists in the rejected span and should be accepted.",
+      "correctionReason": "Applicability should be APPLICABLE (project is APDef, BL-PL is the correct module). The reviewed evidence confirms VMD0006 (BL-PL) v1.3 is selected; the remaining gap is narrative justification for the module choice.",
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -222,7 +222,7 @@
       ],
       "rejectedEvidence": [],
       "assessmentReason": "Table 30 selects the carbon pool modules (VMD0001, VMD0002, VMD0004). Note: Maya uses VMD0004 (SOC) instead of VMD0005 (SOC) and does not select VMD0003 (litter) \u2014 this is a different module suite than Marcondes and should be verified against the methodology. The machine marked applicability as UNKNOWN, but the project is REDD APDef and REDD carbon pool modules are applicable. Machine proposal is INCORRECT: applicability error (should be APPLICABLE), evidence was rejected as noisy but is valid.",
-      "correctionReason": "Applicability should be APPLICABLE. Evidence exists in the rejected span and should be accepted. Module selection differs from Marcondes (VMD0004 vs VMD0005) and needs attention.",
+      "correctionReason": "Applicability should be APPLICABLE. The reviewed evidence confirms VMD0001, VMD0002, and VMD0004 are selected; the remaining gap is explicit carbon-pool inclusion/exclusion justification, including VMD0004 versus VMD0005 and omission of VMD0003.",
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -279,7 +279,7 @@
         }
       ],
       "assessmentReason": "VMD0013 (E-BPB) is listed in Table 30, which is the correct module for biomass burning emissions. However, no VMD0014 (E-FFC) for fossil fuel combustion is selected despite the project likely using vehicles/equipment. The machine marked applicability as UNKNOWN but the project is REDD APDef and must account for project emissions. Machine proposal is INCORRECT: applicability error (should be APPLICABLE), evidence of VMD0013 selection in the rejected span was missed.",
-      "correctionReason": "Applicability should be APPLICABLE. Evidence of VMD0013 selection exists in the rejected span and should be accepted. VMD0014 absence is a gap.",
+      "correctionReason": "Applicability should be APPLICABLE. The reviewed evidence confirms VMD0013 is selected; the remaining gap is evaluation or explicit exclusion of VMD0014 and project-emissions quantification.",
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -332,7 +332,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 applicability conditions.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -394,12 +394,12 @@
       ],
       "rejectedEvidence": [],
       "assessmentReason": "The PPD directly addresses Condition 4 in the applicability conditions table (\u00a73.1.2), explicitly stating that no flooded agriculture, feedlots, or manure lagoons are planned as leakage prevention. This is direct project-specific evidence. The machine marked this as MISSING with no accepted evidence, but the evidence exists in ctx-003 and was rejected as noisy. Machine proposal is INCORRECT: evidence state should be FOUND, not MISSING. The rule is satisfied.",
-      "correctionReason": "Evidence exists in the rejected span and directly satisfies the rule. Machine should have accepted it.",
+      "correctionReason": "The reviewed Condition 4 evidence directly satisfies the rule; the machine missed this evidence.",
       "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",
       "gap": "The leakage prevention condition (Condition 4) is addressed. The full leakage management plan is presented in \u00a73.2.3.",
-      "clientAction": "No action required for this specific rule. The Condition 4 prohibition is clearly stated.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -577,12 +577,12 @@
         }
       ],
       "assessmentReason": "The PDD's applicability conditions table (\u00a73.1.2, page 84) explicitly states: 'Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category.' This directly classifies the project as APDef, satisfying R-1-0002. The machine marked this as UNCLEAR with irrelevant accepted evidence (general eligibility statement + baseline scenarios). The correct evidence exists in the rejected ctx-003 span. Machine proposal is INCORRECT: evidence state should be FOUND, not UNCLEAR.",
-      "correctionReason": "The APDef classification evidence in ctx-003 (\u00a73.1.2 applicability table) was rejected as noisy but contains the exact classification needed. Should be accepted.",
+      "correctionReason": "The reviewed ctx-003 applicability-table evidence establishes the APDef classification; the machine missed this evidence.",
       "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",
       "gap": "The APDef classification is clearly stated in the applicability table. No further action needed for this specific rule.",
-      "clientAction": "No action required for this rule. The APDef classification in \u00a73.1.2 is sufficient.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -681,12 +681,12 @@
         }
       ],
       "assessmentReason": "The PDD \u00a73.1.2 applicability conditions table (Condition 7) explicitly states that conversion is legally permitted and cites the controlling Belizean statutes: Land Utilization Act, Private Forest (Conservation) Act, and Forest Act. VMD0006 module justification also confirms legal authorization. The evidence exists in rejected ctx-003. Machine proposal of UNCLEAR/APPLICABLE is INCORRECT in evidence state \u2014 FOUND is more appropriate given the explicit legal citations.",
-      "correctionReason": "The legal authorization evidence exists in the rejected ctx-003 span (applicability conditions + VMD0006 module justification) and should have been accepted.",
+      "correctionReason": "The reviewed applicability-table evidence and cited statutes establish the legal authorization; the machine missed this evidence.",
       "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",
       "gap": "Legal authorization is documented for conversion. The specific area and dates covered by each cited statute could be clarified.",
-      "clientAction": "Accept the applicability table evidence showing Condition 7 and the three cited Belizean statutes as sufficient legal authorization.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -726,7 +726,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 applicability conditions as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -766,7 +766,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -806,7 +806,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -846,7 +846,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -886,7 +886,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -926,7 +926,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -966,7 +966,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification.",
+      "clientAction": "",
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },
@@ -1008,7 +1008,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification for this WRC-specific rule.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "The rule is WRC-specific and the PDD confirms no peatlands/wetlands. However, an expert should confirm that 'conservation activity type' is exclusively a WRC concept and that no REDD-specific conservation activities need to be documented under this rule."
     },
@@ -1050,7 +1050,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Retain the no-peatland/no-tidal-wetlands statement from \u00a73.1.2 as the applicability justification. The wetland degradation criteria do not apply to this REDD APDef project.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "The rule is WRC-specific and the PDD confirms no wetlands. However, the mapping of this rule to 'wetland degradation only' should be confirmed by an expert to ensure the rule has no REDD application that was overlooked."
     },
@@ -1094,7 +1094,7 @@
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",
       "gap": "The module table confirms no ARR/IFM modules are selected. No further action needed for this rule.",
-      "clientAction": "No action required. The module selection table confirms IFM/ARR activities are not implemented.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "The module table evidence is strong, but an expert should confirm that the absence of ARR/IFM modules in Table 30 is sufficient to satisfy this rule's exclusion requirement, particularly for projects with mixed activity types."
     },
@@ -1383,7 +1383,7 @@
         }
       ],
       "assessmentReason": "The PDD \u00a73.2.1.2.1 describes the carbon pools included (AGB, BGB, dead wood, SOC). This partially addresses pool inclusion/exclusion. However, the justification for each pool's inclusion/exclusion is not fully documented. The machine missed the relevant pool evidence and accepted the irrelevant general eligibility statement.",
-      "correctionReason": "Relevant carbon pool evidence exists in the rejected span (\u00a73.2.1.2.1) that should have been accepted.",
+      "correctionReason": "The reviewed \u00a73.2.1.2.1 evidence identifies included and excluded carbon pools; the machine missed this relevant evidence. The remaining gap is explicit justification for each pool decision.",
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -1463,7 +1463,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0009 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1505,7 +1505,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0010 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1547,7 +1547,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0011 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1589,7 +1589,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "Add the include or exclude decision for each relevant pool or source, the reason for that decision, and the citations supporting it.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0012 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1769,7 +1769,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0015 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1811,7 +1811,7 @@
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "gap": "",
-      "clientAction": "State whether the project includes WRC, peatland, or tidal wetland activities and cite the boundary, hydrology, and soil evidence supporting that scope decision.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Rule R-2-0016 is a WRC/tidal restoration requirement. The PDD applicability table confirms no peatlands or tidal wetlands. Expert should independently verify no WRC activities exist."
     },
@@ -1979,7 +1979,7 @@
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",
       "gap": "",
-      "clientAction": "Confirm the three alternatives remain the complete set and add any additional alternatives considered if applicable.",
+      "clientAction": "",
       "reviewStatus": "PROVISIONAL",
       "provisionalReason": "Three alternatives clearly present in accepted evidence (Step 1a, p.91). Expert should confirm no additional mandatory alternatives were omitted per VT0001."
     },
