@@ -21,7 +21,6 @@ export const selectedRuleIds = [
   "Verra.AFOLU.VM0007.v1-8.R-2-0016",
   "Verra.AFOLU.VM0007.v1-8.R-3-0002",
 ] as const;
-const selectedRuleBatch: Record<string, number> = Object.fromEntries(selectedRuleIds.map((id) => [id, id.endsWith("R-1-0014") ? 3 : 4]));
 
 const packetPaths: Record<string, string> = {
   "Verra.AFOLU.VM0007.v1-8.R-1-0014": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
@@ -38,21 +37,22 @@ const write = (filePath: string, value: unknown): void => fs.writeFileSync(fileP
 type ScopeRule = { stableRuleId: string; batch: number; reviewStatus: string; existingFrozenPacketSufficientForIndependentReview: boolean; [key: string]: unknown };
 type ProvisionalRow = Record<string, unknown> & { stableRuleId: string; reviewStatus: string };
 
-export function buildArtifacts() {
-  const scope = read<{ rules: ScopeRule[]; sourceCommitSha: string }>(scopePath);
-  const scopeRules = new Map(scope.rules.map((rule) => [rule.stableRuleId, rule]));
+export function buildArtifacts(scopeOverride?: { rules: ScopeRule[]; finalizedExistingPacketRules?: ScopeRule[]; sourceCommitSha: string }) {
+  const scope = scopeOverride ?? read<{ rules: ScopeRule[]; finalizedExistingPacketRules?: ScopeRule[]; sourceCommitSha: string }>(scopePath);
+  const scopeRules = new Map([...scope.rules, ...(scope.finalizedExistingPacketRules ?? [])].map((rule) => [rule.stableRuleId, rule]));
   const proposal = read<{ rows: Array<Record<string, unknown> & { stableRuleId: string }> }>(proposalPath);
   if (sha256(fs.readFileSync(proposalPath)) !== proposalRef.sha256) throw new Error("Frozen machine proposal changed");
   const contexts: Record<string, unknown> = {};
 
   const rules = selectedRuleIds.map((stableRuleId) => {
     const scopeRule = scopeRules.get(stableRuleId);
-    if (scopeRule && scopeRule.existingFrozenPacketSufficientForIndependentReview !== true) throw new Error(`Scope manifest does not authorize ${stableRuleId}`);
+    if (!scopeRule) throw new Error(`Scope manifest is missing selected rule ${stableRuleId}`);
+    if (scopeRule.existingFrozenPacketSufficientForIndependentReview !== true) throw new Error(`Scope manifest does not authorize ${stableRuleId}`);
     const packetPath = packetPaths[stableRuleId];
     const packet = read<{ rules: Array<Record<string, unknown> & { stableRuleId: string }> }>(path.join(root, packetPath));
     const originalRule = packet.rules.find((rule) => rule.stableRuleId === stableRuleId);
     if (!originalRule) throw new Error(`Original frozen packet is missing ${stableRuleId}`);
-    const truthPath = reviewedTruthPaths[scopeRule?.batch ?? selectedRuleBatch[stableRuleId]];
+    const truthPath = reviewedTruthPaths[scopeRule.batch];
     const truth = read<{ decisions: ProvisionalRow[] }>(path.join(root, truthPath));
     const provisionalRow = truth.decisions.find((row) => row.stableRuleId === stableRuleId);
     if (!provisionalRow || !["PROVISIONAL", "REVIEWED"].includes(provisionalRow.reviewStatus)) throw new Error(`Current reviewed-truth row is missing for ${stableRuleId}`);

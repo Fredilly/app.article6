@@ -287,6 +287,72 @@
       "scopeReason": "The packet has no evidence for buffer-component quantification."
     }
   ],
+  "finalizedExistingPacketRules": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+      "batch": 3,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+      "batch": 4,
+      "reviewStatus": "REVIEWED",
+      "existingFrozenPacketSufficientForIndependentReview": true,
+      "scopeGroup": "CAN_FINALIZE_FROM_EXISTING_PACKET",
+      "scopeReason": "Selected by the merged scope manifest for existing-packet independent review; final reviewed truth is recorded separately."
+    }
+  ],
   "recommendedBatches": [
     {
       "batch": "next-2",

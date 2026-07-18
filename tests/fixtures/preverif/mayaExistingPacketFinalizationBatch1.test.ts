@@ -11,6 +11,7 @@ import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc
 const root = process.cwd();
 const read = <T>(file: string): T => JSON.parse(fs.readFileSync(file, "utf8")) as T;
 const sha256 = (value: Buffer | string): string => crypto.createHash("sha256").update(value).digest("hex");
+const scopePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
 
 describe("RC5-2 Maya existing-packet finalization batch 1", () => {
   it("contains exactly eight neutral, provenance-deduplicated candidate sets", () => {
@@ -73,5 +74,11 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("fails closed when a selected rule is absent from the scope manifest", () => {
+    const scope = read<{ rules: any[]; finalizedExistingPacketRules: any[]; sourceCommitSha: string }>(scopePath);
+    const missingRuleId = selectedRuleIds[0];
+    assert.throws(() => buildArtifacts({ ...scope, rules: scope.rules.filter((rule) => rule.stableRuleId !== missingRuleId), finalizedExistingPacketRules: scope.finalizedExistingPacketRules.filter((rule) => rule.stableRuleId !== missingRuleId) }), new RegExp(`Scope manifest is missing selected rule ${missingRuleId}`));
   });
 });
