@@ -18,10 +18,38 @@ const frozenProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-
 
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
-const stripPacketEvidenceRef = (ref: Record<string, any>) => {
-  const { index, provenance, ...rest } = ref;
-  return rest;
+const normalizePacketEvidenceRef = (ref: Record<string, any>, sourceDocument: { documentId: string; contentSha256: string }) => {
+  const { index, provenance, evidenceType, reason, rejectionReason, section, ...withoutSection } = ref;
+  return {
+    ...withoutSection,
+    sectionHeading: section,
+    documentId: sourceDocument.documentId,
+    documentSha256: sourceDocument.contentSha256,
+  };
 };
+
+const evidenceKey = (evidence: Record<string, any>) => JSON.stringify({
+  quote: evidence.quote,
+  page: evidence.page,
+  sectionHeading: evidence.sectionHeading,
+  spanId: evidence.spanId,
+  documentId: evidence.documentId,
+  documentSha256: evidence.documentSha256,
+});
+
+function assertPacketEvidenceMembership(
+  packetEvidencePool: Set<string>,
+  stableRuleId: string,
+  field: "acceptedEvidence" | "rejectedEvidence",
+  evidenceIndex: number,
+  evidence: Record<string, any>,
+) {
+  if (!packetEvidencePool.has(evidenceKey(evidence))) {
+    throw new assert.AssertionError({
+      message: `${stableRuleId} ${field}[${evidenceIndex}] has no exact frozen packet match`,
+    });
+  }
+}
 
 describe("RC5-2 Maya Batch 5 reviewed truth", () => {
   it("matches the frozen packet exactly and preserves the reviewed rule union", () => {
@@ -31,6 +59,15 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     const schema = read<Record<string, any>>(reviewSchemaPath);
     const batchManifest = read<Record<string, any>>(batchManifestPath);
     const selectionManifest = read<Record<string, any>>(selectionManifestPath);
+    const sourceDocument = packet.sourceDocument as { documentId: string; contentSha256: string };
+    const packetEvidencePool = new Set<string>();
+    for (const rule of packet.rules) {
+      for (const refs of [rule.acceptedEvidence, rule.rejectedEvidence]) {
+        for (const ref of refs ?? []) {
+          packetEvidencePool.add(evidenceKey(normalizePacketEvidenceRef(ref, sourceDocument)));
+        }
+      }
+    }
     const priorRuleIds = new Set<string>([
       ...selectionManifest.batches["1"].expectedRuleIds,
       ...selectionManifest.batches["2"].expectedRuleIds,
@@ -68,8 +105,12 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     for (const decision of truth.decisions) {
       const packetRule = packet.rules.find((rule: any) => rule.stableRuleId === decision.stableRuleId);
       assert.ok(packetRule, `Missing packet rule for ${decision.stableRuleId}`);
-      assert.deepEqual(decision.acceptedEvidence, (packetRule.sourceContext?.evidenceContextRefs?.accepted ?? []).map(stripPacketEvidenceRef), `${decision.stableRuleId} accepted evidence mismatch`);
-      assert.deepEqual(decision.rejectedEvidence, (packetRule.sourceContext?.evidenceContextRefs?.rejected ?? []).map(stripPacketEvidenceRef), `${decision.stableRuleId} rejected evidence mismatch`);
+      for (const [index, evidence] of decision.acceptedEvidence.entries()) {
+        assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "acceptedEvidence", index, evidence);
+      }
+      for (const [index, evidence] of decision.rejectedEvidence.entries()) {
+        assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "rejectedEvidence", index, evidence);
+      }
     }
 
     const schemaDecision = schema.$defs.decision;
@@ -77,5 +118,40 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     assert.ok(schemaDecision.required.includes("expertReviewRequired"));
     assert.ok(schema.$defs.evidenceReference.required.includes("documentSha256"));
     assert.ok(schema.$defs.evidenceReference.required.includes("spanId"));
+  });
+
+  it("keeps evidence semantics separate from packet membership", () => {
+    const truth = read<Record<string, any>>(reviewedTruthPath);
+    const decisions = new Map(truth.decisions.map((decision: any) => [decision.stableRuleId, decision]));
+    const noEvidencePattern = /^No accepted evidence exists in the packet/;
+
+    for (const decision of truth.decisions) {
+      if (decision.acceptedEvidence.length === 0) {
+        assert.match(decision.assessmentReason, noEvidencePattern, `${decision.stableRuleId} assessment must explain missing accepted evidence`);
+      } else {
+        assert.doesNotMatch(decision.assessmentReason, noEvidencePattern, `${decision.stableRuleId} has accepted evidence but describes none`);
+      }
+      if (decision.finalApplicability === "NOT_APPLICABLE") {
+        assert.equal(decision.gap, "", `${decision.stableRuleId} resolved N/A gap`);
+        assert.equal(decision.clientAction, "", `${decision.stableRuleId} resolved N/A client action`);
+      }
+      const judgmentText = JSON.stringify({ ...decision, acceptedEvidence: [], rejectedEvidence: [] });
+      assert.equal(judgmentText.includes("REDD+/ARR"), false, `${decision.stableRuleId} contains unsupported REDD+/ARR characterization`);
+    }
+
+    const r30008 = decisions.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
+    assert.equal(r30008.finalApplicability, "UNKNOWN");
+    assert.match(r30008.assessmentReason, /single-location/);
+    assert.match(r30008.assessmentReason, /no evidence about whether JNR data is used/);
+
+    for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {
+      const decision = truth.decisions.find((candidate: any) => candidate.stableRuleId.endsWith(`.${shortRuleId}`));
+      assert.ok(decision, `Missing corrected decision ${shortRuleId}`);
+      assert.equal(decision.acceptedEvidence[0].page, 1);
+      assert.equal(decision.acceptedEvidence[0].spanId, "quick-check-review-question:element:paragraph:3.1.2");
+      assert.match(decision.assessmentReason, /no peatlands or tidal wetlands/);
+      assert.equal(decision.rejectedEvidence[0].spanId, "quick-check-review-question:element:paragraph:2.3.14");
+      assert.match(decision.correctionReason, /moved to rejectedEvidence/);
+    }
   });
 });
