@@ -84,6 +84,33 @@
         "Verra.AFOLU.VM0007.v1-8.R-3-0001": "b00338bf5bf112bfa651e04fd57cf6b07a602f5b4ccbe70c840e943ddfddb9fb",
         "Verra.AFOLU.VM0007.v1-8.R-3-0002": "ec8c01e5bb584140f8382d53d920f001092f96d9debdb28ce882f313f01926ee"
       }
+    },
+    "5": {
+      "batchId": "RC5_BATCH_5",
+      "expectedRuleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0007",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-4-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0002",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+      ],
+      "expectedMachineRowSha256": {
+        "Verra.AFOLU.VM0007.v1-8.R-3-0003": "0d320b90c174f31a375c4856b6476cafbddc49ea51db02e48bbd3c3ad25d88ec",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0004": "a7361c35261093f78a26b645ec9bf0d76c191ff190950aaa00b309ef68be3d48",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0006": "ec40670dcdb7ddbf7e5bce9bda5d4289fe510d05ee16363fa531fe73a0fd2d43",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0007": "6271961c2f38dae03f89b5f4d624869de06c5f03b830a12fd791c383903519b2",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0008": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
+        "Verra.AFOLU.VM0007.v1-8.R-4-0002": "dcc130f6843ba426562f58f711242c986261433b15264e30a9b8cf09f5acb270",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0002": "d1945b44c6cebeb203c9ccb8634a2e469ff76aff0619af4b67fedb3d5057a9a2",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0003": "804cad0063297d5f5346a2b318d76e90b2d77a141f44572b93b7d24ae05d5376",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0004": "bc880f4ee11d82a777a59e6b30a2135b08ae66d46171c393cfbbfd5d817036ab",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0005": "f3f765f37549a236f399267a3a7b95e716eb1e5e72c0961a705f0cd5f81b30b1"
+      }
     }
   }
 }
