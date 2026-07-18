@@ -133,6 +133,10 @@ function buildAudit() {
       const machineRowHashResult = Boolean(rule && decision.machineRowSha256 === machineHash);
       batchHashResults.machineRows = batchHashResults.machineRows && machineRowHashResult;
       const provenanceResult = unmatchedEvidence.length === 0 ? "PASS" : "FAIL";
+      const acceptedKeys = new Set((decision.acceptedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
+      const rejectedKeys = new Set((decision.rejectedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
+      const acceptedRejectedDuplicateEvidence = [...acceptedKeys].filter((key) => rejectedKeys.has(key));
+      const notApplicableEvidenceResult = decision.finalApplicability === "NOT_APPLICABLE" && (decision.acceptedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
       const result = {
         batch: config.batch,
         stableRuleId: decision.stableRuleId,
@@ -142,6 +146,9 @@ function buildAudit() {
         evidenceEntries,
         unmatchedEvidence,
         ambiguousContextMatches,
+        acceptedRejectedDuplicateEvidence,
+        notApplicableEvidenceResult,
+        semanticIntegrityResult: acceptedRejectedDuplicateEvidence.length === 0 && notApplicableEvidenceResult === "PASS" ? "PASS" : "FAIL",
         machineRowHashResult: machineRowHashResult ? "PASS" : "FAIL",
         schemaResult: schemaValid ? "PASS" : "FAIL",
       };
@@ -197,7 +204,7 @@ function buildAudit() {
     schemaVersion: "rc5-maya-retrospective-audit-v1",
     generatedAt: "2026-07-18T00:00:00.000Z",
     scope: { batches: [1, 2, 3, 4, 5], ruleCount: allRuleIds.length, evidenceEntryCount: results.reduce((count, result) => count + result.acceptedEvidenceCount + result.rejectedEvidenceCount, 0) },
-    mechanicalResult: results.every((result) => result.provenanceResult === "PASS" && result.machineRowHashResult === "PASS" && result.schemaResult === "PASS") && batchSummaries.every((summary) => summary.selectedIdsResult === "PASS" && summary.schemaResult === "PASS" && summary.unresolvedAmbiguityCount === 0 && Object.values(summary.hashResults).every(Boolean)) && uniqueRuleIds.size === 50 && duplicateSelections.length === 0,
+    mechanicalResult: results.every((result) => result.provenanceResult === "PASS" && result.machineRowHashResult === "PASS" && result.schemaResult === "PASS" && result.semanticIntegrityResult === "PASS") && batchSummaries.every((summary) => summary.selectedIdsResult === "PASS" && summary.schemaResult === "PASS" && summary.unresolvedAmbiguityCount === 0 && Object.values(summary.hashResults).every(Boolean)) && uniqueRuleIds.size === 50 && duplicateSelections.length === 0,
     provenanceNormalizationMode: fixProvenance ? "fixed-unambiguous-contexts" : "audit-only",
     fixedProvenanceEntries,
     reviewedUnion: { uniqueRuleCount: uniqueRuleIds.size, expectedRuleCount: 50, duplicateSelections },

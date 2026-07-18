@@ -10,10 +10,10 @@
       5
     ],
     "ruleCount": 50,
-    "evidenceEntryCount": 125
+    "evidenceEntryCount": 124
   },
   "mechanicalResult": true,
-  "provenanceNormalizationMode": "fixed-unambiguous-contexts",
+  "provenanceNormalizationMode": "audit-only",
   "fixedProvenanceEntries": [],
   "reviewedUnion": {
     "uniqueRuleCount": 50,
@@ -37,7 +37,7 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 15,
+      "evidenceEntries": 12,
       "duplicateContextEntryCount": 0,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
@@ -69,8 +69,8 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 20,
-      "duplicateContextEntryCount": 16,
+      "evidenceEntries": 22,
+      "duplicateContextEntryCount": 18,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
       "hashResults": {
@@ -146,6 +146,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -181,6 +184,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -188,7 +194,7 @@
       "batch": 1,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0005",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -201,21 +207,13 @@
           "normalizationCandidateContextIds": [
             "ctx-002"
           ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "ctx-002"
-          ],
-          "normalizationCandidateContextIds": [
-            "ctx-002"
-          ]
         }
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -223,7 +221,7 @@
       "batch": 1,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0008",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -236,21 +234,13 @@
           "normalizationCandidateContextIds": [
             "ctx-002"
           ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "ctx-002"
-          ],
-          "normalizationCandidateContextIds": [
-            "ctx-002"
-          ]
         }
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -286,6 +276,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -310,6 +303,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -317,7 +313,7 @@
       "batch": 1,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0015",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -330,21 +326,13 @@
           "normalizationCandidateContextIds": [
             "ctx-003"
           ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "ctx-003"
-          ],
-          "normalizationCandidateContextIds": [
-            "ctx-003"
-          ]
         }
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -369,6 +357,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -393,6 +384,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -405,6 +399,9 @@
       "evidenceEntries": [],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -497,6 +494,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -589,6 +589,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -692,6 +695,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -767,6 +773,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -842,6 +851,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -893,6 +905,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -968,6 +983,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1043,6 +1061,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1118,6 +1139,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1193,16 +1217,40 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
     {
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-      "acceptedEvidenceCount": 0,
+      "acceptedEvidenceCount": 1,
       "rejectedEvidenceCount": 1,
       "provenanceResult": "PASS",
       "evidenceEntries": [
+        {
+          "field": "acceptedEvidence",
+          "index": 0,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ]
+        },
         {
           "field": "rejectedEvidence",
           "index": 0,
@@ -1216,17 +1264,56 @@
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [],
+      "ambiguousContextMatches": [
+        {
+          "field": "acceptedEvidence",
+          "index": 0,
+          "candidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ],
+          "completeFrozenEvidenceIdentical": true,
+          "resolved": "identical-content"
+        }
+      ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
     {
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-      "acceptedEvidenceCount": 0,
+      "acceptedEvidenceCount": 1,
       "rejectedEvidenceCount": 1,
       "provenanceResult": "PASS",
       "evidenceEntries": [
+        {
+          "field": "acceptedEvidence",
+          "index": 0,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ]
+        },
         {
           "field": "rejectedEvidence",
           "index": 0,
@@ -1256,6 +1343,20 @@
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [
         {
+          "field": "acceptedEvidence",
+          "index": 0,
+          "candidateContextIds": [
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-2"
+          ],
+          "completeFrozenEvidenceIdentical": true,
+          "resolved": "identical-content"
+        },
+        {
           "field": "rejectedEvidence",
           "index": 0,
           "candidateContextIds": [
@@ -1272,6 +1373,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1368,6 +1472,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1452,6 +1559,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1559,6 +1669,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1684,6 +1797,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1780,6 +1896,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1875,6 +1994,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1941,6 +2063,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -1965,6 +2090,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2031,6 +2159,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2091,6 +2222,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2157,6 +2291,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2217,6 +2354,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2338,6 +2478,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2470,6 +2613,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2536,6 +2682,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2602,6 +2751,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2754,6 +2906,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -2921,6 +3076,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3100,6 +3258,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3264,6 +3425,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3318,6 +3482,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3497,6 +3664,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3521,6 +3691,9 @@
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3575,6 +3748,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3629,6 +3805,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3675,6 +3854,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3729,6 +3911,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     },
@@ -3852,6 +4037,9 @@
           "resolved": "identical-content"
         }
       ],
+      "acceptedRejectedDuplicateEvidence": [],
+      "notApplicableEvidenceResult": "PASS",
+      "semanticIntegrityResult": "PASS",
       "machineRowHashResult": "PASS",
       "schemaResult": "PASS"
     }
