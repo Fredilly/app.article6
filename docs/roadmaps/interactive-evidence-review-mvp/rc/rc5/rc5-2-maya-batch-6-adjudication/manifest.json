@@ -82,8 +82,6 @@
   "packetFiles": [
     "review-packet.json",
     "review-response-schema.json",
-    "review-template.json",
-    "review-instructions.md",
-    "agent-prompt.md"
+    "review-template.json"
   ]
 }

@@ -174,4 +174,12 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
     assert.equal(new Set(artifacts.priorIds).size, 50);
     assert.equal(artifacts.selectedRuleIds.some((id) => artifacts.priorIds.includes(id)), false);
   });
+
+  it("lists exactly the generated packet deliverables and only existing files", () => {
+    const currentManifest = manifest();
+    const expectedPacketFiles = ["review-packet.json", "review-response-schema.json", "review-template.json"];
+    assert.deepEqual(currentManifest.packetFiles, expectedPacketFiles);
+    assert.ok(currentManifest.packetFiles.every((file: string) => fs.existsSync(path.join(packetDir, file))));
+    assert.equal(fs.readdirSync(packetDir).filter((file) => file.endsWith(".json")).sort().join("\n"), [...expectedPacketFiles, "manifest.json"].sort().join("\n"));
+  });
 });
