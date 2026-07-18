@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "rc5-2-maya-batch-6-adjudication-response-v1",
+  "schemaVersion": "rc5-2-maya-batch-6-full-pdd-expert-review-response-v1",
   "sourceDocument": {
     "documentId": "quick-check-review-question",
     "documentName": "12-maya-forest-corridor-redd-belize.pdf",
@@ -14,306 +14,458 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0006",
       "machineRowSha256": "908150ed12f3322c0be77dc2cda32d8d8264012ef0cde2afe9d6ebd5dedde8a3",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "Table 25. Uncertainty of the baseline rate of deforestation\nParcel Name \ud835\udc6b%\ud835\udc91\ud835\udc8f \ud835\udc80\ud835\udc93\ud835\udc94\ud835\udc91\ud835\udc8f\nAnnual rate of\ndeforestation per\nparcel\n1 70% 8 8.7%\n2 63% 9 7.0%\n3 81% 5 16.3%\n4 77% 8 9.6%\n5 81% 7 11.6%\n6 64% 5 12.9%\nMean (D%planned,t) 11.0%\nStandard deviation 3.3%\nStandard error 1.4%\nT-value 2.6\n95% confidence interval 3.5%\nUncertaintyBSL,RATE 31.7%\n3.2.1.4.2 Step 2: Assess Uncertainty of Emissions and Removals in Project Area in\nBaseline Scenario\nTo estimate the uncertainty of carbon stocks and greenhouse gas sources, the following equation\nbased on Equation 4 from X-UNC is applied:\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46 =\n\u221a\u2211 (\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46,\ud835\udc5d\ud835\udc5c\ud835\udc5c\ud835\udc59# \u2217 \ud835\udc38\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46,\ud835\udc5d\ud835\udc5c\ud835\udc5c\ud835\udc59#)2\t\ud835\udc5b\n1\n\u2211 \ud835\udc38\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46,\ud835\udc5d\ud835\udc5c\ud835\udc5c\ud835\udc59#\n\ud835\udc5b\n1\nWhere:\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46 = Percentage uncertainty in the combined carbon stocks and\ngreenhouse gas sources in the REDD baseline scenario, %\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc46\ud835\udc46,\ud835\udc5d\ud835\udc5c\ud835\udc5c\ud835\udc59# = Percentage uncertainty for carbon stocks and greenhouse gas",
+          "page": 113,
+          "sectionHeading": "3.2.1.4.2 Step 2: Assess Uncertainty of Emissions and Removals in Project Area",
+          "spanId": "full-pdd:page-113:1",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "G5.9) 2.5.13.1 No Double Issuance Is the project receiving or seeking credit for reductions and removals from a project activity under another GHG program, or any other form of community, social, or biodiversity unit or credit? \u2610 Yes \u2612 No 2.5.13.2 Registration in Other GHG Programs Has the project registered under any other GHG programs? \u2610 Yes \u2612 No Is the project active under the other program? \u2610 Yes \u2612 No 2.5.13.3 Projects Rejected by Other GHG Programs CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 82 CCB v3.0, VCS v4.4 Has the project been rejected by any other GHG programs? \u2610 Yes \u2612 No",
-          "page": 81,
-          "sectionHeading": "Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB",
-          "spanId": "quick-check-review-question:element:paragraph:2.5.13",
+          "quote": "Once these net GHG emission reductions have been calculated, following VM0007 requirements, they\nmust be adjusted to account for the 33.1% uncertainty (\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f), as calculated in section\n3.2.1.4, using the following modified version of equation 22 from VMD0015:\n\ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51_\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = \ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 \u2217 (100% \u2212 \ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61 + 15%)\nWhere:\n\ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51_\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = Total net GHG emission reductions of avoiding planned deforestation in year t\nafter deducting for uncertainty, t CO2e\n\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = Net GHG emission reductions of avoiding planned deforestation in year t, t\nCO2e\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61 = Uncertainty in REDD baseline up in year t, %\nTo calculate contributions to the AFOLU pooled buffer account, the following equation is applied:\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61 = \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2217 \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f%\nWhere:\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 = Total permanence buffer withholding for avoiding planned deforestation project\nactivities in year t, t CO2e\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 = Net GHG emissions in the REDD baseline scenario in year t, t CO2e\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f% = Buffer withholding percentage (percent)\nThe \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f% is based on the risk classification identified through the",
+          "page": 124,
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals",
+          "spanId": "full-pdd:page-124:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The following modified version of equation 22 from VMD0015 is\napplied:\n\ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51_\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = \ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 \u2217 (100% \u2212 \ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61\n+ 15%)\nWhere:\n\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = Net GHG emission reductions of\navoiding planned deforestation in year t, t\nCO2e\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61 = Uncertainty in REDD baseline up in\nyear t, %\nComments -\nData / parameter \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nData unit t CO2e\nDescription Total permanence buffer withholding for avoiding planned\ndeforestation project activities in year t\nSource of data -\nDescription of\nmeasurement methods\nand procedures to be\napplied\n-\nFrequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied Determined at monitoring event\nMonitoring equipment",
+          "page": 172,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-172:3",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: '15% threshold at 90% CI. Excess deducted proportionally. Below threshold, no deduction.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the uncertainty evidence needed for this rule.",
-      "clientAction": "Add the uncertainty method, the reduction steps or deductions used, and the citations linking those choices to the project data.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
-      "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-5-0006. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: '15% threshold at 90% CI. Excess deducted proportionally. Below threshold, no deduction.'. The PDD at p.113 provides an uncertainty table using a 95% confidence interval (T-value 2.6), not the required 90% CI. The adjustment formula at p.124 and p.172 applies uncertainty with a 15% threshold but the evidence does not demonstrate the specific decision logic for when no deduction applies below the threshold.",
+      "gap": "Uncertainty assessed at 95% CI rather than required 90% CI. No direct evidence that no deduction applies below the 15% threshold.",
+      "clientAction": "Confirm whether 90% CI was used for the uncertainty assessment or adjust to meet the VCS Standard requirement. Clarify the threshold logic for when no deduction applies.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but the uncertainty uses 95% CI, not the required 90% CI. Downgraded to UNCLEAR/ACTION_REQUIRED.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0007",
       "machineRowSha256": "ed59aa88bbf46a2cae9d47b5056f178c90b7be050d91b5a1fcd3e76ff059f4ac",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "To calculate contributions to the AFOLU pooled buffer account, the following equation is applied:\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61 = \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2217 \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f%\nWhere:\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 = Total permanence buffer withholding for avoiding planned deforestation project\nactivities in year t, t CO2e\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 = Net GHG emissions in the REDD baseline scenario in year t, t CO2e\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f% = Buffer withholding percentage (percent)\nThe \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f% is based on the risk classification identified through the use of the AFOLU Non-\nPermanence Risk Tool and is calculated to be 12.0%. Neither leakage deductions nor uncertainty\ndeduction factor into buffer calculations.\nThe final number of Verified Carbon Units that the project can generate in a given year is based on the\nfollowing equation:\n\ud835\udc49\ud835\udc36\ud835\udc48\ud835\udc61 = \ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 \u2212 \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61",
+          "page": 124,
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals",
+          "spanId": "full-pdd:page-124:1",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "G5.9) 2.5.13.1 No Double Issuance Is the project receiving or seeking credit for reductions and removals from a project activity under another GHG program, or any other form of community, social, or biodiversity unit or credit? \u2610 Yes \u2612 No 2.5.13.2 Registration in Other GHG Programs Has the project registered under any other GHG programs? \u2610 Yes \u2612 No Is the project active under the other program? \u2610 Yes \u2612 No 2.5.13.3 Projects Rejected by Other GHG Programs CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 82 CCB v3.0, VCS v4.4 Has the project been rejected by any other GHG programs? \u2610 Yes \u2612 No",
-          "page": 81,
-          "sectionHeading": "Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB",
-          "spanId": "quick-check-review-question:element:paragraph:2.5.13",
+          "quote": "Table 29. VCUs per vintage period\nVintage period Estimate\nd\nbaseline\nemission\ns (tCO2e)\nEstimate\nd project\nemissions\n(tCO2e)\nEstimate\nd leakage\nemissions\n(tCO2e)\nEstimate\nd buffer\npool\nallocation\n(tCO2e)\nEstimate\nd\nreduction\nVCUs\n(tCO2e)\nEstimate\nd removal\nVCUs\n(tCO2e)\nEstimate\nd total\nVCU\nissuance\n(tCO2e)\n01-Jan-2022\nto 31-Dec-\n2022\n103,803 0 -13,287 -12,456 61,674 0 61,674\n01-Jan-2023\nto 31-Dec-\n2023\n112,440 0 -14,392 -13,493 66,805 0 66,805\n01-Jan-2024 to\n31-Dec-2024\n121,076 0 -15,498 -14,529 71,936 0 71,936\n01-Jan-2025 to\n31-Dec-2025\n129,712 0 -16,603 -15,565 77,067 0 77,067",
+          "page": 125,
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals",
+          "spanId": "full-pdd:page-125:2",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) Where conversion of forest land to a deforested condition is legally permitted The conversion of the Project Activity Instance to agriculture is legal, as defined under the Land Utilization Act, Chapter 188, revised Edition 2000, the Private Forest (Conservation) Act, Chapter 217 Revised Edition 2000, and the Forest Act Chapter 213, Revised Edition 2003. VMD0002 This module is applicable to all forest types and age classes. This module is applicable if the dead wood pool is included as part of the project boundary as per applicability criteria in the framework module REDD-MF. Project area is forested. VMD0004 This module is applicable to non- organic soils under all forest types and age classes. All soils in the project area are non- organic. VMD0006 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non-forest land. Conversion of forestlands to a deforested condition is legally permitted. VMD0009 The module is applicable for estimating the leakage emissions due to activity shifting from forest lands that are legally authorized and documented to be converted to non- forest land. The module is mandatory if Module BL-PL has been used to define the baseline. Module BL-PL was used to define the baseline thus module is mandatory. VMD0013 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with [\u2026]",
-          "page": 84,
-          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "quote": "The estimated net GHG emission reductions are based on\ncarbon stock changes and GHG emissions estimated in the\nbaseline scenario minus net GHG emissions in the project\nscenario emissions due to leakage as shown in the following\nequation:\n\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2212 \u2206\ud835\udc36\ud835\udc4a\ud835\udc43\ud835\udc46\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2212 \u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nWhere:\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 = Net GHG emissions in the REDD baseline\nscenario in year t, t CO2e\n\u2206\ud835\udc36\ud835\udc4a\ud835\udc43\ud835\udc46\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 = Net GHG emissions in the REDD project\nscenario in year t, t CO2e \u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61= Net\nGHG emissions due to leakage from the REDD\nproject activity in year t, t CO2e\n\u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61= Net GHG emissions due to leakage from the\nREDD project activity in year t, t CO2e\nComments\n-\nData / parameter \ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51_\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61\nData unit t CO2e\nDescription Total net GHG emission reductions of avoiding planned\ndeforestation in year t after deducting for uncertainty\nSource of data -\nDescription of\nmeasurement methods\nand procedures to be\napplied\n-\nFrequency of\nmonitoring/recording\nMoni",
+          "page": 171,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-171:3",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "Project activity. Sub-step 1a. Identify credible alternative land use scenarios to the proposed VCS AFOLU project activity. There are three credible alternative land use scenarios: A. Clearing of Forest and Conversion to Agriculture The clearing of the forest and conversion to commercial agriculture is the most probable land use under the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can be found in section 3.1.4. B. Continuation of Pre-Project Land Use In the pre-project land-use scenario, the project area was maintained as forest and selectively logged over time. The previous owners could not economically support maintenance of pre-project land use of maintaining forest cover including paying property taxes, especially given that most of the high value timber in the site had been already extracted. This is why they were selling the property where the project area is located. C. Project activity on the land within the Project boundary performed without being registered as the VCS AFOLU project In this scenario, the land would have still been purchased and managed for conservation purposes. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs. Therefore, conducting the Project activity without registration as a VCS AFOLU Project is unsustainable. Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations. Because the project is private property, all alternatives presented in 1a are legal under Belizean law (see section 2.5.1). CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 92 CCB v3.0, VCS v4.4 \u201cAlternative A\u201d, The subdivision of forests and conversion to agriculture on private lands is legal under Belizean law. Table 4 in section 2.2.1 documents the different laws that permit the clearing of forests for other land uses. \u201cAlternative B\u201d, This requires no change in ownership and no change in previous land management thus these alternatives would be legal under Belizean Law. \u201cAlternatives C\u201d, As is the case in the project scenario, the purchase and management of the property for conservation is legal. Registration as a VCS AFOLU project does not change the legality of the activities conducted. Sub-step 1c. Selection of the baseline scenario Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. While all the alternatives are legal under Belizean law, Alternatives B and C were not financially viable options for the reasons presented in sub-step 1a. Furthermore, the previous owner of the property confirmed that it had received multiple offers to purchase the property from buyers interested in converting the property to industrial agricultural production.",
-          "page": 91,
-          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "quote": "The following modified version of equation 22 from VMD0015 is\napplied:\n\ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51_\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = \ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 \u2217 (100% \u2212 \ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61\n+ 15%)\nWhere:\n\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = Net GHG emission reductions of\navoiding planned deforestation in year t, t\nCO2e\n\ud835\udc48\ud835\udc5b\ud835\udc50\ud835\udc52\ud835\udc5f\ud835\udc61\ud835\udc4e\ud835\udc56\ud835\udc5b\ud835\udc61\ud835\udc66\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37\u2212\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc61 = Uncertainty in REDD baseline up in\nyear t, %\nComments -\nData / parameter \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nData unit t CO2e\nDescription Total permanence buffer withholding for avoiding planned\ndeforestation project activities in year t\nSource of data -\nDescription of\nmeasurement methods\nand procedures to be\napplied\n-\nFrequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied Determined at monitoring event\nMonitoring equipment -",
+          "page": 172,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-172:4",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "3.2.1.2.1 Baseline Pre-Deforestation Carbon Stocks Baseline carbon stocks in forests include the following pools: aboveground tree (> 5 cm diameter at breast height - DBH) tree biomass, belowground biomass, aboveground biomass for palms, standing and lying dead wood biomass, and soil organic carbon. These were calculated following the guidance laid out in VMD0001 (v1.1), VMD0002 (v1.1), and VMD0004 (v1.1). Leaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative estimation of carbon stocks in the project area. As discussed in section 3.1.3, belowground biomass for palms is also excluded as it was identified as de minimis. The mean total carbon stock was based on field data collected in the MFC REDD project area in 2023. See Appendix 25A for detailed field methods, Appendix 23 for the process to validate the allometric equation, and Appendix 19 for the full calculations to estimate carbon stocks and greenhouse gas emissions. As discussed in section 2.1.14, the two forest types that are found in the project area include lowland broad-leaved moist forests and lowland broad-leaved moist scrub forests (Meerman & Sabido, 2001). Because the two types are intermixed in much of the project area and share the many of the same overstory species, it was not possible to map them as separate strata using available remote sensing data. As a result, the two were combined into a single stratum for the purposes of assessing above and below ground biomass, deadwood, and soil organic carbon. Because of this, references to different strata are removed when evaluating carbon stocks. 3.2.1.2.1.1 Tree and palm biomass Aboveground tree biomass (in kilograms, or kg) was calculated using the Chave et al (2005) equation modified based on field data gathered in the project area (refer to section 3.1.6 for more information). CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 105 CCB v3.0, VCS v4.4 In this equation, the wood density value of 0.6 g cm-3 for tropical America was applied from Reyes et al. (1992). Separate allometric equations were applied for trees in the Cecropia genus and Pinus genus as well as for different palms. No allometric equations could be identified for the palm species Roystonea regia. As such, biomass from this species was conservatively excluded. There were other unidentified palm species measured but excluded from measurements due to the lack of generic allometric equations for palms. Table 20 includes the list of allometric equations applied. Table 20. Allometric equations to estimate aboveground biomass applied in the project Taxa Allometric Equations for Aboveground Biomass (kg) Source Cecropia spp \ud835\udc34\ud835\udc3a\ud835\udc35 = 12.764 + 0.2588 \u2217 \ud835\udc37\ud835\udc35\ud835\udc3b2.0515 Pearson et al (2005) Pinus spp \ud835\udc34\ud835\udc3a\ud835\udc35 = 0.887 + 10486 \u2217 \ud835\udc37\ud835\udc35\ud835\udc3b2.84 \ud835\udc37\ud835\udc35\ud835\udc3b2.84 + 376901 Penman et al (2003) Attalea cohune \ud835\udc34\ud835\udc3a\ud835\udc35 = 10.856 + 176.76 \u2217 \ud835\udc3b\ud835\udc47 \u2212 6.898 \u2217 \ud835\udc3b\ud835\udc472 Sabal spp \ud835\udc34\ud835\udc3a\ud835\udc35 = 24.559 + 4.921 \u2217 \ud835\udc3b\ud835\udc47 [\u2026]",
-          "page": 104,
-          "sectionHeading": "Part 2. Baseline carbon stock change",
-          "spanId": "quick-check-review-question:element:paragraph:3.2.1.2",
+          "quote": "The following equation is applied:\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61 = \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2217 \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f%\nWhere:\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 = Net GHG emissions in the REDD baseline\nscenario in year t, t CO2e\n\ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f% = Buffer withholding percentage, %\nComments -\nData / parameter \ud835\udc49\ud835\udc36\ud835\udc48\ud835\udc61\nData unit t CO2e\nDescription Number of Verified Carbon Units for year t\nSource of data -\nDescription of\nmeasurement methods\nand procedures to be\napplied\n-\nFrequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied Determined at monitoring event\nMonitoring equipment -\nQA/QC procedures to be\napplied\n-\nPurpose of data Calculation of VCUs\nCalculation method The following equation is applied:\n\ud835\udc49\ud835\udc36\ud835\udc48\ud835\udc61 = \ud835\udc34\ud835\udc51\ud835\udc57\ud835\udc62\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc51\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 \u2212 \ud835\udc35\ud835\udc62\ud835\udc53\ud835\udc53\ud835\udc52\ud835\udc5f\ud835\udc43\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nWhere:",
+          "page": 173,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-173:5",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'Period credits = incremental adjusted NER minus buffer withholding.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the quantification evidence needed for this rule.",
-      "clientAction": "Add the calculation pathway, the key variables and assumptions, and the citations that let a reviewer trace the stated result.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: 'Period credits = incremental adjusted NER minus buffer withholding.'. The PDD at p.124 provides the buffer equation and at p.173 confirms VCU_t = AdjustedNER_t - Buffer_Planned,t. Table 29 at p.125 shows VCU issuance values. However, the complete incremental adjusted-NER calculation pathway with all arithmetic inputs is not fully traced in the evidence. The individual component calculations feeding into adjusted NER are not demonstrated.",
+      "gap": "The full incremental adjusted-NER calculation with all component arithmetic inputs is not demonstrated. Only the final buffer withholding formula is shown.",
+      "clientAction": "Provide the full adjusted-NER calculation pathway with all arithmetic inputs and intermediate values traced through to the VCU result.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but the full calculation pathway is incomplete. Downgraded to UNCLEAR/ACTION_REQUIRED.",
       "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-5-0007. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0001",
       "machineRowSha256": "62c613e1ba3bb39e1dc613149d22f0570d6a5f5d53d58386c3d9b9608d87903b",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "Following the guidance provided in VMD0015, tasks will include monitoring of forest cover changes,\nmonitoring of loss in carbon stocks resulting from natural disturbances, monitoring of GHG emissions\nfrom wildfires (i.e., biomass burning), and estimating ex-post net carbon stock changes and greenhouse\ngas emissions.",
+          "page": 174,
+          "sectionHeading": "3.3.3 Monitoring Plan",
+          "spanId": "full-pdd:page-174:1",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "2.3.1 Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5) As part of a larger effort to guide conservation interventions in the entire Maya Forest Corridor, WCS and the University of Belize Environmental Research Institute (UB ERI) carried out a feasibility study that was completed in 2021 to build information to guide viable actions by both communities and managers for ensuring the persistence and ecological integrity of the MFC over the long term. This feasibility study can be found in Appendix 12. In this feasibility study, a scoping exercise was initially completed to identify the communities with the most impact on the broader MFC. The exercise identified thirteen priority communities: Camalote, Cotton Tree, Franks Eddy, Mahogany Heights, La Democracia, Gracie Rock, Hattieville, Scotland Halfmoon, Bermudian Landing, Double Head Cabbage, Willows Bank, St, Paul\u2019s Bank, and Rancho Dolores. Given the fact that the REDD project area only makes up a portion of the MFC, the WCS team conducted further analysis to determine which of these 13 communities had no impact on the project area. Based on this analysis, WCS removed Camalote because the hunting grounds of its community members are only in the southern section of the MFC landscape and, therefore, do not include the REDD project area. Further information gleaned from consultations and focus group discussions conducted as part of a Climate Adaptation and Protected Areas (CAPA) Initiative supported the identification of community subgroups, vulnerable groups, and stakeholders of interest and relevance to the MFC REDD Project. Data for each community was sourced from the 2022 Census which provided some information on education, household assets and characteristics, home ownership, and gender balance relevant to the heads of households. Finally, the list of stakeholders was finalized through consultations with community leaders in all 12 communities. Consultations with the community leaders allowed for validation of the information from CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 50 CCB v3.0, VCS v4.4 the census and 2021 household survey as well as identification of specific subgroups or community- based organizations and vulnerabilities specific to each community. The interests of community and community groups varied based on their proximity to the MFC and reliance on forest and other natural resource assets for livelihoods. Other stakeholder groups identified were from academia, non-government organizations, community-based organizations, the private sector, and government ministries and departments. Since the MFC REDD project area is privately owned, these stakeholders do not have rights in it, however, they are integral to management, planning, policies, and legislation relevant to the area as well as to national conservation efforts. Consequently, these stakeholders are important to the success of the project. Monitoring [\u2026]",
-          "page": 3,
-          "sectionHeading": "Safeguards and Stakeholder Engagement",
-          "spanId": "quick-check-review-question:element:paragraph:2.3",
+          "quote": "This monitoring task is designed to identify and delineate transitions from forest to non-forest within the\nproject area and account for resulting emissions due to loss of carbon stocks from monitored pools.\n3.3.3.3.1.1 New data to be collected\nGeospatial data will be gathered showing the location of forest land within the project area at the\nbeginning of each monitoring period (the project forest cover benchmark map) and at the end of each\nmonitoring period (the project forest cover monitoring map). Based on current technology, we expect\nthese data to include medium resolution wall-to-wall spaceborne multispectral imagery, and\nopportunistically collected high resolution remotely sensed optical imagery. Where warranted, ground\nmeasurements of the locations of deforestation sites may also be collected.\n3.3.3.3.1.2 Data collection, analysis, and QA/QC procedures\nThe production of an updated forest cover monitoring map (FCMM), as described in VMD0015,\nrepresents the primary means by which the area of deforestation within the monitored period will be\ncalculated. The FCMM will be developed using analysis of remotely sensed data, using a variety of\ntechniques as indicated by current best practices. Remote sensing remains a rapidly evolving space\nand best practices, sensors, and analytical tools are likely to change substantially over the course of\nthe project.\nGeneral approach\nIn general, the approach employed will likely include th",
+          "page": 175,
+          "sectionHeading": "3.3.3.3.1 Monitoring of forest loss and resulting emissions",
+          "spanId": "full-pdd:page-175:2",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "As part of a larger effort to guide conservation interventions in the entire Maya Forest Corridor, WCS and the University of Belize Environmental Research Institute (UB ERI) carried out a feasibility study that was completed in 2021 to build information to guide viable actions by both communities and managers for ensuring the persistence and ecological integrity of the MFC over the long term. This feasibility study can be found in Appendix 12. In this feasibility study, a scoping exercise was initially completed to identify the communities with the most impact on the broader MFC. The exercise identified thirteen priority communities: Camalote, Cotton Tree, Franks Eddy, Mahogany Heights, La Democracia, Gracie Rock, Hattieville, Scotland Halfmoon, Bermudian Landing, Double Head Cabbage, Willows Bank, St, Paul\u2019s Bank, and Rancho Dolores. Given the fact that the REDD project area only makes up a portion of the MFC, the WCS team conducted further analysis to determine which of these 13 communities had no impact on the project area. Based on this analysis, WCS removed Camalote because the hunting grounds of its community members are only in the southern section of the MFC landscape and, therefore, do not include the REDD project area. Further information gleaned from consultations and focus group discussions conducted as part of a Climate Adaptation and Protected Areas (CAPA) Initiative supported the identification of community subgroups, vulnerable groups, and stakeholders of interest and relevance to the MFC REDD Project. Data for each community was sourced from the 2022 Census which provided some information on education, household assets and characteristics, home ownership, and gender balance relevant to the heads of households. Finally, the list of stakeholders was finalized through consultations with community leaders in all 12 communities. Consultations with the community leaders allowed for validation of the information from CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 50 CCB v3.0, VCS v4.4 the census and 2021 household survey as well as identification of specific subgroups or community- based organizations and vulnerabilities specific to each community. The interests of community and community groups varied based on their proximity to the MFC and reliance on forest and other natural resource assets for livelihoods. Other stakeholder groups identified were from academia, non-government organizations, community-based organizations, the private sector, and government ministries and departments. Since the MFC REDD project area is privately owned, these stakeholders do not have rights in it, however, they are integral to management, planning, policies, and legislation relevant to the area as well as to national conservation efforts. Consequently, these stakeholders are important to the success of the project. Monitoring actions will include monitoring stakeholder [\u2026]",
-          "page": 49,
-          "sectionHeading": "Stakeholder Identification (VCS, 3.18, 3.19; CCB G1.5)",
-          "spanId": "quick-check-review-question:element:paragraph:2.3.1",
+          "quote": "Where natural disturbances such as extreme weather or wildfires occur ex-post in the project area\nresulting in degradation of forest carbon stocks, the area disturbed will be delineated in GIS and the\nresulting emissions estimated.\n3.3.3.3.2.1 New data to be collected\nIt will be necessary to delineate the area of disturbance such as extreme weather or fire that result in\nthe degradation of forest carbon stocks during the monitoring period. Data will also be collected on\ncarbon stocks within the disturbed area to estimate emissions. In situations where the impact of\ndisturbances on forest carbon stocks varies spatially within the area where the disturbance takes\nplace, the stratum may be further stratified based on post-natural disturbance carbon stocks.\n3.3.3.3.2.2 Data collection, analysis, and QA/QC procedures\nData collection procedures will follow and be consistent with those described in VMD0015.\nThe area subject to disturbance will be delineated in GIS using remote sensing and field monitoring.\nCarbon stocks must be measured and estimated using the methods given in VMD0001, VMD0002, and\nVMD0003.\nForest disturbances may be identified from a range of natural causes such as fire, storms, or pests and\ndisease outbreak. The spatial pattern and severity of such disturbances can vary widely, requiring\nmultiple approaches for identification, delineation, and quantification.\nFor natural disturbance degradation monitoring, a general three-step approach will be followed,\nalthough this may be modified as technology and data availab",
+          "page": 178,
+          "sectionHeading": "3.3.3.3.2 Monitoring areas undergoing natural disturbance and resulting emissions",
+          "spanId": "full-pdd:page-178:3",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "2.4.1 Project Governance Structures (CCB, G4.1) The MFCT\u2019s Board of Directors is the ultimate decision- and policy-making body of the MFCT, and as such has the final say on matters related to project development and implementation. The Board of Directors includes representatives from the Belize Maya Forest Trust (BMFT), WCS, the Belize Zoo and Tropical Education Center (TBZTEC), Foundation for Wildlife Conservation (FWC), the University of Belize \u2013 Environmental Research Institute (UB-ERI), and Re:wild. The responsibilities of the board include delegating certain responsibilities to members of its board. For this project, the MFCT board has delegated the following roles and responsibilities to WCS including 1) the day-to-day management of the project site; 2) engagement with nearby communities and other stakeholders related to the project; 3) conducting all the field work and preparing all the required project documentation to register the project with the VCS and CCB; and 4) ensuring that the monitoring and verification events occur. In addition, different MFCT members will contribute to carrying out project activities benefiting local communities. 2.4.2 Required Technical Skills (VCS, 3.19; CCB, G4.2) The required technical skills for successful implementation to ensure its climate, community, and biodiversity benefits include the following: Land management for conservation purposes: The effective management of the Maya Forest Corridor site is key to ensuring the project\u2019s success. This includes implementing activities focused on fire prevention and management, patrolling to prevent illegal activities (e.g., hunting, fire, land clearing, etc.), and species monitoring. Carbon measurement and monitoring: These skills are essential to ensuring that the project is generating real and additional verified carbon units. This includes expertise in Geographic Information Systems (GIS) and remote sensing. Stakeholder engagement and safeguard implementation: While there are no human settlements within the project site, there are nearby communities and other stakeholders that are being impacted by the project area. Appropriate stakeholder engagement and implementation of measures to ensure that compliance with different social safeguards is required to ensure these communities and other stakeholders benefit from the project. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 69 CCB v3.0, VCS v4.4 Biodiversity monitoring: To ensure that the wildlife corridor project is maximizing benefits to wildlife species, it is necessary to employ rigorous, science-based approaches to monitoring species. Project management: The capacity to plan, organize, and execute the project is integral to ensuring the overall success. This includes effectively defining project goals and scope, planning and scheduling tasks, managing resources, monitoring progress and risks, and ensuring quality control. 2.4.3 Management Team Experience [\u2026]",
-          "page": 3,
-          "sectionHeading": "Management Capacity",
-          "spanId": "quick-check-review-question:element:paragraph:2.4",
+          "quote": "3.3.3.3.3.1 New data to be collected\nData will be collected on the area impacted by biomass burning (\ud835\udc34\ud835\udc4f\ud835\udc62\ud835\udc5f\ud835\udc5b,\ud835\udc61).\n3.3.3.3.3.2 Data collection, analysis, and QA/QC procedures\nTo estimate these non-CO2-emissions from burning of remaining aboveground biomass, the following\nequation modified from VMD0013 is used:\n\ud835\udc38\ud835\udc4f\ud835\udc56\ud835\udc5c\ud835\udc5a\ud835\udc4e\ud835\udc60\ud835\udc60\ud835\udc4f\ud835\udc62\ud835\udc5f\ud835\udc5b,\ud835\udc61 = \u2211 ((\ud835\udc34\ud835\udc4f\ud835\udc62\ud835\udc5f\ud835\udc5b,\ud835\udc61 \u2217 \ud835\udc35\ud835\udc61 \u2217 \ud835\udc36\ud835\udc42\ud835\udc40\ud835\udc39 \u2217 \ud835\udc3a\ud835\udc54) \u2217 10\u22123) \u2217 \ud835\udc3a\ud835\udc4a\ud835\udc43\ud835\udc54)\n\ud835\udc3a\n\ud835\udc54=1\nWhere:",
+          "page": 182,
+          "sectionHeading": "3.3.3.3.3 Monitoring Non-CO2 Emissions from Biomass Burning",
+          "spanId": "full-pdd:page-182:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "3.3.3.3.4.1 New data to be collected\nData on illegal logging incidents in the project area will be gathered through regular reconnaissance\npatrols. When an incident is detected, the aboveground and belowground carbon stock of each\nharvested tree will be estimated.",
+          "page": 183,
+          "sectionHeading": "3.3.3.3.4 Monitoring degradation from extraction of trees",
+          "spanId": "full-pdd:page-183:5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Reconnaissance patrols are when the rangers gather information about the area they patrol. It includes\nidentifying incidents of illegal activities (including but not limited to illegal logging), key locations,\nwildlife, and points of interest. The information gathered enables the team to identify hotspots and\nstrategically plan enforcement activities. It is assumed that the entire project area is the area\npotentially impacted by this logging (ADegW,i).\nAlong the patrol routes, the rangers will identify trees that have been illegally harvested. These routes\ncan be considered transects. Patrols walk along these routes and monitor for illegal logging within a\ndistance of 10 meters from the transect. Locations of patrol paths and observations are recorded in the\nsite\u2019s SMART (Spatial Monitoring and Reporting Tool) data management system.\nIf there is no evidence that trees are being harvested during the patrols, then degradation from illegal\nlogging is assumed to be zero.\nIf the patrols do detect that trees are being removed during the patrols, more systematic sampling will\nbe implemented in the area where the logging is detected. A detailed standard operating procedure will\nbe developed to conduct this systematic sampling and quantify carbon stock changes from logging\n(\u2206\ud835\udc36\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc54\ud835\udc4a,\ud835\udc61).\n3.3.3.3.5 Estimation of ex-post net carbon stock changes and greenhouse gas emissions\nBased on the monitoring of forest cover change, areas that have undergone natural disturbance, and\nbiomass b",
+          "page": 184,
+          "sectionHeading": "3.3.3.3.4.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-184:6",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "All data collected and documents created as part of the monitoring program will be archived\nelectronically by WCS on secure servers with cloud-based storage. Final tabular data will be compiled in\nMS-excel compatible spreadsheets, and final documents will be maintained in MS-word. Geospatial\ndata will be compiled in ESRI or ARC compatible geodatabases with appropriate meta-data that meets\nindustry standards. All data and documents will be kept at a minimum for the 40-year period during\nwhich the permanence of carbon stocks shall be monitored. A mirror copy of the databases will also be\nmaintained on secure cloud or offsite storage, based on the advisement of technology professionals\nregarding evolving best practices. Scanned images of any handwritten records, such as those\nassociated with biomass monitoring, will be stored alongside digital data.\n3.3.3.5 Procedures for handling non-confo",
+          "page": 185,
+          "sectionHeading": "3.3.3.4 Data archiving",
+          "spanId": "full-pdd:page-185:7",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'Four mandatory monitoring tasks. Each requires technical description, data list, procedures, QA/QC, archiving, responsibilities.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show all four required monitoring-plan tasks with project-specific detail.",
-      "clientAction": "Enumerate the four monitoring tasks and add the procedures, data, responsibilities, and recordkeeping details for each one.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: 'Four mandatory monitoring tasks. Each requires technical description, data list, procedures, QA/QC, archiving, responsibilities.'. The PDD lists four monitoring tasks at p.174 and provides some detail for each (forest cover p.175, natural disturbance p.178, biomass burning p.182, degradation p.183, data archiving p.185). However, the evidence does not establish complete technical descriptions, data lists, procedures, QA/QC, archiving, and responsibilities for every task. The biomass burning task (p.182) is notably weaker on QA/QC and archiving details.",
+      "gap": "Not all four monitoring tasks have complete coverage of the six required components (technical description, data, procedures, QA/QC, archiving, responsibilities). Biomass burning and degradation tasks have the weakest coverage.",
+      "clientAction": "For each of the four monitoring tasks, confirm or provide: technical description, data list, procedures, QA/QC controls, archiving methods, and responsible parties.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but task-level component coverage is incomplete. Downgraded to UNCLEAR/ACTION_REQUIRED.",
       "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0001. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0002",
       "machineRowSha256": "59dd8c2b2ab0ac7c4d7ba3dde8c17419a1768ef0d53d9d2daf6ade5386e5e982",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        }
-      ],
-      "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'Six required content elements per task.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the full monitoring-plan content required for each task.",
-      "clientAction": "For each monitoring task, add the required data, methods, frequency, QA or QC, archiving, and responsibility details.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
-      "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0002. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
-    },
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
-      "machineRowSha256": "8db030b205ef8d76d524315966be417b7ed5f77d5956077a81299aa67b39b7cd",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
-      "finalApplicability": "APPLICABLE",
-      "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
-        {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        }
-      ],
-      "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'GPS or georeferenced data mandatory. Strata included.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the monitoring-plan evidence needed for this rule.",
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
-      "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0003. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
-    },
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
-      "machineRowSha256": "ea08681c459bb79cff0c46ca9a8c8debd170a94389cbcad0835b1b063a8264a1",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
-      "finalApplicability": "APPLICABLE",
-      "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
-        {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "General approach\nIn general, the approach employed will likely include the collection of wall-to-wall remotely sensed data\nand analysis into a dichotomous deforestation/non-deforestation map. Regardless of the technology\nemployed, fundamental principals will be adhered to:\n\u2022 Data collected will be spatially and temporally inclusive and comprehensively representative of\nthe project area and monitored period.\n\u2022 Data source and type (e.g. optical, radar, lidar) will be selected based on well-established,\ndocumented best practices and those that have demonstrated clear utility in identifying forests\nconsidering the forest definition of the project.\n\u2022 Analysis will typically include a combination of machine-aided and human classification.\n\u2022 Only the project area, as defined at the start date of the project, will be monitored.\n\u2022 Analysis will be fully described and accompany each monitoring report, including specific data\nsources and techniques, employed in each monitoring period\n\u2022 The accuracy of the resulting FCMM, and the associated estimate of deforested area, will be\nindependently evaluated using a statistical sampling approach.\nFor the first monitoring period, we expect that medium resolution multispectral imagery such as\nLandsat and Sentinel-2 will serve as primary data sources. Current VMD0015 guidance for FCMM",
+          "page": 175,
+          "sectionHeading": "3.3.3.3.1.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-175:1",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         },
         {
-          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5 as well as CCB Program Rules 4.2.4 and 4.6.4 including the following: - The project GHG accounting is guided by the following principles set out in section 2.2.1 of the Standard including relevance, completeness, consistency, accuracy, transparency, and conservativeness. - The project applies in full the latest version of an eligible methodology under the VCS Program along with the full application of the tools and modules identified in the methodology specific to the project activity type. - The project and implementation of project activities do not violate any laws. - According to the VCS Methodology Requirements, eligible REDD activities are those that reduce GHG emissions by reducing deforestation and / or degradation of forests. Deforestation is the direct, human-induced conversion of forest land to non-forest land. As such, this is the correct project category under VCS Scope 14. The forests of the project area also meet the Belize national definition of forest according to its 2001-2015 Forest Reference Emission Level submitted to the UNFCCC (Forest Department, 2020). Only areas that met the definition of forests for a minimum of 10 years before the project start date were included to ensure that no ecosystems had been converted to generate GHG credits. - In this project, the implementing partner, Wildlife Conservation Society, is acting in partnership with the project proponent, the Maya Forest Corridor Trust. Its roles and responsibilities are defined in section 2.1.8 of this document. - The project proponent will demonstrate during each verification period that the project activities have led to the intended GHG benefits. - The project will reassess the Avoiding Planned Deforestation (APD) baseline (where the agent is unknown) every six years according to the VCS Program rules and the appropriate methodology and will capture changes in the deforestation drivers and new relevant policies and circumstances.",
-          "page": 15,
-          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
-          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "quote": "Prior to analysis, remotely sensed data will be pre-processed according to guidance laid out in GOFC-\nGOLD (2016). Preprocessing steps will include running satellite imagery through geometric corrections,\ncloud and cloud shadow detection and removal, and radiometric corrections. Visual interpretation by an\nexperienced analyst will be employed when classifying remote sensed images for the creation of LULC\nmaps. Where Landsat images are ambiguous or obscured by clouds, additional imagery will be used to\naid in interpretation. Subject matter experts with significant field experience in the project area will also\nprovide input and assistance during the mapping process.\nAccuracy assessments for each map will be produced to report on the classification accuracy of areas\nidentified as forest and non-forest. A statistical sampling approach will be used in which random points\nare generated within the project area. Depending on the distribution of predicted land cover change in\nthe evaluated FCMM, various sampling strategies may be employed, such as stratified random with\nequal samples or with area-weighted samples.\nAt each point, the land cover (i.e., forest, non-forest or deforested) designated in the land use maps will\nbe extracted and compared to the land cover identified by a secondary satellite image analyst with no\nprior experience with the dataset. The percent classification accuracy will be reported for the forest,\nnon-forest and deforested areas in the map. If the accuracy does not meet the current requirements of\nthe FCMM for the methodology (90% in VMD0015 v2.3), it will be revised until meeting the required\naccuracy threshold.\nA geodatabase will be produced for each independent verification audit, and a report of the results will\nbe produced for each independent veri",
+          "page": 176,
+          "sectionHeading": "Quality control",
+          "spanId": "full-pdd:page-176:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "identified, a combination of remote sensing and ground-based surveys will be undertaken to evaluate\nthe potential need to define a degradation stratum and calculate revised carbon stocks. Finally, were it\nfound that a new stratum is required, a field-based biomass inventory will be undertaken to calculate\nthe revised carbon stocks and associated emissions from degradation. When conducting these post-\ndisturbance measurements, the same QA/QC procedures described in the MFC REDD Project Area Field\nMonitoring and Forest Carbon Assessment Methods (Appendix 25A) will be applied.\nWhile this approach applies generally to any potential natural disturbance, it is expected that fires and\nhurricanes are the events most likely to occur and thus require additional guidance.\nFire\nThe MFC site is regularly patrolled, and the site managers are typically aware of fires either while active\nor shortly after. Additionally, the project makes use of automated fire detection platforms, including the\nFire Information for Resource Management System (FIRMS). Additionally, during the fire season (March\nto May) drones are used to monitor any potential fires. Drones will be deployed during the morning,\nnoon and afternoon to detect potential signs of fire.\nWhe",
+          "page": 179,
+          "sectionHeading": "3.3.3.3.2.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-179:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Reconnaissance patrols are when the rangers gather information about the area they patrol. It includes\nidentifying incidents of illegal activities (including but not limited to illegal logging), key locations,\nwildlife, and points of interest. The information gathered enables the team to identify hotspots and\nstrategically plan enforcement activities. It is assumed that the entire project area is the area\npotentially impacted by this logging (ADegW,i).\nAlong the patrol routes, the rangers will identify trees that have been illegally harvested. These routes\ncan be considered transects. Patrols walk along these routes and monitor for illegal logging within a\ndistance of 10 meters from the transect. Locations of patrol paths and observations are recorded in the\nsite\u2019s SMART (Spatial Monitoring and Reporting Tool) data management system.\nIf there is no evidence that trees are being harvested during the patrols, then degradation from illegal\nlogging is assumed to be zero.\nIf the patrols do detect that trees are being removed during the patrols, more systematic sampling will\nbe implemented in the area where the logging is detected. A detailed standard operating procedure will\nbe developed to conduct this systematic sampling and quantify",
+          "page": 184,
+          "sectionHeading": "3.3.3.3.4.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-184:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "All data collected and documents created as part of the monitoring program will be archived\nelectronically by WCS on secure servers with cloud-based storage. Final tabular data will be compiled in\nMS-excel compatible spreadsheets, and final documents will be maintained in MS-word. Geospatial\ndata will be compiled in ESRI or ARC compatible geodatabases with appropriate meta-data that meets\nindustry standards. All data and documents will be kept at a minimum for the 40-year period during\nwhich the permanence of carbon stocks shall be monitored. A mirror copy of the databases will also be\nmaintained on secure cloud or offsite storage, based on the advisement of technology professionals\nregarding evolving best practices. Scanned images of any handwritten records, such as those\nassociated with biomass monitoring, will be stored alongside digital data.\n3.3.3.5 Procedures for handling non-confo",
+          "page": 185,
+          "sectionHeading": "3.3.3.4 Data archiving",
+          "spanId": "full-pdd:page-185:5",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'Six minimum SOP/QA/QC elements.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the monitoring-plan evidence needed for this rule.",
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: 'Six required content elements per task.'. The PDD provides data collection procedures (p.175), QA/QC (p.176), and archiving (p.185). However, the evidence does not demonstrate all six required content elements (data, methods, frequency, QA/QC, archiving, responsibilities) for every monitoring task. Responsibilities are implied but not explicitly assigned per task. Frequency is not specified for all tasks. The biomass burning and ex-post calculation tasks have the weakest content-element coverage.",
+      "gap": "Not all six required content elements are demonstrated for every monitoring task. Responsibilities and frequency are weakest.",
+      "clientAction": "For each monitoring task, explicitly document all six content elements: data sources, collection methods, frequency, QA/QC procedures, archiving methods, and responsible parties.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but six-element coverage is incomplete across tasks. Downgraded to UNCLEAR/ACTION_REQUIRED.",
       "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0004. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "machineRowSha256": "8db030b205ef8d76d524315966be417b7ed5f77d5956077a81299aa67b39b7cd",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "CONFORMS",
+      "acceptedEvidence": [
+        {
+          "quote": "Geospatial data will be gathered showing the location of forest land within the project area at the\nbeginning of each monitoring period (the project forest cover benchmark map) and at the end of each\nmonitoring period (the project forest cover monitoring map). Based on current technology, we expect\nthese data to include medium resolution wall-to-wall spaceborne multispectral imagery, and\nopportunistically collected high resolution remotely sensed optical imagery. Where warranted, ground\nmeasurements of the locations of deforestation sites may also be collected.\n3.3.3.3.1.2 Data collection, analysis, and QA/QC procedures\nThe production of an updated forest cover monitoring map (FCMM), as described in VMD0015,\nrepresents the primary means by which the area of deforestation within the monitored period will be\ncalculated. The FCMM will be developed using analysis of remotely sensed data, using a variety of\ntechniques as indicated by current best practices. Remote sensing remains a rapidly evolving space\nand best practices, sensors, and analytical tools are likely to change substantially over the course of\nthe project.\nGeneral approach\nIn general, the approach employed will likely include the collection of wall-to-wall remotely sensed",
+          "page": 175,
+          "sectionHeading": "3.3.3.3.1.1 New data to be collected",
+          "spanId": "full-pdd:page-175:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "projection and parameters used to geo-reference the images; error estimate of the\ngeometric correction; software and software version used to perform tasks.\nj. Data classification: Definition of the forest and non-forest classification, the criteria for visually\ndetermining the classification, coordinates and description of the ground-truth data collected\nfor training purposes and any ancillary data used in the classification will be documented. Any\nadditional spatial data used to supplement Landsat image that were obscured by clouds or\nambiguous will be documented.",
+          "page": 176,
+          "sectionHeading": "Quality control",
+          "spanId": "full-pdd:page-176:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "In situations where the impact of\ndisturbances on forest carbon stocks varies spatially within the area where the disturbance takes\nplace, the stratum may be further stratified based on post-natural disturbance carbon stocks.\n3.3.3.3.2.2 Data collection, analysis, and QA/QC procedures\nData collection procedures will follow and be consistent with those described in VMD0015.\nThe area subject to disturbance will be delineated in GIS using remote sensing and field monitoring.\nCarbon stocks must be measured and estimated using the methods given in VMD0001, VMD0002, and\nVMD0003.\nForest disturbances may be identified from a range of natural causes such as fire, storms, or pests and\ndisease outbreak",
+          "page": 178,
+          "sectionHeading": "3.3.3.3.2.1 New data to be collected",
+          "spanId": "full-pdd:page-178:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "boundaries of a potential new forest stratification will be drawn that best approximates the\nspatial patterns apparent from remote sensing imagery.\nA full re-inventorying of the candidate natural disturbance stratum will be undertaken using field-based\nforest carbon measurement techniques. These techniques may be supplements with remote sensing\nderived carbon stock change maps in the future if such products become readily available. If this field\ninventory confirms sufficient loss of biomass to warrant the stratification, the new stratum will be\ndefined and all related emission factors updated.\nIn the case that a hurricane causes widespread impact without clearly definable boundaries within the\nproject area, the entire remaining forest area will be treated as a single new stratum and re-inventoried\nfollowing the same protocol used to deve",
+          "page": 180,
+          "sectionHeading": "3.3.3.3.2.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-180:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "Requires: 'GPS or georeferenced data mandatory. Strata included.'. The PDD at p.175 describes geospatial data collection for forest cover mapping using remotely sensed imagery. The rule requires georeferenced data (not specifically GPS). The QC procedures at p.176 document geo-referencing parameters, projection systems, and error estimates. At p.178 natural disturbance strata are delineated in GIS. At p.180 new strata boundaries are drawn from remote sensing imagery. Georeferenced data and strata inclusion are demonstrated.",
+      "gap": "",
+      "clientAction": "",
+      "correctionReason": "Correct assessment. Georeferenced data (not specifically GPS) is demonstrated with strata inclusion and QC documentation.",
+      "genericFailureCategory": "NONE",
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "machineRowSha256": "ea08681c459bb79cff0c46ca9a8c8debd170a94389cbcad0835b1b063a8264a1",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Prior to analysis, remotely sensed data will be pre-processed according to guidance laid out in GOFC-\nGOLD (2016). Preprocessing steps will include running satellite imagery through geometric corrections,\ncloud and cloud shadow detection and removal, and radiometric corrections. Visual interpretation by an\nexperienced analyst will be employed when classifying remote sensed images for the creation of LULC\nmaps. Where Landsat images are ambiguous or obscured by clouds, additional imagery will be used to\naid in interpretation. Subject matter experts with significant field experience in the project area will also\nprovide input and assistance during the mapping process.\nAccuracy assessments for each map will be produced to report on the classification accuracy of areas\nidentified as forest and non-forest. A statistical sampling approach will be used in which random points\nare generated within the project area. Depending on the distribution of predicted land cover change in\nthe evaluated FCMM, various sampling strategies may be employed, such as stratified random with\nequal samples or with area-weighted samples.\nAt each point, the land cover (i.e., forest, non-forest or deforested) designated in the land use maps will\nbe extracted and compared to the land cover identified by a secondary satellite image analyst with no\nprior experience with the dataset. The percent classification accuracy will be reported for the forest,\nnon-forest and deforested areas in the map. If the accuracy does not meet the current requirements of\nthe FCMM for the methodology (90% in VMD0015 v2.3), it will be revised until meeting the required\naccuracy threshold.\nA geodatabase will be produced for each independent verification audit, and a report of the results will\nbe produced for each independent veri",
+          "page": 176,
+          "sectionHeading": "Quality control",
+          "spanId": "full-pdd:page-176:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "All work will be conducted by experts with sufficient domain knowledge of imagery analysis and local\nforest conditions to make reliable, accurate determinations of land cover changes relevant to the\nproduction of the FCMM.\nCalculation of monitored area of deforestation\nThe resulting FCMM will include the following classes:\n1) Forests remaining forest\n2) Areas deforested in a previous monitoring period\n3) Areas deforested in the current monitored period\nThe FCMM will be used to calculate the total area deforested during the monitored period. This amount\nwill be annualized by dividing buy the length of the monitored period, in years, to generate \ud835\udc34\ud835\udc37\ud835\udc52\ud835\udc53\ud835\udc43\ud835\udc34,u,t..\nEstimation of monitored emissions due to deforestation\nTo estimate total emissions due to forest cover loss in a given year, Equation 3 from VMD0015 v 2.3 will\nbe applied:\n\u2206\ud835\udc36\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc53\ud835\udc43\ud835\udc34,\ud835\udc61 = \u2211(\ud835\udc34\ud835\udc37\ud835\udc52\ud835\udc53\ud835\udc43\ud835\udc34,\ud835\udc62,\ud835\udc61 \u2217 \u2206\ud835\udc36\ud835\udc5d\ud835\udc5c\ud835\udc5c\ud835\udc59\ud835\udc60,\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc53,\ud835\udc62)\n\ud835\udc48\n\ud835\udc62=1\nWhere:\n\u2206\ud835\udc36\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc53\ud835\udc43\ud835\udc34,\ud835\udc61 = Net carbon stock change as a result of deforestation in the project area in year t, t\nCO2e\n\ud835\udc34\ud835\udc37\ud835\udc52",
+          "page": 177,
+          "sectionHeading": "3.3.3.3.1 Monitoring of forest loss and resulting emissions",
+          "spanId": "full-pdd:page-177:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "same QA/QC procedures described in the MFC REDD Project Area Field\nMonitoring and Forest Carbon Assessment Methods (Appendix 25A) will be applied.\nWhile this approach applies generally to any potential natural disturbance, it is expected that fires and\nhurricanes are the events most likely to occur and thus require additional guidance.\nFire\nThe MFC site is regularly patrolled, and the site managers are typically aware of fires either while active\nor shortly after. Additionally, the project makes use of automated fire detection platforms, including the\nFire Information for Resource Management System (FIRMS). Additionally, during the fire season (March\nto May) drones are used to monitor any potential fires. Drones will be deployed during the morning,\nnoon and afternoon to detect potential si",
+          "page": 179,
+          "sectionHeading": "3.3.3.3.2.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-179:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "A detailed standard operating procedure will\nbe developed to conduct this systematic sampling and quantify carbon stock changes from logging\n(\u2206\ud835\udc36\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc54\ud835\udc4a,\ud835\udc61).\n3.3.3.3.5 Estimation of ex-post net carbon stock changes and greenhouse gas emissions\nBased on the monitoring of forest cover change, areas that have undergone natural disturbance, and\nbiomass burning discussed above, ex-post carbon stock changes and greenhouse gas emissions will be\ncalculated and reported.\n3.3.3.3.5.1 Overview of new data to be collected\nNo new data needs to be collected. The data collection in the previous monitoring tasks on forest cover\nchange, areas undergoing natural disturbance, and biomass burning will inform the calculation of\ncarbon stock changes and greenhouse gas emissions in this task.\n3.3.3.3.5.2 Data collection, analysis, and QA/QC procedures\nThe ex-post project emissions will be estimated based on a modified version of equation 1 from\nVMD0015:\n\u2206\ud835\udc36\ud835\udc4a\ud835\udc43\ud835\udc46\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 = \u2211(\u2206\ud835\udc36\ud835\udc43,\ud835\udc37\ud835\udc52\ud835\udc53\ud835\udc43\ud835\udc34,\ud835\udc61 + \u2206\ud835\udc36\ud835\udc43,",
+          "page": 184,
+          "sectionHeading": "3.3.3.3.4.2 Data collection, analysis, and QA/QC procedures",
+          "spanId": "full-pdd:page-184:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "When non-conformances arise related to the validated monitoring plan, the team in charge of\nmonitoring will first attempt to take necessary compensation measures (such as redoing\nmeasurements and calculations) to ensure that the plan is in conformance. If the non-conformances\nare unable to be corrected, the project team will update the monitoring plan and justify the updates as\na project description deviation according to the requirements of Section 3.21 of the VCS Standard.\n3.3.4 Dissemination of Monitoring Plan and Results (VCS, 3.18; CCB, CL4.2)\nThis monitoring plan, as well as results of the monitoring undertaken, will be publicly available on the\nVerra registry.\nFor project transparency, accountability, and building community trust, it is essential that monitoring\nreports are easily accessible to a wide range of stakeholder groups. K",
+          "page": 185,
+          "sectionHeading": "3.3.3.5 Procedures for handling non-conformances with the validated monitoring plan",
+          "spanId": "full-pdd:page-185:5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: 'Six minimum SOP/QA/QC elements.'. The PDD provides general QA/QC language at p.176 (pre-processing, geometric corrections, accuracy assessment), expert qualifications at p.177, and non-conformance handling at p.185. However, the evidence does not demonstrate six distinct mandatory SOP/QA/QC elements. At p.184 a statement that an SOP 'will be developed' indicates future intent, not an existing compliant SOP. Individual SOP elements are not enumerated.",
+      "gap": "Six distinct mandatory SOP/QA/QC elements are not demonstrated. The SOP at p.184 is future intent ('will be developed'), not existing evidence.",
+      "clientAction": "Enumerate the six required SOP/QA/QC elements and confirm each is documented in the monitoring plan rather than as future development intent.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but six distinct SOP/QA/QC elements are not proven. SOP reference at p.184 is future intent. Downgraded to UNCLEAR/ACTION_REQUIRED.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0005",
       "machineRowSha256": "25f88c9a1a0582df1fbfddbcaa83401d5cda16b8a8fd84d51d783c1da369923c",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "Frequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied -\nQA/QC procedures Prior to analysis, remotely sensed data will be pre-processed\naccording to guidance laid out in GOFC-GOLD (2016).\nPreprocessing steps will include running satellite imagery\nthrough geometric corrections, cloud and cloud shadow detection\nand removal, and radiometric corrections. Visual interpretation\nby an experienced analyst will be employed when classifying\nremote sensed images for the creation of LULC maps. Where\nLandsat images are ambiguous or obscured by clouds, additional\nimagery will be used to aid in interpretation. Subject matter\nexperts with significant field experience in the project area will\nalso provide input and assistance during the mapping process.",
+          "page": 154,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-154:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Frequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied -\nMonitoring equipment -\nQA/QC procedures to be\napplied\nPrior to analysis, remotely sensed data will be pre-processed\naccording to guidance laid out in GOFC-GOLD (2016).\nPreprocessing steps will include running satellite imagery\nthrough geometric corrections, cloud and cloud shadow\ndetection and removal, and radiometric corrections. Visual\ninterpretation by an experienced analyst will be employed when\nclassifying remote sensed images for the creation of LULC maps.\nWhere Landsat images are ambiguous or obscured by clouds,\nadditional imagery will be used to aid in interpretation. Subject\nmatter experts with significant field experience in the project\narea will also provide input and assistance during the mapping\nprocess.\nAccuracy assessments for each map will be produced to report\non the classification accuracy of areas identified as forest and\nnon-forest. A statistical sampling approach will be used in which\nra",
+          "page": 157,
+          "sectionHeading": "3.3.2 Data and Parameters Monitored",
+          "spanId": "full-pdd:page-157:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The tasks described below will be conducted prior to each verification event that will happen at a\nmaximum of every 5 years.\n3.3.3.3 Monitoring tasks\nFollowing the guidance provided in VMD0015, tasks will include monitoring of forest cover changes,\nmonitoring of loss in carbon stocks resulting from natural disturbances, monitoring of GHG emissions\nfrom wildfires (i.e., biomass burning), and estimating ex-post net carbon stock changes and greenhouse\ngas emissions.",
+          "page": 174,
+          "sectionHeading": "3.3.3.2 Frequency of monitoring tasks",
+          "spanId": "full-pdd:page-174:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "In subsequent monitored periods, should a substantially different\nremote sensing data source be employed in FCMM development, we will undertake a cross-calibration\nprocedure to minimize error due to data compatibility issues.\nQuality control\nPrior to analysis, remotely sensed data will be pre-processed according to guidance laid out in GOFC-\nGOLD (2016). Preprocessing steps will include running satellite imagery through geometric corrections,\ncloud and cloud shadow detection and removal, and radiometric corrections. Visual interpretation by an\nexperienced analyst will be employed when classifying remote sensed images for the creation of LULC\nmaps. Where Landsat images are ambiguous or obscured by clouds, additional imagery will be used to\naid in interpretation. Subject matter experts with significant field experience in the project area will also\nprovide input and assistance during the mapping process.\nAccuracy assessments for each map will be produced to report on the classification accuracy of areas\nidentified as forest and non-forest. A statistical sampling approach will be used in which random points\nare generated within the project area. Depending on the distribution of predicted land cover change in\nthe evaluated FCMM, vario",
+          "page": 176,
+          "sectionHeading": "Quality control",
+          "spanId": "full-pdd:page-176:4",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: '10-year minimum frequency. Spatial variables must be refreshed.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the monitoring-plan evidence needed for this rule.",
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: '10-year minimum frequency. Spatial variables must be refreshed.'. The PDD at p.154 and p.157 documents a 5-year monitoring frequency, which exceeds the 10-year minimum. However, the cross-calibration procedure at p.176 for when remote sensing data sources change does not directly prove that all required spatial variables are refreshed. The conditional cross-calibration only applies when sensors change, not as a routine refresh of all spatial variables.",
+      "gap": "Cross-calibration procedure applies only when sensors change and does not prove that all required spatial variables are routinely refreshed at the required interval.",
+      "clientAction": "Confirm that all required spatial variables are refreshed at the monitoring frequency, not only when remote sensing data sources change.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but spatial variable refresh is conditional on sensor changes, not routine. Downgraded to UNCLEAR/ACTION_REQUIRED.",
       "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0005. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0007",
       "machineRowSha256": "0315e82e3920fac2459641fba55726669fb493d985761f210bce37117b46283e",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "MISSING",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [],
-      "rejectedEvidence": [
+      "acceptedEvidence": [
         {
-          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
-          "page": 3,
-          "sectionHeading": "Application of Methodology",
-          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "quote": "Table 4.4 of Volume 4 of IPCC (2019)\nValue applied 0.2845 for trees in plots with less than or equal to 125 dry\nmatter tonnes per ha of aboveground biomass (measured for\naboveground tree and palm aboveground biomass), 0.284 for\ntrees in plots with more than 125 dry matter tonnes per ha.\nJustification of choice of\ndata or description of\nmeasurement methods\nand procedures applied\nThese are the values provided in the table for Tropical Moist\nzones in North and South America.\nPurpose of data Calculation of baseline and project emissions\nComments -\nData / parameter \ud835\udc36\ud835\udc34\ud835\udc35,\ud835\udc61\ud835\udc5f\ud835\udc52\ud835\udc52\nData unit t CO2e",
+          "page": 132,
+          "sectionHeading": "3.2.1.2.1 Baseline Pre-Deforestation Carbon Stocks",
+          "spanId": "full-pdd:page-132:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Table 2.6 of Chapter 4 in IPCC (2019)\nValue applied CH4: 6.8\nN2O: 0.20\nJustification of choice of\ndata or description of\nmeasurement methods\nand procedures applied\nValues for tropical forests selected\nPurpose of data Calculation of baseline and project emissions\nComments The unit for the values presented in the IPCC is g kg-1 d.m. burnt.\nBecause these values are multiplied aboveground biomass\nstocks that are in tonnes of dry matter, these emission factor\nvalues were converted to kg t-1 d.m. burnt. The conversion rate is\n1.\nData / parameter \ud835\udc3a\ud835\udc4a\ud835\udc43\ud835\udc54\nData unit t CO2 /t gas g\nDescription 100-year global warming potential for non-CO2 greenhouse\ng",
+          "page": 145,
+          "sectionHeading": "3.2.1.3 Non-CO2 Emissions from Biomass Burning",
+          "spanId": "full-pdd:page-145:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Source of data Expert opinion and spatial data files of the landscape\nValue applied 0.4\nJustification of choice of\ndata or description of\nmeasurement methods\nand procedures applied\nThe only limiting factors to the production of sugarcane\nidentified were distance to mill and elevation. The key factor in\ndetermining sugarcane yield is what agricultural best\nmanagement practices are applied. As such, the average\nproductivity of alternative areas was identified to be +15% as\nthe average productivity in the project area.\nPurpose of data Calculation of leakage\nComments -",
+          "page": 152,
+          "sectionHeading": "3.2.3.4 STEP 5: Estimate Leakage",
+          "spanId": "full-pdd:page-152:3",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NCR_CANDIDATE",
-      "assessmentReason": "Requires: 'IPCC 2006 expert judgment protocol mandatory. Rationale must be documented.'. No accepted evidence exists in the packet. The rejected evidence items do not address this rule's requirements.",
-      "gap": "PDD does not yet show the monitoring-plan evidence needed for this rule.",
-      "clientAction": "Add the monitoring tasks, data collection procedures, QA or QC controls, and responsibility assignments for the project.",
-      "correctionReason": "Machine proposed MISSING/APPLICABLE. No accepted evidence exists in the packet for this rule. The machine assessment is correct.",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "Requires: 'IPCC 2006 expert judgment protocol mandatory. Rationale must be documented.'. The PDD at p.132 cites IPCC (2019) Table 4.4 for default carbon stock values with a justification. At p.145 cites IPCC (2019) Table 2.6 for non-CO2 emission factors. At p.152 uses expert opinion for leakage estimation. However, these are default-factor citations and general expert opinion, not the documented application of the mandatory IPCC 2006 expert-judgment protocol with its specific rationale documentation requirements.",
+      "gap": "IPCC default factor citations and general expert opinion do not demonstrate application of the mandatory IPCC 2006 expert-judgment protocol with documented rationale.",
+      "clientAction": "Provide evidence of the IPCC 2006 expert-judgment protocol application with documented rationale, or confirm the default factor selection follows the required protocol.",
+      "correctionReason": "Initial assessment reviewed as CONFORMS but IPCC 2006 expert-judgment protocol is not demonstrated. Default factor citations are not equivalent. Downgraded to UNCLEAR/ACTION_REQUIRED.",
       "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The packet contains zero accepted evidence for R-6-0007. Evidence may exist in unindexed PDD sections. Expert should verify the full PDD directly."
+      "reviewerConfidence": "MEDIUM",
+      "provisionalReason": null
     }
   ]
 }
