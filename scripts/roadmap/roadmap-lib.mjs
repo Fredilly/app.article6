@@ -144,6 +144,8 @@ export function parsePlanTitles(planPath) {
 }
 
 export function findPlanPath(docsRoot, slug) {
+  const lowercaseRoadmapPlan = path.join(docsRoot, "roadmaps", slug, "plan.md");
+  if (slug === "interactive-evidence-review-mvp" && fs.existsSync(lowercaseRoadmapPlan)) return lowercaseRoadmapPlan;
   const roadmapPlan = path.join(docsRoot, "roadmaps", slug, "PLAN.md");
   if (fs.existsSync(roadmapPlan)) return roadmapPlan;
   const roadmapDoc = path.join(docsRoot, "roadmaps", slug, "ROADMAP.md");
