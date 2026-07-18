@@ -13,34 +13,41 @@ const read = <T>(file: string): T => JSON.parse(fs.readFileSync(file, "utf8")) a
 const sha256 = (value: Buffer | string): string => crypto.createHash("sha256").update(value).digest("hex");
 
 describe("RC5-2 Maya existing-packet finalization batch 1", () => {
-  it("contains exactly the eight scoped rules and preserves frozen rows and evidence", () => {
+  it("contains exactly eight neutral, provenance-deduplicated candidate sets", () => {
     const artifacts = buildArtifacts();
     assert.deepEqual(artifacts.packet.selectedRuleIds, selectedRuleIds);
     assert.equal(new Set(artifacts.packet.selectedRuleIds).size, 8);
     assert.equal(artifacts.packet.rules.length, 8);
     const proposal = read<{ rows: Array<Record<string, any>> }>(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"));
+    const sourcePacketByRule = (ruleId: string) => path.join(root, ruleId.endsWith("R-1-0014") ? "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json" : "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json");
+    const sourceTruthByRule = (ruleId: string) => path.join(root, ruleId.endsWith("R-1-0014") ? "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json" : "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json");
+    const forbiddenPacketKeys = ["reviewStatus", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "assessmentReason", "gap", "clientAction", "correctionReason", "reviewerConfidence", "acceptedEvidence", "rejectedEvidence", "historicalProvisionalContext", "provisionalReviewedTruthEvidence", "exactFrozenMachineRow", "machineAssessment", "proposedEvidenceState", "proposedApplicability"];
+    const packetText = JSON.stringify(artifacts.packet);
+    for (const key of forbiddenPacketKeys) assert.equal(packetText.includes(`\"${key}\"`), false, key);
     for (const rule of artifacts.packet.rules as any[]) {
       const machine = proposal.rows.find((row) => row.stableRuleId === rule.stableRuleId);
       assert.ok(machine);
-      assert.deepEqual(rule.exactFrozenMachineRow, machine);
       assert.equal(rule.frozenMachineRowHash, sha256(JSON.stringify(machine)));
       assert.equal(rule.sourcePacket.evidenceIsUnchanged, true);
-      assert.equal(rule.historicalMachineContext.label, "NON_FINAL_MACHINE_CONTEXT");
-      assert.equal(rule.historicalProvisionalContext.label, "NON_FINAL_PROVISIONAL_REVIEWED_TRUTH_CONTEXT");
-      for (const kind of ["accepted", "rejected"] as const) {
-        for (const [index, reference] of rule.sourceContext.evidenceContextRefs[kind].entries()) {
-          const evidence = rule[`${kind}Evidence`][index];
-          assert.equal(reference.quote, evidence.quote);
-          assert.equal(reference.page, evidence.page);
-          assert.equal(reference.sectionHeading, evidence.provenance.sectionHeading ?? evidence.section);
-          assert.equal(reference.spanId, evidence.spanId);
-          assert.equal(reference.documentId, artifacts.packet.sourceDocument.documentId);
-          assert.equal(reference.documentSha256, artifacts.packet.sourceDocument.contentSha256);
-          const context = artifacts.packet.contexts[reference.contextId];
-          assert.ok(context);
-          assert.equal(context.exactQuote, evidence.quote);
-          assert.equal(context.sourceSpanId, evidence.spanId);
-        }
+      const sourcePacket = read<{ rules: Array<Record<string, any>> }>(sourcePacketByRule(rule.stableRuleId)).rules.find((source) => source.stableRuleId === rule.stableRuleId);
+      const sourceTruth = read<{ decisions: Array<Record<string, any>> }>(sourceTruthByRule(rule.stableRuleId)).decisions.find((source) => source.stableRuleId === rule.stableRuleId);
+      const sourceEvidence = [...(sourcePacket?.acceptedEvidence ?? []), ...(sourcePacket?.rejectedEvidence ?? []), ...(sourceTruth?.acceptedEvidence ?? []), ...(sourceTruth?.rejectedEvidence ?? [])];
+      const identity = (evidence: any) => ({ quote: evidence.quote, page: evidence.page, sectionHeading: evidence.sectionHeading ?? evidence.provenance?.sectionHeading ?? evidence.section ?? "", spanId: evidence.spanId, documentId: evidence.documentId ?? evidence.provenance?.docId ?? artifacts.packet.sourceDocument.documentId, documentSha256: evidence.documentSha256 ?? artifacts.packet.sourceDocument.contentSha256 });
+      const expectedByIdentity = new Map(sourceEvidence.map((evidence) => [JSON.stringify(identity(evidence)), evidence]));
+      assert.deepEqual(new Set(rule.candidateEvidence.map((candidate: any) => JSON.stringify(identity(candidate)))), new Set(expectedByIdentity.keys()));
+      const keys = rule.candidateEvidence.map((candidate: any) => JSON.stringify({ quote: candidate.quote, page: candidate.page, sectionHeading: candidate.sectionHeading, spanId: candidate.spanId, documentId: candidate.documentId, documentSha256: candidate.documentSha256 }));
+      assert.equal(new Set(keys).size, keys.length);
+      for (const candidate of rule.candidateEvidence) {
+        assert.ok(candidate.sourceAudit.references.length >= 1);
+        assert.ok(candidate.sourceAudit.references.every((reference: any) => reference.sourceType && !JSON.stringify(reference).includes("accepted") && !JSON.stringify(reference).includes("rejected")));
+        assert.equal(candidate.documentId, artifacts.packet.sourceDocument.documentId);
+        assert.equal(candidate.documentSha256, artifacts.packet.sourceDocument.contentSha256);
+        assert.deepEqual(candidate.provenance, expectedByIdentity.get(JSON.stringify(identity(candidate)))?.provenance ?? null);
+        if (candidate.provenance) assert.equal(candidate.provenance.spanId, candidate.spanId);
+        const context = artifacts.packet.contexts[candidate.contextId];
+        assert.ok(context);
+        assert.equal(context.exactQuote, candidate.quote);
+        assert.equal(context.sourceSpanId, candidate.spanId);
       }
     }
   });

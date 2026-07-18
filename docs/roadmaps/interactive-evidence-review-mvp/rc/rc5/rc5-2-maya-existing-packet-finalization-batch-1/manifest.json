@@ -26,103 +26,39 @@
   },
   "evidenceCounts": {
     "Verra.AFOLU.VM0007.v1-8.R-1-0014": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 4,
+      "uniqueCandidateEvidence": 4,
       "contexts": 4
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0009": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0010": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0011": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0012": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0015": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-2-0016": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 0
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 1
-      },
-      "totalAvailable": 3,
+      "uniqueCandidateEvidence": 3,
       "contexts": 3
     },
     "Verra.AFOLU.VM0007.v1-8.R-3-0002": {
-      "originalFrozenPacket": {
-        "accepted": 1,
-        "rejected": 5
-      },
-      "provisionalReviewedTruth": {
-        "accepted": 1,
-        "rejected": 5
-      },
-      "totalAvailable": 12,
+      "uniqueCandidateEvidence": 12,
       "contexts": 12
     }
   },
-  "generatedPacketSha256": "c00559c90aade16a91f9e9ef87ca5e15270490273e2bd524443feae118c7700f",
+  "generatedPacketSha256": "45eb073569ff3e96435ffc19f19e0c1a8368fbab5efd849bb118dfd0cfdc5e00",
   "packetFiles": [
     "review-packet.json",
     "review-template.json",
