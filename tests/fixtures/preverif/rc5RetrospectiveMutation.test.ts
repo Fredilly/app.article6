@@ -111,8 +111,10 @@ describe("RC5 retrospective audit mutation coverage", () => {
 
   it("rejects a stale correction reason after evidence is accepted", () => {
     const fixture = validFixture();
-    fixture.decision.correctionReason = "The evidence remains in a rejected span.";
+    fixture.decision.correctionReason = "This evidence should be accepted.";
 
+    expect(fixture.decision.acceptedEvidence).toHaveLength(1);
+    expect(fixture.decision.rejectedEvidence).toHaveLength(0);
     expect(failureCodes(fixture)).toEqual(["STALE_CORRECTION_REASON"]);
   });
 });

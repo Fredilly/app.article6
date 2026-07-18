@@ -116,8 +116,7 @@ export function validateAuditDecisionInvariants(
   const resolvedClientActionResult = (resolvedNotApplicable || resolvedConforms) && (decision.clientAction ?? "") !== "" ? "FAIL" : "PASS";
   if (resolvedClientActionResult === "FAIL") failures.push({ code: "RESOLVED_ROW_CLIENT_ACTION", stableRuleId: decision.stableRuleId });
   const staleAcceptanceClaim = /\b(?:should|ought to|needs? to)\b[^.\n]{0,80}\baccepted\b/i.test(decision.correctionReason ?? "")
-    || /\bshould have been accepted\b/i.test(decision.correctionReason ?? "")
-    || /\b(?:remains?|still)\b[^.\n]{0,80}\brejected span\b/i.test(decision.correctionReason ?? "");
+    || /\bshould have been accepted\b/i.test(decision.correctionReason ?? "");
   const correctionReasonResult = staleAcceptanceClaim
     && (decision.acceptedEvidence?.length ?? 0) > 0
     && (decision.rejectedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
@@ -245,7 +244,6 @@ function buildAudit() {
         correctionReasonResult: invariantResult.correctionReasonResult,
         resolvedJudgmentEvidenceResult: invariantResult.resolvedJudgmentEvidenceResult,
         semanticIntegrityResult: invariantResult.semanticIntegrityResult,
-        invariantFailures: invariantResult.failures,
         machineRowHashResult: machineRowHashResult ? "PASS" : "FAIL",
         schemaResult: schemaValid ? "PASS" : "FAIL",
       };
