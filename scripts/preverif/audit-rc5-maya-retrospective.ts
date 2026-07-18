@@ -43,6 +43,103 @@ const evidenceKey = (evidence: JsonRecord): string => JSON.stringify({
   documentSha256: evidence.documentSha256,
 });
 
+export type AuditInvariantFailureCode =
+  | "UNMATCHED_FROZEN_EVIDENCE"
+  | "DUPLICATE_EVIDENCE"
+  | "UNSUPPORTED_NOT_APPLICABLE"
+  | "RESOLVED_ROW_CLIENT_ACTION"
+  | "STALE_CORRECTION_REASON"
+  | "RESOLVED_JUDGMENT_WITHOUT_EVIDENCE";
+
+export type AuditInvariantFailure = {
+  code: AuditInvariantFailureCode;
+  stableRuleId: string;
+  field?: "acceptedEvidence" | "rejectedEvidence";
+  index?: number;
+  evidence?: JsonRecord;
+};
+
+export type AuditInvariantResult = {
+  provenanceResult: "PASS" | "FAIL";
+  unmatchedEvidence: JsonRecord[];
+  acceptedRejectedDuplicateEvidence: string[];
+  notApplicableEvidenceResult: "PASS" | "FAIL";
+  resolvedClientActionResult: "PASS" | "FAIL";
+  correctionReasonResult: "PASS" | "FAIL";
+  resolvedJudgmentEvidenceResult: "PASS" | "FAIL";
+  semanticIntegrityResult: "PASS" | "FAIL";
+  evidenceEntries: JsonRecord[];
+  ambiguousContextMatches: JsonRecord[];
+  failures: AuditInvariantFailure[];
+};
+
+export function validateAuditDecisionInvariants(
+  decision: JsonRecord,
+  contexts: JsonRecord[],
+): AuditInvariantResult {
+  const contextPool = new Map<string, JsonRecord[]>();
+  for (const context of contexts) {
+    const key = evidenceKey(evidenceFromContext(context));
+    contextPool.set(key, [...(contextPool.get(key) ?? []), context]);
+  }
+
+  const evidenceEntries: JsonRecord[] = [];
+  const unmatchedEvidence: JsonRecord[] = [];
+  const ambiguousContextMatches: JsonRecord[] = [];
+  const failures: AuditInvariantFailure[] = [];
+  for (const field of ["acceptedEvidence", "rejectedEvidence"] as const) {
+    for (const [index, evidence] of (decision[field] ?? []).entries()) {
+      const candidates = contextPool.get(evidenceKey(evidence)) ?? [];
+      const identicalFrozenContent = candidates.every((context) => evidenceKey(evidenceFromContext(context)) === evidenceKey(evidence));
+      evidenceEntries.push({ field, index, result: candidates.length > 0 ? "MATCH" : "UNMATCHED", candidateContextIds: candidates.map((context) => context.contextId) });
+      if (candidates.length === 0) {
+        unmatchedEvidence.push({ field, index, evidence });
+        failures.push({ code: "UNMATCHED_FROZEN_EVIDENCE", stableRuleId: decision.stableRuleId, field, index, evidence });
+      }
+      if (candidates.length > 1) {
+        ambiguousContextMatches.push({ field, index, candidateContextIds: candidates.map((context) => context.contextId), completeFrozenEvidenceIdentical: identicalFrozenContent, resolved: identicalFrozenContent ? "identical-content" : "UNRESOLVED" });
+      }
+    }
+  }
+
+  const acceptedKeys = new Set((decision.acceptedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
+  const rejectedKeys = new Set((decision.rejectedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
+  const acceptedRejectedDuplicateEvidence = [...acceptedKeys].filter((key) => rejectedKeys.has(key));
+  if (acceptedRejectedDuplicateEvidence.length > 0) {
+    failures.push({ code: "DUPLICATE_EVIDENCE", stableRuleId: decision.stableRuleId });
+  }
+
+  const notApplicableEvidenceResult = decision.finalApplicability === "NOT_APPLICABLE" && (decision.acceptedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
+  if (notApplicableEvidenceResult === "FAIL") failures.push({ code: "UNSUPPORTED_NOT_APPLICABLE", stableRuleId: decision.stableRuleId });
+  const resolvedNotApplicable = decision.finalApplicability === "NOT_APPLICABLE" && decision.reviewerOutcome === "NOT_APPLICABLE";
+  const resolvedConforms = decision.finalEvidenceState === "FOUND" && decision.reviewerOutcome === "CONFORMS";
+  const resolvedClientActionResult = (resolvedNotApplicable || resolvedConforms) && (decision.clientAction ?? "") !== "" ? "FAIL" : "PASS";
+  if (resolvedClientActionResult === "FAIL") failures.push({ code: "RESOLVED_ROW_CLIENT_ACTION", stableRuleId: decision.stableRuleId });
+  const staleAcceptanceClaim = /\b(?:should|ought to|needs? to)\b[^.\n]{0,80}\baccepted\b/i.test(decision.correctionReason ?? "")
+    || /\bshould have been accepted\b/i.test(decision.correctionReason ?? "")
+    || /\b(?:remains?|still)\b[^.\n]{0,80}\brejected span\b/i.test(decision.correctionReason ?? "");
+  const correctionReasonResult = staleAcceptanceClaim
+    && (decision.acceptedEvidence?.length ?? 0) > 0
+    && (decision.rejectedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
+  if (correctionReasonResult === "FAIL") failures.push({ code: "STALE_CORRECTION_REASON", stableRuleId: decision.stableRuleId });
+  const resolvedJudgmentEvidenceResult = ((decision.finalEvidenceState === "FOUND" || decision.reviewerOutcome === "CONFORMS" || resolvedNotApplicable)
+    && (decision.acceptedEvidence?.length ?? 0) === 0) ? "FAIL" : "PASS";
+  if (resolvedJudgmentEvidenceResult === "FAIL") failures.push({ code: "RESOLVED_JUDGMENT_WITHOUT_EVIDENCE", stableRuleId: decision.stableRuleId });
+  return {
+    provenanceResult: unmatchedEvidence.length === 0 ? "PASS" : "FAIL",
+    unmatchedEvidence,
+    acceptedRejectedDuplicateEvidence,
+    notApplicableEvidenceResult,
+    resolvedClientActionResult,
+    correctionReasonResult,
+    resolvedJudgmentEvidenceResult,
+    semanticIntegrityResult: acceptedRejectedDuplicateEvidence.length === 0 && notApplicableEvidenceResult === "PASS" && resolvedClientActionResult === "PASS" && correctionReasonResult === "PASS" && resolvedJudgmentEvidenceResult === "PASS" ? "PASS" : "FAIL",
+    evidenceEntries,
+    ambiguousContextMatches,
+    failures,
+  };
+}
+
 function machineRowHash(rule: JsonRecord): string | undefined {
   return rule.frozenMachineRowHash ?? rule.machineProposal?.rowSha256;
 }
@@ -132,40 +229,23 @@ function buildAudit() {
       }
       const machineRowHashResult = Boolean(rule && decision.machineRowSha256 === machineHash);
       batchHashResults.machineRows = batchHashResults.machineRows && machineRowHashResult;
-      const provenanceResult = unmatchedEvidence.length === 0 ? "PASS" : "FAIL";
-      const acceptedKeys = new Set((decision.acceptedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
-      const rejectedKeys = new Set((decision.rejectedEvidence ?? []).map((evidence: JsonRecord) => evidenceKey(evidence)));
-      const acceptedRejectedDuplicateEvidence = [...acceptedKeys].filter((key) => rejectedKeys.has(key));
-      const notApplicableEvidenceResult = decision.finalApplicability === "NOT_APPLICABLE" && (decision.acceptedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
-      const resolvedNotApplicable = decision.finalApplicability === "NOT_APPLICABLE" && decision.reviewerOutcome === "NOT_APPLICABLE";
-      const resolvedConforms = decision.finalEvidenceState === "FOUND" && decision.reviewerOutcome === "CONFORMS";
-      const resolvedClientActionResult = (resolvedNotApplicable || resolvedConforms) && (decision.clientAction ?? "") !== "" ? "FAIL" : "PASS";
-      const staleAcceptanceClaim = /\b(?:should|ought to|needs? to)\b[^.\n]{0,80}\baccepted\b/i.test(decision.correctionReason ?? "")
-        || /\bshould have been accepted\b/i.test(decision.correctionReason ?? "");
-      const correctionReasonResult = staleAcceptanceClaim
-        && (decision.acceptedEvidence?.length ?? 0) > 0
-        && (decision.rejectedEvidence?.length ?? 0) === 0 ? "FAIL" : "PASS";
-      const resolvedJudgmentEvidenceResult = ((decision.finalEvidenceState === "FOUND" || decision.reviewerOutcome === "CONFORMS" || resolvedNotApplicable)
-        && (decision.acceptedEvidence?.length ?? 0) === 0) ? "FAIL" : "PASS";
+      const invariantResult = validateAuditDecisionInvariants(decision, allContexts);
       const result = {
         batch: config.batch,
         stableRuleId: decision.stableRuleId,
         acceptedEvidenceCount: decision.acceptedEvidence?.length ?? 0,
         rejectedEvidenceCount: decision.rejectedEvidence?.length ?? 0,
-        provenanceResult,
+        provenanceResult: invariantResult.provenanceResult,
         evidenceEntries,
         unmatchedEvidence,
         ambiguousContextMatches,
-        acceptedRejectedDuplicateEvidence,
-        notApplicableEvidenceResult,
-        resolvedClientActionResult,
-        correctionReasonResult,
-        resolvedJudgmentEvidenceResult,
-        semanticIntegrityResult: acceptedRejectedDuplicateEvidence.length === 0
-          && notApplicableEvidenceResult === "PASS"
-          && resolvedClientActionResult === "PASS"
-          && correctionReasonResult === "PASS"
-          && resolvedJudgmentEvidenceResult === "PASS" ? "PASS" : "FAIL",
+        acceptedRejectedDuplicateEvidence: invariantResult.acceptedRejectedDuplicateEvidence,
+        notApplicableEvidenceResult: invariantResult.notApplicableEvidenceResult,
+        resolvedClientActionResult: invariantResult.resolvedClientActionResult,
+        correctionReasonResult: invariantResult.correctionReasonResult,
+        resolvedJudgmentEvidenceResult: invariantResult.resolvedJudgmentEvidenceResult,
+        semanticIntegrityResult: invariantResult.semanticIntegrityResult,
+        invariantFailures: invariantResult.failures,
         machineRowHashResult: machineRowHashResult ? "PASS" : "FAIL",
         schemaResult: schemaValid ? "PASS" : "FAIL",
       };
@@ -245,4 +325,4 @@ function buildAudit() {
   if (!report.mechanicalResult) process.exitCode = 1;
 }
 
-buildAudit();
+if (require.main === module) buildAudit();
