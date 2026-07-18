@@ -150,8 +150,8 @@ function buildContext(evidence: Evidence, pages: Array<{ pageNumber: number; tex
   return { contextId, documentIdentity: document, pageNumber: located?.pageNumber ?? evidence.page, sectionHeading: heading, sourceSpanId: evidence.spanId, exactQuote: evidence.quote, matchFoundInCanonicalExtraction: text.includes(evidence.quote), surroundingText: { before: text.slice(Math.max(0, start - 1800), start), matched: evidence.quote, after: text.slice(start + Math.min(heading.length, text.length), start + Math.min(heading.length, text.length) + 1800) } };
 }
 
-function evidenceReference(evidence: Evidence, document: Proposal["sourceDocument"], index: number) {
-  return { index, quote: evidence.quote, page: evidence.page, sectionHeading: evidence.provenance.sectionHeading ?? evidence.section, spanId: evidence.spanId, documentId: document.documentId, documentSha256: document.contentSha256, provenance: evidence.provenance };
+function evidenceReference(evidence: Evidence, context: ReturnType<typeof buildContext>, index: number) {
+  return { index, quote: evidence.quote, page: context.pageNumber, sectionHeading: evidence.provenance.sectionHeading ?? evidence.section, spanId: evidence.spanId, documentId: context.documentIdentity.documentId, documentSha256: context.documentIdentity.contentSha256, provenance: evidence.provenance };
 }
 
 export function buildRc5BatchArtifacts(config: Rc5BatchGeneratorConfig): Rc5BatchArtifacts {
@@ -177,8 +177,9 @@ export function buildRc5BatchArtifacts(config: Rc5BatchGeneratorConfig): Rc5Batc
     const refs = { accepted: [] as unknown[], rejected: [] as unknown[] };
     const addEvidence = (items: Evidence[], kind: "accepted" | "rejected") => items.map((evidence, index) => {
       const contextId = `batch${config.batchNumber}-${row.stableRuleId.split(".").at(-1)}-${kind}-${index + 1}`;
-      contexts[contextId] = buildContext(evidence, raw.pages, contextId, document);
-      refs[kind].push(evidenceReference(evidence, document, index));
+      const context = buildContext(evidence, raw.pages, contextId, document);
+      contexts[contextId] = context;
+      refs[kind].push(evidenceReference(evidence, context, index));
       return contextId;
     });
     const acceptedContextIds = addEvidence(accepted, "accepted");
@@ -200,7 +201,7 @@ export function writeRc5BatchArtifacts(config: Rc5BatchGeneratorConfig): Rc5Batc
   writeJson(path.join(config.outputDir, "review-packet.json"), artifacts.packet);
   writeJson(path.join(config.outputDir, "review-response-schema.json"), artifacts.schema);
   writeJson(path.join(config.outputDir, "review-template.json"), artifacts.template);
-  const manifest = { schemaVersion: config.manifestSchemaVersion, generatedAt: "2026-07-17T00:00:00.000Z", sourceCommitSha: config.sourceCommitSha, sourceDocumentSha256: artifacts.packet.sourceDocument.contentSha256, frozenProposalSha256: artifacts.packet.frozenMachineProposal.sha256, canonicalRawExtractionSha256: artifacts.packet.canonicalRawExtraction.sha256, auditRecordSha256: sha256(fs.readFileSync(config.auditPath)), selectedRuleIds: artifacts.selectedRuleIds, reviewedRuleIds: artifacts.priorIds, machineRowSha256: Object.fromEntries(artifacts.packet.rules.map((rule: { stableRuleId: string; frozenMachineRowHash: string }) => [rule.stableRuleId, rule.frozenMachineRowHash])), generatedPacketSha256: sha256(fs.readFileSync(path.join(config.outputDir, "review-packet.json"))), packetFiles: ["review-packet.json", "review-response-schema.json", "review-template.json", "review-instructions.md", "agent-prompt.md"] };
+  const manifest = { schemaVersion: config.manifestSchemaVersion, generatedAt: "2026-07-17T00:00:00.000Z", sourceCommitSha: config.sourceCommitSha, sourceDocumentSha256: artifacts.packet.sourceDocument.contentSha256, frozenProposalSha256: artifacts.packet.frozenMachineProposal.sha256, canonicalRawExtractionSha256: artifacts.packet.canonicalRawExtraction.sha256, auditRecordSha256: sha256(fs.readFileSync(config.auditPath)), selectedRuleIds: artifacts.selectedRuleIds, reviewedRuleIds: artifacts.priorIds, machineRowSha256: Object.fromEntries(artifacts.packet.rules.map((rule: { stableRuleId: string; frozenMachineRowHash: string }) => [rule.stableRuleId, rule.frozenMachineRowHash])), generatedPacketSha256: sha256(fs.readFileSync(path.join(config.outputDir, "review-packet.json"))), packetFiles: ["review-packet.json", "review-response-schema.json", "review-template.json"] };
   writeJson(path.join(config.outputDir, "manifest.json"), manifest);
   return artifacts;
 }
