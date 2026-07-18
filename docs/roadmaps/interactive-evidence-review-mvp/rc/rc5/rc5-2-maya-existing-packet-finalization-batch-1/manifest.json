@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "rc5-2-maya-existing-packet-finalization-batch-1-manifest-v1",
+  "generatedAt": "2026-07-19T00:00:00.000Z",
+  "sourceCommitSha": "2c201ab7ce9a83b28ffa751a8a481dccab4f3096",
+  "sourceDocumentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002"
+  ],
+  "machineRowSha256": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014": "6ac929efafd663c8e4b237a906683f61ad269bf82e7f1c2a7ee7b995cb2d52aa",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009": "34ad332a4efa0e4b88ba8f7d20dcbbdbc9c583f6dbc954641c31e68d8c8d63f6",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010": "2cb0540646571016cd63e9bc0c0a56a3359979bef90befe847671789ffe6580c",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011": "c602799cdacfc5e7117d586a08d5f61d9d900b8a1eb12620ca505fa710804683",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012": "73d1a1da44f46dad59dd19c2261949e3300474f284bdaceda198e21a84d8e7a1",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015": "50967681a5872e45fb4c72072dc57e04647c4ae69ae6ea7f506fe9750dc65128",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016": "47538eb478bb698563d9ca9836032470efd27a5bd93cc6e1d64032cafbe923b0",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002": "ec8c01e5bb584140f8382d53d920f001092f96d9debdb28ce882f313f01926ee"
+  },
+  "evidenceCounts": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 4,
+      "contexts": 4
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0011": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0015": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 0
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 1
+      },
+      "totalAvailable": 3,
+      "contexts": 3
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-3-0002": {
+      "originalFrozenPacket": {
+        "accepted": 1,
+        "rejected": 5
+      },
+      "provisionalReviewedTruth": {
+        "accepted": 1,
+        "rejected": 5
+      },
+      "totalAvailable": 12,
+      "contexts": 12
+    }
+  },
+  "generatedPacketSha256": "c00559c90aade16a91f9e9ef87ca5e15270490273e2bd524443feae118c7700f",
+  "packetFiles": [
+    "review-packet.json",
+    "review-template.json",
+    "review-response-schema.json",
+    "manifest.json"
+  ]
+}
