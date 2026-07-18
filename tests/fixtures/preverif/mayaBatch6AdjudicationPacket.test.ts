@@ -133,7 +133,7 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
     const genericSource = fs.readFileSync(path.join(root, "scripts/preverif/generate-rc5-adjudication-batch.ts"), "utf8");
     assert.equal(genericSource.includes("Batch 6"), false);
     assert.equal(genericSource.includes("batch-6"), false);
-    assert.equal(fs.existsSync(path.join(packetDir, "reviewed-truth.json")), false);
+    assert.equal("reviewedTruth" in first.packet, false);
 
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-batch6-regeneration-"));
     try {
@@ -180,6 +180,6 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
     const expectedPacketFiles = ["review-packet.json", "review-response-schema.json", "review-template.json"];
     assert.deepEqual(currentManifest.packetFiles, expectedPacketFiles);
     assert.ok(currentManifest.packetFiles.every((file: string) => fs.existsSync(path.join(packetDir, file))));
-    assert.equal(fs.readdirSync(packetDir).filter((file) => file.endsWith(".json")).sort().join("\n"), [...expectedPacketFiles, "manifest.json"].sort().join("\n"));
+    assert.equal(fs.readdirSync(packetDir).filter((file) => file.endsWith(".json")).sort().join("\n"), [...expectedPacketFiles, "manifest.json", "reviewed-truth.json"].sort().join("\n"));
   });
 });
