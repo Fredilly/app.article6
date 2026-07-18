@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "rc5-2-maya-batch-6-full-pdd-expert-review-manifest-v1",
+  "generatedAt": "2026-07-18T00:00:00.000Z",
+  "sourceCommitSha": "ef7c1445c319f2f9cbb6231d3c2ebd6192a3eaec",
+  "sourceDocumentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "canonicalRawExtractionSha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0005",
+    "Verra.AFOLU.VM0007.v1-8.R-6-0007"
+  ],
+  "generatedPacketSha256": "b60115793aa237a690246147f417c48ff6b978fc4d8c49d14001eabd2ae2e75d",
+  "packetFiles": [
+    "review-packet.json",
+    "review-response-schema.json",
+    "review-template.json"
+  ]
+}
