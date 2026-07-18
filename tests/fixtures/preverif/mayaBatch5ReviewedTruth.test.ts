@@ -18,13 +18,14 @@ const frozenProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-
 
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
-const normalizePacketEvidenceRef = (ref: Record<string, any>, sourceDocument: { documentId: string; contentSha256: string }) => {
-  const { index, provenance, evidenceType, reason, rejectionReason, section, ...withoutSection } = ref;
+const normalizeFrozenContext = (context: Record<string, any>) => {
   return {
-    ...withoutSection,
-    sectionHeading: section,
-    documentId: sourceDocument.documentId,
-    documentSha256: sourceDocument.contentSha256,
+    quote: context.exactQuote,
+    page: context.pageNumber,
+    sectionHeading: context.sectionHeading,
+    spanId: context.sourceSpanId,
+    documentId: context.documentIdentity.documentId,
+    documentSha256: context.documentIdentity.contentSha256,
   };
 };
 
@@ -59,14 +60,9 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     const schema = read<Record<string, any>>(reviewSchemaPath);
     const batchManifest = read<Record<string, any>>(batchManifestPath);
     const selectionManifest = read<Record<string, any>>(selectionManifestPath);
-    const sourceDocument = packet.sourceDocument as { documentId: string; contentSha256: string };
     const packetEvidencePool = new Set<string>();
-    for (const rule of packet.rules) {
-      for (const refs of [rule.acceptedEvidence, rule.rejectedEvidence]) {
-        for (const ref of refs ?? []) {
-          packetEvidencePool.add(evidenceKey(normalizePacketEvidenceRef(ref, sourceDocument)));
-        }
-      }
+    for (const context of Object.values(packet.contexts) as Array<Record<string, any>>) {
+      packetEvidencePool.add(evidenceKey(normalizeFrozenContext(context)));
     }
     const priorRuleIds = new Set<string>([
       ...selectionManifest.batches["1"].expectedRuleIds,
@@ -147,9 +143,10 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {
       const decision = truth.decisions.find((candidate: any) => candidate.stableRuleId.endsWith(`.${shortRuleId}`));
       assert.ok(decision, `Missing corrected decision ${shortRuleId}`);
-      assert.equal(decision.acceptedEvidence[0].page, 1);
+      assert.equal(decision.acceptedEvidence[0].page, 84);
       assert.equal(decision.acceptedEvidence[0].spanId, "quick-check-review-question:element:paragraph:3.1.2");
       assert.match(decision.assessmentReason, /no peatlands or tidal wetlands/);
+      assert.equal(decision.rejectedEvidence[0].page, 59);
       assert.equal(decision.rejectedEvidence[0].spanId, "quick-check-review-question:element:paragraph:2.3.14");
       assert.match(decision.correctionReason, /moved to rejectedEvidence/);
     }
