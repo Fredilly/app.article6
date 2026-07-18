@@ -150,8 +150,8 @@ function buildContext(evidence: Evidence, pages: Array<{ pageNumber: number; tex
   return { contextId, documentIdentity: document, pageNumber: located?.pageNumber ?? evidence.page, sectionHeading: heading, sourceSpanId: evidence.spanId, exactQuote: evidence.quote, matchFoundInCanonicalExtraction: text.includes(evidence.quote), surroundingText: { before: text.slice(Math.max(0, start - 1800), start), matched: evidence.quote, after: text.slice(start + Math.min(heading.length, text.length), start + Math.min(heading.length, text.length) + 1800) } };
 }
 
-function evidenceReference(evidence: Evidence, document: Proposal["sourceDocument"], index: number) {
-  return { index, quote: evidence.quote, page: evidence.page, sectionHeading: evidence.provenance.sectionHeading ?? evidence.section, spanId: evidence.spanId, documentId: document.documentId, documentSha256: document.contentSha256, provenance: evidence.provenance };
+function evidenceReference(evidence: Evidence, context: ReturnType<typeof buildContext>, index: number) {
+  return { index, quote: evidence.quote, page: context.pageNumber, sectionHeading: evidence.provenance.sectionHeading ?? evidence.section, spanId: evidence.spanId, documentId: context.documentIdentity.documentId, documentSha256: context.documentIdentity.contentSha256, provenance: evidence.provenance };
 }
 
 export function buildRc5BatchArtifacts(config: Rc5BatchGeneratorConfig): Rc5BatchArtifacts {
@@ -177,8 +177,9 @@ export function buildRc5BatchArtifacts(config: Rc5BatchGeneratorConfig): Rc5Batc
     const refs = { accepted: [] as unknown[], rejected: [] as unknown[] };
     const addEvidence = (items: Evidence[], kind: "accepted" | "rejected") => items.map((evidence, index) => {
       const contextId = `batch${config.batchNumber}-${row.stableRuleId.split(".").at(-1)}-${kind}-${index + 1}`;
-      contexts[contextId] = buildContext(evidence, raw.pages, contextId, document);
-      refs[kind].push(evidenceReference(evidence, document, index));
+      const context = buildContext(evidence, raw.pages, contextId, document);
+      contexts[contextId] = context;
+      refs[kind].push(evidenceReference(evidence, context, index));
       return contextId;
     });
     const acceptedContextIds = addEvidence(accepted, "accepted");

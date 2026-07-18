@@ -108,7 +108,6 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
           const contextId = `batch6-${rule.shortRuleId}-${kind}-${index + 1}`;
           const context = currentPacket.contexts[contextId];
           assert.equal(reference.quote, evidence.quote);
-          assert.equal(reference.page, evidence.page);
           assert.equal(reference.sectionHeading, evidence.provenance.sectionHeading ?? evidence.section);
           assert.equal(reference.spanId, evidence.spanId);
           assert.equal(reference.documentId, currentPacket.sourceDocument.documentId);
@@ -116,6 +115,7 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
           assert.equal(reference.provenance.sectionHeading, evidence.provenance.sectionHeading);
           assert.ok(context);
           assert.equal(context.contextId, contextId);
+          assert.equal(reference.page, context.pageNumber);
           assert.equal(context.sectionHeading, evidence.provenance.sectionHeading ?? evidence.section);
           assert.equal(context.sourceSpanId, evidence.spanId);
           assert.equal(context.exactQuote, evidence.quote);
