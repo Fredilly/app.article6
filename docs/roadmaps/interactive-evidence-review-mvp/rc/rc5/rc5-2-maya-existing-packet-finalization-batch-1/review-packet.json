@@ -13,8 +13,8 @@
   },
   "provisionalScopeManifest": {
     "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json",
-    "sourceCommitSha": "13fbf5f2a75dd226318549f43b98fcde3b535973",
-    "sha256": "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17",
+    "sourceCommitSha": "ea28e069d2a171df7fc7fff31ef2dc3c6f99ef4b",
+    "sha256": "f3fd97e932eb6a023c302313f5f4df5cad286751994b469f502226f1bc00e21a",
     "label": "NON_FINAL_SCOPE_CONTEXT"
   },
   "selectedRuleIds": [
@@ -626,6 +626,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -670,7 +674,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -688,7 +692,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -701,7 +705,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -733,6 +737,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -750,7 +758,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -768,7 +776,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -781,7 +789,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -813,6 +821,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -830,7 +842,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -848,7 +860,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -861,7 +873,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -893,6 +905,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -910,7 +926,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -928,7 +944,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -941,7 +957,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -973,6 +989,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -990,7 +1010,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1008,7 +1028,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1021,7 +1041,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -1053,6 +1073,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1070,7 +1094,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1088,7 +1112,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1101,7 +1125,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -1133,6 +1157,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1150,7 +1178,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1168,7 +1196,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1181,7 +1209,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     },
@@ -1240,6 +1268,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1267,6 +1299,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1294,6 +1330,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1321,6 +1361,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1348,6 +1392,10 @@
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
                 "sourceType": "ORIGINAL_FROZEN_PACKET"
+              },
+              {
+                "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1365,7 +1413,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1383,7 +1431,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1401,7 +1449,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1419,7 +1467,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1437,7 +1485,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1455,7 +1503,7 @@
             "references": [
               {
                 "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-                "sourceType": "CURRENT_PROVISIONAL_EVIDENCE"
+                "sourceType": "EXISTING_REVIEW_EVIDENCE"
               }
             ]
           },
@@ -1468,7 +1516,7 @@
         "evidenceIsUnchanged": true
       },
       "sourceAudit": {
-        "provisionalEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "reviewEvidenceSourcePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
         "label": "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION"
       }
     }

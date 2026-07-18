@@ -33,7 +33,12 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
       const sourceTruth = read<{ decisions: Array<Record<string, any>> }>(sourceTruthByRule(rule.stableRuleId)).decisions.find((source) => source.stableRuleId === rule.stableRuleId);
       const sourceEvidence = [...(sourcePacket?.acceptedEvidence ?? []), ...(sourcePacket?.rejectedEvidence ?? []), ...(sourceTruth?.acceptedEvidence ?? []), ...(sourceTruth?.rejectedEvidence ?? [])];
       const identity = (evidence: any) => ({ quote: evidence.quote, page: evidence.page, sectionHeading: evidence.sectionHeading ?? evidence.provenance?.sectionHeading ?? evidence.section ?? "", spanId: evidence.spanId, documentId: evidence.documentId ?? evidence.provenance?.docId ?? artifacts.packet.sourceDocument.documentId, documentSha256: evidence.documentSha256 ?? artifacts.packet.sourceDocument.contentSha256 });
-      const expectedByIdentity = new Map(sourceEvidence.map((evidence) => [JSON.stringify(identity(evidence)), evidence]));
+      const expectedByIdentity = new Map<string, any>();
+      for (const evidence of sourceEvidence) {
+        const key = JSON.stringify(identity(evidence));
+        const existing = expectedByIdentity.get(key);
+        if (!existing || (!existing.provenance && evidence.provenance)) expectedByIdentity.set(key, evidence);
+      }
       assert.deepEqual(new Set(rule.candidateEvidence.map((candidate: any) => JSON.stringify(identity(candidate)))), new Set(expectedByIdentity.keys()));
       const keys = rule.candidateEvidence.map((candidate: any) => JSON.stringify({ quote: candidate.quote, page: candidate.page, sectionHeading: candidate.sectionHeading, spanId: candidate.spanId, documentId: candidate.documentId, documentSha256: candidate.documentSha256 }));
       assert.equal(new Set(keys).size, keys.length);

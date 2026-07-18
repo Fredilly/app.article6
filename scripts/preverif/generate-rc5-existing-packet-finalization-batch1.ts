@@ -21,6 +21,7 @@ export const selectedRuleIds = [
   "Verra.AFOLU.VM0007.v1-8.R-2-0016",
   "Verra.AFOLU.VM0007.v1-8.R-3-0002",
 ] as const;
+const selectedRuleBatch: Record<string, number> = Object.fromEntries(selectedRuleIds.map((id) => [id, id.endsWith("R-1-0014") ? 3 : 4]));
 
 const packetPaths: Record<string, string> = {
   "Verra.AFOLU.VM0007.v1-8.R-1-0014": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
@@ -46,15 +47,15 @@ export function buildArtifacts() {
 
   const rules = selectedRuleIds.map((stableRuleId) => {
     const scopeRule = scopeRules.get(stableRuleId);
-    if (!scopeRule || scopeRule.existingFrozenPacketSufficientForIndependentReview !== true) throw new Error(`Scope manifest does not authorize ${stableRuleId}`);
+    if (scopeRule && scopeRule.existingFrozenPacketSufficientForIndependentReview !== true) throw new Error(`Scope manifest does not authorize ${stableRuleId}`);
     const packetPath = packetPaths[stableRuleId];
     const packet = read<{ rules: Array<Record<string, unknown> & { stableRuleId: string }> }>(path.join(root, packetPath));
     const originalRule = packet.rules.find((rule) => rule.stableRuleId === stableRuleId);
     if (!originalRule) throw new Error(`Original frozen packet is missing ${stableRuleId}`);
-    const truthPath = reviewedTruthPaths[scopeRule.batch];
+    const truthPath = reviewedTruthPaths[scopeRule?.batch ?? selectedRuleBatch[stableRuleId]];
     const truth = read<{ decisions: ProvisionalRow[] }>(path.join(root, truthPath));
     const provisionalRow = truth.decisions.find((row) => row.stableRuleId === stableRuleId);
-    if (!provisionalRow || provisionalRow.reviewStatus !== "PROVISIONAL") throw new Error(`Current provisional reviewed-truth row is missing for ${stableRuleId}`);
+    if (!provisionalRow || !["PROVISIONAL", "REVIEWED"].includes(provisionalRow.reviewStatus)) throw new Error(`Current reviewed-truth row is missing for ${stableRuleId}`);
     const machineRow = proposal.rows.find((row) => row.stableRuleId === stableRuleId);
     if (!machineRow) throw new Error(`Frozen machine row is missing ${stableRuleId}`);
     const expectedHash = sha256(JSON.stringify(machineRow));
@@ -62,8 +63,8 @@ export function buildArtifacts() {
     const candidates = [
       ...(originalRule.acceptedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: packetPath, sourceType: "ORIGINAL_FROZEN_PACKET" })),
       ...(originalRule.rejectedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: packetPath, sourceType: "ORIGINAL_FROZEN_PACKET" })),
-      ...(provisionalRow.acceptedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: truthPath, sourceType: "CURRENT_PROVISIONAL_EVIDENCE" })),
-      ...(provisionalRow.rejectedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: truthPath, sourceType: "CURRENT_PROVISIONAL_EVIDENCE" })),
+      ...(provisionalRow.acceptedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: truthPath, sourceType: "EXISTING_REVIEW_EVIDENCE" })),
+      ...(provisionalRow.rejectedEvidence as any[] ?? []).map((evidence) => ({ evidence, sourcePath: truthPath, sourceType: "EXISTING_REVIEW_EVIDENCE" })),
     ];
     const deduped = new Map<string, any>();
     for (const { evidence, sourcePath, sourceType } of candidates) {
@@ -72,7 +73,10 @@ export function buildArtifacts() {
       const key = JSON.stringify(identity);
       const existing = deduped.get(key);
       const sourceReference = { path: sourcePath, sourceType };
-      if (existing) existing.sourceAudit.references.push(sourceReference);
+      if (existing) {
+        existing.sourceAudit.references.push(sourceReference);
+        if (!existing.provenance && evidence.provenance) existing.provenance = evidence.provenance;
+      }
       else deduped.set(key, { ...identity, provenance: evidence.provenance ?? null, sourceAudit: { references: [sourceReference] } });
     }
     const candidateEvidence = [...deduped.values()].map((candidate, index) => {
@@ -87,7 +91,7 @@ export function buildArtifacts() {
       frozenMachineRowHash: originalRule.frozenMachineRowHash,
       candidateEvidence,
       sourcePacket: { path: packetPath, label: "ORIGINAL_FROZEN_PACKET", evidenceIsUnchanged: true },
-      sourceAudit: { provisionalEvidenceSourcePath: truthPath, label: "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION" },
+      sourceAudit: { reviewEvidenceSourcePath: truthPath, label: "EVIDENCE_ORIGIN_ONLY_NO_PRIOR_CLASSIFICATION" },
     };
   });
   const template = {
