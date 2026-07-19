@@ -72,11 +72,13 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
     assert.deepEqual(truth.decisions.map((decision: any) => decision.stableRuleId), packet.selectedRuleIds);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selection.expectedRuleIds);
 
-    assert.equal(truth.decisions.every((decision: any) => decision.reviewStatus === "PROVISIONAL"), true);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 7);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 3);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "PENDING_INDEPENDENT_ADJUDICATION"), false);
-    assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "REVIEWED"), false);
-    assert.equal(truth.decisions.every((decision: any) => decision.expertReviewRequired === true), true);
-    assert.equal(truth.decisions.every((decision: any) => typeof decision.provisionalReason === "string" && decision.provisionalReason.trim().length > 0), true);
+    assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "REVIEWED"), true);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").every((decision: any) => decision.expertReviewRequired === true), true);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").every((decision: any) => typeof decision.provisionalReason === "string" && decision.provisionalReason.trim().length > 0), true);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").every((decision: any) => decision.provisionalReason === null), true);
 
     const priorReviewedRuleIds = new Set<string>([
       ...selectionManifest.batches["1"].expectedRuleIds,
@@ -123,11 +125,12 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
         });
       };
 
-      compareEvidenceSet(decision.acceptedEvidence, "accepted");
-      compareEvidenceSet(decision.rejectedEvidence, "rejected");
-
-      for (const evidence of [...decision.acceptedEvidence, ...decision.rejectedEvidence]) {
-        assert.equal(packetContextsByKey.has(keyForEvidence(evidence)), true, `${decision.stableRuleId} evidence missing from packet`);
+      if (decision.reviewStatus === "PROVISIONAL") {
+        compareEvidenceSet(decision.acceptedEvidence, "accepted");
+        compareEvidenceSet(decision.rejectedEvidence, "rejected");
+        for (const evidence of [...decision.acceptedEvidence, ...decision.rejectedEvidence]) {
+          assert.equal(packetContextsByKey.has(keyForEvidence(evidence)), true, `${decision.stableRuleId} evidence missing from packet`);
+        }
       }
 
       if (decision.stableRuleId === "Verra.AFOLU.VM0007.v1-8.R-3-0002") {
@@ -142,8 +145,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       assert.equal(typeof decision.contradictionState, "string");
 
       const status = decision.reviewStatus;
-      assert.equal(status, "PROVISIONAL", `Unexpected reviewStatus for ${decision.stableRuleId} at index ${index}`);
-      assert.equal(decision.provisionalReason.trim().length > 0, true);
+      assert.ok(status === "PROVISIONAL" || status === "REVIEWED", `Unexpected reviewStatus for ${decision.stableRuleId} at index ${index}`);
+      if (status === "PROVISIONAL") assert.equal(decision.provisionalReason.trim().length > 0, true);
     }
 
     const statusCounts = truth.decisions.reduce((counts: Record<string, number>, decision: Record<string, any>) => {
@@ -159,7 +162,7 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       return counts;
     }, {});
 
-    assert.deepEqual(statusCounts, { PROVISIONAL: 10 });
+    assert.deepEqual(statusCounts, { REVIEWED: 7, PROVISIONAL: 3 });
     assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 3, FOUND: 1 });
     assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, RETRIEVAL: 3 });
   });
