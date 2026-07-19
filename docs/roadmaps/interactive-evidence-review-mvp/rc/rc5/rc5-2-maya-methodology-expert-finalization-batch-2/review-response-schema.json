@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-methodology-expert-completed-response",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -8,67 +9,429 @@
   ],
   "properties": {
     "schemaVersion": {
-      "const": "rc5-2-maya-methodology-expert-finalization-batch-2-response-v1"
+      "const": "rc5-2-maya-methodology-expert-finalization-batch-2-completed-response-v2"
     },
     "responses": {
-      "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "stableRuleId",
-          "expertAnalysis",
-          "applicabilityDetermination",
-          "evidenceSufficiency",
-          "supportingEvidence",
-          "missingEvidence",
-          "notes"
-        ],
-        "properties": {
-          "stableRuleId": {
-            "enum": [
-              "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-              "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-              "Verra.AFOLU.VM0007.v1-8.R-2-0008"
-            ]
-          },
-          "expertAnalysis": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "applicabilityDetermination": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "evidenceSufficiency": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "supportingEvidence": {
-            "type": "array",
-            "items": {
-              "type": "object"
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+      ],
+      "properties": {
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": "string",
+              "minLength": 40
+            },
+            "applicabilityDetermination": {
+              "enum": [
+                "APPLICABLE",
+                "NOT_APPLICABLE",
+                "UNKNOWN"
+              ]
+            },
+            "evidenceSufficiency": {
+              "enum": [
+                "SUFFICIENT",
+                "INSUFFICIENT",
+                "PARTIALLY_SUFFICIENT"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "sourcePath",
+                  "sourceSha256",
+                  "pageStart",
+                  "pageEnd",
+                  "sectionNumber",
+                  "sectionTitle"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourcePath": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourceSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "pageStart": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "pageEnd": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionNumber": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sectionTitle": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "supportingProjectEvidence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "page",
+                  "sectionHeading",
+                  "spanId",
+                  "documentId",
+                  "documentSha256"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionHeading": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "spanId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            },
+            "missingEvidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "reasoning": {
+              "type": "string",
+              "minLength": 40
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
-          },
-          "missingEvidence": {
-            "type": "array",
-            "items": {
-              "type": "string"
+          }
+        },
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": "string",
+              "minLength": 40
+            },
+            "applicabilityDetermination": {
+              "enum": [
+                "APPLICABLE",
+                "NOT_APPLICABLE",
+                "UNKNOWN"
+              ]
+            },
+            "evidenceSufficiency": {
+              "enum": [
+                "SUFFICIENT",
+                "INSUFFICIENT",
+                "PARTIALLY_SUFFICIENT"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "sourcePath",
+                  "sourceSha256",
+                  "pageStart",
+                  "pageEnd",
+                  "sectionNumber",
+                  "sectionTitle"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourcePath": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourceSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "pageStart": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "pageEnd": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionNumber": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sectionTitle": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "supportingProjectEvidence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "page",
+                  "sectionHeading",
+                  "spanId",
+                  "documentId",
+                  "documentSha256"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionHeading": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "spanId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            },
+            "missingEvidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "reasoning": {
+              "type": "string",
+              "minLength": 40
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
-          },
-          "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+          }
+        },
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": "string",
+              "minLength": 40
+            },
+            "applicabilityDetermination": {
+              "enum": [
+                "APPLICABLE",
+                "NOT_APPLICABLE",
+                "UNKNOWN"
+              ]
+            },
+            "evidenceSufficiency": {
+              "enum": [
+                "SUFFICIENT",
+                "INSUFFICIENT",
+                "PARTIALLY_SUFFICIENT"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "sourcePath",
+                  "sourceSha256",
+                  "pageStart",
+                  "pageEnd",
+                  "sectionNumber",
+                  "sectionTitle"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourcePath": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourceSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "pageStart": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "pageEnd": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionNumber": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sectionTitle": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "supportingProjectEvidence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "quote",
+                  "page",
+                  "sectionHeading",
+                  "spanId",
+                  "documentId",
+                  "documentSha256"
+                ],
+                "properties": {
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sectionHeading": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "spanId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "documentSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            },
+            "missingEvidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "reasoning": {
+              "type": "string",
+              "minLength": 40
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           }
         }
       }

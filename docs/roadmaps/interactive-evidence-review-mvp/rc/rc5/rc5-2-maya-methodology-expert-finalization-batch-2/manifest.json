@@ -70,10 +70,11 @@
       "sha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
     }
   },
-  "generatedPacketSha256": "f89c7c4f8e32775ec5115a79af49b7f1671a734b6b8d6b3a9c1187188b38f959",
+  "generatedPacketSha256": "b0b2adafdeb24a8752b98c770b4e820929a40e23ad06313deca428167e5ea47d",
   "packetFiles": [
     "review-packet.json",
     "review-template.json",
+    "review-template-schema.json",
     "review-response-schema.json",
     "manifest.json",
     "review-instructions.md"

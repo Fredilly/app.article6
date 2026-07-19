@@ -12,12 +12,14 @@ const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").u
 const packetPath = path.join(packetDir, "review-packet.json");
 const templatePath = path.join(packetDir, "review-template.json");
 const schemaPath = path.join(packetDir, "review-response-schema.json");
+const templateSchemaPath = path.join(packetDir, "review-template-schema.json");
 const manifestPath = path.join(packetDir, "manifest.json");
 
 describe("Maya methodology-expert finalization batch 2", () => {
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8"));
   const template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
   const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
+  const templateSchema = JSON.parse(fs.readFileSync(templateSchemaPath, "utf8"));
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 
   test("selects exactly the three merged-scope methodology-expert rules", () => {
@@ -40,8 +42,29 @@ describe("Maya methodology-expert finalization batch 2", () => {
     expect(manifest.mergedProvisionalScope.inventory).toMatchObject({ reviewedRuleCount: 39, provisionalRuleCount: 19 });
   });
 
+  test("contains actual primary methodology context for every expert question", () => {
+    const ruleById = Object.fromEntries(packet.rules.map((rule: any) => [rule.stableRuleId, rule]));
+    for (const id of selectedRuleIds) {
+      const rule = ruleById[id];
+      expect(rule.methodologyExcerpts.length).toBeGreaterThan(1);
+      for (const excerpt of rule.methodologyExcerpts) {
+        expect(excerpt.sourceType).toBe("METHODOLOGY_PRIMARY_SOURCE");
+        expect(excerpt.methodologyVersion).toBe("v1.8");
+        expect(excerpt.sourcePath).toBe("public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json");
+        expect(excerpt.sourceSha256).toBe("9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49");
+        expect(excerpt.sectionNumber).toEqual(expect.any(String));
+        expect(excerpt.sectionTitle).toEqual(expect.any(String));
+        expect(excerpt.exactText).not.toMatch(/^Section context:/);
+        expect(excerpt.exactText.length).toBeGreaterThan(20);
+      }
+    }
+    expect(ruleById[selectedRuleIds[0]].methodologyExcerpts.map((excerpt: any) => excerpt.ruleId)).toEqual(expect.arrayContaining(["Verra.AFOLU.VM0007.v1-8.R-1-0002", "Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0014", "Verra.AFOLU.VM0007.v1-8.R-2-0006"]));
+    expect(ruleById[selectedRuleIds[1]].methodologyExcerpts.map((excerpt: any) => excerpt.ruleId)).toEqual(expect.arrayContaining(["Verra.AFOLU.VM0007.v1-8.R-1-0013", "Verra.AFOLU.VM0007.v1-8.R-2-0016"]));
+    expect(ruleById[selectedRuleIds[2]].methodologyExcerpts.map((excerpt: any) => excerpt.ruleId)).toEqual(expect.arrayContaining(["Verra.AFOLU.VM0007.v1-8.R-2-0007", "Verra.AFOLU.VM0007.v1-8.R-2-0008", "Verra.AFOLU.VM0007.v1-8.R-2-0012"]));
+  });
+
   test("excludes judgment-bearing fields and preserves neutral, complete, deduplicated evidence", () => {
-    const forbidden = /finalEvidenceState|finalApplicability|reviewerOutcome|acceptedEvidence|rejectedEvidence|assessmentReason|correctionReason|genericFailureCategory|reviewerConfidence|provisionalReason|proposedApplicability|proposedEvidenceState|reviewStatus/;
+    const forbidden = /ruleSummaryForOrientation|methodology\.logic|interpretationSummary|expectedAnswer|recommendedApplicability|finalEvidenceState|finalApplicability|reviewerOutcome|acceptedEvidence|rejectedEvidence|assessmentReason|correctionReason|genericFailureCategory|reviewerConfidence|provisionalReason|proposedApplicability|proposedEvidenceState|currentApplicability|currentEvidenceState|currentReviewerOutcome|reviewStatus/;
     expect(JSON.stringify(packet)).not.toMatch(forbidden);
     for (const rule of packet.rules) {
       expect(rule.frozenMachineRowHash).toMatch(/^[0-9a-f]{64}$/);
@@ -49,6 +72,9 @@ describe("Maya methodology-expert finalization batch 2", () => {
       for (const evidence of rule.originalPacketCandidateEvidence) {
         expect(evidence.sourceDocument).toEqual(packet.sourceDocument);
         expect(evidence.provenance).toMatchObject({ documentId: packet.sourceDocument.documentId, documentSha256: packet.sourceDocument.contentSha256, sourceType: "PDD" });
+        expect(evidence.pageReferenceType).toBe("INHERITED_EXTRACTION_PAGE");
+        expect(evidence.sourceAudit).toMatchObject({ originalPacketPage: evidence.page, pageWasNotNormalized: true });
+        if (/(?:^|\s)(?:83|84|85|88)(?:\s|$)/.test(evidence.quote)) expect(evidence.displayedDocumentPage).toBeUndefined();
         const key = JSON.stringify(evidence);
         expect(keys.has(key)).toBe(false);
         keys.add(key);
@@ -56,11 +82,35 @@ describe("Maya methodology-expert finalization batch 2", () => {
     }
   });
 
-  test("response template is blank and validates against its schema", () => {
+  test("blank template is transport-valid but cannot satisfy the completed response contract", () => {
+    const validateTemplate = new Ajv({ strict: false }).compile(templateSchema);
+    const validateCompleted = new Ajv({ strict: false }).compile(schema);
+    expect(validateTemplate(template)).toBe(true);
+    expect(validateCompleted(template)).toBe(false);
+    expect(Object.keys(template.responses)).toEqual([...selectedRuleIds]);
+    expect(Object.values(template.responses).every((response: any) => response.expertAnalysis === null && response.applicabilityDetermination === null && response.evidenceSufficiency === null && response.supportingMethodologyEvidence.length === 0 && response.supportingProjectEvidence.length === 0 && response.missingEvidence.length === 0 && response.reasoning === null && response.notes === null)).toBe(true);
+  });
+
+  test("completed response contract rejects missing, duplicate, blank, unsupported, and unstructured responses", () => {
     const validate = new Ajv({ strict: false }).compile(schema);
-    expect(validate(template)).toBe(true);
-    expect(template.responses.map((response: any) => response.stableRuleId)).toEqual([...selectedRuleIds]);
-    expect(template.responses.every((response: any) => response.expertAnalysis === null && response.applicabilityDetermination === null && response.evidenceSufficiency === null && response.supportingEvidence.length === 0 && response.missingEvidence.length === 0 && response.notes === null)).toBe(true);
+    const methodologyEvidence = { quote: packet.rules[0].methodologyExcerpts[0].exactText, sourcePath: packet.rules[0].methodologyExcerpts[0].sourcePath, sourceSha256: packet.rules[0].methodologyExcerpts[0].sourceSha256, pageStart: 13, pageEnd: 14, sectionNumber: "4", sectionTitle: "Applicability Conditions" };
+    const projectEvidence = { quote: packet.rules[0].originalPacketCandidateEvidence[0].quote, page: 1, sectionHeading: packet.rules[0].originalPacketCandidateEvidence[0].sectionHeading, spanId: packet.rules[0].originalPacketCandidateEvidence[0].spanId, documentId: packet.sourceDocument.documentId, documentSha256: packet.sourceDocument.contentSha256 };
+    const completed = { schemaVersion: schema.properties.schemaVersion.const, responses: Object.fromEntries(selectedRuleIds.map((id) => [id, { expertAnalysis: "The expert analysis establishes the methodology chain and distinguishes the activity category from project evidence.", applicabilityDetermination: "UNKNOWN", evidenceSufficiency: "PARTIALLY_SUFFICIENT", supportingMethodologyEvidence: [methodologyEvidence], supportingProjectEvidence: [projectEvidence], missingEvidence: ["Confirm the applicable activity category from the governing project records."], reasoning: "The evidence must be evaluated against the exact applicability chain before reaching a determination.", notes: null }])) };
+    expect(validate(completed)).toBe(true);
+    const missing = JSON.parse(JSON.stringify(completed));
+    delete missing.responses[selectedRuleIds[2]];
+    expect(validate(missing)).toBe(false);
+    const blank = JSON.parse(JSON.stringify(completed));
+    blank.responses[selectedRuleIds[0]].expertAnalysis = "";
+    expect(validate(blank)).toBe(false);
+    const unsupported = JSON.parse(JSON.stringify(completed));
+    unsupported.responses[selectedRuleIds[0]].applicabilityDetermination = "MAYBE";
+    expect(validate(unsupported)).toBe(false);
+    const badEvidence = JSON.parse(JSON.stringify(completed));
+    badEvidence.responses[selectedRuleIds[0]].supportingMethodologyEvidence = [{ quote: "only a quote" }];
+    expect(validate(badEvidence)).toBe(false);
+    const duplicateArray = { schemaVersion: completed.schemaVersion, responses: [{ stableRuleId: selectedRuleIds[0] }, { stableRuleId: selectedRuleIds[0] }, { stableRuleId: selectedRuleIds[2] }] };
+    expect(validate(duplicateArray)).toBe(false);
   });
 
   test("regeneration is byte-for-byte stable and does not create reviewed truth", () => {
@@ -68,7 +118,7 @@ describe("Maya methodology-expert finalization batch 2", () => {
     try {
       const generatedSha = writeArtifacts(outputDir);
       expect(generatedSha).toBe(manifest.generatedPacketSha256);
-      for (const file of ["review-packet.json", "review-template.json", "review-response-schema.json", "manifest.json"]) {
+      for (const file of ["review-packet.json", "review-template.json", "review-template-schema.json", "review-response-schema.json", "manifest.json"]) {
         expect(fs.readFileSync(path.join(outputDir, file))).toEqual(fs.readFileSync(path.join(packetDir, file)));
       }
       expect(fs.existsSync(path.join(outputDir, "reviewed-truth.json"))).toBe(false);

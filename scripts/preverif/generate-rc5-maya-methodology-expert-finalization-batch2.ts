@@ -93,6 +93,7 @@ function neutralCandidateEvidence(rule: any): any[] {
       sectionHeading: provenance.sectionHeading ?? candidate.section,
       spanId: candidate.spanId ?? provenance.spanId,
       sourceDocument,
+      pageReferenceType: "INHERITED_EXTRACTION_PAGE",
       provenance: {
         documentId: sourceDocument.documentId,
         documentSha256: sourceDocument.contentSha256,
@@ -101,11 +102,74 @@ function neutralCandidateEvidence(rule: any): any[] {
         spanId: candidate.spanId ?? provenance.spanId,
         sourceType: provenance.sourceType ?? "PDD",
       },
+      sourceAudit: {
+        originalPacketPage: candidate.page,
+        originalPacketPath,
+        originalPacketSha256,
+        pageWasNotNormalized: true,
+      },
     };
     const key = JSON.stringify(item);
     if (seen.has(key)) return [];
     seen.add(key);
     return [item];
+  });
+}
+
+const methodologyContextRuleIds: Record<string, string[]> = {
+  "Verra.AFOLU.VM0007.v1-8.R-1-0012": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-1-0013": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+  ],
+};
+
+function methodologyExcerpts(ruleId: string, methodologyRules: any[]): any[] {
+  return methodologyContextRuleIds[ruleId].map((contextRuleId) => {
+    const sourceRule = methodologyRules.find((rule) => rule.id === contextRuleId);
+    if (!sourceRule?.source_span_text) throw new Error(`Missing exact methodology context for ${contextRuleId}`);
+    return {
+      sourcePath: methodologyRulesPath,
+      sourceSha256: methodologyRulesSha256,
+      sourceType: "METHODOLOGY_PRIMARY_SOURCE",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1.8",
+      ruleId: contextRuleId,
+      sectionId: sourceRule.refs.primary_section,
+      sectionNumber: sourceRule.refs.section_number,
+      sectionTitle: sourceRule.section_context.section_title,
+      pageStart: sourceRule.section_context.page_start,
+      pageEnd: sourceRule.section_context.page_end,
+      exactText: sourceRule.source_span_text,
+    };
   });
 }
 
@@ -122,7 +186,7 @@ export function buildArtifacts() {
   const originalTruth = gitJson<any>(inputs.originalTruth);
   const machineProposal = gitJson<any>(inputs.machineProposal);
   const methodologyRules = localJson<any[]>(inputs.methodologyRules);
-  const methodologySections = localJson<any[]>(inputs.methodologySections);
+  localBytes(inputs.methodologySections);
   localBytes(inputs.methodologyMeta);
   localBytes(inputs.pdd);
   const packetRules = selectedRuleIds.map((stableRuleId) => {
@@ -132,24 +196,11 @@ export function buildArtifacts() {
     const truthRow = originalTruth.decisions.find((row: any) => row.stableRuleId === stableRuleId);
     if (!original || !methodology || !machineRow || !truthRow || truthRow.reviewStatus !== "PROVISIONAL") throw new Error(`Missing pinned source for ${stableRuleId}`);
     if (sha256(Buffer.from(JSON.stringify(machineRow))) !== original.frozenMachineRowHash) throw new Error(`Frozen machine-row hash mismatch for ${stableRuleId}`);
-    const section = methodologySections.find((item: any) => item.id === methodology.refs.primary_section);
+    if (!methodologyContextRuleIds[stableRuleId]) throw new Error(`Missing methodology context map for ${stableRuleId}`);
     return {
       stableRuleId,
       requirementText: methodology.source_span_text,
-      ruleSummaryForOrientation: methodology.logic,
-      methodologyExcerpts: [{
-        sourcePath: methodologyRulesPath,
-        sourceSha256: methodologyRulesSha256,
-        methodologyId: "VM0007",
-        methodologyVersion: "v1.8",
-        sectionId: methodology.refs.primary_section,
-        sectionNumber: methodology.section_context.section_number,
-        sectionTitle: methodology.section_context.section_title,
-        pageStart: methodology.section_context.page_start,
-        pageEnd: methodology.section_context.page_end,
-        exactText: methodology.source_span_text,
-        moduleToolReferences: methodology.refs.tools,
-      }, ...(section ? [{ sourcePath: methodologySectionsPath, sourceSha256: methodologySectionsSha256, sectionId: section.id, sectionNumber: section.section_number, sectionTitle: section.title, pageStart: section.page_start, pageEnd: section.page_end, exactText: `Section context: ${section.title}.` }] : [])],
+      methodologyExcerpts: methodologyExcerpts(stableRuleId, methodologyRules),
       frozenMachineRowHash: original.frozenMachineRowHash,
       historicalMachineContext: { label: "NON_FINAL_HISTORICAL_MACHINE_CONTEXT", rowHash: original.frozenMachineRowHash },
       originalPacketCandidateEvidence: neutralCandidateEvidence(original),
@@ -168,22 +219,43 @@ export function buildArtifacts() {
     sourceDocument,
     rules: packetRules,
   };
-  const template = { schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-response-v1", responses: selectedRuleIds.map((stableRuleId) => ({ stableRuleId, expertAnalysis: null, applicabilityDetermination: null, evidenceSufficiency: null, supportingEvidence: [], missingEvidence: [], notes: null })) };
-  const responseSchema = {
-    $schema: "https://json-schema.org/draft/2020-12/schema",
+  const responseSchemaVersion = "rc5-2-maya-methodology-expert-finalization-batch-2-completed-response-v2";
+  const templateSchemaVersion = "rc5-2-maya-methodology-expert-finalization-batch-2-blank-template-v1";
+  const responseFields = {
     type: "object", additionalProperties: false,
-    required: ["schemaVersion", "responses"],
-    properties: { schemaVersion: { const: template.schemaVersion }, responses: { type: "array", minItems: 3, maxItems: 3, items: { type: "object", additionalProperties: false, required: ["stableRuleId", "expertAnalysis", "applicabilityDetermination", "evidenceSufficiency", "supportingEvidence", "missingEvidence", "notes"], properties: { stableRuleId: { enum: [...selectedRuleIds] }, expertAnalysis: { type: ["string", "null"] }, applicabilityDetermination: { type: ["string", "null"] }, evidenceSufficiency: { type: ["string", "null"] }, supportingEvidence: { type: "array", items: { type: "object" } }, missingEvidence: { type: "array", items: { type: "string" } }, notes: { type: ["string", "null"] } } } } },
+    required: ["expertAnalysis", "applicabilityDetermination", "evidenceSufficiency", "supportingMethodologyEvidence", "supportingProjectEvidence", "missingEvidence", "reasoning"],
+    properties: {
+      expertAnalysis: { type: "string", minLength: 40 },
+      applicabilityDetermination: { enum: ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN"] },
+      evidenceSufficiency: { enum: ["SUFFICIENT", "INSUFFICIENT", "PARTIALLY_SUFFICIENT"] },
+      supportingMethodologyEvidence: { type: "array", minItems: 1, items: { type: "object", additionalProperties: false, required: ["quote", "sourcePath", "sourceSha256", "pageStart", "pageEnd", "sectionNumber", "sectionTitle"], properties: { quote: { type: "string", minLength: 1 }, sourcePath: { type: "string", minLength: 1 }, sourceSha256: { type: "string", pattern: "^[0-9a-f]{64}$" }, pageStart: { type: "integer", minimum: 1 }, pageEnd: { type: "integer", minimum: 1 }, sectionNumber: { type: "string", minLength: 1 }, sectionTitle: { type: "string", minLength: 1 } } } },
+      supportingProjectEvidence: { type: "array", items: { type: "object", additionalProperties: false, required: ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"], properties: { quote: { type: "string", minLength: 1 }, page: { type: "integer", minimum: 1 }, sectionHeading: { type: "string", minLength: 1 }, spanId: { type: "string", minLength: 1 }, documentId: { type: "string", minLength: 1 }, documentSha256: { type: "string", pattern: "^[0-9a-f]{64}$" } } } },
+      missingEvidence: { type: "array", items: { type: "string", minLength: 1 } },
+      reasoning: { type: "string", minLength: 40 },
+      notes: { type: ["string", "null"] },
+    },
   };
-  return { packet, template, responseSchema, scope, selectedScope };
+  const responseSchema = {
+    $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-methodology-expert-completed-response",
+    type: "object", additionalProperties: false, required: ["schemaVersion", "responses"],
+    properties: { schemaVersion: { const: responseSchemaVersion }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((id) => [id, responseFields])) } },
+  };
+  const template = { schemaVersion: templateSchemaVersion, responses: Object.fromEntries(selectedRuleIds.map((stableRuleId) => [stableRuleId, { expertAnalysis: null, applicabilityDetermination: null, evidenceSufficiency: null, supportingMethodologyEvidence: [], supportingProjectEvidence: [], missingEvidence: [], reasoning: null, notes: null }])) };
+  const templateSchema = {
+    $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-methodology-expert-blank-template",
+    type: "object", additionalProperties: false, required: ["schemaVersion", "responses"],
+    properties: { schemaVersion: { const: templateSchemaVersion }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((id) => [id, { type: "object", additionalProperties: false, required: ["expertAnalysis", "applicabilityDetermination", "evidenceSufficiency", "supportingMethodologyEvidence", "supportingProjectEvidence", "missingEvidence", "reasoning", "notes"], properties: { expertAnalysis: { type: ["string", "null"] }, applicabilityDetermination: { type: ["string", "null"] }, evidenceSufficiency: { type: ["string", "null"] }, supportingMethodologyEvidence: { type: "array" }, supportingProjectEvidence: { type: "array" }, missingEvidence: { type: "array" }, reasoning: { type: ["string", "null"] }, notes: { type: ["string", "null"] } } }])) } },
+  };
+  return { packet, template, responseSchema, templateSchema, scope, selectedScope };
 }
 
 export function writeArtifacts(outputDir = packetDir): string {
-  const { packet, template, responseSchema, scope, selectedScope } = buildArtifacts();
+  const { packet, template, responseSchema, templateSchema, scope, selectedScope } = buildArtifacts();
   fs.mkdirSync(outputDir, { recursive: true });
   write(path.join(outputDir, "review-packet.json"), packet);
   write(path.join(outputDir, "review-template.json"), template);
   write(path.join(outputDir, "review-response-schema.json"), responseSchema);
+  write(path.join(outputDir, "review-template-schema.json"), templateSchema);
   const generatedPacketSha256 = sha256(fs.readFileSync(path.join(outputDir, "review-packet.json")));
   write(path.join(outputDir, "manifest.json"), {
     schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-manifest-v1",
@@ -193,7 +265,7 @@ export function writeArtifacts(outputDir = packetDir): string {
     mergedProvisionalScope: { commitSha: mergedCommit, path: scopePath, sha256: scopeSha256, inventory: scope.inventory, groupCounts: scope.groupCounts },
     historicalInputs: inputs,
     generatedPacketSha256,
-    packetFiles: ["review-packet.json", "review-template.json", "review-response-schema.json", "manifest.json", "review-instructions.md"],
+    packetFiles: ["review-packet.json", "review-template.json", "review-template-schema.json", "review-response-schema.json", "manifest.json", "review-instructions.md"],
     reviewedTruthFilesCreated: false,
   });
   return generatedPacketSha256;

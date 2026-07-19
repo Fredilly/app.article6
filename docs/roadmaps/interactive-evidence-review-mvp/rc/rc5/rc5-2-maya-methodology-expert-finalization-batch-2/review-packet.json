@@ -11,31 +11,146 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
       "requirementText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
-      "ruleSummaryForOrientation": "Must include at least one defined conservation activity type.",
       "methodologyExcerpts": [
         {
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
-          "sectionId": "S-1",
-          "sectionTitle": "Applicability Conditions",
-          "pageStart": 17,
-          "pageEnd": 17,
-          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
-          "moduleToolReferences": [
-            "Verra/VM0007@v1-8"
-          ]
-        },
-        {
-          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json",
-          "sourceSha256": "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)"
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 14,
+          "pageEnd": 14,
+          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 17,
+          "pageEnd": 18,
+          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 16,
+          "pageEnd": 16,
+          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 17,
           "pageEnd": 17,
-          "exactText": "Section context: Applicability Conditions."
+          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 18,
+          "pageEnd": 18,
+          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 20,
+          "pageEnd": 21,
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 23,
+          "pageEnd": 24,
+          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation)."
         }
       ],
       "frozenMachineRowHash": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
@@ -54,6 +169,7 @@
             "documentName": "12-maya-forest-corridor-redd-belize.pdf",
             "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
           },
+          "pageReferenceType": "INHERITED_EXTRACTION_PAGE",
           "provenance": {
             "documentId": "quick-check-review-question",
             "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -61,6 +177,12 @@
             "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
             "spanId": "quick-check-review-question:element:paragraph:2.3.14",
             "sourceType": "PDD"
+          },
+          "sourceAudit": {
+            "originalPacketPage": 1,
+            "originalPacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+            "originalPacketSha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
+            "pageWasNotNormalized": true
           }
         }
       ],
@@ -90,31 +212,160 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
       "requirementText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period.",
-      "ruleSummaryForOrientation": "Parallel to AUDef criteria but for wetland degradation.",
       "methodologyExcerpts": [
         {
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
-          "sectionId": "S-1",
-          "sectionTitle": "Applicability Conditions",
-          "pageStart": 17,
-          "pageEnd": 17,
-          "exactText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period.",
-          "moduleToolReferences": [
-            "Verra/VM0007@v1-8"
-          ]
-        },
-        {
-          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json",
-          "sourceSha256": "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)"
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 14,
+          "pageEnd": 14,
+          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 13,
+          "pageEnd": 14,
+          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 17,
+          "pageEnd": 18,
+          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 16,
+          "pageEnd": 16,
+          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 17,
           "pageEnd": 17,
-          "exactText": "Section context: Applicability Conditions."
+          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 17,
+          "pageEnd": 17,
+          "exactText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+          "sectionId": "S-1",
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions",
+          "pageStart": 18,
+          "pageEnd": 18,
+          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 20,
+          "pageEnd": 21,
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 23,
+          "pageEnd": 24,
+          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation)."
         }
       ],
       "frozenMachineRowHash": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
@@ -133,6 +384,7 @@
             "documentName": "12-maya-forest-corridor-redd-belize.pdf",
             "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
           },
+          "pageReferenceType": "INHERITED_EXTRACTION_PAGE",
           "provenance": {
             "documentId": "quick-check-review-question",
             "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -140,6 +392,12 @@
             "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
             "spanId": "quick-check-review-question:element:paragraph:2.1.4",
             "sourceType": "PDD"
+          },
+          "sourceAudit": {
+            "originalPacketPage": 1,
+            "originalPacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+            "originalPacketSha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
+            "pageWasNotNormalized": true
           }
         },
         {
@@ -152,6 +410,7 @@
             "documentName": "12-maya-forest-corridor-redd-belize.pdf",
             "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
           },
+          "pageReferenceType": "INHERITED_EXTRACTION_PAGE",
           "provenance": {
             "documentId": "quick-check-review-question",
             "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -159,6 +418,12 @@
             "sectionHeading": "Application of Methodology",
             "spanId": "quick-check-review-question:element:paragraph:3.1",
             "sourceType": "PDD"
+          },
+          "sourceAudit": {
+            "originalPacketPage": 1,
+            "originalPacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+            "originalPacketSha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
+            "pageWasNotNormalized": true
           }
         },
         {
@@ -171,6 +436,7 @@
             "documentName": "12-maya-forest-corridor-redd-belize.pdf",
             "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
           },
+          "pageReferenceType": "INHERITED_EXTRACTION_PAGE",
           "provenance": {
             "documentId": "quick-check-review-question",
             "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -178,6 +444,12 @@
             "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
             "spanId": "quick-check-review-question:element:paragraph:3.1.2",
             "sourceType": "PDD"
+          },
+          "sourceAudit": {
+            "originalPacketPage": 1,
+            "originalPacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+            "originalPacketSha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
+            "pageWasNotNormalized": true
           }
         }
       ],
@@ -207,36 +479,90 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
       "requirementText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.",
-      "ruleSummaryForOrientation": "AGB always mandatory. HWP and dead wood conditionally mandatory based on baseline/project comparison.",
       "methodologyExcerpts": [
         {
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
           "sectionId": "S-2",
+          "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
-          "pageStart": 18,
-          "pageEnd": 20,
-          "exactText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.",
-          "moduleToolReferences": [
-            "Verra/VM0007@v1-8",
-            "Verra/VMD0001@v1-8",
-            "Verra/VMD0002@v1-8",
-            "Verra/VMD0005@v1-1",
-            "Verra/VMD0001@v1-1",
-            "Verra/VMD0002@v1-0"
-          ]
+          "pageStart": 20,
+          "pageEnd": 21,
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
         },
         {
-          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json",
-          "sourceSha256": "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3",
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 49,
+          "pageEnd": 50,
+          "exactText": "5.3 Carbon Pools\n\n5.3.1 General\nAny significant decreases in carbon stock in the project scenario and any significant increases in carbon stock in the baseline scenario must be accounted for. In addition, decreases in the baseline scenario and increases in the project scenario can be accounted for. Where REDD activities take place on wetlands, the project must account for expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario, unless they are deemed de minimis. The significance of this pool may be determined by using the tool T-SIG or Appendix 1. Significance of pools must be determined ex-ante or at baseline reassessment for a specific baseline validity period, as well as at verification for a specific monitoring period.\n\nSelection of carbon pools and the appropriate justification must be presented in PD and in the monitoring report (MR)."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 18,
+          "pageEnd": 20,
+          "exactText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 27,
+          "pageEnd": 28,
+          "exactText": "5.3.3 WRC\n\nThe carbon pools included in or excluded from the boundary of the WRC component are shown in Table 6 below. The selection of carbon pools and the appropriate justification must be provided in the PD."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 50,
+          "pageEnd": 52,
+          "exactText": "5.4.2 REDD\n\nThe GHG emission sources included in or excluded from the boundary of the REDD project activity are shown in Table 7 below. The selection of sources and the appropriate justification must be provided in the PD."
+        },
+        {
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "methodologyId": "VM0007",
+          "methodologyVersion": "v1.8",
+          "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+          "sectionId": "S-2",
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary",
+          "pageStart": 21,
           "pageEnd": 24,
-          "exactText": "Section context: Project Boundary."
+          "exactText": "5.4.1 General\n\nThe project must account for any significant increases in emissions of carbon dioxide (CO2), nitrous oxide (N2O) and methane (CH4) relative to the baseline that are reasonably attributable to the project activity, with additional guidance provided in Table 6, Table 7, and Table 8.\n\nT-SIG or Appendix 1 may be used to determine whether an emissions source is significant. If a source is included in the estimation of baseline emissions, it must also be included in the calculation of project and leakage emissions."
         }
       ],
       "frozenMachineRowHash": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
@@ -255,6 +581,7 @@
             "documentName": "12-maya-forest-corridor-redd-belize.pdf",
             "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
           },
+          "pageReferenceType": "INHERITED_EXTRACTION_PAGE",
           "provenance": {
             "documentId": "quick-check-review-question",
             "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -262,6 +589,12 @@
             "sectionHeading": "Carbon pools",
             "spanId": "quick-check-review-question:element:paragraph:3.1.3.3",
             "sourceType": "PDD"
+          },
+          "sourceAudit": {
+            "originalPacketPage": 1,
+            "originalPacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+            "originalPacketSha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
+            "pageWasNotNormalized": true
           }
         }
       ],

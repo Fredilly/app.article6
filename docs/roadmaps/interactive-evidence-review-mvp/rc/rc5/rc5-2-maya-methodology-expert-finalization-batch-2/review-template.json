@@ -1,32 +1,35 @@
 {
-  "schemaVersion": "rc5-2-maya-methodology-expert-finalization-batch-2-response-v1",
-  "responses": [
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+  "schemaVersion": "rc5-2-maya-methodology-expert-finalization-batch-2-blank-template-v1",
+  "responses": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
       "expertAnalysis": null,
       "applicabilityDetermination": null,
       "evidenceSufficiency": null,
-      "supportingEvidence": [],
+      "supportingMethodologyEvidence": [],
+      "supportingProjectEvidence": [],
       "missingEvidence": [],
+      "reasoning": null,
       "notes": null
     },
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
       "expertAnalysis": null,
       "applicabilityDetermination": null,
       "evidenceSufficiency": null,
-      "supportingEvidence": [],
+      "supportingMethodologyEvidence": [],
+      "supportingProjectEvidence": [],
       "missingEvidence": [],
+      "reasoning": null,
       "notes": null
     },
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
       "expertAnalysis": null,
       "applicabilityDetermination": null,
       "evidenceSufficiency": null,
-      "supportingEvidence": [],
+      "supportingMethodologyEvidence": [],
+      "supportingProjectEvidence": [],
       "missingEvidence": [],
+      "reasoning": null,
       "notes": null
     }
-  ]
+  }
 }
