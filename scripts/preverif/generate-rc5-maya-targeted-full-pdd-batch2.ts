@@ -23,6 +23,8 @@ const read = <T>(p: string): T => JSON.parse(fs.readFileSync(p, "utf8")) as T;
 const write = (p: string, v: unknown) => fs.writeFileSync(p, `${JSON.stringify(v, null, 2)}\n`);
 type Page = { pageNumber: number; text: string };
 type Spec = { page: number; heading: string; marker: string; length: number; role: "direct" | "context" | "conflicting_or_insufficient"; note: string };
+type EvidenceReference = { quote: string; page: number; sectionHeading: string; spanId: string; documentId: string; documentSha256: string };
+type CompletedResponse = { decisions: Array<{ stableRuleId: string; machineRowSha256: string; reviewStatus: string; acceptedEvidence: EvidenceReference[]; rejectedEvidence: EvidenceReference[]; [key: string]: unknown }>; [key: string]: unknown };
 
 const requirements: Record<string, string> = {
   [ids[0]]: "Strict no-overlap rule. REDD+WRC combination is the sole exception.",
@@ -106,6 +108,46 @@ function candidate(spec: Spec, pages: Page[], index: number) {
 function truthInventory() {
   const decisions = truthFiles.flatMap((file) => read<{ decisions: Array<{ reviewStatus: string; stableRuleId: string }> }>(path.join(root, file)).decisions);
   return { total: decisions.length, unique: new Set(decisions.map((d) => d.stableRuleId)).size, reviewed: decisions.filter((d) => d.reviewStatus === "REVIEWED").length, provisional: decisions.filter((d) => d.reviewStatus === "PROVISIONAL").length };
+}
+
+function evidenceKey(evidence: EvidenceReference): string {
+  const candidateSectionHeading = (evidence as EvidenceReference & { heading?: string }).sectionHeading ?? (evidence as EvidenceReference & { heading?: string }).heading;
+  return JSON.stringify([evidence.quote, evidence.page, candidateSectionHeading, evidence.spanId, evidence.documentId, evidence.documentSha256]);
+}
+
+function requireExactRuleSet(actual: string[], expected: string[], label: string): void {
+  if (actual.length !== expected.length) throw new Error(`${label}: expected ${expected.length} decisions, got ${actual.length}`);
+  if (new Set(actual).size !== actual.length) throw new Error(`${label}: duplicate stableRuleId`);
+  const actualSet = new Set(actual); const expectedSet = new Set(expected);
+  if (actualSet.size !== expectedSet.size || actual.some((id) => !expectedSet.has(id))) throw new Error(`${label}: rule-ID set mismatch`);
+}
+
+/** Validate a completed independent response against this batch's exact frozen packet. */
+export function validateCompletedResponse(response: CompletedResponse, packet: any): true {
+  if (!response || !Array.isArray(response.decisions)) throw new Error("completed response: decisions must be an array");
+  const expectedRuleIds = packet.selectedRuleIds;
+  if (!Array.isArray(expectedRuleIds) || expectedRuleIds.length !== ids.length) throw new Error("completed response: packet rule set is not the frozen nine-rule set");
+  requireExactRuleSet(response.decisions.map((decision) => decision?.stableRuleId), expectedRuleIds, "completed response");
+  const packetRules = new Map(packet.rules.map((rule: any) => [rule.stableRuleId, rule]));
+  if (packetRules.size !== expectedRuleIds.length || expectedRuleIds.some((id: string) => !packetRules.has(id))) throw new Error("completed response: packet rules do not exactly cover the frozen rule set");
+  for (const decision of response.decisions) {
+    if (decision.reviewStatus === "PENDING_INDEPENDENT_ADJUDICATION") throw new Error(`completed response: pending decision ${decision.stableRuleId}`);
+    const rule = packetRules.get(decision.stableRuleId);
+    if (!rule || decision.machineRowSha256 !== rule.frozenMachineRowSha256) throw new Error(`completed response: machine row binding failed for ${decision.stableRuleId}`);
+    if (!Array.isArray(decision.acceptedEvidence) || !Array.isArray(decision.rejectedEvidence)) throw new Error(`completed response: evidence arrays missing for ${decision.stableRuleId}`);
+    const candidateKeys = new Set(rule.candidateEvidence.map((evidence: EvidenceReference) => evidenceKey(evidence)));
+    const acceptedKeys = new Set<string>(); const rejectedKeys = new Set<string>();
+    for (const [label, evidenceList, seen] of [["acceptedEvidence", decision.acceptedEvidence, acceptedKeys], ["rejectedEvidence", decision.rejectedEvidence, rejectedKeys] ] as const) {
+      for (const evidence of evidenceList) {
+        const key = evidenceKey(evidence);
+        if (seen.has(key)) throw new Error(`completed response: duplicate ${label} for ${decision.stableRuleId}`);
+        seen.add(key);
+        if (!candidateKeys.has(key)) throw new Error(`completed response: evidence provenance not in frozen candidates for ${decision.stableRuleId}`);
+      }
+    }
+    for (const key of acceptedKeys) if (rejectedKeys.has(key)) throw new Error(`completed response: evidence appears in both accepted and rejected for ${decision.stableRuleId}`);
+  }
+  return true;
 }
 
 export function buildArtifacts() {

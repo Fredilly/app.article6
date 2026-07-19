@@ -5,12 +5,49 @@ import os from "node:os";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
-import { buildArtifacts, ids, packetDir, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
+import { buildArtifacts, ids, packetDir, validateCompletedResponse, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
 
 const root = process.cwd();
 const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).digest("hex");
 const read = <T>(p: string): T => JSON.parse(fs.readFileSync(p, "utf8")) as T;
 const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)];
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
+function validCompletedResponse(packet: any): any {
+  return {
+    schemaVersion: "rc5-2-maya-targeted-full-pdd-batch-2-response-v1",
+    sourceDocument: clone(packet.sourceDocument),
+    machineProposalRef: clone(packet.frozenMachineProposal),
+    decisions: packet.rules.map((rule: any) => ({
+      stableRuleId: rule.stableRuleId,
+      machineRowSha256: rule.frozenMachineRowSha256,
+      reviewStatus: "REVIEWED",
+      expertReviewRequired: false,
+      finalEvidenceState: "FOUND",
+      finalApplicability: "APPLICABLE",
+      reviewerOutcome: "ACTION_REQUIRED",
+      acceptedEvidence: [clone(rule.candidateEvidence[0])].map((evidence: any) => ({ quote: evidence.quote, page: evidence.page, sectionHeading: evidence.heading, spanId: evidence.spanId, documentId: evidence.documentId, documentSha256: evidence.documentSha256 })),
+      rejectedEvidence: [],
+      contradictionState: "NONE",
+      draftFindingCandidate: null,
+      assessmentReason: "Synthetic completed-response validation fixture.",
+      gap: null,
+      clientAction: null,
+      correctionReason: "Synthetic fixture only.",
+      provisionalReason: null,
+      genericFailureCategory: "NONE",
+      reviewerConfidence: "MEDIUM",
+    })),
+  };
+}
+
+function assertCompletedResponseRejected(mutator: (response: any, packet: any) => void): void {
+  const { packet, schema } = buildArtifacts(); const response = validCompletedResponse(packet); mutator(response, packet);
+  const validate = new Ajv2020({ strict: false }).compile(schema);
+  // Some mutations are intentionally structural schema failures; semantic validation must still fail closed.
+  validate(response);
+  assert.throws(() => validateCompletedResponse(response, packet));
+}
 
 describe("RC5-2 Maya targeted full-PDD batch 2", () => {
   it("contains exactly the nine requested rules, with no R-2-0008", () => {
@@ -49,6 +86,42 @@ describe("RC5-2 Maya targeted full-PDD batch 2", () => {
     assert.equal(JSON.stringify(artifacts.template).includes("reviewed-truth"), false);
     assert.equal(JSON.stringify(artifacts.packet).includes("reviewed-truth.json"), false);
     assert.equal(fs.existsSync(path.join(packetDir, "reviewed-truth.json")), false);
+  });
+
+  it("validates a fully populated synthetic response against the exact frozen packet", () => {
+    const { packet, schema, template } = buildArtifacts();
+    const validate = new Ajv2020({ strict: false }).compile(schema);
+    const response = validCompletedResponse(packet);
+    assert.equal(validate(response), true, JSON.stringify(validate.errors));
+    assert.equal(validateCompletedResponse(response, packet), true);
+    response.decisions.reverse();
+    assert.equal(validateCompletedResponse(response, packet), true);
+    assert.throws(() => validateCompletedResponse(template, packet), /pending decision/);
+  });
+
+  it("fails closed for duplicate, missing, and extra rule IDs", () => {
+    assertCompletedResponseRejected((response) => { response.decisions[1].stableRuleId = response.decisions[0].stableRuleId; });
+    assertCompletedResponseRejected((response) => { response.decisions.pop(); });
+    assertCompletedResponseRejected((response, packet) => { response.decisions[0].stableRuleId = "Verra.AFOLU.VM0007.v1-8.R-2-0008"; response.decisions.push(clone(response.decisions[1])); response.decisions[9].stableRuleId = packet.rules[0].stableRuleId; });
+  });
+
+  it("fails closed for wrong machine-row hashes and every provenance mutation", () => {
+    const mutations: Array<(response: any, packet: any) => void> = [
+      (response) => { response.decisions[0].machineRowSha256 = "0".repeat(64); },
+      (response) => { response.decisions[0].acceptedEvidence[0].quote += " mutated"; },
+      (response) => { response.decisions[0].acceptedEvidence[0].page += 1; },
+      (response) => { response.decisions[0].acceptedEvidence[0].sectionHeading += " mutated"; },
+      (response) => { response.decisions[0].acceptedEvidence[0].spanId += " mutated"; },
+      (response) => { response.decisions[0].acceptedEvidence[0].documentId = "invented-document"; },
+      (response) => { response.decisions[0].acceptedEvidence[0].documentSha256 = "f".repeat(64); },
+      (response, packet) => { response.decisions[0].acceptedEvidence[0] = clone(packet.rules[1].candidateEvidence[0]); },
+    ];
+    for (const mutation of mutations) assertCompletedResponseRejected(mutation);
+  });
+
+  it("fails closed for duplicate and conflicting evidence assignments", () => {
+    assertCompletedResponseRejected((response) => { response.decisions[0].acceptedEvidence.push(clone(response.decisions[0].acceptedEvidence[0])); });
+    assertCompletedResponseRejected((response) => { response.decisions[0].rejectedEvidence.push(clone(response.decisions[0].acceptedEvidence[0])); });
   });
 
   it("regenerates deterministically and pins every generated file", () => {
