@@ -37,16 +37,27 @@
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
-      "rejectedEvidence": [],
+      "rejectedEvidence": [
+        {
+          "quote": "The design of the project is rooted in WCS’s anti-discrimination policies as well as its policies on diversity and inclusion which state that WCS values diversity and prohibits discrimination based on race, national origin, color, sex, sexual orientation, age, disability, veteran status and other protected classifications. The WCS community is committed to ensuring that no one, including our valued employees, diverse suppliers, interested job applicants, and guests to our facilities, is excluded or discriminated against in WCS’s programs and activities. WCS will ensure that staff and key project stakeholders are continuously sensitized and trained in adherence to its anti-discrimination policies and that channels are available and publicized for reporting any violations. WCS also promotes a zero-tolerance policy on sexual harassment.",
+          "page": 59,
+          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
+          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_scope",
+          "reason": "Machine accepted this anti-discrimination policy text as evidence, but it is completely irrelevant to the conservation activity type rule."
+        }
+      ],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
       "assessmentReason": "Official VM0007 v1.8 PDF Section 4.3.3 CIW places the tidal wetland conservation condition under the WRC branch. Maya project is REDD/APDef with no peatlands or tidal wetlands. Condition does not apply to REDD-only projects.",
       "gap": null,
       "clientAction": null,
       "correctionReason": "Previously PROVISIONAL. Official PDF confirms WRC-only scope. No WRC components in Maya project. Resolved NOT_APPLICABLE.",
-      "provisionalReason": null,
       "genericFailureCategory": "ASSESSMENT",
-      "reviewerConfidence": "HIGH"
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
@@ -98,16 +109,27 @@
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
-      "rejectedEvidence": [],
+      "rejectedEvidence": [
+        {
+          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5 as well as CCB Program Rules 4.2.4 and 4.6.4 including the following: - The project GHG accounting is guided by the following principles set out in section 2.2.1 of the Standard including relevance, completeness, consistency, accuracy, transparency, and conservativeness. - The project applies in full the latest version of an eligible methodology under the VCS Program along with the full application of the tools and modules identified in the methodology specific to the project activity type. - The project and implementation of project activities do not violate any laws. - According to the VCS Methodology Requirements, eligible REDD activities are those that reduce GHG emissions by reducing deforestation and / or degradation of forests. Deforestation is the direct, human-induced conversion of forest land to non-forest land. As such, this is the correct project category under VCS Scope 14. The forests of the project area also meet the Belize national definition of forest according to its 2001-2015 Forest Reference Emission Level submitted to the UNFCCC (Forest Department, 2020). Only areas that met the definition of forests for a minimum of 10 years before the project start date were included to ensure that no ecosystems had been converted to generate GHG credits. - In this project, the implementing partner, Wildlife Conservation Society, is acting in partnership with the project proponent, the Maya Forest Corridor Trust. Its roles and responsibilities are defined in section 2.1.8 of this document. - The project proponent will demonstrate during each verification period that the project activities have led to the intended GHG benefits. - The project will reassess the Avoiding Planned Deforestation (APD) baseline (where the agent is unknown) every six years according to the VCS Program rules and the appropriate methodology and will capture changes in the deforestation drivers and new relevant policies and circumstances.",
+          "page": 15,
+          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "project_specific_implementation",
+          "reason": "Machine accepted the general project eligibility statement as evidence, but it does not address wetland degradation criteria. The rule is about AUDef parallels for wetlands, which does not apply to this REDD project."
+        }
+      ],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
       "assessmentReason": "Official VM0007 v1.8 PDF places wetland degradation agent conditions under WRC branch (Section 4.3). Maya project is REDD/APDef with no wetlands, using VMD0006 (BL-PL). Condition does not apply to REDD-only projects.",
       "gap": null,
       "clientAction": null,
       "correctionReason": "Previously PROVISIONAL. Official PDF confirms wetland degradation agent conditions belong to WRC branch. Maya project is REDD/APDef. Resolved NOT_APPLICABLE.",
-      "provisionalReason": null,
       "genericFailureCategory": "ASSESSMENT",
-      "reviewerConfidence": "HIGH"
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",

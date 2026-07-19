@@ -21,7 +21,15 @@
   "reviewedTruthSourceSha256": {
     "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
     "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
-    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "1cdcd868c3dff4305f9acda0d38495b9d03112447d8310b901edec4ddee9d7ee",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "2f53f56d84c47691549ee53e6f3fad57a5034f0277b6e298dd50bd071b205413",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "preIntegrationReviewedTruthSourceSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
     "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
     "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
     "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"

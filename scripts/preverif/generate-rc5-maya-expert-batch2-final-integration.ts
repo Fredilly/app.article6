@@ -23,6 +23,15 @@ export const machineRowSha256: Record<string, string> = {
   [ruleIds[2]]: "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
 };
 const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].map((f) => path.join(root, f));
+export const truthRelativeFiles = truthFiles.map((f) => path.relative(root, f));
+export const preIntegrationTruthSha256: Record<string, string> = {
+  [truthRelativeFiles[0]]: "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+  [truthRelativeFiles[1]]: "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+  [truthRelativeFiles[2]]: "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
+  [truthRelativeFiles[3]]: "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+  [truthRelativeFiles[4]]: "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+  [truthRelativeFiles[5]]: "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00",
+};
 const sha = (v: Buffer | string) => crypto.createHash("sha256").update(v).digest("hex");
 const json = <T>(p: string): T => JSON.parse(fs.readFileSync(p, "utf8")) as T;
 const cloned = <T>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -30,6 +39,7 @@ const fileSha = (p: string) => sha(fs.readFileSync(p));
 const response = () => json<any>(responsePath);
 const packet = () => json<any>(packetPath);
 const baseTruth = () => JSON.parse(execFileSync("git", ["show", `${baseCommit}:${truthRelativePath}`], { cwd: root, encoding: "utf8" }));
+const baseBytes = (relativeFile: string) => execFileSync("git", ["show", `${baseCommit}:${relativeFile}`], { cwd: root });
 const immutable = [
   [path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf"), "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6"],
   [path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"), "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561"],
@@ -64,20 +74,50 @@ export function validateIntegration(candidate = response()) {
   return true;
 }
 
+const finalizedFields = ["reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "genericFailureCategory", "reviewerConfidence"] as const;
+export function mergeResolvedRow(existing: any, incoming: any) {
+  const merged = cloned(existing);
+  for (const field of finalizedFields) merged[field] = cloned(incoming[field]);
+  return merged;
+}
+
 export function buildIntegratedTruth() {
   validateIntegration();
   const next = cloned(baseTruth());
   for (const ruleId of resolvedRuleIds) {
     const i = next.decisions.findIndex((r: any) => r.stableRuleId === ruleId);
     if (i < 0) throw new Error(`truth row missing: ${ruleId}`);
-    next.decisions[i] = cloned(response().responses[ruleId].finalRuleDecision);
+    next.decisions[i] = mergeResolvedRow(next.decisions[i], response().responses[ruleId].finalRuleDecision);
   }
   if (next.decisions.find((r: any) => r.stableRuleId === ruleIds[2]).reviewStatus !== "PROVISIONAL") throw new Error("R-2-0008 was changed");
   return next;
 }
 
-function counts() {
-  return truthFiles.reduce((c, file) => { for (const row of json<any>(file).decisions) c[row.reviewStatus === "REVIEWED" ? "reviewed" : "provisional"]++; return c; }, { reviewed: 0, provisional: 0 });
+function currentTruthBytes() { return Object.fromEntries(truthFiles.map((file) => [path.relative(root, file), fs.readFileSync(file)])); }
+function reviewedRowsDigest(bytesByFile: Record<string, Buffer>) {
+  const rows = Object.values(bytesByFile).flatMap((bytes) => JSON.parse(bytes.toString("utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED")).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
+  return sha(JSON.stringify(rows));
+}
+export function validateTruthProtection(candidateBytes = currentTruthBytes()) {
+  for (const relativeFile of truthRelativeFiles) {
+    const frozen = baseBytes(relativeFile);
+    if (sha(frozen) !== preIntegrationTruthSha256[relativeFile]) throw new Error(`pre-integration truth pin failed: ${relativeFile}`);
+    if (!candidateBytes[relativeFile]) throw new Error(`truth file missing: ${relativeFile}`);
+  }
+  const expectedBatch3 = Buffer.from(`${JSON.stringify(buildIntegratedTruth(), null, 2)}\n`);
+  for (const relativeFile of truthRelativeFiles) {
+    const expected = relativeFile === truthRelativePath ? expectedBatch3 : baseBytes(relativeFile);
+    if (!candidateBytes[relativeFile].equals(expected)) throw new Error(`truth file or unrelated row changed: ${relativeFile}`);
+  }
+  const beforeBytes = Object.fromEntries(truthRelativeFiles.map((file) => [file, baseBytes(file)]));
+  const digest = reviewedRowsDigest(beforeBytes);
+  if (digest !== "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1") throw new Error("unchanged 39-row digest changed");
+  const before = Object.values(beforeBytes).flatMap((bytes) => JSON.parse(bytes.toString("utf8")).decisions);
+  const after = Object.values(candidateBytes).flatMap((bytes) => JSON.parse(bytes.toString("utf8")).decisions);
+  const beforeCounts = { reviewed: before.filter((r: any) => r.reviewStatus === "REVIEWED").length, provisional: before.filter((r: any) => r.reviewStatus === "PROVISIONAL").length };
+  const afterCounts = { reviewed: after.filter((r: any) => r.reviewStatus === "REVIEWED").length, provisional: after.filter((r: any) => r.reviewStatus === "PROVISIONAL").length };
+  if (beforeCounts.reviewed !== 39 || beforeCounts.provisional !== 19 || afterCounts.reviewed !== 41 || afterCounts.provisional !== 17) throw new Error(`truth inventory mismatch: ${JSON.stringify({ beforeCounts, afterCounts })}`);
+  return { beforeCounts, afterCounts, digest };
 }
 
 export function writeArtifacts() {
@@ -85,9 +125,8 @@ export function writeArtifacts() {
   const next = buildIntegratedTruth();
   for (const row of before.decisions) if (!resolvedRuleIds.includes(row.stableRuleId) && JSON.stringify(row) !== JSON.stringify(next.decisions.find((r: any) => r.stableRuleId === row.stableRuleId))) throw new Error(`unrelated row changed: ${row.stableRuleId}`);
   fs.writeFileSync(truthPath, `${JSON.stringify(next, null, 2)}\n`);
-  const beforeCounts = { reviewed: 39, provisional: 19 };
-  const afterCounts = counts();
-  if (afterCounts.reviewed !== 41 || afterCounts.provisional !== 17) throw new Error(`inventory mismatch: ${JSON.stringify(afterCounts)}`);
+  const protection = validateTruthProtection();
+  const afterCounts = protection.afterCounts;
   const manifest = {
     schemaVersion: "rc5-2-maya-expert-batch-2-final-integration-manifest-v1",
     mergedPr1089Commit: baseCommit,
@@ -99,14 +138,15 @@ export function writeArtifacts() {
     mayaSource: { pdfSha256: immutable[2][1], extractionSha256: immutable[3][1] },
     machineRowSha256,
     reviewedTruthSourceSha256: Object.fromEntries(truthFiles.map((f) => [path.relative(root, f), fileSha(f)])),
-    beforeReviewedTruthSourceSha256: Object.fromEntries(truthFiles.map((f) => [path.relative(root, f), sha(execFileSync("git", ["show", `${baseCommit}:${path.relative(root, f)}`], { cwd: root }))])),
-    beforeInventory: beforeCounts,
+    preIntegrationReviewedTruthSourceSha256: preIntegrationTruthSha256,
+    beforeReviewedTruthSourceSha256: preIntegrationTruthSha256,
+    beforeInventory: protection.beforeCounts,
     afterInventory: afterCounts,
     integratedRuleIds: [...resolvedRuleIds],
     unresolved: { [ruleIds[2]]: response().responses[ruleIds[2]].remainingBlockers },
     changedReviewedTruthFile: truthRelativePath,
     changedRows: [...resolvedRuleIds],
-    unchangedReviewedRowsSemanticSha256: "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1",
+    unchangedReviewedRowsSemanticSha256: protection.digest,
     noNewReviewedTruthFile: true,
   };
   fs.writeFileSync(path.join(integrationDir, "integration-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
