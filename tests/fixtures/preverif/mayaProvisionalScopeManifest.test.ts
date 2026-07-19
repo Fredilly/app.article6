@@ -19,17 +19,17 @@ const preChangeFileSha256: Record<string, string> = {
 };
 
 describe("RC5-2 Maya provisional independent-review scope", () => {
-  it("inventories exactly the 19 provisional rules without duplicates", () => {
+  it("inventories exactly the 15 provisional rules without duplicates", () => {
     const manifest = buildScopeManifest();
     const ids = manifest.rules.map((rule) => rule.stableRuleId);
 
-    assert.deepEqual(manifest.inventory, { totalRules: 58, uniqueRuleCount: 58, reviewedRuleCount: 41, provisionalRuleCount: 17 });
-    assert.equal(ids.length, 17);
-    assert.equal(new Set(ids).size, 17);
+    assert.deepEqual(manifest.inventory, { totalRules: 58, uniqueRuleCount: 58, reviewedRuleCount: 43, provisionalRuleCount: 15 });
+    assert.equal(ids.length, 15);
+    assert.equal(new Set(ids).size, 15);
     assert.ok(manifest.rules.every((rule) => rule.reviewStatus === "PROVISIONAL"));
     assert.deepEqual(manifest.groupCounts, {
       CAN_FINALIZE_FROM_EXISTING_PACKET: 0,
-      REQUIRES_TARGETED_FULL_PDD_RETRIEVAL: 16,
+      REQUIRES_TARGETED_FULL_PDD_RETRIEVAL: 14,
       REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION: 1,
       BLOCKED_BY_PROVENANCE_OR_SCHEMA: 0,
     });
@@ -39,8 +39,8 @@ describe("RC5-2 Maya provisional independent-review scope", () => {
     const manifest = buildScopeManifest();
     const batchIds = manifest.recommendedBatches.flatMap((batch) => batch.ruleIds);
 
-    assert.deepEqual(manifest.recommendedBatches.map((batch) => batch.ruleIds.length), [9, 8]);
-    assert.equal(new Set(batchIds).size, 17);
+    assert.deepEqual(manifest.recommendedBatches.map((batch) => batch.ruleIds.length), [7, 8]);
+    assert.equal(new Set(batchIds).size, 15);
     assert.deepEqual([...batchIds].sort(), manifest.rules.map((rule) => rule.stableRuleId).sort());
   });
 
@@ -48,7 +48,6 @@ describe("RC5-2 Maya provisional independent-review scope", () => {
     const manifest = buildScopeManifest();
     assert.equal(sha256(fs.readFileSync(machineTruthPath)), manifest.machineTruth.sha256);
     for (const relativePath of [
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
       ...[2, 5, 6].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`),
     ]) {
       assert.equal(sha256(fs.readFileSync(path.join(root, relativePath))), preChangeFileSha256[relativePath], relativePath);

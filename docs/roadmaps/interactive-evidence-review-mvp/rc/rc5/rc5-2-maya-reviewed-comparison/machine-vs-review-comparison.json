@@ -2,7 +2,7 @@
   "schemaVersion": "rc5-2-maya-machine-vs-review-comparison-v1",
   "source": {
     "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json",
-    "responseSha256": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "responseSha256": "759bed8b3e5c611dc5f20434bd06ad2576018195f3fbd6c4feb38897bb1830d4",
     "schemaPath": "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json",
     "frozenProposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
     "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
@@ -54,8 +54,9 @@
       }
     },
     "failureTaxonomy": {
-      "RETRIEVAL": 6,
+      "RETRIEVAL": 5,
       "APPLICABILITY": 3,
+      "COMPONENT_COVERAGE": 1,
       "NONE": 1
     }
   },
@@ -335,7 +336,7 @@
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
         "reviewerOutcome": "ACTION_REQUIRED",
-        "acceptedEvidenceCount": 1,
+        "acceptedEvidenceCount": 6,
         "rejectedEvidenceCount": 0
       },
       "fieldMatches": {
@@ -352,7 +353,7 @@
       "fullyCorrect": false,
       "anyDisagreement": true,
       "diagnosticNote": "Rejected-candidate handling differs; this is reported diagnostically and is not part of the machine-correctness fields.",
-      "genericFailureCategory": "RETRIEVAL"
+      "genericFailureCategory": "COMPONENT_COVERAGE"
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",

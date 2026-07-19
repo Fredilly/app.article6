@@ -151,10 +151,7 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
   it("leaves machine truth, existing reviewed truth, and retrospective artifacts unchanged", () => {
     const unchangedPaths = [
       "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
     ];
     for (const relativePath of unchangedPaths) {

@@ -133,22 +133,16 @@ export function assertSourceAndTruthPins() {
   if (sha256(fs.readFileSync(responsePath)) !== expertResponseSha256) throw new Error("Merged expert response SHA changed");
   if (sha256(fs.readFileSync(integrationManifestPath)) !== integrationManifestSha256) throw new Error("Integration manifest SHA changed");
   if (sha256(fs.readFileSync(machineProposalPath)) !== machineProposalSha256) throw new Error("Machine proposal SHA changed");
-  reviewedTruthFiles.forEach((file, i) => {
-    if (i === 2) {
-      const current = readJson<any>(path.join(root, file));
-      const base = JSON.parse(execFileSync("git", ["show", `${finalIntegrationBaseCommit}:${file}`], { cwd: root, encoding: "utf8" }));
-      for (const row of base.decisions) {
-        const currentRow = current.decisions.find((candidate: any) => candidate.stableRuleId === row.stableRuleId);
-        if (!currentRow || (!finalIntegrationRuleIds.has(row.stableRuleId) && JSON.stringify(currentRow) !== JSON.stringify(row))) throw new Error(`Unrelated reviewed truth changed: ${file}:${row.stableRuleId}`);
-      }
-      return;
-    }
-    if (sha256(fs.readFileSync(path.join(root, file))) !== reviewedTruthSha256[i]) throw new Error(`Reviewed truth changed: ${file}`);
-  });
+  const subsequentTargetedIntegrationCommit = "747bf16c7a2422157d776d565db82ec0fa3f1443";
+  for (const file of reviewedTruthFiles) {
+    const current = fs.readFileSync(path.join(root, file));
+    const expected = execFileSync("git", ["show", `${subsequentTargetedIntegrationCommit}:${file}`], { cwd: root });
+    if (!current.equals(expected)) throw new Error(`Reviewed truth changed after the authorized targeted integration: ${file}`);
+  }
   const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(execFileSync("git", ["show", `${finalIntegrationBaseCommit}:${file}`], { cwd: root, encoding: "utf8" })).decisions.filter((row: any) => row.reviewStatus === "REVIEWED")).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
   if (rows.length !== 39 || sha256(JSON.stringify(rows)) !== reviewedRowsSha256) throw new Error("39 reviewed rows or digest changed");
   const provisional = readJson<any>(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json")).inventory;
-  if (provisional.reviewedRuleCount !== 41 || provisional.provisionalRuleCount !== 17) throw new Error("41/17 inventory changed");
+  if (provisional.reviewedRuleCount !== 43 || provisional.provisionalRuleCount !== 15) throw new Error("43/15 inventory changed");
 }
 
 export function validatePacket(candidatePacket: any, overrides: { officialExtraction?: OfficialExtraction; officialExtractionBytes?: Buffer | string; pdd?: { pages: Page[] }; pddExtractionBytes?: Buffer | string } = {}) {

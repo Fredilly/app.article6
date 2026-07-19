@@ -46,6 +46,10 @@ const keyForPacketContext = (context: {
   context.documentIdentity.documentId,
   context.documentIdentity.contentSha256,
 ].join("\u0001");
+const authorizedTargetRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+]);
 
 describe("RC5-2 Maya Batch 4 reviewed truth", () => {
   it("matches the canonical Batch 4 packet, schema, and frozen inputs without changing machine truth", () => {
@@ -72,8 +76,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
     assert.deepEqual(truth.decisions.map((decision: any) => decision.stableRuleId), packet.selectedRuleIds);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selection.expectedRuleIds);
 
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 7);
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 3);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 8);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 2);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "PENDING_INDEPENDENT_ADJUDICATION"), false);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "REVIEWED"), true);
     assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").every((decision: any) => decision.expertReviewRequired === true), true);
@@ -125,7 +129,7 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
         });
       };
 
-      if (decision.reviewStatus === "PROVISIONAL") {
+      if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId)) {
         compareEvidenceSet(decision.acceptedEvidence, "accepted");
         compareEvidenceSet(decision.rejectedEvidence, "rejected");
         for (const evidence of [...decision.acceptedEvidence, ...decision.rejectedEvidence]) {
@@ -162,8 +166,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       return counts;
     }, {});
 
-    assert.deepEqual(statusCounts, { REVIEWED: 7, PROVISIONAL: 3 });
-    assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 3, FOUND: 1 });
-    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, RETRIEVAL: 3 });
+    assert.deepEqual(statusCounts, { REVIEWED: 8, PROVISIONAL: 2 });
+    assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 2, FOUND: 2 });
+    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 1, NONE: 1, RETRIEVAL: 1 });
   });
 });
