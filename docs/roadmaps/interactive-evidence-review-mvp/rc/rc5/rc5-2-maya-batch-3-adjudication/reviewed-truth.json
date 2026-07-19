@@ -14,82 +14,100 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
       "machineRowSha256": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
       "finalEvidenceState": "N/A",
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "acceptedEvidence": [
         {
-          "quote": "Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) Where conversion of forest land to a deforested condition is legally permitted The conversion of the Project Activity Instance to agriculture is legal, as defined under the Land Utilization Act, Chapter 188, revised Edition 2000, the Private Forest (Conservation) Act, Chapter 217 Revised Edition 2000, and the Forest Act Chapter 213, Revised Edition 2003. VMD0002 This module is applicable to all forest types and age classes. This module is applicable if the dead wood pool is included as part of the project boundary as per applicability criteria in the framework module REDD-MF. Project area is forested. VMD0004 This module is applicable to non- organic soils under all forest types and age classes. All soils in the project area are non- organic. VMD0006 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non-forest land. Conversion of forestlands to a deforested condition is legally permitted. VMD0009 The module is applicable for estimating the leakage emissions due to activity shifting from forest lands that are legally authorized and documented to be converted to non- forest land. The module is mandatory if Module BL-PL has been used to define the baseline. Module BL-PL was used to define the baseline thus module is mandatory. VMD0013 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with […]",
+          "quote": "AFOLU project category 13 Reduced Emissions from Deforestation and Degradation (REDD)\nProject activity type Avoiding planned deforestation",
+          "page": 15,
+          "sectionHeading": "2.1.3 Project Type",
+          "spanId": "quick-check-review-question:element:paragraph:2.1.3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
           "page": 84,
-          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "sectionHeading": "3.1.2 Applicability of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2:wetlands",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
-      "rejectedEvidence": [
-        {
-          "quote": "The design of the project is rooted in WCS’s anti-discrimination policies as well as its policies on diversity and inclusion which state that WCS values diversity and prohibits discrimination based on race, national origin, color, sex, sexual orientation, age, disability, veteran status and other protected classifications. The WCS community is committed to ensuring that no one, including our valued employees, diverse suppliers, interested job applicants, and guests to our facilities, is excluded or discriminated against in WCS’s programs and activities. WCS will ensure that staff and key project stakeholders are continuously sensitized and trained in adherence to its anti-discrimination policies and that channels are available and publicized for reporting any violations. WCS also promotes a zero-tolerance policy on sexual harassment.",
-          "page": 59,
-          "sectionHeading": "Anti-Discrimination Assurance (VCS 3.19; CCB, G3.7)",
-          "spanId": "quick-check-review-question:element:paragraph:2.3.14",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
-          "evidenceType": "project_specific_scope",
-          "reason": "Machine accepted this anti-discrimination policy text as evidence, but it is completely irrelevant to the conservation activity type rule."
-        }
-      ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The conservation activity type rule is WRC-specific. The PDD's applicability conditions table (page 84, §3.1.2) states 'The project area contains no peatlands or tidal wetlands', which confirms this rule is NOT_APPLICABLE to the Maya REDD APDef project. The machine's NOT_APPLICABLE determination is correct, but the accepted evidence (anti-discrimination policy) is irrelevant. The correct applicability justification exists in the rejected ctx-003/R-1-0013-rejected-2 span.",
-      "gap": "",
-      "clientAction": "",
-      "correctionReason": "Machine correctly determined NOT_APPLICABLE but accepted irrelevant anti-discrimination evidence. The qualifying evidence (no-peatlands statement) is in the rejected applicability context.",
+      "assessmentReason": "Official VM0007 v1.8 PDF Section 4.3.3 CIW places the tidal wetland conservation condition under the WRC branch. Maya project is REDD/APDef with no peatlands or tidal wetlands. Condition does not apply to REDD-only projects.",
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": "Previously PROVISIONAL. Official PDF confirms WRC-only scope. No WRC components in Maya project. Resolved NOT_APPLICABLE.",
+      "provisionalReason": null,
       "genericFailureCategory": "ASSESSMENT",
-      "reviewerConfidence": "HIGH",
-      "provisionalReason": "The rule is WRC-specific and the PDD confirms no peatlands/wetlands. However, an expert should confirm that 'conservation activity type' is exclusively a WRC concept and that no REDD-specific conservation activities need to be documented under this rule."
+      "reviewerConfidence": "HIGH"
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
       "machineRowSha256": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
       "finalEvidenceState": "N/A",
       "finalApplicability": "NOT_APPLICABLE",
       "reviewerOutcome": "NOT_APPLICABLE",
       "acceptedEvidence": [
         {
-          "quote": "Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) Where conversion of forest land to a deforested condition is legally permitted The conversion of the Project Activity Instance to agriculture is legal, as defined under the Land Utilization Act, Chapter 188, revised Edition 2000, the Private Forest (Conservation) Act, Chapter 217 Revised Edition 2000, and the Forest Act Chapter 213, Revised Edition 2003. VMD0002 This module is applicable to all forest types and age classes. This module is applicable if the dead wood pool is included as part of the project boundary as per applicability criteria in the framework module REDD-MF. Project area is forested. VMD0004 This module is applicable to non- organic soils under all forest types and age classes. All soils in the project area are non- organic. VMD0006 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non-forest land. Conversion of forestlands to a deforested condition is legally permitted. VMD0009 The module is applicable for estimating the leakage emissions due to activity shifting from forest lands that are legally authorized and documented to be converted to non- forest land. The module is mandatory if Module BL-PL has been used to define the baseline. Module BL-PL was used to define the baseline thus module is mandatory. VMD0013 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with […]",
+          "quote": "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF)",
+          "page": 83,
+          "sectionHeading": "3.1.1 Title and Reference of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Module VMD0006 VMD0006 Estimation of baseline",
+          "page": 83,
+          "sectionHeading": "3.1.1 Title and Reference of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.1:vmd0006",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The project area contains no peatlands or tidal wetlands.",
           "page": 84,
-          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "sectionHeading": "3.1.2 Applicability of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2:wetlands",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "baseline deforestation falls within the planned deforestation category.",
+          "page": 84,
+          "sectionHeading": "3.1.2 Applicability of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2:apdef",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Project is a REDD based project thus the module is mandatory.",
+          "page": 86,
+          "sectionHeading": "3.1.2 Applicability of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2:redd",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
-      "rejectedEvidence": [
-        {
-          "quote": "The project complies with the requirements laid out in Sections 3.1, 3.6, 3.8, 3.18, and 4.1 of the VCS Standard v4.5 as well as CCB Program Rules 4.2.4 and 4.6.4 including the following: - The project GHG accounting is guided by the following principles set out in section 2.2.1 of the Standard including relevance, completeness, consistency, accuracy, transparency, and conservativeness. - The project applies in full the latest version of an eligible methodology under the VCS Program along with the full application of the tools and modules identified in the methodology specific to the project activity type. - The project and implementation of project activities do not violate any laws. - According to the VCS Methodology Requirements, eligible REDD activities are those that reduce GHG emissions by reducing deforestation and / or degradation of forests. Deforestation is the direct, human-induced conversion of forest land to non-forest land. As such, this is the correct project category under VCS Scope 14. The forests of the project area also meet the Belize national definition of forest according to its 2001-2015 Forest Reference Emission Level submitted to the UNFCCC (Forest Department, 2020). Only areas that met the definition of forests for a minimum of 10 years before the project start date were included to ensure that no ecosystems had been converted to generate GHG credits. - In this project, the implementing partner, Wildlife Conservation Society, is acting in partnership with the project proponent, the Maya Forest Corridor Trust. Its roles and responsibilities are defined in section 2.1.8 of this document. - The project proponent will demonstrate during each verification period that the project activities have led to the intended GHG benefits. - The project will reassess the Avoiding Planned Deforestation (APD) baseline (where the agent is unknown) every six years according to the VCS Program rules and the appropriate methodology and will capture changes in the deforestation drivers and new relevant policies and circumstances.",
-          "page": 15,
-          "sectionHeading": "Project Eligibility (VCS, 3.1, 3.6, 3.8, 3.18, 4.1; CCB Program Rules, 4.2.4, 4.6.4)",
-          "spanId": "quick-check-review-question:element:paragraph:2.1.4",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
-          "evidenceType": "project_specific_implementation",
-          "reason": "Machine accepted the general project eligibility statement as evidence, but it does not address wetland degradation criteria. The rule is about AUDef parallels for wetlands, which does not apply to this REDD project."
-        }
-      ],
+      "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "This rule is about AUDef criteria parallels for wetland degradation — a WRC-specific concept. The PDD's applicability conditions table (page 84, §3.1.2) states 'The project area contains no peatlands or tidal wetlands', confirming this project is pure REDD APDef, not WRC. This rule is NOT_APPLICABLE. The machine incorrectly marked it as APPLICABLE. The qualifying evidence exists in the rejected ctx-003 span.",
-      "gap": "",
-      "clientAction": "",
-      "correctionReason": "Machine applicability (APPLICABLE) is incorrect — this is a WRC-specific rule and the project has no peatlands/wetlands. The APPLICABLE should be NOT_APPLICABLE.",
-      "genericFailureCategory": "APPLICABILITY",
-      "reviewerConfidence": "HIGH",
-      "provisionalReason": "The rule is WRC-specific and the PDD confirms no wetlands. However, the mapping of this rule to 'wetland degradation only' should be confirmed by an expert to ensure the rule has no REDD application that was overlooked."
+      "assessmentReason": "Official VM0007 v1.8 PDF places wetland degradation agent conditions under WRC branch (Section 4.3). Maya project is REDD/APDef with no wetlands, using VMD0006 (BL-PL). Condition does not apply to REDD-only projects.",
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": "Previously PROVISIONAL. Official PDF confirms wetland degradation agent conditions belong to WRC branch. Maya project is REDD/APDef. Resolved NOT_APPLICABLE.",
+      "provisionalReason": null,
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH"
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
