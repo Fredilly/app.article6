@@ -61,7 +61,7 @@ function failureCodes(fixture: Fixture): AuditInvariantFailureCode[] {
 }
 
 describe("RC5 retrospective audit mutation coverage", () => {
-  it("accepts the current 43/15 truth through both authorized frozen packet sources", () => {
+  it("accepts the current 45/13 truth through all authorized frozen packet sources", () => {
     const report = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/retrospective-audit-report.json"), "utf8"));
     expect(report.mechanicalResult).toBe(true);
     expect(report.authorizedFrozenEvidenceSources).toEqual([
@@ -88,8 +88,6 @@ describe("RC5 retrospective audit mutation coverage", () => {
       expect(validateAuditDecisionInvariants(mutated, contexts).provenanceResult).toBe("FAIL");
     }
     expect(() => loadAuthorizedBlockerResolutionContexts(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json"))).toThrow(/SHA changed/);
-    const files = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
-    const rows = files.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
     const allTruthFiles = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
     const allRows = allTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
     expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(45);

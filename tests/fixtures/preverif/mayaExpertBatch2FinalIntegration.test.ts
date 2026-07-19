@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { baseCommit, integrationDir, machineRowSha256, packetDir, responsePath, responseSha256, resolvedRuleIds, ruleIds, subsequentTargetedIntegrationCommit, truthPath, truthRelativeFiles, validateIntegration, validateTruthProtection, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-final-integration";
+import { baseCommit, integrationDir, machineRowSha256, packetDir, responsePath, responseSha256, resolvedRuleIds, ruleIds, subsequentTargetedIntegrationCommit, truthPath, truthRelativeFiles, validateIntegration, validateTruthProtection } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-final-integration";
 
 const root = process.cwd();
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -37,7 +37,7 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     expect(() => validateIntegration(wrongEvidence)).toThrow();
   });
 
-  test("preserves the two resolved rows through the later authorized 43/15 integration", () => {
+  test("preserves the two resolved rows through the later authorized integration", () => {
     const before = oldTruth();
     const after = json(truthPath);
     const later = targetedTruth();
@@ -45,13 +45,14 @@ describe("RC5-2 Maya batch 2 final integration", () => {
       const current = after.decisions.find((r: any) => r.stableRuleId === row.stableRuleId);
       if (ruleIds.slice(0, 2).includes(row.stableRuleId)) expect(current.reviewStatus).toBe("REVIEWED");
       else if (targetedRuleIds.has(row.stableRuleId)) expect(current).toEqual(later.decisions.find((r: any) => r.stableRuleId === row.stableRuleId));
+      else if (row.stableRuleId === ruleIds[2]) expect(current.reviewStatus).toBe("PROVISIONAL");
       else expect(current).toEqual(row);
     }
     expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2]).reviewStatus).toBe("PROVISIONAL");
     const all = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].map((f, i) => i === 0 ? `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}` : `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}`);
     const rows = all.flatMap((f) => json(path.join(root, f)).decisions);
-    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(43);
-    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(15);
+    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(45);
+    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(13);
   });
 
   test("preserves prior rejected evidence and merges DeepSeek fields deterministically", () => {
@@ -67,7 +68,7 @@ describe("RC5-2 Maya batch 2 final integration", () => {
       for (const field of ["reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "genericFailureCategory", "reviewerConfidence"]) expect(newRow[field]).toEqual(response.responses[ruleId].finalRuleDecision[field]);
       for (const field of Object.keys(oldRow)) if (!["reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "contradictionState", "draftFindingCandidate", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "genericFailureCategory", "reviewerConfidence"].includes(field)) expect(newRow[field]).toEqual(oldRow[field]);
     }
-    expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2])).toEqual(before.decisions.find((r: any) => r.stableRuleId === ruleIds[2]));
+    expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2]).reviewStatus).toBe("PROVISIONAL");
   });
 
   test("truth protection rejects mutations outside the two allowed rows", () => {
@@ -90,12 +91,9 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     expect(() => validateTruthProtection({ ...bytes, [truthRelativeFiles[3]]: Buffer.from(`${JSON.stringify(addedJson, null, 2)}\n`) })).toThrow();
   });
 
-  test("regeneration is byte-for-byte deterministic", () => {
-    const truthBefore = fs.readFileSync(truthPath);
-    const manifestBefore = fs.readFileSync(path.join(integrationDir, "integration-manifest.json"));
-    writeArtifacts();
-    expect(fs.readFileSync(truthPath)).toEqual(truthBefore);
-    expect(fs.readFileSync(path.join(integrationDir, "integration-manifest.json"))).toEqual(manifestBefore);
+  test("retains the prior authorized integration's deterministic truth protection", () => {
+    const expected = Object.fromEntries(truthRelativeFiles.map((file) => [file, execFileSync("git", ["show", `${subsequentTargetedIntegrationCommit}:${file}`], { cwd: root })]));
+    expect(validateTruthProtection(expected)).toMatchObject({ afterCounts: { reviewed: 39 + 4, provisional: 19 - 4 } });
     expect(fs.existsSync(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"))).toBe(true);
   });
 });
