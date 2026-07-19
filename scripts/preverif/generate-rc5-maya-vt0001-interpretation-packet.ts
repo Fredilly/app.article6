@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import { PDFParse } from "pdf-parse";
 
 export const root = process.cwd();
@@ -16,6 +17,8 @@ export const vt0001Path = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/
 export const vt0001PagesPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-vt0001-interpretation-packet/official-source/VT0001-Tool-for-the-Demonstration-and-Assessment-of-Additionality-v3.0.pages.json";
 export const vm0007Path = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf";
 export const vm0007PagesPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json";
+export const rulesPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json";
+export const baselineRulePacketPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/review-packet.json";
 export const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf";
 export const extractionPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json";
 export const machinePath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
@@ -26,6 +29,8 @@ export const truthPaths = [
 export const expected = {
   vt0001Sha256: "ee0d8b00b772208b112d4b20b43613a80b8d10404813c3273086d90b3963ddc8",
   vt0001PagesSha256: "1717e33ac4d3a786821d0bebdc82412a9b25143c7f2d364a19eb23d99dd031ce",
+  rulesSha256: "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+  baselineRulePacketSha256: "0485189c70a91cdaa30d0a5142de6a455cfcf0e429125ba085d13c3ae7eb7d5a",
   vm0007Sha256: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
   vm0007PagesSha256: "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561",
   pddSha256: "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -55,8 +60,26 @@ const vtCoverage: Record<number, string> = {
 };
 
 function assertFrozenInputs(): void {
-  const actual = Object.fromEntries(Object.entries({ vt0001: vt0001Path, vm0007: vm0007Path, vm0007Pages: vm0007PagesPath, pdd: pddPath, extraction: extractionPath, machine: machinePath }).map(([k, p]) => [k, sha256(localBytes(p))]));
-  if (actual.vt0001 !== expected.vt0001Sha256 || actual.vm0007 !== expected.vm0007Sha256 || actual.vm0007Pages !== expected.vm0007PagesSha256 || actual.pdd !== expected.pddSha256 || actual.extraction !== expected.extractionSha256 || actual.machine !== expected.machineSha256) throw new Error(`Frozen source SHA changed: ${JSON.stringify(actual)}`);
+  const actual = Object.fromEntries(Object.entries({ vt0001: vt0001Path, vm0007: vm0007Path, vm0007Pages: vm0007PagesPath, rules: rulesPath, pdd: pddPath, extraction: extractionPath, machine: machinePath }).map(([k, p]) => [k, sha256(localBytes(p))]));
+  if (actual.vt0001 !== expected.vt0001Sha256 || actual.vm0007 !== expected.vm0007Sha256 || actual.vm0007Pages !== expected.vm0007PagesSha256 || actual.rules !== expected.rulesSha256 || actual.pdd !== expected.pddSha256 || actual.extraction !== expected.extractionSha256 || actual.machine !== expected.machineSha256) throw new Error(`Frozen source SHA changed: ${JSON.stringify(actual)}`);
+}
+
+function baselineRuleContracts(): Record<string, any> {
+  const baselineBytes = frozenBytes(baselineRulePacketPath);
+  if (sha256(baselineBytes) !== expected.baselineRulePacketSha256) throw new Error("Frozen baseline rule packet SHA changed");
+  const baselinePacket = JSON.parse(baselineBytes.toString("utf8")) as { rules: Array<{ stableRuleId: string; methodologyContract: any }> };
+  const localRules = read<any[]>(rulesPath);
+  const contracts: Record<string, any> = {};
+  for (const id of selectedRuleIds) {
+    const localRule = localRules.find((rule) => rule.id === id);
+    const baselineRule = baselinePacket.rules.find((rule) => rule.stableRuleId === id)?.methodologyContract;
+    if (!localRule || !baselineRule) throw new Error(`Missing immutable rule contract ${id}`);
+    const { exactContractHash, ...baselineCanonical } = baselineRule;
+    if (!isDeepStrictEqual(localRule, baselineCanonical)) throw new Error(`Current-tree rule differs from immutable baseline rule ${id}`);
+    if (sha256(JSON.stringify(localRule)) !== exactContractHash) throw new Error(`Rule contract hash mismatch ${id}`);
+    contracts[id] = baselineCanonical;
+  }
+  return contracts;
 }
 
 function committedVt0001Pages(): Array<{ pageNumber: number; text: string }> {
@@ -129,18 +152,18 @@ function sourcePages(p: string, pages: number[]): Array<{ page: number; quote: s
 export async function buildArtifacts() {
   assertFrozenInputs();
   const frozenInventory = inventory();
-  const rules = read<any[]>("public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json");
+  const rules = baselineRuleContracts();
   const vmPages = read<{ pages: Array<{ pageNumber: number; text: string }> }>(vm0007PagesPath);
   const machine = read<{ rows: any[] }>(machinePath);
   const pdd = read<{ pages: Array<{ pageNumber: number; text: string }> }>(extractionPath);
   const vtEvidence = await authoritativePages();
   const rulePackets = selectedRuleIds.map((id) => {
-    const rule = rules.find((r) => r.id === id);
+    const rule = rules[id];
     const row = machine.rows.find((r) => r.stableRuleId === id);
     if (!rule || !row) throw new Error(`Missing rule or machine row ${id}`);
     return {
       stableRuleId: id,
-      methodologyRequirement: { exactText: rule.source_span_text, sourcePath: "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json", sourceSha256: sha256(localBytes("public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json")), section: rule.section_context },
+      methodologyRequirement: { exactText: rule.source_span_text, sourcePath: rulesPath, sourceSha256: expected.rulesSha256, baselineCommitSha: baselineSha, baselineRulePacketPath, baselineRulePacketSha256: expected.baselineRulePacketSha256, section: rule.section_context },
       frozenMachineRowSha256: sha256(JSON.stringify(row)),
       question: id.endsWith("R-3-0001") ? "Does VM0007's requirement to use VT0001 and follow its stepwise approach require this Maya PDD to document Step 3 after Step 2, or can a valid VT0001 Step 2 Option I pathway stand alone?" : id.endsWith("R-3-0003") ? "Under VT0001 and VM0007, is the PDD's Step 2 Option I analysis sufficient as the selected pathway, or was Step 3 Barrier Analysis also mandatory?" : "Does the Maya PDD finally demonstrate the VT0001 additionality pathway required by VM0007, including a valid Option I selection and the applicable Step 4 conclusion?",
       projectEvidence: pddPages.map((page) => ({ page, quote: pdd.pages.find((x) => x.pageNumber === page)?.text ?? "", sourcePath: extractionPath, sourceSha256: expected.extractionSha256, sourcePdfPath: pddPath, sourcePdfSha256: expected.pddSha256, documentId: "quick-check-review-question", documentSha256: expected.pddSha256 })),
@@ -165,7 +188,7 @@ export async function buildArtifacts() {
   const responseSchema = { $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-vt0001-interpretation-response", type: "object", additionalProperties: false, required: ["schemaVersion", "decisions"], properties: { schemaVersion: { const: "rc5-2-maya-vt0001-interpretation-response-v1" }, decisions: { type: "array", minItems: 3, maxItems: 3, items: { type: "object", additionalProperties: false, required: Object.keys(decisionProperties), properties: decisionProperties } } } };
   const template = { schemaVersion: "rc5-2-maya-vt0001-interpretation-response-v1", decisions: selectedRuleIds.map((stableRuleId) => ({ stableRuleId, reviewStatus: null, evidenceStatus: null, applicability: null, action: null, methodologyInterpretation: null, mayaApplication: null, evidenceCitations: [], missingEvidence: [], reasoning: null })) };
   const instructions = `# VT0001 independent review\n\nReturn exactly three decisions, one for each selected rule ID. First answer the methodology interpretation questions from the frozen complete VT0001 v3.0 pages, then apply that interpretation to the frozen Maya evidence. Do not use prior truth, prior responses, or machine proposals as answer keys.\n\nA valid Option I conclusion requires documented project costs and a demonstration that the project produces no financial benefits other than VCS-related income. VT0001 says a concluded Option I pathway proceeds to Step 4; assess whether the frozen Maya PDD and referenced Appendix 17 evidence actually establish those facts.\n\nFinal adverse judgments are permitted: REVIEWED + UNCLEAR/MISSING + ACTION_REQUIRED. Leave PROVISIONAL only for a genuine unresolved authoritative interpretation or a necessary unavailable source. Cite exact source path, SHA, page, and quote for every material conclusion.\n`;
-  const manifest = { schemaVersion: "rc5-2-maya-vt0001-interpretation-manifest-v1", baselineSha, selectedRuleIds: [...selectedRuleIds], frozenInventory, sourceDocuments: { vt0001: { path: vt0001Path, sha256: expected.vt0001Sha256 }, vt0001Pages: { path: vt0001PagesPath, sha256: expected.vt0001PagesSha256 }, vm0007: { path: vm0007Path, sha256: expected.vm0007Sha256 }, vm0007Pages: { path: vm0007PagesPath, sha256: expected.vm0007PagesSha256 }, pdd: { path: pddPath, sha256: expected.pddSha256 }, extraction: { path: extractionPath, sha256: expected.extractionSha256 }, machine: { path: machinePath, sha256: expected.machineSha256 } }, selectionInputs: truthPaths.map((p) => ({ path: p, sha256: sha256(frozenBytes(p)), commitSha: baselineSha })), packetFiles: ["review-packet.json", "reviewer-instructions.md", "review-response-schema.json", "review-template.json", "manifest.json"], reviewedTruthCreated: false, priorResponsesIncluded: false };
+  const manifest = { schemaVersion: "rc5-2-maya-vt0001-interpretation-manifest-v1", baselineSha, selectedRuleIds: [...selectedRuleIds], frozenInventory, sourceDocuments: { vt0001: { path: vt0001Path, sha256: expected.vt0001Sha256 }, vt0001Pages: { path: vt0001PagesPath, sha256: expected.vt0001PagesSha256 }, vm0007: { path: vm0007Path, sha256: expected.vm0007Sha256 }, vm0007Pages: { path: vm0007PagesPath, sha256: expected.vm0007PagesSha256 }, rules: { path: rulesPath, sha256: expected.rulesSha256, baselineCommitSha: baselineSha, baselineRulePacketPath, baselineRulePacketSha256: expected.baselineRulePacketSha256 }, pdd: { path: pddPath, sha256: expected.pddSha256 }, extraction: { path: extractionPath, sha256: expected.extractionSha256 }, machine: { path: machinePath, sha256: expected.machineSha256 } }, selectionInputs: [...truthPaths.map((p) => ({ path: p, sha256: sha256(frozenBytes(p)), commitSha: baselineSha })), { path: baselineRulePacketPath, sha256: expected.baselineRulePacketSha256, commitSha: baselineSha }], packetFiles: ["review-packet.json", "reviewer-instructions.md", "review-response-schema.json", "review-template.json", "manifest.json"], reviewedTruthCreated: false, priorResponsesIncluded: false };
   return { packet, instructions, responseSchema, template, manifest };
 }
 

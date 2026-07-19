@@ -118,6 +118,9 @@
         "exactText": "6 BASELINE SCENARIO\n\n6.1 Determination of the Most Plausible Baseline Scenario\n\nDetermination of the most plausible baseline scenario builds on the outcome of the additionality analysis (Section 7) and must be consistent with the description of the conditions prior to the project start date. VT0001 must be used to assess the project additionality. The stepwise approach below must be followed in addition to VT0001 to determine the most plausible baseline scenario.",
         "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
         "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+        "baselineCommitSha": "f0d6f0edbca2562026836801f3230a45274047f3",
+        "baselineRulePacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/review-packet.json",
+        "baselineRulePacketSha256": "0485189c70a91cdaa30d0a5142de6a455cfcf0e429125ba085d13c3ae7eb7d5a",
         "section": {
           "anchor": "baseline-scenario",
           "lineage": [
@@ -218,6 +221,9 @@
         "exactText": "Step 2a: Where the VT0001 barrier analysis is used to demonstrate additionality, apply the decision tree in Figure 1 to the list of all alternative land use scenarios from Step 1 that are not prevented by any barrier.",
         "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
         "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+        "baselineCommitSha": "f0d6f0edbca2562026836801f3230a45274047f3",
+        "baselineRulePacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/review-packet.json",
+        "baselineRulePacketSha256": "0485189c70a91cdaa30d0a5142de6a455cfcf0e429125ba085d13c3ae7eb7d5a",
         "section": {
           "anchor": "baseline-scenario",
           "lineage": [
@@ -318,6 +324,9 @@
         "exactText": "7 ADDITIONALITY\n\n7.1 Project Method – All Project Activities Other Than Tidal Wetland Conservation and Restoration\n\nVT0001 Tool for the Demonstration and Assessment of Additionality in VCS AFOLU Project Activities must be used to demonstrate the additionality of the project.",
         "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
         "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+        "baselineCommitSha": "f0d6f0edbca2562026836801f3230a45274047f3",
+        "baselineRulePacketPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/review-packet.json",
+        "baselineRulePacketSha256": "0485189c70a91cdaa30d0a5142de6a455cfcf0e429125ba085d13c3ae7eb7d5a",
         "section": {
           "anchor": "additionality",
           "lineage": [
