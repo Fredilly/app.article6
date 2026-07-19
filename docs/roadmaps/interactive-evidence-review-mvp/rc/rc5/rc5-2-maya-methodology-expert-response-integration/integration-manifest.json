@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "rc5-2-maya-methodology-expert-response-integration-manifest-v1",
+  "purpose": "Independent expert analysis integrated as provisional metadata only; no rule finalization occurred.",
+  "sourceResponsePath": "~/Desktop/maya-rc5-methodology-expert-finalization-batch-2-completed-response.json",
+  "storedResponsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/independent-expert-response.json",
+  "sourceResponseSha256": "a15898f0ba5d5e1122363416731f84c7a5270a6a0db46dce598f1a5d34092384",
+  "pr1087MergeCommit": "6f52cb49830b9f7653717c29221fe6d4237de27e",
+  "packetPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-finalization-batch-2/review-packet.json",
+  "packetSha256": "a17cc1e296a96db7d72d9437dfca40ece7aa40582844eeccc55aaeb4bd846744",
+  "responseSchemaPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-finalization-batch-2/review-response-schema.json",
+  "responseSchemaSha256": "3e0fdc4138ca0c864e9241328346e533354cb921e5af8c85341744f8660ddeaa",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+  ],
+  "rules": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+      "reviewStatus": "PROVISIONAL",
+      "expertAnalysis": "The requirement text for R-1-0012 describes activities that conserve tidal wetlands (protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space). This rule is located in Section 4 (Applicability Conditions) of the VM0007 v1.8 methodology framework. The supplied methodology excerpt from the derived rules.rich.json artifact (not verified against the official PDF) establishes that this applicability condition describes tidal wetland conservation activities under the WRC (Wetlands Restoration and Conservation) component of VM0007. The language is specific to tidal wetland environments — referencing water management, sediment recharge, and accommodation space — which are WRC concepts, not REDD/avoided-deforestation concepts. The Maya PDD evidence provided for this rule is limited to anti-discrimination text, which does not address tidal wetland conservation activities. No project evidence in the packet addresses tidal wetlands or establishes the project's activity type for R-1-0012 specifically. The applicability of this rule depends on whether the Maya project includes WRC components, which is not directly established by any evidence in the R-1-0012 candidate evidence. Without project evidence confirming the project's activity category or site characteristics, applicability cannot be definitively resolved from this packet alone. The anti-discrimination candidate evidence is irrelevant to this rule's applicability determination.",
+      "applicabilityDetermination": "UNKNOWN",
+      "evidenceSufficiency": "INSUFFICIENT",
+      "unresolvedBlockers": [
+        "Project evidence establishing whether the Maya project includes tidal wetland WRC components or is REDD-only.",
+        "Confirmation from the official VM0007 v1.8 PDF Section 4 whether R-1-0012 is structured under a WRC-specific applicability condition.",
+        "The only candidate evidence provided (anti-discrimination text) is irrelevant. Relevant project evidence such as the module selection table or applicability table should be provided for this rule."
+      ],
+      "frozenMachineRowHash": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b"
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+      "reviewStatus": "PROVISIONAL",
+      "expertAnalysis": "R-1-0013 requires baseline agents of wetland degradation to meet three criteria: (a) cause alteration in hydrology or loss of SOC, (b) have no documented legal right, and (c) have degraded wetlands in the historical reference period. This rule is located in Section 4 (Applicability Conditions) of VM0007 v1.8. The language is specific to wetland degradation agents — referencing hydrology alteration and SOC loss in wetlands — which is a WRC/CIW (Conservation and Improvement of Wetlands) concept, not a REDD/avoided-deforestation concept. The supplied methodology excerpt is from the derived rules.rich.json artifact (not verified against the official PDF). The Maya PDD candidate evidence includes the applicability table from the PDD, which states the project area contains no peatlands or tidal wetlands and categorizes baseline deforestation as planned deforestation (APDef). The methodology module selection table shows VMD0006 (BL-PL) for the planned deforestation baseline. These evidence items establish that the Maya project is a REDD/APDef project without WRC components. The wetland-agent criteria in this rule are structurally different from the deforestation-agent criteria in R-1-0003. The REDD context and the WRC context appear to be separate applicability branches within Section 4, but without the official VM0007 v1.8 publication, this structural separation cannot be confirmed with certainty.",
+      "applicabilityDetermination": "NOT_APPLICABLE",
+      "evidenceSufficiency": "PARTIALLY_SUFFICIENT",
+      "unresolvedBlockers": [
+        "Verification from the official VM0007 v1.8 PDF confirming whether R-1-0013 is part of a WRC-specific applicability condition branch.",
+        "Explicit PDD statement confirming the project is REDD-only with no WRC or wetland degradation components."
+      ],
+      "frozenMachineRowHash": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1"
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+      "reviewStatus": "PROVISIONAL",
+      "expertAnalysis": "R-2-0008 addresses carbon pool selection for REDD project activities under Section 5.3.2. The methodology requires: (1) HWP and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario; (2) in all other cases, only aboveground biomass is mandatory; (3) symmetric accounting — inclusion in baseline implies inclusion in project and leakage; (4) T-SIG or Appendix 1 for significance testing. The supplied methodology excerpt (from derived rules.rich.json, not verified against the official PDF) establishes these criteria clearly. The candidate evidence from the Maya PDD states harvested wood products are excluded because they were deemed de minimis following VM0007's Appendix 1 significance testing, with reference to Appendix 22 for the calculation details. The evidence also states dead wood (identified as de minimis) was nonetheless included due to potential future hurricane/tropical storm increases. This directly addresses the conditional logic: the project performed Appendix 1 significance testing, found HWP insignificant (de minimis), and provided the test reference. Dead wood was conservatively included despite being de minimis. The HWP condition is triggered by the need to determine whether HWP increases more in the baseline scenario. The evidence states HWP are de minimis, which implies they do not trigger the mandatory inclusion condition, but the actual significance test results are not included. Table 4 is referenced in the methodology but not provided in the candidate evidence.",
+      "applicabilityDetermination": "APPLICABLE",
+      "evidenceSufficiency": "PARTIALLY_SUFFICIENT",
+      "unresolvedBlockers": [
+        "Appendix 22 significance test results for HWP baseline vs project comparison (referenced in the PDD as 'Test of sig - 6 year bsl valid' tab).",
+        "Table 4 carbon pool selection matrix showing HWP and dead wood inclusion/exclusion decisions.",
+        "Verification against the official VM0007 v1.8 PDF Section 5.3.2."
+      ],
+      "frozenMachineRowHash": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89"
+    }
+  },
+  "inventoryBefore": {
+    "reviewedRuleCount": 39,
+    "provisionalRuleCount": 19
+  },
+  "inventoryAfter": {
+    "reviewedRuleCount": 39,
+    "provisionalRuleCount": 19
+  },
+  "finalization": {
+    "occurred": false,
+    "truthFilesCreated": false,
+    "machineTruthChanged": false,
+    "reviewedRowsChanged": false,
+    "reviewedTruthByteForByteUnchanged": true
+  },
+  "machineProposal": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "rowCount": 58
+  },
+  "reviewedTruthFiles": [
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
+      "sha256": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json",
+      "sha256": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+      "sha256": "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+      "sha256": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
+      "sha256": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json",
+      "sha256": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+    }
+  ],
+  "existingReviewedRowsSha256": "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1",
+  "generatedFrom": "pinned merged packet and strict completed-response schema"
+}

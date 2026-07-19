@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "rc5-2-maya-methodology-expert-finalization-batch-2-completed-response-v2",
+  "responses": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+      "expertAnalysis": "The requirement text for R-1-0012 describes activities that conserve tidal wetlands (protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space). This rule is located in Section 4 (Applicability Conditions) of the VM0007 v1.8 methodology framework. The supplied methodology excerpt from the derived rules.rich.json artifact (not verified against the official PDF) establishes that this applicability condition describes tidal wetland conservation activities under the WRC (Wetlands Restoration and Conservation) component of VM0007. The language is specific to tidal wetland environments \u2014 referencing water management, sediment recharge, and accommodation space \u2014 which are WRC concepts, not REDD/avoided-deforestation concepts. The Maya PDD evidence provided for this rule is limited to anti-discrimination text, which does not address tidal wetland conservation activities. No project evidence in the packet addresses tidal wetlands or establishes the project's activity type for R-1-0012 specifically. The applicability of this rule depends on whether the Maya project includes WRC components, which is not directly established by any evidence in the R-1-0012 candidate evidence. Without project evidence confirming the project's activity category or site characteristics, applicability cannot be definitively resolved from this packet alone. The anti-discrimination candidate evidence is irrelevant to this rule's applicability determination.",
+      "applicabilityDetermination": "UNKNOWN",
+      "evidenceSufficiency": "INSUFFICIENT",
+      "supportingMethodologyEvidence": [
+        {
+          "quote": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "pageStart": 17,
+          "pageEnd": 17,
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions"
+        }
+      ],
+      "supportingProjectEvidence": [],
+      "missingEvidence": [
+        "Project evidence establishing whether the Maya project includes tidal wetland WRC components or is REDD-only.",
+        "Confirmation from the official VM0007 v1.8 PDF Section 4 whether R-1-0012 is structured under a WRC-specific applicability condition.",
+        "The only candidate evidence provided (anti-discrimination text) is irrelevant. Relevant project evidence such as the module selection table or applicability table should be provided for this rule."
+      ],
+      "reasoning": "R-1-0012 describes tidal wetland conservation activities. The only candidate evidence for this rule is anti-discrimination text, which is irrelevant to applicability. Without project evidence establishing the project's activity type or the absence of tidal wetlands, applicability cannot be determined from this packet alone. The methodology excerpt describes WRC-specific tidal wetland activities, which suggests this rule does not apply to REDD-only projects, but the supplied evidence is insufficient to confirm the Maya project's activity category for this specific rule. In the broader packet, the R-1-0013 candidate evidence includes the applicability table stating no peatlands or tidal wetlands, and the methodology table showing planned deforestation modules, but these items are not part of the R-1-0012 candidate evidence array and cannot be used for this rule's supporting project evidence.",
+      "notes": "The methodologySourceWarning in the packet applies. The anti-discrimination candidate evidence is the only project evidence provided for R-1-0012 and is irrelevant. In the previous adjudication, the applicability table evidence from R-1-0013 was used, but this packet provides candidate evidence per rule and the R-1-0012 candidate array only contains the anti-discrimination text. Applicability is revised from NOT_APPLICABLE to UNKNOWN because the packet does not provide the necessary project evidence for this specific rule."
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+      "expertAnalysis": "R-1-0013 requires baseline agents of wetland degradation to meet three criteria: (a) cause alteration in hydrology or loss of SOC, (b) have no documented legal right, and (c) have degraded wetlands in the historical reference period. This rule is located in Section 4 (Applicability Conditions) of VM0007 v1.8. The language is specific to wetland degradation agents \u2014 referencing hydrology alteration and SOC loss in wetlands \u2014 which is a WRC/CIW (Conservation and Improvement of Wetlands) concept, not a REDD/avoided-deforestation concept. The supplied methodology excerpt is from the derived rules.rich.json artifact (not verified against the official PDF). The Maya PDD candidate evidence includes the applicability table from the PDD, which states the project area contains no peatlands or tidal wetlands and categorizes baseline deforestation as planned deforestation (APDef). The methodology module selection table shows VMD0006 (BL-PL) for the planned deforestation baseline. These evidence items establish that the Maya project is a REDD/APDef project without WRC components. The wetland-agent criteria in this rule are structurally different from the deforestation-agent criteria in R-1-0003. The REDD context and the WRC context appear to be separate applicability branches within Section 4, but without the official VM0007 v1.8 publication, this structural separation cannot be confirmed with certainty.",
+      "applicabilityDetermination": "NOT_APPLICABLE",
+      "evidenceSufficiency": "PARTIALLY_SUFFICIENT",
+      "supportingMethodologyEvidence": [
+        {
+          "quote": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period.",
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "pageStart": 17,
+          "pageEnd": 17,
+          "sectionNumber": "4",
+          "sectionTitle": "Applicability Conditions"
+        }
+      ],
+      "supportingProjectEvidence": [
+        {
+          "quote": "3.1.1 Title and Reference of Methodology (VCS, 3.1) CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 83 CCB v3.0, VCS v4.4 Type (methodology, tool, module) Reference ID (if applicable) Title Version Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass in live tree and non-tree pools (CP-AB) 1.2 Module VMD0002 Estimation of carbon stocks in the dead-wood pool (CP-D) 1.1 Module VMD0004 Estimation of stocks in the soil organic carbon pool (CP-S) 1.1 Module VMD0006 VMD0006 Estimation of baseline carbon stock changes and greenhouse gas emissions from planned deforestation and planned degradation (BL-PL) 1.3 Module VMD0009 Estimation of emissions from activity shifting for avoiding planned deforestation / forest degradation and avoiding planned wetland degradation (LK-ASP) 1.4 Module VMD0013 Estimation of Greenhouse Gas Emissions from Biomass and Peat Peat Burning (E-BPB) 1.3 Module VMD0015 Methods for Monitoring of GHG Emissions and Removals in REDD and CIW Projects (M-REDD) 2.2 Module VMD0017 Estimation of uncertainty for REDD project activities (X-UNC) 2.2 Tool VT0001 Tool for the Demonstration and Assessment of Additionality in VCS Agriculture, Forestry and Other Land Use (AFOLU) Project Activities, 3.0 Tool AFOLU Non-Permanence Risk Tool 4.2 CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 84 CCB v3.0, VCS v4.4 3.1.2 Applicability of Methodology (VCS, 3.1) Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) [\u2026]",
+          "page": 1,
+          "sectionHeading": "Application of Methodology",
+          "spanId": "quick-check-review-question:element:paragraph:3.1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Reference ID / Title Applicability condition Justification of conformance qualified as forest for at least the 10 years prior to the project start date. Remote sensing analyses clearly demonstrate that the project area was forest according to the VCS definition for 10 years before the start date of the project peatland or tidal wetlands and emissions from the SOC pool are deemed significant, the relevant WRC modules are applied alongside other relevant modules. The project area contains no peatlands or tidal wetlands. areas falls within either of the following categories: a) Unplanned deforestation (VCS category AU Def) b) Planned deforestation (VCS category AP Def) Because the baseline deforestation activities are legally permitted, baseline deforestation falls within the planned deforestation category. applicable under the following condition: 4) Leakage prevention activities include: a) Flooding agricultural lands to increase production (e.g., rice paddies); and / or b) Intensifying livestock production through use of feed-lots and / or manure lagoons No leakage preventions activities are planned for the project that would involve the flooding of agricultural lands, the use of feedlots, or manure lagoons. CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 85 CCB v3.0, VCS v4.4 Reference ID / Title Applicability condition Justification of conformance activities are applicable under the following condition: 7) Where conversion of forest land to a deforested condition is legally permitted The conversion of the Project Activity Instance to agriculture is legal, as defined under the Land Utilization Act, Chapter 188, revised Edition 2000, the Private Forest (Conservation) Act, Chapter 217 Revised Edition 2000, and the Forest Act Chapter 213, Revised Edition 2003. VMD0002 This module is applicable to all forest types and age classes. This module is applicable if the dead wood pool is included as part of the project boundary as per applicability criteria in the framework module REDD-MF. Project area is forested. VMD0004 This module is applicable to non- organic soils under all forest types and age classes. All soils in the project area are non- organic. VMD0006 The module is applicable for estimating the baseline emissions on forest lands (usually privately or government owned) that are legally authorized and documented to be converted to non-forest land. Conversion of forestlands to a deforested condition is legally permitted. VMD0009 The module is applicable for estimating the leakage emissions due to activity shifting from forest lands that are legally authorized and documented to be converted to non- forest land. The module is mandatory if Module BL-PL has been used to define the baseline. Module BL-PL was used to define the baseline thus module is mandatory. VMD0013 This module is applicable to REDD project activities with emissions from biomass burning and REDD-WRC project activities with [\u2026]",
+          "page": 1,
+          "sectionHeading": "Applicability of Methodology (VCS, 3.1)",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "missingEvidence": [
+        "Verification from the official VM0007 v1.8 PDF confirming whether R-1-0013 is part of a WRC-specific applicability condition branch.",
+        "Explicit PDD statement confirming the project is REDD-only with no WRC or wetland degradation components."
+      ],
+      "reasoning": "R-1-0013 describes baseline agents of wetland degradation, a WRC/CIW concept. The Maya PDD candidate evidence includes the applicability table stating the project area contains no peatlands or tidal wetlands and the methodology module table showing VMD0006 for planned deforestation. These establish the project as REDD/APDef without WRC components. The evidence is partially sufficient to determine NOT_APPLICABLE, but verification against the official VM0007 v1.8 publication is required to confirm whether Section 4 structurally separates WRC rules from REDD rules.",
+      "notes": "The methodologySourceWarning in the packet applies. The Project Eligibility candidate evidence is less relevant than the methodology and applicability table evidence and is excluded from supportingProjectEvidence."
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+      "expertAnalysis": "R-2-0008 addresses carbon pool selection for REDD project activities under Section 5.3.2. The methodology requires: (1) HWP and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario; (2) in all other cases, only aboveground biomass is mandatory; (3) symmetric accounting \u2014 inclusion in baseline implies inclusion in project and leakage; (4) T-SIG or Appendix 1 for significance testing. The supplied methodology excerpt (from derived rules.rich.json, not verified against the official PDF) establishes these criteria clearly. The candidate evidence from the Maya PDD states harvested wood products are excluded because they were deemed de minimis following VM0007's Appendix 1 significance testing, with reference to Appendix 22 for the calculation details. The evidence also states dead wood (identified as de minimis) was nonetheless included due to potential future hurricane/tropical storm increases. This directly addresses the conditional logic: the project performed Appendix 1 significance testing, found HWP insignificant (de minimis), and provided the test reference. Dead wood was conservatively included despite being de minimis. The HWP condition is triggered by the need to determine whether HWP increases more in the baseline scenario. The evidence states HWP are de minimis, which implies they do not trigger the mandatory inclusion condition, but the actual significance test results are not included. Table 4 is referenced in the methodology but not provided in the candidate evidence.",
+      "applicabilityDetermination": "APPLICABLE",
+      "evidenceSufficiency": "PARTIALLY_SUFFICIENT",
+      "supportingMethodologyEvidence": [
+        {
+          "quote": "5.3 Carbon Pools\n\n5.3.1 General\nAny significant decreases in carbon stock in the project scenario and any significant increases in carbon stock in the baseline scenario must be accounted for. In addition, decreases in the baseline scenario and increases in the project scenario can be accounted for. Where REDD activities take place on wetlands, the project must account for expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario, unless they are deemed de minimis. The significance of this pool may be determined by using the tool T-SIG or Appendix 1. Significance of pools must be determined ex-ante or at baseline reassessment for a specific baseline validity period, as well as at verification for a specific monitoring period.\n\nSelection of carbon pools and the appropriate justification must be presented in PD and in the monitoring report (MR).",
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "pageStart": 49,
+          "pageEnd": 50,
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary"
+        },
+        {
+          "quote": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.",
+          "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "pageStart": 18,
+          "pageEnd": 20,
+          "sectionNumber": "5",
+          "sectionTitle": "Project Boundary"
+        }
+      ],
+      "supportingProjectEvidence": [
+        {
+          "quote": "The following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at breast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for palms, standing and lying dead wood, and soil organic carbon. Harvested wood products and CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 88 CCB v3.0, VCS v4.4 belowground palm biomass are excluded because they were deemed de minimis following the guidance provided in VM0007\u2019s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes information on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig - 6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations. Belowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the details of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis, given the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it was deemed important to include. All the included carbon pools are accounted for in the baseline and project scenarios as well as in the accounting of activity shifting leakage. Given the fact that harvested wood products are identified as de minimis, market effects leakage due to decreased timber harvest was also excluded from the analysis. Leaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative estimation of carbon stocks in the project area. The carbon stocks in post-deforestation agricultural biomass in the baseline scenario are also accounted for.",
+          "page": 1,
+          "sectionHeading": "Carbon pools",
+          "spanId": "quick-check-review-question:element:paragraph:3.1.3.3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "missingEvidence": [
+        "Appendix 22 significance test results for HWP baseline vs project comparison (referenced in the PDD as 'Test of sig - 6 year bsl valid' tab).",
+        "Table 4 carbon pool selection matrix showing HWP and dead wood inclusion/exclusion decisions.",
+        "Verification against the official VM0007 v1.8 PDF Section 5.3.2."
+      ],
+      "reasoning": "R-2-0008 applies to this REDD project. The project evidence shows HWP assessed via Appendix 1 significance testing and found de minimis, consistent with the methodology's conditional logic (T-SIG or Appendix 1 to determine significance; insignificant pools can be ignored). The evidence partially supports the conclusion that HWP do not trigger the mandatory inclusion condition, but the actual significance test results are not in the supplied evidence. Dead wood was conservatively included despite being de minimis. The methodology excerpts are from a derived artifact and must be verified against the official VM0007 v1.8 publication.",
+      "notes": "The candidate evidence page (page 1) is an inherited extraction page number from the original batch 3 packet. The PDD section heading suggests this content appears in sections 3.1.3-3.1.4 of the PDD, not page 1."
+    }
+  }
+}
