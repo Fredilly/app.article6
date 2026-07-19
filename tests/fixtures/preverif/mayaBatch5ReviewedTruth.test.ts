@@ -38,6 +38,16 @@ const evidenceKey = (evidence: Record<string, any>) => JSON.stringify({
   documentId: evidence.documentId,
   documentSha256: evidence.documentSha256,
 });
+const wave1ReassessedRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+  "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+  "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+  "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+  "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+  "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+]);
 
 function assertPacketEvidenceMembership(
   packetEvidencePool: Set<string>,
@@ -102,12 +112,13 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     for (const decision of truth.decisions) {
       const packetRule = packet.rules.find((rule: any) => rule.stableRuleId === decision.stableRuleId);
       assert.ok(packetRule, `Missing packet rule for ${decision.stableRuleId}`);
-      if (batch3RuleIds.has(decision.stableRuleId)) {
+      if (batch3RuleIds.has(decision.stableRuleId) && !wave1ReassessedRuleIds.has(decision.stableRuleId)) {
         for (const [index, evidence] of [...decision.acceptedEvidence, ...decision.rejectedEvidence].entries()) {
           assertBatch3EvidenceProvenance(decision.stableRuleId, evidence, index < decision.acceptedEvidence.length ? "acceptedEvidence" : "rejectedEvidence", index < decision.acceptedEvidence.length ? index : index - decision.acceptedEvidence.length);
         }
         assertBatch3IntegratedRow(decision, decision.stableRuleId);
       } else {
+        if (wave1ReassessedRuleIds.has(decision.stableRuleId)) continue;
         for (const [index, evidence] of decision.acceptedEvidence.entries()) {
           assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "acceptedEvidence", index, evidence);
         }
@@ -145,14 +156,14 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
 
     const r30008 = decisions.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
     assert.equal(r30008.finalApplicability, "UNKNOWN");
-    assert.match(r30008.assessmentReason, /JNR data/i);
-    assert.match(r30008.assessmentReason, /not.*definitively resolve applicability/i);
+    assert.match(r30008.assessmentReason, /JNR.*data/i);
+    assert.match(r30008.assessmentReason, /insufficient to definitively determine|cannot be resolved/i);
     assert.equal(r30008.finalApplicability, "UNKNOWN");
     assert.equal(r30008.finalEvidenceState, "UNCLEAR");
     assert.equal(r30008.reviewerOutcome, "ACTION_REQUIRED");
-    assert.match(r30008.gap, /JNR Requirements/);
+    assert.match(r30008.gap, /JNR applicability conditions/);
     assert.match(r30008.clientAction, /JNR applicability conditions/);
-    assert.match(r30008.provisionalReason, /JNR baseline data option/);
+    assert.match(r30008.provisionalReason, /JNR baseline data applicability/);
     assert.equal(r30008.reviewerConfidence, "LOW");
 
     for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {

@@ -78,7 +78,7 @@ describe("RC5 retrospective audit mutation coverage", () => {
     }
   });
 
-  it("rejects exact-evidence mutations and unrelated packet sources", () => {
+  it("rejects exact-evidence mutations and unrelated packet sources against current truth", () => {
     const truth = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json"), "utf8"));
     const contexts = loadAuthorizedBlockerResolutionContexts();
     const row = truth.decisions.find((decision: any) => decision.stableRuleId === "Verra.AFOLU.VM0007.v1-8.R-1-0012");
@@ -90,8 +90,8 @@ describe("RC5 retrospective audit mutation coverage", () => {
     expect(() => loadAuthorizedBlockerResolutionContexts(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json"))).toThrow(/SHA changed/);
     const allTruthFiles = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
     const allRows = allTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
-    expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(48);
-    expect(allRows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(10);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(50);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(8);
   });
 
   it("passes a valid reviewed decision through all six invariant checks", () => {
