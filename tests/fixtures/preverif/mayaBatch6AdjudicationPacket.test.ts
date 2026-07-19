@@ -156,8 +156,6 @@ describe("RC5-2 Maya Batch 6 adjudication packet", () => {
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/retrospective-audit-report.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/deepseek-semantic-review-packet.json",
     ];
     for (const relativePath of unchangedPaths) {
       assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), execFileSync("git", ["show", `HEAD:${relativePath}`]), relativePath);

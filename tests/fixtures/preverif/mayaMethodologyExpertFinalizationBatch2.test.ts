@@ -148,7 +148,8 @@ describe("Maya methodology-expert finalization batch 2", () => {
   test("merged machine proposal and 39 reviewed decisions remain unchanged", () => {
     expect(manifest.historicalInputs.machineProposal.sha256).toBe("e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     const reviewedTruthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`)];
-    const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED")).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
+    const authorizedFinalization = new Set(["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"]);
+    const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED" && !authorizedFinalization.has(row.stableRuleId))).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
     expect(rows).toHaveLength(39);
     expect(sha256(JSON.stringify(rows))).toBe("922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1");
     const inventory = manifest.mergedProvisionalScope.inventory;

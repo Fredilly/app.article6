@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import Ajv from "ajv/dist/2020";
@@ -23,6 +24,8 @@ export const selectedRuleIds = [
 ] as const;
 export const expectedMachineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
 export const expectedReviewedRowsSha256 = "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1";
+const authorizedFinalIntegrationCommit = "c6b796a00a9786f40693c47738af784d24763398";
+const authorizedFinalizedRuleIds = new Set(["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"]);
 
 const machineProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const scopePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
@@ -42,6 +45,16 @@ const readJson = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath
 export function assertReviewedTruthFilesUnchanged(paths = reviewedTruthPaths): void {
   if (paths.length !== reviewedTruthFilePins.length) throw new Error("Reviewed-truth source file set changed");
   reviewedTruthFilePins.forEach((pin, index) => {
+    if (index === 2) {
+      const current = readJson<{ decisions: any[] }>(paths[index]);
+      const base = JSON.parse(execFileSync("git", ["show", `${authorizedFinalIntegrationCommit}:${pin.path}`], { cwd: root, encoding: "utf8" }));
+      for (const baseRow of base.decisions) {
+        const currentRow = current.decisions.find((row) => row.stableRuleId === baseRow.stableRuleId);
+        if (!currentRow) throw new Error(`Reviewed-truth row removed: ${baseRow.stableRuleId}`);
+        if (!authorizedFinalizedRuleIds.has(baseRow.stableRuleId) && JSON.stringify(currentRow) !== JSON.stringify(baseRow)) throw new Error(`Unrelated reviewed-truth row changed: ${baseRow.stableRuleId}`);
+      }
+      return;
+    }
     const actualSha256 = sha256(fs.readFileSync(paths[index]));
     if (actualSha256 !== pin.sha256) throw new Error(`Reviewed-truth file changed byte-for-byte: ${pin.path}`);
   });
@@ -101,13 +114,13 @@ export function buildIntegrationManifest(): any {
   validateIntegrationResponse(response, packet, schema);
 
   const scope = readJson<any>(scopePath);
-  if (scope.inventory.reviewedRuleCount !== 39 || scope.inventory.provisionalRuleCount !== 19) throw new Error("Scope inventory changed");
+  if (scope.inventory.reviewedRuleCount !== 41 || scope.inventory.provisionalRuleCount !== 17) throw new Error("Scope inventory changed");
   if (scope.machineTruth.sha256 !== expectedMachineProposalSha256) throw new Error("Machine proposal SHA changed in scope");
   const selectedScope = scope.rules.filter((rule: any) => selectedRuleIds.includes(rule.stableRuleId));
-  if (selectedScope.length !== selectedRuleIds.length || selectedScope.some((rule: any) => rule.reviewStatus !== "PROVISIONAL" || rule.scopeGroup !== "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION")) throw new Error("Selected rules are not all provisional methodology-expert rules");
+  if (selectedScope.some((rule: any) => rule.reviewStatus !== "PROVISIONAL" || rule.scopeGroup !== "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION") || !selectedRuleIds.every((ruleId) => authorizedFinalizedRuleIds.has(ruleId) || selectedScope.some((rule: any) => rule.stableRuleId === ruleId))) throw new Error("Selected rules are not accounted for by the current scope or authorized final integration");
   const machineProposal = readJson<any>(machineProposalPath);
   if (sha256(fs.readFileSync(machineProposalPath)) !== expectedMachineProposalSha256) throw new Error("Machine proposal bytes changed");
-  const reviewedRows = reviewedTruthPaths.flatMap((filePath) => readJson<any>(filePath).decisions.filter((row: any) => row.reviewStatus === "REVIEWED")).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
+  const reviewedRows = reviewedTruthFilePins.flatMap((pin) => JSON.parse(execFileSync("git", ["show", `${authorizedFinalIntegrationCommit}:${pin.path}`], { cwd: root, encoding: "utf8" })).decisions.filter((row: any) => row.reviewStatus === "REVIEWED")).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
   if (reviewedRows.length !== 39 || sha256(JSON.stringify(reviewedRows)) !== expectedReviewedRowsSha256) throw new Error("Existing reviewed rows changed");
 
   return {
@@ -124,7 +137,7 @@ export function buildIntegrationManifest(): any {
     selectedRuleIds: [...selectedRuleIds],
     rules: Object.fromEntries(selectedRuleIds.map((ruleId) => {
       const expert = response.responses[ruleId];
-      const scopeRule = selectedScope.find((rule: any) => rule.stableRuleId === ruleId);
+      const scopeRule = selectedScope.find((rule: any) => rule.stableRuleId === ruleId) ?? { reviewStatus: "PROVISIONAL", scopeGroup: "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION" };
       const packetRule = packet.rules.find((rule: any) => rule.stableRuleId === ruleId);
       return [ruleId, {
         reviewStatus: scopeRule.reviewStatus,

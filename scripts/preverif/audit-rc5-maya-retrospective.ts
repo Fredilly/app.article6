@@ -11,6 +11,12 @@ const outputDir = path.join(rc5Root, "rc5-retrospective-audit");
 const selectionManifestPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/baselines/rc5/rc5-batch-selection-manifest.json");
 const frozenProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const fixProvenance = process.argv.includes("--fix-provenance");
+export const authorizedBlockerResolutionPacketPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/blocker-resolution-packet.json";
+export const authorizedBlockerResolutionPacketSha256 = "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef";
+export const authorizedBlockerResolutionRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+  "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+]);
 
 const batches = [
   { batch: 1, packetDir: "rc5-2-maya-adjudication", truthPath: path.join(rc5Root, "maya-adjudication-response.json") },
@@ -42,6 +48,21 @@ const evidenceKey = (evidence: JsonRecord): string => JSON.stringify({
   documentId: evidence.documentId,
   documentSha256: evidence.documentSha256,
 });
+
+export function loadAuthorizedBlockerResolutionContexts(packetFilePath = path.join(root, authorizedBlockerResolutionPacketPath)): JsonRecord[] {
+  if (sha256(fs.readFileSync(packetFilePath)) !== authorizedBlockerResolutionPacketSha256) throw new Error("Authorized blocker-resolution packet SHA changed");
+  const packet = read(packetFilePath);
+  return (packet.rules as JsonRecord[])
+    .filter((rule) => authorizedBlockerResolutionRuleIds.has(rule.ruleId))
+    .flatMap((rule) => (rule.projectEvidence as JsonRecord[]).map((evidence, index) => ({
+      contextId: `blocker-resolution-${rule.ruleId}-project-${index}`,
+      exactQuote: evidence.quote,
+      pageNumber: evidence.page,
+      sectionHeading: evidence.section,
+      sourceSpanId: evidence.spanId,
+      documentIdentity: { documentId: evidence.documentId, contentSha256: evidence.documentSha256 },
+    })));
+}
 
 export type AuditInvariantFailureCode =
   | "UNMATCHED_FROZEN_EVIDENCE"
@@ -190,16 +211,34 @@ function buildAudit() {
 
     for (const decision of truth.decisions) {
       const rule = packetRules.get(decision.stableRuleId);
+      const packetEvidenceContexts = rule
+        ? ([...(rule.acceptedEvidence ?? []), ...(rule.rejectedEvidence ?? [])] as JsonRecord[]).map((evidence, index) => ({
+          contextId: `${config.packetDir}-${decision.stableRuleId}-packet-evidence-${index}`,
+          exactQuote: evidence.quote,
+          pageNumber: evidence.page,
+          sectionHeading: evidence.section ?? evidence.provenance.sectionHeading,
+          sourceSpanId: evidence.spanId,
+          documentIdentity: { documentId: evidence.provenance.documentId ?? evidence.provenance.docId, contentSha256: evidence.provenance.documentSha256 ?? packet.sourceDocument.contentSha256 },
+        }))
+        : [];
+      const decisionContexts = config.batch === 3 && authorizedBlockerResolutionRuleIds.has(decision.stableRuleId)
+        ? [...allContexts, ...packetEvidenceContexts, ...loadAuthorizedBlockerResolutionContexts().filter((context) => context.contextId.includes(decision.stableRuleId))]
+        : [...allContexts, ...packetEvidenceContexts];
       const machineHash = rule ? machineRowHash(rule) : undefined;
       const evidenceEntries: JsonRecord[] = [];
       const unmatchedEvidence: JsonRecord[] = [];
       const ambiguousContextMatches: JsonRecord[] = [];
+      const decisionContextPool = new Map<string, JsonRecord[]>();
+      for (const context of decisionContexts) {
+        const key = evidenceKey(evidenceFromContext(context));
+        decisionContextPool.set(key, [...(decisionContextPool.get(key) ?? []), context]);
+      }
       for (const field of ["acceptedEvidence", "rejectedEvidence"] as const) {
         for (const [index, evidence] of (decision[field] ?? []).entries()) {
           evidenceCount += 1;
           let currentEvidence = evidence;
-          let candidates = contextPool.get(evidenceKey(currentEvidence)) ?? [];
-          const identityCandidates = allContexts.filter((context) => {
+          let candidates = decisionContextPool.get(evidenceKey(currentEvidence)) ?? [];
+          const identityCandidates = decisionContexts.filter((context) => {
             const sameDocument = context.documentIdentity.documentId === currentEvidence.documentId
               && context.documentIdentity.contentSha256 === currentEvidence.documentSha256;
             const stableIdentityMatch = context.sourceSpanId === currentEvidence.spanId && context.sectionHeading === currentEvidence.sectionHeading;
@@ -210,7 +249,7 @@ function buildAudit() {
           if (candidates.length === 0 && fixProvenance && identityContentKeys.size === 1 && identityCandidates.length > 0) {
             currentEvidence = evidenceFromContext(identityCandidates[0]);
             decision[field][index] = currentEvidence;
-            candidates = contextPool.get(evidenceKey(currentEvidence)) ?? [];
+            candidates = decisionContextPool.get(evidenceKey(currentEvidence)) ?? [];
             fixedProvenanceEntries.push({ batch: config.batch, stableRuleId: decision.stableRuleId, field, index, contextIds: identityCandidates.map((context) => context.contextId) });
           }
           const candidateIds = candidates.map((context) => context.contextId);
@@ -228,7 +267,7 @@ function buildAudit() {
       }
       const machineRowHashResult = Boolean(rule && decision.machineRowSha256 === machineHash);
       batchHashResults.machineRows = batchHashResults.machineRows && machineRowHashResult;
-      const invariantResult = validateAuditDecisionInvariants(decision, allContexts);
+      const invariantResult = validateAuditDecisionInvariants(decision, decisionContexts);
       const result = {
         batch: config.batch,
         stableRuleId: decision.stableRuleId,
@@ -304,6 +343,7 @@ function buildAudit() {
     fixedProvenanceEntries,
     reviewedUnion: { uniqueRuleCount: uniqueRuleIds.size, expectedRuleCount: 50, duplicateSelections },
     machineTruthSeparation: { frozenProposalPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", reviewedTruthPaths: batches.map((config) => path.relative(root, config.truthPath)), separate: true },
+    authorizedFrozenEvidenceSources: [{ path: authorizedBlockerResolutionPacketPath, sha256: authorizedBlockerResolutionPacketSha256, ruleIds: [...authorizedBlockerResolutionRuleIds].sort() }],
     batchSummaries,
     rules: results,
     unresolvedAmbiguities: results.flatMap((result) => [

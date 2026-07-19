@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "rc5-2-maya-expert-batch-2-final-integration-manifest-v1",
+  "mergedPr1089Commit": "c6b796a00a9786f40693c47738af784d24763398",
+  "blockerResolutionPacketSha256": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
+  "deepSeekResponseSha256": "1942e8c5d8e023631f3642e68f664c7dbe29212485e71dcc28c24faa5de27f10",
+  "schemaSha256": "01ddfff63ff22f96916eda95982e3ec04cb3259278f6cfa6226696181039a208",
+  "machineProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "officialSource": {
+    "pdfSha256": "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
+    "extractionSha256": "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561"
+  },
+  "mayaSource": {
+    "pdfSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+    "extractionSha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8"
+  },
+  "machineRowSha256": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89"
+  },
+  "reviewedTruthSourceSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "2f53f56d84c47691549ee53e6f3fad57a5034f0277b6e298dd50bd071b205413",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "preIntegrationReviewedTruthSourceSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "beforeReviewedTruthSourceSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "beforeInventory": {
+    "reviewed": 39,
+    "provisional": 19
+  },
+  "afterInventory": {
+    "reviewed": 41,
+    "provisional": 17
+  },
+  "integratedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013"
+  ],
+  "unresolved": {
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": [
+      "Appendix 21 (harvested wood products carbon stock estimation) referenced but not included in frozen packet.",
+      "Appendix 22 Test of sig - 6 year bsl valid tab (HWP significance test calculations) referenced but not included.",
+      "Formal carbon-pool selection matrix (Table 4 or equivalent) not provided in frozen packet."
+    ]
+  },
+  "changedReviewedTruthFile": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+  "changedRows": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013"
+  ],
+  "unchangedReviewedRowsSemanticSha256": "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1",
+  "noNewReviewedTruthFile": true
+}

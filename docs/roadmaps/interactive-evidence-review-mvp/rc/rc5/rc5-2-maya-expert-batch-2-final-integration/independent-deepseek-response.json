@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "rc5-2-maya-expert-batch-2-independent-review-response-v2",
+  "responses": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+      "reviewStatus": "RESOLVED",
+      "evidenceAssessment": "The frozen official VM0007 v1.8 PDF (source PDF SHA-256: 68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6) places condition R-1-0012 in Section 4.3.3 CIW Project Activities, condition 17, under 4.3 WRC. Maya project evidence establishes REDD/APDef classification, no peatlands or tidal wetlands, and no WRC modules. The methodology structure separates REDD applicability (Section 4.2) from WRC applicability (Section 4.3). Sufficient to conclude this WRC-specific condition does not apply.",
+      "finalRuleDecision": {
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "machineRowSha256": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
+        "reviewStatus": "REVIEWED",
+        "expertReviewRequired": false,
+        "finalEvidenceState": "N/A",
+        "finalApplicability": "NOT_APPLICABLE",
+        "reviewerOutcome": "NOT_APPLICABLE",
+        "acceptedEvidence": [
+          {
+            "quote": "AFOLU project category 13 Reduced Emissions from Deforestation and Degradation (REDD)\nProject activity type Avoiding planned deforestation",
+            "page": 15,
+            "sectionHeading": "2.1.3 Project Type",
+            "spanId": "quick-check-review-question:element:paragraph:2.1.3",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          },
+          {
+            "quote": "The project area contains no peatlands or tidal wetlands.",
+            "page": 84,
+            "sectionHeading": "3.1.2 Applicability of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.2:wetlands",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          }
+        ],
+        "rejectedEvidence": [],
+        "contradictionState": "NONE",
+        "draftFindingCandidate": null,
+        "assessmentReason": "Official VM0007 v1.8 PDF Section 4.3.3 CIW places the tidal wetland conservation condition under the WRC branch. Maya project is REDD/APDef with no peatlands or tidal wetlands. Condition does not apply to REDD-only projects.",
+        "gap": null,
+        "clientAction": null,
+        "correctionReason": "Previously PROVISIONAL. Official PDF confirms WRC-only scope. No WRC components in Maya project. Resolved NOT_APPLICABLE.",
+        "provisionalReason": null,
+        "genericFailureCategory": "ASSESSMENT",
+        "reviewerConfidence": "HIGH"
+      },
+      "remainingBlockers": [],
+      "notes": "Finalized using official VM0007 v1.8 PDF page 17 (Section 4.3.3 CIW, condition 17). Project REDD/APDef classification and official methodology structure resolve applicability."
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+      "reviewStatus": "RESOLVED",
+      "evidenceAssessment": "Official VM0007 v1.8 PDF places the wetland degradation agent condition under the WRC branch (Section 4.3). Maya project evidence confirms: (1) VM0007 REDD+ Methodology Framework, (2) VMD0006 (BL-PL) module for planned deforestation, (3) no peatlands or tidal wetlands, (4) baseline deforestation is planned deforestation, (5) REDD module is mandatory. Condition R-1-0013 belongs within the WRC/CIW branch, structurally separate from the REDD branch. Not applicable to the REDD/APDef project.",
+      "finalRuleDecision": {
+        "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+        "machineRowSha256": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
+        "reviewStatus": "REVIEWED",
+        "expertReviewRequired": false,
+        "finalEvidenceState": "N/A",
+        "finalApplicability": "NOT_APPLICABLE",
+        "reviewerOutcome": "NOT_APPLICABLE",
+        "acceptedEvidence": [
+          {
+            "quote": "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF)",
+            "page": 83,
+            "sectionHeading": "3.1.1 Title and Reference of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.1",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          },
+          {
+            "quote": "Module VMD0006 VMD0006 Estimation of baseline",
+            "page": 83,
+            "sectionHeading": "3.1.1 Title and Reference of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.1:vmd0006",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          },
+          {
+            "quote": "The project area contains no peatlands or tidal wetlands.",
+            "page": 84,
+            "sectionHeading": "3.1.2 Applicability of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.2:wetlands",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          },
+          {
+            "quote": "baseline deforestation falls within the planned deforestation category.",
+            "page": 84,
+            "sectionHeading": "3.1.2 Applicability of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.2:apdef",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          },
+          {
+            "quote": "Project is a REDD based project thus the module is mandatory.",
+            "page": 86,
+            "sectionHeading": "3.1.2 Applicability of Methodology",
+            "spanId": "quick-check-review-question:element:paragraph:3.1.2:redd",
+            "documentId": "quick-check-review-question",
+            "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          }
+        ],
+        "rejectedEvidence": [],
+        "contradictionState": "NONE",
+        "draftFindingCandidate": null,
+        "assessmentReason": "Official VM0007 v1.8 PDF places wetland degradation agent conditions under WRC branch (Section 4.3). Maya project is REDD/APDef with no wetlands, using VMD0006 (BL-PL). Condition does not apply to REDD-only projects.",
+        "gap": null,
+        "clientAction": null,
+        "correctionReason": "Previously PROVISIONAL. Official PDF confirms wetland degradation agent conditions belong to WRC branch. Maya project is REDD/APDef. Resolved NOT_APPLICABLE.",
+        "provisionalReason": null,
+        "genericFailureCategory": "ASSESSMENT",
+        "reviewerConfidence": "HIGH"
+      },
+      "remainingBlockers": [],
+      "notes": "Finalized using official VM0007 v1.8 PDF Section 4.3 WRC branch. REDD classification, VMD0006 module, no wetlands, planned deforestation category, and official methodology structure resolve applicability."
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+      "reviewStatus": "UNRESOLVED",
+      "evidenceAssessment": "Official VM0007 v1.8 PDF Section 5.3.2 (page 22-23) Table 4 for REDD carbon pool selection. Maya project evidence confirms included pools (aboveground, belowground, standing/lying dead wood, SOC) and HWP excluded as de minimis via Appendix 1. Dead wood conservatively included. Symmetric accounting confirmed. Three missing attachments prevent finalization.",
+      "finalRuleDecision": null,
+      "remainingBlockers": [
+        "Appendix 21 (harvested wood products carbon stock estimation) referenced but not included in frozen packet.",
+        "Appendix 22 Test of sig - 6 year bsl valid tab (HWP significance test calculations) referenced but not included.",
+        "Formal carbon-pool selection matrix (Table 4 or equivalent) not provided in frozen packet."
+      ],
+      "notes": "Official PDF Table 4 shows wood products as excluded/covered under REDD for standard REDD. Project narrative consistent but significance testing attachments must be verified independently before finalization."
+    }
+  }
+}
