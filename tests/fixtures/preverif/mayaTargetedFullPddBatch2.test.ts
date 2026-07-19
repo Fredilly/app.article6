@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -11,6 +12,8 @@ const root = process.cwd();
 const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).digest("hex");
 const read = <T>(p: string): T => JSON.parse(fs.readFileSync(p, "utf8")) as T;
 const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)];
+const historicalIntegratedCommit = "507822b92b64a12b5f71ca4ac0d3490379aa146f";
+const historicalTruth = <T>(file: string): T => JSON.parse(execFileSync("git", ["show", `${historicalIntegratedCommit}:${file}`], { cwd: root, encoding: "utf8" })) as T;
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 function validCompletedResponse(packet: any): any {
@@ -164,10 +167,10 @@ describe("RC5-2 Maya targeted full-PDD batch 2", () => {
     } finally { fs.rmSync(tempDir, { recursive: true, force: true }); }
   });
 
-  it("keeps the frozen packet inventory pinned while integrated truth is 48 reviewed / 10 provisional", () => {
+  it("keeps the frozen packet inventory pinned while the pre-Wave-1 integrated truth is 48 reviewed / 10 provisional", () => {
     const machine = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
     assert.equal(sha256(fs.readFileSync(path.join(root, machine))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
-    const before = truthFiles.flatMap((file) => read<any>(path.join(root, file)).decisions);
+    const before = truthFiles.flatMap((file) => historicalTruth<any>(file).decisions);
     assert.equal(before.length, 58);
     assert.equal(new Set(before.map((r: any) => r.stableRuleId)).size, 58);
     assert.equal(before.filter((r: any) => r.reviewStatus === "REVIEWED").length, 48);

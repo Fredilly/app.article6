@@ -13,6 +13,7 @@ export const responseSha256 = "57838574b2faea0ed44a69dd738fc3ddd1dba336de6465263
 export const packetSha256 = "1eec6d22707631a389a1faae18fb091db09cefb7fdc95311e3ea10612eef6135";
 export const machineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
 export const preIntegrationCommit = "2bc205acf9e3cc2e0d3c1ff890a50a39617d0396";
+export const historicalIntegratedCommit = "507822b92b64a12b5f71ca4ac0d3490379aa146f";
 export const selectedRuleIds = [
   "Verra.AFOLU.VM0007.v1-8.R-2-0002", "Verra.AFOLU.VM0007.v1-8.R-2-0003", "Verra.AFOLU.VM0007.v1-8.R-2-0004",
   "Verra.AFOLU.VM0007.v1-8.R-2-0006", "Verra.AFOLU.VM0007.v1-8.R-2-0007", "Verra.AFOLU.VM0007.v1-8.R-2-0013", "Verra.AFOLU.VM0007.v1-8.R-4-0001",
@@ -29,6 +30,7 @@ const abs = (file: string) => path.join(root, file);
 const equal = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const evidenceKey = (e: Json) => JSON.stringify([e.quote, e.page, e.sectionHeading ?? e.heading, e.spanId, e.documentId, e.documentSha256]);
 const baseBytes = (file: string) => execFileSync("git", ["show", `${preIntegrationCommit}:${file}`]);
+const historicalIntegratedBytes = (file: string) => execFileSync("git", ["show", `${historicalIntegratedCommit}:${file}`]);
 const write = (file: string, value: unknown) => fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 
 function exact(actual: string[], expected: readonly string[], label: string) {
@@ -75,7 +77,7 @@ export function buildExpectedIntegration(requirePristine = false) {
 }
 
 export function validateIntegration() {
-  const { integrated, before } = buildExpectedIntegration(); const targetSet = new Set(selectedRuleIds); for (const file of truthFiles) { const actual = read<Json>(abs(file)); const expected = integrated.get(file)!; if (!equal(actual, expected)) throw new Error(`stored truth does not equal corrected integration: ${file}`); for (const row of actual.decisions as Json[]) if (!targetSet.has(row.stableRuleId)) { const base = (before.get(file)!.decisions as Json[]).find((candidate) => candidate.stableRuleId === row.stableRuleId)!; if (!equal(row, base)) throw new Error(`stored non-target row changed: ${row.stableRuleId}`); } } return true;
+  const { integrated, before } = buildExpectedIntegration(); const targetSet = new Set(selectedRuleIds); for (const file of truthFiles) { const actual = JSON.parse(historicalIntegratedBytes(file).toString("utf8")) as Json; const expected = integrated.get(file)!; if (!equal(actual, expected)) throw new Error(`historical integrated truth does not equal corrected integration: ${file}`); for (const row of actual.decisions as Json[]) if (!targetSet.has(row.stableRuleId)) { const base = (before.get(file)!.decisions as Json[]).find((candidate) => candidate.stableRuleId === row.stableRuleId)!; if (!equal(row, base)) throw new Error(`historical stored non-target row changed: ${row.stableRuleId}`); } } return true;
 }
 
 export function writeIntegration() {

@@ -12,6 +12,8 @@ const root = process.cwd();
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const sha = (v: Buffer | string) => crypto.createHash("sha256").update(v).digest("hex");
 const json = (p: string) => JSON.parse(fs.readFileSync(p, "utf8"));
+const historicalIntegratedCommit = "507822b92b64a12b5f71ca4ac0d3490379aa146f";
+const historicalJson = (file: string) => JSON.parse(execFileSync("git", ["show", `${historicalIntegratedCommit}:${file}`], { cwd: root, encoding: "utf8" }));
 const oldTruth = () => JSON.parse(execFileSync("git", ["show", `${baseCommit}:docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json`], { cwd: root, encoding: "utf8" }));
 const targetedTruth = () => JSON.parse(execFileSync("git", ["show", `${subsequentTargetedIntegrationCommit}:docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json`], { cwd: root, encoding: "utf8" }));
 const targetedRuleIds = new Set([
@@ -56,7 +58,7 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     }
     expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2])).toEqual(batch3Expected.decisions.find((r: any) => r.stableRuleId === ruleIds[2]));
     const all = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].map((f, i) => i === 0 ? `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}` : `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}`);
-    const rows = all.flatMap((f) => json(path.join(root, f)).decisions);
+    const rows = all.flatMap((f) => historicalJson(f).decisions);
     expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(48);
     expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(10);
   });
@@ -103,7 +105,7 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     const second = buildBatch3ExpectedIntegration();
     const currentExpected = buildBatch4ExpectedIntegration().integrated;
     expect([...first.integrated.entries()]).toEqual([...second.integrated.entries()]);
-    for (const file of batch3IntegratedTruthFiles) expect(currentExpected.get(file)).toEqual(json(path.join(root, file)));
+    for (const file of batch3IntegratedTruthFiles) expect(currentExpected.get(file)).toEqual(historicalJson(file));
     const responseManifest = json(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/response-manifest.json"));
     const integrationManifest = json(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/integration-manifest.json"));
     expect(responseManifest.responseSha256).toBe(batch3ResponseSha256);
