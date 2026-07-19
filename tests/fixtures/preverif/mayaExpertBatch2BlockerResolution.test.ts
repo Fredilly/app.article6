@@ -1,4 +1,5 @@
 import Ajv from "ajv/dist/2020";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { packetDir, selectedRuleIds, validatePacket } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-blocker-resolution";
@@ -145,9 +146,25 @@ describe("Maya RC5-2 batch 2 blocker-resolution packet", () => {
     expect(packet.truthProtection.noNewReviewedTruth).toBe(true);
     expect(packet.truthProtection.noConclusionsChanged).toBe(true);
     expect(fs.existsSync(path.join(packetDir, "reviewed-truth.json"))).toBe(false);
-    const integration = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/integration-manifest.json"), "utf8"));
-    expect(integration.inventory.after).toEqual({ reviewed: 45, provisional: 13, total: 58 });
-    expect(integration.machineTruthModified).toBe(false);
     expect(fs.existsSync(packetPath)).toBe(true);
+  });
+
+  test("rebuilds the historical packet byte-for-byte from its pinned source state", () => {
+    const historicalCommit = "c6b796a00a9786f40693c47738af784d24763398";
+    const tempWorktree = fs.mkdtempSync(path.join(root, ".tmp-maya-blocker-resolution-"));
+    const historicalPacketPath = path.join(tempWorktree, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/blocker-resolution-packet.json");
+    const historicalExtractionPath = path.join(tempWorktree, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json");
+    try {
+      execFileSync("git", ["worktree", "add", "--detach", tempWorktree, historicalCommit], { cwd: root, stdio: "pipe" });
+      const packetBefore = fs.readFileSync(historicalPacketPath);
+      const extractionBefore = fs.readFileSync(historicalExtractionPath);
+      const tsx = path.join(root, "node_modules/.bin/tsx");
+      const generatorPath = path.join(tempWorktree, "scripts/preverif/generate-rc5-maya-expert-batch2-blocker-resolution.ts");
+      const generated = execFileSync(tsx, ["-e", `import { assertSourceAndTruthPins, buildPacket } from ${JSON.stringify(generatorPath)}; assertSourceAndTruthPins(); process.stdout.write(JSON.stringify(buildPacket(), null, 2) + "\\n");`], { cwd: tempWorktree });
+      expect(generated).toEqual(packetBefore);
+      expect(fs.readFileSync(historicalExtractionPath)).toEqual(extractionBefore);
+    } finally {
+      execFileSync("git", ["worktree", "remove", "--force", tempWorktree], { cwd: root, stdio: "pipe" });
+    }
   });
 });

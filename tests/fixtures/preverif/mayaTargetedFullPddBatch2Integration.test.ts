@@ -7,16 +7,13 @@ import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { ids, validateCompletedResponse, validateFrozenPacketIntegrity } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
 import { buildIntegratedTruth, finalizedRuleIds, packetPath, responsePath, schemaPath, truthFiles, validateStoredResponse } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2-integration";
+import { assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: Buffer) => crypto.createHash("sha256").update(value).digest("hex");
 const targetIds = new Set(ids);
 const finalized = new Set(finalizedRuleIds);
-const laterAuthorizedRuleIds = new Set([
-  "Verra.AFOLU.VM0007.v1-8.R-2-0008", "Verra.AFOLU.VM0007.v1-8.R-3-0001", "Verra.AFOLU.VM0007.v1-8.R-3-0003", "Verra.AFOLU.VM0007.v1-8.R-3-0004",
-  "Verra.AFOLU.VM0007.v1-8.R-3-0008", "Verra.AFOLU.VM0007.v1-8.R-5-0001", "Verra.AFOLU.VM0007.v1-8.R-5-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0005",
-]);
 const integrationBaseCommit = "ceb08ab53c4425d783e00bc8a2f31a67423f72dd";
 const allTruthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json` )];
 
@@ -58,7 +55,10 @@ describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
       const currentRows = new Map(current.decisions.map((row: any) => [row.stableRuleId, row]));
       const baseRows = new Map(base.decisions.map((row: any) => [row.stableRuleId, row]));
       assert.deepEqual([...currentRows.keys()].sort(), [...baseRows.keys()].sort(), `${file}: rule-ID set changed`);
-      for (const [stableRuleId, baseRow] of baseRows) if (!targetIds.has(stableRuleId) && !laterAuthorizedRuleIds.has(stableRuleId)) assert.deepEqual(currentRows.get(stableRuleId), baseRow, `${file}:${stableRuleId}`);
+      for (const [stableRuleId, baseRow] of baseRows) {
+        if (batch3RuleIds.has(stableRuleId)) assertBatch3IntegratedRow(currentRows.get(stableRuleId), stableRuleId);
+        else if (!targetIds.has(stableRuleId)) assert.deepEqual(currentRows.get(stableRuleId), baseRow, `${file}:${stableRuleId}`);
+      }
     }
     assert.deepEqual([...integrated.keys()].sort(), [...allTruthFiles].sort());
   });

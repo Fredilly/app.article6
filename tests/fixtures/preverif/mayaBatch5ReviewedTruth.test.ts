@@ -5,6 +5,7 @@ import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { readRc5BatchSelection } from "../../../scripts/preverif/rc5-batch-selection-manifest";
+import { assertBatch3EvidenceProvenance, assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const batchDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication");
@@ -37,7 +38,6 @@ const evidenceKey = (evidence: Record<string, any>) => JSON.stringify({
   documentId: evidence.documentId,
   documentSha256: evidence.documentSha256,
 });
-const laterBatch3RuleIds = new Set(["Verra.AFOLU.VM0007.v1-8.R-3-0003", "Verra.AFOLU.VM0007.v1-8.R-3-0004", "Verra.AFOLU.VM0007.v1-8.R-3-0008", "Verra.AFOLU.VM0007.v1-8.R-5-0001", "Verra.AFOLU.VM0007.v1-8.R-5-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0005"]);
 
 function assertPacketEvidenceMembership(
   packetEvidencePool: Set<string>,
@@ -102,7 +102,12 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     for (const decision of truth.decisions) {
       const packetRule = packet.rules.find((rule: any) => rule.stableRuleId === decision.stableRuleId);
       assert.ok(packetRule, `Missing packet rule for ${decision.stableRuleId}`);
-      if (!laterBatch3RuleIds.has(decision.stableRuleId)) {
+      if (batch3RuleIds.has(decision.stableRuleId)) {
+        for (const [index, evidence] of [...decision.acceptedEvidence, ...decision.rejectedEvidence].entries()) {
+          assertBatch3EvidenceProvenance(decision.stableRuleId, evidence, index < decision.acceptedEvidence.length ? "acceptedEvidence" : "rejectedEvidence", index < decision.acceptedEvidence.length ? index : index - decision.acceptedEvidence.length);
+        }
+        assertBatch3IntegratedRow(decision, decision.stableRuleId);
+      } else {
         for (const [index, evidence] of decision.acceptedEvidence.entries()) {
           assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "acceptedEvidence", index, evidence);
         }
@@ -140,10 +145,15 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
 
     const r30008 = decisions.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
     assert.equal(r30008.finalApplicability, "UNKNOWN");
-    if (!laterBatch3RuleIds.has(r30008.stableRuleId)) {
-      assert.match(r30008.assessmentReason, /single-location/);
-      assert.match(r30008.assessmentReason, /no evidence about whether JNR data is used/);
-    }
+    assert.match(r30008.assessmentReason, /JNR data/i);
+    assert.match(r30008.assessmentReason, /not.*definitively resolve applicability/i);
+    assert.equal(r30008.finalApplicability, "UNKNOWN");
+    assert.equal(r30008.finalEvidenceState, "UNCLEAR");
+    assert.equal(r30008.reviewerOutcome, "ACTION_REQUIRED");
+    assert.match(r30008.gap, /JNR Requirements/);
+    assert.match(r30008.clientAction, /JNR applicability conditions/);
+    assert.match(r30008.provisionalReason, /JNR baseline data option/);
+    assert.equal(r30008.reviewerConfidence, "LOW");
 
     for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {
       const decision = truth.decisions.find((candidate: any) => candidate.stableRuleId.endsWith(`.${shortRuleId}`));

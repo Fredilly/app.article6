@@ -5,6 +5,7 @@ import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { readRc5BatchSelection } from "../../../scripts/preverif/rc5-batch-selection-manifest";
+import { assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const batchDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication");
@@ -41,10 +42,6 @@ const preChangeReviewedRowSha256: Record<string, string> = {
   "Verra.AFOLU.VM0007.v1-8.R-3-0001": "945466e5abe02f73c729573d2d688abb676cf10ddf89cd7d1ee48ef2fd801987",
   "Verra.AFOLU.VM0007.v1-8.R-3-0002": "b573f9a7e8bcc384f1c4c89f74392f914fbc82cbf64a8722cabd571270a93ee6",
 };
-const laterBatch3RuleIds = new Set([
-  "Verra.AFOLU.VM0007.v1-8.R-2-0008", "Verra.AFOLU.VM0007.v1-8.R-3-0001", "Verra.AFOLU.VM0007.v1-8.R-3-0003", "Verra.AFOLU.VM0007.v1-8.R-3-0004",
-  "Verra.AFOLU.VM0007.v1-8.R-3-0008", "Verra.AFOLU.VM0007.v1-8.R-5-0001", "Verra.AFOLU.VM0007.v1-8.R-5-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0005",
-]);
 const authorizedTargetRuleIds = new Set([
   "Verra.AFOLU.VM0007.v1-8.R-2-0002",
   "Verra.AFOLU.VM0007.v1-8.R-2-0003",
@@ -129,13 +126,14 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     ]);
     for (const ruleId of authorizedTargetRuleIds) selected.add(ruleId);
     const files = [3, 4].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`);
-    const baseRows = new Map<string, any>();
     for (const file of files) for (const row of read<{ decisions: any[] }>(path.join(root, file)).decisions) {
+      if (batch3RuleIds.has(row.stableRuleId)) {
+        assertBatch3IntegratedRow(row, row.stableRuleId);
+        continue;
+      }
       const currentRowSha256 = sha256(JSON.stringify(row));
-      baseRows.set(row.stableRuleId, preChangeReviewedRowSha256[row.stableRuleId]);
-      assert.equal(selected.has(row.stableRuleId) || laterBatch3RuleIds.has(row.stableRuleId) || currentRowSha256 === preChangeReviewedRowSha256[row.stableRuleId], true, row.stableRuleId);
+      assert.equal(selected.has(row.stableRuleId) || currentRowSha256 === preChangeReviewedRowSha256[row.stableRuleId], true, row.stableRuleId);
     }
-    assert.deepEqual([...baseRows.entries()].filter(([id, baseSha256]) => baseSha256 !== sha256(JSON.stringify(files.map((file) => read<{ decisions: any[] }>(path.join(root, file)).decisions).flat().find((row) => row.stableRuleId === id)))).map(([id]) => id).sort().every((id) => selected.has(id) || laterBatch3RuleIds.has(id)), true);
   });
 
   it("classifies every material machine-versus-human disagreement", () => {

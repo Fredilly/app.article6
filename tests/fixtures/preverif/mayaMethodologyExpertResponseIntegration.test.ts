@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -17,8 +16,23 @@ import {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const readJson = (filePath: string): any => JSON.parse(fs.readFileSync(filePath, "utf8"));
+const historicalIntegrationCommit = "c6b796a00a9786f40693c47738af784d24763398";
+
+function regenerateHistoricalManifest() {
+  const worktree = fs.mkdtempSync(path.join(process.cwd(), ".tmp-maya-methodology-integration-"));
+  const outputDir = fs.mkdtempSync(path.join(process.cwd(), ".tmp-maya-methodology-output-"));
+  try {
+    execFileSync("git", ["worktree", "add", "--detach", worktree, historicalIntegrationCommit], { cwd: process.cwd(), stdio: "pipe" });
+    const generatorPath = path.join(worktree, "scripts/preverif/generate-rc5-maya-methodology-expert-response-integration.ts");
+    const tsx = path.join(process.cwd(), "node_modules/.bin/tsx");
+    execFileSync(tsx, ["-e", `import { writeIntegrationManifest } from ${JSON.stringify(generatorPath)}; writeIntegrationManifest(${JSON.stringify(path.join(outputDir, "integration-manifest.json"))});`], { cwd: worktree });
+    return { generated: fs.readFileSync(path.join(outputDir, "integration-manifest.json")), committed: fs.readFileSync(path.join(worktree, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/integration-manifest.json")) };
+  } finally {
+    execFileSync("git", ["worktree", "remove", "--force", worktree], { cwd: process.cwd(), stdio: "pipe" });
+    fs.rmSync(outputDir, { recursive: true, force: true });
+  }
+}
 
 function copyReviewedTruthFiles() {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
@@ -184,7 +198,9 @@ describe("Maya independent expert response integration", () => {
   });
 
   test("keeps the historical integration manifest pinned", () => {
-    expect(fs.readFileSync(integrationManifestPath)).toEqual(fs.readFileSync(integrationManifestPath));
+    const regenerated = regenerateHistoricalManifest();
+    expect(regenerated.generated).toEqual(regenerated.committed);
+    expect(regenerated.generated).toEqual(fs.readFileSync(integrationManifestPath));
     expect(fs.readdirSync(integrationDir).sort()).toContain("integration-manifest.json");
   });
 });
