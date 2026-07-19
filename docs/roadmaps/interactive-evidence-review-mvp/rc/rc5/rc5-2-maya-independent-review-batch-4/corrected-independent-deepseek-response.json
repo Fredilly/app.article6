@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "rc5-2-maya-independent-review-batch-4-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "machineRowSha256": "28298e9a9700ae3e806071694832576fc22016ead632768ef401f995e2281cdc",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n78\nCCB v3.0, VCS v4.4\nStatute Relevance and Compliance\nright to unionize outlined in worker\u2019s\nagreements.\nInternational Labor Organization Conventions Belize is a signatory to many of the International\nLabor Organization\u2019s conventions13. Those\nconventions are addressed in Belize labor laws.\nThe ILO Conventions Act commits Belize to\nfollowing the ILO conventions.\nEqual Pay Act, Chapter 302:01 This act seeks to ensure that employers pay\nequal pay for equal work without discrimination\nbetween male and female employees.\n2.5.3 Human Rights (VCS, 3.19)\nThe MFC REDD Project recognizes, respects, and promotes the protection of the rights of Indigenous\nPeoples, local communities, and customary rights holders in line with applicable international human\nrights law, and the United Nations Declaration on the Rights of Indigenous Peoples and ILO Convention\n169 on Indigenous and Tribal Peoples.\nThere are currently no communities in the project area nor were there communities before the property\nwas purchased. In the project zone, there are 12 local communities made up of Creole, Garifuna, and\nMestizo/Hispanic/Latino populations. There are no Indigenous communities in the project zone. The\nproject has been engaging with the 12 communities and will continue to engage with them to ensure\nrespect for their human rights and equity as detailed in sections 2.3 and section 4 of this document.\nOutside of the REDD project area but within the property that the MFCT owns for conservation, there is\na family from one of the local communities currently using a small area of about 12 hectares for cattle\nranching and fruit tree production. This family had a 7-year lease issued by the Government of Belize\nfrom 2013-2020. This is a boundary overlap as a portion of the area under the family\u2019s lease falls\nwithin the MFC property. After the lease expired, the family has continued to occupy the area.\nThe MFCT is working to engage with the family with the goal of understanding their perspective and\ncircumstances, while working collaboratively toward a voluntary and dignified resolution to the\noverlapping claims to the property. Emphasis is being placed on minimizing conflict, upholding his\nrights and well-being throughout the process, and informing the family of the MFCT legal rights to the\nland.\n2.5.4 Indigenous Peoples and Cultural Heritage (VCS, 3.18, 3.19)\nAs detailed in section 4, the project has clear net benefits to local communities and is committed to\npreserving their cultural heritage. The conservation of the project area contributes to the health of local\npopulations of wildlife, thereby supporting the livelihoods of nearby communities that depend on",
+          "page": 78,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 78",
+          "spanId": "full-pdd:page-78:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n81\nCCB v3.0, VCS v4.4\nThere are no ongoing or unresolved conflicts or disputes over rights to the MFC REDD project area nor\nhave there been any disputes during the last twenty years.\nOutside of the REDD project area but within the property that the MFCT purchased for conservation,\nthere is a family from one of the 12 communities currently using a small area of about 12 hectares for\ncattle ranching and fruit tree production for personal consumption. This family had a 7-year lease\nissued by the Government of Belize from 2013-2020. However, the lease includes a portion of the area\nwithin the property under previous ownership, causing a boundary overlap. After the lease expired, the\nfamily has continued to occupy the area.\nThe MFCT is engaging with the family with the goal of understanding their perspective and\ncircumstances, while working collaboratively toward a voluntary and dignified resolution of the\nsituation. Emphasis is being placed on minimizing conflict, upholding the family\u2019s rights and well-being\nthroughout the process, and informing them of the MFCT\u2019s legal rights to the land.\n2.5.12 Approvals (CCB, G5.7)\nIn October 2020, a legally binding agreement was signed between the Government of Belize (GoB) and\nRe:wild (formerly Global Wildlife Conservation) included in Appendix 13. One of the obligations of the\nGoB in this agreement is to grant the carbon rights of the properties to the MFCT.\nIn September, 2021, a motion was passed in the Belize National Assembly formally approving the\ntransfer of carbon rights and credits associated with the properties held by the MFCT to the MFCT, as\nagreed upon in the GoB-Re:Wild agreement, with any excess carbon rights and credits remaining with\nthe GoB (see Appendix 9).\n2.5.13 Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB\nG5.9)\n2.5.13.1 No Double Issuance\nIs the project receiving or seeking credit for reductions and removals from a project activity\nunder another GHG program, or any other form of community, social, or biodiversity unit or\ncredit?\n\u2610 Yes \u2612 No\n2.5.13.2 Registration in Other GHG Programs\nHas the project registered under any other GHG programs?\n\u2610 Yes \u2612 No\nIs the project active under the other program?\n\u2610 Yes \u2612 No\n2.5.13.3 Projects Rejected by Other GHG Programs",
+          "page": 81,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 81",
+          "spanId": "full-pdd:page-81:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD evidence covers legal compliance, human rights, and rights conflicts, but does not contain an explicit statement that the project boundary does not overlap any other VCS project boundary. The KML file and shapefiles, which could contain boundary overlap information, are referenced but absent from the frozen packet. Without the boundary files or an explicit no-overlap statement, boundary exclusivity cannot be independently confirmed.",
+      "gap": "The KML file and shapefiles (referenced in the PDD) are not present in the frozen packet and are necessary to verify boundary exclusivity. No explicit no-overlap statement exists in the searched PDD evidence.",
+      "clientAction": "Provide the KML and shapefiles, or an explicit no-overlap statement, to confirm the boundary does not overlap with any other VCS project.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 absent boundary files genuinely prevent final verification.",
+      "provisionalReason": "Boundary coordinates and shapefile/KML references are provided, but the actual KML and shapefiles are absent from the frozen packet. These external sources are necessary to independently confirm boundary exclusivity.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "machineRowSha256": "8024eb5b2d40a6bfc8ee68b6935957491349d926938ddea4fce98ceb9b813c21",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n81\nCCB v3.0, VCS v4.4\nThere are no ongoing or unresolved conflicts or disputes over rights to the MFC REDD project area nor\nhave there been any disputes during the last twenty years.\nOutside of the REDD project area but within the property that the MFCT purchased for conservation,\nthere is a family from one of the 12 communities currently using a small area of about 12 hectares for\ncattle ranching and fruit tree production for personal consumption. This family had a 7-year lease\nissued by the Government of Belize from 2013-2020. However, the lease includes a portion of the area\nwithin the property under previous ownership, causing a boundary overlap. After the lease expired, the\nfamily has continued to occupy the area.\nThe MFCT is engaging with the family with the goal of understanding their perspective and\ncircumstances, while working collaboratively toward a voluntary and dignified resolution of the\nsituation. Emphasis is being placed on minimizing conflict, upholding the family\u2019s rights and well-being\nthroughout the process, and informing them of the MFCT\u2019s legal rights to the land.\n2.5.12 Approvals (CCB, G5.7)\nIn October 2020, a legally binding agreement was signed between the Government of Belize (GoB) and\nRe:wild (formerly Global Wildlife Conservation) included in Appendix 13. One of the obligations of the\nGoB in this agreement is to grant the carbon rights of the properties to the MFCT.\nIn September, 2021, a motion was passed in the Belize National Assembly formally approving the\ntransfer of carbon rights and credits associated with the properties held by the MFCT to the MFCT, as\nagreed upon in the GoB-Re:Wild agreement, with any excess carbon rights and credits remaining with\nthe GoB (see Appendix 9).\n2.5.13 Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB\nG5.9)\n2.5.13.1 No Double Issuance\nIs the project receiving or seeking credit for reductions and removals from a project activity\nunder another GHG program, or any other form of community, social, or biodiversity unit or\ncredit?\n\u2610 Yes \u2612 No\n2.5.13.2 Registration in Other GHG Programs\nHas the project registered under any other GHG programs?\n\u2610 Yes \u2612 No\nIs the project active under the other program?\n\u2610 Yes \u2612 No\n2.5.13.3 Projects Rejected by Other GHG Programs",
+          "page": 81,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 81",
+          "spanId": "full-pdd:page-81:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n82\nCCB v3.0, VCS v4.4\nHas the project been rejected by any other GHG programs?\n\u2610 Yes \u2612 No\n2.5.14 Double Claiming, Other Forms of Credit, and Scope 3 Emissions (VCS, 3.24)\n2.5.14.1 No Double Claiming with Emissions Trading Programs or Binding Emission Limits\nAre project reductions and removals or project activities also included in an emissions trading\nprogram or binding emission limit? See the VCS Program Definitions for definitions of\nemissions trading program and binding emission limit.\n\u2610 Yes \u2612 No\n2.5.14.2 No Double Claiming with Other Forms of Environmental Credit\nHas the project activity sought, received, or is planning to receive credit from another GHG-\nrelated environmental credit system? See the VCS Program Definitions for definition of GHG-\nrelated environmental credit system.\n\u2610 Yes \u2612 No\n2.5.14.3 Supply Chain (Scope 3) Emissions\nDo the project activities affect the emissions footprint of any product(s) (goods or services) that\nare part of a supply chain?\n\u2610 Yes \u2612 No\n2.6 Additional Information Relevant to the Project\n2.6.1 Leakage Management (VCS, 3.11, 3.15)\nNot applicable. Refer to 3.2.3 Leakage Emissions.\n2.6.2 Further Information\nNot applicable.\n3 CLIMATE\n3.1 Application of Methodology\n3.1.1 Title and Reference of Methodology (VCS, 3.1)",
+          "page": 82,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 82",
+          "spanId": "full-pdd:page-82:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD documents external-program double-counting prevention (Section 2.5.13.1 No Double Issuance: No; Section 2.5.13.2 Registration in Other GHG Programs: No; Section 2.5.14 double-claiming checkboxes all marked No). However, no evidence of intra-project exclusion tracking is present in the frozen PDD. The rule requires both external and internal exclusion tracking. The external component is documented; the internal component is absent from the searched PDD. This constitutes a final adverse finding: the PDD does not demonstrate how exclusions between activity types, pools, or sub-areas within the project are tracked and reported.",
+      "gap": "No evidence of intra-project exclusion tracking in the searched frozen PDD.",
+      "clientAction": "Provide intra-project exclusion tracking mechanism or confirm the project has a single activity type with no internal exclusions requiring tracking.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 the PDD was searched and does not contain intra-project exclusion tracking; this is a final, defensible conclusion.",
+      "provisionalReason": null,
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "HIGH"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "machineRowSha256": "d4eea41a068f96ff59cb0e89ee6a804c6cecd37b17b71b628c22fd08b0b557b6",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n97\nCCB v3.0, VCS v4.4\nthe project is located in central Belize is home to a large concentration of agribusiness in Belize.\nBecause of this fact, the project team focused on an area (i.e. stratum) within approximately 50 km of\nthe project area to analyze land use by the class of deforestation agents. This stratum is similar, in\nterms of the biophysical parameters, related to forest productivity and common practice for forest\nconversion (Table 14, Table 15, Table 16, Table 17).\nAs described in the baseline scenario (section 3.1.4) there is an immediate site-specific threat of\ndeforestation and conversion to agriculture.\n3.2.1.1.2 Area of deforestation \ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\nThe project area can be legally cleared and converted to agriculture (section 2.2.1). Because its soils\nare appropriate for agricultural production, it has negligible slope, and because low areas can be\ndrained (as stated in the Broker\u2019s Opinion of Value available in Appendix 11D), the entire area of the\nexisting forest in the project area (10,795 ha) is suitable for conversion to agriculture and thus is the\narea of deforestation \ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51.\n3.2.1.1.3 Rate of deforestation \ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nTo calculate the baseline rate of deforestation, 6 proxy areas were selected west of the project area.\nThese proxy areas are based on official parcel registry data provided by the Belizean government entity,\nLand Information Center (LIC). The parcel numbers associated with each proxy area is in Table 13. The\noriginal data provided by LIC can be found in Appendix 24.\nTable 13. LIC parcel numbers for each proxy area\nProxy number LIC parcel registry number(s)\n1 14-44-9\n2 14-44-5\n3 14-47-4\n4 14-44-7\n5 19-41-1975\n6 20-29-53, 20-29-51, 20-29-68\nFor each of the proxy areas:\n\u2022 Land conversion practices were the same as those used by the baseline agent or class of agent\n\u2022 The post-deforestation land use was the same in the proxy areas as expected in the project area\nunder business as usual",
+          "page": 97,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 97",
+          "spanId": "full-pdd:page-97:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n98\nCCB v3.0, VCS v4.4\n\u2022 The proxy areas had the same management and land use rights type as the proposed project area\nunder business as usual\n\u2022 The proxy areas were in the immediate area of the project (within 50 Km).\n\u2022 Agents of deforestation in proxy areas deforested their land under the same criteria that the project\nlands would follow\n\u2022 Deforestation in the proxy area occurred within the 10 years prior to the baseline period.\n\u2022 Proxy areas exhibited similar pre-deforestation forest type as the PA (Table 14)\n\u2022 Proxy areas represented similar elevation and slope categories as the PA (Table 15, Table 16)\n\u2022 Soil types are similar (Table 17)\nFor ecological and physical similarity characteristics, VMD0006 requires that the proxy sites deviate by\nno more than 20% from the proportion of the categories represented within the project area (soil types,\nelevation, slope, forest class). This standard is met for all proxy sites.\nTable 14. Proxy similarity to project area of pre-deforestation forest type. Source: ESA (2017) land cover representing\n2010.\nProxy\nZone\nPercent Absolute percent deviation from project\narea\nTree\ncover\nbroad-\nleaved\nevergree\nn closed\nto open\n(>15%)\nMosaic\nnatural\nvegetation\n(tree shrub\nherbaceou\ns cover)\n(>50%) /\ncropland\n(<50%)\nMosaic\ntree and\nshrub\n(>50%) /\nherbaceou\ns cover\n(<50%)\nTree\ncover\nfloode\nd\nsaline\nwater\nTree\ncover\nbroad-\nleaved\nevergree\nn closed\nto open\n(>15%)\nMosaic\nnatural\nvegetation\n(tree shrub\nherbaceou\ns cover)\n(>50%) /\ncropland\n(<50%)\nMosaic\ntree and\nshrub\n(>50%) /\nherbaceou\ns cover\n(<50%)\nTree\ncover\nflood-\ned\nsalin\ne\nwater\nPA 98.3% 0.0% 1.4% 0.3% - - - -\n1 94.6% 5.4% 0.0% 0.0% 1.6% 3.3% 1.4% 0.3%\n2 88.1% 10.5% 1.4% 0.0% 8.0% 8.3% 0.0% 0.3%\n3 94.2% 5.8% 0.0% 0.0% 1.9% 3.6% 1.4% 0.3%\n4 91.2% 8.8% 0.0% 0.0% 5.0% 6.7% 1.4% 0.3%\n5 87.9% 12.1% 0.0% 0.0% 8.2% 9.9% 1.4% 0.3%\n6* 67.1% 32.6% 0.3% 0.0% 29.1% 30.5% 1.1% 0.3%\nThe proxy areas all contained a majority of broadleaved evergreen forest. Only proxy 6 apparently\ndeviated by more than 20%. This can be explained because deforestation had already commenced\nprior to 2010, resulting in some areas already registering as mosaic cropland in the ESA CCI land cover\nmap used in this analysis. Mosaic vegetation with cropland is a hybrid natural/anthropogenic class that\ndoes not differentiate forest type. It is reasonable to assume that prior to cropland, the area would have\nbeen covered by the same forest class as the surrounding non-agricultural lands.",
+          "page": 98,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 98",
+          "spanId": "full-pdd:page-98:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n278\nCCB v3.0, VCS v4.4\nSection Information Justification\n3.2.1.1.3 Rate of\ndeforestation\nTo calculate the baseline rate of deforestation, 6 proxy areas\nwere selected west of the project area. These proxy areas are\nbased on official parcel registry data provided by the Belizean\ngovernment entity, Land Information Center (LIC). The original\ndata provided by LIC can be found in Appendix XYZ.\nThe original data includes information on current\nand previous proprietors and lessees of the\nparcels.",
+          "page": 278,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 278",
+          "spanId": "full-pdd:page-278:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD describes a 50-km stratum, proxy selection criteria (same management/land use rights, within 50 km, similar deforestation agents), Tables 14-17 showing proxy similarity within 20% deviation, and references Appendix XYZ for LIC parcel data. The proxy similarity analysis is documented, but the underlying RRD justification and the original LIC source data are absent from the frozen packet. These are external attachments referenced by but not contained in the PDD, and independently verify the reference region delineation.",
+      "gap": "RRD justification and LIC source data (Appendix XYZ) are referenced but absent from the frozen packet.",
+      "clientAction": "Provide the RRD methodology description and the LIC source data (Appendix XYZ) to verify the reference region delineation.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 absent RRD justification and LIC data genuinely prevent final verification.",
+      "provisionalReason": "Proxy similarity analysis is documented, but the underlying RRD justification and LIC source data are external attachments absent from the frozen packet, preventing full verification of the reference region.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+      "machineRowSha256": "9762477d31751c882bb40ad83b1e24810424ac32d3da8a71fa3b07f63a469c40",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n25\nCCB v3.0, VCS v4.4\nFigure 4. MFC and MFC REDD project area with the larger Selva Maya\nThe project area consists of 10,795 hectares (108 km2) of forests15. These forests have been managed\nby WCS since the purchase by the MFC REDD project area in late 2021 to promote native biodiversity,\nmaintenance of carbon stocks, and other ecosystem services. The two forest types within the project\narea include lowland broadleaf moist forest and lowland broadleaf moist scrub forest (Meerman &\nClabaugh, 2017). As the names indicate, the primary difference between the two is that the moist\nbroad-leaved scrub forest contains sparser vegetation dominated by shorter trees and woody shrubs as\ncompared to the lowland broad-leaved moist forest. Because the two types are intermixed in much of\nthe project area and share the many of the same overstory species, it was not possible to map them as\nseparate strata using available remote sensing data. As a result, the two were combined into a single\nstratum for the purposes of carbon accounting. These lowland broad-leaf forests within the project area\nsupport a high diversity of tree species (Meerman & Clabaugh, 2017). Common trees found on the\nproject area include Santa Maria (Calophyllum brasiliense), black poisonwood (Metopium brownei),\nprovision tree (Pachira aquatica) and coccoloba (Coccoloba spp).\n15 The forests of the project area meet the Belize national definition of forest according to its 2001-2015 Forest Reference Emission Level\nsubmitted to the UNFCCC (Forest Department, 2020). Only areas that met the definition of forests for a minimum of 10 years before the\nproject start date were included to ensure that no ecosystems had been converted to generate GHG credits.",
+          "page": 25,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 25",
+          "spanId": "full-pdd:page-25:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n104\nCCB v3.0, VCS v4.4\n\ud835\udc34\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61 = (\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 \u2217 \ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\ud835\udc61) \u2217 \ud835\udc3f \u2212 \ud835\udc37\ud835\udc56\nWhere:\n\ud835\udc34\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc56,\ud835\udc61 = Annual area of baseline planned deforestation at time t; ha\n\ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\ud835\udc56,\ud835\udc61 = Projected annual proportion of land that will be deforested during year t. 11.0%.\n\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 = Total area of planned deforestation over the baseline period; ha. 10,824 ha\n\ud835\udc3f \u2212 \ud835\udc37\ud835\udc56 = Likelihood of deforestation; 100%\nBased on the equations above and the analysis of proxy parcels, the annual area of deforestation in the\nbaseline is 1,188.6 ha for the first 9 years. In the 10th year, the rate of deforestation is 97.9 ha as that\nis the remaining area of forest.\n3.2.1.2 Part 2. Baseline carbon stock change\n3.2.1.2.1 Baseline Pre-Deforestation Carbon Stocks\nBaseline carbon stocks in forests include the following pools: aboveground tree (> 5 cm diameter at\nbreast height - DBH) tree biomass, belowground biomass, aboveground biomass for palms, standing\nand lying dead wood biomass, and soil organic carbon. These were calculated following the guidance\nlaid out in VMD0001 (v1.1), VMD0002 (v1.1), and VMD0004 (v1.1). Leaf litter, herbaceous vegetation,\nand lianas were not measured, which resulted in a conservative estimation of carbon stocks in the\nproject area. As discussed in section 3.1.3, belowground biomass for palms is also excluded as it was\nidentified as de minimis.\nThe mean total carbon stock was based on field data collected in the MFC REDD project area in 2023.\nSee Appendix 25A for detailed field methods, Appendix 23 for the process to validate the allometric\nequation, and Appendix 19 for the full calculations to estimate carbon stocks and greenhouse gas\nemissions.\nAs discussed in section 2.1.14, the two forest types that are found in the project area include lowland\nbroad-leaved moist forests and lowland broad-leaved moist scrub forests (Meerman & Sabido, 2001).\nBecause the two types are intermixed in much of the project area and share the many of the same\noverstory species, it was not possible to map them as separate strata using available remote sensing\ndata. As a result, the two were combined into a single stratum for the purposes of assessing above and\nbelow ground biomass, deadwood, and soil organic carbon. Because of this, references to different\nstrata are removed when evaluating carbon stocks.\n3.2.1.2.1.1 Tree and palm biomass\nAboveground tree biomass (in kilograms, or kg) was calculated using the Chave et al (2005) equation\nmodified based on field data gathered in the project area (refer to section 3.1.6 for more information).",
+          "page": 104,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 104",
+          "spanId": "full-pdd:page-104:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD (page 25) states the two forest types (lowland broadleaf moist forest and lowland broadleaf moist scrub forest) are intermixed, share many of the same overstory species, and could not be mapped as separate strata using available remote sensing data, so they were combined into a single stratum for carbon accounting. The PDD explains the operational reason for combining but does not demonstrate that the two types have materially similar carbon stocks. The stratification methodology requires that combined strata be materially similar for carbon-stock treatment; intermixing and shared overstory species are relevant but insufficient alone to prove material carbon-stock similarity without carbon data per stratum.",
+      "gap": "The PDD justifies combining strata based on intermixing and remote sensing limitations but does not provide carbon stock data demonstrating the two forest types are materially similar.",
+      "clientAction": "Provide carbon stock data per forest type (lowland broadleaf moist vs. lowland broadleaf moist scrub) to demonstrate material similarity, or adjust stratification to separate them.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 the PDD's own explanation (page 25) is present and can be finally assessed as insufficient.",
+      "provisionalReason": null,
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "machineRowSha256": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n87\nCCB v3.0, VCS v4.4\ndocumented in Appendix 10. Only lands that qualified as forests during the entire 10 years prior to the\nproject start data are included in the project area.\nFigure 10. Forest Cover Benchmark Map\n3.1.3.2 Temporal boundaries\nStart and End Dates of the Historical Reference Period\nTo estimate baseline deforestation rates, historical deforestation of proxy parcels was analyzed\nbetween January 1, 2012 and December 31, 2021.\nStart and End Dates of the Project Crediting Period\nThe start date of the crediting period is January 1, 2022, and the end date is December 21, 2041.\n3.1.3.3 Carbon pools\nThe following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
+          "page": 87,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 87",
+          "spanId": "full-pdd:page-87:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n88\nCCB v3.0, VCS v4.4\nbelowground palm biomass are excluded because they were deemed de minimis following the guidance\nprovided in VM0007\u2019s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes\ninformation on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig -\n6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations.\nBelowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the\ndetails of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis,\ngiven the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it\nwas deemed important to include.\nAll the included carbon pools are accounted for in the baseline and project scenarios as well as in the\naccounting of activity shifting leakage. Given the fact that harvested wood products are identified as de\nminimis, market effects leakage due to decreased timber harvest was also excluded from the analysis.\nLeaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative\nestimation of carbon stocks in the project area. The carbon stocks in post-deforestation agricultural\nbiomass in the baseline scenario are also accounted for.\n3.1.3.4 Sources of GHG Emissions\nThe sources of GHG emissions relevant to the baseline and project scenarios are detailed below.\nTable 12. Source of GHG emissions included in the MFC REDD project\nSource Gas Included? Justification / Explanation\nBaseline\nBurning of woody\nbiomass\nCO2 Yes Carbon stock decreases due to burning are\naccounted for as a carbon stock change.\nCH4 Yes After timber species are removed from the land,\nthe remaining biomass is burned, so CH4 and N2O\nemissions from this activity are calculated.\nExpected biomass burning as part of post-\ndeforestation agricultural production is\nconservatively excluded.\nN2O Yes\nCombustion of\nfossil fuels\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nUse of fertilizers\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nProject\n\nBurning of woody\nbiomass\nCO2 Yes In the event that wildfires impact the project area,\ncarbon stock decreases will be accounted as a\ncarbon stock change.\nCH4 Yes\nN2O Yes",
+          "page": 88,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 88",
+          "spanId": "full-pdd:page-88:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD states symmetric accounting (all included pools accounted for in baseline, project, and leakage), lists included pools (aboveground tree biomass, belowground, palm, standing/lying dead wood, SOC), and excludes HWP as de minimis via Appendix 1. Dead wood was included despite being de minimis. However, Appendices 21 and 22 (HWP calculations and significance testing) and the methodology pool crosswalk (Table 4) are referenced but absent from the frozen packet. These external attachments are necessary to verify the HWP de minimis determination and confirm the pool selection follows the methodology crosswalk.",
+      "gap": "Appendix 21 (HWP calculations), Appendix 22 (significance testing), and the methodology pool crosswalk (Table 4) are referenced but absent from the frozen packet.",
+      "clientAction": "Provide Appendices 21 and 22, and the methodology pool crosswalk (Table 4) to verify pool inclusion/exclusion justifications.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 absent supporting appendices and pool crosswalk genuinely prevent final verification.",
+      "provisionalReason": "Pool inclusion/exclusion and symmetric accounting are described, but the supporting appendices (21, 22) and methodology pool crosswalk are absent external sources preventing full verification.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "machineRowSha256": "8129c1b8de4079a82bc622db010cda6640d66760264a4658ae5a9a6f2d7b03ad",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n87\nCCB v3.0, VCS v4.4\ndocumented in Appendix 10. Only lands that qualified as forests during the entire 10 years prior to the\nproject start data are included in the project area.\nFigure 10. Forest Cover Benchmark Map\n3.1.3.2 Temporal boundaries\nStart and End Dates of the Historical Reference Period\nTo estimate baseline deforestation rates, historical deforestation of proxy parcels was analyzed\nbetween January 1, 2012 and December 31, 2021.\nStart and End Dates of the Project Crediting Period\nThe start date of the crediting period is January 1, 2022, and the end date is December 21, 2041.\n3.1.3.3 Carbon pools\nThe following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
+          "page": 87,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 87",
+          "spanId": "full-pdd:page-87:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n97\nCCB v3.0, VCS v4.4\nthe project is located in central Belize is home to a large concentration of agribusiness in Belize.\nBecause of this fact, the project team focused on an area (i.e. stratum) within approximately 50 km of\nthe project area to analyze land use by the class of deforestation agents. This stratum is similar, in\nterms of the biophysical parameters, related to forest productivity and common practice for forest\nconversion (Table 14, Table 15, Table 16, Table 17).\nAs described in the baseline scenario (section 3.1.4) there is an immediate site-specific threat of\ndeforestation and conversion to agriculture.\n3.2.1.1.2 Area of deforestation \ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\nThe project area can be legally cleared and converted to agriculture (section 2.2.1). Because its soils\nare appropriate for agricultural production, it has negligible slope, and because low areas can be\ndrained (as stated in the Broker\u2019s Opinion of Value available in Appendix 11D), the entire area of the\nexisting forest in the project area (10,795 ha) is suitable for conversion to agriculture and thus is the\narea of deforestation \ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51.\n3.2.1.1.3 Rate of deforestation \ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61\nTo calculate the baseline rate of deforestation, 6 proxy areas were selected west of the project area.\nThese proxy areas are based on official parcel registry data provided by the Belizean government entity,\nLand Information Center (LIC). The parcel numbers associated with each proxy area is in Table 13. The\noriginal data provided by LIC can be found in Appendix 24.\nTable 13. LIC parcel numbers for each proxy area\nProxy number LIC parcel registry number(s)\n1 14-44-9\n2 14-44-5\n3 14-47-4\n4 14-44-7\n5 19-41-1975\n6 20-29-53, 20-29-51, 20-29-68\nFor each of the proxy areas:\n\u2022 Land conversion practices were the same as those used by the baseline agent or class of agent\n\u2022 The post-deforestation land use was the same in the proxy areas as expected in the project area\nunder business as usual",
+          "page": 97,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 97",
+          "spanId": "full-pdd:page-97:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n100\nCCB v3.0, VCS v4.4\nTable 17. Proxy similarity to project area soil family. Source: FAO & IIASA (2023)\nProxy\nZone\nPercent Absolute percent deviation from\nproject area\nCambisols Gleysols Cambisols Gleysols\nPA 98.6% 1.4% - -\n1 100% 0% 1.4% 1.4%\n2 100% 0% 1.4% 1.4%\n3 100% 0% 1.4% 1.4%\n4 100% 0% 1.4% 1.4%\n5 100% 0% 1.4% 1.4%\n6 100% 0% 1.4% 1.4%\nAll proxy sites are dominated by Cambisols.\nDeforestation in the proxy sites was estimated using University of Maryland (UMD) global forest change\nmaps (Hansen et al., 2013). The UMD dataset provides for a tree cover estimate in 2000, and an\nestimate of the year of clearing. A forest/non-forest mask was derived from these maps representing\nthe year 2011 by filtering out pixels with less than 30% tree cover and any that were deforested prior to\n2012. 30% was selected out of consistency with the Belize forest definition. The area of deforestation\nwithin each year 2012-2021 was derived from the UMD map time series.\nThe selection of proxy sites is depicted in Figure 15. Deforestation calculations associated with\nnumbered parcels are presented in Table 18.\nFigure 15.Change in forest cover over 10 years in six proxy areas used to determine average baseline deforestation\nrate.",
+          "page": 100,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 100",
+          "spanId": "full-pdd:page-100:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n104\nCCB v3.0, VCS v4.4\n\ud835\udc34\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc61 = (\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 \u2217 \ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\ud835\udc61) \u2217 \ud835\udc3f \u2212 \ud835\udc37\ud835\udc56\nWhere:\n\ud835\udc34\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51,\ud835\udc56,\ud835\udc61 = Annual area of baseline planned deforestation at time t; ha\n\ud835\udc37%\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51\ud835\udc56,\ud835\udc61 = Projected annual proportion of land that will be deforested during year t. 11.0%.\n\ud835\udc34\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 = Total area of planned deforestation over the baseline period; ha. 10,824 ha\n\ud835\udc3f \u2212 \ud835\udc37\ud835\udc56 = Likelihood of deforestation; 100%\nBased on the equations above and the analysis of proxy parcels, the annual area of deforestation in the\nbaseline is 1,188.6 ha for the first 9 years. In the 10th year, the rate of deforestation is 97.9 ha as that\nis the remaining area of forest.\n3.2.1.2 Part 2. Baseline carbon stock change\n3.2.1.2.1 Baseline Pre-Deforestation Carbon Stocks\nBaseline carbon stocks in forests include the following pools: aboveground tree (> 5 cm diameter at\nbreast height - DBH) tree biomass, belowground biomass, aboveground biomass for palms, standing\nand lying dead wood biomass, and soil organic carbon. These were calculated following the guidance\nlaid out in VMD0001 (v1.1), VMD0002 (v1.1), and VMD0004 (v1.1). Leaf litter, herbaceous vegetation,\nand lianas were not measured, which resulted in a conservative estimation of carbon stocks in the\nproject area. As discussed in section 3.1.3, belowground biomass for palms is also excluded as it was\nidentified as de minimis.\nThe mean total carbon stock was based on field data collected in the MFC REDD project area in 2023.\nSee Appendix 25A for detailed field methods, Appendix 23 for the process to validate the allometric\nequation, and Appendix 19 for the full calculations to estimate carbon stocks and greenhouse gas\nemissions.\nAs discussed in section 2.1.14, the two forest types that are found in the project area include lowland\nbroad-leaved moist forests and lowland broad-leaved moist scrub forests (Meerman & Sabido, 2001).\nBecause the two types are intermixed in much of the project area and share the many of the same\noverstory species, it was not possible to map them as separate strata using available remote sensing\ndata. As a result, the two were combined into a single stratum for the purposes of assessing above and\nbelow ground biomass, deadwood, and soil organic carbon. Because of this, references to different\nstrata are removed when evaluating carbon stocks.\n3.2.1.2.1.1 Tree and palm biomass\nAboveground tree biomass (in kilograms, or kg) was calculated using the Chave et al (2005) equation\nmodified based on field data gathered in the project area (refer to section 3.1.6 for more information).",
+          "page": 104,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 104",
+          "spanId": "full-pdd:page-104:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n127\nCCB v3.0, VCS v4.4\nVintage period Estimate\nd\nbaseline\nemission\ns (tCO2e)\nEstimate\nd project\nemissions\n(tCO2e)\nEstimate\nd leakage\nemissions\n(tCO2e)\nEstimate\nd buffer\npool\nallocation\n(tCO2e)\nEstimate\nd\nreduction\nVCUs\n(tCO2e)\nEstimate\nd removal\nVCUs\n(tCO2e)\nEstimate\nd total\nVCU\nissuance\n(tCO2e)\n01-Jan-2041 to\n31-Dec-2041\n49,139 0 -6,290 -5,897 29,195 0 29,195\n3.3 Monitoring\n3.3.1 Data and Parameters Available at Validation (VCS, 3.16)\nAll the data and parameters presented in this section will be reevaluated as part of the baseline\nreassessment required to be conducted every 6 years following the VCS Standard v4.7.\nData / parameter Aplanned\nData unit ha\nDescription Total area of planned deforestation over the fixed baseline period\nSource of data Remote sensing\nValue applied 10,795\nJustification of choice of\ndata or description of\nmeasurement methods\nand procedures applied\nAs described in section 3.2.1.1.2 \u201cArea of deforestation\u201d, the\nentire area of the existing forest in the project area (10,795 ha)\nis suitable for conversion to agriculture and thus is the area of\ndeforestation. The process of identifying this area of existing\nforests through remote sensing is described in Appendix 10.\nPurpose of data Calculation of baseline emissions\nComments -\nData / parameter D%planned t\nData unit % year-1\nDescription Projected annual proportion of land that will be deforested i\nduring year t.\nSource of data Remote sensing and Proxy Parcels",
+          "page": 127,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 127",
+          "spanId": "full-pdd:page-127:5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD (page 87) states the historical reference period as January 1, 2012 to December 31, 2021 for analyzing baseline deforestation rates. Page 127 explicitly refers to 'the fixed baseline period' as a data parameter description for Aplanned (total area of planned deforestation). The crediting period is stated as January 1, 2022 to December 21, 2041 (page 87). The concept of a fixed baseline period is present in the PDD. However, the relationship between the 2012-2021 historical analysis window and the fixed baseline-modeling period required by the methodology is unclear. The PDD does not explicitly state that 2012-2021 constitutes the fixed baseline-modeling period, and the dates and linkage between the historical analysis and the fixed period are not fully specified.",
+      "gap": "The PDD references a 'fixed baseline period' (page 127) and a 2012-2021 historical analysis window (page 87), but does not explicitly link the two or define the fixed baseline-modeling period's start and end dates separately from the crediting period.",
+      "clientAction": "Clarify whether the 2012-2021 historical period constitutes the fixed baseline-modeling period, and specify the relationship between the fixed baseline-modeling period and the historical analysis window.",
+      "correctionReason": "Revised from PROVISIONAL \u2014 the fixed-period concept is present in the PDD; the unresolved issue is the linkage between the historical analysis window and the fixed period, which is a PDD-internal assessment.",
+      "provisionalReason": null,
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "machineRowSha256": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n86\nCCB v3.0, VCS v4.4\nReference ID/Title Applicability condition Justification of conformance\nVMD0015 The module is mandatory for REDD,\nCIW-REDD, RWE-REDD and stand-\nalone CIW project activities.\nProject is a REDD based project thus the\nmodule is mandatory.\nVMD0017 This module is mandatory for using\nREDD-MF\nProject is a REDD based project thus the\nmodule is mandatory.\nVT0001 AFOLU activities the same or similar\nto the proposed project activity on\nthe land within the proposed project\nboundary performed with or without\nbeing registered as the VCS AFOLU\nproject shall not lead to violation of\nany applicable law even if the law is\nnot enforced;\nThe AFOLU activities of this project are not\nin violation of any law. There is a legal\nagreement in place with the government\nto carry out the project activities.\nVT0001 The use of this tool to determine\nadditionality requires the baseline\nmethodology to provide for a\nstepwise approach justifying the\ndetermination of the most plausible\nbaseline scenario. Project\nproponent(s) proposing new baseline\nmethodologies shall ensure\nconsistency between the\ndetermination of a baseline scenario\nand the determination of\nadditionality of a project activity.\nThe project\u2019s methodology follows the\nstepwise approach to determine the most\nplausible baseline scenario.\n3.1.3 Project Boundary (VCS, 3.12)\n3.1.3.1 Geographic boundaries\nThe geographic boundaries, including the geodetic coordinators, of the MFC REDD project area where\nthe GHG emission reductions are taking place are described in Section 2.1.16. The shapefiles are\navailable to Verra and the VVB, and the kml file of the project boundaries was uploaded to the Verra\nregistry.\nFigure 10 presents the forest cover benchmark map for the project area. The process to create the\nbenchmark land use/land cover of the project area and conduct an accuracy assessment of this map is",
+          "page": 86,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 86",
+          "spanId": "full-pdd:page-86:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n91\nCCB v3.0, VCS v4.4\nIf the project is located inside a Non-Annex 1 country and the project activities are mandated by\na law, statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks\nsystematically enforced?\nNot applicable since the project activities are not mandated by any laws, statutes, or\nother regulatory frameworks.\n3.1.5.2 Additionality Methods (VCS, 3.14)\nThe following analysis was conducted to determine alternative baseline scenarios according to the\nprocedure presented in \u201cVT0001 Tool for the Demonstration and Assessment of Additionality in VCS\nAgriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).\u201d\n3.1.5.2.1 Step 1: Identification of alternative land use scenarios to the proposed AFOLU\nProject activity.\nSub-step 1a. Identify credible alternative land use scenarios to the proposed VCS AFOLU project activity.\nThere are three credible alternative land use scenarios:\nA. Clearing of Forest and Conversion to Agriculture\nThe clearing of the forest and conversion to commercial agriculture is the most probable land use\nunder the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can\nbe found in section 3.1.4.\nB. Continuation of Pre-Project Land Use\nIn the pre-project land-use scenario, the project area was maintained as forest and selectively logged\nover time. The previous owners could not economically support maintenance of pre-project land use of\nmaintaining forest cover including paying property taxes, especially given that most of the high value\ntimber in the site had been already extracted. This is why they were selling the property where the\nproject area is located.\nC. Project activity on the land within the Project boundary performed without being registered as the\nVCS AFOLU project\nIn this scenario, the land would have still been purchased and managed for conservation purposes.\nIncome from the project area would be zero where in the project scenario, income from carbon revenue\nwould help cover the project costs. Therefore, conducting the Project activity without registration as a\nVCS AFOLU Project is unsustainable.\nSub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
+          "page": 91,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 91",
+          "spanId": "full-pdd:page-91:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n92\nCCB v3.0, VCS v4.4\n\u201cAlternative A\u201d, The subdivision of forests and conversion to agriculture on private lands is legal under\nBelizean law. Table 4 in section 2.2.1 documents the different laws that permit the clearing of forests\nfor other land uses.\n\u201cAlternative B\u201d, This requires no change in ownership and no change in previous land management\nthus these alternatives would be legal under Belizean Law.\n\u201cAlternatives C\u201d, As is the case in the project scenario, the purchase and management of the property\nfor conservation is legal. Registration as a VCS AFOLU project does not change the legality of the\nactivities conducted.\nSub-step 1c. Selection of the baseline scenario\nAlternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario.\nWhile all the alternatives are legal under Belizean law, Alternatives B and C were not financially viable\noptions for the reasons presented in sub-step 1a. Furthermore, the previous owner of the property\nconfirmed that it had received multiple offers to purchase the property from buyers interested in\nconverting the property to industrial agricultural production.\n3.1.5.2.2 Step 2. Investment Analysis\nSub-step 2a. Determine appropriate analysis method\nBecause the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 92",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD documents VT0001 applicability (page 86), Step 1 (page 91: three alternative land use scenarios identified and evaluated), Step 2 (page 92: investment analysis with Option I simple cost analysis), and Step 4 (page 92: common practice analysis). However, Step 3 (Barrier Analysis) is not present in the frozen evidence. The VT0001 methodology requires a stepwise approach, and when the investment analysis path (Step 2) is selected, the VT0001 decision tree may require barrier screening (Step 3) before proceeding to Step 2. Without the full VT0001 tool text in the frozen packet, it cannot be determined whether Step 3 is optionally bypassed when Option I is selected, or whether Step 3 must always precede Step 2. This methodology interpretation cannot be resolved from the available evidence.",
+      "gap": "Step 3 (Barrier Analysis) is absent from the frozen PDD evidence. The VT0001 decision tree logic determining whether Step 3 is mandatory when the investment analysis path is selected is not fully present in the frozen packet, preventing confirmation of whether the analysis is complete.",
+      "clientAction": "Provide Step 3 (Barrier Analysis) of VT0001 or confirm whether the investment analysis path (Option I) bypasses Step 3 under the VT0001 methodology.",
+      "correctionReason": "Remains PROVISIONAL \u2014 unresolved methodology interpretation of whether VT0001 requires Step 3 when Step 2 is selected requires the full VT0001 tool text.",
+      "provisionalReason": "VT0001 Steps 1, 2, and 4 are documented, but Step 3 (Barrier Analysis) is absent. It is unresolved whether Step 3 is mandatory under VT0001 when the investment analysis path (Option I) is selected, and the full VT0001 decision tree is not in the frozen packet to resolve this interpretation.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    }
+  ]
+}
