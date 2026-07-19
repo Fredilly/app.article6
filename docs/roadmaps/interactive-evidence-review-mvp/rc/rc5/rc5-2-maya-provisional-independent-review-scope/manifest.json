@@ -1,6 +1,6 @@
 {
   "schemaVersion": "rc5-maya-provisional-independent-review-scope-v1",
-  "purpose": "Deterministic scope inventory for the 19 remaining Maya provisional rules. This manifest contains no new judgments and does not modify reviewed or machine truth.",
+  "purpose": "Deterministic scope inventory for the 17 remaining Maya provisional rules. This manifest contains no new judgments and does not modify reviewed or machine truth.",
   "sourceCommitSha": "ea28e069d2a171df7fc7fff31ef2dc3c6f99ef4b",
   "machineTruth": {
     "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
@@ -10,44 +10,16 @@
   "inventory": {
     "totalRules": 58,
     "uniqueRuleCount": 58,
-    "reviewedRuleCount": 39,
-    "provisionalRuleCount": 19
+    "reviewedRuleCount": 41,
+    "provisionalRuleCount": 17
   },
   "groupCounts": {
     "CAN_FINALIZE_FROM_EXISTING_PACKET": 0,
     "REQUIRES_TARGETED_FULL_PDD_RETRIEVAL": 16,
-    "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION": 3,
+    "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION": 1,
     "BLOCKED_BY_PROVENANCE_OR_SCHEMA": 0
   },
   "rules": [
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-      "batch": 3,
-      "reviewStatus": "PROVISIONAL",
-      "currentEvidenceState": "N/A",
-      "currentApplicability": "NOT_APPLICABLE",
-      "currentReviewerOutcome": "NOT_APPLICABLE",
-      "provisionalReason": "The rule is WRC-specific and the PDD confirms no peatlands/wetlands. However, an expert should confirm that 'conservation activity type' is exclusively a WRC concept and that no REDD-specific conservation activities need to be documented under this rule.",
-      "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
-      "existingFrozenPacketSufficientForIndependentReview": false,
-      "scopeGroup": "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION",
-      "scopeReason": "Existing evidence supports a WRC-scope question, but the rule-to-activity mapping needs methodology interpretation."
-    },
-    {
-      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-      "batch": 3,
-      "reviewStatus": "PROVISIONAL",
-      "currentEvidenceState": "N/A",
-      "currentApplicability": "NOT_APPLICABLE",
-      "currentReviewerOutcome": "NOT_APPLICABLE",
-      "provisionalReason": "The rule is WRC-specific and the PDD confirms no wetlands. However, the mapping of this rule to 'wetland degradation only' should be confirmed by an expert to ensure the rule has no REDD application that was overlooked.",
-      "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
-      "existingFrozenPacketSufficientForIndependentReview": false,
-      "scopeGroup": "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION",
-      "scopeReason": "Existing evidence supports a wetland-scope question, but the rule-to-activity mapping needs methodology interpretation."
-    },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
       "batch": 3,
@@ -307,8 +279,6 @@
       "batch": "next-3",
       "purpose": "Targeted VT0001/JNR/leakage retrieval plus methodology interpretation",
       "ruleIds": [
-        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
         "Verra.AFOLU.VM0007.v1-8.R-2-0008",
         "Verra.AFOLU.VM0007.v1-8.R-3-0001",
         "Verra.AFOLU.VM0007.v1-8.R-3-0003",

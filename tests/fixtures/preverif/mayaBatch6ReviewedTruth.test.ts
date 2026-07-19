@@ -94,13 +94,15 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 39);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 19);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 41);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 17);
     assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
   });
 
   it("limits reviewed-truth changes from the pinned PR base to the eight selected rules", () => {
     const selected = new Set([
+      "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0013",
       "Verra.AFOLU.VM0007.v1-8.R-1-0014",
       "Verra.AFOLU.VM0007.v1-8.R-2-0009",
       "Verra.AFOLU.VM0007.v1-8.R-2-0010",
