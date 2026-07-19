@@ -20,6 +20,16 @@ import {
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const readJson = (filePath: string): any => JSON.parse(fs.readFileSync(filePath, "utf8"));
 
+function copyReviewedTruthFiles() {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
+  const paths = reviewedTruthFilePins.map((pin, index) => {
+    const copiedPath = path.join(tempDir, `${index}.json`);
+    fs.copyFileSync(path.join(process.cwd(), pin.path), copiedPath);
+    return copiedPath;
+  });
+  return { tempDir, paths };
+}
+
 describe("Maya independent expert response integration", () => {
   const response = readJson(responsePath);
   const packet = readJson(packetPath);
@@ -106,16 +116,60 @@ describe("Maya independent expert response integration", () => {
     expect(fs.existsSync(path.join(integrationDir, "reviewed-truth.json"))).toBe(false);
   });
 
-  test("fails closed when bytes outside REVIEWED decisions change", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
+  test("passes when all copied reviewed-truth files are unchanged", () => {
+    const { tempDir, paths } = copyReviewedTruthFiles();
     try {
-      const copiedPaths = reviewedTruthFilePins.map((pin, index) => {
-        const copiedPath = path.join(tempDir, `${index}.json`);
-        fs.copyFileSync(path.join(process.cwd(), pin.path), copiedPath);
-        return copiedPath;
-      });
-      fs.appendFileSync(copiedPaths[0], "\n");
-      expect(() => assertReviewedTruthFilesUnchanged(copiedPaths)).toThrow(/byte-for-byte/);
+      expect(() => assertReviewedTruthFilesUnchanged(paths)).not.toThrow();
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when file-level metadata changes outside decisions", () => {
+    const { tempDir, paths } = copyReviewedTruthFiles();
+    try {
+      const changed = readJson(paths[0]);
+      changed.sourceDocument.documentName = "metadata-mutated.pdf";
+      fs.writeFileSync(paths[0], `${JSON.stringify(changed, null, 2)}\n`);
+      expect(() => assertReviewedTruthFilesUnchanged(paths)).toThrow(/byte-for-byte/);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when a PROVISIONAL decision changes without changing REVIEWED rows", () => {
+    const { tempDir, paths } = copyReviewedTruthFiles();
+    try {
+      const changed = readJson(paths[0]);
+      const reviewedBefore = changed.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED");
+      const provisional = changed.decisions.find((decision: any) => decision.reviewStatus === "PROVISIONAL");
+      provisional.provisionalReason = `${provisional.provisionalReason} mutation`;
+      expect(changed.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toEqual(reviewedBefore);
+      fs.writeFileSync(paths[0], `${JSON.stringify(changed, null, 2)}\n`);
+      expect(() => assertReviewedTruthFilesUnchanged(paths)).toThrow(/byte-for-byte/);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when a REVIEWED decision changes", () => {
+    const { tempDir, paths } = copyReviewedTruthFiles();
+    try {
+      const changed = readJson(paths[0]);
+      const reviewed = changed.decisions.find((decision: any) => decision.reviewStatus === "REVIEWED");
+      reviewed.reviewerConfidence = `${reviewed.reviewerConfidence}-mutation`;
+      fs.writeFileSync(paths[0], `${JSON.stringify(changed, null, 2)}\n`);
+      expect(() => assertReviewedTruthFilesUnchanged(paths)).toThrow(/byte-for-byte/);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when formatting changes without semantic changes", () => {
+    const { tempDir, paths } = copyReviewedTruthFiles();
+    try {
+      fs.appendFileSync(paths[0], "\n");
+      expect(() => assertReviewedTruthFilesUnchanged(paths)).toThrow(/byte-for-byte/);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
