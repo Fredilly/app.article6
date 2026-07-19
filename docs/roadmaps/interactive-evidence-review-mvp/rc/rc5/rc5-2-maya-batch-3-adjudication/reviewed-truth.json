@@ -449,26 +449,40 @@
       "reviewerOutcome": "ACTION_REQUIRED",
       "acceptedEvidence": [
         {
-          "quote": "The following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at breast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for palms, standing and lying dead wood, and soil organic carbon. Harvested wood products and CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 88 CCB v3.0, VCS v4.4 belowground palm biomass are excluded because they were deemed de minimis following the guidance provided in VM0007’s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes information on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig - 6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations. Belowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the details of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis, given the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it was deemed important to include. All the included carbon pools are accounted for in the baseline and project scenarios as well as in the accounting of activity shifting leakage. Given the fact that harvested wood products are identified as de minimis, market effects leakage due to decreased timber harvest was also excluded from the analysis. Leaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative estimation of carbon stocks in the project area. The carbon stocks in post-deforestation agricultural biomass in the baseline scenario are also accounted for.",
+          "quote": "The following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
           "page": 87,
-          "sectionHeading": "Carbon pools",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.3.3",
+          "sectionHeading": "3.1.3.3 Carbon pools",
+          "spanId": "full-pdd:page-87:1",
           "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
-          "evidenceType": "project_specific_scope",
-          "reason": "The PDD §3.1.3.3 (Carbon pools, page 87) lists the carbon pools accounted for: AGB, BGB, dead wood, and SOC. AGB is included, confirming it is accounted for. HWP is not listed."
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "belowground palm biomass are excluded because they were deemed de minimis following the guidance\nprovided in VM0007’s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes\ninformation on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig -\n6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations.\nBelowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the\ndetails of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis,\ngiven the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it\nwas deemed important to include.\nAll the included carbon pools are accounted for in the baseline and project scenarios as well as in the\naccounting of activity shifting leakage. Given the fact that harvested wood products are identified as de\nminimis, market effects leakage due to decreased timber harvest was also excluded from the analysis.\nLeaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative\nesti",
+          "page": 88,
+          "sectionHeading": "3.1.3.3 Carbon pools",
+          "spanId": "full-pdd:page-88:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Table 12. Source of GHG emissions included in the MFC REDD project\nSource Gas Included? Justification / Explanation\nBaseline\nBurning of woody\nbiomass\nCO2 Yes Carbon stock decreases due to burning are\naccounted for as a carbon stock change.\nCH4 Yes After timber species are removed from the land,\nthe remaining biomass is burned, so CH4 and N2O\nemissions from this activity are calculated.\nExpected biomass burning as part of post-\ndeforestation agricultural production is\nconservatively excluded.\nN2O Yes\nCombustion of\nfossil fuels\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nUse of fertilizers\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nProject\n\nBurning of woody\nbiomass\nCO2 Yes In the event that wildfires impact the project area,\ncarbon stock decreases will be accounted as a\ncarbon stock change.\nCH4 Yes\nN2O Yes",
+          "page": 88,
+          "sectionHeading": "3.1.3.4 Sources of GHG Emissions",
+          "spanId": "full-pdd:page-88:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NIR_CANDIDATE",
-      "assessmentReason": "The PDD §3.1.3.3 lists AGB as an accounted carbon pool, satisfying the 'AGB always mandatory' requirement. However, the machine incorrectly marked this rule as NOT_APPLICABLE. The rule is APPLICABLE because AGB is always mandatory. The conditionally mandatory pools (HWP, dead wood) are partially addressed — dead wood is included, HWP is absent without justification.",
-      "gap": "AGB is included. HWP is not listed and its conditional mandatory status is not addressed. Machine's NOT_APPLICABLE determination is incorrect.",
-      "clientAction": "Accept the §3.1.3.3 carbon pool evidence for AGB inclusion. Evaluate HWP against conditional mandatory criteria.",
-      "correctionReason": "The machine's applicability (NOT_APPLICABLE) is incorrect — AGB is always mandatory for REDD projects. Applicability should be APPLICABLE.",
-      "genericFailureCategory": "APPLICABILITY",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD states that HWP are excluded as de minimis via Appendix 1 significance testing, with reference to Appendix 21 (HWP calculations) and Appendix 22 (significance test tab 'Test of sig - 6 year bsl valid'). The symmetric accounting statement confirms 'all the included carbon pools are accounted for in the baseline and project scenarios as well as in the accounting of activity shifting leakage.' Dead wood, despite being identified as de minimis, was included due to potential hurricane/tropical storm increases. The methodology requires HWP to be included when they 'increase more or decrease less in the baseline than in the project scenario' and that T-SIG or Appendix 1 be used to determine significance. The PDD's de minimis treatment via Appendix 1 is procedurally consistent with the methodology, but Appendices 21 and 22 are not present in the frozen packet, preventing independent verification of the significance test results. Without these, the HWP exclusion cannot be confirmed as correctly applied.",
+      "gap": "Appendices 21 (HWP carbon stock estimation) and 22 (significance test calculations) are referenced in the PDD but absent from the frozen packet. These are necessary to verify that the HWP de minimis determination was correctly applied per the methodology's significance-testing requirements.",
+      "clientAction": "Provide Appendices 21 and 22 to verify HWP significance testing and de minimis determination.",
+      "correctionReason": "Initial adjudication.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "AGB is confirmed included. Machine applicability error (NOT_APPLICABLE → APPLICABLE). Expert review needed for HWP conditional mandatory status."
+      "provisionalReason": "HWP de minimis treatment is described and procedurally referenced to Appendix 1, but the supporting test results (Appendices 21/22) are absent from the frozen packet, preventing independent verification of the significance determination."
     }
   ]
 }

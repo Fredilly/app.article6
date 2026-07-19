@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
@@ -93,7 +94,7 @@ function candidate(spec: Spec, pages: Page[], index: number): Evidence {
   return { ...spec, quote: page.text.slice(start, start + spec.length).trim(), spanId: `full-pdd:page-${spec.page}:${index + 1}`, documentId: document.documentId, documentSha256: document.contentSha256 };
 }
 function inventory() {
-  const decisions = truthFiles.flatMap((f) => read<{ decisions: Array<{ stableRuleId: string; reviewStatus: string }> }>(f).decisions);
+  const decisions = truthFiles.flatMap((f) => JSON.parse(execFileSync("git", ["show", `72a929a4e3551d75c8b58f75b7d9393ab1f5c89f:${f}`]).toString("utf8")).decisions as Array<{ stableRuleId: string; reviewStatus: string }>);
   if (decisions.length !== 58 || new Set(decisions.map((d) => d.stableRuleId)).size !== 58) throw new Error("Reviewed truth must contain exactly 58 unique rules");
   const reviewed = decisions.filter((d) => d.reviewStatus === "REVIEWED").length; const provisional = decisions.filter((d) => d.reviewStatus === "PROVISIONAL").length;
   if (reviewed !== 43 || provisional !== 15) throw new Error(`Unexpected inventory ${reviewed}/${provisional}`);
@@ -117,7 +118,24 @@ export function buildArtifacts() {
   const packet = { schemaVersion: "rc5-2-maya-independent-review-batch-3-packet-v1", reviewPurpose: "Frozen independent-review packet for exactly eight Maya provisional rules. Candidate evidence is unadjudicated; no reviewed truth is embedded or changed.", sourceDocument: document, canonicalRawExtraction: { path: extractionPath, sha256: extractionSha256, pageCount: extraction.pages.length, extractionEngine: "pdf-parse" }, frozenPddPdf: { path: pddPath, sha256: pddSha256 }, frozenMachineProposal: machineProposalRef, selectedRuleIds: [...ids], contexts, rules, absentReferencedEvidence: ["Appendix 17 project-cost documentation referenced by the VT0001 simple cost analysis is not included in the available source files.", "Appendix 21 harvested-wood-product calculations and Appendix 22 significance-testing/carbon-calculation workbook tabs are referenced by the PDD but are not included in the available source files.", "The PDD states the project is not inside a jurisdiction covered by a jurisdictional REDD+ program; no JNR baseline dataset or JNR evidence package is included.", "Appendices 13 and 14 agreements referenced in the common-practice/additionality conclusion are not included in the available source files.", "Appendices 19, 23, and 25A referenced for calculations, allometric validation, and field methods are not included in the available source files."], retrievalMethod: { label: "TARGETED_FULL_PDD_RETRIEVAL", searchedPageCount: extraction.pages.length, candidateEvidenceIsUnadjudicated: true, surroundingContextTablesEquationsAndCrossReferencesIncluded: true, supportingAndConflictingEvidenceIncluded: true, noReviewedTruthCreated: true }, frozenInventory: inv };
   const schema = buildRc5AdjudicationResponseSchema({ schemaVersion, document, machineProposalRef, ruleIds: [...ids], decisionCount: ids.length });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef, decisions: rules.map((r) => ({ stableRuleId: r.stableRuleId, machineRowSha256: r.frozenMachineRowSha256, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], contradictionState: null, draftFindingCandidate: null, assessmentReason: null, gap: null, clientAction: null, correctionReason: null, genericFailureCategory: null, reviewerConfidence: null, provisionalReason: null })) };
-  return { packet, schema, template, sourcePins: { pddSha256, extractionSha256, proposalSha256, reviewedTruthSha256: Object.fromEntries(truthFiles.map((f) => [f, sha256(fs.readFileSync(path.join(root, f)))])), methodologyRulesSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"))), methodologySectionsSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json"))) } };
+  return {
+    packet,
+    schema,
+    template,
+    sourcePins: {
+      pddSha256,
+      extractionSha256,
+      proposalSha256,
+      reviewedTruthSha256: Object.fromEntries(
+        truthFiles.map((f) => [
+          f,
+          sha256(execFileSync("git", ["show", `72a929a4e3551d75c8b58f75b7d9393ab1f5c89f:${f}`])),
+        ]),
+      ),
+      methodologyRulesSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"))),
+      methodologySectionsSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json"))),
+    },
+  };
 }
 export function writeArtifacts(outputDir = packetDir) { const a = buildArtifacts(); fs.mkdirSync(outputDir, { recursive: true }); write(path.join(outputDir, "review-packet.json"), a.packet); write(path.join(outputDir, "review-response-schema.json"), a.schema); write(path.join(outputDir, "review-template.json"), a.template); const files = ["review-packet.json", "review-response-schema.json", "review-template.json"]; write(path.join(outputDir, "manifest.json"), { schemaVersion: "rc5-2-maya-independent-review-batch-3-manifest-v1", sourceCommitSha, selectedRuleIds: [...ids], sourceArtifacts: { pddPdf: { path: pddPath, sha256: a.sourcePins.pddSha256 }, canonicalExtraction: { path: extractionPath, sha256: a.sourcePins.extractionSha256 }, machineProposal: { path: proposalPath, sha256: a.sourcePins.proposalSha256 }, methodologyRules: { path: "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json", sha256: a.sourcePins.methodologyRulesSha256 }, methodologySections: { path: "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json", sha256: a.sourcePins.methodologySectionsSha256 }, reviewedTruth: a.sourcePins.reviewedTruthSha256 }, generatedFiles: Object.fromEntries(files.map((f) => [f, sha256(fs.readFileSync(path.join(outputDir, f)))])), inventory: a.packet.frozenInventory, reviewedTruthEmbeddedAsAnswer: false, generatedAt: "2026-07-19T00:00:00.000Z" }); return a; }
 if (import.meta.url === `file://${process.argv[1]}`) writeArtifacts();
