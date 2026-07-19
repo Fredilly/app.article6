@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
 
 const root = process.cwd();
@@ -17,7 +16,7 @@ const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).dig
 const read = <T>(file: string): T => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")) as T;
 const write = (file: string, value: unknown) => fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 
-type Row = Record<string, any> & { stableRuleId: string; reviewStatus?: string; provisionalReason?: string };
+type Row = Record<string, any> & { stableRuleId: string; reviewStatus?: string };
 type Page = { pageNumber: number; text: string };
 const short = (id: string) => id.split(".").at(-1)!;
 const selectedShortIds = ["R-2-0002", "R-2-0003", "R-2-0004", "R-2-0006", "R-2-0007", "R-2-0013", "R-4-0001"];
@@ -64,13 +63,12 @@ export function buildArtifacts() {
   const pddSha256 = sha256(fs.readFileSync(path.join(root, pddPath)));
   if (pddSha256 !== document.contentSha256) throw new Error(`PDD SHA changed: ${pddSha256}`);
   const machineProposalRef = { path: proposalPath, sha256: proposalSha256, proposalState: "MACHINE_PROPOSED" as const };
-  const current = new Map(truthFiles.flatMap((file) => read<{ decisions: Row[] }>(file).decisions).map((row) => [short(row.stableRuleId), row]));
   const contexts: Record<string, unknown> = {};
   const rules = inv.selectedRuleIds.map((stableRuleId) => {
-    const id = short(stableRuleId); const decision = current.get(id)!; const row = proposal.rows.find((candidate) => candidate.stableRuleId === stableRuleId); const contract = methodologyRules.find((candidate) => candidate.id === stableRuleId);
+    const id = short(stableRuleId); const row = proposal.rows.find((candidate) => candidate.stableRuleId === stableRuleId); const contract = methodologyRules.find((candidate) => candidate.id === stableRuleId);
     if (!row || !contract) throw new Error(`Missing frozen row or methodology contract for ${stableRuleId}`);
     const evidence = (retrievalPages[id] ?? []).map((pageNumber, index) => { const page = extraction.pages.find((candidate) => candidate.pageNumber === pageNumber); if (!page) throw new Error(`Missing PDD page ${pageNumber}`); const spanId = `full-pdd:page-${pageNumber}:${index + 1}`; const contextId = `full-pdd-${id}-${index + 1}`; const context = { contextId, documentIdentity: document, pageNumber, sectionHeading: page.text.split("\n").filter(Boolean).slice(0, 3).join(" "), sourceSpanId: spanId, exactQuote: page.text, surroundingText: { completePageText: page.text }, includesTablesEquationsAppendicesAndCrossReferences: true, fullPageTextAvailableInCanonicalExtraction: true }; contexts[contextId] = context; return { quote: page.text, page: pageNumber, sectionHeading: context.sectionHeading, spanId, contextId, documentId: document.documentId, documentSha256: document.contentSha256, role: "direct", note: "Complete canonical extraction page retained to preserve surrounding paragraphs, tables, equations, and cross-references." }; });
-    return { stableRuleId, shortRuleId: id, requirementText: requirements[id], currentProvisionalJudgment: { evidenceState: row.proposedEvidenceStatus, applicability: row.proposedApplicability, outcome: row.upstreamStatus, blocker: decision.provisionalReason }, methodologyContract: { ...contract, contractText: contract.source_span_text, contractTextSha256: sha256(contract.source_span_text ?? ""), sha256: sha256(JSON.stringify(contract)) }, candidateEvidence: evidence, existingAcceptedEvidence: row.acceptedEvidence ?? [], existingRejectedEvidence: row.rejectedEvidence ?? [], historicalMachineContext: { proposedAcceptedEvidence: row.proposedAcceptedEvidence ?? null, proposedRejectedEvidence: row.proposedRejectedEvidence ?? null, assessmentReason: row.assessmentReason, gap: row.gap, clientAction: row.clientAction }, frozenMachineRow: row, frozenMachineRowSha256: sha256(JSON.stringify(row)) };
+    return { stableRuleId, shortRuleId: id, requirementText: requirements[id], machineProposalSummary: { evidenceState: row.proposedEvidenceStatus, applicability: row.proposedApplicability, outcome: row.upstreamStatus }, methodologyContract: { ...contract, contractText: contract.source_span_text, contractTextSha256: sha256(contract.source_span_text ?? ""), sha256: sha256(JSON.stringify(contract)) }, candidateEvidence: evidence, existingAcceptedEvidence: row.acceptedEvidence ?? [], existingRejectedEvidence: row.rejectedEvidence ?? [], historicalMachineContext: { proposedAcceptedEvidence: row.proposedAcceptedEvidence ?? null, proposedRejectedEvidence: row.proposedRejectedEvidence ?? null, assessmentReason: row.assessmentReason, gap: row.gap, clientAction: row.clientAction }, frozenMachineRow: row, frozenMachineRowSha256: sha256(JSON.stringify(row)) };
   });
   const packet = { schemaVersion: "rc5-2-maya-independent-review-batch-4-packet-v1", reviewPurpose: "Frozen independent review of exactly seven current non-Batch-3 Maya provisional rules. No reviewed truth is embedded or changed.", sourceDocument: document, canonicalRawExtraction: { path: extractionPath, sha256: extractionSha256, pageCount: extraction.pages.length, extractionEngine: "pdf-parse" }, frozenPddPdf: { path: pddPath, sha256: pddSha256 }, frozenMachineProposal: machineProposalRef, selectedRuleIds: inv.selectedRuleIds, contexts, rules, explicitMissingSources: ["Boundary KML and shapefiles referenced by the PDD are not included in the frozen source set.", "Intra-project exclusion tracking evidence is not included in the frozen source set.", "The underlying LIC/RRD source data and Appendix XYZ are not included in the frozen source set.", "Appendices 21 and 22 and the methodology pool crosswalk inputs are not included in the frozen source set.", "The PDD does not include a VT0001 Step 3 barrier-analysis decision tree or underlying barrier evidence."], retrievalMethod: { label: "TARGETED_FULL_PDD_RETRIEVAL", searchedPageCount: extraction.pages.length, completePagesRetained: true, surroundingParagraphsTablesEquationsAppendicesAndCrossReferencesIncluded: true, existingAcceptedAndRejectedEvidenceRetained: true, candidateEvidenceIsUnadjudicated: true, noReviewedTruthCreated: true }, frozenInventory: inv };
   const schemaVersion = "rc5-2-maya-independent-review-batch-4-response-v1";

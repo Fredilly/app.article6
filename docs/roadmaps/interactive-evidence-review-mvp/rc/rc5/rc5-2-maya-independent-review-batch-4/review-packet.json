@@ -360,11 +360,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
       "shortRuleId": "R-2-0002",
       "requirementText": "Project boundaries must not overlap another project boundary, subject only to the stated REDD+WRC exception.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "The no-overlap rule requires project-level confirmation of boundary exclusivity. The PDD provides boundary coordinates and references supporting files (KML, shapefiles) that are absent from the frozen packet. Without these, the boundary cannot be independently confirmed as non-overlapping."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
@@ -687,11 +686,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
       "shortRuleId": "R-2-0003",
       "requirementText": "The project must prevent double counting through external-program and intra-project exclusion tracking.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "External-program double-counting prevention (2.5.13.1-2) is documented, but the rule requires both external and internal exclusion tracking. The frozen packet does not contain evidence of intra-project exclusion tracking."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
@@ -1050,11 +1048,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
       "shortRuleId": "R-2-0004",
       "requirementText": "Proxy/reference-region similarity must be justified with the required underlying data and delineation rationale.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "The proxy similarity analysis is documented in the PDD but the underlying RRD justification and LIC source data (Appendix XYZ) are absent, preventing full verification of the reference region delineation."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
@@ -1424,11 +1421,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
       "shortRuleId": "R-2-0006",
       "requirementText": "Combined strata must be justified as materially similar for the required carbon-stock treatment.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "The PDD combines two forest types into one stratum due to remote sensing limitations but does not demonstrate that the combined types have materially similar carbon stocks. The stratification requirement may not be satisfied by a limitation-based justification alone."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
@@ -1825,11 +1821,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
       "shortRuleId": "R-2-0007",
       "requirementText": "Carbon-pool inclusion/exclusion must follow the methodology crosswalk and symmetric-accounting requirements.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "Pool inclusion/exclusion is described and symmetric accounting is confirmed, but the supporting appendices (21, 22) and methodology pool crosswalk are absent, preventing full verification against the methodology requirements."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
@@ -2155,11 +2150,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
       "shortRuleId": "R-2-0013",
       "requirementText": "The fixed baseline-modeling period must be identified and applied as required by the methodology.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "UNCLEAR",
         "applicability": "APPLICABLE",
-        "outcome": "UNCLEAR",
-        "blocker": "The 2012-2021 historical analysis window is described but not explicitly identified as the fixed baseline-modeling period required by the methodology. The relationship between the historical analysis window and the fixed baseline-modeling period is unclear from the evidence."
+        "outcome": "UNCLEAR"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-2-0013",
@@ -2515,11 +2509,10 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
       "shortRuleId": "R-4-0001",
       "requirementText": "The VT0001 additionality analysis must include the mandatory stepwise analysis, including Step 3 barrier analysis.",
-      "currentProvisionalJudgment": {
+      "machineProposalSummary": {
         "evidenceState": "MISSING",
         "applicability": "APPLICABLE",
-        "outcome": "MISSING",
-        "blocker": "The VT0001 analysis documents applicability, Step 1, Step 2, and Step 4, but Step 3 (Barrier Analysis) is absent from the frozen packet. Without all VT0001 steps, the additionality analysis cannot be confirmed as complete."
+        "outcome": "MISSING"
       },
       "methodologyContract": {
         "id": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
