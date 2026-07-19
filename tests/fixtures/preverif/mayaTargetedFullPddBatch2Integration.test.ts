@@ -13,6 +13,7 @@ const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "u
 const sha256 = (value: Buffer) => crypto.createHash("sha256").update(value).digest("hex");
 const targetIds = new Set(ids);
 const finalized = new Set(finalizedRuleIds);
+const integrationBaseCommit = "ceb08ab53c4425d783e00bc8a2f31a67423f72dd";
 const allTruthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json` )];
 
 describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
@@ -28,6 +29,8 @@ describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
     const integrated = buildIntegratedTruth();
     const allRows = [...integrated.values()].flatMap((truth: any) => truth.decisions);
     assert.equal(allRows.length, 58);
+    assert.equal(new Set(allRows.map((row: any) => row.stableRuleId)).size, 58);
+    for (const targetId of ids) assert.equal(allRows.filter((row: any) => row.stableRuleId === targetId).length, 1, `${targetId} occurrence count`);
     assert.equal(allRows.filter((row: any) => row.reviewStatus === "REVIEWED").length, 43);
     assert.equal(allRows.filter((row: any) => row.reviewStatus === "PROVISIONAL").length, 15);
     for (const row of allRows.filter((candidate: any) => targetIds.has(candidate.stableRuleId))) {
@@ -45,11 +48,13 @@ describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
     const integrated = buildIntegratedTruth();
     const machinePath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
     assert.equal(sha256(fs.readFileSync(machinePath)), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
-    for (const file of allTruthFiles) {
+    for (const file of truthFiles) {
       const current = read<any>(path.join(root, file));
-      const head = JSON.parse(execFileSync("git", ["show", `HEAD:${file}`], { encoding: "utf8" }));
+      const base = JSON.parse(execFileSync("git", ["show", `${integrationBaseCommit}:${file}`], { encoding: "utf8" }));
       const currentRows = new Map(current.decisions.map((row: any) => [row.stableRuleId, row]));
-      for (const headRow of head.decisions) if (!targetIds.has(headRow.stableRuleId)) assert.deepEqual(currentRows.get(headRow.stableRuleId), headRow, `${file}:${headRow.stableRuleId}`);
+      const baseRows = new Map(base.decisions.map((row: any) => [row.stableRuleId, row]));
+      assert.deepEqual([...currentRows.keys()].sort(), [...baseRows.keys()].sort(), `${file}: rule-ID set changed`);
+      for (const [stableRuleId, baseRow] of baseRows) if (!targetIds.has(stableRuleId)) assert.deepEqual(currentRows.get(stableRuleId), baseRow, `${file}:${stableRuleId}`);
     }
     assert.deepEqual([...integrated.keys()].sort(), [...allTruthFiles].sort());
   });
