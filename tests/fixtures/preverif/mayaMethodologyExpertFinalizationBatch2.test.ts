@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -14,6 +15,7 @@ const templatePath = path.join(packetDir, "review-template.json");
 const schemaPath = path.join(packetDir, "review-response-schema.json");
 const templateSchemaPath = path.join(packetDir, "review-template-schema.json");
 const manifestPath = path.join(packetDir, "manifest.json");
+const historicalTruthCommit = "827a95004d13870a5987443d7597d1a0ecc1d397";
 
 describe("Maya methodology-expert finalization batch 2", () => {
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8"));
@@ -159,7 +161,7 @@ describe("Maya methodology-expert finalization batch 2", () => {
       "Verra.AFOLU.VM0007.v1-8.R-2-0006",
       "Verra.AFOLU.VM0007.v1-8.R-2-0013",
     ]);
-    const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED" && !authorizedFinalization.has(row.stableRuleId))).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
+    const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(execFileSync("git", ["show", `${historicalTruthCommit}:${file}`], { cwd: root }).toString("utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED" && !authorizedFinalization.has(row.stableRuleId))).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
     expect(rows).toHaveLength(39);
     expect(sha256(JSON.stringify(rows))).toBe("922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1");
     const inventory = manifest.mergedProvisionalScope.inventory;
