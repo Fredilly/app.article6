@@ -10,7 +10,7 @@
       5
     ],
     "ruleCount": 50,
-    "evidenceEntryCount": 124
+    "evidenceEntryCount": 141
   },
   "mechanicalResult": true,
   "provenanceNormalizationMode": "audit-only",
@@ -31,6 +31,16 @@
     ],
     "separate": true
   },
+  "authorizedFrozenEvidenceSources": [
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/blocker-resolution-packet.json",
+      "sha256": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
+      "ruleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013"
+      ]
+    }
+  ],
   "batchSummaries": [
     {
       "batch": 1,
@@ -69,8 +79,8 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 22,
-      "duplicateContextEntryCount": 18,
+      "evidenceEntries": 28,
+      "duplicateContextEntryCount": 16,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
       "hashResults": {
@@ -85,7 +95,7 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 33,
+      "evidenceEntries": 44,
       "duplicateContextEntryCount": 31,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
@@ -129,7 +139,8 @@
             "ctx-001"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-001"
+            "ctx-001",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0001-packet-evidence-0"
           ]
         },
         {
@@ -140,7 +151,8 @@
             "ctx-003"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-003"
+            "ctx-003",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0001-packet-evidence-2"
           ]
         }
       ],
@@ -170,7 +182,8 @@
             "ctx-001"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-001"
+            "ctx-001",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0001-packet-evidence-0"
           ]
         },
         {
@@ -181,7 +194,8 @@
             "ctx-005"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-005"
+            "ctx-005",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0001-packet-evidence-1"
           ]
         }
       ],
@@ -211,7 +225,8 @@
             "ctx-002"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-002"
+            "ctx-002",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0005-packet-evidence-0"
           ]
         }
       ],
@@ -241,7 +256,8 @@
             "ctx-002"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-002"
+            "ctx-002",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0008-packet-evidence-0"
           ]
         }
       ],
@@ -271,7 +287,8 @@
             "ctx-002"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-002"
+            "ctx-002",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0009-packet-evidence-0"
           ]
         },
         {
@@ -342,7 +359,8 @@
             "ctx-003"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-003"
+            "ctx-003",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0015-packet-evidence-1"
           ]
         }
       ],
@@ -402,7 +420,8 @@
             "ctx-012"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-012"
+            "ctx-012",
+            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0001-packet-evidence-4"
           ]
         }
       ],
@@ -454,7 +473,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-rejected-2",
             "batch2-R-1-0003-rejected-2",
-            "batch2-R-1-0004-rejected-2"
+            "batch2-R-1-0004-rejected-2",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0002-packet-evidence-3"
           ]
         },
         {
@@ -469,7 +489,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-accepted-1",
             "batch2-R-1-0003-accepted-1",
-            "batch2-R-1-0004-rejected-4"
+            "batch2-R-1-0004-rejected-4",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0002-packet-evidence-0"
           ]
         },
         {
@@ -484,7 +505,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-accepted-2",
             "batch2-R-1-0003-accepted-2",
-            "batch2-R-1-0004-accepted-1"
+            "batch2-R-1-0004-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0002-packet-evidence-1"
           ]
         }
       ],
@@ -552,7 +574,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-rejected-3",
             "batch2-R-1-0003-rejected-3",
-            "batch2-R-1-0004-rejected-3"
+            "batch2-R-1-0004-rejected-3",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0003-packet-evidence-4"
           ]
         },
         {
@@ -567,7 +590,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-accepted-1",
             "batch2-R-1-0003-accepted-1",
-            "batch2-R-1-0004-rejected-4"
+            "batch2-R-1-0004-rejected-4",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0003-packet-evidence-0"
           ]
         },
         {
@@ -582,7 +606,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-accepted-2",
             "batch2-R-1-0003-accepted-2",
-            "batch2-R-1-0004-accepted-1"
+            "batch2-R-1-0004-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0003-packet-evidence-1"
           ]
         }
       ],
@@ -650,7 +675,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-rejected-2",
             "batch2-R-1-0003-rejected-2",
-            "batch2-R-1-0004-rejected-2"
+            "batch2-R-1-0004-rejected-2",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0004-packet-evidence-3"
           ]
         },
         {
@@ -665,7 +691,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-rejected-3",
             "batch2-R-1-0003-rejected-3",
-            "batch2-R-1-0004-rejected-3"
+            "batch2-R-1-0004-rejected-3",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0004-packet-evidence-4"
           ]
         },
         {
@@ -680,7 +707,8 @@
           "normalizationCandidateContextIds": [
             "batch2-R-1-0002-accepted-2",
             "batch2-R-1-0003-accepted-2",
-            "batch2-R-1-0004-accepted-1"
+            "batch2-R-1-0004-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0004-packet-evidence-0"
           ]
         },
         {
@@ -691,7 +719,8 @@
             "batch2-R-1-0004-accepted-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch2-R-1-0004-accepted-2"
+            "batch2-R-1-0004-accepted-2",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0004-packet-evidence-1"
           ]
         }
       ],
@@ -780,7 +809,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0005-packet-evidence-0"
           ]
         }
       ],
@@ -861,7 +891,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0006-packet-evidence-0"
           ]
         }
       ],
@@ -932,7 +963,8 @@
             "batch2-R-1-0007-accepted-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch2-R-1-0007-accepted-1"
+            "batch2-R-1-0007-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0007-packet-evidence-0"
           ]
         }
       ],
@@ -999,7 +1031,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0008-packet-evidence-0"
           ]
         }
       ],
@@ -1080,7 +1113,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0009-packet-evidence-0"
           ]
         }
       ],
@@ -1161,7 +1195,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0010-packet-evidence-0"
           ]
         }
       ],
@@ -1242,7 +1277,8 @@
             "batch2-R-1-0008-accepted-1",
             "batch2-R-1-0009-accepted-1",
             "batch2-R-1-0010-accepted-1",
-            "batch2-R-1-0011-accepted-1"
+            "batch2-R-1-0011-accepted-1",
+            "rc5-2-maya-batch-2-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0011-packet-evidence-0"
           ]
         }
       ],
@@ -1286,7 +1322,7 @@
     {
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-      "acceptedEvidenceCount": 1,
+      "acceptedEvidenceCount": 2,
       "rejectedEvidenceCount": 1,
       "provenanceResult": "PASS",
       "evidenceEntries": [
@@ -1295,20 +1331,35 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch3-R-1-0013-rejected-2",
-            "batch3-R-2-0002-rejected-2",
-            "batch3-R-2-0003-rejected-2",
-            "batch3-R-2-0004-rejected-2",
-            "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0012-project-0"
           ],
           "normalizationCandidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0012-project-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0012-project-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-1",
             "batch3-R-1-0013-rejected-2",
+            "batch3-R-1-0014-rejected-1",
+            "batch3-R-2-0002-rejected-1",
             "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-1",
             "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-1",
             "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-1",
             "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
+            "batch3-R-2-0006-rejected-1",
+            "batch3-R-2-0006-rejected-2",
+            "batch3-R-2-0007-rejected-1",
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0012-project-1"
           ]
         },
         {
@@ -1319,27 +1370,13 @@
             "batch3-R-1-0012-accepted-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch3-R-1-0012-accepted-1"
+            "batch3-R-1-0012-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0012-packet-evidence-0"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "acceptedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch3-R-1-0013-rejected-2",
-            "batch3-R-2-0002-rejected-2",
-            "batch3-R-2-0003-rejected-2",
-            "batch3-R-2-0004-rejected-2",
-            "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",
@@ -1352,7 +1389,7 @@
     {
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-      "acceptedEvidenceCount": 1,
+      "acceptedEvidenceCount": 5,
       "rejectedEvidenceCount": 1,
       "provenanceResult": "PASS",
       "evidenceEntries": [
@@ -1361,20 +1398,104 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch3-R-1-0013-rejected-2",
-            "batch3-R-2-0002-rejected-2",
-            "batch3-R-2-0003-rejected-2",
-            "batch3-R-2-0004-rejected-2",
-            "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-0"
           ],
           "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-1",
+            "batch3-R-1-0014-rejected-1",
+            "batch3-R-2-0002-rejected-1",
+            "batch3-R-2-0003-rejected-1",
+            "batch3-R-2-0004-rejected-1",
+            "batch3-R-2-0005-rejected-1",
+            "batch3-R-2-0006-rejected-1",
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-1",
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-1",
+            "batch3-R-1-0014-rejected-1",
+            "batch3-R-2-0002-rejected-1",
+            "batch3-R-2-0003-rejected-1",
+            "batch3-R-2-0004-rejected-1",
+            "batch3-R-2-0005-rejected-1",
+            "batch3-R-2-0006-rejected-1",
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-1",
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-1"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 2,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-1",
             "batch3-R-1-0013-rejected-2",
+            "batch3-R-1-0014-rejected-1",
+            "batch3-R-2-0002-rejected-1",
             "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-1",
             "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-1",
             "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-1",
             "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
+            "batch3-R-2-0006-rejected-1",
+            "batch3-R-2-0006-rejected-2",
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-2",
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-2"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 3,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-3"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-rejected-1",
+            "batch3-R-1-0013-rejected-2",
+            "batch3-R-1-0014-rejected-1",
+            "batch3-R-2-0002-rejected-1",
+            "batch3-R-2-0002-rejected-2",
+            "batch3-R-2-0003-rejected-1",
+            "batch3-R-2-0003-rejected-2",
+            "batch3-R-2-0004-rejected-1",
+            "batch3-R-2-0004-rejected-2",
+            "batch3-R-2-0005-rejected-1",
+            "batch3-R-2-0005-rejected-2",
+            "batch3-R-2-0006-rejected-1",
+            "batch3-R-2-0006-rejected-2",
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-2",
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-3"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 4,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-4"
+          ],
+          "normalizationCandidateContextIds": [
+            "blocker-resolution-Verra.AFOLU.VM0007.v1-8.R-1-0013-project-4"
           ]
         },
         {
@@ -1399,26 +1520,13 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0013-packet-evidence-0"
           ]
         }
       ],
       "unmatchedEvidence": [],
       "ambiguousContextMatches": [
-        {
-          "field": "acceptedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch3-R-1-0013-rejected-2",
-            "batch3-R-2-0002-rejected-2",
-            "batch3-R-2-0003-rejected-2",
-            "batch3-R-2-0004-rejected-2",
-            "batch3-R-2-0005-rejected-2",
-            "batch3-R-2-0006-rejected-2"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
         {
           "field": "rejectedEvidence",
           "index": 0,
@@ -1449,7 +1557,7 @@
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -1474,12 +1582,32 @@
             "batch3-R-2-0004-rejected-1",
             "batch3-R-2-0005-rejected-1",
             "batch3-R-2-0006-rejected-1",
-            "batch3-R-2-0007-rejected-1"
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0014-packet-evidence-1"
           ]
         },
         {
           "field": "rejectedEvidence",
           "index": 0,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0014-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch3-R-1-0013-accepted-1",
+            "batch3-R-1-0014-accepted-1",
+            "batch3-R-2-0002-accepted-1",
+            "batch3-R-2-0003-accepted-1",
+            "batch3-R-2-0004-accepted-1",
+            "batch3-R-2-0005-accepted-1",
+            "batch3-R-2-0006-accepted-1",
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0014-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
             "batch3-R-1-0013-accepted-1",
@@ -1499,7 +1627,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-1-0014-packet-evidence-0"
           ]
         }
       ],
@@ -1523,7 +1652,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch3-R-1-0013-accepted-1",
             "batch3-R-1-0014-accepted-1",
@@ -1576,7 +1705,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0002-packet-evidence-0"
           ]
         },
         {
@@ -1593,7 +1723,8 @@
             "batch3-R-2-0002-accepted-2",
             "batch3-R-2-0003-accepted-2",
             "batch3-R-2-0004-accepted-2",
-            "batch3-R-2-0006-accepted-2"
+            "batch3-R-2-0006-accepted-2",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0002-packet-evidence-1"
           ]
         }
       ],
@@ -1654,7 +1785,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch3-R-2-0003-rejected-3",
-            "batch3-R-2-0004-rejected-3"
+            "batch3-R-2-0004-rejected-3",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0003-packet-evidence-4"
           ]
         },
         {
@@ -1679,7 +1811,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0003-packet-evidence-0"
           ]
         },
         {
@@ -1696,7 +1829,8 @@
             "batch3-R-2-0002-accepted-2",
             "batch3-R-2-0003-accepted-2",
             "batch3-R-2-0004-accepted-2",
-            "batch3-R-2-0006-accepted-2"
+            "batch3-R-2-0006-accepted-2",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0003-packet-evidence-1"
           ]
         }
       ],
@@ -1779,7 +1913,8 @@
             "batch3-R-2-0004-rejected-1",
             "batch3-R-2-0005-rejected-1",
             "batch3-R-2-0006-rejected-1",
-            "batch3-R-2-0007-rejected-1"
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0004-packet-evidence-2"
           ]
         },
         {
@@ -1804,7 +1939,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0004-packet-evidence-0"
           ]
         },
         {
@@ -1821,7 +1957,8 @@
             "batch3-R-2-0002-accepted-2",
             "batch3-R-2-0003-accepted-2",
             "batch3-R-2-0004-accepted-2",
-            "batch3-R-2-0006-accepted-2"
+            "batch3-R-2-0006-accepted-2",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0004-packet-evidence-1"
           ]
         }
       ],
@@ -1910,7 +2047,8 @@
             "batch3-R-2-0004-rejected-1",
             "batch3-R-2-0005-rejected-1",
             "batch3-R-2-0006-rejected-1",
-            "batch3-R-2-0007-rejected-1"
+            "batch3-R-2-0007-rejected-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0005-packet-evidence-1"
           ]
         },
         {
@@ -1935,7 +2073,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0005-packet-evidence-0"
           ]
         }
       ],
@@ -1998,7 +2137,8 @@
             "batch3-R-2-0006-rejected-3"
           ],
           "normalizationCandidateContextIds": [
-            "batch3-R-2-0006-rejected-3"
+            "batch3-R-2-0006-rejected-3",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0006-packet-evidence-4"
           ]
         },
         {
@@ -2023,7 +2163,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0006-packet-evidence-0"
           ]
         },
         {
@@ -2040,7 +2181,8 @@
             "batch3-R-2-0002-accepted-2",
             "batch3-R-2-0003-accepted-2",
             "batch3-R-2-0004-accepted-2",
-            "batch3-R-2-0006-accepted-2"
+            "batch3-R-2-0006-accepted-2",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0006-packet-evidence-1"
           ]
         }
       ],
@@ -2099,7 +2241,8 @@
             "batch3-R-2-0007-rejected-3"
           ],
           "normalizationCandidateContextIds": [
-            "batch3-R-2-0007-rejected-3"
+            "batch3-R-2-0007-rejected-3",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0007-packet-evidence-3"
           ]
         },
         {
@@ -2124,7 +2267,8 @@
             "batch3-R-2-0004-accepted-1",
             "batch3-R-2-0005-accepted-1",
             "batch3-R-2-0006-accepted-1",
-            "batch3-R-2-0007-accepted-1"
+            "batch3-R-2-0007-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0007-packet-evidence-0"
           ]
         }
       ],
@@ -2171,7 +2315,8 @@
             "batch3-R-2-0008-accepted-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch3-R-2-0008-accepted-1"
+            "batch3-R-2-0008-accepted-1",
+            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0008-packet-evidence-0"
           ]
         }
       ],
@@ -2190,7 +2335,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2211,6 +2356,21 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0009-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0009-accepted-1",
+            "batch4-R-2-0011-accepted-1",
+            "batch4-R-2-0015-accepted-1",
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0009-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
@@ -2220,7 +2380,8 @@
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
-            "batch4-R-2-0016-accepted-1"
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0009-packet-evidence-0"
           ]
         }
       ],
@@ -2238,7 +2399,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
@@ -2262,7 +2423,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2283,12 +2444,26 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0010-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0010-accepted-1",
+            "batch4-R-2-0012-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0010-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0010-accepted-1",
             "batch4-R-2-0012-accepted-1"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0010-accepted-1",
-            "batch4-R-2-0012-accepted-1"
+            "batch4-R-2-0012-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0010-packet-evidence-0"
           ]
         }
       ],
@@ -2306,7 +2481,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0010-accepted-1",
             "batch4-R-2-0012-accepted-1"
@@ -2328,7 +2503,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0011",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2349,6 +2524,21 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0011-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0009-accepted-1",
+            "batch4-R-2-0011-accepted-1",
+            "batch4-R-2-0015-accepted-1",
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0011-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
@@ -2358,7 +2548,8 @@
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
-            "batch4-R-2-0016-accepted-1"
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0011-packet-evidence-0"
           ]
         }
       ],
@@ -2376,7 +2567,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
@@ -2400,7 +2591,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2421,12 +2612,26 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0012-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0010-accepted-1",
+            "batch4-R-2-0012-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0012-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0010-accepted-1",
             "batch4-R-2-0012-accepted-1"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0010-accepted-1",
-            "batch4-R-2-0012-accepted-1"
+            "batch4-R-2-0012-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0012-packet-evidence-0"
           ]
         }
       ],
@@ -2444,7 +2649,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0010-accepted-1",
             "batch4-R-2-0012-accepted-1"
@@ -2481,7 +2686,8 @@
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-accepted-1",
             "batch4-R-2-0014-accepted-1",
-            "batch4-R-3-0002-rejected-3"
+            "batch4-R-3-0002-rejected-3",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0013-packet-evidence-0"
           ]
         },
         {
@@ -2498,7 +2704,8 @@
             "batch4-R-2-0013-accepted-2",
             "batch4-R-2-0014-accepted-2",
             "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
+            "batch4-R-3-0002-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0013-packet-evidence-1"
           ]
         },
         {
@@ -2515,7 +2722,8 @@
             "batch4-R-2-0013-rejected-1",
             "batch4-R-2-0014-rejected-1",
             "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
+            "batch4-R-3-0002-rejected-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0013-packet-evidence-2"
           ]
         },
         {
@@ -2528,7 +2736,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-rejected-2",
-            "batch4-R-2-0014-rejected-2"
+            "batch4-R-2-0014-rejected-2",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0013-packet-evidence-3"
           ]
         }
       ],
@@ -2608,7 +2817,8 @@
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-accepted-1",
             "batch4-R-2-0014-accepted-1",
-            "batch4-R-3-0002-rejected-3"
+            "batch4-R-3-0002-rejected-3",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0014-packet-evidence-0"
           ]
         },
         {
@@ -2625,7 +2835,8 @@
             "batch4-R-2-0013-accepted-2",
             "batch4-R-2-0014-accepted-2",
             "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
+            "batch4-R-3-0002-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0014-packet-evidence-1"
           ]
         },
         {
@@ -2642,7 +2853,8 @@
             "batch4-R-2-0013-rejected-1",
             "batch4-R-2-0014-rejected-1",
             "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
+            "batch4-R-3-0002-rejected-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0014-packet-evidence-2"
           ]
         },
         {
@@ -2655,7 +2867,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-rejected-2",
-            "batch4-R-2-0014-rejected-2"
+            "batch4-R-2-0014-rejected-2",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0014-packet-evidence-3"
           ]
         },
         {
@@ -2666,7 +2879,8 @@
             "batch4-R-2-0014-rejected-3"
           ],
           "normalizationCandidateContextIds": [
-            "batch4-R-2-0014-rejected-3"
+            "batch4-R-2-0014-rejected-3",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0014-packet-evidence-4"
           ]
         }
       ],
@@ -2731,7 +2945,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0015",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2752,6 +2966,21 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0015-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0009-accepted-1",
+            "batch4-R-2-0011-accepted-1",
+            "batch4-R-2-0015-accepted-1",
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0015-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
@@ -2761,7 +2990,8 @@
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
-            "batch4-R-2-0016-accepted-1"
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0015-packet-evidence-0"
           ]
         }
       ],
@@ -2779,7 +3009,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
@@ -2803,7 +3033,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 1,
+      "rejectedEvidenceCount": 2,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2824,6 +3054,21 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0016-packet-evidence-0"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0009-accepted-1",
+            "batch4-R-2-0011-accepted-1",
+            "batch4-R-2-0015-accepted-1",
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0016-packet-evidence-0"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
@@ -2833,7 +3078,8 @@
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
             "batch4-R-2-0015-accepted-1",
-            "batch4-R-2-0016-accepted-1"
+            "batch4-R-2-0016-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0016-packet-evidence-0"
           ]
         }
       ],
@@ -2851,7 +3097,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 1,
           "candidateContextIds": [
             "batch4-R-2-0009-accepted-1",
             "batch4-R-2-0011-accepted-1",
@@ -2892,7 +3138,8 @@
             "batch4-R-2-0013-accepted-2",
             "batch4-R-2-0014-accepted-2",
             "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
+            "batch4-R-3-0002-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-0"
           ]
         },
         {
@@ -2909,7 +3156,8 @@
             "batch4-R-2-0013-rejected-1",
             "batch4-R-2-0014-rejected-1",
             "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
+            "batch4-R-3-0002-rejected-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-1"
           ]
         },
         {
@@ -2922,7 +3170,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2"
+            "batch4-R-3-0002-rejected-2",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-2"
           ]
         },
         {
@@ -2935,7 +3184,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-3",
-            "batch4-R-3-0002-rejected-5"
+            "batch4-R-3-0002-rejected-5",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-3"
           ]
         },
         {
@@ -2946,7 +3196,8 @@
             "batch4-R-3-0001-rejected-4"
           ],
           "normalizationCandidateContextIds": [
-            "batch4-R-3-0001-rejected-4"
+            "batch4-R-3-0001-rejected-4",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-4"
           ]
         },
         {
@@ -2959,7 +3210,8 @@
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4"
+            "batch4-R-3-0002-rejected-4",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-5"
           ]
         }
       ],
@@ -3033,7 +3285,7 @@
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0002",
       "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 5,
+      "rejectedEvidenceCount": 10,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -3050,7 +3302,8 @@
             "batch4-R-2-0013-accepted-2",
             "batch4-R-2-0014-accepted-2",
             "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
+            "batch4-R-3-0002-accepted-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-0"
           ]
         },
         {
@@ -3058,16 +3311,14 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-2-0013-rejected-1",
-            "batch4-R-2-0014-rejected-1",
-            "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-1"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-rejected-1",
             "batch4-R-2-0014-rejected-1",
             "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
+            "batch4-R-3-0002-rejected-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-1"
           ]
         },
         {
@@ -3075,12 +3326,12 @@
           "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2"
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-2"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2"
+            "batch4-R-3-0002-rejected-2",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-2"
           ]
         },
         {
@@ -3088,14 +3339,13 @@
           "index": 2,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-2-0013-accepted-1",
-            "batch4-R-2-0014-accepted-1",
-            "batch4-R-3-0002-rejected-3"
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-3"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-2-0013-accepted-1",
             "batch4-R-2-0014-accepted-1",
-            "batch4-R-3-0002-rejected-3"
+            "batch4-R-3-0002-rejected-3",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-3"
           ]
         },
         {
@@ -3103,12 +3353,12 @@
           "index": 3,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4"
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-4"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4"
+            "batch4-R-3-0002-rejected-4",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-4"
           ]
         },
         {
@@ -3116,12 +3366,88 @@
           "index": 4,
           "result": "MATCH",
           "candidateContextIds": [
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-5"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-3-0001-rejected-3",
+            "batch4-R-3-0002-rejected-5",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-5"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 5,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch4-R-2-0013-rejected-1",
+            "batch4-R-2-0014-rejected-1",
+            "batch4-R-3-0001-rejected-1",
+            "batch4-R-3-0002-rejected-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0013-rejected-1",
+            "batch4-R-2-0014-rejected-1",
+            "batch4-R-3-0001-rejected-1",
+            "batch4-R-3-0002-rejected-1",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-1"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 6,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch4-R-3-0001-rejected-2",
+            "batch4-R-3-0002-rejected-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-3-0001-rejected-2",
+            "batch4-R-3-0002-rejected-2",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-2"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 7,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch4-R-2-0013-accepted-1",
+            "batch4-R-2-0014-accepted-1",
+            "batch4-R-3-0002-rejected-3"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-2-0013-accepted-1",
+            "batch4-R-2-0014-accepted-1",
+            "batch4-R-3-0002-rejected-3",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-3"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 8,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "batch4-R-3-0001-rejected-5",
+            "batch4-R-3-0002-rejected-4"
+          ],
+          "normalizationCandidateContextIds": [
+            "batch4-R-3-0001-rejected-5",
+            "batch4-R-3-0002-rejected-4",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-4"
+          ]
+        },
+        {
+          "field": "rejectedEvidence",
+          "index": 9,
+          "result": "MATCH",
+          "candidateContextIds": [
             "batch4-R-3-0001-rejected-3",
             "batch4-R-3-0002-rejected-5"
           ],
           "normalizationCandidateContextIds": [
             "batch4-R-3-0001-rejected-3",
-            "batch4-R-3-0002-rejected-5"
+            "batch4-R-3-0002-rejected-5",
+            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0002-packet-evidence-5"
           ]
         }
       ],
@@ -3141,7 +3467,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 0,
+          "index": 5,
           "candidateContextIds": [
             "batch4-R-2-0013-rejected-1",
             "batch4-R-2-0014-rejected-1",
@@ -3153,7 +3479,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 1,
+          "index": 6,
           "candidateContextIds": [
             "batch4-R-3-0001-rejected-2",
             "batch4-R-3-0002-rejected-2"
@@ -3163,7 +3489,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 2,
+          "index": 7,
           "candidateContextIds": [
             "batch4-R-2-0013-accepted-1",
             "batch4-R-2-0014-accepted-1",
@@ -3174,7 +3500,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 3,
+          "index": 8,
           "candidateContextIds": [
             "batch4-R-3-0001-rejected-5",
             "batch4-R-3-0002-rejected-4"
@@ -3184,7 +3510,7 @@
         },
         {
           "field": "rejectedEvidence",
-          "index": 4,
+          "index": 9,
           "candidateContextIds": [
             "batch4-R-3-0001-rejected-3",
             "batch4-R-3-0002-rejected-5"
@@ -3223,7 +3549,8 @@
             "batch5-R-3-0003-accepted-1",
             "batch5-R-3-0004-accepted-1",
             "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "batch5-R-5-0005-rejected-4",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-0"
           ]
         },
         {
@@ -3242,7 +3569,8 @@
             "batch5-R-3-0004-rejected-1",
             "batch5-R-3-0007-rejected-1",
             "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "batch5-R-5-0005-rejected-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-1"
           ]
         },
         {
@@ -3257,7 +3585,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-2",
             "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
+            "batch5-R-3-0007-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-2"
           ]
         },
         {
@@ -3272,7 +3601,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-3",
             "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
+            "batch5-R-3-0007-rejected-2",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-3"
           ]
         },
         {
@@ -3287,7 +3617,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-4",
             "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
+            "batch5-R-3-0007-rejected-3",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-4"
           ]
         },
         {
@@ -3302,7 +3633,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-5",
             "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
+            "batch5-R-5-0005-rejected-5",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-5"
           ]
         }
       ],
@@ -3408,7 +3740,8 @@
             "batch5-R-3-0003-accepted-1",
             "batch5-R-3-0004-accepted-1",
             "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "batch5-R-5-0005-rejected-4",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-0"
           ]
         },
         {
@@ -3427,7 +3760,8 @@
             "batch5-R-3-0004-rejected-1",
             "batch5-R-3-0007-rejected-1",
             "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "batch5-R-5-0005-rejected-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-1"
           ]
         },
         {
@@ -3442,7 +3776,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-3",
             "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
+            "batch5-R-3-0007-rejected-2",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-2"
           ]
         },
         {
@@ -3457,7 +3792,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-4",
             "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
+            "batch5-R-3-0007-rejected-3",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-3"
           ]
         },
         {
@@ -3472,7 +3808,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-2",
             "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
+            "batch5-R-3-0007-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-4"
           ]
         },
         {
@@ -3483,7 +3820,8 @@
             "batch5-R-3-0004-rejected-5"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0004-rejected-5"
+            "batch5-R-3-0004-rejected-5",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-5"
           ]
         }
       ],
@@ -3589,7 +3927,8 @@
             "batch5-R-3-0006-accepted-1",
             "batch5-R-4-0002-accepted-1",
             "batch5-R-5-0002-accepted-1",
-            "batch5-R-5-0004-accepted-1"
+            "batch5-R-5-0004-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0006-packet-evidence-0"
           ]
         }
       ],
@@ -3636,7 +3975,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-2",
             "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
+            "batch5-R-3-0007-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-0"
           ]
         },
         {
@@ -3653,7 +3993,8 @@
             "batch5-R-3-0003-accepted-1",
             "batch5-R-3-0004-accepted-1",
             "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "batch5-R-5-0005-rejected-4",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-1"
           ]
         },
         {
@@ -3672,7 +4013,8 @@
             "batch5-R-3-0004-rejected-1",
             "batch5-R-3-0007-rejected-1",
             "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "batch5-R-5-0005-rejected-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-2"
           ]
         },
         {
@@ -3687,7 +4029,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-3",
             "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
+            "batch5-R-3-0007-rejected-2",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-3"
           ]
         },
         {
@@ -3702,7 +4045,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-4",
             "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
+            "batch5-R-3-0007-rejected-3",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-4"
           ]
         },
         {
@@ -3717,7 +4061,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-5",
             "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
+            "batch5-R-5-0005-rejected-5",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0007-packet-evidence-5"
           ]
         }
       ],
@@ -3817,7 +4162,8 @@
             "batch5-R-3-0008-accepted-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0008-accepted-1"
+            "batch5-R-3-0008-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0008-packet-evidence-0"
           ]
         }
       ],
@@ -3864,7 +4210,8 @@
             "batch5-R-3-0006-accepted-1",
             "batch5-R-4-0002-accepted-1",
             "batch5-R-5-0002-accepted-1",
-            "batch5-R-5-0004-accepted-1"
+            "batch5-R-5-0004-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-4-0002-packet-evidence-0"
           ]
         }
       ],
@@ -3924,7 +4271,8 @@
             "batch5-R-3-0006-accepted-1",
             "batch5-R-4-0002-accepted-1",
             "batch5-R-5-0002-accepted-1",
-            "batch5-R-5-0004-accepted-1"
+            "batch5-R-5-0004-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0002-packet-evidence-0"
           ]
         }
       ],
@@ -3975,7 +4323,8 @@
             "batch5-R-3-0004-rejected-1",
             "batch5-R-3-0007-rejected-1",
             "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "batch5-R-5-0005-rejected-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0003-packet-evidence-0"
           ]
         }
       ],
@@ -4036,7 +4385,8 @@
             "batch5-R-3-0006-accepted-1",
             "batch5-R-4-0002-accepted-1",
             "batch5-R-5-0002-accepted-1",
-            "batch5-R-5-0004-accepted-1"
+            "batch5-R-5-0004-accepted-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0004-packet-evidence-0"
           ]
         }
       ],
@@ -4087,7 +4437,8 @@
             "batch5-R-3-0004-rejected-1",
             "batch5-R-3-0007-rejected-1",
             "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "batch5-R-5-0005-rejected-1",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-0"
           ]
         },
         {
@@ -4098,7 +4449,8 @@
             "batch5-R-5-0005-rejected-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-5-0005-rejected-2"
+            "batch5-R-5-0005-rejected-2",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-1"
           ]
         },
         {
@@ -4109,7 +4461,8 @@
             "batch5-R-5-0005-rejected-3"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-5-0005-rejected-3"
+            "batch5-R-5-0005-rejected-3",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-2"
           ]
         },
         {
@@ -4126,7 +4479,8 @@
             "batch5-R-3-0003-accepted-1",
             "batch5-R-3-0004-accepted-1",
             "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "batch5-R-5-0005-rejected-4",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-3"
           ]
         },
         {
@@ -4141,7 +4495,8 @@
           "normalizationCandidateContextIds": [
             "batch5-R-3-0003-rejected-5",
             "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
+            "batch5-R-5-0005-rejected-5",
+            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-4"
           ]
         }
       ],

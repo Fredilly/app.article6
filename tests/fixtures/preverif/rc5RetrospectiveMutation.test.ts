@@ -1,7 +1,12 @@
 import {
+  authorizedBlockerResolutionPacketPath,
+  authorizedBlockerResolutionPacketSha256,
+  loadAuthorizedBlockerResolutionContexts,
   validateAuditDecisionInvariants,
   type AuditInvariantFailureCode,
 } from "../../../scripts/preverif/audit-rc5-maya-retrospective";
+import fs from "node:fs";
+import path from "node:path";
 
 type Fixture = {
   decision: Record<string, any>;
@@ -50,6 +55,35 @@ function failureCodes(fixture: Fixture): AuditInvariantFailureCode[] {
 }
 
 describe("RC5 retrospective audit mutation coverage", () => {
+  it("accepts the current 41/17 truth through both authorized frozen packet sources", () => {
+    const report = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/retrospective-audit-report.json"), "utf8"));
+    expect(report.mechanicalResult).toBe(true);
+    expect(report.authorizedFrozenEvidenceSources).toEqual([{ path: authorizedBlockerResolutionPacketPath, sha256: authorizedBlockerResolutionPacketSha256, ruleIds: ["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"] }]);
+    const truth = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json"), "utf8"));
+    const contexts = loadAuthorizedBlockerResolutionContexts();
+    for (const ruleId of ["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"]) {
+      const row = truth.decisions.find((decision: any) => decision.stableRuleId === ruleId);
+      const acceptedOnly = { ...row, rejectedEvidence: [] };
+      expect(validateAuditDecisionInvariants(acceptedOnly, contexts).provenanceResult).toBe("PASS");
+    }
+  });
+
+  it("rejects exact-evidence mutations and unrelated packet sources", () => {
+    const truth = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json"), "utf8"));
+    const contexts = loadAuthorizedBlockerResolutionContexts();
+    const row = truth.decisions.find((decision: any) => decision.stableRuleId === "Verra.AFOLU.VM0007.v1-8.R-1-0012");
+    for (const field of ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"]) {
+      const mutated = JSON.parse(JSON.stringify({ ...row, rejectedEvidence: [] }));
+      mutated.acceptedEvidence[0][field] = field === "page" ? 999 : `${mutated.acceptedEvidence[0][field]}-mutated`;
+      expect(validateAuditDecisionInvariants(mutated, contexts).provenanceResult).toBe("FAIL");
+    }
+    expect(() => loadAuthorizedBlockerResolutionContexts(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json"))).toThrow(/SHA changed/);
+    const files = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
+    const rows = files.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
+    expect(rows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(41);
+    expect(rows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(17);
+  });
+
   it("passes a valid reviewed decision through all six invariant checks", () => {
     const result = validateAuditDecisionInvariants(validFixture().decision, validFixture().contexts);
 
