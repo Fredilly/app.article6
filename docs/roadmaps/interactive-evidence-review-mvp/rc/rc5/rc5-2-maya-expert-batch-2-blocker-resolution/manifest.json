@@ -12,7 +12,7 @@
   "packetSha256": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
   "files": {
     "blocker-resolution-packet.json": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
-    "independent-review-response-schema.json": "a21d2c35ffd3e4468c2ca44f444e06adf357fa116ef8fe2c6591ba8504125b4f",
+    "independent-review-response-schema.json": "01ddfff63ff22f96916eda95982e3ec04cb3259278f6cfa6226696181039a208",
     "independent-review-response-template.json": "ea285ba625863e616557c22a5f3d8c9d8dcefdb8fea0ea4c7275203fca50a83c",
     "review-instructions.md": "e272adab05285d5e41b4d56d3a774fe1ab7c585d470f0a54e81a4765a6a019ed",
     "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json": "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561"

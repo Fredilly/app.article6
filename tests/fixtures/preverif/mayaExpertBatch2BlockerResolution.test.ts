@@ -11,11 +11,12 @@ const packetPath = path.join(packetDir, "blocker-resolution-packet.json");
 const readPacket = () => JSON.parse(fs.readFileSync(packetPath, "utf8"));
 const readOfficialExtraction = () => JSON.parse(fs.readFileSync(path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"), "utf8"));
 const readPddExtraction = () => JSON.parse(fs.readFileSync(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json"), "utf8"));
+const frozenMachineRowHashes = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/integration-manifest.json"), "utf8")).rules;
 
 function canonicalDecision(ruleId: string) {
   return {
     stableRuleId: ruleId,
-    machineRowSha256: "a".repeat(64),
+    machineRowSha256: frozenMachineRowHashes[ruleId].frozenMachineRowHash,
     reviewStatus: "REVIEWED",
     expertReviewRequired: false,
     finalEvidenceState: "FOUND",
@@ -50,12 +51,26 @@ describe("Maya RC5-2 batch 2 blocker-resolution packet", () => {
     const resolved = { schemaVersion: schema.properties.schemaVersion.const, responses: Object.fromEntries(selectedRuleIds.map((id) => [id, { reviewStatus: "RESOLVED", evidenceAssessment: "The frozen evidence resolves the blocker.", finalRuleDecision: canonicalDecision(id), remainingBlockers: [], notes: "Resolved from frozen evidence only." }])) };
     expect(validate(unresolved)).toBe(true);
     expect(validate(resolved)).toBe(true);
+    expect(schema.$defs.canonicalDecision_Verra_AFOLU_VM0007_v1_8_R_1_0012.properties.stableRuleId.const).toBe(selectedRuleIds[0]);
+    expect(schema.$defs.canonicalDecision_Verra_AFOLU_VM0007_v1_8_R_1_0012.properties.machineRowSha256.const).toBe(frozenMachineRowHashes[selectedRuleIds[0]].frozenMachineRowHash);
     const invalidResolved = clone(resolved);
     invalidResolved.responses[selectedRuleIds[0]].finalRuleDecision = null;
     expect(validate(invalidResolved)).toBe(false);
     const invalidUnresolved = clone(unresolved);
     invalidUnresolved.responses[selectedRuleIds[0]].remainingBlockers = [];
     expect(validate(invalidUnresolved)).toBe(false);
+    const swapped = clone(resolved);
+    swapped.responses[selectedRuleIds[1]].finalRuleDecision = clone(swapped.responses[selectedRuleIds[0]].finalRuleDecision);
+    expect(validate(swapped)).toBe(false);
+    const changedRuleId = clone(resolved);
+    changedRuleId.responses[selectedRuleIds[0]].finalRuleDecision.stableRuleId = selectedRuleIds[1];
+    expect(validate(changedRuleId)).toBe(false);
+    const fakeMachineHash = clone(resolved);
+    fakeMachineHash.responses[selectedRuleIds[0]].finalRuleDecision.machineRowSha256 = "a".repeat(64);
+    expect(validate(fakeMachineHash)).toBe(false);
+    const otherMachineHash = clone(resolved);
+    otherMachineHash.responses[selectedRuleIds[0]].finalRuleDecision.machineRowSha256 = frozenMachineRowHashes[selectedRuleIds[1]].frozenMachineRowHash;
+    expect(validate(otherMachineHash)).toBe(false);
   });
 
   test("methodology evidence is only from the pinned official source and matches its claimed page", () => {
