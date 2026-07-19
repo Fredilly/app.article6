@@ -8,6 +8,8 @@ import {
   packetPath,
   responsePath,
   responseSchemaPath,
+  assertReviewedTruthFilesUnchanged,
+  reviewedTruthFilePins,
   selectedRuleIds,
   validateIntegrationResponse,
   writeIntegrationManifest,
@@ -97,10 +99,26 @@ describe("Maya independent expert response integration", () => {
     expect(manifest.rules[selectedRuleIds[2]]).toMatchObject({ applicabilityDetermination: "APPLICABLE", evidenceSufficiency: "PARTIALLY_SUFFICIENT", reviewStatus: "PROVISIONAL" });
     expect(manifest.inventoryBefore).toEqual({ reviewedRuleCount: 39, provisionalRuleCount: 19 });
     expect(manifest.inventoryAfter).toEqual({ reviewedRuleCount: 39, provisionalRuleCount: 19 });
-    expect(manifest.finalization).toEqual({ occurred: false, truthFilesCreated: false, machineTruthChanged: false, reviewedRowsChanged: false });
+    expect(manifest.finalization).toEqual({ occurred: false, truthFilesCreated: false, machineTruthChanged: false, reviewedRowsChanged: false, reviewedTruthByteForByteUnchanged: true });
     expect(manifest.machineProposal.sha256).toBe("e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     expect(manifest.existingReviewedRowsSha256).toBe("922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1");
+    expect(manifest.reviewedTruthFiles).toEqual(reviewedTruthFilePins.map((pin) => ({ path: pin.path, sha256: pin.sha256 })));
     expect(fs.existsSync(path.join(integrationDir, "reviewed-truth.json"))).toBe(false);
+  });
+
+  test("fails closed when bytes outside REVIEWED decisions change", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
+    try {
+      const copiedPaths = reviewedTruthFilePins.map((pin, index) => {
+        const copiedPath = path.join(tempDir, `${index}.json`);
+        fs.copyFileSync(path.join(process.cwd(), pin.path), copiedPath);
+        return copiedPath;
+      });
+      fs.appendFileSync(copiedPaths[0], "\n");
+      expect(() => assertReviewedTruthFilesUnchanged(copiedPaths)).toThrow(/byte-for-byte/);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 
   test("regenerates the integration manifest byte-for-byte", () => {

@@ -26,13 +26,26 @@ export const expectedReviewedRowsSha256 = "922d7cc1eb95d9b9e35f58073120d0ffe8db7
 
 const machineProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const scopePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
-const reviewedTruthPaths = [
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
-  ...[2, 3, 4, 5, 6].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`),
-].map((file) => path.join(root, file));
+export const reviewedTruthFilePins = [
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", sha256: "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json", sha256: "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json", sha256: "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json", sha256: "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json", sha256: "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291" },
+  { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json", sha256: "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00" },
+] as const;
+const reviewedTruthPaths = reviewedTruthFilePins.map((file) => path.join(root, file.path));
 
 const sha256 = (bytes: Buffer | string): string => crypto.createHash("sha256").update(bytes).digest("hex");
 const readJson = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+
+export function assertReviewedTruthFilesUnchanged(paths = reviewedTruthPaths): void {
+  if (paths.length !== reviewedTruthFilePins.length) throw new Error("Reviewed-truth source file set changed");
+  reviewedTruthFilePins.forEach((pin, index) => {
+    const actualSha256 = sha256(fs.readFileSync(paths[index]));
+    if (actualSha256 !== pin.sha256) throw new Error(`Reviewed-truth file changed byte-for-byte: ${pin.path}`);
+  });
+}
 
 export function assertExactEvidence(response: any, packet: any): void {
   const rules = new Map(packet.rules.map((rule: any) => [rule.stableRuleId, rule]));
@@ -73,6 +86,7 @@ export function validateIntegrationResponse(response: any, packet: any, schema: 
 }
 
 export function buildIntegrationManifest(): any {
+  assertReviewedTruthFilesUnchanged();
   const responseBytes = fs.readFileSync(responsePath);
   const packetBytes = fs.readFileSync(packetPath);
   const responseSchemaBytes = fs.readFileSync(responseSchemaPath);
@@ -123,8 +137,9 @@ export function buildIntegrationManifest(): any {
     })),
     inventoryBefore: { reviewedRuleCount: 39, provisionalRuleCount: 19 },
     inventoryAfter: { reviewedRuleCount: 39, provisionalRuleCount: 19 },
-    finalization: { occurred: false, truthFilesCreated: false, machineTruthChanged: false, reviewedRowsChanged: false },
+    finalization: { occurred: false, truthFilesCreated: false, machineTruthChanged: false, reviewedRowsChanged: false, reviewedTruthByteForByteUnchanged: true },
     machineProposal: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: expectedMachineProposalSha256, rowCount: machineProposal.rows.length },
+    reviewedTruthFiles: reviewedTruthFilePins.map((pin) => ({ path: pin.path, sha256: pin.sha256 })),
     existingReviewedRowsSha256: expectedReviewedRowsSha256,
     generatedFrom: "pinned merged packet and strict completed-response schema",
   };
