@@ -31,6 +31,18 @@ This repository is app.article6.
 * Do not weaken tests to make a PR pass.
 * If the task is fixture-only, do not change production logic.
 
+### Regression-test strength invariant
+
+When updating tests after an authorized truth integration:
+
+* Historical artifact tests must remain pinned to their historical inputs.
+* Later-authorized row changes must be compared against the exact newer authorized truth.
+* Never replace full-row equality with status-only checks.
+* Never skip provenance, SHA, mutation, or deterministic-regeneration checks for changed rows.
+* Never compare a committed artifact to itself.
+* Any removed protection must be replaced by an equally strong or stronger assertion and documented in the PR.
+* Test-only changes that weaken coverage are blockers even when all CI checks pass.
+
 ## Quick Check PDF triage / Phase 7 fixture workflow
 
 For new Quick Check PDF triage or Phase 7 fixture tasks, first read and follow:
