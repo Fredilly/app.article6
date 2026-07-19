@@ -40,7 +40,18 @@ const historicalBytes = (input: HistoricalInput): Buffer => {
 
 const historicalJson = <T>(input: HistoricalInput): T => JSON.parse(historicalBytes(input).toString("utf8")) as T;
 
-export function buildArtifacts(selectionOverride?: Selection) {
+type HistoricalScopeRule = { stableRuleId: string; batch: number; reviewStatus: string; existingFrozenPacketSufficientForIndependentReview: boolean; scopeGroup: string };
+
+export function validateHistoricalAuthorization(scopeRules: HistoricalScopeRule[], authorization: Selection["authorization"]): void {
+  for (const entry of authorization) {
+    const historicalScopeRule = scopeRules.find((rule) => rule.stableRuleId === entry.stableRuleId);
+    if (!historicalScopeRule) throw new Error(`Historical scope is missing selected rule ${entry.stableRuleId}`);
+    if (historicalScopeRule.batch !== entry.sourceBatch) throw new Error(`Historical scope batch mismatch for ${entry.stableRuleId}`);
+    if (historicalScopeRule.stableRuleId !== entry.stableRuleId || historicalScopeRule.reviewStatus !== "PROVISIONAL" || historicalScopeRule.existingFrozenPacketSufficientForIndependentReview !== true || historicalScopeRule.scopeGroup !== "CAN_FINALIZE_FROM_EXISTING_PACKET") throw new Error(`Historical scope did not authorize ${entry.stableRuleId}`);
+  }
+}
+
+export function buildArtifacts(selectionOverride?: Selection, historicalScopeOverride?: HistoricalScopeRule[]) {
   const selection = selectionOverride ?? read<Selection>(selectionPath);
   if (!selectionOverride && sha256(fs.readFileSync(selectionPath)) !== "1ffdf2ef2116b8962793a92052387fcd0d52815b708cd0810ebc10089c2614d0") throw new Error("Immutable pre-review selection artifact changed");
   if (selection.originalScopeArtifact.sha256 !== "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17" || selection.originalScopeArtifact.provisionalRuleCount !== 27) throw new Error("Original pre-review scope authorization changed");
@@ -54,8 +65,9 @@ export function buildArtifacts(selectionOverride?: Selection) {
   if (selection.authorization.length !== selectedRuleIds.length || selection.authorization.some((entry, index) => entry.stableRuleId !== selectedRuleIds[index] || !entry.authorized || entry.existingFrozenPacketSufficientForIndependentReview !== true)) throw new Error("Immutable pre-review authorization changed");
   const sourceSnapshot = historicalJson<Record<string, any>>(selection.deepSeekReviewedPacket);
   const proposal = historicalJson<{ rows: Array<Record<string, any> & { stableRuleId: string }> }>(selection.machineProposal);
-  const scope = historicalJson<{ rules: Array<Record<string, any>> }>(selection.originalScopeArtifact);
+  const scope = historicalJson<{ rules: HistoricalScopeRule[] }>(selection.originalScopeArtifact);
   if (scope.rules.filter((rule) => rule.reviewStatus === "PROVISIONAL").length !== 27) throw new Error("Historical scope inventory changed");
+  validateHistoricalAuthorization(historicalScopeOverride ?? scope.rules, selection.authorization);
   if (JSON.stringify(sourceSnapshot.selectedRuleIds) !== JSON.stringify(selectedRuleIds) || sourceSnapshot.rules.length !== selectedRuleIds.length) throw new Error("Historical pre-review packet selection changed");
   const contexts: Record<string, any> = {};
   const packet = {

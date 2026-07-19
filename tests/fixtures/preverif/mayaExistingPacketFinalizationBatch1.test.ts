@@ -6,7 +6,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
-import { buildArtifacts, packetDir, selectedRuleIds, writeArtifacts } from "../../../scripts/preverif/generate-rc5-existing-packet-finalization-batch1";
+import { buildArtifacts, packetDir, selectedRuleIds, validateHistoricalAuthorization, writeArtifacts } from "../../../scripts/preverif/generate-rc5-existing-packet-finalization-batch1";
 import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc5-adjudication-response-schema";
 
 const root = process.cwd();
@@ -74,6 +74,19 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
     const scope = read<any>(selectionPath);
     const missingRuleId = selectedRuleIds[0];
     assert.throws(() => buildArtifacts({ ...scope, selectedRuleIds: scope.selectedRuleIds.filter((id: string) => id !== missingRuleId) }), new RegExp(`Immutable pre-review selection is missing selected rule ${missingRuleId}`));
+  });
+
+  it("uses historical scope rows as the authorization authority", () => {
+    const selection = read<any>(selectionPath);
+    const historicalScope = JSON.parse(execFileSync("git", ["show", `${selection.sourceCommitSha}:${selection.originalScopeArtifact.path}`], { encoding: "utf8" })).rules;
+    const mutateRule = (ruleId: string, changes: Record<string, unknown>) => historicalScope.map((rule: any) => rule.stableRuleId === ruleId ? { ...rule, ...changes } : rule);
+    const firstRuleId = selectedRuleIds[0];
+    assert.throws(() => buildArtifacts(selection, historicalScope.filter((rule: any) => rule.stableRuleId !== firstRuleId)), new RegExp(`Historical scope is missing selected rule ${firstRuleId}`));
+    assert.throws(() => buildArtifacts(selection, mutateRule(firstRuleId, { existingFrozenPacketSufficientForIndependentReview: false })), new RegExp(`Historical scope did not authorize ${firstRuleId}`));
+    assert.throws(() => buildArtifacts(selection, mutateRule(firstRuleId, { scopeGroup: "REQUIRES_TARGETED_FULL_PDD_RETRIEVAL" })), new RegExp(`Historical scope did not authorize ${firstRuleId}`));
+    assert.throws(() => buildArtifacts(selection, mutateRule(firstRuleId, { batch: 4 })), new RegExp(`Historical scope batch mismatch for ${firstRuleId}`));
+    assert.throws(() => buildArtifacts(selection, mutateRule(firstRuleId, { reviewStatus: "REVIEWED" })), new RegExp(`Historical scope did not authorize ${firstRuleId}`));
+    validateHistoricalAuthorization(historicalScope, selection.authorization);
   });
 
   it("does not read or depend on current finalized reviewed truth", () => {
