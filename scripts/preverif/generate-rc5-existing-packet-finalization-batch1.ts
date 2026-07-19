@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -28,10 +27,9 @@ type Selection = { sourceCommitSha: string; selectedRuleIds: string[]; originalS
 
 export function buildArtifacts(selectionOverride?: Selection) {
   const selection = selectionOverride ?? read<Selection>(selectionPath);
-  if (!selectionOverride && sha256(fs.readFileSync(selectionPath)) !== "5b47443e7a56f497d0977689f8ca78ccbb6461dec845503e939db7654f2a4140") throw new Error("Immutable pre-review selection artifact changed");
+  if (!selectionOverride && sha256(fs.readFileSync(selectionPath)) !== "732339bf3b78d5ca5bade243f31ddab77cca911cc44c3b165ff1bb430a511fae") throw new Error("Immutable pre-review selection artifact changed");
   if (selection.originalScopeArtifact.sha256 !== "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17" || selection.originalScopeArtifact.provisionalRuleCount !== 27) throw new Error("Original pre-review scope authorization changed");
-  const originalScopeBytes = execFileSync("git", ["show", `${selection.sourceCommitSha}:${selection.originalScopeArtifact.path}`]);
-  if (sha256(originalScopeBytes) !== selection.originalScopeArtifact.sha256) throw new Error("Original pre-review scope artifact changed");
+  if (sha256(fs.readFileSync(path.join(root, selection.originalScopeArtifact.path))) !== selection.originalScopeArtifact.sha256) throw new Error("Original pre-review scope artifact changed");
   if (sha256(fs.readFileSync(evidenceSnapshotPath)) !== selection.deepSeekReviewedPacket.sha256) throw new Error("Immutable pre-review evidence snapshot changed");
   if (sha256(fs.readFileSync(proposalPath)) !== selection.machineProposal.sha256) throw new Error("Frozen machine proposal changed");
   for (const source of Object.values(selection.sourcePackets)) if (sha256(fs.readFileSync(path.join(root, source.path))) !== source.sha256) throw new Error(`Immutable source packet changed: ${source.path}`);

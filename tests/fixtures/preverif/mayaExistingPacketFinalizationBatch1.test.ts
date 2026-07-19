@@ -102,10 +102,10 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
 
   it("validates the historical authorization, exact packet hash, and frozen machine proposal", () => {
     const selection = read<any>(selectionPath);
-    assert.equal(sha256(fs.readFileSync(selectionPath)), "5b47443e7a56f497d0977689f8ca78ccbb6461dec845503e939db7654f2a4140");
+    assert.equal(sha256(fs.readFileSync(selectionPath)), "732339bf3b78d5ca5bade243f31ddab77cca911cc44c3b165ff1bb430a511fae");
     assert.deepEqual(selection.selectedRuleIds, selectedRuleIds);
     assert.equal(selection.authorization.every((entry: any) => entry.authorized && entry.existingFrozenPacketSufficientForIndependentReview), true);
-    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31");
+    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "39668a1108b97eb717feba79002f82883780b43c1246bea19b8aebe46779aee2");
     assert.equal(sha256(fs.readFileSync(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     assert.deepEqual(buildArtifacts().packet, read<any>(blindPacketPath));
   });

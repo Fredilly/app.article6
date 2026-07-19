@@ -2,7 +2,7 @@
   "schemaVersion": "rc5-2-maya-existing-packet-finalization-batch-1-pre-review-selection-v1",
   "sourceCommitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
   "originalScopeArtifact": {
-    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json",
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-scope-artifact.json",
     "sha256": "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17",
     "provisionalRuleCount": 27
   },
@@ -32,7 +32,7 @@
   },
   "blindPacket": {
     "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-blind-packet.json",
-    "sha256": "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31"
+    "sha256": "39668a1108b97eb717feba79002f82883780b43c1246bea19b8aebe46779aee2"
   },
   "deepSeekReviewedPacket": {
     "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-evidence-snapshot.json",
