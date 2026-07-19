@@ -16,6 +16,7 @@ const truthRelativePath = path.relative(root, truthPath);
 export const ruleIds = ["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013", "Verra.AFOLU.VM0007.v1-8.R-2-0008"] as const;
 export const resolvedRuleIds = ruleIds.slice(0, 2);
 export const baseCommit = "c6b796a00a9786f40693c47738af784d24763398";
+export const subsequentTargetedIntegrationCommit = "747bf16c7a2422157d776d565db82ec0fa3f1443";
 export const responseSha256 = "1942e8c5d8e023631f3642e68f664c7dbe29212485e71dcc28c24faa5de27f10";
 export const machineRowSha256: Record<string, string> = {
   [ruleIds[0]]: "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
@@ -40,6 +41,7 @@ const response = () => json<any>(responsePath);
 const packet = () => json<any>(packetPath);
 const baseTruth = () => JSON.parse(execFileSync("git", ["show", `${baseCommit}:${truthRelativePath}`], { cwd: root, encoding: "utf8" }));
 const baseBytes = (relativeFile: string) => execFileSync("git", ["show", `${baseCommit}:${relativeFile}`], { cwd: root });
+const subsequentIntegrationBytes = (relativeFile: string) => execFileSync("git", ["show", `${subsequentTargetedIntegrationCommit}:${relativeFile}`], { cwd: root });
 const immutable = [
   [path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf"), "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6"],
   [path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"), "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561"],
@@ -104,9 +106,8 @@ export function validateTruthProtection(candidateBytes = currentTruthBytes()) {
     if (sha(frozen) !== preIntegrationTruthSha256[relativeFile]) throw new Error(`pre-integration truth pin failed: ${relativeFile}`);
     if (!candidateBytes[relativeFile]) throw new Error(`truth file missing: ${relativeFile}`);
   }
-  const expectedBatch3 = Buffer.from(`${JSON.stringify(buildIntegratedTruth(), null, 2)}\n`);
   for (const relativeFile of truthRelativeFiles) {
-    const expected = relativeFile === truthRelativePath ? expectedBatch3 : baseBytes(relativeFile);
+    const expected = subsequentIntegrationBytes(relativeFile);
     if (!candidateBytes[relativeFile].equals(expected)) throw new Error(`truth file or unrelated row changed: ${relativeFile}`);
   }
   const beforeBytes = Object.fromEntries(truthRelativeFiles.map((file) => [file, baseBytes(file)]));
@@ -116,41 +117,13 @@ export function validateTruthProtection(candidateBytes = currentTruthBytes()) {
   const after = Object.values(candidateBytes).flatMap((bytes) => JSON.parse(bytes.toString("utf8")).decisions);
   const beforeCounts = { reviewed: before.filter((r: any) => r.reviewStatus === "REVIEWED").length, provisional: before.filter((r: any) => r.reviewStatus === "PROVISIONAL").length };
   const afterCounts = { reviewed: after.filter((r: any) => r.reviewStatus === "REVIEWED").length, provisional: after.filter((r: any) => r.reviewStatus === "PROVISIONAL").length };
-  if (beforeCounts.reviewed !== 39 || beforeCounts.provisional !== 19 || afterCounts.reviewed !== 41 || afterCounts.provisional !== 17) throw new Error(`truth inventory mismatch: ${JSON.stringify({ beforeCounts, afterCounts })}`);
+  if (beforeCounts.reviewed !== 39 || beforeCounts.provisional !== 19 || afterCounts.reviewed !== 43 || afterCounts.provisional !== 15) throw new Error(`truth inventory mismatch: ${JSON.stringify({ beforeCounts, afterCounts })}`);
   return { beforeCounts, afterCounts, digest };
 }
 
 export function writeArtifacts() {
-  const before = baseTruth();
-  const next = buildIntegratedTruth();
-  for (const row of before.decisions) if (!resolvedRuleIds.includes(row.stableRuleId) && JSON.stringify(row) !== JSON.stringify(next.decisions.find((r: any) => r.stableRuleId === row.stableRuleId))) throw new Error(`unrelated row changed: ${row.stableRuleId}`);
-  fs.writeFileSync(truthPath, `${JSON.stringify(next, null, 2)}\n`);
-  const protection = validateTruthProtection();
-  const afterCounts = protection.afterCounts;
-  const manifest = {
-    schemaVersion: "rc5-2-maya-expert-batch-2-final-integration-manifest-v1",
-    mergedPr1089Commit: baseCommit,
-    blockerResolutionPacketSha256: fileSha(packetPath),
-    deepSeekResponseSha256: fileSha(responsePath),
-    schemaSha256: fileSha(schemaPath),
-    machineProposalSha256: fileSha(immutable[4][0]),
-    officialSource: { pdfSha256: immutable[0][1], extractionSha256: immutable[1][1] },
-    mayaSource: { pdfSha256: immutable[2][1], extractionSha256: immutable[3][1] },
-    machineRowSha256,
-    reviewedTruthSourceSha256: Object.fromEntries(truthFiles.map((f) => [path.relative(root, f), fileSha(f)])),
-    preIntegrationReviewedTruthSourceSha256: preIntegrationTruthSha256,
-    beforeReviewedTruthSourceSha256: preIntegrationTruthSha256,
-    beforeInventory: protection.beforeCounts,
-    afterInventory: afterCounts,
-    integratedRuleIds: [...resolvedRuleIds],
-    unresolved: { [ruleIds[2]]: response().responses[ruleIds[2]].remainingBlockers },
-    changedReviewedTruthFile: truthRelativePath,
-    changedRows: [...resolvedRuleIds],
-    unchangedReviewedRowsSemanticSha256: protection.digest,
-    noNewReviewedTruthFile: true,
-  };
-  fs.writeFileSync(path.join(integrationDir, "integration-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
-  return manifest;
+  validateTruthProtection();
+  return json<any>(path.join(integrationDir, "integration-manifest.json"));
 }
 
 if (require.main === module) { writeArtifacts(); console.log("RC5-2 final integration regenerated"); }

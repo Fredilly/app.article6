@@ -4,13 +4,18 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { baseCommit, integrationDir, machineRowSha256, packetDir, responsePath, responseSha256, resolvedRuleIds, ruleIds, truthPath, truthRelativeFiles, validateIntegration, validateTruthProtection, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-final-integration";
+import { baseCommit, integrationDir, machineRowSha256, packetDir, responsePath, responseSha256, resolvedRuleIds, ruleIds, subsequentTargetedIntegrationCommit, truthPath, truthRelativeFiles, validateIntegration, validateTruthProtection, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-final-integration";
 
 const root = process.cwd();
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const sha = (v: Buffer | string) => crypto.createHash("sha256").update(v).digest("hex");
 const json = (p: string) => JSON.parse(fs.readFileSync(p, "utf8"));
 const oldTruth = () => JSON.parse(execFileSync("git", ["show", `${baseCommit}:docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json`], { cwd: root, encoding: "utf8" }));
+const targetedTruth = () => JSON.parse(execFileSync("git", ["show", `${subsequentTargetedIntegrationCommit}:docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json`], { cwd: root, encoding: "utf8" }));
+const targetedRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-2-0002", "Verra.AFOLU.VM0007.v1-8.R-2-0003", "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0005", "Verra.AFOLU.VM0007.v1-8.R-2-0006", "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+]);
 
 describe("RC5-2 Maya batch 2 final integration", () => {
   test("corrected response is pinned, schema-valid, and bound to frozen rules", () => {
@@ -32,19 +37,21 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     expect(() => validateIntegration(wrongEvidence)).toThrow();
   });
 
-  test("only the two resolved provisional rows change and inventory is 41/17", () => {
+  test("preserves the two resolved rows through the later authorized 43/15 integration", () => {
     const before = oldTruth();
     const after = json(truthPath);
+    const later = targetedTruth();
     for (const row of before.decisions) {
       const current = after.decisions.find((r: any) => r.stableRuleId === row.stableRuleId);
       if (ruleIds.slice(0, 2).includes(row.stableRuleId)) expect(current.reviewStatus).toBe("REVIEWED");
+      else if (targetedRuleIds.has(row.stableRuleId)) expect(current).toEqual(later.decisions.find((r: any) => r.stableRuleId === row.stableRuleId));
       else expect(current).toEqual(row);
     }
     expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2]).reviewStatus).toBe("PROVISIONAL");
     const all = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].map((f, i) => i === 0 ? `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}` : `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}`);
     const rows = all.flatMap((f) => json(path.join(root, f)).decisions);
-    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(41);
-    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(17);
+    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(43);
+    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(15);
   });
 
   test("preserves prior rejected evidence and merges DeepSeek fields deterministically", () => {
