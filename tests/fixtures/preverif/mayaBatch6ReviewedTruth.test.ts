@@ -15,6 +15,7 @@ const proposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corrid
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const evidenceFields = ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"] as const;
+const prBaseCommit = "2c201ab7ce9a83b28ffa751a8a481dccab4f3096";
 
 describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
   it("validates the final eight decisions against the frozen PR #1085 schema and packet", () => {
@@ -46,18 +47,16 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     }
   });
 
-  it("keeps machine truth and the other 50 Batch 1-5 rows byte-for-byte unchanged", () => {
+  it("keeps machine truth and non-selected PR-base rows byte-for-byte unchanged", () => {
     assert.equal(sha256(fs.readFileSync(proposalPath)), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     for (const relativePath of [
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-    ]) assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), execFileSync("git", ["show", `HEAD:${relativePath}`]), relativePath);
+    ]) assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), execFileSync("git", ["show", `${prBaseCommit}:${relativePath}`]), relativePath);
   });
 
-  it("covers exactly 58 unique rules and blocks RC5 completion while prior provisional rows remain", () => {
+  it("covers exactly 58 unique rules and blocks RC5 completion while current provisional rows remain", () => {
     const proposal = read<{ rows: Array<{ stableRuleId: string }> }>(proposalPath);
     const batches = [1, 2, 3, 4, 5, 6].flatMap((batch) => readRc5BatchSelection(batch, selectionPath));
     const truthFiles = [
@@ -70,8 +69,40 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 31);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 27);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 39);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 19);
     assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
+  });
+
+  it("limits reviewed-truth changes from the pinned PR base to the eight selected rules", () => {
+    const selected = new Set([
+      "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0002",
+    ]);
+    const files = [3, 4].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`);
+    const baseRows = new Map<string, any>();
+    for (const file of files) for (const row of read<{ decisions: any[] }>(path.join(root, file)).decisions) {
+      const base = JSON.parse(execFileSync("git", ["show", `${prBaseCommit}:${file}`], { encoding: "utf8" })).decisions.find((candidate: any) => candidate.stableRuleId === row.stableRuleId);
+      baseRows.set(row.stableRuleId, base);
+      assert.equal(selected.has(row.stableRuleId), JSON.stringify(row) !== JSON.stringify(base), row.stableRuleId);
+    }
+    assert.deepEqual([...selected].sort(), [...baseRows.entries()].filter(([id, base]) => JSON.stringify(base) !== JSON.stringify((files.map((file) => read<{ decisions: any[] }>(path.join(root, file)).decisions).flat()).find((row) => row.stableRuleId === id))).map(([id]) => id).sort());
+  });
+
+  it("classifies every material machine-versus-human disagreement", () => {
+    const proposal = read<{ rows: any[] }>(proposalPath);
+    const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json", "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json"];
+    const selected = new Set(["Verra.AFOLU.VM0007.v1-8.R-1-0014", "Verra.AFOLU.VM0007.v1-8.R-2-0009", "Verra.AFOLU.VM0007.v1-8.R-2-0010", "Verra.AFOLU.VM0007.v1-8.R-2-0011", "Verra.AFOLU.VM0007.v1-8.R-2-0012", "Verra.AFOLU.VM0007.v1-8.R-2-0015", "Verra.AFOLU.VM0007.v1-8.R-2-0016", "Verra.AFOLU.VM0007.v1-8.R-3-0002"]);
+    for (const row of truthFiles.flatMap((file) => read<{ decisions: any[] }>(path.join(root, file)).decisions).filter((row) => selected.has(row.stableRuleId))) {
+      const machine = proposal.rows.find((candidate) => candidate.stableRuleId === row.stableRuleId);
+      const differs = machine.proposedEvidenceStatus !== row.finalEvidenceState || machine.proposedApplicability !== row.finalApplicability;
+      if (differs) assert.notEqual(row.genericFailureCategory, "NONE", row.stableRuleId);
+    }
   });
 });

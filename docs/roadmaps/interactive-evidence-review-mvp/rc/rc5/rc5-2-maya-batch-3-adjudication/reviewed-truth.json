@@ -133,7 +133,7 @@
       "gap": "",
       "clientAction": "",
       "correctionReason": "Module selection evidence from the methodology table shows BL-PL module without IFM/ARR modules.",
-      "genericFailureCategory": "NONE",
+      "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "provisionalReason": null
     },

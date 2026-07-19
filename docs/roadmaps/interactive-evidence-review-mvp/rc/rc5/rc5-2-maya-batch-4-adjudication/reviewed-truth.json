@@ -609,7 +609,7 @@
       "gap": "",
       "clientAction": "",
       "correctionReason": "Three alternatives clearly listed in accepted evidence. Rejected evidence is supplementary or unrelated.",
-      "genericFailureCategory": "NONE",
+      "genericFailureCategory": "ASSESSMENT",
       "reviewerConfidence": "HIGH",
       "provisionalReason": null
     }

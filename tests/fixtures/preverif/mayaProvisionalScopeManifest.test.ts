@@ -12,9 +12,10 @@ const manifestPath = path.join(scopeDir, "manifest.json");
 const machineTruthPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const sha256 = (value: Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+const prBaseCommit = "2c201ab7ce9a83b28ffa751a8a481dccab4f3096";
 
 describe("RC5-2 Maya provisional independent-review scope", () => {
-  it("inventories exactly the 27 provisional rules without duplicates", () => {
+  it("inventories exactly the 19 provisional rules without duplicates", () => {
     const manifest = buildScopeManifest();
     const ids = manifest.rules.map((rule) => rule.stableRuleId);
 
@@ -39,14 +40,14 @@ describe("RC5-2 Maya provisional independent-review scope", () => {
     assert.deepEqual([...batchIds].sort(), manifest.rules.map((rule) => rule.stableRuleId).sort());
   });
 
-  it("pins machine truth and untouched reviewed-truth artifacts without changing them", () => {
+  it("pins machine truth and untouched reviewed-truth artifacts against the PR base", () => {
     const manifest = buildScopeManifest();
     assert.equal(sha256(fs.readFileSync(machineTruthPath)), manifest.machineTruth.sha256);
     for (const relativePath of [
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
       ...[2, 5, 6].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`),
     ]) {
-      assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), execFileSync("git", ["show", `HEAD:${relativePath}`]), relativePath);
+      assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), execFileSync("git", ["show", `${prBaseCommit}:${relativePath}`]), relativePath);
     }
   });
 

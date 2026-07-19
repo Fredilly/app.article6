@@ -11,7 +11,11 @@ import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc
 const root = process.cwd();
 const read = <T>(file: string): T => JSON.parse(fs.readFileSync(file, "utf8")) as T;
 const sha256 = (value: Buffer | string): string => crypto.createHash("sha256").update(value).digest("hex");
-const scopePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
+const selectionPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-selection.json");
+const blindPacketPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-blind-packet.json");
+const evidenceSnapshotPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-evidence-snapshot.json");
+const generatorPath = path.join(root, "scripts/preverif/generate-rc5-existing-packet-finalization-batch1.ts");
+const finalizedTruthPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json");
 
 describe("RC5-2 Maya existing-packet finalization batch 1", () => {
   it("contains exactly eight neutral, provenance-deduplicated candidate sets", () => {
@@ -20,8 +24,9 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
     assert.equal(new Set(artifacts.packet.selectedRuleIds).size, 8);
     assert.equal(artifacts.packet.rules.length, 8);
     const proposal = read<{ rows: Array<Record<string, any>> }>(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"));
-    const sourcePacketByRule = (ruleId: string) => path.join(root, ruleId.endsWith("R-1-0014") ? "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json" : "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json");
-    const sourceTruthByRule = (ruleId: string) => path.join(root, ruleId.endsWith("R-1-0014") ? "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json" : "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json");
+    const frozenPacket = read<Record<string, any>>(blindPacketPath);
+    assert.deepEqual(artifacts.packet, frozenPacket);
+    assert.equal(sha256(fs.readFileSync(blindPacketPath)), read<any>(selectionPath).blindPacket.sha256);
     const forbiddenPacketKeys = ["reviewStatus", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "assessmentReason", "gap", "clientAction", "correctionReason", "reviewerConfidence", "acceptedEvidence", "rejectedEvidence", "historicalProvisionalContext", "provisionalReviewedTruthEvidence", "exactFrozenMachineRow", "machineAssessment", "proposedEvidenceState", "proposedApplicability"];
     const packetText = JSON.stringify(artifacts.packet);
     for (const key of forbiddenPacketKeys) assert.equal(packetText.includes(`\"${key}\"`), false, key);
@@ -30,17 +35,6 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
       assert.ok(machine);
       assert.equal(rule.frozenMachineRowHash, sha256(JSON.stringify(machine)));
       assert.equal(rule.sourcePacket.evidenceIsUnchanged, true);
-      const sourcePacket = read<{ rules: Array<Record<string, any>> }>(sourcePacketByRule(rule.stableRuleId)).rules.find((source) => source.stableRuleId === rule.stableRuleId);
-      const sourceTruth = read<{ decisions: Array<Record<string, any>> }>(sourceTruthByRule(rule.stableRuleId)).decisions.find((source) => source.stableRuleId === rule.stableRuleId);
-      const sourceEvidence = [...(sourcePacket?.acceptedEvidence ?? []), ...(sourcePacket?.rejectedEvidence ?? []), ...(sourceTruth?.acceptedEvidence ?? []), ...(sourceTruth?.rejectedEvidence ?? [])];
-      const identity = (evidence: any) => ({ quote: evidence.quote, page: evidence.page, sectionHeading: evidence.sectionHeading ?? evidence.provenance?.sectionHeading ?? evidence.section ?? "", spanId: evidence.spanId, documentId: evidence.documentId ?? evidence.provenance?.docId ?? artifacts.packet.sourceDocument.documentId, documentSha256: evidence.documentSha256 ?? artifacts.packet.sourceDocument.contentSha256 });
-      const expectedByIdentity = new Map<string, any>();
-      for (const evidence of sourceEvidence) {
-        const key = JSON.stringify(identity(evidence));
-        const existing = expectedByIdentity.get(key);
-        if (!existing || (!existing.provenance && evidence.provenance)) expectedByIdentity.set(key, evidence);
-      }
-      assert.deepEqual(new Set(rule.candidateEvidence.map((candidate: any) => JSON.stringify(identity(candidate)))), new Set(expectedByIdentity.keys()));
       const keys = rule.candidateEvidence.map((candidate: any) => JSON.stringify({ quote: candidate.quote, page: candidate.page, sectionHeading: candidate.sectionHeading, spanId: candidate.spanId, documentId: candidate.documentId, documentSha256: candidate.documentSha256 }));
       assert.equal(new Set(keys).size, keys.length);
       for (const candidate of rule.candidateEvidence) {
@@ -48,7 +42,6 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
         assert.ok(candidate.sourceAudit.references.every((reference: any) => reference.sourceType && !JSON.stringify(reference).includes("accepted") && !JSON.stringify(reference).includes("rejected")));
         assert.equal(candidate.documentId, artifacts.packet.sourceDocument.documentId);
         assert.equal(candidate.documentSha256, artifacts.packet.sourceDocument.contentSha256);
-        assert.deepEqual(candidate.provenance, expectedByIdentity.get(JSON.stringify(identity(candidate)))?.provenance ?? null);
         if (candidate.provenance) assert.equal(candidate.provenance.spanId, candidate.spanId);
         const context = artifacts.packet.contexts[candidate.contextId];
         assert.ok(context);
@@ -76,9 +69,44 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
     }
   });
 
-  it("fails closed when a selected rule is absent from the scope manifest", () => {
-    const scope = read<{ rules: any[]; finalizedExistingPacketRules: any[]; sourceCommitSha: string }>(scopePath);
+  it("fails closed when a selected rule is absent from the immutable scope selection artifact", () => {
+    const scope = read<any>(selectionPath);
     const missingRuleId = selectedRuleIds[0];
-    assert.throws(() => buildArtifacts({ ...scope, rules: scope.rules.filter((rule) => rule.stableRuleId !== missingRuleId), finalizedExistingPacketRules: scope.finalizedExistingPacketRules.filter((rule) => rule.stableRuleId !== missingRuleId) }), new RegExp(`Scope manifest is missing selected rule ${missingRuleId}`));
+    assert.throws(() => buildArtifacts({ ...scope, selectedRuleIds: scope.selectedRuleIds.filter((id: string) => id !== missingRuleId) }), new RegExp(`Immutable pre-review selection is missing selected rule ${missingRuleId}`));
+  });
+
+  it("does not read or depend on current finalized reviewed truth", () => {
+    const source = fs.readFileSync(generatorPath, "utf8");
+    assert.equal(source.includes("reviewed-truth.json"), false);
+    assert.equal(source.includes("reviewedTruth"), false);
+    const originalBytes = fs.readFileSync(finalizedTruthPath);
+    try {
+      const truth = read<any>(finalizedTruthPath);
+      truth.decisions[0].acceptedEvidence = [{ quote: "intentionally changed current truth" }];
+      fs.writeFileSync(finalizedTruthPath, `${JSON.stringify(truth, null, 2)}\n`);
+      assert.deepEqual(buildArtifacts().packet, read<any>(blindPacketPath));
+    } finally {
+      fs.writeFileSync(finalizedTruthPath, originalBytes);
+    }
+  });
+
+  it("fails when an immutable pre-review input changes", () => {
+    const originalBytes = fs.readFileSync(evidenceSnapshotPath);
+    try {
+      fs.writeFileSync(evidenceSnapshotPath, Buffer.concat([originalBytes, Buffer.from(" ")]));
+      assert.throws(() => buildArtifacts(), /Immutable pre-review evidence snapshot changed/);
+    } finally {
+      fs.writeFileSync(evidenceSnapshotPath, originalBytes);
+    }
+  });
+
+  it("validates the historical authorization, exact packet hash, and frozen machine proposal", () => {
+    const selection = read<any>(selectionPath);
+    assert.equal(sha256(fs.readFileSync(selectionPath)), "5b47443e7a56f497d0977689f8ca78ccbb6461dec845503e939db7654f2a4140");
+    assert.deepEqual(selection.selectedRuleIds, selectedRuleIds);
+    assert.equal(selection.authorization.every((entry: any) => entry.authorized && entry.existingFrozenPacketSufficientForIndependentReview), true);
+    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31");
+    assert.equal(sha256(fs.readFileSync(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
+    assert.deepEqual(buildArtifacts().packet, read<any>(blindPacketPath));
   });
 });
