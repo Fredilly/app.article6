@@ -1,7 +1,7 @@
 {
   "RC0": "done",
   "RC4": "done",
-  "RC5": "active",
+  "RC5": "done",
   "currentPhase": "RC5",
   "name": "Interactive Evidence Review MVP",
   "phases": {
