@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -6,22 +7,24 @@ import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 
 const root = process.cwd();
-const responsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json");
 const schemaPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-adjudication-response-schema.json");
 const samplePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-live-maya/live-review-sample.json");
 const frozenPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const canonicalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/machine-proposal.json");
 const comparisonPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-reviewed-comparison/machine-vs-review-comparison.json");
+const historicalResponseCommit = "72a929a4e3551d75c8b58f75b7d9393ab1f5c89f";
+const historicalResponseSha256 = "759bed8b3e5c611dc5f20434bd06ad2576018195f3fbd6c4feb38897bb1830d4";
 
 function read<T>(filePath: string): T { return JSON.parse(fs.readFileSync(filePath, "utf8")) as T; }
 function sha256(filePath: string): string { return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex"); }
+function readHistoricalResponse<T>(): T { return JSON.parse(execFileSync("git", ["show", `${historicalResponseCommit}:docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json`], { cwd: root, encoding: "utf8" })) as T; }
 
 function rowSha(row: unknown): string {
   return crypto.createHash("sha256").update(JSON.stringify(row)).digest("hex");
 }
 
 function deriveComparison() {
-  const response = read<{ decisions: Array<Record<string, any>> }>(responsePath);
+  const response = readHistoricalResponse<{ decisions: Array<Record<string, any>> }>();
   const frozen = read<{ rows: Array<Record<string, any>> }>(frozenPath);
   const sample = read<{ rowSha256ByStableRuleId: Record<string, string> }>(samplePath);
   const frozenById = new Map(frozen.rows.map((row) => [row.stableRuleId, row]));
@@ -90,7 +93,7 @@ function deriveComparison() {
     schemaVersion: "rc5-2-maya-machine-vs-review-comparison-v1",
     source: {
       responsePath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/maya-adjudication-response.json",
-      responseSha256: sha256(responsePath),
+      responseSha256: historicalResponseSha256,
       schemaPath: "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-adjudication-response-schema.json",
       frozenProposalPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
       frozenProposalSha256: sha256(frozenPath),
@@ -128,7 +131,7 @@ function deriveComparison() {
 
 describe("RC5-2 Maya reviewed comparison", () => {
   it("validates exactly one schema-bound review for every sampled rule", () => {
-    const response = read<{ decisions: Array<{ stableRuleId: string; reviewStatus: string; expertReviewRequired: boolean }> }>(responsePath);
+    const response = readHistoricalResponse<{ decisions: Array<{ stableRuleId: string; reviewStatus: string; expertReviewRequired: boolean }> }>();
     const schema = read<Record<string, unknown>>(schemaPath);
     const sample = read<{ sample: Array<{ stableRuleId: string }> }>(samplePath);
     const validator = new Ajv2020({ strict: false }).compile(schema);
@@ -143,7 +146,7 @@ describe("RC5-2 Maya reviewed comparison", () => {
   });
 
   it("binds every decision to the frozen machine-row SHA", () => {
-    const response = read<{ decisions: Array<{ stableRuleId: string }> }>(responsePath);
+    const response = readHistoricalResponse<{ decisions: Array<{ stableRuleId: string }> }>();
     const sample = read<{ rowSha256ByStableRuleId: Record<string, string> }>(samplePath);
     const frozen = read<{ rows: Array<{ stableRuleId: string }> }>(frozenPath);
     for (const decision of response.decisions) {

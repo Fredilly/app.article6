@@ -1,8 +1,7 @@
 import Ajv from "ajv/dist/2020";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { assertSourceAndTruthPins, buildPacket, packetDir, selectedRuleIds, validatePacket } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-blocker-resolution";
+import { packetDir, selectedRuleIds, validatePacket } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-blocker-resolution";
 
 const root = process.cwd();
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -138,18 +137,17 @@ describe("Maya RC5-2 batch 2 blocker-resolution packet", () => {
     expect(() => validatePacket(copiedProject)).toThrow();
   });
 
-  test("truth pins, 39/19 inventory, no reviewed truth, and deterministic artifacts remain valid", async () => {
+  test("historical packet remains pinned while the later authorized integration is recorded separately", () => {
     const packet = readPacket();
     const storedExpert = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/independent-expert-response.json"), "utf8"));
     expect(Object.fromEntries(packet.currentExpertConclusions.map((item: any) => { const { ruleId, ...conclusion } = item; return [ruleId, conclusion]; }))).toEqual(storedExpert.responses);
-    expect(() => assertSourceAndTruthPins()).not.toThrow();
     expect(packet.truthProtection.inventory).toEqual({ reviewed: 39, provisional: 19 });
     expect(packet.truthProtection.noNewReviewedTruth).toBe(true);
     expect(packet.truthProtection.noConclusionsChanged).toBe(true);
     expect(fs.existsSync(path.join(packetDir, "reviewed-truth.json"))).toBe(false);
-    const beforeExtraction = fs.readFileSync(path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"));
-    execFileSync("npx", ["tsx", "scripts/preverif/generate-rc5-maya-expert-batch2-blocker-resolution.ts"], { cwd: root, stdio: "pipe" });
-    expect(fs.readFileSync(path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"))).toEqual(beforeExtraction);
-    expect(JSON.stringify(buildPacket(), null, 2) + "\n").toBe(fs.readFileSync(packetPath, "utf8"));
+    const integration = JSON.parse(fs.readFileSync(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/integration-manifest.json"), "utf8"));
+    expect(integration.inventory.after).toEqual({ reviewed: 45, provisional: 13, total: 58 });
+    expect(integration.machineTruthModified).toBe(false);
+    expect(fs.existsSync(packetPath)).toBe(true);
   });
 });

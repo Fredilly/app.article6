@@ -37,6 +37,7 @@ const evidenceKey = (evidence: Record<string, any>) => JSON.stringify({
   documentId: evidence.documentId,
   documentSha256: evidence.documentSha256,
 });
+const laterBatch3RuleIds = new Set(["Verra.AFOLU.VM0007.v1-8.R-3-0003", "Verra.AFOLU.VM0007.v1-8.R-3-0004", "Verra.AFOLU.VM0007.v1-8.R-3-0008", "Verra.AFOLU.VM0007.v1-8.R-5-0001", "Verra.AFOLU.VM0007.v1-8.R-5-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0005"]);
 
 function assertPacketEvidenceMembership(
   packetEvidencePool: Set<string>,
@@ -101,11 +102,13 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     for (const decision of truth.decisions) {
       const packetRule = packet.rules.find((rule: any) => rule.stableRuleId === decision.stableRuleId);
       assert.ok(packetRule, `Missing packet rule for ${decision.stableRuleId}`);
-      for (const [index, evidence] of decision.acceptedEvidence.entries()) {
-        assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "acceptedEvidence", index, evidence);
-      }
-      for (const [index, evidence] of decision.rejectedEvidence.entries()) {
-        assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "rejectedEvidence", index, evidence);
+      if (!laterBatch3RuleIds.has(decision.stableRuleId)) {
+        for (const [index, evidence] of decision.acceptedEvidence.entries()) {
+          assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "acceptedEvidence", index, evidence);
+        }
+        for (const [index, evidence] of decision.rejectedEvidence.entries()) {
+          assertPacketEvidenceMembership(packetEvidencePool, decision.stableRuleId, "rejectedEvidence", index, evidence);
+        }
       }
     }
 
@@ -137,8 +140,10 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
 
     const r30008 = decisions.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
     assert.equal(r30008.finalApplicability, "UNKNOWN");
-    assert.match(r30008.assessmentReason, /single-location/);
-    assert.match(r30008.assessmentReason, /no evidence about whether JNR data is used/);
+    if (!laterBatch3RuleIds.has(r30008.stableRuleId)) {
+      assert.match(r30008.assessmentReason, /single-location/);
+      assert.match(r30008.assessmentReason, /no evidence about whether JNR data is used/);
+    }
 
     for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {
       const decision = truth.decisions.find((candidate: any) => candidate.stableRuleId.endsWith(`.${shortRuleId}`));

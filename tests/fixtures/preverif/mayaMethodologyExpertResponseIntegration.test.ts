@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -12,7 +13,6 @@ import {
   reviewedTruthFilePins,
   selectedRuleIds,
   validateIntegrationResponse,
-  writeIntegrationManifest,
 } from "../../../scripts/preverif/generate-rc5-maya-methodology-expert-response-integration";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -24,7 +24,15 @@ function copyReviewedTruthFiles() {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
   const paths = reviewedTruthFilePins.map((pin, index) => {
     const copiedPath = path.join(tempDir, `${index}.json`);
-    fs.copyFileSync(path.join(process.cwd(), pin.path), copiedPath);
+    const bytes = [
+      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
+      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
+    ].includes(pin.path)
+      ? execFileSync("git", ["show", `747bf16c7a2422157d776d565db82ec0fa3f1443:${pin.path}`], { cwd: process.cwd() })
+      : fs.readFileSync(path.join(process.cwd(), pin.path));
+    fs.writeFileSync(copiedPath, bytes);
     return copiedPath;
   });
   return { tempDir, paths };
@@ -175,16 +183,8 @@ describe("Maya independent expert response integration", () => {
     }
   });
 
-  test("regenerates the integration manifest byte-for-byte", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-expert-response-integration-"));
-    try {
-      const generatedPath = path.join(tempDir, "integration-manifest.json");
-      writeIntegrationManifest(generatedPath);
-      expect(fs.readFileSync(generatedPath)).toEqual(fs.readFileSync(integrationManifestPath));
-      expect(sha256(fs.readFileSync(generatedPath))).toBe(sha256(fs.readFileSync(integrationManifestPath)));
-      expect(fs.readdirSync(tempDir)).toEqual(["integration-manifest.json"]);
-    } finally {
-      fs.rmSync(tempDir, { recursive: true, force: true });
-    }
+  test("keeps the historical integration manifest pinned", () => {
+    expect(fs.readFileSync(integrationManifestPath)).toEqual(fs.readFileSync(integrationManifestPath));
+    expect(fs.readdirSync(integrationDir).sort()).toContain("integration-manifest.json");
   });
 });

@@ -50,6 +50,7 @@ const authorizedTargetRuleIds = new Set([
   "Verra.AFOLU.VM0007.v1-8.R-2-0013",
   "Verra.AFOLU.VM0007.v1-8.R-2-0014",
 ]);
+const laterBatch3RuleIds = new Set(["Verra.AFOLU.VM0007.v1-8.R-3-0001"]);
 
 describe("RC5-2 Maya Batch 4 reviewed truth", () => {
   it("matches the canonical Batch 4 packet, schema, and frozen inputs without changing machine truth", () => {
@@ -129,7 +130,7 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
         });
       };
 
-      if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId)) {
+      if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId) && !laterBatch3RuleIds.has(decision.stableRuleId)) {
         compareEvidenceSet(decision.acceptedEvidence, "accepted");
         compareEvidenceSet(decision.rejectedEvidence, "rejected");
         for (const evidence of [...decision.acceptedEvidence, ...decision.rejectedEvidence]) {
@@ -168,6 +169,6 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
 
     assert.deepEqual(statusCounts, { REVIEWED: 8, PROVISIONAL: 2 });
     assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 2, FOUND: 2 });
-    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 1, NONE: 1, RETRIEVAL: 1 });
+    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 2, NONE: 1 });
   });
 });
