@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import Ajv from "ajv/dist/2020";
-import { packetDir, selectedRuleIds, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-methodology-expert-finalization-batch2";
+import { packetDir, selectedRuleIds, verifyAuthoritativeExcerpt, verifyDerivedTextAgreement, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-methodology-expert-finalization-batch2";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -48,10 +48,16 @@ describe("Maya methodology-expert finalization batch 2", () => {
       const rule = ruleById[id];
       expect(rule.methodologyExcerpts.length).toBeGreaterThan(1);
       for (const excerpt of rule.methodologyExcerpts) {
-        expect(excerpt.sourceType).toBe("METHODOLOGY_PRIMARY_SOURCE");
+        expect(excerpt.sourceType).toBe("DERIVED_METHODOLOGY_RULE_ARTIFACT");
+        expect(excerpt.authoritativeSourceVerification).toBe("NOT_AVAILABLE_IN_REPOSITORY");
+        expect(excerpt.sourceDocumentName).toContain("derived methodology rule artifact");
+        expect(excerpt.methodologyPackIdentity).toEqual({ repository: "Fredilly/article6-methodologies", ref: "87eef90379f06df40a917894a159d10a5d4c2703", tag: "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703" });
         expect(excerpt.methodologyVersion).toBe("v1.8");
         expect(excerpt.sourcePath).toBe("public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json");
         expect(excerpt.sourceSha256).toBe("9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49");
+        expect(excerpt.derivedRuleArtifactPath).toBe(excerpt.sourcePath);
+        expect(excerpt.derivedRuleArtifactSha256).toBe(excerpt.sourceSha256);
+        expect(excerpt.derivedRuleId).toBe(excerpt.ruleId);
         expect(excerpt.sectionNumber).toEqual(expect.any(String));
         expect(excerpt.sectionTitle).toEqual(expect.any(String));
         expect(excerpt.exactText).not.toMatch(/^Section context:/);
@@ -63,9 +69,21 @@ describe("Maya methodology-expert finalization batch 2", () => {
     expect(ruleById[selectedRuleIds[2]].methodologyExcerpts.map((excerpt: any) => excerpt.ruleId)).toEqual(expect.arrayContaining(["Verra.AFOLU.VM0007.v1-8.R-2-0007", "Verra.AFOLU.VM0007.v1-8.R-2-0008", "Verra.AFOLU.VM0007.v1-8.R-2-0012"]));
   });
 
+  test("fails closed for missing, altered, or mismatched authoritative methodology sources", () => {
+    const exact = "authoritative VM0007 excerpt";
+    const authoritative = Buffer.from(`prefix ${exact} suffix`);
+    expect(() => verifyAuthoritativeExcerpt(null, "0".repeat(64), exact)).toThrow(/authoritative.*unavailable/i);
+    expect(() => verifyAuthoritativeExcerpt(authoritative, "0".repeat(64), exact)).toThrow(/SHA changed/i);
+    expect(() => verifyAuthoritativeExcerpt(authoritative, sha256(authoritative), "altered excerpt")).toThrow(/not an exact substring/i);
+    expect(() => verifyDerivedTextAgreement("derived text", "authoritative text")).toThrow(/disagrees/i);
+    expect(() => verifyDerivedTextAgreement(exact, exact)).not.toThrow();
+  });
+
   test("excludes judgment-bearing fields and preserves neutral, complete, deduplicated evidence", () => {
     const forbidden = /ruleSummaryForOrientation|methodology\.logic|interpretationSummary|expectedAnswer|recommendedApplicability|finalEvidenceState|finalApplicability|reviewerOutcome|acceptedEvidence|rejectedEvidence|assessmentReason|correctionReason|genericFailureCategory|reviewerConfidence|provisionalReason|proposedApplicability|proposedEvidenceState|currentApplicability|currentEvidenceState|currentReviewerOutcome|reviewStatus/;
     expect(JSON.stringify(packet)).not.toMatch(forbidden);
+    expect(packet.methodologySourceWarning).toMatch(/official VM0007 v1\.8 publication/i);
+    expect(manifest.methodologySourceProvenance).toMatchObject({ sourceType: "DERIVED_METHODOLOGY_RULE_ARTIFACT", authoritativeSourceAvailable: false });
     for (const rule of packet.rules) {
       expect(rule.frozenMachineRowHash).toMatch(/^[0-9a-f]{64}$/);
       const keys = new Set<string>();

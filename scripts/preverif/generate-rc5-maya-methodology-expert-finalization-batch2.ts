@@ -8,7 +8,8 @@ export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-rev
 const mergedCommit = "827a95004d13870a5987443d7597d1a0ecc1d397";
 const originalPacketCommit = "cc371bd4aeb1b56bb50592d093b337c6f199acf9";
 const originalTruthCommit = "d2ecd198a3d007433d933717b8e07f1d19774978";
-const methodologyArtifactRef = "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8";
+const methodologyArtifactRef = "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703";
+const methodologyPackIdentity = { repository: "Fredilly/article6-methodologies", ref: "87eef90379f06df40a917894a159d10a5d4c2703", tag: "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703" };
 const scopePath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json";
 const scopeSha256 = "f3fd97e932eb6a023c302313f5f4df5cad286751994b469f502226f1bc00e21a";
 const originalPacketPath = "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json";
@@ -25,6 +26,7 @@ const methodologyMetaPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/META.j
 const methodologyMetaSha256 = "0b426189afb549bcb0af65efac74c69ceabdb9ee6026efd3d6494788d9a19839";
 const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf";
 const pddSha256 = "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b";
+const authoritativeSourceAvailable = false;
 
 export const selectedRuleIds = [
   "Verra.AFOLU.VM0007.v1-8.R-1-0012",
@@ -50,6 +52,16 @@ const localBytes = (input: LocalInput): Buffer => {
   return bytes;
 };
 const localJson = <T>(input: LocalInput): T => JSON.parse(localBytes(input).toString("utf8")) as T;
+
+export function verifyAuthoritativeExcerpt(authoritativeBytes: Buffer | null, expectedSha256: string, exactText: string): void {
+  if (!authoritativeBytes) throw new Error("Authoritative VM0007 v1.8 source artifact is unavailable; primary-source verification cannot proceed");
+  if (sha256(authoritativeBytes) !== expectedSha256) throw new Error("Authoritative VM0007 v1.8 source SHA changed");
+  if (!authoritativeBytes.toString("utf8").includes(exactText)) throw new Error("Methodology excerpt is not an exact substring of the authoritative source");
+}
+
+export function verifyDerivedTextAgreement(derivedText: string, authoritativeText: string): void {
+  if (derivedText !== authoritativeText) throw new Error("Derived methodology rule text disagrees with authoritative source text");
+}
 
 const inputs = {
   scope: { commitSha: mergedCommit, path: scopePath, sha256: scopeSha256 },
@@ -157,11 +169,14 @@ function methodologyExcerpts(ruleId: string, methodologyRules: any[]): any[] {
     const sourceRule = methodologyRules.find((rule) => rule.id === contextRuleId);
     if (!sourceRule?.source_span_text) throw new Error(`Missing exact methodology context for ${contextRuleId}`);
     return {
+      sourceDocumentName: "rules.rich.json (derived methodology rule artifact)",
       sourcePath: methodologyRulesPath,
       sourceSha256: methodologyRulesSha256,
-      sourceType: "METHODOLOGY_PRIMARY_SOURCE",
+      sourceType: "DERIVED_METHODOLOGY_RULE_ARTIFACT",
       methodologyId: "VM0007",
       methodologyVersion: "v1.8",
+      methodologyPackIdentity,
+      authoritativeSourceVerification: "NOT_AVAILABLE_IN_REPOSITORY",
       ruleId: contextRuleId,
       sectionId: sourceRule.refs.primary_section,
       sectionNumber: sourceRule.refs.section_number,
@@ -169,6 +184,9 @@ function methodologyExcerpts(ruleId: string, methodologyRules: any[]): any[] {
       pageStart: sourceRule.section_context.page_start,
       pageEnd: sourceRule.section_context.page_end,
       exactText: sourceRule.source_span_text,
+      derivedRuleArtifactPath: methodologyRulesPath,
+      derivedRuleArtifactSha256: methodologyRulesSha256,
+      derivedRuleId: contextRuleId,
     };
   });
 }
@@ -216,6 +234,7 @@ export function buildArtifacts() {
     schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-packet-v1",
     reviewPurpose: "Neutral, reproducible methodology-expert interpretation packet. No adjudication is included.",
     independenceNotice: "Candidate evidence is reproduced without accepted/rejected labels. Historical machine context is non-final and must not be treated as an outcome.",
+    methodologySourceWarning: "The repository does not contain the authoritative VM0007 v1.8 publication or an immutable text extraction of it. Methodology quotations are preserved from the pinned derived rule artifact and must be verified against the official VM0007 v1.8 publication before final adjudication.",
     sourceDocument,
     rules: packetRules,
   };
@@ -261,6 +280,7 @@ export function writeArtifacts(outputDir = packetDir): string {
     schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-manifest-v1",
     purpose: "Pinned provenance and deterministic-generation manifest for a neutral expert packet.",
     selectedRuleIds: [...selectedRuleIds],
+    methodologySourceProvenance: { sourceType: "DERIVED_METHODOLOGY_RULE_ARTIFACT", authoritativeSourceAvailable, warning: "Verify all methodology quotations against the official VM0007 v1.8 publication before final adjudication.", methodologyPackIdentity, derivedArtifactPath: methodologyRulesPath, derivedArtifactSha256: methodologyRulesSha256, sourcePdfSha256RecordedInDerivedMeta: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6" },
     selectedRuleScopeGroups: Object.fromEntries(selectedScope.map((rule: any) => [rule.stableRuleId, rule.scopeGroup])),
     mergedProvisionalScope: { commitSha: mergedCommit, path: scopePath, sha256: scopeSha256, inventory: scope.inventory, groupCounts: scope.groupCounts },
     historicalInputs: inputs,

@@ -2,6 +2,7 @@
   "schemaVersion": "rc5-2-maya-methodology-expert-finalization-batch-2-packet-v1",
   "reviewPurpose": "Neutral, reproducible methodology-expert interpretation packet. No adjudication is included.",
   "independenceNotice": "Candidate evidence is reproduced without accepted/rejected labels. Historical machine context is non-final and must not be treated as an outcome.",
+  "methodologySourceWarning": "The repository does not contain the authoritative VM0007 v1.8 publication or an immutable text extraction of it. Methodology quotations are preserved from the pinned derived rule artifact and must be verified against the official VM0007 v1.8 publication before final adjudication.",
   "sourceDocument": {
     "documentId": "quick-check-review-question",
     "documentName": "12-maya-forest-corridor-redd-belize.pdf",
@@ -13,144 +14,244 @@
       "requirementText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
       "methodologyExcerpts": [
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date."
+          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)"
+          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 14,
           "pageEnd": 14,
-          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period."
+          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented."
+          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 17,
           "pageEnd": 18,
-          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland."
+          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 16,
           "pageEnd": 16,
-          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning."
+          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 17,
           "pageEnd": 17,
-          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space."
+          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 18,
           "pageEnd": 18,
-          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass."
+          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 20,
           "pageEnd": 21,
-          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 23,
           "pageEnd": 24,
-          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation)."
+          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation).",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016"
         }
       ],
       "frozenMachineRowHash": "026cae62560798f19f9825ef0b81b372c371675425693ab24280cb1b1b43390b",
@@ -195,7 +296,7 @@
         "methodology": {
           "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8"
+          "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703"
         },
         "sourceDocument": {
           "documentId": "quick-check-review-question",
@@ -214,158 +315,268 @@
       "requirementText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period.",
       "methodologyExcerpts": [
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date."
+          "exactText": "Land in the project area has qualified as forest (following the definition used by the VCS; in addition, see Section 5.1.2) for at least the 10 years prior to the project start date.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0001"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)"
+          "exactText": "Baseline deforestation in the project area falls within either of the following categories: (a) Unplanned deforestation (VCS category AUDef) (b) Planned deforestation (VCS category APDef)",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0002"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 14,
           "pageEnd": 14,
-          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period."
+          "exactText": "Baseline agents of deforestation meet all of the following criteria: a) Clear the land for tree harvesting, settlements, crop production, ranching or aquaculture; b) Have no documented and uncontested legal right to deforest; c) Have caused deforestation in the historical reference period.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0003"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 13,
           "pageEnd": 14,
-          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented."
+          "exactText": "Where conversion of forest lands to a deforested condition is legally authorized and documented.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0004"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 17,
           "pageEnd": 18,
-          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland."
+          "exactText": "Rewetting drained peatland (RDP) activities occur on project areas that meet the VCS definition for peatland.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0010"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 16,
           "pageEnd": 16,
-          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning."
+          "exactText": "Project activities restoring tidal wetlands include any of: creating/restoring hydrology, altering sediment supply, changing salinity, managing vegetation, prescribed burning.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0011"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 17,
           "pageEnd": 17,
-          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space."
+          "exactText": "Project activities conserving tidal wetlands include: protecting at-risk wetlands, improving water management, maintaining water quality, recharging sediment, creating accommodation space.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 17,
           "pageEnd": 17,
-          "exactText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period."
+          "exactText": "Baseline agents of wetland degradation meet all of: (a) cause alteration in hydrology or loss of SOC; (b) have no documented legal right; (c) have degraded wetlands in historical reference period.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014",
           "sectionId": "S-1",
           "sectionNumber": "4",
           "sectionTitle": "Applicability Conditions",
           "pageStart": 18,
           "pageEnd": 18,
-          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass."
+          "exactText": "This methodology does not apply to ARR project activities. Where WRC projects using this methodology also implement ARR activities, projects must use an appropriate ARR methodology (e.g., VM0047) to account for aboveground biomass.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0014"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 20,
           "pageEnd": 21,
-          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 23,
           "pageEnd": 24,
-          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation)."
+          "exactText": "WRC project activities in tidal zones must take into account the effects of sea-level rise on project boundaries. Procedures are provided in Module X-STR.\n\nIn CIW project activities that are not combined with REDD activities, various types of boundaries must be distinguished, depending on the CIW category (i.e., planned or unplanned wetland degradation).",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0016"
         }
       ],
       "frozenMachineRowHash": "0a836c939d8ad058919fdfd13e03836140c77f743bba30f043ea3ac3678549e1",
@@ -462,7 +673,7 @@
         "methodology": {
           "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8"
+          "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703"
         },
         "sourceDocument": {
           "documentId": "quick-check-review-question",
@@ -481,88 +692,148 @@
       "requirementText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.",
       "methodologyExcerpts": [
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 20,
           "pageEnd": 21,
-          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources."
+          "exactText": "A project can include areas subject to different eligible activities (e.g., Area A = avoiding planned deforestation, Area B = avoiding unplanned deforestation, Area C = reforestation, etc.). In such cases the areas that are eligible for different categories must be captured by different strata and clearly delineated (i.e., without spatial overlap), and the procedures outlined below applied to each of them separately. Projects may be stand-alone REDD and/or WRC. Projects may combine WRC with REDD, in a single area, in which case they must apply concomitantly the procedures for both categories provided in this methodology, unless, in the case of stand-alone REDD on wetlands, the expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario is deemed de minimis, or, in the case of stand-alone RWE with presence of vegetation, the expected emissions from the biomass pool or change in the biomass pool in the project scenario is deemed de minimis. The tool T-SIG or Appendix 1 must be used to justify the omission of carbon pools and emission sources.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0006"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 49,
           "pageEnd": 50,
-          "exactText": "5.3 Carbon Pools\n\n5.3.1 General\nAny significant decreases in carbon stock in the project scenario and any significant increases in carbon stock in the baseline scenario must be accounted for. In addition, decreases in the baseline scenario and increases in the project scenario can be accounted for. Where REDD activities take place on wetlands, the project must account for expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario, unless they are deemed de minimis. The significance of this pool may be determined by using the tool T-SIG or Appendix 1. Significance of pools must be determined ex-ante or at baseline reassessment for a specific baseline validity period, as well as at verification for a specific monitoring period.\n\nSelection of carbon pools and the appropriate justification must be presented in PD and in the monitoring report (MR)."
+          "exactText": "5.3 Carbon Pools\n\n5.3.1 General\nAny significant decreases in carbon stock in the project scenario and any significant increases in carbon stock in the baseline scenario must be accounted for. In addition, decreases in the baseline scenario and increases in the project scenario can be accounted for. Where REDD activities take place on wetlands, the project must account for expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario, unless they are deemed de minimis. The significance of this pool may be determined by using the tool T-SIG or Appendix 1. Significance of pools must be determined ex-ante or at baseline reassessment for a specific baseline validity period, as well as at verification for a specific monitoring period.\n\nSelection of carbon pools and the appropriate justification must be presented in PD and in the monitoring report (MR).",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 18,
           "pageEnd": 20,
-          "exactText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored."
+          "exactText": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 27,
           "pageEnd": 28,
-          "exactText": "5.3.3 WRC\n\nThe carbon pools included in or excluded from the boundary of the WRC component are shown in Table 6 below. The selection of carbon pools and the appropriate justification must be provided in the PD."
+          "exactText": "5.3.3 WRC\n\nThe carbon pools included in or excluded from the boundary of the WRC component are shown in Table 6 below. The selection of carbon pools and the appropriate justification must be provided in the PD.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0009"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 50,
           "pageEnd": 52,
-          "exactText": "5.4.2 REDD\n\nThe GHG emission sources included in or excluded from the boundary of the REDD project activity are shown in Table 7 below. The selection of sources and the appropriate justification must be provided in the PD."
+          "exactText": "5.4.2 REDD\n\nThe GHG emission sources included in or excluded from the boundary of the REDD project activity are shown in Table 7 below. The selection of sources and the appropriate justification must be provided in the PD.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0010"
         },
         {
+          "sourceDocumentName": "rules.rich.json (derived methodology rule artifact)",
           "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sourceSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "sourceType": "METHODOLOGY_PRIMARY_SOURCE",
+          "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
           "methodologyId": "VM0007",
           "methodologyVersion": "v1.8",
+          "methodologyPackIdentity": {
+            "repository": "Fredilly/article6-methodologies",
+            "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+            "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+          },
+          "authoritativeSourceVerification": "NOT_AVAILABLE_IN_REPOSITORY",
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012",
           "sectionId": "S-2",
           "sectionNumber": "5",
           "sectionTitle": "Project Boundary",
           "pageStart": 21,
           "pageEnd": 24,
-          "exactText": "5.4.1 General\n\nThe project must account for any significant increases in emissions of carbon dioxide (CO2), nitrous oxide (N2O) and methane (CH4) relative to the baseline that are reasonably attributable to the project activity, with additional guidance provided in Table 6, Table 7, and Table 8.\n\nT-SIG or Appendix 1 may be used to determine whether an emissions source is significant. If a source is included in the estimation of baseline emissions, it must also be included in the calculation of project and leakage emissions."
+          "exactText": "5.4.1 General\n\nThe project must account for any significant increases in emissions of carbon dioxide (CO2), nitrous oxide (N2O) and methane (CH4) relative to the baseline that are reasonably attributable to the project activity, with additional guidance provided in Table 6, Table 7, and Table 8.\n\nT-SIG or Appendix 1 may be used to determine whether an emissions source is significant. If a source is included in the estimation of baseline emissions, it must also be included in the calculation of project and leakage emissions.",
+          "derivedRuleArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+          "derivedRuleArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+          "derivedRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0012"
         }
       ],
       "frozenMachineRowHash": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
@@ -607,7 +878,7 @@
         "methodology": {
           "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
           "sha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
-          "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8"
+          "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703"
         },
         "sourceDocument": {
           "documentId": "quick-check-review-question",

@@ -6,6 +6,19 @@
     "Verra.AFOLU.VM0007.v1-8.R-1-0013",
     "Verra.AFOLU.VM0007.v1-8.R-2-0008"
   ],
+  "methodologySourceProvenance": {
+    "sourceType": "DERIVED_METHODOLOGY_RULE_ARTIFACT",
+    "authoritativeSourceAvailable": false,
+    "warning": "Verify all methodology quotations against the official VM0007 v1.8 publication before final adjudication.",
+    "methodologyPackIdentity": {
+      "repository": "Fredilly/article6-methodologies",
+      "ref": "87eef90379f06df40a917894a159d10a5d4c2703",
+      "tag": "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703"
+    },
+    "derivedArtifactPath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+    "derivedArtifactSha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49",
+    "sourcePdfSha256RecordedInDerivedMeta": "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6"
+  },
   "selectedRuleScopeGroups": {
     "Verra.AFOLU.VM0007.v1-8.R-1-0012": "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION",
     "Verra.AFOLU.VM0007.v1-8.R-1-0013": "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION",
@@ -50,17 +63,17 @@
       "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
     },
     "methodologyRules": {
-      "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8",
+      "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703",
       "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
       "sha256": "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49"
     },
     "methodologySections": {
-      "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8",
+      "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703",
       "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json",
       "sha256": "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3"
     },
     "methodologyMeta": {
-      "artifactRef": "immutable-methodology-pack:Verra/AFOLU/VM0007@v1-8",
+      "artifactRef": "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703",
       "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/META.json",
       "sha256": "0b426189afb549bcb0af65efac74c69ceabdb9ee6026efd3d6494788d9a19839"
     },
@@ -70,7 +83,7 @@
       "sha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
     }
   },
-  "generatedPacketSha256": "b0b2adafdeb24a8752b98c770b4e820929a40e23ad06313deca428167e5ea47d",
+  "generatedPacketSha256": "a17cc1e296a96db7d72d9437dfca40ece7aa40582844eeccc55aaeb4bd846744",
   "packetFiles": [
     "review-packet.json",
     "review-template.json",
