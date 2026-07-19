@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "rc5-2-maya-expert-batch-2-blocker-resolution-manifest-v1",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+  ],
+  "officialSourceSha256": "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
+  "packetSha256": "f703180f0fa742c426d4ae6828bf13acb6636877efdb1a3048e1a9bb8f5fb7d6",
+  "files": {
+    "blocker-resolution-packet.json": "f703180f0fa742c426d4ae6828bf13acb6636877efdb1a3048e1a9bb8f5fb7d6",
+    "independent-review-response-schema.json": "387ba89c7c3bf42a71bfc06006763d2fbcd3665cec4dd901a860b4b55d3a4dd3",
+    "independent-review-response-template.json": "43431aeefd22f934c96b0a7bcb30473ddc7b0b0e47f1f5bcb8728b6911f79ae4",
+    "review-instructions.md": "8026c2b838e498ec77b636e6ec94c5c590e38c1af947507822285fb77720923f"
+  },
+  "mergedPr1088Commit": "3eba6f821fcd4ab864ee72aa5b83253f8887dad8",
+  "reviewedTruthSha256": [
+    "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
+    "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  ],
+  "semanticReviewedRowsSha256": "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1",
+  "inventory": {
+    "reviewed": 39,
+    "provisional": 19
+  },
+  "reviewedTruthFilesCreated": false
+}
