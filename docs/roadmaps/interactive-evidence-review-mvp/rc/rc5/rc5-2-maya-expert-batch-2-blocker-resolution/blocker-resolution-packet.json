@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "rc5-2-maya-expert-batch-2-blocker-resolution-packet-v1",
+  "schemaVersion": "rc5-2-maya-expert-batch-2-blocker-resolution-packet-v2",
   "purpose": "Complete source-and-evidence blocker-resolution packet only. No rule is adjudicated or finalized.",
   "selectedRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0012",
@@ -16,6 +16,9 @@
     "documentId": "verra-vm0007-v1-8-official-publication",
     "path": "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf",
     "sha256": "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
+    "extractionPath": "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json",
+    "extractionSha256": "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561",
+    "extractionMethod": "NORMAL_PDF_TEXT_PAGE_BY_PAGE",
     "title": "VM0007 REDD+ Methodology Framework (REDD+MF)",
     "version": "v1.8",
     "publisher": "Verra",
@@ -150,7 +153,7 @@
       "methodologyEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
-          "exactQuote": "Project activities conserving tidal wetlands include: protecting at-risk wetlands (e.g., establishing conservation easements, establishing community supported management agreements, establishing protective government regulations, and preventing disruption of water and/or sediment supply to wetland areas); improving water management on drained wetlands; maintaining or improving water quality for seagrass meadows; recharging sediment to avoid drowning of coastal wetlands; creating accommodation space for wetlands migrating with sea-level rise.",
+          "exactQuote": "17) Project activities conserving tidal wetlands include:\na) Protecting at-risk wetlands (e.g., establishing conservation easements,\nestablishing community supported management agreements,\nestablishing protective government regulations, and preventing disruption of water and/or\nsediment supply to wetland areas)\nb) Improving water management on drained wetlands\nc) Maintaining or improving water quality for seagrass meadows\nd) Recharging sediment to avoid drowning of coastal wetlands\ne) Creating accommodation space for wetlands migrating with sea-level rise",
           "page": 17,
           "section": "4.3.3 CIW Project Activities",
           "spanId": "verra-vm0007-v1-8:p17:condition-17",
@@ -199,7 +202,7 @@
       "methodologyEvidence": [
         {
           "ruleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
-          "exactQuote": "Baseline agents of wetland degradation in avoiding unplanned wetland degradation activities meet all of the following criteria: (a) Cause an alteration in the hydrology of the project area (involving drainage, interrupted sediment supply or both) and/or a loss of soil organic carbon; (b) Have no documented and uncontested legal right to degrade the wetland; and (c) Are either residents in the reference region for wetland degradation (see Section 5.1.4 below) or immigrants.",
+          "exactQuote": "a) Cause an alteration in the hydrology of the project area (involving drainage,\ninterrupted sediment supply or both) and/or a loss of soil organic carbon\nb) Have no documented and uncontested legal right to degrade the wetland, and\nc) Are either residents in the reference region for wetland degradation (see Section 5.1.4 below) or immigrants.",
           "page": 17,
           "section": "4.3.3 CIW Project Activities",
           "spanId": "verra-vm0007-v1-8:p17:condition-18",

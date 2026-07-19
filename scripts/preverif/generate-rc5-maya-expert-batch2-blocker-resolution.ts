@@ -1,10 +1,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
 
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution");
 const sourcePath = path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf");
+const officialExtractionPath = path.join(packetDir, "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json");
 const pddPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json");
 const pddPdfPath = path.join(root, "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf");
 const responsePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/independent-expert-response.json");
@@ -26,6 +28,7 @@ const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
 
 const officialSourceSha256 = "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6";
 const pddSha256 = "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b";
+const pddExtractionSha256 = "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8";
 const expertResponseSha256 = "a15898f0ba5d5e1122363416731f84c7a5270a6a0db46dce598f1a5d34092384";
 const integrationManifestSha256 = "9162700fdffb9a6f4cdee8c167f9b4adcf7ab11e3860d204fb5b2fc7a0dcf7f2";
 const machineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
@@ -38,10 +41,16 @@ const reviewedTruthSha256 = [
   "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00",
 ];
 const reviewedRowsSha256 = "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1";
+const officialPdfPageCount = 54;
+const officialExtractionSha256 = "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561";
 
 type Page = { pageNumber: number; text: string };
 const pdd = readJson<{ pages: Page[] }>(pddPath);
+type OfficialPage = { pageNumber: number; text: string };
+type OfficialExtraction = { schemaVersion: string; sourcePdfSha256: string; pageCount: number; pages: OfficialPage[] };
+const officialExtraction = readJson<OfficialExtraction>(officialExtractionPath);
 const page = (n: number) => pdd.pages.find((candidate) => candidate.pageNumber === n)?.text ?? "";
+const officialPage = (n: number) => officialExtraction.pages.find((candidate) => candidate.pageNumber === n)?.text ?? "";
 const projectEvidence = (ruleId: string, pageNumber: number, section: string, spanId: string, quote: string, availability: string = "PRESENT_IN_FROZEN_PDD") => ({
   ruleId,
   quote,
@@ -68,7 +77,7 @@ const officialEvidence = (ruleId: string, pageNumber: number, section: string, s
 const rules = {
   [selectedRuleIds[0]]: {
     blockerResolutionTarget: "Establish whether the project is REDD-only and whether R-1-0012 is a WRC tidal-wetland condition.",
-    methodologyEvidence: [officialEvidence(selectedRuleIds[0], 17, "4.3.3 CIW Project Activities", "verra-vm0007-v1-8:p17:condition-17", "Project activities conserving tidal wetlands include: protecting at-risk wetlands (e.g., establishing conservation easements, establishing community supported management agreements, establishing protective government regulations, and preventing disruption of water and/or sediment supply to wetland areas); improving water management on drained wetlands; maintaining or improving water quality for seagrass meadows; recharging sediment to avoid drowning of coastal wetlands; creating accommodation space for wetlands migrating with sea-level rise.")],
+    methodologyEvidence: [officialEvidence(selectedRuleIds[0], 17, "4.3.3 CIW Project Activities", "verra-vm0007-v1-8:p17:condition-17", "17) Project activities conserving tidal wetlands include:\na) Protecting at-risk wetlands (e.g., establishing conservation easements,\nestablishing community supported management agreements,\nestablishing protective government regulations, and preventing disruption of water and/or\nsediment supply to wetland areas)\nb) Improving water management on drained wetlands\nc) Maintaining or improving water quality for seagrass meadows\nd) Recharging sediment to avoid drowning of coastal wetlands\ne) Creating accommodation space for wetlands migrating with sea-level rise")],
     projectEvidence: [
       projectEvidence(selectedRuleIds[0], 15, "2.1.3 Project Type", "quick-check-review-question:element:paragraph:2.1.3", "AFOLU project category 13 Reduced Emissions from Deforestation and Degradation (REDD)\nProject activity type Avoiding planned deforestation"),
       projectEvidence(selectedRuleIds[0], 84, "3.1.2 Applicability of Methodology", "quick-check-review-question:element:paragraph:3.1.2:wetlands", "The project area contains no peatlands or tidal wetlands."),
@@ -79,7 +88,7 @@ const rules = {
   },
   [selectedRuleIds[1]]: {
     blockerResolutionTarget: "Confirm the wetland-degradation activity branch and preserve explicit REDD/APDef, no-wetland, and module-selection evidence.",
-    methodologyEvidence: [officialEvidence(selectedRuleIds[1], 17, "4.3.3 CIW Project Activities", "verra-vm0007-v1-8:p17:condition-18", "Baseline agents of wetland degradation in avoiding unplanned wetland degradation activities meet all of the following criteria: (a) Cause an alteration in the hydrology of the project area (involving drainage, interrupted sediment supply or both) and/or a loss of soil organic carbon; (b) Have no documented and uncontested legal right to degrade the wetland; and (c) Are either residents in the reference region for wetland degradation (see Section 5.1.4 below) or immigrants." )],
+    methodologyEvidence: [officialEvidence(selectedRuleIds[1], 17, "4.3.3 CIW Project Activities", "verra-vm0007-v1-8:p17:condition-18", "a) Cause an alteration in the hydrology of the project area (involving drainage,\ninterrupted sediment supply or both) and/or a loss of soil organic carbon\nb) Have no documented and uncontested legal right to degrade the wetland, and\nc) Are either residents in the reference region for wetland degradation (see Section 5.1.4 below) or immigrants.")],
     projectEvidence: [
       projectEvidence(selectedRuleIds[1], 83, "3.1.1 Title and Reference of Methodology", "quick-check-review-question:element:paragraph:3.1.1", "Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF)"),
       projectEvidence(selectedRuleIds[1], 83, "3.1.1 Title and Reference of Methodology", "quick-check-review-question:element:paragraph:3.1.1:vmd0006", "Module VMD0006 VMD0006 Estimation of baseline"),
@@ -112,7 +121,10 @@ const rules = {
 
 export function assertSourceAndTruthPins() {
   if (sha256(fs.readFileSync(sourcePath)) !== officialSourceSha256) throw new Error("Official source SHA changed");
+  if (officialExtraction.sourcePdfSha256 !== officialSourceSha256 || officialExtraction.pageCount !== officialPdfPageCount || officialExtraction.pages.length !== officialPdfPageCount) throw new Error("Official extraction identity changed");
+  if (sha256(fs.readFileSync(officialExtractionPath)) !== officialExtractionSha256) throw new Error("Official extraction SHA changed");
   if (sha256(fs.readFileSync(pddPdfPath)) !== pddSha256) throw new Error("Frozen Maya PDD SHA changed");
+  if (sha256(fs.readFileSync(pddPath)) !== pddExtractionSha256) throw new Error("Frozen Maya extraction SHA changed");
   if (sha256(fs.readFileSync(responsePath)) !== expertResponseSha256) throw new Error("Merged expert response SHA changed");
   if (sha256(fs.readFileSync(integrationManifestPath)) !== integrationManifestSha256) throw new Error("Integration manifest SHA changed");
   if (sha256(fs.readFileSync(machineProposalPath)) !== machineProposalSha256) throw new Error("Machine proposal SHA changed");
@@ -123,44 +135,85 @@ export function assertSourceAndTruthPins() {
   if (provisional.reviewedRuleCount !== 39 || provisional.provisionalRuleCount !== 19) throw new Error("39/19 inventory changed");
 }
 
-export function assertEvidence() {
-  for (const rule of Object.values(rules)) {
-    for (const evidence of rule.projectEvidence) {
-      if (normalize(page(evidence.page)).includes(normalize(evidence.quote)) === false) throw new Error(`Project quote is not in frozen source: ${evidence.spanId} page=${evidence.page} quote=${evidence.quote.slice(0, 80)}`);
-    }
+export function validatePacket(candidatePacket: any, overrides: { officialExtraction?: OfficialExtraction; officialExtractionBytes?: Buffer | string; pdd?: { pages: Page[] }; pddExtractionBytes?: Buffer | string } = {}) {
+  const candidateOfficialExtraction = overrides.officialExtraction ?? officialExtraction;
+  const candidatePdd = overrides.pdd ?? pdd;
+  const candidateOfficialBytes = overrides.officialExtractionBytes ?? fs.readFileSync(officialExtractionPath);
+  const candidatePddBytes = overrides.pddExtractionBytes ?? fs.readFileSync(pddPath);
+  if (sha256(candidateOfficialBytes) !== officialExtractionSha256) throw new Error("Official extraction bytes changed");
+  if (sha256(candidatePddBytes) !== pddExtractionSha256) throw new Error("Maya extraction bytes changed");
+  if (candidateOfficialExtraction.sourcePdfSha256 !== officialSourceSha256 || candidateOfficialExtraction.pageCount !== officialPdfPageCount || candidateOfficialExtraction.pages.length !== officialPdfPageCount) throw new Error("Official extraction content changed");
+  if (JSON.stringify(candidatePacket.selectedRuleIds) !== JSON.stringify([...selectedRuleIds])) throw new Error("Selected rule coverage changed");
+  if (candidatePacket.rules.length !== selectedRuleIds.length) throw new Error("Packet rule count changed");
+  if (candidatePacket.officialMethodologySource.sha256 !== officialSourceSha256 || candidatePacket.officialMethodologySource.sourceType !== "OFFICIAL_VERRA_PUBLICATION") throw new Error("Official source identity is not pinned");
+  if (candidatePacket.officialMethodologySource.extractionSha256 !== officialExtractionSha256) throw new Error("Official extraction identity is not pinned");
+  for (const rule of candidatePacket.rules) {
+    const expected = (rules as any)[rule.ruleId];
+    if (!expected) throw new Error(`Unexpected rule: ${rule.ruleId}`);
+    if (rule.methodologyEvidence.length !== expected.methodologyEvidence.length || rule.projectEvidence.length !== expected.projectEvidence.length) throw new Error(`Evidence count changed: ${rule.ruleId}`);
     for (const evidence of rule.methodologyEvidence) {
-      if (evidence.documentSha256 !== officialSourceSha256 || evidence.sourceType !== "OFFICIAL_VERRA_PUBLICATION") throw new Error("Methodology evidence is not official and pinned");
+      if (evidence.ruleId !== rule.ruleId || evidence.sourceType !== "OFFICIAL_VERRA_PUBLICATION" || evidence.documentId !== "verra-vm0007-v1-8-official-publication" || evidence.documentSha256 !== officialSourceSha256) throw new Error(`Official evidence identity failed: ${rule.ruleId}`);
+      const expectedEvidence = expected.methodologyEvidence.find((item: any) => JSON.stringify(item) === JSON.stringify(evidence));
+      if (!expectedEvidence) throw new Error(`Methodology evidence is not frozen for rule: ${rule.ruleId}`);
+      const claimedOfficialPage = candidateOfficialExtraction.pages.find((item) => item.pageNumber === evidence.page)?.text ?? "";
+      if (!normalize(claimedOfficialPage).includes(normalize(evidence.exactQuote))) throw new Error(`Official quote is not on claimed page: ${rule.ruleId}:${evidence.page}`);
+    }
+    for (const evidence of rule.projectEvidence) {
+      if (evidence.ruleId !== rule.ruleId || evidence.documentId !== "quick-check-review-question" || evidence.documentSha256 !== pddSha256) throw new Error(`Project evidence identity failed: ${rule.ruleId}`);
+      const expectedEvidence = expected.projectEvidence.find((item: any) => JSON.stringify(item) === JSON.stringify(evidence));
+      if (!expectedEvidence) throw new Error(`Project evidence is not frozen for rule: ${rule.ruleId}`);
+      const claimedPddPage = candidatePdd.pages.find((item) => item.pageNumber === evidence.page)?.text ?? "";
+      if (normalize(claimedPddPage).includes(normalize(evidence.quote)) === false) throw new Error(`Project quote is not in frozen source: ${evidence.spanId} page=${evidence.page}`);
     }
   }
 }
 
+export function assertEvidence() {
+  validatePacket(buildPacket());
+}
+
 export function buildPacket() {
   assertSourceAndTruthPins();
-  assertEvidence();
   const expert = readJson<any>(responsePath);
-  return {
-    schemaVersion: "rc5-2-maya-expert-batch-2-blocker-resolution-packet-v1",
+  const packet = {
+    schemaVersion: "rc5-2-maya-expert-batch-2-blocker-resolution-packet-v2",
     purpose: "Complete source-and-evidence blocker-resolution packet only. No rule is adjudicated or finalized.",
     selectedRuleIds: [...selectedRuleIds],
     baseline: { mergedPr1088Commit: "3eba6f821fcd4ab864ee72aa5b83253f8887dad8", mergedPr: 1088, branchBase: "main" },
-    officialMethodologySource: { sourceType: "OFFICIAL_VERRA_PUBLICATION", documentId: "verra-vm0007-v1-8-official-publication", path: "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf", sha256: officialSourceSha256, title: "VM0007 REDD+ Methodology Framework (REDD+MF)", version: "v1.8", publisher: "Verra", provenanceUrl: "https://verra.org/methodologies/vm0007-redd-methodology-framework-redd-mf-v1-8/", publicationStatus: "Active since 04 June 2024", verifiedAgainstDerivedSourceSha256: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6" },
-    frozenProjectSource: { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", extractionPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json", extractionSha256: sha256(fs.readFileSync(pddPath)), documentSha256: pddSha256, pageCount: pdd.pages.length, sourceType: "PDD" },
+    officialMethodologySource: { sourceType: "OFFICIAL_VERRA_PUBLICATION", documentId: "verra-vm0007-v1-8-official-publication", path: "official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf", sha256: officialSourceSha256, extractionPath: "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json", extractionSha256: officialExtractionSha256, extractionMethod: "NORMAL_PDF_TEXT_PAGE_BY_PAGE", title: "VM0007 REDD+ Methodology Framework (REDD+MF)", version: "v1.8", publisher: "Verra", provenanceUrl: "https://verra.org/methodologies/vm0007-redd-methodology-framework-redd-mf-v1-8/", publicationStatus: "Active since 04 June 2024", verifiedAgainstDerivedSourceSha256: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6" },
+    frozenProjectSource: { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", extractionPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json", extractionSha256: pddExtractionSha256, documentSha256: pddSha256, pageCount: pdd.pages.length, sourceType: "PDD" },
     currentExpertConclusions: selectedRuleIds.map((ruleId) => ({ ruleId, ...expert.responses[ruleId] })),
     rules: selectedRuleIds.map((ruleId) => ({ ruleId, ...rules[ruleId] })),
     absentSourceDeclarations: ["Appendix 21 attachment is referenced by the PDD but absent.", "Appendix 22 attachment and its ‘Test of sig - 6 year bsl valid’ tab are referenced by the PDD but absent.", "The project carbon-pool Table 4 is absent; the PDD’s Table 4 is a Belize-law table, not the methodology pool matrix."],
     truthProtection: { machineProposal: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: machineProposalSha256 }, expertResponse: { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/independent-expert-response.json", sha256: expertResponseSha256 }, integrationManifest: { path: "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-response-integration/integration-manifest.json", sha256: integrationManifestSha256 }, reviewedTruthFiles: reviewedTruthFiles.map((file, i) => ({ path: file, sha256: reviewedTruthSha256[i] })), semanticReviewedRowsSha256: reviewedRowsSha256, inventory: { reviewed: 39, provisional: 19 }, noNewReviewedTruth: true, noConclusionsChanged: true },
   };
+  validatePacket(packet);
+  return packet;
 }
 
-export function writeArtifacts() {
+export async function regenerateOfficialExtraction() {
+  const { PDFParse } = require("pdf-parse") as typeof import("pdf-parse");
+  const pdfBytes = fs.readFileSync(sourcePath);
+  const parser = new PDFParse({ data: pdfBytes });
+  const text = await parser.getText();
+  const artifact: OfficialExtraction = { schemaVersion: "rc5-official-pdf-page-extraction-v1", sourcePdfSha256: sha256(pdfBytes), pageCount: text.total, pages: text.pages.map((item: { num: number; text: string }) => ({ pageNumber: item.num, text: item.text })) };
+  await parser.destroy();
+  writeJson(officialExtractionPath, artifact);
+  return sha256(fs.readFileSync(officialExtractionPath));
+}
+
+export async function writeArtifacts() {
+  await regenerateOfficialExtraction();
   const packet = buildPacket();
   writeJson(path.join(packetDir, "blocker-resolution-packet.json"), packet);
-  writeJson(path.join(packetDir, "independent-review-response-schema.json"), { $schema: "https://json-schema.org/draft/2020-12/schema", type: "object", additionalProperties: false, required: ["schemaVersion", "responses"], properties: { schemaVersion: { const: "rc5-2-maya-expert-batch-2-independent-review-response-v1" }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((ruleId) => [ruleId, { type: "object", additionalProperties: false, required: ["reviewStatus", "evidenceAssessment", "finalRuleDecision", "notes"], properties: { reviewStatus: { const: "UNRESOLVED" }, evidenceAssessment: { type: "string", minLength: 1 }, finalRuleDecision: { const: null }, notes: { type: "string", minLength: 1 } } }])) } } });
-  writeJson(path.join(packetDir, "independent-review-response-template.json"), { schemaVersion: "rc5-2-maya-expert-batch-2-independent-review-response-v1", responses: Object.fromEntries(selectedRuleIds.map((ruleId) => [ruleId, { reviewStatus: "UNRESOLVED", evidenceAssessment: "", finalRuleDecision: null, notes: "" }])) });
-  const files = ["blocker-resolution-packet.json", "independent-review-response-schema.json", "independent-review-response-template.json", "review-instructions.md"];
-  const manifest = { schemaVersion: "rc5-2-maya-expert-batch-2-blocker-resolution-manifest-v1", selectedRuleIds: [...selectedRuleIds], officialSourceSha256, packetSha256: sha256(fs.readFileSync(path.join(packetDir, files[0]))), files: Object.fromEntries(files.map((file) => [file, sha256(fs.readFileSync(path.join(packetDir, file)))])), mergedPr1088Commit: "3eba6f821fcd4ab864ee72aa5b83253f8887dad8", reviewedTruthSha256, semanticReviewedRowsSha256: reviewedRowsSha256, inventory: { reviewed: 39, provisional: 19 }, reviewedTruthFilesCreated: false };
+  const canonicalSchema = buildRc5AdjudicationResponseSchema({ schemaVersion: "rc5-canonical-final-decision-v1", document: { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", contentSha256: pddSha256 }, machineProposalRef: { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: machineProposalSha256, proposalState: "MACHINE_PROPOSED" }, ruleIds: [...selectedRuleIds], decisionCount: selectedRuleIds.length });
+  const responseSchema = { $schema: "https://json-schema.org/draft/2020-12/schema", type: "object", additionalProperties: false, required: ["schemaVersion", "responses"], properties: { schemaVersion: { const: "rc5-2-maya-expert-batch-2-independent-review-response-v2" }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((ruleId) => [ruleId, { type: "object", additionalProperties: false, required: ["reviewStatus", "evidenceAssessment", "finalRuleDecision", "remainingBlockers", "notes"], properties: { reviewStatus: { enum: ["RESOLVED", "UNRESOLVED"] }, evidenceAssessment: { type: "string", minLength: 1 }, finalRuleDecision: { oneOf: [{ type: "null" }, { $ref: "#/$defs/canonicalDecision" }] }, remainingBlockers: { type: "array", items: { type: "string", minLength: 1 } }, notes: { type: "string", minLength: 1 } }, allOf: [{ if: { properties: { reviewStatus: { const: "RESOLVED" } } }, then: { properties: { finalRuleDecision: { $ref: "#/$defs/canonicalDecision" }, remainingBlockers: { maxItems: 0 } } } }, { if: { properties: { reviewStatus: { const: "UNRESOLVED" } } }, then: { properties: { finalRuleDecision: { const: null }, remainingBlockers: { minItems: 1 } } } }] }])) } }, $defs: { canonicalDecision: canonicalSchema.$defs.decision, evidenceReference: canonicalSchema.$defs.evidenceReference } };
+  writeJson(path.join(packetDir, "independent-review-response-schema.json"), responseSchema);
+  writeJson(path.join(packetDir, "independent-review-response-template.json"), { schemaVersion: "rc5-2-maya-expert-batch-2-independent-review-response-v2", responses: Object.fromEntries(selectedRuleIds.map((ruleId) => [ruleId, { reviewStatus: null, evidenceAssessment: "", finalRuleDecision: null, remainingBlockers: [], notes: "" }])) });
+  const files = ["blocker-resolution-packet.json", "independent-review-response-schema.json", "independent-review-response-template.json", "review-instructions.md", "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json"];
+  const manifest = { schemaVersion: "rc5-2-maya-expert-batch-2-blocker-resolution-manifest-v2", selectedRuleIds: [...selectedRuleIds], officialSourceSha256, officialExtractionSha256, mayaPdfSha256: pddSha256, mayaExtractionSha256: pddExtractionSha256, packetSha256: sha256(fs.readFileSync(path.join(packetDir, files[0]))), files: Object.fromEntries(files.map((file) => [file, sha256(fs.readFileSync(path.join(packetDir, file)))])), mergedPr1088Commit: "3eba6f821fcd4ab864ee72aa5b83253f8887dad8", reviewedTruthSha256, semanticReviewedRowsSha256: reviewedRowsSha256, inventory: { reviewed: 39, provisional: 19 }, reviewedTruthFilesCreated: false };
   writeJson(path.join(packetDir, "manifest.json"), manifest);
   return manifest;
 }
 
-if (require.main === module) writeArtifacts();
+if (require.main === module) writeArtifacts().catch((error) => { console.error(error); process.exitCode = 1; });
