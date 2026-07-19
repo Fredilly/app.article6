@@ -25,7 +25,13 @@ export const selectedRuleIds = [
 export const expectedMachineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
 export const expectedReviewedRowsSha256 = "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1";
 const authorizedFinalIntegrationCommit = "c6b796a00a9786f40693c47738af784d24763398";
+const authorizedTargetIntegrationCommit = "747bf16c7a2422157d776d565db82ec0fa3f1443";
 const authorizedFinalizedRuleIds = new Set(["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"]);
+const authorizedTargetIntegrationPaths = new Set([
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+]);
 
 const machineProposalPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const scopePath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
@@ -45,14 +51,10 @@ const readJson = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath
 export function assertReviewedTruthFilesUnchanged(paths = reviewedTruthPaths): void {
   if (paths.length !== reviewedTruthFilePins.length) throw new Error("Reviewed-truth source file set changed");
   reviewedTruthFilePins.forEach((pin, index) => {
-    if (index === 2) {
-      const current = readJson<{ decisions: any[] }>(paths[index]);
-      const base = JSON.parse(execFileSync("git", ["show", `${authorizedFinalIntegrationCommit}:${pin.path}`], { cwd: root, encoding: "utf8" }));
-      for (const baseRow of base.decisions) {
-        const currentRow = current.decisions.find((row) => row.stableRuleId === baseRow.stableRuleId);
-        if (!currentRow) throw new Error(`Reviewed-truth row removed: ${baseRow.stableRuleId}`);
-        if (!authorizedFinalizedRuleIds.has(baseRow.stableRuleId) && JSON.stringify(currentRow) !== JSON.stringify(baseRow)) throw new Error(`Unrelated reviewed-truth row changed: ${baseRow.stableRuleId}`);
-      }
+    if (authorizedTargetIntegrationPaths.has(pin.path)) {
+      const currentBytes = fs.readFileSync(paths[index]);
+      const authorizedBytes = execFileSync("git", ["show", `${authorizedTargetIntegrationCommit}:${pin.path}`], { cwd: root });
+      if (!currentBytes.equals(authorizedBytes)) throw new Error(`Reviewed-truth file changed byte-for-byte outside authorized integration: ${pin.path}`);
       return;
     }
     const actualSha256 = sha256(fs.readFileSync(paths[index]));
@@ -114,7 +116,7 @@ export function buildIntegrationManifest(): any {
   validateIntegrationResponse(response, packet, schema);
 
   const scope = readJson<any>(scopePath);
-  if (scope.inventory.reviewedRuleCount !== 41 || scope.inventory.provisionalRuleCount !== 17) throw new Error("Scope inventory changed");
+  if (!((scope.inventory.reviewedRuleCount === 41 && scope.inventory.provisionalRuleCount === 17) || (scope.inventory.reviewedRuleCount === 43 && scope.inventory.provisionalRuleCount === 15))) throw new Error("Scope inventory changed");
   if (scope.machineTruth.sha256 !== expectedMachineProposalSha256) throw new Error("Machine proposal SHA changed in scope");
   const selectedScope = scope.rules.filter((rule: any) => selectedRuleIds.includes(rule.stableRuleId));
   if (selectedScope.some((rule: any) => rule.reviewStatus !== "PROVISIONAL" || rule.scopeGroup !== "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION") || !selectedRuleIds.every((ruleId) => authorizedFinalizedRuleIds.has(ruleId) || selectedScope.some((rule: any) => rule.stableRuleId === ruleId))) throw new Error("Selected rules are not accounted for by the current scope or authorized final integration");

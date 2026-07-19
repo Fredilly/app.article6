@@ -15,7 +15,7 @@ const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "u
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const evidenceFields = ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"] as const;
 const preChangeFileSha256: Record<string, string> = {
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "759bed8b3e5c611dc5f20434bd06ad2576018195f3fbd6c4feb38897bb1830d4",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
 };
@@ -41,6 +41,17 @@ const preChangeReviewedRowSha256: Record<string, string> = {
   "Verra.AFOLU.VM0007.v1-8.R-3-0001": "945466e5abe02f73c729573d2d688abb676cf10ddf89cd7d1ee48ef2fd801987",
   "Verra.AFOLU.VM0007.v1-8.R-3-0002": "b573f9a7e8bcc384f1c4c89f74392f914fbc82cbf64a8722cabd571270a93ee6",
 };
+const authorizedTargetRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+]);
 
 describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
   it("validates the final eight decisions against the frozen PR #1085 schema and packet", () => {
@@ -94,8 +105,8 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 41);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 17);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 43);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 15);
     assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
   });
 
@@ -112,6 +123,7 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
       "Verra.AFOLU.VM0007.v1-8.R-2-0016",
       "Verra.AFOLU.VM0007.v1-8.R-3-0002",
     ]);
+    for (const ruleId of authorizedTargetRuleIds) selected.add(ruleId);
     const files = [3, 4].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`);
     const baseRows = new Map<string, any>();
     for (const file of files) for (const row of read<{ decisions: any[] }>(path.join(root, file)).decisions) {
