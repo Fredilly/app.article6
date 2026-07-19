@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "rc5-2-maya-vt0001-interpretation-response-v1",
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "reviewStatus": null,
+      "evidenceStatus": null,
+      "applicability": null,
+      "action": null,
+      "methodologyInterpretation": null,
+      "mayaApplication": null,
+      "evidenceCitations": [],
+      "missingEvidence": [],
+      "reasoning": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "reviewStatus": null,
+      "evidenceStatus": null,
+      "applicability": null,
+      "action": null,
+      "methodologyInterpretation": null,
+      "mayaApplication": null,
+      "evidenceCitations": [],
+      "missingEvidence": [],
+      "reasoning": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "reviewStatus": null,
+      "evidenceStatus": null,
+      "applicability": null,
+      "action": null,
+      "methodologyInterpretation": null,
+      "mayaApplication": null,
+      "evidenceCitations": [],
+      "missingEvidence": [],
+      "reasoning": null
+    }
+  ]
+}
