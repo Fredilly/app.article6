@@ -1,16 +1,73 @@
 {
   "schemaVersion": "rc5-2-maya-existing-packet-finalization-batch-1-manifest-v1",
+  "purpose": "Neutral blind packet generated exclusively from pinned historical Git inputs; convenience snapshots are regenerated outputs and are not historical authority.",
+  "currentTruthIsNotAnInput": true,
   "generatedAt": "2026-07-19T00:00:00.000Z",
   "sourceCommitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
   "sourceDocumentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
-  "preReviewSelectionSha256": "732339bf3b78d5ca5bade243f31ddab77cca911cc44c3b165ff1bb430a511fae",
+  "preReviewSelectionSha256": "1ffdf2ef2116b8962793a92052387fcd0d52815b708cd0810ebc10089c2614d0",
   "originalScopeArtifactSha256": "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17",
   "originalSourcePacketSha256": {
     "3": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f",
     "4": "d05012290e27ac634a0de756e0051965b6a69a3ae811c6e19a607c8eb093832b"
   },
+  "historicalReviewedTruthSha256": {
+    "3": {
+      "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+      "sha256": "fe81dd63f66ad784c934da2880d9c33d2b44eb3eb83fb141e09dffa29a6fa7f5"
+    },
+    "4": {
+      "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+      "sha256": "5b474e0b8528fed98759bd3560ed4ec224423e609dd4a580b41e065539b074c7"
+    }
+  },
+  "historicalInputs": {
+    "scope": {
+      "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json",
+      "sha256": "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17",
+      "provisionalRuleCount": 27
+    },
+    "sourcePackets": {
+      "3": {
+        "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json",
+        "sha256": "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f"
+      },
+      "4": {
+        "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/review-packet.json",
+        "sha256": "d05012290e27ac634a0de756e0051965b6a69a3ae811c6e19a607c8eb093832b"
+      }
+    },
+    "reviewedTruth": {
+      "3": {
+        "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+        "sha256": "fe81dd63f66ad784c934da2880d9c33d2b44eb3eb83fb141e09dffa29a6fa7f5"
+      },
+      "4": {
+        "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+        "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+        "sha256": "5b474e0b8528fed98759bd3560ed4ec224423e609dd4a580b41e065539b074c7"
+      }
+    },
+    "machineProposal": {
+      "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+      "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
+    },
+    "deepSeekReviewedPacket": {
+      "commitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/review-packet.json",
+      "sourceCommitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
+      "sha256": "c00559c90aade16a91f9e9ef87ca5e15270490273e2bd524443feae118c7700f"
+    }
+  },
   "deepSeekReviewedPacketSha256": "c00559c90aade16a91f9e9ef87ca5e15270490273e2bd524443feae118c7700f",
-  "frozenBlindPacketSha256": "39668a1108b97eb717feba79002f82883780b43c1246bea19b8aebe46779aee2",
+  "frozenBlindPacketSha256": "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31",
   "frozenProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
   "selectedRuleIds": [
     "Verra.AFOLU.VM0007.v1-8.R-1-0014",
@@ -66,7 +123,7 @@
       "contexts": 12
     }
   },
-  "generatedPacketSha256": "39668a1108b97eb717feba79002f82883780b43c1246bea19b8aebe46779aee2",
+  "generatedPacketSha256": "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31",
   "packetFiles": [
     "pre-review-selection.json",
     "pre-review-evidence-snapshot.json",
@@ -75,5 +132,9 @@
     "review-template.json",
     "review-response-schema.json",
     "manifest.json"
+  ],
+  "generatedConvenienceArtifacts": [
+    "pre-review-evidence-snapshot.json",
+    "pre-review-blind-packet.json"
   ]
 }

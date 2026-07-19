@@ -12,7 +12,7 @@
     "proposalState": "MACHINE_PROPOSED"
   },
   "provisionalScopeManifest": {
-    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-existing-packet-finalization-batch-1/pre-review-scope-artifact.json",
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json",
     "sourceCommitSha": "83be72a44b1beb7e4d14ab5272f2d1ea3eeb208f",
     "sha256": "48780a5fa81d16df09d6b98e53af1be49b78a7935ed8f5e93e88712588b23c17",
     "label": "HISTORICAL_SELECTION_CONTEXT"

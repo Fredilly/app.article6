@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { buildArtifacts, packetDir, selectedRuleIds, writeArtifacts } from "../../../scripts/preverif/generate-rc5-existing-packet-finalization-batch1";
@@ -63,7 +64,7 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-existing-packet-batch1-"));
     try {
       writeArtifacts(tempDir);
-      for (const file of ["review-packet.json", "review-template.json", "review-response-schema.json", "manifest.json"]) assert.equal(fs.readFileSync(path.join(tempDir, file), "utf8"), fs.readFileSync(path.join(packetDir, file), "utf8"), file);
+      for (const file of ["pre-review-evidence-snapshot.json", "pre-review-blind-packet.json", "review-packet.json", "review-template.json", "review-response-schema.json", "manifest.json"]) assert.equal(fs.readFileSync(path.join(tempDir, file), "utf8"), fs.readFileSync(path.join(packetDir, file), "utf8"), file);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -78,7 +79,6 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
   it("does not read or depend on current finalized reviewed truth", () => {
     const source = fs.readFileSync(generatorPath, "utf8");
     assert.equal(source.includes("reviewed-truth.json"), false);
-    assert.equal(source.includes("reviewedTruth"), false);
     const originalBytes = fs.readFileSync(finalizedTruthPath);
     try {
       const truth = read<any>(finalizedTruthPath);
@@ -91,22 +91,26 @@ describe("RC5-2 Maya existing-packet finalization batch 1", () => {
   });
 
   it("fails when an immutable pre-review input changes", () => {
-    const originalBytes = fs.readFileSync(evidenceSnapshotPath);
-    try {
-      fs.writeFileSync(evidenceSnapshotPath, Buffer.concat([originalBytes, Buffer.from(" ")]));
-      assert.throws(() => buildArtifacts(), /Immutable pre-review evidence snapshot changed/);
-    } finally {
-      fs.writeFileSync(evidenceSnapshotPath, originalBytes);
-    }
+    const selection = read<any>(selectionPath);
+    const altered = { ...selection, reviewedTruth: { ...selection.reviewedTruth, "4": { ...selection.reviewedTruth["4"], sha256: "0".repeat(64) } } };
+    assert.throws(() => buildArtifacts(altered), /Historical SHA mismatch/);
   });
 
   it("validates the historical authorization, exact packet hash, and frozen machine proposal", () => {
     const selection = read<any>(selectionPath);
-    assert.equal(sha256(fs.readFileSync(selectionPath)), "732339bf3b78d5ca5bade243f31ddab77cca911cc44c3b165ff1bb430a511fae");
+    assert.equal(sha256(fs.readFileSync(selectionPath)), "1ffdf2ef2116b8962793a92052387fcd0d52815b708cd0810ebc10089c2614d0");
     assert.deepEqual(selection.selectedRuleIds, selectedRuleIds);
     assert.equal(selection.authorization.every((entry: any) => entry.authorized && entry.existingFrozenPacketSufficientForIndependentReview), true);
-    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "39668a1108b97eb717feba79002f82883780b43c1246bea19b8aebe46779aee2");
+    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31");
     assert.equal(sha256(fs.readFileSync(path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json"))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     assert.deepEqual(buildArtifacts().packet, read<any>(blindPacketPath));
+  });
+
+  it("pins every historical Git input and regenerates the committed convenience snapshot", () => {
+    const selection = read<any>(selectionPath);
+    const inputs = [selection.originalScopeArtifact, ...Object.values(selection.sourcePackets), ...Object.values(selection.reviewedTruth), selection.machineProposal, selection.deepSeekReviewedPacket];
+    for (const input of inputs) assert.equal(sha256(execFileSync("git", ["show", `${input.commitSha}:${input.path}`])), input.sha256, input.path);
+    assert.equal(fs.readFileSync(evidenceSnapshotPath).equals(execFileSync("git", ["show", `${selection.deepSeekReviewedPacket.commitSha}:${selection.deepSeekReviewedPacket.path}`])), true);
+    assert.equal(sha256(fs.readFileSync(blindPacketPath)), "4edd729dad49fa8cc7b8c09a4701edc7740f96d282a1c1af9a5817d3a0dd9b31");
   });
 });
