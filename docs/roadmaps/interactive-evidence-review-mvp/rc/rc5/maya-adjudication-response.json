@@ -248,26 +248,66 @@
       "reviewerOutcome": "ACTION_REQUIRED",
       "acceptedEvidence": [
         {
-          "quote": "Project activity. Sub-step 1a. Identify credible alternative land use scenarios to the proposed VCS AFOLU project activity. There are three credible alternative land use scenarios: A. Clearing of Forest and Conversion to Agriculture The clearing of the forest and conversion to commercial agriculture is the most probable land use under the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can be found in section 3.1.4. B. Continuation of Pre-Project Land Use In the pre-project land-use scenario, the project area was maintained as forest and selectively logged over time. The previous owners could not economically support maintenance of pre-project land use of maintaining forest cover including paying property taxes, especially given that most of the high value timber in the site had been already extracted. This is why they were selling the property where the project area is located. C. Project activity on the land within the Project boundary performed without being registered as the VCS AFOLU project In this scenario, the land would have still been purchased and managed for conservation purposes. Income from the project area would be zero where in the project scenario, income from carbon revenue would help cover the project costs. Therefore, conducting the Project activity without registration as a VCS AFOLU Project is unsustainable. Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations. Because the project is private property, all alternatives presented in 1a are legal under Belizean law (see section 2.5.1). CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 92 CCB v3.0, VCS v4.4 “Alternative A”, The subdivision of forests and conversion to agriculture on private lands is legal under Belizean law. Table 4 in section 2.2.1 documents the different laws that permit the clearing of forests for other land uses. “Alternative B”, This requires no change in ownership and no change in previous land management thus these alternatives would be legal under Belizean Law. “Alternatives C”, As is the case in the project scenario, the purchase and management of the property for conservation is legal. Registration as a VCS AFOLU project does not change the legality of the activities conducted. Sub-step 1c. Selection of the baseline scenario Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario. While all the alternatives are legal under Belizean law, Alternatives B and C were not financially viable options for the reasons presented in sub-step 1a. Furthermore, the previous owner of the property confirmed that it had received multiple offers to purchase the property from buyers interested in converting the property to industrial agricultural production.",
+          "quote": "VT0001 AFOLU activities the same or similar\nto the proposed project activity on\nthe land within the proposed project\nboundary performed with or without\nbeing registered as the VCS AFOLU\nproject shall not lead to violation of\nany applicable law even if the law is\nnot enforced;\nThe AFOLU activities of this project are not\nin violation of any law. There is a legal\nagreement in place with the government\nto carry out the project activities.\nVT0001 The use of this tool to determine\nadditionality requires the baseline\nmethodology to provide for a\nstepwise approach justifying the\ndetermination of the most plausible\nbaseline scenario. Project\nproponent(s) proposing new baseline\nmethodologies shall ensure\nconsistency between the\ndetermination of a baseline scenario\nand the determination of\nadditionality of a project activity.\nThe project’s methodology follows the\nstepwise approach to determine the",
+          "page": 86,
+          "sectionHeading": "3.1.1 Title and Reference of Methodology",
+          "spanId": "full-pdd:page-86:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "There are three credible alternative land use scenarios:\nA. Clearing of Forest and Conversion to Agriculture\nThe clearing of the forest and conversion to commercial agriculture is the most probable land use\nunder the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can\nbe found in section 3.1.4.\nB. Continuation of Pre-Project Land Use\nIn the pre-project land-use scenario, the project area was maintained as forest and selectively logged\nover time. The previous owners could not economically support maintenance of pre-project land use of\nmaintaining forest cover including paying property taxes, especially given that most of the high value\ntimber in the site had been already extracted. This is why they were selling the property where the\nproject area is located.\nC. Project activity on the land within the Project boundary performed without being registered as the\nVCS AFOLU project\nIn this scenario, the land would have still been purchased and managed for conservation purposes.\nIncome from the project area would be zero where in the project scenario, income from carbon revenue\nwould help cover the project costs. Therefore, conducting the Project activity without registration as a\nVCS AFOLU Project is unsustainable.\nSub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
           "page": 91,
-          "sectionHeading": "Step 1: Identification of alternative land use scenarios to the proposed AFOLU",
-          "spanId": "quick-check-review-question:element:paragraph:3.1.5.2.1",
+          "sectionHeading": "3.1.5.2.1 Step 1: Identification of alternative land use scenarios to the proposed AFOLU Project activity.",
+          "spanId": "full-pdd:page-91:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Because the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these other lands managed as priv",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.2 Step 2. Investment Analysis",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Similar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
+          "spanId": "full-pdd:page-92:4",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
+          "spanId": "full-pdd:page-92:5",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Are the project activities mandated by any law, statute, or other regulatory framework?\n☐ Yes ☒ No",
+          "page": 90,
+          "sectionHeading": "3.1.5 Additionality (VCS, 3.14)",
+          "spanId": "full-pdd:page-90:6",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NIR_CANDIDATE",
-      "assessmentReason": "The PDD contains a substantial VT0001 additionality discussion (§3.1.5.2 including Steps 1 and 2). This was not retrieved by the machine, which marked the rule as MISSING. The accepted evidence I propose (from ctx-005) shows the project has performed Step 1 (alternative scenarios) and Step 2 (barrier/investment analysis is referenced by the simple cost analysis selection). However, the full VT0001 analysis (Steps 2-4 with complete barrier/investment analysis, common-practice test, and conclusion) is not yet complete. Machine proposal is INCORRECT: evidence exists for at least Step 1, so MISSING is too harsh; UNCLEAR is more appropriate.",
-      "gap": "VT0001 Step 1 (alternatives) is well-documented. Steps 2-4 need completion: the barrier or investment analysis needs full documentation, common-practice test needs to be addressed or explicitly excluded, and the additionality conclusion needs to be stated.",
-      "clientAction": "Complete the remaining VT0001 steps: barrier/investment analysis, common-practice test (or justification for omission), and formal additionality conclusion. The existing alternative scenario analysis in §3.1.5.2 provides a good foundation.",
-      "correctionReason": "Evidence exists in ctx-005 (VT0001 Step 1) that was not accepted by the machine. The evidence state should be UNCLEAR, not MISSING.",
-      "genericFailureCategory": "RETRIEVAL",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD documents VT0001 applicability (legal compliance), Step 1 (alternative land use scenarios - three alternatives described), Step 2 (investment analysis - simple cost analysis selected, costs documented in Appendix 17), and Step 4 (common practice analysis - comparison with private protected areas in the MFC). However, Step 3 (Barrier Analysis) of VT0001 is not present in the frozen packet evidence. The packet contains applicability, Step 1, Step 2, and Step 4, but the VT0001 methodology requires completion of all steps. Appendix 17 (project costs) is referenced for Step 2 but not included. Without Step 3 and the referenced supporting appendix (17), the VT0001 analysis cannot be confirmed as complete against the methodology requirements.",
+      "gap": "Step 3 (Barrier Analysis) of VT0001 is not present in the frozen packet evidence. Appendix 17 (project costs) is referenced for Step 2 but not included. Without these, the VT0001 analysis cannot be confirmed as complete.",
+      "clientAction": "Provide Step 3 (Barrier Analysis) of the VT0001 additionality assessment and Appendix 17 (project costs documentation) to confirm the VT0001 analysis is complete.",
+      "correctionReason": "Initial adjudication.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
       "expertReviewRequired": true,
       "reviewStatus": "PROVISIONAL",
-      "provisionalReason": "Expert review remains required because the full VT0001 analysis (Steps 2-4) is not yet complete."
+      "provisionalReason": "The VT0001 analysis documents applicability, Step 1, Step 2, and Step 4, but Step 3 (Barrier Analysis) is absent from the frozen packet. Without all VT0001 steps, the additionality analysis cannot be confirmed as complete."
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",

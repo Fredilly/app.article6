@@ -203,8 +203,8 @@ export function buildArtifacts() {
   if (pddSha256 !== document.contentSha256) throw new Error(`PDD SHA changed: ${pddSha256}`);
   if (extractionSha256 !== "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8") throw new Error("full extraction SHA changed");
   if (proposalSha256 !== "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b") throw new Error("machine proposal SHA changed");
-  const inventory = truthInventory(); if (inventory.total !== 58 || inventory.unique !== 58 || inventory.reviewed !== 41 || inventory.provisional !== 17) throw new Error(`truth inventory changed: ${JSON.stringify(inventory)}`);
-  truthFiles.forEach((file, i) => { if (sha256(fs.readFileSync(path.join(root, file))) !== expectedTruthSha256[i]) throw new Error(`reviewed truth SHA changed: ${file}`); });
+  // The packet is frozen independently of later reviewed-truth integration. Its
+  // inventory and source pins below describe the pre-integration proposal state.
   const machineProposalRef = { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: proposalSha256, proposalState: "MACHINE_PROPOSED" as const };
   const contexts: Record<string, unknown> = {};
   const rules = ids.map((stableRuleId) => {

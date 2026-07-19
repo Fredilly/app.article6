@@ -17,6 +17,19 @@ export const authorizedBlockerResolutionRuleIds = new Set([
   "Verra.AFOLU.VM0007.v1-8.R-1-0012",
   "Verra.AFOLU.VM0007.v1-8.R-1-0013",
 ]);
+export const authorizedTargetedPacketPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-targeted-full-pdd-batch-2/review-packet.json";
+export const authorizedTargetedPacketSha256 = "0d7cab0a1f4fe02026395e146ea8fcec6bb99a5679306b3c146f25435824c1a3";
+export const authorizedTargetedRuleIds = new Set([
+  "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0005",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+]);
 
 const batches = [
   { batch: 1, packetDir: "rc5-2-maya-adjudication", truthPath: path.join(rc5Root, "maya-adjudication-response.json") },
@@ -59,6 +72,21 @@ export function loadAuthorizedBlockerResolutionContexts(packetFilePath = path.jo
       exactQuote: evidence.quote,
       pageNumber: evidence.page,
       sectionHeading: evidence.section,
+      sourceSpanId: evidence.spanId,
+      documentIdentity: { documentId: evidence.documentId, contentSha256: evidence.documentSha256 },
+    })));
+}
+
+export function loadAuthorizedTargetedContexts(packetFilePath = path.join(root, authorizedTargetedPacketPath)): JsonRecord[] {
+  if (sha256(fs.readFileSync(packetFilePath)) !== authorizedTargetedPacketSha256) throw new Error("Authorized targeted packet SHA changed");
+  const packet = read(packetFilePath);
+  return (packet.rules as JsonRecord[])
+    .filter((rule) => authorizedTargetedRuleIds.has(rule.stableRuleId))
+    .flatMap((rule) => (rule.candidateEvidence as JsonRecord[]).map((evidence, index) => ({
+      contextId: `targeted-full-pdd-${rule.stableRuleId}-candidate-${index}`,
+      exactQuote: evidence.quote,
+      pageNumber: evidence.page,
+      sectionHeading: evidence.heading,
       sourceSpanId: evidence.spanId,
       documentIdentity: { documentId: evidence.documentId, contentSha256: evidence.documentSha256 },
     })));
@@ -221,9 +249,16 @@ function buildAudit() {
           documentIdentity: { documentId: evidence.provenance.documentId ?? evidence.provenance.docId, contentSha256: evidence.provenance.documentSha256 ?? packet.sourceDocument.contentSha256 },
         }))
         : [];
-      const decisionContexts = config.batch === 3 && authorizedBlockerResolutionRuleIds.has(decision.stableRuleId)
-        ? [...allContexts, ...packetEvidenceContexts, ...loadAuthorizedBlockerResolutionContexts().filter((context) => context.contextId.includes(decision.stableRuleId))]
-        : [...allContexts, ...packetEvidenceContexts];
+      const decisionContexts = [
+        ...allContexts,
+        ...packetEvidenceContexts,
+        ...(config.batch === 3 && authorizedBlockerResolutionRuleIds.has(decision.stableRuleId)
+          ? loadAuthorizedBlockerResolutionContexts().filter((context) => context.contextId.includes(decision.stableRuleId))
+          : []),
+        ...(authorizedTargetedRuleIds.has(decision.stableRuleId)
+          ? loadAuthorizedTargetedContexts().filter((context) => context.contextId.includes(decision.stableRuleId))
+          : []),
+      ];
       const machineHash = rule ? machineRowHash(rule) : undefined;
       const evidenceEntries: JsonRecord[] = [];
       const unmatchedEvidence: JsonRecord[] = [];
@@ -343,7 +378,10 @@ function buildAudit() {
     fixedProvenanceEntries,
     reviewedUnion: { uniqueRuleCount: uniqueRuleIds.size, expectedRuleCount: 50, duplicateSelections },
     machineTruthSeparation: { frozenProposalPath: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", reviewedTruthPaths: batches.map((config) => path.relative(root, config.truthPath)), separate: true },
-    authorizedFrozenEvidenceSources: [{ path: authorizedBlockerResolutionPacketPath, sha256: authorizedBlockerResolutionPacketSha256, ruleIds: [...authorizedBlockerResolutionRuleIds].sort() }],
+    authorizedFrozenEvidenceSources: [
+      { path: authorizedBlockerResolutionPacketPath, sha256: authorizedBlockerResolutionPacketSha256, ruleIds: [...authorizedBlockerResolutionRuleIds].sort() },
+      { path: authorizedTargetedPacketPath, sha256: authorizedTargetedPacketSha256, ruleIds: [...authorizedTargetedRuleIds].sort() },
+    ],
     batchSummaries,
     rules: results,
     unresolvedAmbiguities: results.flatMap((result) => [
