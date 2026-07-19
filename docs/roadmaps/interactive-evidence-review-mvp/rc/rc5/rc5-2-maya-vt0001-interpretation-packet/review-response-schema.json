@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-vt0001-interpretation-response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-vt0001-interpretation-response-v1"
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stableRuleId",
+          "reviewStatus",
+          "evidenceStatus",
+          "applicability",
+          "action",
+          "methodologyInterpretation",
+          "mayaApplication",
+          "evidenceCitations",
+          "missingEvidence",
+          "reasoning"
+        ],
+        "properties": {
+          "stableRuleId": {
+            "enum": [
+              "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+              "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+              "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+            ]
+          },
+          "reviewStatus": {
+            "enum": [
+              "REVIEWED",
+              "PROVISIONAL"
+            ]
+          },
+          "evidenceStatus": {
+            "enum": [
+              "FOUND",
+              "UNCLEAR",
+              "MISSING"
+            ]
+          },
+          "applicability": {
+            "enum": [
+              "APPLICABLE",
+              "NOT_APPLICABLE",
+              "UNKNOWN"
+            ]
+          },
+          "action": {
+            "enum": [
+              "CONFORMS",
+              "ACTION_REQUIRED",
+              "NONE"
+            ]
+          },
+          "methodologyInterpretation": {
+            "type": "string",
+            "minLength": 100
+          },
+          "mayaApplication": {
+            "type": "string",
+            "minLength": 100
+          },
+          "evidenceCitations": {
+            "type": "array",
+            "minItems": 1
+          },
+          "missingEvidence": {
+            "type": "array"
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 100
+          }
+        }
+      }
+    }
+  }
+}
