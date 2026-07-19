@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "rc5-2-maya-independent-review-batch-4-response-manifest-v1",
+  "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-4/corrected-independent-deepseek-response.json",
+  "responseSha256": "57838574b2faea0ed44a69dd738fc3ddd1dba336de6465263d1748acdb8f76d5",
+  "schemaPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-4/review-response-schema.json",
+  "schemaSha256": "781f84280a1bce7c79b6da3b3b7a265e7fa2f9c2cded166dfff201ed8f1cd6df",
+  "packetPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-4/review-packet.json",
+  "packetSha256": "1eec6d22707631a389a1faae18fb091db09cefb7fdc95311e3ea10612eef6135",
+  "machineProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+  ],
+  "finalizedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0013"
+  ],
+  "provisionalRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+  ],
+  "responsePreservedByteForByte": true,
+  "originalResponsePath": null,
+  "generatedAt": "2026-07-19T00:00:00.000Z"
+}

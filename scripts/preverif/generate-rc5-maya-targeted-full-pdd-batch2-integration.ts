@@ -1,5 +1,6 @@
 import Ajv2020 from "ajv/dist/2020";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -32,6 +33,7 @@ const sourceTruthSha256 = [
   "2f53f56d84c47691549ee53e6f3fad57a5034f0277b6e298dd50bd071b205413",
   "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
 ];
+const historicalTruthCommit = "2bc205acf9e3cc2e0d3c1ff890a50a39617d0396";
 const machineProposalPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
 const machineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
 const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf";
@@ -40,6 +42,7 @@ const extractionPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize
 const extractionSha256 = "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8";
 const sha256 = (value: Buffer | string) => crypto.createHash("sha256").update(value).digest("hex");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+const readHistorical = <T>(filePath: string): T => JSON.parse(execFileSync("git", ["show", `${historicalTruthCommit}:${filePath}`], { cwd: root, encoding: "utf8" })) as T;
 const write = (filePath: string, value: unknown) => fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 const abs = (filePath: string) => path.join(root, filePath);
 const evidenceKey = (e: any) => JSON.stringify([e.quote, e.page, e.sectionHeading ?? e.heading, e.spanId, e.documentId, e.documentSha256]);
@@ -80,7 +83,7 @@ export function buildIntegratedTruth(): Map<string, Truth> {
   const byId = new Map<string, Decision>(response.decisions.map((decision: Decision) => [decision.stableRuleId, decision]));
   const integrated = new Map<string, Truth>();
   for (const file of allTruthFiles) {
-    const current = read<Truth>(abs(file));
+    const current = readHistorical<Truth>(file);
     const next: Truth = JSON.parse(JSON.stringify(current));
     next.decisions = next.decisions.map((row: Decision) => {
       const expert = byId.get(row.stableRuleId);

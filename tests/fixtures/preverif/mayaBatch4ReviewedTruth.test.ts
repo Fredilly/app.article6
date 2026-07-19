@@ -77,8 +77,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
     assert.deepEqual(truth.decisions.map((decision: any) => decision.stableRuleId), packet.selectedRuleIds);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selection.expectedRuleIds);
 
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 8);
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 2);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 9);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 1);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "PENDING_INDEPENDENT_ADJUDICATION"), false);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "REVIEWED"), true);
     assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").every((decision: any) => decision.expertReviewRequired === true), true);
@@ -172,8 +172,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       return counts;
     }, {});
 
-    assert.deepEqual(statusCounts, { REVIEWED: 8, PROVISIONAL: 2 });
+    assert.deepEqual(statusCounts, { REVIEWED: 9, PROVISIONAL: 1 });
     assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 2, FOUND: 2 });
-    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 2, NONE: 1 });
+    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 8, COMPONENT_COVERAGE: 1, NONE: 1 });
   });
 });
