@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "rc5-2-maya-wave-1-pdd-finality-integration-manifest-v1",
+  "sourceCommitSha": "507822b92b64a12b5f71ca4ac0d3490379aa146f",
+  "response": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/deepseek-response.json",
+    "sha256": "0d8759eb24255b08de7c7a33481da9dd7728534aa3ab7289f3703bc06efeaece"
+  },
+  "frozenPacket": {
+    "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-wave-1-pdd-finality/review-packet.json",
+    "sha256": "0485189c70a91cdaa30d0a5142de6a455cfcf0e429125ba085d13c3ae7eb7d5a"
+  },
+  "machineProposal": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b"
+  },
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+  ],
+  "finalizedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-5-0003"
+  ],
+  "provisionalRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+  ],
+  "excludedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004"
+  ],
+  "inventory": {
+    "before": {
+      "reviewed": 48,
+      "provisional": 10,
+      "total": 58
+    },
+    "after": {
+      "reviewed": 50,
+      "provisional": 8,
+      "total": 58
+    }
+  },
+  "preIntegrationTruthSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "e52938d489ae0f106fdfccfe9d81a90386e8d2e55925759aa2700145bf82086b",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "85dede541c31c4269e25ac15782d6cdcde5e15e304382768a3603e90e2c7ff3d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "4aa43b1e1587e6c90deee6875aed2bf26ffdf9e6f5e741e559a5145a9d44e9d5",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "postIntegrationTruthSha256": {
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "e52938d489ae0f106fdfccfe9d81a90386e8d2e55925759aa2700145bf82086b",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "85dede541c31c4269e25ac15782d6cdcde5e15e304382768a3603e90e2c7ff3d",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "1cce490339d408f314b42a3238f4cefe3b416ab17cdaf6c6673bb35f196afc5f",
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  },
+  "integratedTruthFiles": [
+    "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json"
+  ],
+  "nonTargetRowsDeepCompared": true,
+  "machineTruthModified": false,
+  "packetShaUnchanged": true,
+  "responsePreservedByteForByte": true,
+  "unavailableInterpretationsPreservedAsProvisional": true
+}

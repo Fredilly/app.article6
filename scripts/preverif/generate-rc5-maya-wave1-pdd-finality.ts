@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
@@ -43,6 +44,8 @@ const expectedReviewedTruthSha256: Record<string, string> = {
 const document = { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", contentSha256: "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b" };
 const sha256 = (value: string | Buffer) => crypto.createHash("sha256").update(value).digest("hex");
 const read = <T>(relativePath: string): T => JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8")) as T;
+const readFrozenBytes = (relativePath: string) => execFileSync("git", ["show", `${baseCommitSha}:${relativePath}`], { cwd: root });
+const readFrozen = <T>(relativePath: string): T => JSON.parse(readFrozenBytes(relativePath).toString("utf8")) as T;
 const short = (id: string) => id.split(".").at(-1)!;
 type AnyRow = Record<string, any> & { stableRuleId: string; reviewStatus?: string };
 type Page = { pageNumber: number; text: string };
@@ -77,7 +80,7 @@ const missingSources: Record<string, string[]> = {
 };
 
 function inventory() {
-  const decisions = reviewedTruthFiles.flatMap((file) => read<{ decisions: AnyRow[] }>(file).decisions);
+  const decisions = reviewedTruthFiles.flatMap((file) => readFrozen<{ decisions: AnyRow[] }>(file).decisions);
   const ids = new Set(decisions.map((row) => row.stableRuleId));
   if (decisions.length !== 58 || ids.size !== 58) throw new Error(`Unexpected source inventory ${decisions.length}/${ids.size}`);
   if (decisions.filter((row) => row.reviewStatus === "REVIEWED").length !== 48 || decisions.filter((row) => row.reviewStatus === "PROVISIONAL").length !== 10) throw new Error("Expected 48 REVIEWED and 10 PROVISIONAL");
@@ -106,10 +109,10 @@ export function buildArtifacts() {
   const pagesArtifact = read<{ sourcePdfSha256: string; pages: Array<{ pageNumber: number; text: string }> }>(officialPagesPath);
   const actualSources = { pdd: sha256(fs.readFileSync(pddPath)), extraction: sha256(fs.readFileSync(extractionPath)), machine: sha256(fs.readFileSync(machinePath)), officialPdf: sha256(fs.readFileSync(officialPdfPath)), officialPages: sha256(fs.readFileSync(officialPagesPath)), methodologyRules: sha256(fs.readFileSync(path.join(root, methodologyRulesPath))), methodologySections: sha256(fs.readFileSync(path.join(root, methodologySectionsPath))) };
   if (actualSources.methodologyRules !== "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49" || actualSources.methodologySections !== "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3") throw new Error("Methodology source SHA changed");
-  if (actualSources.pdd !== expectedSourceSha256.pdd || actualSources.extraction !== expectedSourceSha256.extraction || actualSources.machine !== expectedSourceSha256.machine || actualSources.officialPdf !== expectedSourceSha256.officialPdf || actualSources.officialPages !== expectedSourceSha256.officialPages || reviewedTruthFiles.some((file) => sha256(fs.readFileSync(path.join(root, file))) !== expectedReviewedTruthSha256[file])) throw new Error("Frozen source SHA changed");
+  if (actualSources.pdd !== expectedSourceSha256.pdd || actualSources.extraction !== expectedSourceSha256.extraction || actualSources.machine !== expectedSourceSha256.machine || actualSources.officialPdf !== expectedSourceSha256.officialPdf || actualSources.officialPages !== expectedSourceSha256.officialPages || reviewedTruthFiles.some((file) => sha256(readFrozenBytes(file)) !== expectedReviewedTruthSha256[file])) throw new Error("Frozen source SHA changed");
   if (pagesArtifact.sourcePdfSha256 !== actualSources.officialPdf) throw new Error("Official methodology pages/PDF SHA mismatch");
   const machine = read<{ rows: AnyRow[] }>(machinePath);
-  const reviewed = reviewedTruthFiles.flatMap((file) => read<{ decisions: AnyRow[] }>(file).decisions);
+  const reviewed = reviewedTruthFiles.flatMap((file) => readFrozen<{ decisions: AnyRow[] }>(file).decisions);
   const contracts = read<AnyRow[]>(methodologyRulesPath);
   const rules = selectedRuleIds.map((stableRuleId) => {
     const decision = reviewed.find((row) => row.stableRuleId === stableRuleId)!;
@@ -123,7 +126,7 @@ export function buildArtifacts() {
   const machineRef = { path: machinePath, sha256: sha256(fs.readFileSync(machinePath)), proposalState: "MACHINE_PROPOSED" as const };
   const schema = buildRc5AdjudicationResponseSchema({ schemaVersion, document, machineProposalRef: machineRef, ruleIds: selectedRuleIds, decisionCount: selectedRuleIds.length });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef: machineRef, decisions: selectedRuleIds.map((stableRuleId) => ({ stableRuleId, machineRowSha256: sha256(JSON.stringify(machine.rows.find((row) => row.stableRuleId === stableRuleId))), reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: false, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], contradictionState: null, draftFindingCandidate: null, assessmentReason: null, gap: null, clientAction: null, correctionReason: null, genericFailureCategory: null, reviewerConfidence: null, provisionalReason: null })) };
-  const sourceArtifacts = { mainBaseCommitSha: baseCommitSha, pdd: { path: pddPath, sha256: actualSources.pdd }, extraction: { path: extractionPath, sha256: actualSources.extraction }, machineProposal: machineRef, officialMethodologyPdf: { path: officialPdfPath, sha256: actualSources.officialPdf }, officialMethodologyPages: { path: officialPagesPath, sha256: actualSources.officialPages }, methodologyRules: { path: methodologyRulesPath, sha256: actualSources.methodologyRules }, methodologySections: { path: methodologySectionsPath, sha256: actualSources.methodologySections }, reviewedTruthForSelectionOnly: Object.fromEntries(reviewedTruthFiles.map((file) => [file, sha256(fs.readFileSync(path.join(root, file)))])) };
+  const sourceArtifacts = { mainBaseCommitSha: baseCommitSha, pdd: { path: pddPath, sha256: actualSources.pdd }, extraction: { path: extractionPath, sha256: actualSources.extraction }, machineProposal: machineRef, officialMethodologyPdf: { path: officialPdfPath, sha256: actualSources.officialPdf }, officialMethodologyPages: { path: officialPagesPath, sha256: actualSources.officialPages }, methodologyRules: { path: methodologyRulesPath, sha256: actualSources.methodologyRules }, methodologySections: { path: methodologySectionsPath, sha256: actualSources.methodologySections }, reviewedTruthForSelectionOnly: Object.fromEntries(reviewedTruthFiles.map((file) => [file, sha256(readFrozenBytes(file))])) };
   return { packet, schema, template, sourceArtifacts };
 }
 

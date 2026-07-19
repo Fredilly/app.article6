@@ -1,0 +1,367 @@
+{
+  "schemaVersion": "rc5-2-maya-wave-1-pdd-finality-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "machineRowSha256": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n87\nCCB v3.0, VCS v4.4\ndocumented in Appendix 10. Only lands that qualified as forests during the entire 10 years prior to the\nproject start data are included in the project area.\nFigure 10. Forest Cover Benchmark Map\n3.1.3.2 Temporal boundaries\nStart and End Dates of the Historical Reference Period\nTo estimate baseline deforestation rates, historical deforestation of proxy parcels was analyzed\nbetween January 1, 2012 and December 31, 2021.\nStart and End Dates of the Project Crediting Period\nThe start date of the crediting period is January 1, 2022, and the end date is December 21, 2041.\n3.1.3.3 Carbon pools\nThe following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
+          "page": 87,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 87",
+          "spanId": "full-pdd:page-87:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n88\nCCB v3.0, VCS v4.4\nbelowground palm biomass are excluded because they were deemed de minimis following the guidance\nprovided in VM0007\u2019s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes\ninformation on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig -\n6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations.\nBelowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the\ndetails of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis,\ngiven the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it\nwas deemed important to include.\nAll the included carbon pools are accounted for in the baseline and project scenarios as well as in the\naccounting of activity shifting leakage. Given the fact that harvested wood products are identified as de\nminimis, market effects leakage due to decreased timber harvest was also excluded from the analysis.\nLeaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative\nestimation of carbon stocks in the project area. The carbon stocks in post-deforestation agricultural\nbiomass in the baseline scenario are also accounted for.\n3.1.3.4 Sources of GHG Emissions\nThe sources of GHG emissions relevant to the baseline and project scenarios are detailed below.\nTable 12. Source of GHG emissions included in the MFC REDD project\nSource Gas Included? Justification / Explanation\nBaseline\nBurning of woody\nbiomass\nCO2 Yes Carbon stock decreases due to burning are\naccounted for as a carbon stock change.\nCH4 Yes After timber species are removed from the land,\nthe remaining biomass is burned, so CH4 and N2O\nemissions from this activity are calculated.\nExpected biomass burning as part of post-\ndeforestation agricultural production is\nconservatively excluded.\nN2O Yes\nCombustion of\nfossil fuels\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nUse of fertilizers\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nProject\n\nBurning of woody\nbiomass\nCO2 Yes In the event that wildfires impact the project area,\ncarbon stock decreases will be accounted as a\ncarbon stock change.\nCH4 Yes\nN2O Yes",
+          "page": 88,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 88",
+          "spanId": "full-pdd:page-88:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD lists included pools (page 87: aboveground tree, belowground, palms, standing/lying dead wood, SOC) and states symmetric accounting (page 88: 'all the included carbon pools are accounted for in the baseline and project scenarios as well as in the accounting of activity shifting leakage'). HWP and belowground palm biomass are excluded as de minimis via Appendix 1, referencing Appendices 21 and 22 for calculations and significance testing. Dead wood was included despite being identified as de minimis. The official VM0007 v1.8 methodology (Section 5.3.2 REDD) confirms HWP and dead wood are conditional on baseline/project comparison and insignificant pools can be ignored. However, Appendices 21 and 22 are absent from the frozen source set, preventing independent verification of the HWP significance test results and the completeness of the pool selection against the methodology crosswalk.",
+      "gap": "Appendices 21 and 22 (HWP calculations and significance testing) and the methodology pool crosswalk (Table 4) are referenced but absent from the frozen source set.",
+      "clientAction": "Provide Appendices 21 and 22, and the methodology pool crosswalk (Table 4) to verify the HWP de minimis determination and pool inclusion/exclusion completeness.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "Pool inclusion/exclusion and symmetric accounting are described in the PDD and consistent with the methodology text, but the supporting appendices (21, 22) and pool crosswalk are absent external sources preventing full verification of the HWP significance determination.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "machineRowSha256": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "The following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
+          "page": 87,
+          "sectionHeading": "3.1.3.3 Carbon pools",
+          "spanId": "full-pdd:page-87:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "belowground palm biomass are excluded because they were deemed de minimis following the guidance\nprovided in VM0007\u2019s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes\ninformation on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig -\n6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations.\nBelowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the\ndetails of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis,\ngiven the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it\nwas deemed important to include.\nAll the included carbon pools are accounted for in the baseline and project scenarios as well as in the\naccounting of activity shifting leakage. Given the fact that harvested wood products are identified as de\nminimis, market effects leakage due to decreased timber harvest was also excluded from the analysis.\nLeaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative\nesti",
+          "page": 88,
+          "sectionHeading": "3.1.3.3 Carbon pools",
+          "spanId": "full-pdd:page-88:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Table 12. Source of GHG emissions included in the MFC REDD project\nSource Gas Included? Justification / Explanation\nBaseline\nBurning of woody\nbiomass\nCO2 Yes Carbon stock decreases due to burning are\naccounted for as a carbon stock change.\nCH4 Yes After timber species are removed from the land,\nthe remaining biomass is burned, so CH4 and N2O\nemissions from this activity are calculated.\nExpected biomass burning as part of post-\ndeforestation agricultural production is\nconservatively excluded.\nN2O Yes\nCombustion of\nfossil fuels\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nUse of fertilizers\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nProject\n\nBurning of woody\nbiomass\nCO2 Yes In the event that wildfires impact the project area,\ncarbon stock decreases will be accounted as a\ncarbon stock change.\nCH4 Yes\nN2O Yes",
+          "page": 88,
+          "sectionHeading": "3.1.3.4 Sources of GHG Emissions",
+          "spanId": "full-pdd:page-88:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD (page 88) states HWP and belowground palm biomass are excluded as de minimis following VM0007's Appendix 1, referencing Appendix 21 for HWP calculations and Appendix 22 for significance testing details. The official VM0007 v1.8 methodology (Section 5.3.2) confirms: 'Harvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario' and 'Where the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored.' The PDD's de minimis treatment via Appendix 1 is procedurally consistent with the methodology, but Appendices 21 and 22 are absent from the frozen source set, preventing independent verification of the significance test results.",
+      "gap": "Appendices 21 and 22 (HWP significance testing and calculations) are referenced in the PDD but absent from the frozen source set.",
+      "clientAction": "Provide Appendices 21 and 22 to verify the HWP significance test results and confirm the de minimis determination was correctly applied.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "HWP de minimis treatment is described and procedurally consistent with the methodology, but the supporting significance test results (Appendices 21/22) are absent, preventing independent verification.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "machineRowSha256": "b00338bf5bf112bfa651e04fd57cf6b07a602f5b4ccbe70c840e943ddfddb9fb",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "VT0001 AFOLU activities the same or similar\nto the proposed project activity on\nthe land within the proposed project\nboundary performed with or without\nbeing registered as the VCS AFOLU\nproject shall not lead to violation of\nany applicable law even if the law is\nnot enforced;\nThe AFOLU activities of this project are not\nin violation of any law. There is a legal\nagreement in place with the government\nto carry out the project activities.\nVT0001 The use of this tool to determine\nadditionality requires the baseline\nmethodology to provide for a\nstepwise approach justifying the\ndetermination of the most plausible\nbaseline scenario. Project\nproponent(s) proposing new baseline\nmethodologies shall ensure\nconsistency between the\ndetermination of a baseline scenario\nand the determination of\nadditionality of a project activity.\nThe project\u2019s methodology follows the\nstepwise approach to determine the most\nplausible baseline scenario.\n3.1.3 Project Boundary (VCS, 3.12)\n3.1.3.1 Geographic boundaries\nThe geographic boundaries, including the geodetic",
+          "page": 86,
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1)",
+          "spanId": "full-pdd:page-86:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "There are three credible alternative land use scenarios:\nA. Clearing of Forest and Conversion to Agriculture\nThe clearing of the forest and conversion to commercial agriculture is the most probable land use\nunder the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can\nbe found in section 3.1.4.\nB. Continuation of Pre-Project Land Use\nIn the pre-project land-use scenario, the project area was maintained as forest and selectively logged\nover time. The previous owners could not economically support maintenance of pre-project land use of\nmaintaining forest cover including paying property taxes, especially given that most of the high value\ntimber in the site had been already extracted. This is why they were selling the property where the\nproject area is located.\nC. Project activity on the land within the Project boundary performed without being registered as the\nVCS AFOLU project\nIn this scenario, the land would have still been purchased and managed for conservation purposes.\nIncome from the project area would be zero where in the project scenario, income from carbon revenue\nwould help cover the project costs. Therefore, conducting the Project activity without registration as a\nVCS AFOLU Project is unsustainable.\nSub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
+          "page": 91,
+          "sectionHeading": "3.1.5.2.1 Step 1: Identification of alternative land use scenarios to the proposed AFOLU Project activity.",
+          "spanId": "full-pdd:page-91:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Because the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officiall",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.2 Step 2. Investment Analysis",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD documents VT0001 applicability (page 86: legal compliance confirmed), Step 1 (page 91: three alternative land use scenarios identified and evaluated), and Step 2 (page 92: investment analysis with Option I simple cost analysis). The official VM0007 methodology (Section 7.1) confirms VT0001 is mandatory for non-tidal-wetland project activities. However, Step 3 (Barrier Analysis) of VT0001 is not present in the frozen candidate evidence. The question of whether VT0001 requires Step 3 when the investment analysis path (Option I) is selected cannot be resolved from the available evidence \u2014 the full VT0001 decision tree text is not in the frozen packet, and the PDD does not document a barrier screening step. The PDD shows the stepwise approach was applied to Steps 1-2 and Step 4, but the barrier analysis component (Step 3) is absent.",
+      "gap": "Step 3 (Barrier Analysis) of VT0001 is not documented in the frozen PDD evidence. Step 4 (Common Practice Analysis) is also absent from R-3-0001's evidence array (it appears under R-3-0004 instead). The complete VT0001 decision tree is not in the frozen packet to determine whether Step 3 is mandatory when Option I is selected.",
+      "clientAction": "Provide Step 3 (Barrier Analysis) of VT0001 or confirm under the VT0001 methodology whether the investment analysis path bypasses Step 3.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "VT0001 applicability, Step 1, and Step 2 are documented, but Step 3 (Barrier Analysis) is absent. The full VT0001 decision tree is not in the frozen packet to determine whether Step 3 is mandatory when the investment analysis path (Option I) is selected.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "machineRowSha256": "0d320b90c174f31a375c4856b6476cafbddc49ea51db02e48bbd3c3ad25d88ec",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
+          "page": 91,
+          "sectionHeading": "3.1.5.2.1 Step 1: Identification of alternative land use scenarios to the proposed AFOLU Project activity.",
+          "spanId": "full-pdd:page-91:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Sub-step 2a. Determine appropriate analysis method\nBecause the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nT",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.2 Step 2. Investment Analysis",
+          "spanId": "full-pdd:page-92:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The original\ndata provided by LIC can be found in Appendix XYZ.\nThe original data includes information on current\nand previous proprietors and lessees of the\nparcels.",
+          "page": 278,
+          "sectionHeading": "Appendix 4: Commercially Sensitive Information",
+          "spanId": "full-pdd:page-278:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD evidence includes Sub-step 1b (consistency of land use scenarios with enforced laws \u2014 all alternatives legal under Belizean law), Sub-step 2a (determine appropriate analysis method \u2014 simple cost analysis selected because the project generates no financial benefits other than VCS income), and a reference to Appendix XYZ for LIC data. However, the VT0001 barrier analysis decision tree itself is not present in the evidence. The rule requires two-step ordering: barrier analysis first, then investment analysis or qualitative GHG estimation as fallback. The PDD shows the investment analysis path was selected (Option I), but does not document the barrier screening step that should precede it under the VT0001 decision tree. The LIC data reference (Appendix XYZ) relates to deforestation parcel data, not to the barrier/decision-tree analysis. The VT0001 decision-tree text referenced in the official methodology passages cannot resolve whether barrier analysis is required before selecting Option I.",
+      "gap": "The VT0001 barrier analysis decision tree is not documented in the frozen PDD evidence. The PDD selects the investment analysis path but does not show the barrier screening step that should precede it.",
+      "clientAction": "Provide the VT0001 decision tree analysis showing whether alternatives were screened for barriers before selecting the investment analysis path (Option I).",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "Sub-steps of the additionality analysis are documented, but the VT0001 barrier analysis decision tree (required for the two-step ordering) is not present, and the full VT0001 text in the frozen packet cannot resolve whether barrier analysis is mandatory before Option I.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+      "machineRowSha256": "a7361c35261093f78a26b645ec9bf0d76c191ff190950aaa00b309ef68be3d48",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "Because the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanc",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.2 Step 2. Investment Analysis",
+          "spanId": "full-pdd:page-92:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Similar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
+          "spanId": "full-pdd:page-92:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": "NIR_CANDIDATE",
+      "assessmentReason": "The PDD documents Step 2 investment analysis (page 92: simple cost analysis selected because the project generates no financial or economic benefits other than VCS-related income, Option I selected) and Step 4 common practice analysis (page 92: comparison with private protected areas in the MFC \u2014 Runaway Creek Nature Reserve, Monkey Bay Wildlife Sanctuary, Tropical Education Center, Belize Zoo). The Option I selection rationale is provided (no financial benefits beyond VCS income). However, the Option I/II/III selection criteria from VT0001 are not explicitly documented as a standalone decision step. The PDD states 'the simple cost analysis (Option 1) is selected' but does not document the methodology-required criteria for choosing Option I over Options II or III. The common practice analysis is documented and provides context for the baseline selection, but the explicit Option I/II/III decision-tree criteria are not fully addressed. This is a final conclusion based on the available PDD evidence \u2014 the insufficiency is documented in the PDD itself, not dependent on absent external sources.",
+      "gap": "The VT0001 Option I/II/III selection criteria are not explicitly documented as a standalone decision step. The PDD states Option I was selected but does not document the methodology-required justification for choosing that option over Options II or III.",
+      "clientAction": "Provide the VT0001 Option I/II/III selection criteria documentation showing why Option I was selected over Options II and III.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": null,
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "machineRowSha256": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "UNKNOWN",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.\n2.1.2 Audit History (VCS, 4.1)\nProject not yet been validated.\n2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
+          "page": 14,
+          "sectionHeading": "2.1.1 Project Goals, Design and Long-Term Viability",
+          "spanId": "full-pdd:page-14:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "The project\u2019s methodology follows the\nstepwise approach to determine the most\nplausible baseline scenario.\n3.1.3 Project Boundary (VCS, 3.12)\n3.1.3.1 Geographic boundaries\nThe geographic boundaries, including the geodetic coordinators, of the MFC REDD project area where\nthe GHG emission reductions are taking place are described in Section 2.1.16. The shapefiles are\navailable to Verra and the VVB, and the kml file of the project boundaries was uploaded to the Verra\nregistry.\nFigure 10 presents the forest cover bench",
+          "page": 86,
+          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1)",
+          "spanId": "full-pdd:page-86:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Similar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these o",
+          "page": 92,
+          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD states (page 14): 'The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.' The methodology reference (page 86) states the project's baseline follows the stepwise approach. The common practice analysis (page 92) compares with private protected areas. The official VM0007 methodology does not explicitly address JNR jurisdictional data applicability for standalone REDD projects. A single statement that the project is not in a JNR-covered jurisdiction is insufficient to definitively determine whether JNR-based baseline data is applicable, not applicable, or should have been considered. The methodology's JNR applicability conditions need explicit review that cannot be resolved from the available evidence.",
+      "gap": "The frozen packet does not contain evidence showing whether VCS JNR Requirements were evaluated or whether jurisdictional baseline data was considered. The methodology's JNR applicability conditions are not fully present in the frozen source set.",
+      "clientAction": "Provide methodology text on JNR applicability conditions and evaluate whether jurisdictional baseline data is required, optional, or excluded for this project.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "The project states it is not in a JNR-covered jurisdiction, but this single statement is insufficient to determine JNR baseline data applicability. The methodology's JNR applicability conditions are not fully present in the frozen packet to resolve this interpretation.",
+      "genericFailureCategory": "APPLICABILITY",
+      "reviewerConfidence": "LOW"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "machineRowSha256": "d71df8eb1bc5acc9dad82d3db7e9808117ca56678d2700769ed61b221bd1c8a8",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "UNCLEAR",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "ACTION_REQUIRED",
+      "acceptedEvidence": [
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n86\nCCB v3.0, VCS v4.4\nReference ID/Title Applicability condition Justification of conformance\nVMD0015 The module is mandatory for REDD,\nCIW-REDD, RWE-REDD and stand-\nalone CIW project activities.\nProject is a REDD based project thus the\nmodule is mandatory.\nVMD0017 This module is mandatory for using\nREDD-MF\nProject is a REDD based project thus the\nmodule is mandatory.\nVT0001 AFOLU activities the same or similar\nto the proposed project activity on\nthe land within the proposed project\nboundary performed with or without\nbeing registered as the VCS AFOLU\nproject shall not lead to violation of\nany applicable law even if the law is\nnot enforced;\nThe AFOLU activities of this project are not\nin violation of any law. There is a legal\nagreement in place with the government\nto carry out the project activities.\nVT0001 The use of this tool to determine\nadditionality requires the baseline\nmethodology to provide for a\nstepwise approach justifying the\ndetermination of the most plausible\nbaseline scenario. Project\nproponent(s) proposing new baseline\nmethodologies shall ensure\nconsistency between the\ndetermination of a baseline scenario\nand the determination of\nadditionality of a project activity.\nThe project\u2019s methodology follows the\nstepwise approach to determine the most\nplausible baseline scenario.\n3.1.3 Project Boundary (VCS, 3.12)\n3.1.3.1 Geographic boundaries\nThe geographic boundaries, including the geodetic coordinators, of the MFC REDD project area where\nthe GHG emission reductions are taking place are described in Section 2.1.16. The shapefiles are\navailable to Verra and the VVB, and the kml file of the project boundaries was uploaded to the Verra\nregistry.\nFigure 10 presents the forest cover benchmark map for the project area. The process to create the\nbenchmark land use/land cover of the project area and conduct an accuracy assessment of this map is",
+          "page": 86,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 86",
+          "spanId": "full-pdd:page-86:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n91\nCCB v3.0, VCS v4.4\nIf the project is located inside a Non-Annex 1 country and the project activities are mandated by\na law, statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks\nsystematically enforced?\nNot applicable since the project activities are not mandated by any laws, statutes, or\nother regulatory frameworks.\n3.1.5.2 Additionality Methods (VCS, 3.14)\nThe following analysis was conducted to determine alternative baseline scenarios according to the\nprocedure presented in \u201cVT0001 Tool for the Demonstration and Assessment of Additionality in VCS\nAgriculture, Forestry and Other Land Use (AFOLU) Project Activities (Version 3.0).\u201d\n3.1.5.2.1 Step 1: Identification of alternative land use scenarios to the proposed AFOLU\nProject activity.\nSub-step 1a. Identify credible alternative land use scenarios to the proposed VCS AFOLU project activity.\nThere are three credible alternative land use scenarios:\nA. Clearing of Forest and Conversion to Agriculture\nThe clearing of the forest and conversion to commercial agriculture is the most probable land use\nunder the baseline scenario. Evidence of the credibility and likelihood of this alternative land use can\nbe found in section 3.1.4.\nB. Continuation of Pre-Project Land Use\nIn the pre-project land-use scenario, the project area was maintained as forest and selectively logged\nover time. The previous owners could not economically support maintenance of pre-project land use of\nmaintaining forest cover including paying property taxes, especially given that most of the high value\ntimber in the site had been already extracted. This is why they were selling the property where the\nproject area is located.\nC. Project activity on the land within the Project boundary performed without being registered as the\nVCS AFOLU project\nIn this scenario, the land would have still been purchased and managed for conservation purposes.\nIncome from the project area would be zero where in the project scenario, income from carbon revenue\nwould help cover the project costs. Therefore, conducting the Project activity without registration as a\nVCS AFOLU Project is unsustainable.\nSub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
+          "page": 91,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 91",
+          "spanId": "full-pdd:page-91:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n92\nCCB v3.0, VCS v4.4\n\u201cAlternative A\u201d, The subdivision of forests and conversion to agriculture on private lands is legal under\nBelizean law. Table 4 in section 2.2.1 documents the different laws that permit the clearing of forests\nfor other land uses.\n\u201cAlternative B\u201d, This requires no change in ownership and no change in previous land management\nthus these alternatives would be legal under Belizean Law.\n\u201cAlternatives C\u201d, As is the case in the project scenario, the purchase and management of the property\nfor conservation is legal. Registration as a VCS AFOLU project does not change the legality of the\nactivities conducted.\nSub-step 1c. Selection of the baseline scenario\nAlternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario.\nWhile all the alternatives are legal under Belizean law, Alternatives B and C were not financially viable\noptions for the reasons presented in sub-step 1a. Furthermore, the previous owner of the property\nconfirmed that it had received multiple offers to purchase the property from buyers interested in\nconverting the property to industrial agricultural production.\n3.1.5.2.2 Step 2. Investment Analysis\nSub-step 2a. Determine appropriate analysis method\nBecause the Project generates no financial or economic benefits other than VCS related income, the\nsimple cost analysis (Option 1) is selected.\nSub-step 2b. Option 1. Apply simple cost analysis.\nCosts have been documented for the MFC REDD project. The project does not expect financial benefits\nother than VCU-related income. Please refer to Appendix 17 documenting project costs.\n3.1.5.2.3 Step 4. Common Practice Analysis\nSimilar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these other lands managed as private protected\nareas, is that other areas can support the annual costs of management through outside means such as",
+          "page": 92,
+          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 92",
+          "spanId": "full-pdd:page-92:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD documents VT0001 applicability (page 86: VMD0015 and VMD0017 mandatory confirmation, VT0001 legal compliance), Step 1 (page 91: three alternative land use scenarios with consistency check), and Steps 2/4 (page 92: investment analysis with Option I and common practice analysis). The official VM0007 methodology (Section 7.1) confirms VT0001 is mandatory. However, Step 3 (Barrier Analysis) of VT0001 is not present in the frozen evidence. The explicit missing sources declaration states: 'No separate VT0001 Step 3 worksheet is in the frozen source set; the official VM0007 conditional Step 3 text is included.' The official methodology text on page 28 says 'VT0001 Tool for the Demonstration and Assessment of Additionality in VCS AFOLU Project Activities must be used' but does not explicitly state whether Step 3 is mandatory when the investment analysis path is selected. This methodology interpretation cannot be resolved from the available evidence.",
+      "gap": "Step 3 (Barrier Analysis) of VT0001 is absent from the frozen PDD evidence. The VT0001 text in the frozen packet is insufficient to determine whether Step 3 is mandatory when Option I is selected.",
+      "clientAction": "Provide Step 3 (Barrier Analysis) of VT0001 or confirm under the VT0001 methodology whether the investment analysis path bypasses Step 3.",
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": "VT0001 Steps 1, 2, and 4 are documented, but Step 3 (Barrier Analysis) is absent. The official methodology confirms VT0001 is mandatory but does not resolve whether Step 3 is required when Option I is selected. The full VT0001 decision tree is not in the frozen packet.",
+      "genericFailureCategory": "COMPONENT_COVERAGE",
+      "reviewerConfidence": "MEDIUM"
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "machineRowSha256": "804cad0063297d5f5346a2b318d76e90b2d77a141f44572b93b7d24ae05d5376",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "APPLICABLE",
+      "reviewerOutcome": "CONFORMS",
+      "acceptedEvidence": [
+        {
+          "quote": "market effects leakage due to decreased timber harvest was excluded from the analysis.\n3.2.3.1 STEP 1: Identify commodity produced by baseline class of agent\nThe most likely commodity for the class of deforestation agent is Sugarcane (Saccharum officinarum).\nGiven the proximity to the Santander sugar mill, many nearby properties have been converted to\nsugarcane production. The active farm immediately to the northeast of the project area is used almost\nexclusively for sugarcane production. Further, as indicated in Appendix 11, the previous owner of the\nMFC REDD project area had actually signed a 5-year agreement in 2016 with a sugar company to\nsupply them with sugarcane annually. Prior to the agreement expiring in 2021, Santander had\nconfirmed they still needed more acres of sugarcane. Sugarcane is Belize\u2019s chief agricultural export\naccounting for an estimated 6% of currency income and 7.8% of GDP (Tun et al., 2023).\n3.2.3.2 STEP 2: Assess Proportion of Available Areas that are Forested\nSugarcane is grown in tropical and subtropical re",
+          "page": 116,
+          "sectionHeading": "3.2.3.1 STEP 1: Identify commodity produced by baseline class of agent",
+          "spanId": "full-pdd:page-116:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Activity-shifting leakage is estimated using the following equation modified from Equation 9 of LK-ASP:\n\u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 = \u2211 \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2217 \ud835\udc43\ud835\udc39\ud835\udc50 \u2217 \ud835\udc3f\ud835\udc3e\ud835\udc36\ud835\udc43\u2212\ud835\udc40\ud835\udc38 \u2217 \ud835\udc3f\ud835\udc3e\ud835\udc40\ud835\udc34\ud835\udc39\n\ud835\udc61\u2217\n\ud835\udc61=1\nWhere:\n\u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 = Net CO2 emissions due to activity shifting leakage for projects preventing planned\ndeforestation, t CO2e\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 = Net CO2 emissions in the baseline from planned deforestation in the project area, t\nCO2e\n\ud835\udc43\ud835\udc39\ud835\udc50 = Proportion of available area for production of commodity that is currently forested,\nunitless\n\ud835\udc3f\ud835\udc3e\ud835\udc43\u2212\ud835\udc40\ud835\udc38 = Leakage factor for displacement of class of planned deforestation agents, unitless\n\ud835\udc3f\ud835\udc3e\ud835\udc40\ud835\udc34\ud835\udc39 = Leakage management adjustment factor, unitless\nt = 1, 2, 3, \u2026 t* years elapsed since the start of the project activity\nAs demonstrated above, the percentage of available areas for production of sugarcane that is currently\nforested and not under protection (PFc) was 32%. The leakage factor for displacement of class of\nplanned deforestation agents (LKCP-ME) was 0.4, and the leakage management adjustment factor\n(LKMAF) was 1.\n3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15,\n4.1)\nThe estimated net GHG emission reductions are based on carbon stock changes and GHG emissions\nestimated in the baseline scenario minus net GHG emissions in the project scenario minus emissions\ndue to leakage as shown in the following equation:\n\ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61 = \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f\u2212\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37,\ud835\udc61 \u2212 \u2206\ud835\udc36\ud835",
+          "page": 123,
+          "sectionHeading": "3.2.3.4 STEP 5: Estimate Leakage",
+          "spanId": "full-pdd:page-123:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "Activity-shifting leakage is estimated using the following equation\nmodified from Equation 9 of LK-ASP:\n\u2206\ud835\udc36\ud835\udc3f\ud835\udc3e\u2212\ud835\udc34\ud835\udc46,\ud835\udc5d\ud835\udc59\ud835\udc4e\ud835\udc5b\ud835\udc5b\ud835\udc52\ud835\udc51 = \u2211 \u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 \u2217 \ud835\udc43\ud835\udc39\ud835\udc50 \u2217 \ud835\udc3f\ud835\udc3e\ud835\udc36\ud835\udc43\u2212\ud835\udc40\ud835\udc38 \u2217 \ud835\udc3f\ud835\udc3e\ud835\udc40\ud835\udc34\ud835\udc39\n\ud835\udc61\u2217\n\ud835\udc61=1\nWhere:\n\u2206\ud835\udc36\ud835\udc35\ud835\udc46\ud835\udc3f,\ud835\udc45\ud835\udc38\ud835\udc37\ud835\udc37 = Net GHG emissions in the REDD baseline\nscenario in year t, t CO2e\n\ud835\udc43\ud835\udc39\ud835\udc50 = Proportion of available area for production of\ncommodity that is currently forested, unitless\n\ud835\udc3f\ud835\udc3e\ud835\udc43\u2212\ud835\udc40\ud835\udc38 = Leakage factor for displacement of class of\nplanned deforestation agents, unitless\n\ud835\udc3f\ud835\udc3e\ud835\udc40\ud835\udc34\ud835\udc39 = Leakage management adjustment factor,\nunitless\nt = 1, 2, 3, \u2026 t* years elapsed since the start of\nthe project activity\nComments -\nData / parameter \ud835\udc41\ud835\udc38\ud835\udc45\ud835\udc61\nData unit t CO2e\nDescription Net GHG emission reductions of avoiding planned deforestation\nin year t\nSource of data -\nDescription of\nmeasurement methods\nand procedures to be\napplied\n-\nFrequency of\nmonitoring/recording\nMonitoring will occur at least every 5 years prior to each\nverification event.\nValue applied Determined at monitoring event\nMonitoring equipment -",
+          "page": 170,
+          "sectionHeading": "Calculation method",
+          "spanId": "full-pdd:page-170:3",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        }
+      ],
+      "rejectedEvidence": [],
+      "contradictionState": "NONE",
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD documents: (1) market effects leakage analysis (page 116: HWP excluded as de minimis, market effects leakage due to decreased timber harvest excluded accordingly), (2) activity-shifting leakage estimation using Equation 9 of LK-ASP (page 123: quantified parameters PFc=32%, LKCP-ME=0.4, LKMAF=1), and (3) the activity-shifting leakage calculation method (page 170). The official VM0007 v1.8 methodology (Section 8.3, page 30) states 'For WRC project activities: Module LK-ECO' \u2014 LK-ECO is explicitly limited to WRC project activities only. The methodology leakage equation (Equation 4 on page 32) for REDD shows: 'DCLK-REDD = DCLK-AS,planned + DCLK-AS,unplanned + DCLK-ME' \u2014 no LK-ECO component. Since this project is REDD/APDef (not WRC) as established by the project classification evidence (AFOLU category 13 REDD, planned deforestation), LK-ECO (ecological leakage) is not applicable. Activity-shifting leakage (LK-ASP) and market-effects leakage (LK-ME) are both documented in the PDD evidence.",
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "provisionalReason": null,
+      "genericFailureCategory": "NONE",
+      "reviewerConfidence": "HIGH"
+    }
+  ]
+}
