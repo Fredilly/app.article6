@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
-import { buildArtifacts, ids, packetDir, validateCompletedResponse, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
+import { buildArtifacts, frozenPacketSha256, ids, packetDir, validateCompletedResponse, validateFrozenPacketIntegrity, writeArtifacts } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
 
 const root = process.cwd();
 const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).digest("hex");
@@ -49,6 +49,11 @@ function assertCompletedResponseRejected(mutator: (response: any, packet: any) =
   assert.throws(() => validateCompletedResponse(response, packet));
 }
 
+function assertPacketRejected(mutator: (packet: any) => void): void {
+  const { packet } = buildArtifacts(); const mutatedPacket = clone(packet); mutator(mutatedPacket);
+  assert.throws(() => validateFrozenPacketIntegrity(mutatedPacket));
+}
+
 describe("RC5-2 Maya targeted full-PDD batch 2", () => {
   it("contains exactly the nine requested rules, with no R-2-0008", () => {
     const { packet } = buildArtifacts();
@@ -90,6 +95,8 @@ describe("RC5-2 Maya targeted full-PDD batch 2", () => {
 
   it("validates a fully populated synthetic response against the exact frozen packet", () => {
     const { packet, schema, template } = buildArtifacts();
+    assert.equal(validateFrozenPacketIntegrity(packet), true);
+    assert.equal(sha256(fs.readFileSync(path.join(packetDir, "review-packet.json"))), frozenPacketSha256);
     const validate = new Ajv2020({ strict: false }).compile(schema);
     const response = validCompletedResponse(packet);
     assert.equal(validate(response), true, JSON.stringify(validate.errors));
@@ -97,6 +104,29 @@ describe("RC5-2 Maya targeted full-PDD batch 2", () => {
     response.decisions.reverse();
     assert.equal(validateCompletedResponse(response, packet), true);
     assert.throws(() => validateCompletedResponse(template, packet), /pending decision/);
+  });
+
+  it("rejects every frozen-packet mutation before response validation", () => {
+    const mutations: Array<(packet: any) => void> = [
+      (packet) => { packet.selectedRuleIds[0] = "mutated-rule"; },
+      (packet) => { packet.rules[1].stableRuleId = packet.rules[0].stableRuleId; },
+      (packet) => { packet.rules.pop(); },
+      (packet) => { packet.rules.push(clone(packet.rules[0])); },
+      (packet) => { packet.sourceDocument.contentSha256 = "f".repeat(64); },
+      (packet) => { packet.frozenMachineProposal.sha256 = "f".repeat(64); },
+      (packet) => { packet.canonicalRawExtraction.sha256 = "f".repeat(64); },
+      (packet) => { packet.frozenPddPdf.sha256 = "f".repeat(64); },
+      (packet) => { packet.rules[0].frozenMachineRowSha256 = "0".repeat(64); },
+      (packet) => { packet.rules[0].frozenMachineRow.rowId = "mutated-row"; },
+      (packet) => { packet.rules[0].candidateEvidence[0].quote += " mutated"; },
+      (packet) => { packet.rules[0].candidateEvidence[0].page += 1; },
+      (packet) => { packet.rules[0].candidateEvidence[0].heading += " mutated"; },
+      (packet) => { packet.rules[0].candidateEvidence[0].spanId += " mutated"; },
+      (packet) => { packet.rules[0].candidateEvidence[0].documentId = "mutated-document"; },
+      (packet) => { packet.rules[0].candidateEvidence[0].documentSha256 = "f".repeat(64); },
+      (packet) => { packet.rules.reverse(); },
+    ];
+    for (const mutation of mutations) assertPacketRejected(mutation);
   });
 
   it("fails closed for duplicate, missing, and extra rule IDs", () => {

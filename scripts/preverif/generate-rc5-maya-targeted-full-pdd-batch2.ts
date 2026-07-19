@@ -14,6 +14,7 @@ export const ids = [
   "Verra.AFOLU.VM0007.v1-8.R-2-0005", "Verra.AFOLU.VM0007.v1-8.R-2-0006", "Verra.AFOLU.VM0007.v1-8.R-2-0007",
   "Verra.AFOLU.VM0007.v1-8.R-2-0013", "Verra.AFOLU.VM0007.v1-8.R-2-0014", "Verra.AFOLU.VM0007.v1-8.R-4-0001",
 ] as const;
+export const frozenPacketSha256 = "0d7cab0a1f4fe02026395e146ea8fcec6bb99a5679306b3c146f25435824c1a3";
 const schemaVersion = "rc5-2-maya-targeted-full-pdd-batch-2-response-v1";
 const sourceCommitSha = "3b175d8f8ea914549424849ee3e4635efbba724e";
 const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)];
@@ -122,8 +123,54 @@ function requireExactRuleSet(actual: string[], expected: string[], label: string
   if (actualSet.size !== expectedSet.size || actual.some((id) => !expectedSet.has(id))) throw new Error(`${label}: rule-ID set mismatch`);
 }
 
+function assertPinnedFile(relativePath: string, expectedSha256: string, label: string): void {
+  const actualSha256 = sha256(fs.readFileSync(path.join(root, relativePath)));
+  if (actualSha256 !== expectedSha256) throw new Error(`frozen packet: ${label} file SHA mismatch`);
+}
+
+function assertSameJson(actual: unknown, expected: unknown, label: string): void {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`frozen packet: ${label} mismatch`);
+}
+
+/** Validate the supplied packet against the committed, byte-pinned packet and source artifacts. */
+export function validateFrozenPacketIntegrity(packet: any): true {
+  if (!packet || typeof packet !== "object") throw new Error("frozen packet: packet must be an object");
+  const frozenPacketPath = path.join(packetDir, "review-packet.json");
+  const frozenPacketBytes = fs.readFileSync(frozenPacketPath);
+  if (sha256(frozenPacketBytes) !== frozenPacketSha256) throw new Error("frozen packet: committed packet SHA mismatch");
+  const frozenPacket = JSON.parse(frozenPacketBytes.toString("utf8"));
+  const canonicalPacketBytes = Buffer.from(`${JSON.stringify(packet, null, 2)}\n`);
+  if (sha256(canonicalPacketBytes) !== frozenPacketSha256) throw new Error("frozen packet: supplied packet content mismatch");
+  assertSameJson(packet, frozenPacket, "packet content");
+
+  assertSameJson(packet.selectedRuleIds, ids, "selectedRuleIds");
+  if (!Array.isArray(packet.rules)) throw new Error("frozen packet: rules must be an array");
+  requireExactRuleSet(packet.rules.map((rule: any) => rule?.stableRuleId), [...ids], "frozen packet");
+  assertSameJson(packet.sourceDocument, document, "source document identity");
+  assertSameJson(packet.frozenMachineProposal, { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json", sha256: "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b", proposalState: "MACHINE_PROPOSED" }, "machine proposal reference");
+  assertSameJson(packet.frozenPddPdf, { path: "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf", sha256: document.contentSha256 }, "PDD reference");
+  assertSameJson(packet.canonicalRawExtraction, { path: "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json", sha256: "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8", pageCount: 278, extractionEngine: "pdf-parse" }, "canonical extraction reference");
+  assertPinnedFile(packet.frozenMachineProposal.path, packet.frozenMachineProposal.sha256, "machine proposal");
+  assertPinnedFile(packet.frozenPddPdf.path, packet.frozenPddPdf.sha256, "PDD");
+  assertPinnedFile(packet.canonicalRawExtraction.path, packet.canonicalRawExtraction.sha256, "canonical extraction");
+
+  const proposal = read<{ rows: Array<Record<string, any>> }>(proposalPath);
+  const proposalRows = new Map(proposal.rows.map((row) => [row.stableRuleId, row]));
+  for (const rule of packet.rules) {
+    const proposalRow = proposalRows.get(rule.stableRuleId);
+    if (!proposalRow) throw new Error(`frozen packet: missing machine proposal row ${rule.stableRuleId}`);
+    if (sha256(JSON.stringify(rule.frozenMachineRow)) !== rule.frozenMachineRowSha256) throw new Error(`frozen packet: machine row hash mismatch for ${rule.stableRuleId}`);
+    assertSameJson(rule.frozenMachineRow, proposalRow, `machine proposal row ${rule.stableRuleId}`);
+    const frozenRule = frozenPacket.rules.find((candidate: any) => candidate.stableRuleId === rule.stableRuleId);
+    if (!frozenRule) throw new Error(`frozen packet: missing frozen rule ${rule.stableRuleId}`);
+    assertSameJson(rule.candidateEvidence, frozenRule.candidateEvidence, `candidate evidence ${rule.stableRuleId}`);
+  }
+  return true;
+}
+
 /** Validate a completed independent response against this batch's exact frozen packet. */
 export function validateCompletedResponse(response: CompletedResponse, packet: any): true {
+  validateFrozenPacketIntegrity(packet);
   if (!response || !Array.isArray(response.decisions)) throw new Error("completed response: decisions must be an array");
   const expectedRuleIds = packet.selectedRuleIds;
   if (!Array.isArray(expectedRuleIds) || expectedRuleIds.length !== ids.length) throw new Error("completed response: packet rule set is not the frozen nine-rule set");
