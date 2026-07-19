@@ -7,6 +7,7 @@ import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { ids, validateCompletedResponse, validateFrozenPacketIntegrity } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2";
 import { buildIntegratedTruth, finalizedRuleIds, packetPath, responsePath, schemaPath, truthFiles, validateStoredResponse } from "../../../scripts/preverif/generate-rc5-maya-targeted-full-pdd-batch2-integration";
+import { assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
@@ -31,8 +32,8 @@ describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
     assert.equal(allRows.length, 58);
     assert.equal(new Set(allRows.map((row: any) => row.stableRuleId)).size, 58);
     for (const targetId of ids) assert.equal(allRows.filter((row: any) => row.stableRuleId === targetId).length, 1, `${targetId} occurrence count`);
-    assert.equal(allRows.filter((row: any) => row.reviewStatus === "REVIEWED").length, 43);
-    assert.equal(allRows.filter((row: any) => row.reviewStatus === "PROVISIONAL").length, 15);
+    assert.equal(allRows.filter((row: any) => row.reviewStatus === "REVIEWED").length, 45);
+    assert.equal(allRows.filter((row: any) => row.reviewStatus === "PROVISIONAL").length, 13);
     for (const row of allRows.filter((candidate: any) => targetIds.has(candidate.stableRuleId))) {
       const expert = response.decisions.find((candidate: any) => candidate.stableRuleId === row.stableRuleId);
       assert.ok(expert);
@@ -54,7 +55,10 @@ describe("RC5-2 Maya targeted full-PDD batch 2 integration", () => {
       const currentRows = new Map(current.decisions.map((row: any) => [row.stableRuleId, row]));
       const baseRows = new Map(base.decisions.map((row: any) => [row.stableRuleId, row]));
       assert.deepEqual([...currentRows.keys()].sort(), [...baseRows.keys()].sort(), `${file}: rule-ID set changed`);
-      for (const [stableRuleId, baseRow] of baseRows) if (!targetIds.has(stableRuleId)) assert.deepEqual(currentRows.get(stableRuleId), baseRow, `${file}:${stableRuleId}`);
+      for (const [stableRuleId, baseRow] of baseRows) {
+        if (batch3RuleIds.has(stableRuleId)) assertBatch3IntegratedRow(currentRows.get(stableRuleId), stableRuleId);
+        else if (!targetIds.has(stableRuleId)) assert.deepEqual(currentRows.get(stableRuleId), baseRow, `${file}:${stableRuleId}`);
+      }
     }
     assert.deepEqual([...integrated.keys()].sort(), [...allTruthFiles].sort());
   });

@@ -4,6 +4,9 @@ import {
   authorizedTargetedPacketPath,
   authorizedTargetedPacketSha256,
   authorizedTargetedRuleIds,
+  authorizedIndependentBatch3PacketPath,
+  authorizedIndependentBatch3PacketSha256,
+  authorizedIndependentBatch3RuleIds,
   loadAuthorizedBlockerResolutionContexts,
   validateAuditDecisionInvariants,
   type AuditInvariantFailureCode,
@@ -58,12 +61,13 @@ function failureCodes(fixture: Fixture): AuditInvariantFailureCode[] {
 }
 
 describe("RC5 retrospective audit mutation coverage", () => {
-  it("accepts the current 43/15 truth through both authorized frozen packet sources", () => {
+  it("accepts the current 45/13 truth through all authorized frozen packet sources", () => {
     const report = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/retrospective-audit-report.json"), "utf8"));
     expect(report.mechanicalResult).toBe(true);
     expect(report.authorizedFrozenEvidenceSources).toEqual([
       { path: authorizedBlockerResolutionPacketPath, sha256: authorizedBlockerResolutionPacketSha256, ruleIds: ["Verra.AFOLU.VM0007.v1-8.R-1-0012", "Verra.AFOLU.VM0007.v1-8.R-1-0013"] },
       { path: authorizedTargetedPacketPath, sha256: authorizedTargetedPacketSha256, ruleIds: [...authorizedTargetedRuleIds].sort() },
+      { path: authorizedIndependentBatch3PacketPath, sha256: authorizedIndependentBatch3PacketSha256, ruleIds: [...authorizedIndependentBatch3RuleIds].sort() },
     ]);
     const truth = JSON.parse(fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json"), "utf8"));
     const contexts = loadAuthorizedBlockerResolutionContexts();
@@ -84,10 +88,10 @@ describe("RC5 retrospective audit mutation coverage", () => {
       expect(validateAuditDecisionInvariants(mutated, contexts).provenanceResult).toBe("FAIL");
     }
     expect(() => loadAuthorizedBlockerResolutionContexts(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json"))).toThrow(/SHA changed/);
-    const files = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
-    const rows = files.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
-    expect(rows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(43);
-    expect(rows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(15);
+    const allTruthFiles = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
+    const allRows = allTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(45);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(13);
   });
 
   it("passes a valid reviewed decision through all six invariant checks", () => {

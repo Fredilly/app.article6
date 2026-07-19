@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
+import { assertBatch3EvidenceProvenance, assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const batchDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication");
@@ -129,7 +130,12 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
         });
       };
 
-      if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId)) {
+      if (batch3RuleIds.has(decision.stableRuleId)) {
+        assertBatch3IntegratedRow(decision, decision.stableRuleId);
+        for (const [kind, evidence] of [["acceptedEvidence", decision.acceptedEvidence], ["rejectedEvidence", decision.rejectedEvidence]] as const) {
+          evidence.forEach((item: Record<string, any>, evidenceIndex: number) => assertBatch3EvidenceProvenance(decision.stableRuleId, item, kind, evidenceIndex));
+        }
+      } else if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId)) {
         compareEvidenceSet(decision.acceptedEvidence, "accepted");
         compareEvidenceSet(decision.rejectedEvidence, "rejected");
         for (const evidence of [...decision.acceptedEvidence, ...decision.rejectedEvidence]) {
@@ -168,6 +174,6 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
 
     assert.deepEqual(statusCounts, { REVIEWED: 8, PROVISIONAL: 2 });
     assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 2, FOUND: 2 });
-    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 1, NONE: 1, RETRIEVAL: 1 });
+    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 7, COMPONENT_COVERAGE: 2, NONE: 1 });
   });
 });

@@ -312,31 +312,47 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
       "machineRowSha256": "0389053ce8f6289c9328f98638d28d741a2fe0a5d4368e30a8bf48f9c1a0533a",
-      "finalEvidenceState": "UNCLEAR",
+      "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
-      "reviewerOutcome": "ACTION_REQUIRED",
+      "reviewerOutcome": "CONFORMS",
       "acceptedEvidence": [
         {
-          "quote": "Baseline carbon stocks in forests include the following pools: aboveground tree (> 5 cm diameter at breast height - DBH) tree biomass, belowground biomass, aboveground biomass for palms, standing and lying dead wood biomass, and soil organic carbon. These were calculated following the guidance laid out in VMD0001 (v1.1), VMD0002 (v1.1), and VMD0004 (v1.1). Leaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative estimation of carbon stocks in the project area. As discussed in section 3.1.3, belowground biomass for palms is also excluded as it was identified as de minimis. The mean total carbon stock was based on field data collected in the MFC REDD project area in 2023. See Appendix 25A for detailed field methods, Appendix 23 for the process to validate the allometric equation, and Appendix 19 for the full calculations to estimate carbon stocks and greenhouse gas emissions. As discussed in section 2.1.14, the two forest types that are found in the project area include lowland broad-leaved moist forests and lowland broad-leaved moist scrub forests (Meerman & Sabido, 2001). Because the two types are intermixed in much of the project area and share the many of the same overstory species, it was not possible to map them as separate strata using available remote sensing data. As a result, the two were combined into a single stratum for the purposes of assessing above and below ground biomass, deadwood, and soil organic carbon. Because of this, references to different strata are removed when evaluating carbon stocks. 3.2.1.2.1.1 Tree and palm biomass Aboveground tree biomass (in kilograms, or kg) was calculated using the Chave et al (2005) equation modified based on field data gathered in the project area (refer to section 3.1.6 for more information). CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 105 CCB v3.0, VCS v4.4 In this equation, the wood density value of 0.6 g cm-3 for tropical America was applied from Reyes et al. (1992). Separate allometric equations were applied for trees in the Cecropia genus and Pinus genus as well as for different palms. No allometric equations could be identified for the palm species Roystonea regia. As such, biomass from this species was conservatively excluded. There were other unidentified palm species measured but excluded from measurements due to the lack of generic allometric equations for palms. Table 20 includes the list of allometric equations applied. Table 20. Allometric equations to estimate aboveground biomass applied in the project Taxa Allometric Equations for Aboveground Biomass (kg) Source Cecropia spp 𝐴𝐺𝐵 = 12.764 + 0.2588 ∗ 𝐷𝐵𝐻2.0515 Pearson et al (2005) Pinus spp 𝐴𝐺𝐵 = 0.887 + 10486 ∗ 𝐷𝐵𝐻2.84 𝐷𝐵𝐻2.84 + 376901 Penman et al (2003) Attalea cohune 𝐴𝐺𝐵 = 10.856 + 176.76 ∗ 𝐻𝑇 − 6.898 ∗ 𝐻𝑇2 Sabal spp 𝐴𝐺𝐵 = 24.559 + 4.921 ∗ 𝐻𝑇 + 1.017 ∗ 𝐻𝑇2 Crysophylla spp 𝐴𝐺𝐵 = 0.182 […]",
-          "page": 104,
-          "sectionHeading": "Baseline Pre-Deforestation Carbon Stocks",
-          "spanId": "quick-check-review-question:element:paragraph:3.2.1.2.1",
+          "quote": "The estimated net GHG emission reductions are based on carbon stock changes and GHG emissions\nestimated in the baseline scenario minus net GHG emissions in the project scenario minus emissions\ndue to leakage as shown in the following equation:\n𝑁𝐸𝑅𝑡 = ∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷,𝑡 − ∆𝐶𝑊𝑃𝑆−𝑅𝐸𝐷𝐷,𝑡 − ∆𝐶𝐿𝐾−𝐴𝑆,𝑅𝐸𝐷𝐷,𝑡\nWhere:\n𝑁𝐸𝑅𝑡 = Net GHG emission reductions of avoiding planned deforestation in year t, t CO2e\n∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷,𝑡 = Net GHG emissions in the REDD baseline scenario in year t, t CO2e\n∆𝐶𝑊𝑃𝑆−𝑅𝐸𝐷𝐷,𝑡 = Net GHG emissions in the REDD project scenario in year t, t CO2e\n∆𝐶𝐿𝐾−𝐴𝑆,𝑝𝑙𝑎𝑛𝑛𝑒𝑑,𝑡= Net GHG emissions due to leakage from the REDD project activity in year t, t CO2e\nTo calculate ∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷, the following equation is applied:",
+          "page": 123,
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+          "spanId": "full-pdd:page-123:1",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "To calculate contributions to the AFOLU pooled buffer account, the following equation is applied:\n𝐵𝑢𝑓𝑓𝑒𝑟𝑃𝑙𝑎𝑛𝑛𝑒𝑑,𝑡 = ∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷 ∗ 𝐵𝑢𝑓𝑓𝑒𝑟%\nWhere:\n𝐵𝑢𝑓𝑓𝑒𝑟𝑃𝑙𝑎𝑛𝑛𝑒𝑑 = Total permanence buffer withholding for avoiding planned deforestation project\nactivities in year t, t CO2e\n∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷,𝑡 = Net GHG emissions in the REDD baseline scenario in year t, t CO2e\n𝐵𝑢𝑓𝑓𝑒𝑟% = Buffer withholding percentage (percent)\nThe 𝐵𝑢𝑓𝑓𝑒𝑟% is based on the risk classification identified through the use of the AFOLU Non-\nPermanence Risk Tool and is calculated to be 12.0%. Neither leakage deductions nor uncertainty\ndeduction factor into buffer calculations.\nThe final number of Verified Carbon Units that the project can generate in a given year is based on the\nfollowing equation:\n𝑉𝐶𝑈𝑡 = 𝐴𝑑𝑗𝑢𝑠𝑡𝑒𝑑𝑁𝐸𝑅𝑡 − 𝐵𝑢𝑓𝑓𝑒𝑟𝑃𝑙𝑎𝑛𝑛𝑒𝑑,𝑡",
+          "page": 124,
+          "sectionHeading": "3.2.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals (VCS, 3.15, 4.1)",
+          "spanId": "full-pdd:page-124:2",
+          "documentId": "quick-check-review-question",
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+        },
+        {
+          "quote": "To calculate ∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷, the following equation is applied:\n∆𝐶𝐵𝑆𝐿−𝑅𝐸𝐷𝐷 = 𝛥𝐶𝐵𝑆𝐿,𝐶𝑆.𝑡 + 𝐺𝐻𝐺𝐵𝑆𝐿,𝑡\nWhere:\n𝛥𝐶𝐵𝑆𝐿,𝐶𝑆,𝑡 = Sum of the baseline carbon stock change in all\nterrestrial pools in year t, t CO2e\n𝐺𝐻𝐺𝐵𝑆𝐿,𝑡 = Greenhouse gas emissions as a result of\ndeforestation activities within the project\nboundary in year t, t CO2e\nPurpose of data Calculation of baseline emissions\nComments -\nData / parameter UncertaintyBSL,RATE\nData unit %\nDescription Cumulative uncertainty in the baseline rate of deforestation\nSource of data Calculated from field data\nValue applied 31.7%",
+          "page": 148,
+          "sectionHeading": "Data / parameter ∆𝐶BSL,REDD",
+          "spanId": "full-pdd:page-148:3",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
         }
       ],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
-      "draftFindingCandidate": "NIR_CANDIDATE",
-      "assessmentReason": "The PDD contains quantification evidence for baseline carbon stocks (§3.2.1.2) but does not present the net emission reduction equation itself. The baseline deforestation rate (1,188.6 ha/year for 9 years), carbon stock calculations, and module references are present. However, the complete equation `NER = ΔC_BSL - (ΔC_ACTUAL + ΔC_LEAKAGE)` is not shown, and project/leakage emissions quantification is separate. Machine proposal of MISSING is partially correct (the equation itself is absent) but understates the partial quantification evidence present. UNCLEAR is more appropriate.",
-      "gap": "The net emission reduction equation itself is not presented. Baseline carbon stock calculations exist (§3.2.1.2) but the equation decomposition into baseline, project, and leakage components is not shown.",
-      "clientAction": "Present the complete REDD net emission reduction equation, decompose it into baseline, project, and leakage components, and show the project-specific values for each component.",
-      "correctionReason": "Partial quantification evidence exists in §3.2.1.2 but was not retrieved as accepted evidence. The equation itself is absent. UNCLEAR is more precise than MISSING.",
-      "genericFailureCategory": "RETRIEVAL",
-      "reviewerConfidence": "MEDIUM",
-      "expertReviewRequired": true,
-      "reviewStatus": "PROVISIONAL",
-      "provisionalReason": "Expert review remains required because the complete net emission reduction equation and its project/leakage decomposition are not shown."
+      "draftFindingCandidate": null,
+      "assessmentReason": "The PDD defines net GHG emission reductions as baseline emissions minus project emissions minus leakage. The evidence documents: (1) the net emission reductions calculation based on carbon stock changes, (2) the AFOLU pooled buffer contribution calculation, and (3) the equation for baseline carbon stock change (Delta C_BSL,REDD). The net reduction formula is explicitly presented with component definitions. The evidence is sufficient: the three evidence items together establish that each component (baseline, project, leakage) is defined and quantified.",
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": "Initial adjudication.",
+      "genericFailureCategory": "NONE",
+      "reviewerConfidence": "HIGH",
+      "expertReviewRequired": false,
+      "reviewStatus": "REVIEWED",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-6-0008",

@@ -10,7 +10,7 @@
       5
     ],
     "ruleCount": 50,
-    "evidenceEntryCount": 144
+    "evidenceEntryCount": 141
   },
   "mechanicalResult": true,
   "provenanceNormalizationMode": "audit-only",
@@ -19,6 +19,12 @@
     "uniqueRuleCount": 50,
     "expectedRuleCount": 50,
     "duplicateSelections": []
+  },
+  "reviewedTruthInventory": {
+    "total": 58,
+    "unique": 58,
+    "reviewed": 45,
+    "provisional": 13
   },
   "machineTruthSeparation": {
     "frozenProposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
@@ -54,6 +60,20 @@
         "Verra.AFOLU.VM0007.v1-8.R-2-0014",
         "Verra.AFOLU.VM0007.v1-8.R-4-0001"
       ]
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/review-packet.json",
+      "sha256": "d445a4b7e734e6f15eb09ad2248768cdb97aa8473044e5066b65c6a7029cf9f1",
+      "ruleIds": [
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0004",
+        "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0001",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+        "Verra.AFOLU.VM0007.v1-8.R-5-0005"
+      ]
     }
   ],
   "batchSummaries": [
@@ -62,7 +82,7 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 17,
+      "evidenceEntries": 19,
       "duplicateContextEntryCount": 0,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
@@ -94,7 +114,7 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 30,
+      "evidenceEntries": 32,
       "duplicateContextEntryCount": 3,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
@@ -110,8 +130,8 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 40,
-      "duplicateContextEntryCount": 23,
+      "evidenceEntries": 37,
+      "duplicateContextEntryCount": 18,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
       "hashResults": {
@@ -126,8 +146,8 @@
       "reviewedRuleCount": 10,
       "expectedRuleCount": 10,
       "selectedIdsResult": "PASS",
-      "evidenceEntries": 33,
-      "duplicateContextEntryCount": 25,
+      "evidenceEntries": 29,
+      "duplicateContextEntryCount": 10,
       "unresolvedAmbiguityCount": 0,
       "schemaResult": "PASS",
       "hashResults": {
@@ -479,7 +499,7 @@
     {
       "batch": 1,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0001",
-      "acceptedEvidenceCount": 1,
+      "acceptedEvidenceCount": 3,
       "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
@@ -488,11 +508,32 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "ctx-012"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "ctx-012",
-            "rc5-2-maya-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0001-packet-evidence-4"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-1"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 2,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0001-candidate-2"
           ]
         }
       ],
@@ -2052,7 +2093,7 @@
     {
       "batch": 3,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-      "acceptedEvidenceCount": 1,
+      "acceptedEvidenceCount": 3,
       "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
@@ -2061,11 +2102,32 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch3-R-2-0008-accepted-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch3-R-2-0008-accepted-1",
-            "rc5-2-maya-batch-3-adjudication-Verra.AFOLU.VM0007.v1-8.R-2-0008-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-1"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 2,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-2-0008-candidate-2"
           ]
         }
       ],
@@ -2688,8 +2750,8 @@
     {
       "batch": 4,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
-      "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 5,
+      "acceptedEvidenceCount": 3,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -2697,149 +2759,37 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-2-0013-accepted-2",
-            "batch4-R-2-0014-accepted-2",
-            "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch4-R-2-0013-accepted-2",
-            "batch4-R-2-0014-accepted-2",
-            "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-0"
           ]
         },
         {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch4-R-2-0013-rejected-1",
-            "batch4-R-2-0014-rejected-1",
-            "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch4-R-2-0013-rejected-1",
-            "batch4-R-2-0014-rejected-1",
-            "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-1"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-1"
           ]
         },
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 2,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch4-R-3-0001-rejected-3",
-            "batch4-R-3-0002-rejected-5"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch4-R-3-0001-rejected-3",
-            "batch4-R-3-0002-rejected-5",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-3"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch4-R-3-0001-rejected-4"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch4-R-3-0001-rejected-4",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-4"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4",
-            "rc5-2-maya-batch-4-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0001-packet-evidence-5"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0001-candidate-2"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "acceptedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch4-R-2-0013-accepted-2",
-            "batch4-R-2-0014-accepted-2",
-            "batch4-R-3-0001-accepted-1",
-            "batch4-R-3-0002-accepted-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch4-R-2-0013-rejected-1",
-            "batch4-R-2-0014-rejected-1",
-            "batch4-R-3-0001-rejected-1",
-            "batch4-R-3-0002-rejected-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 1,
-          "candidateContextIds": [
-            "batch4-R-3-0001-rejected-2",
-            "batch4-R-3-0002-rejected-2"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 2,
-          "candidateContextIds": [
-            "batch4-R-3-0001-rejected-3",
-            "batch4-R-3-0002-rejected-5"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "candidateContextIds": [
-            "batch4-R-3-0001-rejected-5",
-            "batch4-R-3-0002-rejected-4"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",
@@ -3099,8 +3049,8 @@
     {
       "batch": 5,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
-      "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 5,
+      "acceptedEvidenceCount": 3,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -3108,176 +3058,37 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-0"
           ]
         },
         {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-1"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-1"
           ]
         },
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 2,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-3"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-4"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0003-packet-evidence-5"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0003-candidate-2"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "acceptedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 1,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 2,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",
@@ -3290,8 +3101,8 @@
     {
       "batch": 5,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
-      "acceptedEvidenceCount": 1,
-      "rejectedEvidenceCount": 5,
+      "acceptedEvidenceCount": 3,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
@@ -3299,161 +3110,38 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-0"
           ]
         },
         {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-1"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-1"
           ]
         },
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 2,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-3"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-4"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0004-rejected-5"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0004-rejected-5",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0004-packet-evidence-5"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-1",
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0004-candidate-2"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "acceptedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 1,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-3",
-            "batch5-R-3-0004-rejected-2",
-            "batch5-R-3-0007-rejected-2"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 2,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-4",
-            "batch5-R-3-0004-rejected-3",
-            "batch5-R-3-0007-rejected-3"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-2",
-            "batch5-R-3-0004-rejected-4",
-            "batch5-R-3-0007-accepted-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",
@@ -3718,7 +3406,7 @@
     {
       "batch": 5,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-      "acceptedEvidenceCount": 1,
+      "acceptedEvidenceCount": 3,
       "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
@@ -3727,11 +3415,32 @@
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0008-accepted-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0008-accepted-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-3-0008-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-1"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 2,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-3-0008-candidate-2"
           ]
         }
       ],
@@ -3871,47 +3580,46 @@
     {
       "batch": 5,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0003",
-      "acceptedEvidenceCount": 0,
-      "rejectedEvidenceCount": 1,
+      "acceptedEvidenceCount": 3,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0003-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-0"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 1,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-1"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-1"
+          ]
+        },
+        {
+          "field": "acceptedEvidence",
+          "index": 2,
+          "result": "MATCH",
+          "candidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-2"
+          ],
+          "normalizationCandidateContextIds": [
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0003-candidate-2"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",
@@ -3985,128 +3693,46 @@
     {
       "batch": 5,
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-5-0005",
-      "acceptedEvidenceCount": 0,
-      "rejectedEvidenceCount": 5,
+      "acceptedEvidenceCount": 3,
+      "rejectedEvidenceCount": 0,
       "provenanceResult": "PASS",
       "evidenceEntries": [
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 0,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-0"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-0"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-0"
           ]
         },
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 1,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-5-0005-rejected-2"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-1"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-5-0005-rejected-2",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-1"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-1"
           ]
         },
         {
-          "field": "rejectedEvidence",
+          "field": "acceptedEvidence",
           "index": 2,
           "result": "MATCH",
           "candidateContextIds": [
-            "batch5-R-5-0005-rejected-3"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-2"
           ],
           "normalizationCandidateContextIds": [
-            "batch5-R-5-0005-rejected-3",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-2"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-3"
-          ]
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "result": "MATCH",
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
-          ],
-          "normalizationCandidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5",
-            "rc5-2-maya-batch-5-adjudication-Verra.AFOLU.VM0007.v1-8.R-5-0005-packet-evidence-4"
+            "independent-batch-3-Verra.AFOLU.VM0007.v1-8.R-5-0005-candidate-2"
           ]
         }
       ],
       "unmatchedEvidence": [],
-      "ambiguousContextMatches": [
-        {
-          "field": "rejectedEvidence",
-          "index": 0,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-1",
-            "batch5-R-3-0004-rejected-1",
-            "batch5-R-3-0007-rejected-1",
-            "batch5-R-5-0003-rejected-1",
-            "batch5-R-5-0005-rejected-1"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 3,
-          "candidateContextIds": [
-            "batch5-R-3-0003-accepted-1",
-            "batch5-R-3-0004-accepted-1",
-            "batch5-R-3-0007-accepted-2",
-            "batch5-R-5-0005-rejected-4"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        },
-        {
-          "field": "rejectedEvidence",
-          "index": 4,
-          "candidateContextIds": [
-            "batch5-R-3-0003-rejected-5",
-            "batch5-R-3-0007-rejected-4",
-            "batch5-R-5-0005-rejected-5"
-          ],
-          "completeFrozenEvidenceIdentical": true,
-          "resolved": "identical-content"
-        }
-      ],
+      "ambiguousContextMatches": [],
       "acceptedRejectedDuplicateEvidence": [],
       "notApplicableEvidenceResult": "PASS",
       "resolvedClientActionResult": "PASS",

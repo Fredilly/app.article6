@@ -1,16 +1,31 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { describe, it } from "@jest/globals";
-import { buildScopeManifest, scopeDir, writeScopeManifest } from "../../../scripts/preverif/generate-rc5-maya-provisional-scope";
 
 const root = process.cwd();
-const manifestPath = path.join(scopeDir, "manifest.json");
+const manifestPath = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json");
 const machineTruthPath = path.join(root, "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json");
 const sha256 = (value: Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+const historicalSourceCommit = "d725a55f";
+const historicalManifest = () => read<Record<string, any>>(manifestPath);
+const regenerateHistoricalManifest = () => {
+  const worktree = fs.mkdtempSync(path.join(root, ".tmp-maya-scope-worktree-"));
+  const outputDir = fs.mkdtempSync(path.join(root, ".tmp-maya-scope-output-"));
+  try {
+    execFileSync("git", ["worktree", "add", "--detach", worktree, historicalSourceCommit], { cwd: root, stdio: "pipe" });
+    const generatorPath = path.join(worktree, "scripts/preverif/generate-rc5-maya-provisional-scope.ts");
+    const tsx = path.join(root, "node_modules/.bin/tsx");
+    execFileSync(tsx, ["-e", `import { writeScopeManifest } from ${JSON.stringify(generatorPath)}; writeScopeManifest(${JSON.stringify(outputDir)});`], { cwd: worktree });
+    return { generated: fs.readFileSync(path.join(outputDir, "manifest.json")), committed: fs.readFileSync(path.join(worktree, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json")) };
+  } finally {
+    execFileSync("git", ["worktree", "remove", "--force", worktree], { cwd: root, stdio: "pipe" });
+    fs.rmSync(outputDir, { recursive: true, force: true });
+  }
+};
 const preChangeFileSha256: Record<string, string> = {
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
@@ -20,7 +35,7 @@ const preChangeFileSha256: Record<string, string> = {
 
 describe("RC5-2 Maya provisional independent-review scope", () => {
   it("inventories exactly the 15 provisional rules without duplicates", () => {
-    const manifest = buildScopeManifest();
+    const manifest = JSON.parse(regenerateHistoricalManifest().generated.toString("utf8"));
     const ids = manifest.rules.map((rule) => rule.stableRuleId);
 
     assert.deepEqual(manifest.inventory, { totalRules: 58, uniqueRuleCount: 58, reviewedRuleCount: 43, provisionalRuleCount: 15 });
@@ -36,7 +51,7 @@ describe("RC5-2 Maya provisional independent-review scope", () => {
   });
 
   it("covers every provisional rule exactly once in the recommended batches", () => {
-    const manifest = buildScopeManifest();
+    const manifest = JSON.parse(regenerateHistoricalManifest().generated.toString("utf8"));
     const batchIds = manifest.recommendedBatches.flatMap((batch) => batch.ruleIds);
 
     assert.deepEqual(manifest.recommendedBatches.map((batch) => batch.ruleIds.length), [7, 8]);
@@ -45,23 +60,20 @@ describe("RC5-2 Maya provisional independent-review scope", () => {
   });
 
   it("pins machine truth and untouched reviewed-truth artifacts against the PR base", () => {
-    const manifest = buildScopeManifest();
+    const manifest = historicalManifest();
     assert.equal(sha256(fs.readFileSync(machineTruthPath)), manifest.machineTruth.sha256);
+    assert.equal(manifest.sourceCommitSha, "ea28e069d2a171df7fc7fff31ef2dc3c6f99ef4b");
     for (const relativePath of [
       ...[2, 5, 6].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`),
     ]) {
-      assert.equal(sha256(fs.readFileSync(path.join(root, relativePath))), preChangeFileSha256[relativePath], relativePath);
+      assert.equal(sha256(execFileSync("git", ["show", `${historicalSourceCommit}:${relativePath}`], { cwd: root })), preChangeFileSha256[relativePath], relativePath);
     }
   });
 
   it("regenerates the committed manifest deterministically", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-provisional-scope-"));
-    try {
-      writeScopeManifest(tempDir);
-      assert.deepEqual(fs.readFileSync(path.join(tempDir, "manifest.json")), fs.readFileSync(manifestPath));
-    } finally {
-      fs.rmSync(tempDir, { recursive: true, force: true });
-    }
+    const regenerated = regenerateHistoricalManifest();
+    assert.deepEqual(regenerated.generated, regenerated.committed);
+    assert.deepEqual(regenerated.generated, fs.readFileSync(manifestPath));
   });
 
   it("records the eight batch-1 decisions as reviewed without changing machine truth", () => {

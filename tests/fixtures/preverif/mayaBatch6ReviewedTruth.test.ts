@@ -5,6 +5,7 @@ import path from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, it } from "@jest/globals";
 import { readRc5BatchSelection } from "../../../scripts/preverif/rc5-batch-selection-manifest";
+import { assertBatch3IntegratedRow, batch3RuleIds } from "./mayaBatch3ExpectedIntegration";
 
 const root = process.cwd();
 const batchDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication");
@@ -15,9 +16,9 @@ const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "u
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const evidenceFields = ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"] as const;
 const preChangeFileSha256: Record<string, string> = {
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "759bed8b3e5c611dc5f20434bd06ad2576018195f3fbd6c4feb38897bb1830d4",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f4262a0b4aafcd1e375674f2035a2d337f583937160db1d16e378f73b6a34743",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "4aa43b1e1587e6c90deee6875aed2bf26ffdf9e6f5e741e559a5145a9d44e9d5",
 };
 const preChangeReviewedRowSha256: Record<string, string> = {
   "Verra.AFOLU.VM0007.v1-8.R-1-0012": "861d08167d4b52fe9c82676587d6d20e64a29db293b030a0a6cdfb0d5da9f7af",
@@ -105,8 +106,8 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 43);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 15);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 45);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 13);
     assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
   });
 
@@ -125,13 +126,14 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     ]);
     for (const ruleId of authorizedTargetRuleIds) selected.add(ruleId);
     const files = [3, 4].map((batch) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json`);
-    const baseRows = new Map<string, any>();
     for (const file of files) for (const row of read<{ decisions: any[] }>(path.join(root, file)).decisions) {
+      if (batch3RuleIds.has(row.stableRuleId)) {
+        assertBatch3IntegratedRow(row, row.stableRuleId);
+        continue;
+      }
       const currentRowSha256 = sha256(JSON.stringify(row));
-      baseRows.set(row.stableRuleId, preChangeReviewedRowSha256[row.stableRuleId]);
       assert.equal(selected.has(row.stableRuleId) || currentRowSha256 === preChangeReviewedRowSha256[row.stableRuleId], true, row.stableRuleId);
     }
-    assert.deepEqual([...baseRows.entries()].filter(([id, baseSha256]) => baseSha256 !== sha256(JSON.stringify(files.map((file) => read<{ decisions: any[] }>(path.join(root, file)).decisions).flat().find((row) => row.stableRuleId === id)))).map(([id]) => id).sort().every((id) => selected.has(id)), true);
   });
 
   it("classifies every material machine-versus-human disagreement", () => {
