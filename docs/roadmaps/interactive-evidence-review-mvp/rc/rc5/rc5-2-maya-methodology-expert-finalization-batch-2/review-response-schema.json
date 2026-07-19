@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "responses"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-methodology-expert-finalization-batch-2-response-v1"
+    },
+    "responses": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stableRuleId",
+          "expertAnalysis",
+          "applicabilityDetermination",
+          "evidenceSufficiency",
+          "supportingEvidence",
+          "missingEvidence",
+          "notes"
+        ],
+        "properties": {
+          "stableRuleId": {
+            "enum": [
+              "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+              "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+              "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+            ]
+          },
+          "expertAnalysis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "applicabilityDetermination": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidenceSufficiency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "supportingEvidence": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "missingEvidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

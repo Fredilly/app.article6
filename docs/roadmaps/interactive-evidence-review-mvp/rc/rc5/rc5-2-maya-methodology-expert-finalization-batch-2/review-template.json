@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "rc5-2-maya-methodology-expert-finalization-batch-2-response-v1",
+  "responses": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+      "expertAnalysis": null,
+      "applicabilityDetermination": null,
+      "evidenceSufficiency": null,
+      "supportingEvidence": [],
+      "missingEvidence": [],
+      "notes": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+      "expertAnalysis": null,
+      "applicabilityDetermination": null,
+      "evidenceSufficiency": null,
+      "supportingEvidence": [],
+      "missingEvidence": [],
+      "notes": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "expertAnalysis": null,
+      "applicabilityDetermination": null,
+      "evidenceSufficiency": null,
+      "supportingEvidence": [],
+      "missingEvidence": [],
+      "notes": null
+    }
+  ]
+}
