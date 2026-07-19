@@ -164,14 +164,14 @@ describe("RC5-2 Maya targeted full-PDD batch 2", () => {
     } finally { fs.rmSync(tempDir, { recursive: true, force: true }); }
   });
 
-  it("keeps the frozen packet inventory pinned while integrated truth is 45 reviewed / 13 provisional", () => {
+  it("keeps the frozen packet inventory pinned while integrated truth is 48 reviewed / 10 provisional", () => {
     const machine = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
     assert.equal(sha256(fs.readFileSync(path.join(root, machine))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     const before = truthFiles.flatMap((file) => read<any>(path.join(root, file)).decisions);
     assert.equal(before.length, 58);
     assert.equal(new Set(before.map((r: any) => r.stableRuleId)).size, 58);
-    assert.equal(before.filter((r: any) => r.reviewStatus === "REVIEWED").length, 45);
-    assert.equal(before.filter((r: any) => r.reviewStatus === "PROVISIONAL").length, 13);
+    assert.equal(before.filter((r: any) => r.reviewStatus === "REVIEWED").length, 48);
+    assert.equal(before.filter((r: any) => r.reviewStatus === "PROVISIONAL").length, 10);
     assert.deepEqual(buildArtifacts().packet.frozenInventory, { reviewed: 41, provisional: 17 });
   });
 });

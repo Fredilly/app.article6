@@ -155,6 +155,9 @@ describe("Maya methodology-expert finalization batch 2", () => {
       "Verra.AFOLU.VM0007.v1-8.R-2-0014",
       "Verra.AFOLU.VM0007.v1-8.R-5-0001",
       "Verra.AFOLU.VM0007.v1-8.R-5-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013",
     ]);
     const rows = reviewedTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).decisions.filter((row: any) => row.reviewStatus === "REVIEWED" && !authorizedFinalization.has(row.stableRuleId))).sort((a: any, b: any) => a.stableRuleId.localeCompare(b.stableRuleId));
     expect(rows).toHaveLength(39);

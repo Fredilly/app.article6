@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { baseCommit, machineRowSha256, packetDir, responsePath, responseSha256, resolvedRuleIds, ruleIds, subsequentTargetedIntegrationCommit, truthPath, truthRelativeFiles, validateIntegration, validateTruthProtection } from "../../../scripts/preverif/generate-rc5-maya-expert-batch2-final-integration";
 import { buildExpectedIntegration as buildBatch3ExpectedIntegration, integratedTruthFiles as batch3IntegratedTruthFiles, responseSha256 as batch3ResponseSha256 } from "../../../scripts/preverif/generate-rc5-maya-independent-review-batch3-integration";
+import { buildExpectedIntegration as buildBatch4ExpectedIntegration, selectedRuleIds as batch4RuleIds } from "../../../scripts/preverif/generate-rc5-maya-independent-review-batch4-integration";
 
 const root = process.cwd();
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -17,6 +18,7 @@ const targetedRuleIds = new Set([
   "Verra.AFOLU.VM0007.v1-8.R-2-0002", "Verra.AFOLU.VM0007.v1-8.R-2-0003", "Verra.AFOLU.VM0007.v1-8.R-2-0004",
   "Verra.AFOLU.VM0007.v1-8.R-2-0005", "Verra.AFOLU.VM0007.v1-8.R-2-0006", "Verra.AFOLU.VM0007.v1-8.R-2-0007",
 ]);
+const batch4RuleIdSet = new Set(batch4RuleIds);
 
 describe("RC5-2 Maya batch 2 final integration", () => {
   test("corrected response is pinned, schema-valid, and bound to frozen rules", () => {
@@ -43,9 +45,11 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     const after = json(truthPath);
     const later = targetedTruth();
     const batch3Expected = buildBatch3ExpectedIntegration().integrated.get(truthRelativeFiles[2])!;
+    const batch4Expected = buildBatch4ExpectedIntegration().integrated;
     for (const row of before.decisions) {
       const current = after.decisions.find((r: any) => r.stableRuleId === row.stableRuleId);
       if (ruleIds.slice(0, 2).includes(row.stableRuleId)) expect(current.reviewStatus).toBe("REVIEWED");
+      else if (batch4RuleIdSet.has(row.stableRuleId)) expect(current).toEqual(batch4Expected.get(truthRelativeFiles[2])!.decisions.find((r: any) => r.stableRuleId === row.stableRuleId));
       else if (targetedRuleIds.has(row.stableRuleId)) expect(current).toEqual(later.decisions.find((r: any) => r.stableRuleId === row.stableRuleId));
       else if (row.stableRuleId === ruleIds[2]) expect(current).toEqual(batch3Expected.decisions.find((r: any) => r.stableRuleId === row.stableRuleId));
       else expect(current).toEqual(row);
@@ -53,8 +57,8 @@ describe("RC5-2 Maya batch 2 final integration", () => {
     expect(after.decisions.find((r: any) => r.stableRuleId === ruleIds[2])).toEqual(batch3Expected.decisions.find((r: any) => r.stableRuleId === ruleIds[2]));
     const all = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].map((f, i) => i === 0 ? `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}` : `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${f}`);
     const rows = all.flatMap((f) => json(path.join(root, f)).decisions);
-    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(45);
-    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(13);
+    expect(rows.filter((r: any) => r.reviewStatus === "REVIEWED")).toHaveLength(48);
+    expect(rows.filter((r: any) => r.reviewStatus === "PROVISIONAL")).toHaveLength(10);
   });
 
   test("preserves prior rejected evidence and merges DeepSeek fields deterministically", () => {
@@ -97,8 +101,9 @@ describe("RC5-2 Maya batch 2 final integration", () => {
   test("reproduces the current Batch 3 integration deterministically", () => {
     const first = buildBatch3ExpectedIntegration();
     const second = buildBatch3ExpectedIntegration();
+    const currentExpected = buildBatch4ExpectedIntegration().integrated;
     expect([...first.integrated.entries()]).toEqual([...second.integrated.entries()]);
-    for (const file of batch3IntegratedTruthFiles) expect(first.integrated.get(file)).toEqual(json(path.join(root, file)));
+    for (const file of batch3IntegratedTruthFiles) expect(currentExpected.get(file)).toEqual(json(path.join(root, file)));
     const responseManifest = json(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/response-manifest.json"));
     const integrationManifest = json(path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-independent-review-batch-3/integration-manifest.json"));
     expect(responseManifest.responseSha256).toBe(batch3ResponseSha256);

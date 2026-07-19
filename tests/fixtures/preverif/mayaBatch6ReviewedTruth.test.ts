@@ -16,7 +16,7 @@ const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "u
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const evidenceFields = ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"] as const;
 const preChangeFileSha256: Record<string, string> = {
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f4262a0b4aafcd1e375674f2035a2d337f583937160db1d16e378f73b6a34743",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "4aa43b1e1587e6c90deee6875aed2bf26ffdf9e6f5e741e559a5145a9d44e9d5",
 };
@@ -106,8 +106,8 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 45);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 13);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 48);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 10);
     assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
   });
 

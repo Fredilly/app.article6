@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { buildRc5AdjudicationResponseSchema } from "./rc5-adjudication-response-schema";
@@ -11,9 +12,12 @@ const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/
 export const truthFiles = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)];
 export const excludedBatch3Ids = ["R-2-0008", "R-3-0001", "R-3-0003", "R-3-0004", "R-3-0008", "R-5-0001", "R-5-0003", "R-5-0005"];
 export const sourceCommitSha = "38d0ad1aa81d10a1d3648727b7d4114b71dee93a";
+export const frozenTruthCommit = "2bc205acf9e3cc2e0d3c1ff890a50a39617d0396";
 const document = { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", contentSha256: "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b" };
 const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).digest("hex");
 const read = <T>(file: string): T => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")) as T;
+const readFrozenBytes = (file: string) => execFileSync("git", ["show", `${frozenTruthCommit}:${file}`]);
+const readFrozen = <T>(file: string): T => JSON.parse(readFrozenBytes(file).toString("utf8")) as T;
 const write = (file: string, value: unknown) => fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 
 type Row = Record<string, any> & { stableRuleId: string; reviewStatus?: string };
@@ -41,7 +45,7 @@ const retrievalPages: Record<string, number[]> = {
 };
 
 function inventory() {
-  const decisions = truthFiles.flatMap((file) => read<{ decisions: Row[] }>(file).decisions);
+  const decisions = truthFiles.flatMap((file) => readFrozen<{ decisions: Row[] }>(file).decisions);
   const unique = new Set(decisions.map((row) => row.stableRuleId));
   const reviewed = decisions.filter((row) => row.reviewStatus === "REVIEWED").length;
   const provisional = decisions.filter((row) => row.reviewStatus === "PROVISIONAL").length;
@@ -74,7 +78,7 @@ export function buildArtifacts() {
   const schemaVersion = "rc5-2-maya-independent-review-batch-4-response-v1";
   const schema = buildRc5AdjudicationResponseSchema({ schemaVersion, document, machineProposalRef, ruleIds: inv.selectedRuleIds, decisionCount: 7 });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef, decisions: rules.map((rule) => ({ stableRuleId: rule.stableRuleId, machineRowSha256: rule.frozenMachineRowSha256, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], contradictionState: null, draftFindingCandidate: null, assessmentReason: null, gap: null, clientAction: null, correctionReason: null, genericFailureCategory: null, reviewerConfidence: null, provisionalReason: null })) };
-  return { packet, schema, template, sourcePins: { pddSha256, extractionSha256, proposalSha256, methodologyRulesSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"))), methodologySectionsSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json"))), reviewedTruthSha256: Object.fromEntries(truthFiles.map((file) => [file, sha256(fs.readFileSync(path.join(root, file)))])) } };
+  return { packet, schema, template, sourcePins: { pddSha256, extractionSha256, proposalSha256, methodologyRulesSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"))), methodologySectionsSha256: sha256(fs.readFileSync(path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json"))), reviewedTruthSha256: Object.fromEntries(truthFiles.map((file) => [file, sha256(readFrozenBytes(file))])) } };
 }
 
 export function writeArtifacts(outputDir = packetDir) { const a = buildArtifacts(); fs.mkdirSync(outputDir, { recursive: true }); write(path.join(outputDir, "review-packet.json"), a.packet); write(path.join(outputDir, "review-response-schema.json"), a.schema); write(path.join(outputDir, "review-template.json"), a.template); const files = ["review-packet.json", "review-response-schema.json", "review-template.json"]; write(path.join(outputDir, "manifest.json"), { schemaVersion: "rc5-2-maya-independent-review-batch-4-manifest-v1", sourceCommitSha, selectedRuleIds: a.packet.selectedRuleIds, sourceArtifacts: { pddPdf: { path: pddPath, sha256: a.sourcePins.pddSha256 }, canonicalExtraction: { path: extractionPath, sha256: a.sourcePins.extractionSha256 }, machineProposal: { path: proposalPath, sha256: a.sourcePins.proposalSha256 }, methodologyRules: { path: "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json", sha256: a.sourcePins.methodologyRulesSha256 }, methodologySections: { path: "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json", sha256: a.sourcePins.methodologySectionsSha256 }, reviewedTruth: a.sourcePins.reviewedTruthSha256 }, generatedFiles: Object.fromEntries(files.map((file) => [file, sha256(fs.readFileSync(path.join(outputDir, file)))])), inventory: a.packet.frozenInventory, reviewedTruthEmbeddedAsAnswer: false, generatedAt: "2026-07-19T00:00:00.000Z" }); return a; }
