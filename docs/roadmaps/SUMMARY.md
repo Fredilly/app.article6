@@ -144,7 +144,7 @@ Details: `docs/roadmaps/interactive-evidence-review-mvp/plan.md`
 3) RC2 — Accuracy benchmark: Done
 4) RC3 — Generic accuracy improvements: Done
 5) RC4 — Guided reviewer interaction: Done
-6) RC5 — Unseen-PDD validation: Active
+6) RC5 — Unseen-PDD validation: Done
 7) RC6 — Stellar MVP release: Planned
 
 ## project-verification
