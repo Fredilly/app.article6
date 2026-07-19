@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "rc5-2-maya-expert-batch-2-blocker-resolution-manifest-v2",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+  ],
+  "officialSourceSha256": "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
+  "officialExtractionSha256": "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561",
+  "mayaPdfSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+  "mayaExtractionSha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8",
+  "packetSha256": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
+  "files": {
+    "blocker-resolution-packet.json": "3d227e79a18f49df69c0edf99d7a57c7a15f5ee65a8560c07be6a0ce3c83bbef",
+    "independent-review-response-schema.json": "01ddfff63ff22f96916eda95982e3ec04cb3259278f6cfa6226696181039a208",
+    "independent-review-response-template.json": "ea285ba625863e616557c22a5f3d8c9d8dcefdb8fea0ea4c7275203fca50a83c",
+    "review-instructions.md": "e272adab05285d5e41b4d56d3a774fe1ab7c585d470f0a54e81a4765a6a019ed",
+    "official-source/VM0007-REDD-Methodology-Framework-v1.8.pages.json": "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561"
+  },
+  "mergedPr1088Commit": "3eba6f821fcd4ab864ee72aa5b83253f8887dad8",
+  "reviewedTruthSha256": [
+    "3a5ea6b5c1cc9576543aca28fe24959e244a6c4e69c30063a9f39c801d19b45c",
+    "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
+    "cd9f6d4771d99877fac10347b5fa91bd9f650c0b5a336a1c8d23966540c9ddd4",
+    "c57cd429ded199686ba43ad65fb81d49c62503afb7d0fa54ed84ef4aaca67d4c",
+    "d118035e690e25e89af22d9fcf3b7af301d44627580b5b6450e6f641431f5291",
+    "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+  ],
+  "semanticReviewedRowsSha256": "922d7cc1eb95d9b9e35f58073120d0ffe8db7bb5b2c4dddf352522bb43a7dba1",
+  "inventory": {
+    "reviewed": 39,
+    "provisional": 19
+  },
+  "reviewedTruthFilesCreated": false
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "rc5-2-maya-expert-batch-2-independent-review-response-v2",
+  "responses": {
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+      "reviewStatus": null,
+      "evidenceAssessment": "",
+      "finalRuleDecision": null,
+      "remainingBlockers": [],
+      "notes": ""
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+      "reviewStatus": null,
+      "evidenceAssessment": "",
+      "finalRuleDecision": null,
+      "remainingBlockers": [],
+      "notes": ""
+    },
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+      "reviewStatus": null,
+      "evidenceAssessment": "",
+      "finalRuleDecision": null,
+      "remainingBlockers": [],
+      "notes": ""
+    }
+  }
+}
