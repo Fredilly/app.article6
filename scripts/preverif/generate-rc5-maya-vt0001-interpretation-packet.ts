@@ -25,6 +25,7 @@ export const truthPaths = [
 ];
 export const expected = {
   vt0001Sha256: "ee0d8b00b772208b112d4b20b43613a80b8d10404813c3273086d90b3963ddc8",
+  vt0001PagesSha256: "1717e33ac4d3a786821d0bebdc82412a9b25143c7f2d364a19eb23d99dd031ce",
   vm0007Sha256: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6",
   vm0007PagesSha256: "80164150eeb7fa8eb916c73bbcdab0cc0b79d49d544dc9c28cef7c61a8166561",
   pddSha256: "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
@@ -58,6 +59,37 @@ function assertFrozenInputs(): void {
   if (actual.vt0001 !== expected.vt0001Sha256 || actual.vm0007 !== expected.vm0007Sha256 || actual.vm0007Pages !== expected.vm0007PagesSha256 || actual.pdd !== expected.pddSha256 || actual.extraction !== expected.extractionSha256 || actual.machine !== expected.machineSha256) throw new Error(`Frozen source SHA changed: ${JSON.stringify(actual)}`);
 }
 
+function committedVt0001Pages(): Array<{ pageNumber: number; text: string }> {
+  const bytes = localBytes(vt0001PagesPath);
+  if (sha256(bytes) !== expected.vt0001PagesSha256) throw new Error("Frozen VT0001 pages JSON SHA changed");
+  const artifact = JSON.parse(bytes.toString("utf8")) as { pages: Array<{ pageNumber: number; text: string }> };
+  if (artifact.pages.length !== 13) throw new Error(`VT0001 pages JSON page count changed: ${artifact.pages.length}`);
+  if (artifact.pages.some((page, index) => page.pageNumber !== index + 1)) throw new Error("VT0001 pages JSON page numbering changed");
+  return artifact.pages;
+}
+
+export async function validateFrozenVt0001Pdf(): Promise<void> {
+  assertFrozenInputs();
+  const committedPages = committedVt0001Pages();
+  const parser = new PDFParse({ data: localBytes(vt0001Path) });
+  const result = await parser.getText();
+  await parser.destroy();
+  if (result.total !== 13 || result.pages.length !== 13) throw new Error(`VT0001 PDF page count changed: ${result.total}/${result.pages.length}`);
+  for (let index = 0; index < 13; index += 1) {
+    const pdfPage = result.pages[index];
+    const committedPage = committedPages[index];
+    if (pdfPage.num !== committedPage.pageNumber || pdfPage.text !== committedPage.text) throw new Error(`VT0001 PDF/pages JSON mismatch on page ${index + 1}`);
+  }
+  const pdfText = result.pages.map((page) => page.text).join("\n");
+  const requiredPhrases = [
+    "→ Proceed to Step 2 (Investment analysis) or Step 3 (Barrier analysis), as it is necessary to\nundertake at least one of them.",
+    "then proceed to Step 4 (Common practice analysis).",
+    "Barrier analysis maybe performed instead of or as an extension of investment analysis",
+    "The previous steps shall be complemented with an analysis of the extent to which similar\t2.4.1\nactivities have already diffused in the geographical area",
+  ];
+  for (const phrase of requiredPhrases) if (!pdfText.includes(phrase)) throw new Error(`Required VT0001 phrase missing from PDF-derived text: ${phrase}`);
+}
+
 function inventory(): { total: number; unique: number; reviewed: number; provisional: number; provisionalIds: string[] } {
   const rows = truthPaths.flatMap((p) => frozenJson<{ decisions: Array<{ stableRuleId: string; reviewStatus: string }> }>(p).decisions);
   const byId = new Map(rows.map((r) => [r.stableRuleId, r]));
@@ -69,7 +101,7 @@ function inventory(): { total: number; unique: number; reviewed: number; provisi
 
 async function authoritativePages(): Promise<Array<{ page: number; quote: string; coverage: string }>> {
   let pages: Array<{ num: number; text: string }>;
-  if (fs.existsSync(path.join(root, vt0001PagesPath))) pages = read<{ pages: Array<{ pageNumber: number; text: string }> }>(vt0001PagesPath).pages.map((p) => ({ num: p.pageNumber, text: p.text }));
+  if (fs.existsSync(path.join(root, vt0001PagesPath))) pages = committedVt0001Pages().map((p) => ({ num: p.pageNumber, text: p.text }));
   else {
     const parser = new PDFParse({ data: localBytes(vt0001Path) });
     const result = await parser.getText();
@@ -111,7 +143,7 @@ export async function buildArtifacts() {
       methodologyRequirement: { exactText: rule.source_span_text, sourcePath: "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json", sourceSha256: sha256(localBytes("public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json")), section: rule.section_context },
       frozenMachineRowSha256: sha256(JSON.stringify(row)),
       question: id.endsWith("R-3-0001") ? "Does VM0007's requirement to use VT0001 and follow its stepwise approach require this Maya PDD to document Step 3 after Step 2, or can a valid VT0001 Step 2 Option I pathway stand alone?" : id.endsWith("R-3-0003") ? "Under VT0001 and VM0007, is the PDD's Step 2 Option I analysis sufficient as the selected pathway, or was Step 3 Barrier Analysis also mandatory?" : "Does the Maya PDD finally demonstrate the VT0001 additionality pathway required by VM0007, including a valid Option I selection and the applicable Step 4 conclusion?",
-      projectEvidence: pddPages.map((page) => ({ page, quote: pdd.pages.find((x) => x.pageNumber === page)?.text ?? "", sourcePath: pddPath, sourceSha256: expected.extractionSha256, documentId: "quick-check-review-question", documentSha256: expected.pddSha256 })),
+      projectEvidence: pddPages.map((page) => ({ page, quote: pdd.pages.find((x) => x.pageNumber === page)?.text ?? "", sourcePath: extractionPath, sourceSha256: expected.extractionSha256, sourcePdfPath: pddPath, sourcePdfSha256: expected.pddSha256, documentId: "quick-check-review-question", documentSha256: expected.pddSha256 })),
       vm0007Evidence: (vmPagesByRule[short(id)] ?? []).map((page) => ({ page, quote: vmPages.pages.find((x) => x.pageNumber === page)?.text ?? "", sourcePath: vm0007PagesPath, sourceSha256: expected.vm0007PagesSha256, sourcePdfPath: vm0007Path, sourcePdfSha256: expected.vm0007Sha256 })),
     };
   });
@@ -133,7 +165,7 @@ export async function buildArtifacts() {
   const responseSchema = { $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-vt0001-interpretation-response", type: "object", additionalProperties: false, required: ["schemaVersion", "decisions"], properties: { schemaVersion: { const: "rc5-2-maya-vt0001-interpretation-response-v1" }, decisions: { type: "array", minItems: 3, maxItems: 3, items: { type: "object", additionalProperties: false, required: Object.keys(decisionProperties), properties: decisionProperties } } } };
   const template = { schemaVersion: "rc5-2-maya-vt0001-interpretation-response-v1", decisions: selectedRuleIds.map((stableRuleId) => ({ stableRuleId, reviewStatus: null, evidenceStatus: null, applicability: null, action: null, methodologyInterpretation: null, mayaApplication: null, evidenceCitations: [], missingEvidence: [], reasoning: null })) };
   const instructions = `# VT0001 independent review\n\nReturn exactly three decisions, one for each selected rule ID. First answer the methodology interpretation questions from the frozen complete VT0001 v3.0 pages, then apply that interpretation to the frozen Maya evidence. Do not use prior truth, prior responses, or machine proposals as answer keys.\n\nA valid Option I conclusion requires documented project costs and a demonstration that the project produces no financial benefits other than VCS-related income. VT0001 says a concluded Option I pathway proceeds to Step 4; assess whether the frozen Maya PDD and referenced Appendix 17 evidence actually establish those facts.\n\nFinal adverse judgments are permitted: REVIEWED + UNCLEAR/MISSING + ACTION_REQUIRED. Leave PROVISIONAL only for a genuine unresolved authoritative interpretation or a necessary unavailable source. Cite exact source path, SHA, page, and quote for every material conclusion.\n`;
-  const manifest = { schemaVersion: "rc5-2-maya-vt0001-interpretation-manifest-v1", baselineSha, selectedRuleIds: [...selectedRuleIds], frozenInventory, sourceDocuments: { vt0001: { path: vt0001Path, sha256: expected.vt0001Sha256 }, vt0001Pages: { path: vt0001PagesPath, sha256: sha256(localBytes(vt0001PagesPath)) }, vm0007: { path: vm0007Path, sha256: expected.vm0007Sha256 }, vm0007Pages: { path: vm0007PagesPath, sha256: expected.vm0007PagesSha256 }, pdd: { path: pddPath, sha256: expected.pddSha256 }, extraction: { path: extractionPath, sha256: expected.extractionSha256 }, machine: { path: machinePath, sha256: expected.machineSha256 } }, selectionInputs: truthPaths.map((p) => ({ path: p, sha256: sha256(frozenBytes(p)), commitSha: baselineSha })), packetFiles: ["review-packet.json", "reviewer-instructions.md", "review-response-schema.json", "review-template.json", "manifest.json"], reviewedTruthCreated: false, priorResponsesIncluded: false };
+  const manifest = { schemaVersion: "rc5-2-maya-vt0001-interpretation-manifest-v1", baselineSha, selectedRuleIds: [...selectedRuleIds], frozenInventory, sourceDocuments: { vt0001: { path: vt0001Path, sha256: expected.vt0001Sha256 }, vt0001Pages: { path: vt0001PagesPath, sha256: expected.vt0001PagesSha256 }, vm0007: { path: vm0007Path, sha256: expected.vm0007Sha256 }, vm0007Pages: { path: vm0007PagesPath, sha256: expected.vm0007PagesSha256 }, pdd: { path: pddPath, sha256: expected.pddSha256 }, extraction: { path: extractionPath, sha256: expected.extractionSha256 }, machine: { path: machinePath, sha256: expected.machineSha256 } }, selectionInputs: truthPaths.map((p) => ({ path: p, sha256: sha256(frozenBytes(p)), commitSha: baselineSha })), packetFiles: ["review-packet.json", "reviewer-instructions.md", "review-response-schema.json", "review-template.json", "manifest.json"], reviewedTruthCreated: false, priorResponsesIncluded: false };
   return { packet, instructions, responseSchema, template, manifest };
 }
 
@@ -148,4 +180,7 @@ export async function writeArtifacts(outputDir = packetDir): Promise<string> {
   return packetSha256;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) writeArtifacts().catch((error) => { console.error(error); process.exitCode = 1; });
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const operation = process.argv.includes("--validate-vt0001") ? validateFrozenVt0001Pdf() : validateFrozenVt0001Pdf().then(() => writeArtifacts());
+  operation.catch((error) => { console.error(error); process.exitCode = 1; });
+}
