@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-methodology-expert-blank-template",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "responses"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-methodology-expert-finalization-batch-2-blank-template-v1"
+    },
+    "responses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+      ],
+      "properties": {
+        "Verra.AFOLU.VM0007.v1-8.R-1-0012": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning",
+            "notes"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "applicabilityDetermination": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidenceSufficiency": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array"
+            },
+            "supportingProjectEvidence": {
+              "type": "array"
+            },
+            "missingEvidence": {
+              "type": "array"
+            },
+            "reasoning": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "Verra.AFOLU.VM0007.v1-8.R-1-0013": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning",
+            "notes"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "applicabilityDetermination": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidenceSufficiency": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array"
+            },
+            "supportingProjectEvidence": {
+              "type": "array"
+            },
+            "missingEvidence": {
+              "type": "array"
+            },
+            "reasoning": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "Verra.AFOLU.VM0007.v1-8.R-2-0008": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expertAnalysis",
+            "applicabilityDetermination",
+            "evidenceSufficiency",
+            "supportingMethodologyEvidence",
+            "supportingProjectEvidence",
+            "missingEvidence",
+            "reasoning",
+            "notes"
+          ],
+          "properties": {
+            "expertAnalysis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "applicabilityDetermination": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidenceSufficiency": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingMethodologyEvidence": {
+              "type": "array"
+            },
+            "supportingProjectEvidence": {
+              "type": "array"
+            },
+            "missingEvidence": {
+              "type": "array"
+            },
+            "reasoning": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

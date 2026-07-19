@@ -1,0 +1,294 @@
+import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-methodology-expert-finalization-batch-2");
+const mergedCommit = "827a95004d13870a5987443d7597d1a0ecc1d397";
+const originalPacketCommit = "cc371bd4aeb1b56bb50592d093b337c6f199acf9";
+const originalTruthCommit = "d2ecd198a3d007433d933717b8e07f1d19774978";
+const methodologyArtifactRef = "immutable-methodology-pack:Fredilly/article6-methodologies@87eef90379f06df40a917894a159d10a5d4c2703";
+const methodologyPackIdentity = { repository: "Fredilly/article6-methodologies", ref: "87eef90379f06df40a917894a159d10a5d4c2703", tag: "methodologies-pack-87eef90379f06df40a917894a159d10a5d4c2703" };
+const scopePath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-provisional-independent-review-scope/manifest.json";
+const scopeSha256 = "f3fd97e932eb6a023c302313f5f4df5cad286751994b469f502226f1bc00e21a";
+const originalPacketPath = "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json";
+const originalPacketSha256 = "403a810a02fcf5c259c73c30e7db7b2380577d1d02eb650aea62f0298435a99f";
+const originalTruthPath = "docs/roadmaps/interactive-evidence-review-mvp/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json";
+const originalTruthSha256 = "d02dc6dcbd608a6080ea6601849d3d2c58d0743fe09fa7a5c13db404662731a5";
+const machineProposalPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
+const machineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
+const methodologyRulesPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json";
+const methodologyRulesSha256 = "9fceaa1dc458c847c1236fad73215f56b924ebbec794850b60c0510ace7d0e49";
+const methodologySectionsPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json";
+const methodologySectionsSha256 = "4506bb488417a940fc4e84228bff7abcc7e7921fcb9a824fa140bf6e2687b5e3";
+const methodologyMetaPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/META.json";
+const methodologyMetaSha256 = "0b426189afb549bcb0af65efac74c69ceabdb9ee6026efd3d6494788d9a19839";
+const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf";
+const pddSha256 = "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b";
+const authoritativeSourceAvailable = false;
+
+export const selectedRuleIds = [
+  "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+  "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+] as const;
+
+const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
+const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+const write = (filePath: string, value: unknown): void => fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
+
+type Input = { commitSha: string; path: string; sha256: string };
+type LocalInput = { artifactRef: string; path: string; sha256: string };
+const gitBytes = (input: Input): Buffer => {
+  const bytes = execFileSync("git", ["show", `${input.commitSha}:${input.path}`]);
+  if (sha256(bytes) !== input.sha256) throw new Error(`Pinned input SHA mismatch: ${input.commitSha}:${input.path}`);
+  return bytes;
+};
+const gitJson = <T>(input: Input): T => JSON.parse(gitBytes(input).toString("utf8")) as T;
+const localBytes = (input: LocalInput): Buffer => {
+  const bytes = fs.readFileSync(path.join(root, input.path));
+  if (sha256(bytes) !== input.sha256) throw new Error(`Pinned methodology artifact SHA mismatch: ${input.path}`);
+  return bytes;
+};
+const localJson = <T>(input: LocalInput): T => JSON.parse(localBytes(input).toString("utf8")) as T;
+
+export function verifyAuthoritativeExcerpt(authoritativeBytes: Buffer | null, expectedSha256: string, exactText: string): void {
+  if (!authoritativeBytes) throw new Error("Authoritative VM0007 v1.8 source artifact is unavailable; primary-source verification cannot proceed");
+  if (sha256(authoritativeBytes) !== expectedSha256) throw new Error("Authoritative VM0007 v1.8 source SHA changed");
+  if (!authoritativeBytes.toString("utf8").includes(exactText)) throw new Error("Methodology excerpt is not an exact substring of the authoritative source");
+}
+
+export function verifyDerivedTextAgreement(derivedText: string, authoritativeText: string): void {
+  if (derivedText !== authoritativeText) throw new Error("Derived methodology rule text disagrees with authoritative source text");
+}
+
+const inputs = {
+  scope: { commitSha: mergedCommit, path: scopePath, sha256: scopeSha256 },
+  originalPacket: { commitSha: originalPacketCommit, path: originalPacketPath, sha256: originalPacketSha256 },
+  originalTruth: { commitSha: originalTruthCommit, path: originalTruthPath, sha256: originalTruthSha256 },
+  machineProposal: { commitSha: mergedCommit, path: machineProposalPath, sha256: machineProposalSha256 },
+  methodologyRules: { artifactRef: methodologyArtifactRef, path: methodologyRulesPath, sha256: methodologyRulesSha256 },
+  methodologySections: { artifactRef: methodologyArtifactRef, path: methodologySectionsPath, sha256: methodologySectionsSha256 },
+  methodologyMeta: { artifactRef: methodologyArtifactRef, path: methodologyMetaPath, sha256: methodologyMetaSha256 },
+  pdd: { artifactRef: `git-object:${mergedCommit}`, path: pddPath, sha256: pddSha256 },
+} as const;
+
+const expertQuestions: Record<string, string[]> = {
+  "Verra.AFOLU.VM0007.v1-8.R-1-0012": [
+    "Is the phrase “conservation activity type” in this requirement exclusively a WRC concept, or can it apply to other VM0007 activity categories?",
+    "On the methodology text alone, does this rule have any application to a REDD/APDef project? Please identify the applicability chain that supports the answer.",
+    "What project evidence is sufficient to determine applicability without inferring an outcome from the existing candidate excerpts?",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-1-0013": [
+    "Is this requirement limited to wetland degradation/WRC activities, or does VM0007 apply it to any other activity category?",
+    "On the methodology text alone, does this rule have any REDD/APDef application? Please identify the applicability chain that supports the answer.",
+    "What project evidence is sufficient to determine applicability, including the evidence needed to distinguish activity category from site characteristics?",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008": [
+    "Under VM0007, when are harvested wood products mandatory, when may they be omitted as insignificant or otherwise optional, and when are they excluded?",
+    "What facts about the Maya project would establish whether the harvested-wood-product condition is triggered?",
+    "Is the existing project evidence sufficient to determine that condition, and if not, what precise evidence is missing?",
+  ],
+};
+
+const sourceDocument = { documentId: "quick-check-review-question", documentName: "12-maya-forest-corridor-redd-belize.pdf", contentSha256: pddSha256 };
+
+function neutralCandidateEvidence(rule: any): any[] {
+  const candidates = [...(rule.acceptedEvidence ?? []), ...(rule.rejectedEvidence ?? [])];
+  const seen = new Set<string>();
+  return candidates.flatMap((candidate: any) => {
+    const provenance = candidate.provenance ?? {};
+    const item = {
+      quote: candidate.quote,
+      page: candidate.page,
+      sectionHeading: provenance.sectionHeading ?? candidate.section,
+      spanId: candidate.spanId ?? provenance.spanId,
+      sourceDocument,
+      pageReferenceType: "INHERITED_EXTRACTION_PAGE",
+      provenance: {
+        documentId: sourceDocument.documentId,
+        documentSha256: sourceDocument.contentSha256,
+        page: candidate.page,
+        sectionHeading: provenance.sectionHeading ?? candidate.section,
+        spanId: candidate.spanId ?? provenance.spanId,
+        sourceType: provenance.sourceType ?? "PDD",
+      },
+      sourceAudit: {
+        originalPacketPage: candidate.page,
+        originalPacketPath,
+        originalPacketSha256,
+        pageWasNotNormalized: true,
+      },
+    };
+    const key = JSON.stringify(item);
+    if (seen.has(key)) return [];
+    seen.add(key);
+    return [item];
+  });
+}
+
+const methodologyContextRuleIds: Record<string, string[]> = {
+  "Verra.AFOLU.VM0007.v1-8.R-1-0012": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-1-0013": [
+    "Verra.AFOLU.VM0007.v1-8.R-1-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0003",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0011",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0012",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0013",
+    "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0016",
+  ],
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0006",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+  ],
+};
+
+function methodologyExcerpts(ruleId: string, methodologyRules: any[]): any[] {
+  return methodologyContextRuleIds[ruleId].map((contextRuleId) => {
+    const sourceRule = methodologyRules.find((rule) => rule.id === contextRuleId);
+    if (!sourceRule?.source_span_text) throw new Error(`Missing exact methodology context for ${contextRuleId}`);
+    return {
+      sourceDocumentName: "rules.rich.json (derived methodology rule artifact)",
+      sourcePath: methodologyRulesPath,
+      sourceSha256: methodologyRulesSha256,
+      sourceType: "DERIVED_METHODOLOGY_RULE_ARTIFACT",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1.8",
+      methodologyPackIdentity,
+      authoritativeSourceVerification: "NOT_AVAILABLE_IN_REPOSITORY",
+      ruleId: contextRuleId,
+      sectionId: sourceRule.refs.primary_section,
+      sectionNumber: sourceRule.refs.section_number,
+      sectionTitle: sourceRule.section_context.section_title,
+      pageStart: sourceRule.section_context.page_start,
+      pageEnd: sourceRule.section_context.page_end,
+      exactText: sourceRule.source_span_text,
+      derivedRuleArtifactPath: methodologyRulesPath,
+      derivedRuleArtifactSha256: methodologyRulesSha256,
+      derivedRuleId: contextRuleId,
+    };
+  });
+}
+
+export function buildArtifacts() {
+  const scope = gitJson<any>(inputs.scope);
+  if (scope.inventory.reviewedRuleCount !== 39 || scope.inventory.provisionalRuleCount !== 19) throw new Error("Merged scope inventory changed");
+  if (JSON.stringify(scope.groupCounts) !== JSON.stringify({ CAN_FINALIZE_FROM_EXISTING_PACKET: 0, REQUIRES_TARGETED_FULL_PDD_RETRIEVAL: 16, REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION: 3, BLOCKED_BY_PROVENANCE_OR_SCHEMA: 0 })) throw new Error("Merged provisional scope counts changed");
+  if (scope.machineTruth.sha256 !== machineProposalSha256) throw new Error("Merged machine proposal SHA changed");
+  const selectedScope = scope.rules.filter((rule: any) => selectedRuleIds.includes(rule.stableRuleId));
+  if (selectedScope.length !== selectedRuleIds.length || selectedScope.some((rule: any) => rule.scopeGroup !== "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION" || rule.reviewStatus !== "PROVISIONAL")) throw new Error("Selected IDs are not exactly the methodology-expert provisional scope");
+  if (scope.rules.some((rule: any) => rule.scopeGroup === "REQUIRES_METHODOLOGY_EXPERT_INTERPRETATION" && !selectedRuleIds.includes(rule.stableRuleId))) throw new Error("Methodology-expert scope contains an unexpected rule");
+
+  const originalPacket = gitJson<any>(inputs.originalPacket);
+  const originalTruth = gitJson<any>(inputs.originalTruth);
+  const machineProposal = gitJson<any>(inputs.machineProposal);
+  const methodologyRules = localJson<any[]>(inputs.methodologyRules);
+  localBytes(inputs.methodologySections);
+  localBytes(inputs.methodologyMeta);
+  localBytes(inputs.pdd);
+  const packetRules = selectedRuleIds.map((stableRuleId) => {
+    const original = originalPacket.rules.find((rule: any) => rule.stableRuleId === stableRuleId);
+    const methodology = methodologyRules.find((rule: any) => rule.id === stableRuleId);
+    const machineRow = machineProposal.rows.find((row: any) => row.stableRuleId === stableRuleId);
+    const truthRow = originalTruth.decisions.find((row: any) => row.stableRuleId === stableRuleId);
+    if (!original || !methodology || !machineRow || !truthRow || truthRow.reviewStatus !== "PROVISIONAL") throw new Error(`Missing pinned source for ${stableRuleId}`);
+    if (sha256(Buffer.from(JSON.stringify(machineRow))) !== original.frozenMachineRowHash) throw new Error(`Frozen machine-row hash mismatch for ${stableRuleId}`);
+    if (!methodologyContextRuleIds[stableRuleId]) throw new Error(`Missing methodology context map for ${stableRuleId}`);
+    return {
+      stableRuleId,
+      requirementText: methodology.source_span_text,
+      methodologyExcerpts: methodologyExcerpts(stableRuleId, methodologyRules),
+      frozenMachineRowHash: original.frozenMachineRowHash,
+      historicalMachineContext: { label: "NON_FINAL_HISTORICAL_MACHINE_CONTEXT", rowHash: original.frozenMachineRowHash },
+      originalPacketCandidateEvidence: neutralCandidateEvidence(original),
+      currentProvisionalQuestion: expertQuestions[stableRuleId],
+      provenance: {
+        methodology: { path: methodologyRulesPath, sha256: methodologyRulesSha256, artifactRef: methodologyArtifactRef },
+        sourceDocument,
+        originalBatch3Packet: { path: originalPacketPath, sha256: originalPacketSha256, commitSha: originalPacketCommit },
+      },
+    };
+  });
+  const packet = {
+    schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-packet-v1",
+    reviewPurpose: "Neutral, reproducible methodology-expert interpretation packet. No adjudication is included.",
+    independenceNotice: "Candidate evidence is reproduced without accepted/rejected labels. Historical machine context is non-final and must not be treated as an outcome.",
+    methodologySourceWarning: "The repository does not contain the authoritative VM0007 v1.8 publication or an immutable text extraction of it. Methodology quotations are preserved from the pinned derived rule artifact and must be verified against the official VM0007 v1.8 publication before final adjudication.",
+    sourceDocument,
+    rules: packetRules,
+  };
+  const responseSchemaVersion = "rc5-2-maya-methodology-expert-finalization-batch-2-completed-response-v2";
+  const templateSchemaVersion = "rc5-2-maya-methodology-expert-finalization-batch-2-blank-template-v1";
+  const responseFields = {
+    type: "object", additionalProperties: false,
+    required: ["expertAnalysis", "applicabilityDetermination", "evidenceSufficiency", "supportingMethodologyEvidence", "supportingProjectEvidence", "missingEvidence", "reasoning"],
+    properties: {
+      expertAnalysis: { type: "string", minLength: 40 },
+      applicabilityDetermination: { enum: ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN"] },
+      evidenceSufficiency: { enum: ["SUFFICIENT", "INSUFFICIENT", "PARTIALLY_SUFFICIENT"] },
+      supportingMethodologyEvidence: { type: "array", minItems: 1, items: { type: "object", additionalProperties: false, required: ["quote", "sourcePath", "sourceSha256", "pageStart", "pageEnd", "sectionNumber", "sectionTitle"], properties: { quote: { type: "string", minLength: 1 }, sourcePath: { type: "string", minLength: 1 }, sourceSha256: { type: "string", pattern: "^[0-9a-f]{64}$" }, pageStart: { type: "integer", minimum: 1 }, pageEnd: { type: "integer", minimum: 1 }, sectionNumber: { type: "string", minLength: 1 }, sectionTitle: { type: "string", minLength: 1 } } } },
+      supportingProjectEvidence: { type: "array", items: { type: "object", additionalProperties: false, required: ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"], properties: { quote: { type: "string", minLength: 1 }, page: { type: "integer", minimum: 1 }, sectionHeading: { type: "string", minLength: 1 }, spanId: { type: "string", minLength: 1 }, documentId: { type: "string", minLength: 1 }, documentSha256: { type: "string", pattern: "^[0-9a-f]{64}$" } } } },
+      missingEvidence: { type: "array", items: { type: "string", minLength: 1 } },
+      reasoning: { type: "string", minLength: 40 },
+      notes: { type: ["string", "null"] },
+    },
+  };
+  const responseSchema = {
+    $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-methodology-expert-completed-response",
+    type: "object", additionalProperties: false, required: ["schemaVersion", "responses"],
+    properties: { schemaVersion: { const: responseSchemaVersion }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((id) => [id, responseFields])) } },
+  };
+  const template = { schemaVersion: templateSchemaVersion, responses: Object.fromEntries(selectedRuleIds.map((stableRuleId) => [stableRuleId, { expertAnalysis: null, applicabilityDetermination: null, evidenceSufficiency: null, supportingMethodologyEvidence: [], supportingProjectEvidence: [], missingEvidence: [], reasoning: null, notes: null }])) };
+  const templateSchema = {
+    $schema: "https://json-schema.org/draft/2020-12/schema", $id: "rc5-2-maya-methodology-expert-blank-template",
+    type: "object", additionalProperties: false, required: ["schemaVersion", "responses"],
+    properties: { schemaVersion: { const: templateSchemaVersion }, responses: { type: "object", additionalProperties: false, required: [...selectedRuleIds], properties: Object.fromEntries(selectedRuleIds.map((id) => [id, { type: "object", additionalProperties: false, required: ["expertAnalysis", "applicabilityDetermination", "evidenceSufficiency", "supportingMethodologyEvidence", "supportingProjectEvidence", "missingEvidence", "reasoning", "notes"], properties: { expertAnalysis: { type: ["string", "null"] }, applicabilityDetermination: { type: ["string", "null"] }, evidenceSufficiency: { type: ["string", "null"] }, supportingMethodologyEvidence: { type: "array" }, supportingProjectEvidence: { type: "array" }, missingEvidence: { type: "array" }, reasoning: { type: ["string", "null"] }, notes: { type: ["string", "null"] } } }])) } },
+  };
+  return { packet, template, responseSchema, templateSchema, scope, selectedScope };
+}
+
+export function writeArtifacts(outputDir = packetDir): string {
+  const { packet, template, responseSchema, templateSchema, scope, selectedScope } = buildArtifacts();
+  fs.mkdirSync(outputDir, { recursive: true });
+  write(path.join(outputDir, "review-packet.json"), packet);
+  write(path.join(outputDir, "review-template.json"), template);
+  write(path.join(outputDir, "review-response-schema.json"), responseSchema);
+  write(path.join(outputDir, "review-template-schema.json"), templateSchema);
+  const generatedPacketSha256 = sha256(fs.readFileSync(path.join(outputDir, "review-packet.json")));
+  write(path.join(outputDir, "manifest.json"), {
+    schemaVersion: "rc5-2-maya-methodology-expert-finalization-batch-2-manifest-v1",
+    purpose: "Pinned provenance and deterministic-generation manifest for a neutral expert packet.",
+    selectedRuleIds: [...selectedRuleIds],
+    methodologySourceProvenance: { sourceType: "DERIVED_METHODOLOGY_RULE_ARTIFACT", authoritativeSourceAvailable, warning: "Verify all methodology quotations against the official VM0007 v1.8 publication before final adjudication.", methodologyPackIdentity, derivedArtifactPath: methodologyRulesPath, derivedArtifactSha256: methodologyRulesSha256, sourcePdfSha256RecordedInDerivedMeta: "68bb94746c4c4adb40acbe314a3f927e2a3a57af9bf4916afdbcf532ea0b50e6" },
+    selectedRuleScopeGroups: Object.fromEntries(selectedScope.map((rule: any) => [rule.stableRuleId, rule.scopeGroup])),
+    mergedProvisionalScope: { commitSha: mergedCommit, path: scopePath, sha256: scopeSha256, inventory: scope.inventory, groupCounts: scope.groupCounts },
+    historicalInputs: inputs,
+    generatedPacketSha256,
+    packetFiles: ["review-packet.json", "review-template.json", "review-template-schema.json", "review-response-schema.json", "manifest.json", "review-instructions.md"],
+    reviewedTruthFilesCreated: false,
+  });
+  return generatedPacketSha256;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) writeArtifacts();
