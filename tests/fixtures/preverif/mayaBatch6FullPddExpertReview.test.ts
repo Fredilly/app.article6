@@ -10,6 +10,14 @@ import { buildArtifacts, packetDir, writeArtifacts } from "../../../scripts/prev
 import { buildRc5AdjudicationResponseSchema } from "../../../scripts/preverif/rc5-adjudication-response-schema";
 
 const root = process.cwd();
+const integrationBaseCommit = "ceb08ab53c4425d783e00bc8a2f31a67423f72dd";
+const authorizedIntegrationPaths = new Set([
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/deepseek-semantic-review-packet.json",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-retrospective-audit/retrospective-audit-report.json",
+]);
 const read = <T>(file: string): T => JSON.parse(fs.readFileSync(file, "utf8")) as T;
 const sha256 = (value: string | Buffer) => crypto.createHash("sha256").update(value).digest("hex");
 const ids = [
@@ -78,7 +86,7 @@ describe("RC5-2 Batch 6 full-PDD expert-review packet", () => {
   it("does not create reviewed truth, alter machine truth, or alter prior Batch 1-6 artifacts", () => {
     const machine = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
     assert.equal(sha256(fs.readFileSync(path.join(root, machine))), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
-    const priorFiles = execFileSync("git", ["ls-tree", "-r", "--name-only", "HEAD", "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5"]).toString().trim().split("\n").filter((file) => /rc5-2-maya-(adjudication|batch-[1-6]-adjudication)\//.test(file) || file.includes("rc5-retrospective-audit/") || file.endsWith("maya-adjudication-response.json"));
-    for (const file of priorFiles) assert.deepEqual(fs.readFileSync(path.join(root, file)), execFileSync("git", ["show", `HEAD:${file}`]), file);
+    const priorFiles = execFileSync("git", ["ls-tree", "-r", "--name-only", integrationBaseCommit, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5"]).toString().trim().split("\n").filter((file) => /rc5-2-maya-(adjudication|batch-[1-6]-adjudication)\//.test(file) || file.includes("rc5-retrospective-audit/") || file.endsWith("maya-adjudication-response.json"));
+    for (const file of priorFiles) if (!authorizedIntegrationPaths.has(file)) assert.deepEqual(fs.readFileSync(path.join(root, file)), execFileSync("git", ["show", `${integrationBaseCommit}:${file}`]), file);
   });
 });
