@@ -170,7 +170,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
 
   it("freezes exactly six selected IDs, the packet's pre-review 52/6/58 inventory, and the blank template", () => {
     assert.deepEqual(packet.selectedRuleIds, selectedRuleIds);
-    assert.equal(packet.rules.length, 5);
+    assert.equal(packet.rules.length, 6);
     assert.deepEqual(packet.excludedRuleIds, excludedRuleIds);
     assert.deepEqual(packet.frozenInventory, {
       total: 58,
@@ -190,7 +190,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       decision.provisionalReason === null &&
       decision.reviewerConfidence === null
     ));
-    assert.equal(new Set(template.decisions.map((decision: any) => decision.stableRuleId)).size, 5);
+    assert.equal(new Set(template.decisions.map((decision: any) => decision.stableRuleId)).size, 6);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selectedRuleIds);
   });
 
@@ -234,7 +234,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
   it("rejects exact evidence provenance mutations and cross-rule evidence reuse", () => {
     const secondRule = packet.rules[1];
     const firstAllowed = exactAllowedEvidence[0][0];
-    const crossRuleEvidence = packet.rules[1].mayaProjectEvidence[0];
+    const crossRuleEvidence = packet.rules[2].mayaProjectEvidence[0];
 
     expectInvalid({
       ...reviewedResponse,
@@ -291,19 +291,19 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, acceptedEvidence: [firstAllowed, firstAllowed] } : decision),
-    }, "duplicate accepted evidence", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
+    }, "duplicate accepted evidence", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}`));
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, rejectedEvidence: [firstAllowed, firstAllowed] } : decision),
-    }, "duplicate rejected evidence", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
+    }, "duplicate rejected evidence", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}`));
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, acceptedEvidence: [firstAllowed], rejectedEvidence: [firstAllowed] } : decision),
-    }, "accepted/rejected overlap", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002: acceptedEvidence\/rejectedEvidence overlap/);
+    }, "accepted/rejected overlap", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}: acceptedEvidence/rejectedEvidence overlap`));
   });
 
   it("rejects invalid final-state combinations and prohibited review states", () => {
@@ -311,19 +311,19 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION" } : decision),
-    }, "pending submitted response", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
+    }, "pending submitted response", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}`));
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, finalEvidenceState: "FOUND", finalApplicability: "NOT_APPLICABLE" } : decision),
-    }, "FOUND + NOT_APPLICABLE", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
+    }, "FOUND + NOT_APPLICABLE", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}`));
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, finalEvidenceState: "N/A", finalApplicability: "APPLICABLE" } : decision),
-    }, "N/A + APPLICABLE", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
+    }, "N/A + APPLICABLE", new RegExp(`decision ${selectedRuleIds[0].replaceAll(".", "\\.")}`));
 
     expectInvalid({
       ...reviewedResponse,
