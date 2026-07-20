@@ -9,6 +9,7 @@ const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
 describe("Marcondes finalized Evidence Map reconciliation", () => {
   it("finalizes 58/58 rows, preserves raw machine output, and is report-layer ready", () => {
     const gold = read("gold.json");
+    const releaseStatus = read("release-status.json");
     const machine = read("machine-proposal.json");
     const draft = read("gold.draft.json");
     const ids = read("reviewedRuleIds.json").reviewedRuleIds;
@@ -22,9 +23,9 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(draft.rows.filter((row: any) => !ids.includes(row.ruleReference))).toHaveLength(0);
     expect(metadata.review.remainingUnreviewedRuleCount).toBe(0);
     expect(metadata.review.releaseReadiness).toEqual(expect.objectContaining({ evidenceMapRows: 58, reviewedRows: 58, unreviewedRows: 0, structurallyReady: false, blockedBy: ["methodology version conflict requires explicit validation"] }));
-    expect(gold.goldPromotionBlocked).toBe(true);
-    expect(gold.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
-    expect(gold.reportReleaseBlocker).toMatch(/page-61.*v1\.7.*Tables 30 and 31.*blocked/i);
+    expect(releaseStatus.goldPromotionBlocked).toBe(true);
+    expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(releaseStatus.reportReleaseBlocker).toMatch(/page-61.*v1\.7.*Tables 30 and 31.*blocked/i);
     expect(gold.counts).toEqual({ FOUND: 6, UNCLEAR: 21, MISSING: 9, "N/A": 22 });
     expect(gold.rows.filter((row: any) => row.reviewerOutcome === "CONFORMS")).toHaveLength(6);
     expect(gold.rows.filter((row: any) => row.reviewerOutcome === "ACTION_REQUIRED")).toHaveLength(30);

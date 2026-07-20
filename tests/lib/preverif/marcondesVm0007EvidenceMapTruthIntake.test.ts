@@ -59,8 +59,9 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
     const unreviewed = draft.rows.filter((row: any) => !reviewedRuleIds.includes(row.ruleReference));
     expect(unreviewed).toHaveLength(0);
-    expect(gold.goldPromotionBlocked).toBe(true);
-    expect(gold.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    const releaseStatus = read("release-status.json");
+    expect(releaseStatus.goldPromotionBlocked).toBe(true);
+    expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect(gold.rows).toHaveLength(58);
     expect(gold.rows.every((row: any) => reviewedRuleIds.includes(row.ruleId))).toBe(true);
   });

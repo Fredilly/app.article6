@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -32,14 +33,15 @@ function page61Evidence(row: any): any[] {
 describe("Marcondes methodology-version conflict regression", () => {
   it("pins the exact affected Evidence Map rows and source declarations", () => {
     const gold = read("gold.json");
+    const releaseStatus = read("release-status.json");
     const metadata = read("metadata.json");
     const excerpts = read("source-excerpts.json");
 
     expect(expectedAffectedRuleIds).toHaveLength(18);
     expect(new Set(expectedAffectedRuleIds).size).toBe(18);
     expect(metadata.methodology.affectedEvidenceMapRuleIds).toEqual(expectedAffectedRuleIds);
-    expect(gold.methodologyVersionConflict.affectedReviewedTruthRuleIds).toEqual(expectedAffectedRuleIds);
-    expect(metadata.methodology.affectedEvidenceMapRuleIds).toEqual(gold.methodologyVersionConflict.affectedReviewedTruthRuleIds);
+    expect(releaseStatus.methodologyVersionConflict.affectedReviewedTruthRuleIds).toEqual(expectedAffectedRuleIds);
+    expect(metadata.methodology.affectedEvidenceMapRuleIds).toEqual(releaseStatus.methodologyVersionConflict.affectedReviewedTruthRuleIds);
 
     const affected = new Set(expectedAffectedRuleIds);
     for (const ruleId of expectedAffectedRuleIds) {
@@ -49,6 +51,10 @@ describe("Marcondes methodology-version conflict regression", () => {
     }
     expect(gold.rows.filter((row: any) => page61Evidence(row).length > 0).map((row: any) => row.ruleId)).toEqual(expectedAffectedRuleIds);
     expect(gold.rows.filter((row: any) => page61Evidence(row).length > 0).every((row: any) => affected.has(row.ruleId))).toBe(true);
+    expect(gold.rows).toHaveLength(58);
+    expect(releaseStatus.goldPromotionBlocked).toBe(true);
+    expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, "gold.json"))).digest("hex")).toBe("af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c");
 
     const declarations = new Map(excerpts.methodologyDeclarations.map((declaration: any) => [declaration.provenance.spanId, declaration]));
     expect(declarations.get("manual:page-61:section-3.1.1-v1.7")).toEqual(expect.objectContaining({
