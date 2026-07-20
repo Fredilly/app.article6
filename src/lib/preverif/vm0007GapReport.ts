@@ -42,6 +42,15 @@ export type Vm0007GapReportFinding = {
   confidence: MethodologyEvidenceAuditResult["confidence"];
 };
 
+export type Vm0007MethodologyReconciliation = {
+  finding: string;
+  classification: "DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE";
+  assessment: string;
+  impactOnReview: string;
+  releaseStatus: "BLOCKED_PENDING_VERSION_RECONCILIATION";
+  limitation: string;
+};
+
 export type Vm0007GapReport = {
   reportId: string;
   generatedAt: string;
@@ -70,6 +79,7 @@ export type Vm0007GapReport = {
     summary: string;
     notes: string[];
   };
+  methodologyReconciliation: Vm0007MethodologyReconciliation | null;
   keySupportedFindings: Vm0007GapReportFinding[];
   notApplicableRules: Vm0007GapReportFinding[];
   mainEvidenceGaps: Vm0007GapReportFinding[];
@@ -158,6 +168,18 @@ function buildVersionWarning(input: Vm0007GapReportInput): string | null {
   const methodologyId = input.audit.methodologyId?.trim() || input.methodology.code;
 
   return `Methodology version mismatch: PDD declares ${methodologyId} ${declaredVersion}, but loaded rulebook is ${methodologyId} ${loadedVersion}. Evidence judgment may be wrong.`;
+}
+
+function buildMethodologyReconciliation(input: Vm0007GapReportInput): Vm0007MethodologyReconciliation | null {
+  if (input.audit.versionMatch !== false) return null;
+  return {
+    finding: "The Marcondes PDD contains a methodology version inconsistency: page 61 references VM0007 v1.7, while Tables 30 and 31 formally declare VM0007 v1.8.",
+    classification: "DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE",
+    assessment: "The evidence indicates an outdated document reference. The available evidence does not indicate confirmed application of two different methodology versions. The Evidence Map review was performed against VM0007 v1.8.",
+    impactOnReview: "The Evidence Map findings remain based on VM0007 v1.8. The methodology inconsistency remains a release blocker pending authorized validation/confirmation of the document inconsistency.",
+    releaseStatus: "BLOCKED_PENDING_VERSION_RECONCILIATION",
+    limitation: "This is an independent pre-validation readiness review. It does not constitute validation, verification, approval, certification, or confirmation by Verra or a VVB.",
+  };
 }
 
 function toFinding(result: MethodologyEvidenceAuditResult): Vm0007GapReportFinding {
@@ -274,6 +296,7 @@ export function buildVm0007GapReport(input: Vm0007GapReportInput): Vm0007GapRepo
         "Weak and missing rules keep follow-up guidance from the audit output without changing the underlying audit logic.",
       ],
     },
+    methodologyReconciliation: buildMethodologyReconciliation(input),
     keySupportedFindings,
     notApplicableRules,
     mainEvidenceGaps,

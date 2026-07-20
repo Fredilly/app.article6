@@ -37,6 +37,16 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(dir, "raw-evidence-map.json"))).digest("hex")).toBe("bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e");
   });
 
+  it("preserves the methodology reconciliation artifact and release blocker", () => {
+    const note = fs.readFileSync(path.join(dir, "methodology-reconciliation.md"), "utf8");
+    expect(note).toContain("# Methodology Version Reconciliation Note");
+    for (const section of ["Finding", "Classification", "Assessment", "Evidence Preservation", "Release Impact", "Limitation"]) {
+      expect(note).toContain(`## ${section}`);
+    }
+    expect(note).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(read("release-status.json").reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
+  });
+
   it("retains exact quote, page, section, span, and provenance for accepted and rejected evidence", () => {
     const gold = read("gold.json");
     const extraction = read("raw-document-extraction.json");
