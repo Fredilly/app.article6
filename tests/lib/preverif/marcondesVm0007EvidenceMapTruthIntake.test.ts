@@ -98,7 +98,7 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     for (const entry of corrections.rejectedEvidence) {
       expect(entry.ruleId).toBeTruthy();
       expect(reviewed).toContain(entry.ruleId.split(".").pop());
-      expect(entry.evidence.rejectionReason).toMatch(/stitched or paraphrased quote|generic-text false support/);
+      expect(entry.rejectionReason ?? entry.evidence?.rejectionReason).toMatch(/stitched or paraphrased quote|generic-text false support/);
     }
     for (const entry of corrections.reviewerCorrections) {
       expect(entry.ruleId).toBeTruthy();
