@@ -1,8 +1,114 @@
 {
-  "schemaVersion": "rc5-2-selected-rule-contract-baseline-v1",
-  "sourceCommit": "87eef90379f06df40a917894a159d10a5d4c2703",
+  "schemaVersion": "rc5-2-selected-rule-contract-baseline-v2",
+  "sourceCommit": "2d4d6a54831aeff8a1295aff4d0be240218d9579",
   "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
   "contracts": [
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "logic": "VT0001 mandatory. Stepwise approach: list alternatives, barrier/investment analysis, select most plausible.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-3",
+        "section_anchor": "baseline-scenario",
+        "section_number": "6",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-3",
+        "sections": [
+          "S-3"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8",
+          "Verra/VT0001@v3-0"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "seed_derived_pending_review",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-3"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "pending_source_audit"
+      },
+      "section_context": {
+        "anchor": "baseline-scenario",
+        "lineage": [
+          "baseline-scenario"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 17,
+        "page_start": 15,
+        "section_id": "S-3",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-3",
+        "section_title": "Baseline Scenario"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+      "summary": "Baseline scenario determination via VT0001",
+      "type": "calc",
+      "when": [],
+      "source_span_text": "6 BASELINE SCENARIO\n\n6.1 Determination of the Most Plausible Baseline Scenario\n\nDetermination of the most plausible baseline scenario builds on the outcome of the additionality analysis (Section 7) and must be consistent with the description of the conditions prior to the project start date. VT0001 must be used to assess the project additionality. The stepwise approach below must be followed in addition to VT0001 to determine the most plausible baseline scenario."
+    },
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "logic": "VT0001 mandatory for all non-tidal-wetland activities.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-4",
+        "section_anchor": "additionality",
+        "section_number": "7",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-4",
+        "sections": [
+          "S-4"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8",
+          "Verra/VT0001@v3-0"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "seed_derived_pending_review",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-4"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "pending_source_audit"
+      },
+      "section_context": {
+        "anchor": "additionality",
+        "lineage": [
+          "additionality"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 25,
+        "page_start": 23,
+        "section_id": "S-4",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-4",
+        "section_title": "Additionality"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+      "summary": "VT0001 additionality requirement",
+      "type": "eligibility",
+      "when": [],
+      "source_span_text": "7 ADDITIONALITY\n\n7.1 Project Method – All Project Activities Other Than Tidal Wetland Conservation and Restoration\n\nVT0001 Tool for the Demonstration and Assessment of Additionality in VCS AFOLU Project Activities must be used to demonstrate the additionality of the project."
+    },
     {
       "id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
       "logic": "Strict no-overlap rule. REDD+WRC combination is the sole exception.",
@@ -216,58 +322,6 @@
       "type": "calc",
       "when": [],
       "source_span_text": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored."
-    },
-    {
-      "id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-      "logic": "JNR data is acceptable as a conservative source even if less accurate.",
-      "quality_status": "source_audited",
-      "refs": {
-        "methodology": "Verra/VM0007@v1-8",
-        "primary_section": "S-3",
-        "section_anchor": "baseline-scenario",
-        "section_number": "6",
-        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-3",
-        "sections": [
-          "S-3"
-        ],
-        "tools": [
-          "Verra/VM0007@v1-8"
-        ]
-      },
-      "requirement_coverage": {
-        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-        "coverage_scope": "rule",
-        "expected_evidence_status": "pending_source_audit",
-        "section_refs": [
-          {
-            "relationship": "source_section",
-            "section_id": "S-3"
-          }
-        ],
-        "section_refs_status": "source_audited"
-      },
-      "rule_detail": {
-        "status": "source_audited",
-        "summary": "JNR data use"
-      },
-      "section_context": {
-        "anchor": "baseline-scenario",
-        "lineage": [
-          "baseline-scenario"
-        ],
-        "locator_status": "source_audited",
-        "page_end": 27,
-        "page_start": 25,
-        "section_id": "S-3",
-        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-3",
-        "section_title": "Baseline Scenario"
-      },
-      "source_span_status": "source_audited",
-      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
-      "summary": "JNR data use",
-      "type": "calc",
-      "when": [],
-      "source_span_text": "Where project proponents use available data sourced from a jurisdictional baseline that meets the requirements set out in the VCS JNR Requirements, those data sources may be used under this methodology, where conservative, even where data accuracy may be less stringent than required by this methodology."
     }
   ]
 }

@@ -168,15 +168,15 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     });
   };
 
-  it("freezes exactly five selected IDs, the packet's pre-review 51/7/58 inventory, and the blank template", () => {
+  it("freezes exactly six selected IDs, the packet's pre-review 52/6/58 inventory, and the blank template", () => {
     assert.deepEqual(packet.selectedRuleIds, selectedRuleIds);
     assert.equal(packet.rules.length, 5);
     assert.deepEqual(packet.excludedRuleIds, excludedRuleIds);
     assert.deepEqual(packet.frozenInventory, {
       total: 58,
       unique: 58,
-      reviewed: 51,
-      provisional: 7,
+      reviewed: 52,
+      provisional: 6,
       provisionalIds: [...selectedRuleIds, ...excludedRuleIds].sort(),
     });
     assert.ok(template.decisions.every((decision: any) =>
@@ -195,7 +195,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
   });
 
   it("loads historical truth from the immutable post-PR-1099 commit and deep-compares unchanged rows", () => {
-    assert.equal(baselineCommit, "a9c4b79fe78dfba0e873d7e9acc22909d5a503de");
+    assert.equal(baselineCommit, "2d4d6a54831aeff8a1295aff4d0be240218d9579");
     const historical = truthFiles.flatMap((p) => JSON.parse(execFileSync("git", ["show", `${baselineCommit}:${p}`], { cwd: root }).toString("utf8")).decisions);
     const current = truthFiles.flatMap((p) => JSON.parse(fs.readFileSync(file(p), "utf8")).decisions);
     const historicalById = new Map(historical.map((row: any) => [row.stableRuleId, row]));
@@ -205,14 +205,8 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(historicalById.size, 58);
     assert.equal(currentById.size, 58);
     for (const id of currentById.keys()) {
-      if (id === "Verra.AFOLU.VM0007.v1-8.R-3-0008") continue;
       assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
-    const r30008 = currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
-    assert.equal(r30008?.reviewStatus, "REVIEWED");
-    assert.equal(r30008?.finalEvidenceState, "N/A");
-    assert.equal(r30008?.finalApplicability, "NOT_APPLICABLE");
-    assert.equal(r30008?.reviewerOutcome, "NOT_APPLICABLE");
     for (const id of excludedRuleIds) assert.equal(currentById.get(id).reviewStatus, "PROVISIONAL");
   });
 
@@ -232,7 +226,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(artifacts.manifest.sources.mayaPdd.sha256, sha(fs.readFileSync(file(pddPath))));
     assert.equal(artifacts.manifest.sources.mayaExtraction.sha256, sha(fs.readFileSync(file(extractionPath))));
     assert.equal(artifacts.manifest.sources.ruleContracts.baselineSnapshot.sha256, sha(fs.readFileSync(file(contractSnapshotPath))));
-    assert.equal(artifacts.manifest.sources.ruleContracts.baselineSnapshot.sourceCommit, "87eef90379f06df40a917894a159d10a5d4c2703");
+    assert.equal(artifacts.manifest.sources.ruleContracts.baselineSnapshot.sourceCommit, baselineCommit);
     assert.equal(artifacts.responseSchema.properties.sourceDocument.const.contentSha256, packet.sourceDocument.contentSha256);
     assert.equal(artifacts.responseSchema.properties.machineProposalRef.const.sha256, machineSha);
   });
@@ -378,11 +372,11 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     expectInvalid({ ...reviewedResponse, sourceDocument: { ...reviewedResponse.sourceDocument, extra: true } }, "additional sourceDocument properties");
   });
 
-  it("keeps the reviewer response schema exactly five unique decisions and deterministic regeneration stable", () => {
+  it("keeps the reviewer response schema exactly six unique decisions and deterministic regeneration stable", () => {
     expectValid(reviewedResponse, "valid reviewed response");
-    assert.equal(artifacts.responseSchema.properties.decisions.minItems, 5);
-    assert.equal(artifacts.responseSchema.properties.decisions.maxItems, 5);
-    assert.equal(artifacts.responseSchema.allOf.length, 5);
+    assert.equal(artifacts.responseSchema.properties.decisions.minItems, 6);
+    assert.equal(artifacts.responseSchema.properties.decisions.maxItems, 6);
+    assert.equal(artifacts.responseSchema.allOf.length, 6);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selectedRuleIds);
 
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-"));

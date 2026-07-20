@@ -11,11 +11,12 @@ export const packetDir = path.join(repoRoot, "docs/roadmaps/interactive-evidence
 export const responseValidatorImplementationPath = "scripts/preverif/rc5-maya-remaining-five-response-validator.ts";
 export const responseValidatorCliPath = "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts";
 export const selectedRuleIds = [
+  "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001",
   "Verra.AFOLU.VM0007.v1-8.R-2-0002",
   "Verra.AFOLU.VM0007.v1-8.R-2-0004",
   "Verra.AFOLU.VM0007.v1-8.R-2-0007",
   "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-  "Verra.AFOLU.VM0007.v1-8.R-3-0008",
 ] as const;
 
 type ValidationError = { message?: string; instancePath?: string };
