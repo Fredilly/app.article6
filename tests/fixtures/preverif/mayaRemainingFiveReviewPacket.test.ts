@@ -15,13 +15,14 @@ import {
   packetDir,
   pddPath,
   proposalPath,
+  responseValidatorPath,
   rulesPath,
   selectedRuleIds,
   truthFiles,
   vmPagesPath,
-  createReviewResponseValidator,
   writeArtifacts,
 } from "../../../scripts/preverif/generate-rc5-maya-remaining-five-review-packet";
+import { main as validateResponseMain } from "../../../scripts/preverif/validate-rc5-maya-remaining-five-review-response";
 
 const root = process.cwd();
 const sha = (value: string | Buffer) => crypto.createHash("sha256").update(value).digest("hex");
@@ -62,9 +63,33 @@ function mutateTruthRow(ruleId: string, fn: (row: any) => void) {
   if (!mutated) throw new Error(`Missing truth row: ${ruleId}`);
 }
 
+function withTempResponseFile(value: unknown, fn: (responsePath: string) => void) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-response-"));
+  const responsePath = path.join(dir, "response.json");
+  fs.writeFileSync(responsePath, `${JSON.stringify(value, null, 2)}\n`);
+  try {
+    fn(responsePath);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function invokeValidator(responsePath: string) {
+  const originalError = console.error;
+  let stderr = "";
+  console.error = (...args: any[]) => {
+    stderr += `${args.map(String).join(" ")}\n`;
+  };
+  try {
+    const code = validateResponseMain([responsePath]);
+    return { code, stderr: stderr.trimEnd() };
+  } finally {
+    console.error = originalError;
+  }
+}
+
 describe("RC5-2 Maya remaining-five independent review packet", () => {
   const artifacts = buildArtifacts();
-  const validateResponse = createReviewResponseValidator(artifacts.responseSchema);
   const packet = artifacts.packet;
   const template = artifacts.template;
 
@@ -116,13 +141,18 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
   });
 
   const expectValid = (candidate: any, label: string) => {
-    const result = validateResponse(clone(candidate));
-    assert.equal(result.valid, true, `${label}: ${JSON.stringify(result.errors)}`);
+    withTempResponseFile(clone(candidate), (responsePath) => {
+      const result = invokeValidator(responsePath);
+      assert.equal(result.code, 0, `${label}: ${result.stderr}`);
+    });
   };
 
-  const expectInvalid = (candidate: any, label: string) => {
-    const result = validateResponse(clone(candidate));
-    assert.equal(result.valid, false, label);
+  const expectInvalid = (candidate: any, label: string, expectedMessage?: RegExp | string) => {
+    withTempResponseFile(clone(candidate), (responsePath) => {
+      const result = invokeValidator(responsePath);
+      assert.equal(result.code, 1, label);
+      if (expectedMessage) assert.match(result.stderr, expectedMessage);
+    });
   };
 
   it("freezes exactly five selected IDs, the 51/7/58 inventory, and the blank template", () => {
@@ -171,6 +201,8 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(sha(fs.readFileSync(file(proposalPath))), machineSha);
     assert.equal(packet.frozenMachineProposal.sha256, machineSha);
     assert.equal(artifacts.manifest.sources.machineProposal.sha256, machineSha);
+    assert.equal(artifacts.manifest.responseValidator.path, responseValidatorPath);
+    assert.equal(artifacts.manifest.responseValidator.sha256, sha(fs.readFileSync(file(responseValidatorPath))));
     assert.equal(packet.sourceDocument.contentSha256, sha(fs.readFileSync(file(pddPath))));
     assert.equal(packet.sourceDocument.documentId, template.sourceDocument.documentId);
     assert.equal(packet.sourceDocument.documentName, template.sourceDocument.documentName);
@@ -244,19 +276,19 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, acceptedEvidence: [firstAllowed, firstAllowed] } : decision),
-    }, "duplicate accepted evidence");
+    }, "duplicate accepted evidence", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, rejectedEvidence: [firstAllowed, firstAllowed] } : decision),
-    }, "duplicate rejected evidence");
+    }, "duplicate rejected evidence", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, acceptedEvidence: [firstAllowed], rejectedEvidence: [firstAllowed] } : decision),
-    }, "accepted/rejected overlap");
+    }, "accepted/rejected overlap", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002: acceptedEvidence\/rejectedEvidence overlap/);
   });
 
   it("rejects invalid final-state combinations and prohibited review states", () => {
@@ -264,19 +296,19 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION" } : decision),
-    }, "pending submitted response");
+    }, "pending submitted response", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, finalEvidenceState: "FOUND", finalApplicability: "NOT_APPLICABLE" } : decision),
-    }, "FOUND + NOT_APPLICABLE");
+    }, "FOUND + NOT_APPLICABLE", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
 
     expectInvalid({
       ...reviewedResponse,
       decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
         index === 0 ? { ...decision, finalEvidenceState: "N/A", finalApplicability: "APPLICABLE" } : decision),
-    }, "N/A + APPLICABLE");
+    }, "N/A + APPLICABLE", /decision Verra\.AFOLU\.VM0007\.v1-8\.R-2-0002/);
 
     expectInvalid({
       ...reviewedResponse,
@@ -302,13 +334,31 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     expectValid(provisionalResponse, "valid provisional response");
   });
 
+  it("fails cleanly for missing or malformed input files", () => {
+    const missing = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-missing-")), "missing.json");
+    const missingResult = invokeValidator(missing);
+    assert.equal(missingResult.code, 1);
+    assert.match(missingResult.stderr, /Response file not found/);
+
+    const malformedDir = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-malformed-"));
+    try {
+      const malformed = path.join(malformedDir, "response.json");
+      fs.writeFileSync(malformed, "{ not json");
+      const malformedResult = invokeValidator(malformed);
+      assert.equal(malformedResult.code, 1);
+      assert.match(malformedResult.stderr, /Response file is not valid JSON/);
+    } finally {
+      fs.rmSync(malformedDir, { recursive: true, force: true });
+    }
+  });
+
   it("rejects source-document mutations and proves the source document is exact", () => {
     expectInvalid({ ...reviewedResponse, sourceDocument: { ...reviewedResponse.sourceDocument, contentSha256: `${reviewedResponse.sourceDocument.contentSha256.slice(0, 63)}0` } }, "mutated sourceDocument.contentSha256");
     expectInvalid({ ...reviewedResponse, sourceDocument: { ...reviewedResponse.sourceDocument, extra: true } }, "additional sourceDocument properties");
   });
 
   it("keeps the reviewer response schema exactly five unique decisions and deterministic regeneration stable", () => {
-    assert.equal(validateResponse(reviewedResponse).valid, true);
+    expectValid(reviewedResponse, "valid reviewed response");
     assert.equal(artifacts.responseSchema.properties.decisions.minItems, 5);
     assert.equal(artifacts.responseSchema.properties.decisions.maxItems, 5);
     assert.equal(artifacts.responseSchema.allOf.length, 5);
@@ -324,6 +374,34 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
       assert.equal(result.manifestSha256, sha(fs.readFileSync(path.join(packetDir, "manifest.json"))));
     } finally {
       fs.rmSync(temp, { recursive: true, force: true });
+    }
+  });
+
+  it("pins the validator in the manifest and fails on validator mutation", () => {
+    const validatorAbsolute = file(responseValidatorPath);
+    const original = fs.readFileSync(validatorAbsolute, "utf8");
+    fs.writeFileSync(validatorAbsolute, `${original}\n// mutation\n`);
+    try {
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed manifest responseValidator SHA changed/);
+      });
+
+      const temp = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-validator-"));
+      try {
+        const generated = writeArtifacts(temp);
+        assert.notEqual(
+          fs.readFileSync(path.join(temp, "manifest.json"), "utf8"),
+          fs.readFileSync(path.join(packetDir, "manifest.json"), "utf8"),
+        );
+        assert.equal(fs.readFileSync(path.join(temp, "review-packet.json"), "utf8"), fs.readFileSync(path.join(packetDir, "review-packet.json"), "utf8"));
+        assert.equal(generated.packetSha256, sha(fs.readFileSync(path.join(packetDir, "review-packet.json"))));
+      } finally {
+        fs.rmSync(temp, { recursive: true, force: true });
+      }
+    } finally {
+      fs.writeFileSync(validatorAbsolute, original);
     }
   });
 

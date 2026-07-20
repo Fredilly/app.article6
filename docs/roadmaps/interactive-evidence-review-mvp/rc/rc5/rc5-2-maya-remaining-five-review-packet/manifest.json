@@ -77,6 +77,10 @@
       "sha256": "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8"
     }
   },
+  "responseValidator": {
+    "path": "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts",
+    "sha256": "c97985bf7498c735fa1b35670b63e74483a5c2014ff4e53fd8f415ece96cc44a"
+  },
   "generatedFiles": {
     "packet": "review-packet.json",
     "instructions": "reviewer-instructions.md",
