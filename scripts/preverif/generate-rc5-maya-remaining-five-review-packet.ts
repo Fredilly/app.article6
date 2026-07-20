@@ -3,7 +3,10 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import Ajv2020 from "ajv/dist/2020";
+import {
+  responseValidatorCliPath,
+  responseValidatorImplementationPath,
+} from "./rc5-maya-remaining-five-response-validator";
 
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet");
@@ -24,7 +27,6 @@ export const vmPagesPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5
 export const pddPath = "tests/fixtures/quick-check/v2/maya-forest-corridor-redd-belize/source.pdf";
 export const extractionPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize/raw-document-extraction.json";
 export const proposalPath = "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json";
-export const responseValidatorPath = "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts";
 export const truthFiles = [
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
   ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`),
@@ -322,41 +324,8 @@ export function buildArtifacts() {
   const blank = (id: string) => ({ stableRuleId: id, machineRowSha256: packetRules.find((r) => r.stableRuleId === id)!.machineRowSha256, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], assessmentReason: null, gap: null, clientAction: null, correctionReason: null, provisionalReason: null, reviewerConfidence: null });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef: machineProposal, decisions: selectedRuleIds.map(blank) };
   const instructions = `# RC5-2 Maya independent review — remaining five\n\nReturn exactly five unique decisions, one for each selected rule ID in the packet. Review the complete contiguous VM0007 v1.8 evidence pages and the complete exact Maya project evidence objects. Do not consult or infer an answer from reviewed truth, prior responses, or machine judgments.\n\nFor each rule, select one final judgment: REVIEWED + FOUND + CONFORMS; REVIEWED + UNCLEAR + ACTION_REQUIRED; REVIEWED + MISSING + ACTION_REQUIRED; or REVIEWED + NOT_APPLICABLE. Use PROVISIONAL only when an authoritative interpretation remains genuinely unresolved or unavailable evidence prevents a defensible final judgment. Cite the exact source path, whole-file SHA, page, and complete quote for every material conclusion.\n\nThe excluded rules ${excludedRuleIds.join(" and ")} are outside this packet and remain separately blocked by unavailable Appendix 17 evidence. Do not decide or modify them.\n`;
-  const manifest = { schemaVersion: "rc5-2-maya-remaining-five-review-manifest-v1", baselineCommit, selectedRuleIds: [...selectedRuleIds], excludedRuleIds: [...excludedRuleIds], inventory: frozenInventory, historicalTruth: { files: truthFiles, commit: baselineCommit, sha256: Object.fromEntries(truthFiles.map((f) => [f, sha256(frozenBytes(f))])) }, sources: { machineProposal: { path: proposalPath, sha256: machineSha }, ruleContracts: { path: rulesPath, sha256: sha256(bytes(rulesPath)), baselineSnapshot: contractSnapshot }, methodologyPdf: { path: vmPdfPath, sha256: sha256(bytes(vmPdfPath)) }, methodologyPages: { path: vmPagesPath, sha256: sha256(bytes(vmPagesPath)) }, mayaPdd: { path: pddPath, sha256: sha256(bytes(pddPath)) }, mayaExtraction: { path: extractionPath, sha256: sha256(bytes(extractionPath)) } }, responseValidator: { path: responseValidatorPath, sha256: sha256(bytes(responseValidatorPath)) }, generatedFiles: { packet: "review-packet.json", instructions: "reviewer-instructions.md", responseSchema: "review-response-schema.json", template: "review-template.json" }, reviewedTruthEmbedded: false, priorResponsesEmbedded: false };
+  const manifest = { schemaVersion: "rc5-2-maya-remaining-five-review-manifest-v1", baselineCommit, selectedRuleIds: [...selectedRuleIds], excludedRuleIds: [...excludedRuleIds], inventory: frozenInventory, historicalTruth: { files: truthFiles, commit: baselineCommit, sha256: Object.fromEntries(truthFiles.map((f) => [f, sha256(frozenBytes(f))])) }, sources: { machineProposal: { path: proposalPath, sha256: machineSha }, ruleContracts: { path: rulesPath, sha256: sha256(bytes(rulesPath)), baselineSnapshot: contractSnapshot }, methodologyPdf: { path: vmPdfPath, sha256: sha256(bytes(vmPdfPath)) }, methodologyPages: { path: vmPagesPath, sha256: sha256(bytes(vmPagesPath)) }, mayaPdd: { path: pddPath, sha256: sha256(bytes(pddPath)) }, mayaExtraction: { path: extractionPath, sha256: sha256(bytes(extractionPath)) } }, responseValidator: { cliPath: responseValidatorCliPath, cliSha256: sha256(bytes(responseValidatorCliPath)), implementationPath: responseValidatorImplementationPath, implementationSha256: sha256(bytes(responseValidatorImplementationPath)) }, generatedFiles: { packet: "review-packet.json", instructions: "reviewer-instructions.md", responseSchema: "review-response-schema.json", template: "review-template.json" }, reviewedTruthEmbedded: false, priorResponsesEmbedded: false };
   return { packet, responseSchema, template, instructions, manifest };
-}
-
-const canonicalJson = (value: unknown): string => {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b));
-    return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-};
-
-export function createReviewResponseValidator(responseSchema: object, decisionRuleIds: readonly string[] = selectedRuleIds) {
-  const ajv = new Ajv2020({ allErrors: true, allowUnionTypes: true, strict: false });
-  const validate = ajv.compile(responseSchema);
-  return (candidate: unknown) => {
-    if (!validate(candidate)) return { valid: false, errors: validate.errors ?? [] };
-    const response = candidate as { decisions?: Array<{ acceptedEvidence?: EvidenceObject[]; rejectedEvidence?: EvidenceObject[] }> };
-    for (const [index, decision] of (response.decisions ?? []).entries()) {
-      const accepted = new Set((decision.acceptedEvidence ?? []).map(canonicalJson));
-      const rejected = new Set((decision.rejectedEvidence ?? []).map(canonicalJson));
-      const label = decisionRuleIds[index] ?? `decision-${index + 1}`;
-      for (const evidence of accepted) {
-        if (rejected.has(evidence)) {
-          return { valid: false, errors: [{ message: `decision ${label}: acceptedEvidence/rejectedEvidence overlap` }] };
-        }
-      }
-    }
-    return { valid: true, errors: [] as Array<{ message?: string }> };
-  };
-}
-
-export function validateReviewResponse(candidate: unknown) {
-  return createReviewResponseValidator(buildArtifacts().responseSchema)(candidate);
 }
 
 export function writeArtifacts(outputDir = packetDir) {

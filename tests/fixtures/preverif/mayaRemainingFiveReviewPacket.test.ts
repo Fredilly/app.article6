@@ -15,13 +15,16 @@ import {
   packetDir,
   pddPath,
   proposalPath,
-  responseValidatorPath,
   rulesPath,
   selectedRuleIds,
   truthFiles,
   vmPagesPath,
   writeArtifacts,
 } from "../../../scripts/preverif/generate-rc5-maya-remaining-five-review-packet";
+import {
+  responseValidatorCliPath,
+  responseValidatorImplementationPath,
+} from "../../../scripts/preverif/rc5-maya-remaining-five-response-validator";
 import { main as validateResponseMain } from "../../../scripts/preverif/validate-rc5-maya-remaining-five-review-response";
 
 const root = process.cwd();
@@ -85,6 +88,16 @@ function invokeValidator(responsePath: string) {
     return { code, stderr: stderr.trimEnd() };
   } finally {
     console.error = originalError;
+  }
+}
+
+function invokeValidatorFromCwd(responsePath: string, cwd: string) {
+  const originalCwd = process.cwd();
+  process.chdir(cwd);
+  try {
+    return invokeValidator(responsePath);
+  } finally {
+    process.chdir(originalCwd);
   }
 }
 
@@ -201,8 +214,10 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(sha(fs.readFileSync(file(proposalPath))), machineSha);
     assert.equal(packet.frozenMachineProposal.sha256, machineSha);
     assert.equal(artifacts.manifest.sources.machineProposal.sha256, machineSha);
-    assert.equal(artifacts.manifest.responseValidator.path, responseValidatorPath);
-    assert.equal(artifacts.manifest.responseValidator.sha256, sha(fs.readFileSync(file(responseValidatorPath))));
+    assert.equal(artifacts.manifest.responseValidator.cliPath, responseValidatorCliPath);
+    assert.equal(artifacts.manifest.responseValidator.cliSha256, sha(fs.readFileSync(file(responseValidatorCliPath))));
+    assert.equal(artifacts.manifest.responseValidator.implementationPath, responseValidatorImplementationPath);
+    assert.equal(artifacts.manifest.responseValidator.implementationSha256, sha(fs.readFileSync(file(responseValidatorImplementationPath))));
     assert.equal(packet.sourceDocument.contentSha256, sha(fs.readFileSync(file(pddPath))));
     assert.equal(packet.sourceDocument.documentId, template.sourceDocument.documentId);
     assert.equal(packet.sourceDocument.documentName, template.sourceDocument.documentName);
@@ -377,31 +392,108 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     }
   });
 
-  it("pins the validator in the manifest and fails on validator mutation", () => {
-    const validatorAbsolute = file(responseValidatorPath);
-    const original = fs.readFileSync(validatorAbsolute, "utf8");
-    fs.writeFileSync(validatorAbsolute, `${original}\n// mutation\n`);
+  it("rejects stale packet, schema, cli, and implementation pins through the official CLI path", () => {
+    const cliAbsolute = file(responseValidatorCliPath);
+    const implAbsolute = file(responseValidatorImplementationPath);
+    const packetAbsolute = path.join(packetDir, "review-packet.json");
+    const schemaAbsolute = path.join(packetDir, "review-response-schema.json");
+    const manifestAbsolute = path.join(packetDir, "manifest.json");
+    const cliOriginal = fs.readFileSync(cliAbsolute, "utf8");
+    const implOriginal = fs.readFileSync(implAbsolute, "utf8");
+    const packetOriginal = fs.readFileSync(packetAbsolute, "utf8");
+    const schemaOriginal = fs.readFileSync(schemaAbsolute, "utf8");
+    const manifestOriginal = fs.readFileSync(manifestAbsolute, "utf8");
     try {
+      fs.writeFileSync(cliAbsolute, `${cliOriginal}\n// mutation\n`);
       withTempResponseFile(reviewedResponse, (responsePath) => {
         const validatorResult = invokeValidator(responsePath);
         assert.equal(validatorResult.code, 1);
-        assert.match(validatorResult.stderr, /Committed manifest responseValidator SHA changed/);
+        assert.match(validatorResult.stderr, /Committed manifest responseValidator CLI SHA changed/);
+      });
+      const cliTemp = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-cli-regen-"));
+      try {
+        const generated = writeArtifacts(cliTemp);
+        assert.notEqual(
+          fs.readFileSync(path.join(cliTemp, "manifest.json"), "utf8"),
+          fs.readFileSync(manifestAbsolute, "utf8"),
+        );
+        assert.equal(
+          fs.readFileSync(path.join(cliTemp, "review-packet.json"), "utf8"),
+          fs.readFileSync(packetAbsolute, "utf8"),
+        );
+        assert.equal(generated.packetSha256, sha(fs.readFileSync(packetAbsolute)));
+      } finally {
+        fs.rmSync(cliTemp, { recursive: true, force: true });
+      }
+
+      fs.writeFileSync(cliAbsolute, cliOriginal);
+      fs.writeFileSync(implAbsolute, `${implOriginal}\n// mutation\n`);
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed manifest responseValidator implementation SHA changed/);
       });
 
-      const temp = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-validator-"));
-      try {
-        const generated = writeArtifacts(temp);
-        assert.notEqual(
-          fs.readFileSync(path.join(temp, "manifest.json"), "utf8"),
-          fs.readFileSync(path.join(packetDir, "manifest.json"), "utf8"),
-        );
-        assert.equal(fs.readFileSync(path.join(temp, "review-packet.json"), "utf8"), fs.readFileSync(path.join(packetDir, "review-packet.json"), "utf8"));
-        assert.equal(generated.packetSha256, sha(fs.readFileSync(path.join(packetDir, "review-packet.json"))));
-      } finally {
-        fs.rmSync(temp, { recursive: true, force: true });
-      }
+      fs.writeFileSync(implAbsolute, implOriginal);
+      fs.writeFileSync(schemaAbsolute, `${schemaOriginal}\n`);
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed response schema SHA changed/);
+      });
+
+      fs.writeFileSync(schemaAbsolute, schemaOriginal);
+      fs.writeFileSync(packetAbsolute, `${packetOriginal}\n`);
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed packet SHA changed/);
+      });
     } finally {
-      fs.writeFileSync(validatorAbsolute, original);
+      fs.writeFileSync(cliAbsolute, cliOriginal);
+      fs.writeFileSync(implAbsolute, implOriginal);
+      fs.writeFileSync(packetAbsolute, packetOriginal);
+      fs.writeFileSync(schemaAbsolute, schemaOriginal);
+      fs.writeFileSync(manifestAbsolute, manifestOriginal);
+    }
+  });
+
+  it("rejects manifests that omit the schema or implementation pin", () => {
+    const manifestAbsolute = path.join(packetDir, "manifest.json");
+    const manifestOriginal = fs.readFileSync(manifestAbsolute, "utf8");
+    try {
+      const manifest = JSON.parse(manifestOriginal);
+      delete manifest.generatedFileSha256["review-response-schema.json"];
+      fs.writeFileSync(manifestAbsolute, `${JSON.stringify(manifest, null, 2)}\n`);
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed response schema SHA changed/);
+      });
+
+      const manifestWithoutImplementationPin = JSON.parse(manifestOriginal);
+      delete manifestWithoutImplementationPin.responseValidator.implementationPath;
+      delete manifestWithoutImplementationPin.responseValidator.implementationSha256;
+      fs.writeFileSync(manifestAbsolute, `${JSON.stringify(manifestWithoutImplementationPin, null, 2)}\n`);
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const validatorResult = invokeValidator(responsePath);
+        assert.equal(validatorResult.code, 1);
+        assert.match(validatorResult.stderr, /Committed manifest is missing responseValidator implementation path/);
+      });
+    } finally {
+      fs.writeFileSync(manifestAbsolute, manifestOriginal);
+    }
+  });
+
+  it("accepts the official CLI from a non-repository working directory", () => {
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "rc5-remaining-five-cwd-"));
+    try {
+      withTempResponseFile(reviewedResponse, (responsePath) => {
+        const result = invokeValidatorFromCwd(responsePath, cwd);
+        assert.equal(result.code, 0);
+      });
+    } finally {
+      fs.rmSync(cwd, { recursive: true, force: true });
     }
   });
 

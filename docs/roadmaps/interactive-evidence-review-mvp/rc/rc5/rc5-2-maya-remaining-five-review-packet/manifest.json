@@ -78,8 +78,10 @@
     }
   },
   "responseValidator": {
-    "path": "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts",
-    "sha256": "c97985bf7498c735fa1b35670b63e74483a5c2014ff4e53fd8f415ece96cc44a"
+    "cliPath": "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts",
+    "cliSha256": "036f25a6b66237e0e9f240f48182b53bfdf7c8199be7c14833b458e266f250ea",
+    "implementationPath": "scripts/preverif/rc5-maya-remaining-five-response-validator.ts",
+    "implementationSha256": "ee2ba8600169bfa5a22e290b22a9cfaf8e7a2b4b38825aae1ce8ef7106ecbe58"
   },
   "generatedFiles": {
     "packet": "review-packet.json",
