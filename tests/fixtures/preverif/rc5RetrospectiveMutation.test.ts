@@ -90,8 +90,8 @@ describe("RC5 retrospective audit mutation coverage", () => {
     expect(() => loadAuthorizedBlockerResolutionContexts(path.join(process.cwd(), "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/review-packet.json"))).toThrow(/SHA changed/);
     const allTruthFiles = ["maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((batch) => `rc5-2-maya-batch-${batch}-adjudication/reviewed-truth.json` )];
     const allRows = allTruthFiles.flatMap((file) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/${file}`), "utf8")).decisions);
-    expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(52);
-    expect(allRows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(6);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "REVIEWED")).toHaveLength(58);
+    expect(allRows.filter((decision: any) => decision.reviewStatus === "PROVISIONAL")).toHaveLength(0);
   });
 
   it("passes a valid reviewed decision through all six invariant checks", () => {

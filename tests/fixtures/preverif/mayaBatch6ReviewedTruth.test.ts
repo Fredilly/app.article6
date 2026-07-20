@@ -16,7 +16,6 @@ const read = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, "u
 const sha256 = (value: string | Buffer): string => crypto.createHash("sha256").update(value).digest("hex");
 const evidenceFields = ["quote", "page", "sectionHeading", "spanId", "documentId", "documentSha256"] as const;
 const preChangeFileSha256: Record<string, string> = {
-  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
   "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json": "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
 };
@@ -87,7 +86,6 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
   it("keeps machine truth and non-selected PR-base rows byte-for-byte unchanged", () => {
     assert.equal(sha256(fs.readFileSync(proposalPath)), "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
     for (const relativePath of [
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json",
       "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
     ]) assert.equal(sha256(fs.readFileSync(path.join(root, relativePath))), preChangeFileSha256[relativePath], relativePath);
@@ -106,9 +104,9 @@ describe("RC5-2 Maya Batch 6 final reviewed truth", () => {
     assert.equal(new Set(batches).size, 58);
     assert.equal(decisions.length, 58);
     assert.equal(new Set(decisions.map((decision) => decision.stableRuleId)).size, 58);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 52);
-    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 6);
-    assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), false);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "REVIEWED").length, 58);
+    assert.equal(decisions.filter((decision) => decision.reviewStatus === "PROVISIONAL").length, 0);
+    assert.equal(decisions.every((decision) => decision.reviewStatus === "REVIEWED"), true);
   });
 
   it("limits reviewed-truth changes from the pinned PR base to the eight selected rules", () => {

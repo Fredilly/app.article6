@@ -180,39 +180,22 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
       "machineRowSha256": "28298e9a9700ae3e806071694832576fc22016ead632768ef401f995e2281cdc",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [
-        {
-          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n78\nCCB v3.0, VCS v4.4\nStatute Relevance and Compliance\nright to unionize outlined in worker’s\nagreements.\nInternational Labor Organization Conventions Belize is a signatory to many of the International\nLabor Organization’s conventions13. Those\nconventions are addressed in Belize labor laws.\nThe ILO Conventions Act commits Belize to\nfollowing the ILO conventions.\nEqual Pay Act, Chapter 302:01 This act seeks to ensure that employers pay\nequal pay for equal work without discrimination\nbetween male and female employees.\n2.5.3 Human Rights (VCS, 3.19)\nThe MFC REDD Project recognizes, respects, and promotes the protection of the rights of Indigenous\nPeoples, local communities, and customary rights holders in line with applicable international human\nrights law, and the United Nations Declaration on the Rights of Indigenous Peoples and ILO Convention\n169 on Indigenous and Tribal Peoples.\nThere are currently no communities in the project area nor were there communities before the property\nwas purchased. In the project zone, there are 12 local communities made up of Creole, Garifuna, and\nMestizo/Hispanic/Latino populations. There are no Indigenous communities in the project zone. The\nproject has been engaging with the 12 communities and will continue to engage with them to ensure\nrespect for their human rights and equity as detailed in sections 2.3 and section 4 of this document.\nOutside of the REDD project area but within the property that the MFCT owns for conservation, there is\na family from one of the local communities currently using a small area of about 12 hectares for cattle\nranching and fruit tree production. This family had a 7-year lease issued by the Government of Belize\nfrom 2013-2020. This is a boundary overlap as a portion of the area under the family’s lease falls\nwithin the MFC property. After the lease expired, the family has continued to occupy the area.\nThe MFCT is working to engage with the family with the goal of understanding their perspective and\ncircumstances, while working collaboratively toward a voluntary and dignified resolution to the\noverlapping claims to the property. Emphasis is being placed on minimizing conflict, upholding his\nrights and well-being throughout the process, and informing the family of the MFCT legal rights to the\nland.\n2.5.4 Indigenous Peoples and Cultural Heritage (VCS, 3.18, 3.19)\nAs detailed in section 4, the project has clear net benefits to local communities and is committed to\npreserving their cultural heritage. The conservation of the project area contributes to the health of local\npopulations of wildlife, thereby supporting the livelihoods of nearby communities that depend on",
-          "page": 78,
-          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 78",
-          "spanId": "full-pdd:page-78:1",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
-        {
-          "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n81\nCCB v3.0, VCS v4.4\nThere are no ongoing or unresolved conflicts or disputes over rights to the MFC REDD project area nor\nhave there been any disputes during the last twenty years.\nOutside of the REDD project area but within the property that the MFCT purchased for conservation,\nthere is a family from one of the 12 communities currently using a small area of about 12 hectares for\ncattle ranching and fruit tree production for personal consumption. This family had a 7-year lease\nissued by the Government of Belize from 2013-2020. However, the lease includes a portion of the area\nwithin the property under previous ownership, causing a boundary overlap. After the lease expired, the\nfamily has continued to occupy the area.\nThe MFCT is engaging with the family with the goal of understanding their perspective and\ncircumstances, while working collaboratively toward a voluntary and dignified resolution of the\nsituation. Emphasis is being placed on minimizing conflict, upholding the family’s rights and well-being\nthroughout the process, and informing them of the MFCT’s legal rights to the land.\n2.5.12 Approvals (CCB, G5.7)\nIn October 2020, a legally binding agreement was signed between the Government of Belize (GoB) and\nRe:wild (formerly Global Wildlife Conservation) included in Appendix 13. One of the obligations of the\nGoB in this agreement is to grant the carbon rights of the properties to the MFCT.\nIn September, 2021, a motion was passed in the Belize National Assembly formally approving the\ntransfer of carbon rights and credits associated with the properties held by the MFCT to the MFCT, as\nagreed upon in the GoB-Re:Wild agreement, with any excess carbon rights and credits remaining with\nthe GoB (see Appendix 9).\n2.5.13 Double Counting and Participation under Other GHG Programs (VCS, 3.23; CCB\nG5.9)\n2.5.13.1 No Double Issuance\nIs the project receiving or seeking credit for reductions and removals from a project activity\nunder another GHG program, or any other form of community, social, or biodiversity unit or\ncredit?\n☐ Yes ☒ No\n2.5.13.2 Registration in Other GHG Programs\nHas the project registered under any other GHG programs?\n☐ Yes ☒ No\nIs the project active under the other program?\n☐ Yes ☒ No\n2.5.13.3 Projects Rejected by Other GHG Programs",
-          "page": 81,
-          "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 81",
-          "spanId": "full-pdd:page-81:2",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        }
-      ],
+      "acceptedEvidence": [],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD evidence covers legal compliance, human rights, and rights conflicts, but does not contain an explicit statement that the project boundary does not overlap any other VCS project boundary. The KML file and shapefiles, which could contain boundary overlap information, are referenced but absent from the frozen packet. Without the boundary files or an explicit no-overlap statement, boundary exclusivity cannot be independently confirmed.",
-      "gap": "The KML file and shapefiles (referenced in the PDD) are not present in the frozen packet and are necessary to verify boundary exclusivity. No explicit no-overlap statement exists in the searched PDD evidence.",
-      "clientAction": "Provide the KML and shapefiles, or an explicit no-overlap statement, to confirm the boundary does not overlap with any other VCS project.",
-      "correctionReason": "Revised from PROVISIONAL — absent boundary files genuinely prevent final verification.",
-      "genericFailureCategory": "COMPONENT_COVERAGE",
-      "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "Boundary coordinates and shapefile/KML references are provided, but the actual KML and shapefiles are absent from the frozen packet. These external sources are necessary to independently confirm boundary exclusivity."
+      "assessmentReason": "The methodology contract requires a strict no-overlap rule for VCS project boundaries. Candidate evidence on pages 78 and 81 addresses a land-lease overlap with a family and general approvals, not a VCS project-boundary overlap. No boundary map or definitive no-overlap assertion is in the frozen evidence.",
+      "gap": "No VCS project-boundary map or no-overlap statement in the frozen evidence.",
+      "clientAction": "Provide project boundary KML/shapefile and a statement confirming no overlap with other VCS project areas.",
+      "correctionReason": "The machine assessed UNCLEAR. Evidence addresses a land-lease issue, not the VCS boundary requirement.",
+      "genericFailureCategory": "RETRIEVAL",
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0003",
@@ -254,11 +237,11 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
       "machineRowSha256": "d4eea41a068f96ff59cb0e89ee6a804c6cecd37b17b71b628c22fd08b0b557b6",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "UNCLEAR",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
-      "reviewerOutcome": "ACTION_REQUIRED",
+      "reviewerOutcome": "CONFORMS",
       "acceptedEvidence": [
         {
           "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n97\nCCB v3.0, VCS v4.4\nthe project is located in central Belize is home to a large concentration of agribusiness in Belize.\nBecause of this fact, the project team focused on an area (i.e. stratum) within approximately 50 km of\nthe project area to analyze land use by the class of deforestation agents. This stratum is similar, in\nterms of the biophysical parameters, related to forest productivity and common practice for forest\nconversion (Table 14, Table 15, Table 16, Table 17).\nAs described in the baseline scenario (section 3.1.4) there is an immediate site-specific threat of\ndeforestation and conversion to agriculture.\n3.2.1.1.2 Area of deforestation 𝐴𝑝𝑙𝑎𝑛𝑛𝑒𝑑\nThe project area can be legally cleared and converted to agriculture (section 2.2.1). Because its soils\nare appropriate for agricultural production, it has negligible slope, and because low areas can be\ndrained (as stated in the Broker’s Opinion of Value available in Appendix 11D), the entire area of the\nexisting forest in the project area (10,795 ha) is suitable for conversion to agriculture and thus is the\narea of deforestation 𝐴𝑝𝑙𝑎𝑛𝑛𝑒𝑑.\n3.2.1.1.3 Rate of deforestation 𝐷%𝑝𝑙𝑎𝑛𝑛𝑒𝑑,𝑡\nTo calculate the baseline rate of deforestation, 6 proxy areas were selected west of the project area.\nThese proxy areas are based on official parcel registry data provided by the Belizean government entity,\nLand Information Center (LIC). The parcel numbers associated with each proxy area is in Table 13. The\noriginal data provided by LIC can be found in Appendix 24.\nTable 13. LIC parcel numbers for each proxy area\nProxy number LIC parcel registry number(s)\n1 14-44-9\n2 14-44-5\n3 14-47-4\n4 14-44-7\n5 19-41-1975\n6 20-29-53, 20-29-51, 20-29-68\nFor each of the proxy areas:\n• Land conversion practices were the same as those used by the baseline agent or class of agent\n• The post-deforestation land use was the same in the proxy areas as expected in the project area\nunder business as usual",
@@ -275,26 +258,29 @@
           "spanId": "full-pdd:page-98:2",
           "documentId": "quick-check-review-question",
           "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
+        }
+      ],
+      "rejectedEvidence": [
         {
           "quote": "CCB & VCS Project Description Template\nCCB Version 3.0, VCS Version 4.4\n278\nCCB v3.0, VCS v4.4\nSection Information Justification\n3.2.1.1.3 Rate of\ndeforestation\nTo calculate the baseline rate of deforestation, 6 proxy areas\nwere selected west of the project area. These proxy areas are\nbased on official parcel registry data provided by the Belizean\ngovernment entity, Land Information Center (LIC). The original\ndata provided by LIC can be found in Appendix XYZ.\nThe original data includes information on current\nand previous proprietors and lessees of the\nparcels.",
           "page": 278,
           "sectionHeading": "CCB & VCS Project Description Template CCB Version 3.0, VCS Version 4.4 278",
           "spanId": "full-pdd:page-278:3",
           "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b",
+          "evidenceType": "incomplete_or_noisy",
+          "reason": "Appendix table with incomplete source label (Appendix XYZ), no additional proxy similarity data."
         }
       ],
-      "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD describes a 50-km stratum, proxy selection criteria (same management/land use rights, within 50 km, similar deforestation agents), Tables 14-17 showing proxy similarity within 20% deviation, and references Appendix XYZ for LIC parcel data. The proxy similarity analysis is documented, but the underlying RRD justification and the original LIC source data are absent from the frozen packet. These are external attachments referenced by but not contained in the PDD, and independently verify the reference region delineation.",
-      "gap": "RRD justification and LIC source data (Appendix XYZ) are referenced but absent from the frozen packet.",
-      "clientAction": "Provide the RRD methodology description and the LIC source data (Appendix XYZ) to verify the reference region delineation.",
-      "correctionReason": "Revised from PROVISIONAL — absent RRD justification and LIC data genuinely prevent final verification.",
-      "genericFailureCategory": "COMPONENT_COVERAGE",
-      "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "Proxy similarity analysis is documented, but the underlying RRD justification and LIC source data are external attachments absent from the frozen packet, preventing full verification of the reference region."
+      "assessmentReason": "Pages 97-98 describe six proxy areas within 50 km with explicit selection criteria and VMD0006 20% threshold compliance asserted with Tables 14-17.",
+      "gap": "",
+      "clientAction": "",
+      "correctionReason": "Machine assessed UNCLEAR but pages 97-98 contain complete proxy similarity demonstration.",
+      "genericFailureCategory": "ASSESSMENT",
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0005",
@@ -389,8 +375,8 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
       "machineRowSha256": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
@@ -415,58 +401,33 @@
       "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD states symmetric accounting (all included pools accounted for in baseline, project, and leakage), lists included pools (aboveground tree biomass, belowground, palm, standing/lying dead wood, SOC), and excludes HWP as de minimis via Appendix 1. Dead wood was included despite being de minimis. However, Appendices 21 and 22 (HWP calculations and significance testing) and the methodology pool crosswalk (Table 4) are referenced but absent from the frozen packet. These external attachments are necessary to verify the HWP de minimis determination and confirm the pool selection follows the methodology crosswalk.",
-      "gap": "Appendix 21 (HWP calculations), Appendix 22 (significance testing), and the methodology pool crosswalk (Table 4) are referenced but absent from the frozen packet.",
-      "clientAction": "Provide Appendices 21 and 22, and the methodology pool crosswalk (Table 4) to verify pool inclusion/exclusion justifications.",
-      "correctionReason": "Revised from PROVISIONAL — absent supporting appendices and pool crosswalk genuinely prevent final verification.",
+      "assessmentReason": "Pages 87-88 list pools and state symmetric accounting, but HWP de minimis determination relies on absent Appendices 1, 21, and 22.",
+      "gap": "Appendices 21 and 22 absent from frozen source set.",
+      "clientAction": "Provide Appendix 21/22 or include de minimis justification in the PD.",
+      "correctionReason": "Machine assessed UNCLEAR. Pool list and symmetric statement present but HWP justification relies on absent appendices.",
       "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "Pool inclusion/exclusion and symmetric accounting are described, but the supporting appendices (21, 22) and methodology pool crosswalk are absent external sources preventing full verification."
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
       "machineRowSha256": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
       "finalEvidenceState": "UNCLEAR",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [
-        {
-          "quote": "The following carbon pools are accounted for: aboveground tree biomass (for trees with a diameter at\nbreast height of greater than or equal to 5 cm), belowground tree biomass, aboveground biomass for\npalms, standing and lying dead wood, and soil organic carbon. Harvested wood products and",
-          "page": 87,
-          "sectionHeading": "3.1.3.3 Carbon pools",
-          "spanId": "full-pdd:page-87:1",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
-        {
-          "quote": "belowground palm biomass are excluded because they were deemed de minimis following the guidance\nprovided in VM0007’s Appendix 1: Testing Significance of GHG Emissions. Appendix 21 includes\ninformation on how carbon stocks in the harvested wood product pool were estimated. Tab \"Test of sig -\n6 year bsl valid\" of Appendix 22 provides the details of these significance testing calculations.\nBelowground palm carbon stocks are calculated the same way as belowground tree carbon stocks, the\ndetails of which are provided in section 3.2.1.2.1. While dead wood was also identified as de minimis,\ngiven the potential future increase in the size of this pool in the event of a hurricane or tropical storm, it\nwas deemed important to include.\nAll the included carbon pools are accounted for in the baseline and project scenarios as well as in the\naccounting of activity shifting leakage. Given the fact that harvested wood products are identified as de\nminimis, market effects leakage due to decreased timber harvest was also excluded from the analysis.\nLeaf litter, herbaceous vegetation, and lianas were not measured, which resulted in a conservative\nesti",
-          "page": 88,
-          "sectionHeading": "3.1.3.3 Carbon pools",
-          "spanId": "full-pdd:page-88:2",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
-        {
-          "quote": "Table 12. Source of GHG emissions included in the MFC REDD project\nSource Gas Included? Justification / Explanation\nBaseline\nBurning of woody\nbiomass\nCO2 Yes Carbon stock decreases due to burning are\naccounted for as a carbon stock change.\nCH4 Yes After timber species are removed from the land,\nthe remaining biomass is burned, so CH4 and N2O\nemissions from this activity are calculated.\nExpected biomass burning as part of post-\ndeforestation agricultural production is\nconservatively excluded.\nN2O Yes\nCombustion of\nfossil fuels\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nUse of fertilizers\nCO2 No\nConservatively excluded\tCH4 No\nN2O No\nProject\n\nBurning of woody\nbiomass\nCO2 Yes In the event that wildfires impact the project area,\ncarbon stock decreases will be accounted as a\ncarbon stock change.\nCH4 Yes\nN2O Yes",
-          "page": 88,
-          "sectionHeading": "3.1.3.4 Sources of GHG Emissions",
-          "spanId": "full-pdd:page-88:3",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        }
-      ],
+      "acceptedEvidence": [],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD states that HWP are excluded as de minimis via Appendix 1 significance testing, with reference to Appendix 21 (HWP calculations) and Appendix 22 (significance test tab 'Test of sig - 6 year bsl valid'). The symmetric accounting statement confirms 'all the included carbon pools are accounted for in the baseline and project scenarios as well as in the accounting of activity shifting leakage.' Dead wood, despite being identified as de minimis, was included due to potential hurricane/tropical storm increases. The methodology requires HWP to be included when they 'increase more or decrease less in the baseline than in the project scenario' and that T-SIG or Appendix 1 be used to determine significance. The PDD's de minimis treatment via Appendix 1 is procedurally consistent with the methodology, but Appendices 21 and 22 are not present in the frozen packet, preventing independent verification of the significance test results. Without these, the HWP exclusion cannot be confirmed as correctly applied.",
-      "gap": "Appendices 21 (HWP carbon stock estimation) and 22 (significance test calculations) are referenced in the PDD but absent from the frozen packet. These are necessary to verify that the HWP de minimis determination was correctly applied per the methodology's significance-testing requirements.",
-      "clientAction": "Provide Appendices 21 and 22 to verify HWP significance testing and de minimis determination.",
-      "correctionReason": "Initial adjudication.",
+      "assessmentReason": "Methodology contract Section 5.3.2 requires HWP/dead wood conditionality. Page 88 states HWP de minimis via Appendix 1, referencing absent Appendices 21/22. AGB is mandatory and included. The conditional HWP branch cannot be independently verified.",
+      "gap": "Appendices 21 and 22 absent from frozen source set.",
+      "clientAction": "Provide Appendices 21/22 or include HWP baseline-vs-project comparison in the PD.",
+      "correctionReason": "Machine proposed NOT_APPLICABLE but the methodology contract applies to this REDD project. The conditional HWP exclusion requires verification.",
       "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "HWP de minimis treatment is described and procedurally referenced to Appendix 1, but the supporting test results (Appendices 21/22) are absent from the frozen packet, preventing independent verification of the significance determination."
+      "provisionalReason": null
     }
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "rc5-2-maya-final-six-response-integration-v1",
+  "baselineCommit": "cc14d592330aa32ba1ac3219c0b3fd8371835d74",
+  "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-final-six-response-integration/validated-reviewer-response.json",
+  "responseSha256": "c57c004c61a755dcc2bf0a011d786a107dfe0792aada135defa31e7465e205d8",
+  "packetPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet/review-packet.json",
+  "packetSha256": "2cc91d4501a31b434b51bf938c727341f8888d56a6bc52929329bb4a72205bf9",
+  "machineProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "finalizedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+  ],
+  "inventoryBefore": {
+    "reviewed": 52,
+    "provisional": 6,
+    "total": 58
+  },
+  "inventoryAfter": {
+    "reviewed": 58,
+    "provisional": 0,
+    "total": 58
+  },
+  "machineTruthChanged": false,
+  "previousReviewedTruthUnchanged": true
+}

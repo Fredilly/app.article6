@@ -42,6 +42,12 @@ export const sourceTruthSha256: Record<string, string> = {
   [truthFiles[4]]: "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
   [truthFiles[5]]: "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00",
 };
+const laterAuthorizedTruthSha256: Record<string, string> = {
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json": "e3d1c5fe64556a0a2c92cb61844ede44f923e501153d79e83c5cf7fddc58ff27",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json": "8652eaf7e22b3c251126423eedfdd0d9fb3ca834ba1886b46a7f5f7c038ac971",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json": "d092b38e9b90a77047b72c6532eb8822397fab4d6cbe705ebab8faf224ad7c0e",
+  "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json": "0a98e2a9fafe15c5fbf2d35aaa1bcb2e68f871ed7646b6e72644cc4ecd6da343",
+};
 const requiredCitationKeys = ["sourcePath", "sourceSha256", "sourcePdfPath", "sourcePdfSha256", "page", "quote"];
 const sha256 = (value: string | Buffer) => crypto.createHash("sha256").update(value).digest("hex");
 const abs = (file: string) => path.join(root, file);
@@ -65,7 +71,7 @@ function verifyPinnedFiles() {
   for (const file of truthFiles) {
     if (file === integrationTruthFile) continue;
     const actual = sha256(fs.readFileSync(abs(file)));
-    if (actual !== sourceTruthSha256[file]) throw new Error(`${file}: current truth input changed`);
+    if (laterAuthorizedTruthSha256[file] ? actual !== laterAuthorizedTruthSha256[file] : actual !== sourceTruthSha256[file]) throw new Error(`${file}: current truth input changed`);
   }
 }
 
@@ -118,7 +124,14 @@ function buildIntegratedTruth() {
   const baseline = new Map<string, Json>();
   for (const file of truthFiles) {
     const base = readBase<Json>(file);
-    if (file !== integrationTruthFile && !equal(read<Json>(file), base)) throw new Error(`${file}: differs from immutable baseline`);
+    if (file !== integrationTruthFile) {
+      const current = read<Json>(file);
+      if (laterAuthorizedTruthSha256[file]) {
+        if (sha256(fs.readFileSync(abs(file))) !== laterAuthorizedTruthSha256[file]) throw new Error(`${file}: differs from authorized later truth`);
+      } else if (!equal(current, base)) {
+        throw new Error(`${file}: differs from immutable baseline`);
+      }
+    }
     baseline.set(file, base);
     const next = clone(base);
     if (file === integrationTruthFile) {

@@ -33,12 +33,12 @@ describe("RC5-2 Maya VT0001 response integration", () => {
     const truthRows = ["docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json", ...[2, 3, 4, 5, 6].map((n) => `docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-${n}-adjudication/reviewed-truth.json`)].flatMap((file) => readJson(file).decisions);
     expect(truthRows).toHaveLength(58);
     expect(new Set(truthRows.map((row: any) => row.stableRuleId)).size).toBe(58);
-    expect(truthRows.filter((row: any) => row.reviewStatus === "REVIEWED")).toHaveLength(52);
-    expect(truthRows.filter((row: any) => row.reviewStatus === "PROVISIONAL")).toHaveLength(6);
+    expect(truthRows.filter((row: any) => row.reviewStatus === "REVIEWED")).toHaveLength(58);
+    expect(truthRows.filter((row: any) => row.reviewStatus === "PROVISIONAL")).toHaveLength(0);
     const finalized = truthRows.find((row: any) => row.stableRuleId === finalizedRuleId);
     expect(finalized).toMatchObject({ reviewStatus: "REVIEWED", finalEvidenceState: "FOUND", finalApplicability: "NOT_APPLICABLE", reviewerOutcome: "NOT_APPLICABLE" });
     expect(truthRows.find((row: any) => row.stableRuleId === priorFinalizedRuleId)).toMatchObject({ reviewStatus: "REVIEWED", finalEvidenceState: "N/A", finalApplicability: "NOT_APPLICABLE", reviewerOutcome: "NOT_APPLICABLE" });
-    for (const id of remainingProvisionalRuleIds) expect(truthRows.find((row: any) => row.stableRuleId === id)).toMatchObject({ reviewStatus: "PROVISIONAL" });
+    for (const id of remainingProvisionalRuleIds) expect(truthRows.find((row: any) => row.stableRuleId === id)).toMatchObject({ reviewStatus: "REVIEWED" });
     expect(cryptoSha(machinePath)).toBe(machineProposalSha256);
     expect(fs.existsSync(path.join(root, integrationTruthFile))).toBe(true);
     expect(baselineCommit).toBe("1ed30d230618de4ee86c316ccbaf8363a98a879a");
