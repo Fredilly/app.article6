@@ -141,7 +141,7 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     const noEvidencePattern = /^No accepted evidence exists in the packet/;
 
     for (const decision of truth.decisions) {
-      if (decision.acceptedEvidence.length === 0) {
+      if (decision.acceptedEvidence.length === 0 && decision.finalApplicability !== "NOT_APPLICABLE") {
         assert.match(decision.assessmentReason, noEvidencePattern, `${decision.stableRuleId} assessment must explain missing accepted evidence`);
       } else {
         assert.doesNotMatch(decision.assessmentReason, noEvidencePattern, `${decision.stableRuleId} has accepted evidence but describes none`);
@@ -155,16 +155,16 @@ describe("RC5-2 Maya Batch 5 reviewed truth", () => {
     }
 
     const r30008 = decisions.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
-    assert.equal(r30008.finalApplicability, "UNKNOWN");
-    assert.match(r30008.assessmentReason, /JNR.*data/i);
-    assert.match(r30008.assessmentReason, /insufficient to definitively determine|cannot be resolved/i);
-    assert.equal(r30008.finalApplicability, "UNKNOWN");
-    assert.equal(r30008.finalEvidenceState, "UNCLEAR");
-    assert.equal(r30008.reviewerOutcome, "ACTION_REQUIRED");
-    assert.match(r30008.gap, /JNR applicability conditions/);
-    assert.match(r30008.clientAction, /JNR applicability conditions/);
-    assert.match(r30008.provisionalReason, /JNR baseline data applicability/);
-    assert.equal(r30008.reviewerConfidence, "LOW");
+    assert.equal(r30008.reviewStatus, "REVIEWED");
+    assert.equal(r30008.expertReviewRequired, false);
+    assert.equal(r30008.finalApplicability, "NOT_APPLICABLE");
+    assert.equal(r30008.finalEvidenceState, "N/A");
+    assert.equal(r30008.reviewerOutcome, "NOT_APPLICABLE");
+    assert.match(r30008.assessmentReason, /rule is permissive/i);
+    assert.equal(r30008.gap, "");
+    assert.equal(r30008.clientAction, "");
+    assert.equal(r30008.provisionalReason, null);
+    assert.equal(r30008.reviewerConfidence, "HIGH");
 
     for (const shortRuleId of ["R-3-0006", "R-4-0002", "R-5-0002", "R-5-0004"]) {
       const decision = truth.decisions.find((candidate: any) => candidate.stableRuleId.endsWith(`.${shortRuleId}`));
