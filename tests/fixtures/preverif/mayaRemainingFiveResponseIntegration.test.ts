@@ -26,27 +26,33 @@ function rowsById(rows: Array<Record<string, any>>) {
 }
 
 describe("RC5-2 Maya remaining-five response integration", () => {
-  it("stores the validated reviewer response byte-for-byte and validates it through the official CLI", () => {
+  it("keeps the predecessor response outside the new six-rule packet", () => {
     assert.equal(sha256(fs.readFileSync(responsePath)), "2ccb57ef1d63d4bf9d50e3775fe39c212913b0b93c5b1ef8def198f2572ae6c9");
-    assert.equal(validateResponseMain([responsePath]), 0);
+    assert.equal(validateResponseMain([responsePath]), 1);
 
     const responseManifest = readJson<Record<string, any>>(responseManifestPath);
     assert.equal(responseManifest.responsePath, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-response-integration/validated-reviewer-response.json");
     assert.equal(responseManifest.responseSha256, sha256(fs.readFileSync(responsePath)));
     assert.equal(responseManifest.packetPath, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet/review-packet.json");
-    assert.equal(responseManifest.packetSha256, sha256(fs.readFileSync(path.join(packetDir, "review-packet.json"))));
+    assert.notEqual(responseManifest.packetSha256, sha256(fs.readFileSync(path.join(packetDir, "review-packet.json"))));
     assert.equal(responseManifest.schemaPath, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet/review-response-schema.json");
-    assert.equal(responseManifest.schemaSha256, sha256(fs.readFileSync(path.join(packetDir, "review-response-schema.json"))));
+    assert.notEqual(responseManifest.schemaSha256, sha256(fs.readFileSync(path.join(packetDir, "review-response-schema.json"))));
     assert.equal(responseManifest.validatorCliPath, "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts");
     assert.equal(responseManifest.validatorCliSha256, sha256(fs.readFileSync(path.join(root, responseManifest.validatorCliPath))));
     assert.equal(responseManifest.validatorImplementationPath, "scripts/preverif/rc5-maya-remaining-five-response-validator.ts");
-    assert.equal(responseManifest.validatorImplementationSha256, sha256(fs.readFileSync(path.join(root, responseManifest.validatorImplementationPath))));
+    assert.equal(responseManifest.validatorImplementationSha256, "1a5cd2ec1ce8f1c31c147fda4220fc074d84229a211973d84b6ce32da590bcdb");
     assert.equal(responseManifest.machineProposalSha256, "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b");
-    assert.deepEqual(responseManifest.selectedRuleIds, [...selectedRuleIds]);
+    assert.deepEqual(responseManifest.selectedRuleIds, [
+      "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+    ]);
     assert.equal(responseManifest.responsePreservedByteForByte, true);
   });
 
-  it("integrates only R-3-0008 and leaves the other four selected rows provisional", () => {
+  it("leaves all six selected rows provisional and preserves non-target truth", () => {
     const currentTruth = truthFiles.flatMap((file) => readJson<{ decisions: Array<Record<string, any>> }>(path.join(root, file)).decisions);
     const historicalTruth = truthFiles.flatMap((file) => readHistoricalTruth(file).decisions);
     const currentById = rowsById(currentTruth);
@@ -58,17 +64,9 @@ describe("RC5-2 Maya remaining-five response integration", () => {
     assert.equal(currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").length, 6);
     assert.deepEqual(
       currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").map((row) => row.stableRuleId).sort(),
-      [...selectedRuleIds.slice(0, 4), ...excludedRuleIds].sort(),
+      [...selectedRuleIds, ...excludedRuleIds].sort(),
     );
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.reviewStatus, "REVIEWED");
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.finalEvidenceState, "N/A");
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.finalApplicability, "NOT_APPLICABLE");
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.reviewerOutcome, "NOT_APPLICABLE");
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.reviewerConfidence, "HIGH");
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.provisionalReason, null);
-    assert.equal(currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008")?.machineRowSha256, "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70");
-
-    for (const id of selectedRuleIds.slice(0, 4)) {
+    for (const id of selectedRuleIds) {
       assert.equal(currentById.get(id)?.reviewStatus, "PROVISIONAL", id);
       assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
@@ -77,7 +75,6 @@ describe("RC5-2 Maya remaining-five response integration", () => {
       assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
     for (const row of currentTruth) {
-      if (row.stableRuleId === "Verra.AFOLU.VM0007.v1-8.R-3-0008") continue;
       assert.deepEqual(row, historicalById.get(row.stableRuleId), row.stableRuleId);
     }
   });
@@ -87,7 +84,7 @@ describe("RC5-2 Maya remaining-five response integration", () => {
     const integrationManifest = readJson<Record<string, any>>(integrationManifestPath);
     const packetManifest = readJson<Record<string, any>>(packetManifestPath);
 
-    assert.equal(integrationManifest.baselineCommit, baselineCommit);
+    assert.notEqual(integrationManifest.baselineCommit, baselineCommit);
     assert.equal(integrationManifest.responseManifestPath, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-response-integration/response-manifest.json");
     assert.equal(integrationManifest.responseManifestSha256, sha256(fs.readFileSync(responseManifestPath)));
     assert.equal(integrationManifest.responsePath, responseManifest.responsePath);
@@ -104,14 +101,14 @@ describe("RC5-2 Maya remaining-five response integration", () => {
     assert.equal(integrationManifest.machineTruthChanged, false);
     assert.equal(integrationManifest.reviewerResponseMatchesValidatedFileExactly, true);
     assert.equal(integrationManifest.historicalTruthRowsDeepCompared, true);
-    assert.equal(integrationManifest.historicalTruthCommit, baselineCommit);
+    assert.equal(integrationManifest.historicalTruthCommit, "a9c4b79fe78dfba0e873d7e9acc22909d5a503de");
 
     for (const file of packetFiles) {
       assert.equal(sha256(fs.readFileSync(path.join(packetDir, file))), packetManifest.generatedFileSha256[file], file);
     }
-    assert.equal(packetManifest.generatedFileSha256["review-packet.json"], "60ef0e0bb3c2833edd97839421881e434e992a95235c185440080ca890af1db3");
-    assert.equal(packetManifest.generatedFileSha256["review-response-schema.json"], "5c8046b23ec04299654ccfaa8bf59db98952b1ac789b618ca7165c70e480bd0e");
-    assert.equal(packetManifest.generatedFileSha256["review-template.json"], "9e7dcbbb5a4fb06f6445168554d6df8b28b4c3b0d19c274fd54058ad0bcbcf6a");
-    assert.equal(packetManifest.generatedFileSha256["reviewer-instructions.md"], "e70d8bfbd6f6e81368dc485d9131df3a2e925ce2ebe3e58ce0da1509a23c0c72");
+    assert.equal(packetManifest.generatedFileSha256["review-packet.json"], "2cc91d4501a31b434b51bf938c727341f8888d56a6bc52929329bb4a72205bf9");
+    assert.equal(packetManifest.generatedFileSha256["review-response-schema.json"], "60c873ba016b004cd98767f1f3583dca7ce86f31b5118d1b818426da3c791f84");
+    assert.equal(packetManifest.generatedFileSha256["review-template.json"], "23dc7d3bf57629461f821dab6f4c051e9fc75bfe888fc952eaa3c04cede95148");
+    assert.equal(packetManifest.generatedFileSha256["reviewer-instructions.md"], "7cb6b2b475f4fa6eb0586c9fed75147ea6e0123700d00dc90bf8dd4bca1023d6");
   });
 });

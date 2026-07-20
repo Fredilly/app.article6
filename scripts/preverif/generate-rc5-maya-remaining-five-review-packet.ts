@@ -11,17 +11,16 @@ import {
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet");
 export const selectedRuleIds = [
+  "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001",
   "Verra.AFOLU.VM0007.v1-8.R-2-0002",
   "Verra.AFOLU.VM0007.v1-8.R-2-0004",
   "Verra.AFOLU.VM0007.v1-8.R-2-0007",
   "Verra.AFOLU.VM0007.v1-8.R-2-0008",
-  "Verra.AFOLU.VM0007.v1-8.R-3-0008",
 ] as const;
-export const excludedRuleIds = ["Verra.AFOLU.VM0007.v1-8.R-3-0001", "Verra.AFOLU.VM0007.v1-8.R-4-0001"] as const;
-export const baselineCommit = "a9c4b79fe78dfba0e873d7e9acc22909d5a503de";
+export const excludedRuleIds = [] as const;
+export const baselineCommit = "2d4d6a54831aeff8a1295aff4d0be240218d9579";
 export const machineSha = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
-const finalizedR30008Id = "Verra.AFOLU.VM0007.v1-8.R-3-0008";
-const finalizedR30008RowSha256 = "3c02927f44397bc3dfd38ebf4a67cb8b2047f8901cc874ca8d59e76ab0366daf";
 export const rulesPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json";
 export const sectionsPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json";
 export const vmPdfPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf";
@@ -43,8 +42,10 @@ const expectedSourceSha: Record<string, string> = {
   [extractionPath]: "b9da3f4f836a8a4a0ff64cae96bbd69f186eb087a639f60d95f8f9a0ff1a8ae8",
   [proposalPath]: machineSha,
 };
-const methodologyPages = Array.from({ length: 12 }, (_, i) => i + 18);
+const methodologyPages = Array.from({ length: 15 }, (_, i) => i + 15);
 const pddPages: Record<string, number[]> = {
+  "R-3-0001": [86, 91, 92],
+  "R-4-0001": [86, 91, 92],
   "R-2-0002": [78, 79, 80, 81, 82],
   "R-2-0004": [97, 98, 99, 100, 101, 102, 103, 104, 278],
   "R-2-0007": [87, 88, 89, 110, 111, 112, 113, 114, 115, 116],
@@ -52,6 +53,8 @@ const pddPages: Record<string, number[]> = {
   "R-3-0008": [91, 92, 93, 94, 95, 96],
 };
 const questions: Record<string, string> = {
+  "R-3-0001": "Does the Maya PDD independently establish the VM0007 additionality requirement, including the Appendix 17 cost evidence blocker, and what evidence state, applicability, outcome, accepted/rejected evidence, gaps, client actions, and confidence are justified? Treat Appendix 17 as unresolved unless the frozen evidence proves otherwise.",
+  "R-4-0001": "Does the Maya PDD independently satisfy the VM0007/VT0001 additionality requirement, including whether the Appendix 17 blocker leaves the required pathway unresolved, and what evidence state, applicability, outcome, accepted/rejected evidence, gaps, client actions, and confidence are justified? Treat Appendix 17 as an unresolved question, not an assumption.",
   "R-2-0002": "Does the complete VM0007 boundary requirement establish that the Maya project satisfies the no-overlap condition, including exclusion of land registered under another GHG program and any applicable REDD+WRC exception?",
   "R-2-0004": "Does the Maya PDD provide the boundary type and complete reference-region/proxy evidence required for its planned-deforestation baseline, or are the cited underlying data and delineation rationale necessary to decide the rule?",
   "R-2-0007": "Does the Maya PDD justify carbon-pool selection under VM0007 Sections 5.3.1–5.3.2, including significance testing and consistent baseline/project/leakage accounting?",
@@ -111,12 +114,6 @@ function compareTruthRows(currentRows: Row[], historicalRows: Row[]) {
     if (!current || !historical) {
       throw new Error(`Historical truth row changed: ${id}`);
     }
-    if (id === finalizedR30008Id) {
-      if (historical.reviewStatus !== "PROVISIONAL" || sha256(Buffer.from(JSON.stringify(current))) !== finalizedR30008RowSha256) {
-        throw new Error(`Historical truth row changed: ${id}`);
-      }
-      continue;
-    }
     if (JSON.stringify(current) !== JSON.stringify(historical)) throw new Error(`Historical truth row changed: ${id}`);
   }
 }
@@ -124,7 +121,7 @@ function compareTruthRows(currentRows: Row[], historicalRows: Row[]) {
 function assertFrozenProvisionalRowsUnchanged(currentRows: Row[], historicalRows: Row[]) {
   const currentById = new Map(currentRows.map((row) => [row.stableRuleId, row]));
   const historicalById = new Map(historicalRows.map((row) => [row.stableRuleId, row]));
-  for (const id of [...selectedRuleIds.filter((id) => id !== finalizedR30008Id), ...excludedRuleIds]) {
+  for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
     const current = currentById.get(id);
     const historical = historicalById.get(id);
     if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
@@ -138,21 +135,21 @@ function bootstrapSnapshot(): void {
   const selected = selectedRuleIds.map((id) => rules.find((r) => r.id === id));
   if (selected.some((r) => !r)) throw new Error("Cannot bootstrap missing rule contract");
   fs.mkdirSync(path.dirname(absolute(contractSnapshotPath)), { recursive: true });
-  writeJson(absolute(contractSnapshotPath), { schemaVersion: "rc5-2-selected-rule-contract-baseline-v1", sourceCommit: "87eef90379f06df40a917894a159d10a5d4c2703", sourcePath: rulesPath, contracts: selected });
+  writeJson(absolute(contractSnapshotPath), { schemaVersion: "rc5-2-selected-rule-contract-baseline-v2", sourceCommit: baselineCommit, sourcePath: rulesPath, contracts: selected });
 }
 
 function validateContractSnapshot(rules: Row[]) {
   if (!fs.existsSync(absolute(contractSnapshotPath))) throw new Error(`Missing immutable contract snapshot: ${contractSnapshotPath}`);
   const snapshot = read<{ contracts: Row[] }>(contractSnapshotPath);
   const snapshotSha = sha256(bytes(contractSnapshotPath));
-  const expectedSnapshotSha = "51aeffc88f694d941b9c24df932f13b5c02be834d65db07aa74d57e8dd60da71";
+  const expectedSnapshotSha = "becf6264b6f94dc0c3dc1b44caa386fbf6ebe4b367ce707d312bcfe2aaebfd2c";
   if (snapshotSha !== expectedSnapshotSha) throw new Error("Contract snapshot SHA changed");
   for (const id of selectedRuleIds) {
     const current = rules.find((r) => r.id === id);
     const baseline = snapshot.contracts.find((r) => r.id === id);
     if (!current || !baseline || JSON.stringify(current) !== JSON.stringify(baseline)) throw new Error(`Current rule contract differs from immutable baseline: ${id}`);
   }
-  return { path: contractSnapshotPath, sha256: snapshotSha, sourceCommit: "87eef90379f06df40a917894a159d10a5d4c2703" };
+  return { path: contractSnapshotPath, sha256: snapshotSha, sourceCommit: baselineCommit };
 }
 
 function sourceEvidence(sourcePath: string, sourcePdf: string, pages: Page[], selectedPages: number[]) {
@@ -266,10 +263,9 @@ export function buildArtifacts() {
   const currentRows = loadTruth();
   const historicalRows = loadTruth(baselineCommit);
   compareTruthRows(currentRows, historicalRows);
-  const currentInventory = inventory(currentRows, 52, 6, [...selectedRuleIds.filter((id) => id !== finalizedR30008Id), ...excludedRuleIds]);
-  const historicalInventory = inventory(historicalRows, 51, 7, [...selectedRuleIds, ...excludedRuleIds]);
+  const currentInventory = inventory(currentRows, 52, 6, [...selectedRuleIds]);
+  const historicalInventory = inventory(historicalRows, 52, 6, [...selectedRuleIds]);
   const frozenInventory = historicalInventory;
-  if (JSON.stringify(historicalInventory) === JSON.stringify(currentInventory)) throw new Error("Historical baseline inventory unexpectedly matches current integrated inventory");
   assertFrozenProvisionalRowsUnchanged(currentRows, historicalRows);
   const rules = read<Row[]>(rulesPath);
   const contractSnapshot = validateContractSnapshot(rules);
@@ -295,7 +291,7 @@ export function buildArtifacts() {
     officialMethodology: { pdfPath: vmPdfPath, pdfSha256: sha256(bytes(vmPdfPath)), extractedPagesPath: vmPagesPath, extractedPagesSha256: sha256(bytes(vmPagesPath)), completeEvidencePages: methodologyPages },
     rules: packetRules,
     absentEvidence: ["Boundary KML/shapefiles and other external boundary-registration evidence are not in the frozen source set.", "Underlying RRD/LIC data and Appendix XYZ are not in the frozen source set.", "Appendices 21 and 22 and any external T-SIG workbooks are not in the frozen source set.", "No separate VCS JNR eligibility/data package is in the frozen source set."],
-    reviewBoundary: { exactlyFiveUniqueDecisions: true, allowedFinalJudgments: ["REVIEWED + FOUND + CONFORMS", "REVIEWED + UNCLEAR + ACTION_REQUIRED", "REVIEWED + MISSING + ACTION_REQUIRED", "REVIEWED + NOT_APPLICABLE"], provisionalUse: "Only for genuinely unresolved authoritative interpretation or unavailable evidence that prevents a defensible final judgment.", excludedAppendix17RulesRemainUnchanged: true },
+    reviewBoundary: { exactlySixUniqueDecisions: true, allowedFinalJudgments: ["REVIEWED + FOUND + CONFORMS", "REVIEWED + UNCLEAR + ACTION_REQUIRED", "REVIEWED + MISSING + ACTION_REQUIRED", "REVIEWED + NOT_APPLICABLE"], provisionalUse: "Only for genuinely unresolved authoritative interpretation or unavailable evidence that prevents a defensible final judgment.", appendix17BlockersAreUnresolvedQuestions: true },
   };
   const schemaVersion = "rc5-2-maya-remaining-five-review-response-v1";
   const responseSchema = {
@@ -310,10 +306,10 @@ export function buildArtifacts() {
       machineProposalRef: { const: machineProposal },
       decisions: {
         type: "array",
-        minItems: 5,
-        maxItems: 5,
+        minItems: 6,
+        maxItems: 6,
         items: { anyOf: packetRules.map((rule) => decisionSchema(rule)) },
-        description: "Exactly five decisions, one unique decision for each selectedRuleId.",
+        description: "Exactly six decisions, one unique decision for each selectedRuleId.",
       },
     },
     allOf: selectedRuleIds.map((id) => ({
@@ -332,7 +328,7 @@ export function buildArtifacts() {
   };
   const blank = (id: string) => ({ stableRuleId: id, machineRowSha256: packetRules.find((r) => r.stableRuleId === id)!.machineRowSha256, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], assessmentReason: null, gap: null, clientAction: null, correctionReason: null, provisionalReason: null, reviewerConfidence: null });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef: machineProposal, decisions: selectedRuleIds.map(blank) };
-  const instructions = `# RC5-2 Maya independent review — remaining five\n\nReturn exactly five unique decisions, one for each selected rule ID in the packet. Review the complete contiguous VM0007 v1.8 evidence pages and the complete exact Maya project evidence objects. Do not consult or infer an answer from reviewed truth, prior responses, or machine judgments.\n\nFor each rule, select one final judgment: REVIEWED + FOUND + CONFORMS; REVIEWED + UNCLEAR + ACTION_REQUIRED; REVIEWED + MISSING + ACTION_REQUIRED; or REVIEWED + NOT_APPLICABLE. Use PROVISIONAL only when an authoritative interpretation remains genuinely unresolved or unavailable evidence prevents a defensible final judgment. Cite the exact source path, whole-file SHA, page, and complete quote for every material conclusion.\n\nThe excluded rules ${excludedRuleIds.join(" and ")} are outside this packet and remain separately blocked by unavailable Appendix 17 evidence. Do not decide or modify them.\n`;
+  const instructions = `# RC5-2 Maya independent review — remaining six\n\nReturn exactly six unique decisions, one for each selected rule ID in the packet. Review the complete contiguous VM0007 v1.8 evidence pages and the complete exact Maya project evidence objects. Do not consult or infer an answer from reviewed truth, prior responses, or machine judgments. For R-3-0001 and R-4-0001, treat Appendix 17 blockers as unresolved questions, not assumptions; independently determine evidence state, applicability, outcome, accepted/rejected evidence, gaps, client actions, and confidence.\n\nFor each rule, select one final judgment: REVIEWED + FOUND + CONFORMS; REVIEWED + UNCLEAR + ACTION_REQUIRED; REVIEWED + MISSING + ACTION_REQUIRED; or REVIEWED + NOT_APPLICABLE. Use PROVISIONAL only when an authoritative interpretation remains genuinely unresolved or unavailable evidence prevents a defensible final judgment. Cite the exact source path, whole-file SHA, page, and complete quote for every material conclusion.\n`;
   const manifest = { schemaVersion: "rc5-2-maya-remaining-five-review-manifest-v1", baselineCommit, selectedRuleIds: [...selectedRuleIds], excludedRuleIds: [...excludedRuleIds], inventory: frozenInventory, historicalTruth: { files: truthFiles, commit: baselineCommit, sha256: Object.fromEntries(truthFiles.map((f) => [f, sha256(frozenBytes(f))])) }, sources: { machineProposal: { path: proposalPath, sha256: machineSha }, ruleContracts: { path: rulesPath, sha256: sha256(bytes(rulesPath)), baselineSnapshot: contractSnapshot }, methodologyPdf: { path: vmPdfPath, sha256: sha256(bytes(vmPdfPath)) }, methodologyPages: { path: vmPagesPath, sha256: sha256(bytes(vmPagesPath)) }, mayaPdd: { path: pddPath, sha256: sha256(bytes(pddPath)) }, mayaExtraction: { path: extractionPath, sha256: sha256(bytes(extractionPath)) } }, responseValidator: { cliPath: responseValidatorCliPath, cliSha256: sha256(bytes(responseValidatorCliPath)), implementationPath: responseValidatorImplementationPath, implementationSha256: sha256(bytes(responseValidatorImplementationPath)) }, generatedFiles: { packet: "review-packet.json", instructions: "reviewer-instructions.md", responseSchema: "review-response-schema.json", template: "review-template.json" }, reviewedTruthEmbedded: false, priorResponsesEmbedded: false };
   return { packet, responseSchema, template, instructions, manifest };
 }
