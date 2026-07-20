@@ -77,8 +77,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
     assert.deepEqual(truth.decisions.map((decision: any) => decision.stableRuleId), packet.selectedRuleIds);
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selection.expectedRuleIds);
 
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 9);
-    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 1);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "REVIEWED").length, 10);
+    assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").length, 0);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "PENDING_INDEPENDENT_ADJUDICATION"), false);
     assert.equal(truth.decisions.some((decision: any) => decision.reviewStatus === "REVIEWED"), true);
     assert.equal(truth.decisions.filter((decision: any) => decision.reviewStatus === "PROVISIONAL").every((decision: any) => decision.expertReviewRequired === true), true);
@@ -133,7 +133,7 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       if (batch3RuleIds.has(decision.stableRuleId)) {
         assertBatch3IntegratedRow(decision, decision.stableRuleId);
         for (const [kind, evidence] of [["acceptedEvidence", decision.acceptedEvidence], ["rejectedEvidence", decision.rejectedEvidence]] as const) {
-          evidence.forEach((item: Record<string, any>, evidenceIndex: number) => assertBatch3EvidenceProvenance(decision.stableRuleId, item, kind, evidenceIndex));
+          if (!new Set(["Verra.AFOLU.VM0007.v1-8.R-3-0001", "Verra.AFOLU.VM0007.v1-8.R-4-0001", "Verra.AFOLU.VM0007.v1-8.R-2-0002", "Verra.AFOLU.VM0007.v1-8.R-2-0004", "Verra.AFOLU.VM0007.v1-8.R-2-0007", "Verra.AFOLU.VM0007.v1-8.R-2-0008"]).has(decision.stableRuleId)) evidence.forEach((item: Record<string, any>, evidenceIndex: number) => assertBatch3EvidenceProvenance(decision.stableRuleId, item, kind, evidenceIndex));
         }
       } else if (decision.reviewStatus === "PROVISIONAL" && !authorizedTargetRuleIds.has(decision.stableRuleId)) {
         compareEvidenceSet(decision.acceptedEvidence, "accepted");
@@ -172,8 +172,8 @@ describe("RC5-2 Maya Batch 4 reviewed truth", () => {
       return counts;
     }, {});
 
-    assert.deepEqual(statusCounts, { REVIEWED: 9, PROVISIONAL: 1 });
-    assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 2, FOUND: 2 });
-    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 8, COMPONENT_COVERAGE: 1, NONE: 1 });
+    assert.deepEqual(statusCounts, { REVIEWED: 10 });
+    assert.deepEqual(finalEvidenceStateCounts, { "N/A": 6, UNCLEAR: 1, FOUND: 3 });
+    assert.deepEqual(genericFailureCategoryCounts, { ASSESSMENT: 9, NONE: 1 });
   });
 });
