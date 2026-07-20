@@ -1,0 +1,22 @@
+{
+  "name": "Marcondes VM0007 v1.8 Evidence Map",
+  "version": "v1.0-rc1",
+  "status": "internal release candidate",
+  "sourceCommit": "9698d4f94ad8018ebc10a70b5571a486f0b10d57",
+  "reportReleaseState": "BLOCKED_PENDING_VERSION_RECONCILIATION",
+  "methodologyClassification": "DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE",
+  "reviewedRules": 58,
+  "acceptedEvidenceEntries": 97,
+  "counts": { "FOUND": 6, "UNCLEAR": 21, "MISSING": 9, "N/A": 22 },
+  "reviewerOutcomes": { "CONFORMS": 6, "ACTION_REQUIRED": 30, "NOT_APPLICABLE": 22, "NOT_ASSESSED": 0 },
+  "pinnedArtifacts": {
+    "gold.json": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511",
+    "metadata.json": "e6db518b70297bb0647cb39ea837387b0193833a39fdc8270d8c186342101b83",
+    "release-status.json": "514af87d4096c684e0df118d30b6dd6f942af1434863eba14acf73ae0cfb1c19",
+    "REVIEW.md": "9e12d0f356cd68267ad9d2d28e7bd18e64cbedccdfad5df841763356476392c9",
+    "methodology-reconciliation.md": "c0a8e51c7dbd0ce72597193745670829e44edbbb29fe85c1e6b845c44b1059cd",
+    "machine-proposal.json": "068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6",
+    "raw-document-extraction.json": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747",
+    "raw-evidence-map.json": "bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e"
+  }
+}
