@@ -600,7 +600,7 @@
   },
   "frozenRc2Baseline": {
     "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
-    "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+    "sha256": "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20"
   },
   "metrics": {
     "acceptedEvidenceFalseSupport": {
@@ -933,7 +933,7 @@
   },
   "reviewedTruth": {
     "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
-    "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+    "sha256": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511"
   },
   "ruleCount": 58,
   "schemaVersion": "vm0007-rc3-current-comparison-v2",

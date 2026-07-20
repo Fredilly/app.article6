@@ -18105,7 +18105,7 @@
   },
   "frozenRc2Baseline": {
     "artifactPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
-    "artifactSha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+    "artifactSha256": "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20"
   },
   "generatedProposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
   "inputDocumentSha256": "a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea",

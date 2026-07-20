@@ -154,7 +154,7 @@ describe("audited RC3 pre-fix baseline", () => {
     expect(registryArtifact.versions.filter((version: { logicalVersion: string }) => version.logicalVersion === "v3")).toHaveLength(0);
     const taxonomyEntries = v2.diagnosticArtifacts.filter((artifact: { path: string }) => normalizeArtifactPath(artifact.path) === "docs/roadmaps/interactive-evidence-review-mvp/RC3_FALSE_SUPPORT_TAXONOMY.json");
     expect(taxonomyEntries).toHaveLength(1);
-    expect(taxonomyEntries[0].sha256).toBe("32181d976bea24d01884c6c1d8586afd5e858ea40eb708a7f5156f2c71e11865");
+    expect(taxonomyEntries[0].sha256).toBe("44b74e9dd8f4909d1cc7cec1fe5ececbda90ee28efce373428363906f0f02314");
     expect(taxonomyEntries[0].sha256).toBe(sha256(path.join(executionDir, "RC3_FALSE_SUPPORT_TAXONOMY.json")));
     expect(registryArtifact.reproduction.diagnosticOutputsAreProductionOutputs).toBe(false);
     for (const version of [v1, v2]) {

@@ -8931,12 +8931,12 @@
   "schemaVersion": "vm0007-rc3-false-support-taxonomy-v2",
   "source": {
     "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
-    "auditedV2BaselineSha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+    "auditedV2BaselineSha256": "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20",
     "currentProposalKind": "same_run_serialized_reload",
     "frozenRc2BaselineSha256": "15c0497eae4d128c3828fe951e204ff46db0aa282b711877b7556ecabe8787cf",
     "generatedProposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
     "machineProposalFrozenSha256": "068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6",
-    "reviewedTruthSha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+    "reviewedTruthSha256": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511",
     "sourceExtractionSha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
   },
   "topRepeatedSpans": [

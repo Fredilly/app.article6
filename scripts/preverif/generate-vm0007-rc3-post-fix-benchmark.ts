@@ -27,12 +27,12 @@ const files = {
   richRules: path.join(root, "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json"),
 };
 const expectedHashes = {
-  baseline: "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+  baseline: "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20",
   baselineProposal: "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
-  truth: "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+  truth: "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511",
   extraction: "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747",
   preFixAuditExecution: "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
-  diagnostic: "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd",
+  diagnostic: "8dba5b3b83444212d5d90a781958f6c9bfb43189a69035932061551c5a6ab220",
 } as const;
 const read = (file: string): any => JSON.parse(fs.readFileSync(file, "utf8"));
 const sha256Bytes = (file: string) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");

@@ -2,10 +2,10 @@
   "acceptedEvidenceMissDiagnosticChangedRuleCount": 0,
   "artifacts": {
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.json": {
-      "sha256": "12a4830a893e24535eff4f9c6421ed595752d60098708b3744bb0e49c713e511"
+      "sha256": "a55a883c5cd470abed5344aea66d1a298d21e600b632a40b83023cef2e092523"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_BENCHMARK.md": {
-      "sha256": "6ff928ad019579d03ee14ce2f46c8cff662a5e3a2671c3712c1cdd8fde95f55a"
+      "sha256": "47d71d4898b518b61414b43d8a5268259641c88a80cc117cc51e3337c3cdf6ff"
     },
     "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_POST_FIX_CHANGE_AUDIT.json": {
       "sha256": "c3264beb29e5ad342555b8c0a2673ebaca185f57c16f6f1fd769bfe8281e9854"
@@ -20,7 +20,7 @@
   "inputs": {
     "baseline": {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
-      "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+      "sha256": "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20"
     },
     "baselineProposal": {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
@@ -28,7 +28,7 @@
     },
     "diagnostic": {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
-      "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
+      "sha256": "8dba5b3b83444212d5d90a781958f6c9bfb43189a69035932061551c5a6ab220"
     },
     "extraction": {
       "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/raw-document-extraction.json",
@@ -40,7 +40,7 @@
     },
     "registry": {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_BASELINE_REGISTRY.json",
-      "sha256": "ab5a62d39d44913962b5379183654aaa27a919a3cfc4649626a6bf453a15c6ba"
+      "sha256": "7fb58ae86c33c7baf469d97f686404f872bd7ee502cff79549f86037363a29b6"
     },
     "richRules": {
       "path": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
@@ -52,7 +52,7 @@
     },
     "truth": {
       "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
-      "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+      "sha256": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511"
     }
   },
   "manualReview": {
@@ -62,7 +62,7 @@
   "postFixAuditExecutionSha256": "8257b8d8c16f9f71da0f2d5aad2fab9a083cc1e527ef34909ec6b5b88d0ae834",
   "preFixDiagnostic": {
     "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
-    "sha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd"
+    "sha256": "8dba5b3b83444212d5d90a781958f6c9bfb43189a69035932061551c5a6ab220"
   },
   "ruleCount": 58,
   "schemaVersion": "vm0007-rc3-audited-post-fix-manifest-v4",
