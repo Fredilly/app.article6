@@ -74,4 +74,24 @@ describe("Marcondes final 58-rule release audit", () => {
       expect(entry.rejectionReason).toBe(expectedReason);
     }
   });
+
+  it("proves the shared rejected anchor is intentional and does not erase rule-specific distinctions", () => {
+    const gold = read("gold.json");
+    const extraction = read("raw-document-extraction.json");
+    const affected = ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"];
+    const sharedSpanId = "manual:marcondes-pdd:page-18:r-3-5-5-rejected";
+    const sharedQuote = "The determination of the baseline scenario and demonstration of additionality for the eligibility area are based on the initial project activity instances implemented across 36 properties located within the municipalities of Nhamundá, Parintins, and Barreirinha in the state of Amazonas, within the Amazon Biome.";
+    const page18 = extraction.pages.find((page: any) => page.pageNumber === 18)?.text.replace(/\s+/g, " ");
+    const rows = affected.map((ruleId) => gold.rows.find((row: any) => row.ruleReference === ruleId));
+
+    expect(page18).toContain(sharedQuote.replace(/\s+/g, " "));
+    expect(rows.every(Boolean)).toBe(true);
+    expect(new Set(rows.map((row: any) => row.rejectedEvidence[0].spanId))).toEqual(new Set([sharedSpanId]));
+    expect(new Set(rows.map((row: any) => row.rejectedEvidence[0].quote))).toEqual(new Set([sharedQuote]));
+    expect(rows.every((row: any) => row.rejectedEvidence[0].provenance.spanId === sharedSpanId && row.rejectedEvidence[0].provenance.page === 18)).toBe(true);
+    expect(rows.every((row: any) => row.acceptedEvidence.every((evidence: any) => evidence.spanId !== sharedSpanId && evidence.provenance.spanId !== sharedSpanId))).toBe(true);
+    expect(new Set(rows.map((row: any) => row.acceptedEvidence.map((evidence: any) => evidence.spanId).join("|"))).size).toBeGreaterThan(1);
+    expect(new Set(rows.map((row: any) => row.reviewerCorrection.correction)).size).toBe(10);
+    expect(rows.every((row: any) => row.rejectedEvidence[0].ruleId === row.ruleId && row.rejectedEvidence[0].rejectionReason.length > 0)).toBe(true);
+  });
 });
