@@ -62,6 +62,14 @@ const writeJson = (p: string, value: unknown) => fs.writeFileSync(p, `${JSON.str
 
 type Row = Record<string, any> & { stableRuleId: string; reviewStatus: string };
 type Page = { pageNumber: number; text: string };
+type EvidenceObject = {
+  sourcePath: string;
+  sourceSha256: string;
+  sourcePdfPath: string;
+  sourcePdfSha256: string;
+  page: number;
+  completeExactQuote: string;
+};
 
 function inventory(rows: Row[]) {
   const unique = new Set(rows.map((r) => r.stableRuleId));
@@ -80,6 +88,18 @@ function inventory(rows: Row[]) {
 
 function loadTruth(commit?: string): Row[] {
   return truthFiles.flatMap((file) => JSON.parse((commit ? frozenBytes(file) : bytes(file)).toString("utf8")).decisions as Row[]);
+}
+
+function assertFrozenProvisionalRowsUnchanged(currentRows: Row[], historicalRows: Row[]) {
+  const currentById = new Map(currentRows.map((row) => [row.stableRuleId, row]));
+  const historicalById = new Map(historicalRows.map((row) => [row.stableRuleId, row]));
+  for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
+    const current = currentById.get(id);
+    const historical = historicalById.get(id);
+    if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
+      throw new Error(`Frozen provisional truth row changed: ${id}`);
+    }
+  }
 }
 
 function bootstrapSnapshot(): void {
@@ -113,6 +133,99 @@ function sourceEvidence(sourcePath: string, sourcePdf: string, pages: Page[], se
   });
 }
 
+function exactObjectSchema<T extends object>(value: T) {
+  return { const: value };
+}
+
+function evidenceItemsSchema(evidence: EvidenceObject[]) {
+  return { anyOf: evidence.map((item) => exactObjectSchema(item)) };
+}
+
+function decisionSchema(rule: ReturnType<typeof buildArtifacts>["packet"]["rules"][number]) {
+  const allowedEvidence = [...rule.authoritativeMethodologyEvidence, ...rule.mayaProjectEvidence] as EvidenceObject[];
+  const exactEvidenceArray = { type: "array", items: evidenceItemsSchema(allowedEvidence) };
+  const base = {
+    type: "object",
+    additionalProperties: false,
+    required: ["stableRuleId", "machineRowSha256", "reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "rejectedEvidence", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "reviewerConfidence"],
+    properties: {
+      stableRuleId: { const: rule.stableRuleId },
+      machineRowSha256: { const: rule.machineRowSha256 },
+      reviewStatus: { enum: ["PROVISIONAL", "REVIEWED"] },
+      expertReviewRequired: { const: true },
+      finalEvidenceState: { enum: ["FOUND", "UNCLEAR", "MISSING", "N/A", null] },
+      finalApplicability: { enum: ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN", null] },
+      reviewerOutcome: { enum: ["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE", null] },
+      acceptedEvidence: exactEvidenceArray,
+      rejectedEvidence: exactEvidenceArray,
+      assessmentReason: { type: ["string", "null"] },
+      gap: { type: ["string", "null"] },
+      clientAction: { type: ["string", "null"] },
+      correctionReason: { type: ["string", "null"] },
+      provisionalReason: { type: ["string", "null"] },
+      reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH", null] },
+    },
+    oneOf: [
+      {
+        properties: {
+          reviewStatus: { const: "PROVISIONAL" },
+          finalEvidenceState: { const: null },
+          finalApplicability: { const: null },
+          reviewerOutcome: { const: null },
+          assessmentReason: { type: ["string", "null"] },
+          provisionalReason: { type: "string", minLength: 1 },
+          reviewerConfidence: { const: null },
+        },
+      },
+      {
+        properties: {
+          reviewStatus: { const: "REVIEWED" },
+          finalEvidenceState: { const: "FOUND" },
+          finalApplicability: { const: "APPLICABLE" },
+          reviewerOutcome: { const: "CONFORMS" },
+          assessmentReason: { type: "string", minLength: 1 },
+          provisionalReason: { const: null },
+          reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH"] },
+        },
+      },
+      {
+        properties: {
+          reviewStatus: { const: "REVIEWED" },
+          finalEvidenceState: { const: "UNCLEAR" },
+          finalApplicability: { enum: ["APPLICABLE", "UNKNOWN"] },
+          reviewerOutcome: { const: "ACTION_REQUIRED" },
+          assessmentReason: { type: "string", minLength: 1 },
+          provisionalReason: { const: null },
+          reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH"] },
+        },
+      },
+      {
+        properties: {
+          reviewStatus: { const: "REVIEWED" },
+          finalEvidenceState: { const: "MISSING" },
+          finalApplicability: { enum: ["APPLICABLE", "UNKNOWN"] },
+          reviewerOutcome: { const: "ACTION_REQUIRED" },
+          assessmentReason: { type: "string", minLength: 1 },
+          provisionalReason: { const: null },
+          reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH"] },
+        },
+      },
+      {
+        properties: {
+          reviewStatus: { const: "REVIEWED" },
+          finalEvidenceState: { const: "N/A" },
+          finalApplicability: { const: "NOT_APPLICABLE" },
+          reviewerOutcome: { const: "NOT_APPLICABLE" },
+          assessmentReason: { type: "string", minLength: 1 },
+          provisionalReason: { const: null },
+          reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH"] },
+        },
+      },
+    ],
+  };
+  return base;
+}
+
 function assertFrozenSources(): void {
   for (const [sourcePath, expected] of Object.entries(expectedSourceSha)) if (sha256(bytes(sourcePath)) !== expected) throw new Error(`Frozen source SHA changed: ${sourcePath}`);
 }
@@ -124,6 +237,7 @@ export function buildArtifacts() {
   const frozenInventory = inventory(currentRows);
   const historicalInventory = inventory(historicalRows);
   if (JSON.stringify(historicalInventory) !== JSON.stringify(frozenInventory)) throw new Error("Historical baseline inventory differs from current inventory");
+  assertFrozenProvisionalRowsUnchanged(currentRows, historicalRows);
   const rules = read<Row[]>(rulesPath);
   const contractSnapshot = validateContractSnapshot(rules);
   const extraction = read<{ pages: Page[] }>(extractionPath);
@@ -151,8 +265,38 @@ export function buildArtifacts() {
     reviewBoundary: { exactlyFiveUniqueDecisions: true, allowedFinalJudgments: ["REVIEWED + FOUND + CONFORMS", "REVIEWED + UNCLEAR + ACTION_REQUIRED", "REVIEWED + MISSING + ACTION_REQUIRED", "REVIEWED + NOT_APPLICABLE"], provisionalUse: "Only for genuinely unresolved authoritative interpretation or unavailable evidence that prevents a defensible final judgment.", excludedAppendix17RulesRemainUnchanged: true },
   };
   const schemaVersion = "rc5-2-maya-remaining-five-review-response-v1";
-  const decision = { type: "object", additionalProperties: false, required: ["stableRuleId", "machineRowSha256", "reviewStatus", "expertReviewRequired", "finalEvidenceState", "finalApplicability", "reviewerOutcome", "acceptedEvidence", "rejectedEvidence", "assessmentReason", "gap", "clientAction", "correctionReason", "provisionalReason", "reviewerConfidence"], properties: { stableRuleId: { enum: [...selectedRuleIds] }, machineRowSha256: { type: "string", pattern: "^[a-f0-9]{64}$" }, reviewStatus: { enum: ["PENDING_INDEPENDENT_ADJUDICATION", "PROVISIONAL", "REVIEWED"] }, expertReviewRequired: { type: "boolean" }, finalEvidenceState: { enum: ["FOUND", "UNCLEAR", "MISSING", "N/A", null] }, finalApplicability: { enum: ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN", null] }, reviewerOutcome: { enum: ["CONFORMS", "ACTION_REQUIRED", "NOT_APPLICABLE", null] }, acceptedEvidence: { type: "array" }, rejectedEvidence: { type: "array" }, assessmentReason: { type: ["string", "null"] }, gap: { type: ["string", "null"] }, clientAction: { type: ["string", "null"] }, correctionReason: { type: ["string", "null"] }, provisionalReason: { type: ["string", "null"] }, reviewerConfidence: { enum: ["LOW", "MEDIUM", "HIGH", null] } } };
-  const responseSchema = { $schema: "https://json-schema.org/draft/2020-12/schema", $id: schemaVersion, type: "object", additionalProperties: false, required: ["schemaVersion", "sourceDocument", "machineProposalRef", "decisions"], properties: { schemaVersion: { const: schemaVersion }, sourceDocument: { type: "object", required: ["documentId", "documentName", "contentSha256"] }, machineProposalRef: { const: machineProposal }, decisions: { type: "array", minItems: 5, maxItems: 5, items: decision, description: "Exactly five decisions, one unique decision for each selectedRuleId." } }, allOf: selectedRuleIds.map((id) => ({ properties: { decisions: { contains: { type: "object", properties: { stableRuleId: { const: id } }, required: ["stableRuleId"] }, minContains: 1, maxContains: 1 } } })) };
+  const responseSchema = {
+    $schema: "https://json-schema.org/draft/2020-12/schema",
+    $id: schemaVersion,
+    type: "object",
+    additionalProperties: false,
+    required: ["schemaVersion", "sourceDocument", "machineProposalRef", "decisions"],
+    properties: {
+      schemaVersion: { const: schemaVersion },
+      sourceDocument: { const: document },
+      machineProposalRef: { const: machineProposal },
+      decisions: {
+        type: "array",
+        minItems: 5,
+        maxItems: 5,
+        items: { anyOf: packetRules.map((rule) => decisionSchema(rule)) },
+        description: "Exactly five decisions, one unique decision for each selectedRuleId.",
+      },
+    },
+    allOf: selectedRuleIds.map((id) => ({
+      properties: {
+        decisions: {
+          contains: {
+            type: "object",
+            properties: { stableRuleId: { const: id } },
+            required: ["stableRuleId"],
+          },
+          minContains: 1,
+          maxContains: 1,
+        },
+      },
+    })),
+  };
   const blank = (id: string) => ({ stableRuleId: id, machineRowSha256: packetRules.find((r) => r.stableRuleId === id)!.machineRowSha256, reviewStatus: "PENDING_INDEPENDENT_ADJUDICATION", expertReviewRequired: true, finalEvidenceState: null, finalApplicability: null, reviewerOutcome: null, acceptedEvidence: [], rejectedEvidence: [], assessmentReason: null, gap: null, clientAction: null, correctionReason: null, provisionalReason: null, reviewerConfidence: null });
   const template = { schemaVersion, sourceDocument: document, machineProposalRef: machineProposal, decisions: selectedRuleIds.map(blank) };
   const instructions = `# RC5-2 Maya independent review — remaining five\n\nReturn exactly five unique decisions, one for each selected rule ID in the packet. Review the complete contiguous VM0007 v1.8 evidence pages and the complete exact Maya project evidence objects. Do not consult or infer an answer from reviewed truth, prior responses, or machine judgments.\n\nFor each rule, select one final judgment: REVIEWED + FOUND + CONFORMS; REVIEWED + UNCLEAR + ACTION_REQUIRED; REVIEWED + MISSING + ACTION_REQUIRED; or REVIEWED + NOT_APPLICABLE. Use PROVISIONAL only when an authoritative interpretation remains genuinely unresolved or unavailable evidence prevents a defensible final judgment. Cite the exact source path, whole-file SHA, page, and complete quote for every material conclusion.\n\nThe excluded rules ${excludedRuleIds.join(" and ")} are outside this packet and remain separately blocked by unavailable Appendix 17 evidence. Do not decide or modify them.\n`;
