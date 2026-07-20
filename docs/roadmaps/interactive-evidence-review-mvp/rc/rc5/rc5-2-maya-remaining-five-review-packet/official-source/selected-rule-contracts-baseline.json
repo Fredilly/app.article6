@@ -1,0 +1,273 @@
+{
+  "schemaVersion": "rc5-2-selected-rule-contract-baseline-v1",
+  "sourceCommit": "87eef90379f06df40a917894a159d10a5d4c2703",
+  "sourcePath": "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json",
+  "contracts": [
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "logic": "Strict no-overlap rule. REDD+WRC combination is the sole exception.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-2",
+        "section_anchor": "project-boundary",
+        "section_number": "5",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "sections": [
+          "S-2"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "pending_source_audit",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-2"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "No spatial overlap between baselines"
+      },
+      "section_context": {
+        "anchor": "project-boundary",
+        "lineage": [
+          "project-boundary"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 19,
+        "page_start": 18,
+        "section_id": "S-2",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "section_title": "Project Boundary"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "summary": "No spatial overlap between baselines",
+      "type": "eligibility",
+      "when": [],
+      "source_span_text": "Where multiple baselines exist (e.g., planned deforestation, unplanned deforestation, forest degradation, degraded land) there must be no overlap in boundaries between areas appropriate to each of the baselines. Thus, two project types cannot occur on the same piece of land, other than those including a WRC component (i.e., combined REDD+WRC)."
+    },
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "logic": "RRD required for baseline modeling. Must be in same jurisdiction with similar characteristics.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-2",
+        "section_anchor": "project-boundary",
+        "section_number": "5",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "sections": [
+          "S-2"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "seed_derived_pending_review",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-2"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "pending_source_audit"
+      },
+      "section_context": {
+        "anchor": "project-boundary",
+        "lineage": [
+          "project-boundary"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 19,
+        "page_start": 18,
+        "section_id": "S-2",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "section_title": "Project Boundary"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "summary": "REDD reference region definition",
+      "type": "eligibility",
+      "when": [],
+      "source_span_text": "In REDD project activities, various kinds of boundaries must be distinguished, depending on the REDD category (planned or unplanned deforestation, forest degradation), i.e., in case of:\n\n1) Avoiding planned deforestation: project area and proxy area(s). Refer to Module BL-PL for the detailed procedures to define these boundaries.\n\n2) Avoiding unplanned deforestation: project area, reference region, and leakage belt. Refer to Module BL-UP for definitions and the detailed procedures to define these boundaries.\n\nThese procedures also apply to CIW or combined REDD+CIW project activities, see Section 5.1.4."
+    },
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "logic": "Pool inclusion/exclusion must be justified. If included in baseline, must also be in project and leakage.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-2",
+        "section_anchor": "project-boundary",
+        "section_number": "5",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "sections": [
+          "S-2"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8",
+          "Verra/T-SIG@v1-8"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "seed_derived_pending_review",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-2"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "pending_source_audit"
+      },
+      "section_context": {
+        "anchor": "project-boundary",
+        "lineage": [
+          "project-boundary"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 50,
+        "page_start": 49,
+        "section_id": "S-2",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "section_title": "Project Boundary"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "summary": "Carbon pool selection per activity type",
+      "type": "eligibility",
+      "when": [],
+      "source_span_text": "5.3 Carbon Pools\n\n5.3.1 General\nAny significant decreases in carbon stock in the project scenario and any significant increases in carbon stock in the baseline scenario must be accounted for. In addition, decreases in the baseline scenario and increases in the project scenario can be accounted for. Where REDD activities take place on wetlands, the project must account for expected emissions from the soil organic carbon pool or change in the soil organic carbon pool in the project scenario, unless they are deemed de minimis. The significance of this pool may be determined by using the tool T-SIG or Appendix 1. Significance of pools must be determined ex-ante or at baseline reassessment for a specific baseline validity period, as well as at verification for a specific monitoring period.\n\nSelection of carbon pools and the appropriate justification must be presented in PD and in the monitoring report (MR)."
+    },
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "logic": "AGB always mandatory. HWP and dead wood conditionally mandatory based on baseline/project comparison.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-2",
+        "section_anchor": "project-boundary",
+        "section_number": "5",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "sections": [
+          "S-2"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8",
+          "Verra/VMD0001@v1-8",
+          "Verra/VMD0002@v1-8",
+          "Verra/VMD0005@v1-1",
+          "Verra/VMD0001@v1-1",
+          "Verra/VMD0002@v1-0"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "seed_derived_pending_review",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-2"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "pending_source_audit"
+      },
+      "section_context": {
+        "anchor": "project-boundary",
+        "lineage": [
+          "project-boundary"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 20,
+        "page_start": 18,
+        "section_id": "S-2",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-2",
+        "section_title": "Project Boundary"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "summary": "REDD mandatory carbon pools",
+      "type": "calc",
+      "when": [],
+      "source_span_text": "5.3.2 REDD\n\nThe carbon pools (and corresponding methodology modules) included in or excluded from the boundary of REDD project activities are shown in Table 4.\n\nHarvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. If a carbon pool is included in the baseline accounting, it must also be included in project scenario and leakage accounting.\n\nWhere the carbon pool in harvested wood products and dead wood increases more or decreases less in the baseline case than in the project case, the tool T-SIG or Appendix 1 must be used to determine whether significant. Insignificant pools can always be ignored."
+    },
+    {
+      "id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "logic": "JNR data is acceptable as a conservative source even if less accurate.",
+      "quality_status": "source_audited",
+      "refs": {
+        "methodology": "Verra/VM0007@v1-8",
+        "primary_section": "S-3",
+        "section_anchor": "baseline-scenario",
+        "section_number": "6",
+        "section_stable_id": "Verra.AFOLU.VM0007.v1-8.S-3",
+        "sections": [
+          "S-3"
+        ],
+        "tools": [
+          "Verra/VM0007@v1-8"
+        ]
+      },
+      "requirement_coverage": {
+        "coverage_key": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+        "coverage_scope": "rule",
+        "expected_evidence_status": "pending_source_audit",
+        "section_refs": [
+          {
+            "relationship": "source_section",
+            "section_id": "S-3"
+          }
+        ],
+        "section_refs_status": "source_audited"
+      },
+      "rule_detail": {
+        "status": "source_audited",
+        "summary": "JNR data use"
+      },
+      "section_context": {
+        "anchor": "baseline-scenario",
+        "lineage": [
+          "baseline-scenario"
+        ],
+        "locator_status": "source_audited",
+        "page_end": 27,
+        "page_start": 25,
+        "section_id": "S-3",
+        "section_ref": "Verra.AFOLU.VM0007.v1-8.S-3",
+        "section_title": "Baseline Scenario"
+      },
+      "source_span_status": "source_audited",
+      "stable_id": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "summary": "JNR data use",
+      "type": "calc",
+      "when": [],
+      "source_span_text": "Where project proponents use available data sourced from a jurisdictional baseline that meets the requirements set out in the VCS JNR Requirements, those data sources may be used under this methodology, where conservative, even where data accuracy may be less stringent than required by this methodology."
+    }
+  ]
+}

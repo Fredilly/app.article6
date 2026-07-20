@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rc5-2-maya-remaining-five-review-response-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceDocument",
+    "machineProposalRef",
+    "decisions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "rc5-2-maya-remaining-five-review-response-v1"
+    },
+    "sourceDocument": {
+      "type": "object",
+      "required": [
+        "documentId",
+        "documentName",
+        "contentSha256"
+      ]
+    },
+    "machineProposalRef": {
+      "const": {
+        "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+        "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+        "proposalState": "MACHINE_PROPOSED"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stableRuleId",
+          "machineRowSha256",
+          "reviewStatus",
+          "expertReviewRequired",
+          "finalEvidenceState",
+          "finalApplicability",
+          "reviewerOutcome",
+          "acceptedEvidence",
+          "rejectedEvidence",
+          "assessmentReason",
+          "gap",
+          "clientAction",
+          "correctionReason",
+          "provisionalReason",
+          "reviewerConfidence"
+        ],
+        "properties": {
+          "stableRuleId": {
+            "enum": [
+              "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+              "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+              "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+              "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+              "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+            ]
+          },
+          "machineRowSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "reviewStatus": {
+            "enum": [
+              "PENDING_INDEPENDENT_ADJUDICATION",
+              "PROVISIONAL",
+              "REVIEWED"
+            ]
+          },
+          "expertReviewRequired": {
+            "type": "boolean"
+          },
+          "finalEvidenceState": {
+            "enum": [
+              "FOUND",
+              "UNCLEAR",
+              "MISSING",
+              "N/A",
+              null
+            ]
+          },
+          "finalApplicability": {
+            "enum": [
+              "APPLICABLE",
+              "NOT_APPLICABLE",
+              "UNKNOWN",
+              null
+            ]
+          },
+          "reviewerOutcome": {
+            "enum": [
+              "CONFORMS",
+              "ACTION_REQUIRED",
+              "NOT_APPLICABLE",
+              null
+            ]
+          },
+          "acceptedEvidence": {
+            "type": "array"
+          },
+          "rejectedEvidence": {
+            "type": "array"
+          },
+          "assessmentReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clientAction": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "correctionReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provisionalReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reviewerConfidence": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              null
+            ]
+          }
+        }
+      },
+      "description": "Exactly five decisions, one unique decision for each selectedRuleId."
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "decisions": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "stableRuleId": {
+                "const": "Verra.AFOLU.VM0007.v1-8.R-2-0002"
+              }
+            },
+            "required": [
+              "stableRuleId"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "decisions": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "stableRuleId": {
+                "const": "Verra.AFOLU.VM0007.v1-8.R-2-0004"
+              }
+            },
+            "required": [
+              "stableRuleId"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "decisions": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "stableRuleId": {
+                "const": "Verra.AFOLU.VM0007.v1-8.R-2-0007"
+              }
+            },
+            "required": [
+              "stableRuleId"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "decisions": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "stableRuleId": {
+                "const": "Verra.AFOLU.VM0007.v1-8.R-2-0008"
+              }
+            },
+            "required": [
+              "stableRuleId"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "decisions": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "stableRuleId": {
+                "const": "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+              }
+            },
+            "required": [
+              "stableRuleId"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    }
+  ]
+}
