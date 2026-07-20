@@ -7287,6 +7287,16 @@
     "MISSING": 9,
     "N/A": 22
   },
-  "goldPromotionBlocked": false,
-  "reportReleaseState": "READY_FOR_REPORT_RELEASE"
+  "goldPromotionBlocked": true,
+  "reportReleaseState": "BLOCKED_PENDING_VERSION_RECONCILIATION",
+  "reportReleaseBlocker": "The PDD preserves a page-61 VM0007 v1.7 reference alongside formal v1.8 declarations in Tables 30 and 31. Client release remains blocked until the document inconsistency is explicitly validated.",
+  "methodologyVersionConflict": {
+    "classification": "DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE",
+    "conclusion": "The page-61 v1.7 wording is an outdated internal drafting reference; the formal methodology inventory and declarations establish VM0007 v1.8. This is not a genuine two-version methodology application.",
+    "rationale": "The exact v1.7 and v1.8 source declarations are preserved in source-excerpts.json. No version was silently normalized.",
+    "releaseState": "BLOCKED_PENDING_VERSION_RECONCILIATION",
+    "affectedReviewedTruthRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-3-0005", "Verra.AFOLU.VM0007.v1-8.R-1-0006", "Verra.AFOLU.VM0007.v1-8.R-1-0008", "Verra.AFOLU.VM0007.v1-8.R-1-0010", "Verra.AFOLU.VM0007.v1-8.R-1-0014", "Verra.AFOLU.VM0007.v1-8.R-3-0006", "Verra.AFOLU.VM0007.v1-8.R-2-0003", "Verra.AFOLU.VM0007.v1-8.R-2-0004", "Verra.AFOLU.VM0007.v1-8.R-2-0009", "Verra.AFOLU.VM0007.v1-8.R-2-0010", "Verra.AFOLU.VM0007.v1-8.R-2-0011", "Verra.AFOLU.VM0007.v1-8.R-2-0012", "Verra.AFOLU.VM0007.v1-8.R-2-0013", "Verra.AFOLU.VM0007.v1-8.R-2-0014", "Verra.AFOLU.VM0007.v1-8.R-2-0015", "Verra.AFOLU.VM0007.v1-8.R-3-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0003", "Verra.AFOLU.VM0007.v1-8.R-5-0008"
+    ]
+  }
 }

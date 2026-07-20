@@ -20,8 +20,31 @@
     "formalInventory": "Table 30 identifies VM0007 REDD+ Methodology Framework version 1.8",
     "rationale": "Table 30 is the formal methodology inventory and the PDD repeatedly declares v1.8 elsewhere",
     "silentNormalization": false,
-    "versionQualified": true,
-    "reconciliationStatus": "VERSION_QUALIFIED"
+    "versionQualified": false,
+    "reconciliationStatus": "DOCUMENT_INCONSISTENCY_REQUIRES_EXPLICIT_VALIDATION",
+    "reviewerConclusion": "DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE",
+    "reviewerRationale": "Page 61 preserves the exact VM0007 v1.7 wording, while Table 30 and Table 31 preserve explicit VM0007 v1.8 declarations and the PDD repeats v1.8 elsewhere. This is an outdated internal reference/drafting inconsistency, not evidence that the project genuinely applied two methodology versions. v1.8 remains the reviewed methodology, but the source conflict must be explicitly validated before client release.",
+    "affectedEvidenceMapRuleIds": [
+      "Verra.AFOLU.VM0007.v1-8.R-3-0005",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0008",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0010",
+      "Verra.AFOLU.VM0007.v1-8.R-1-0014",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0009",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0010",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0011",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0012",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0013",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0014",
+      "Verra.AFOLU.VM0007.v1-8.R-2-0015",
+      "Verra.AFOLU.VM0007.v1-8.R-3-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0008"
+    ],
+    "releaseBlocker": "BLOCK_CLIENT_RELEASE_UNTIL_VERSION_RECONCILIATION_VALIDATED"
   },
   "machineProposal": {
     "rowCount": 58,
@@ -124,9 +147,9 @@
       "Verra.AFOLU.VM0007.v1-8.R-6-0007"
     ],
     "reviewedRowCount": 58,
-    "goldPromotion": "READY_FOR_REPORT_RELEASE",
-    "reportReleaseState": "READY_FOR_REPORT_RELEASE",
-    "versionReconciliationPending": false,
+    "goldPromotion": "BLOCKED_PENDING_VERSION_RECONCILIATION",
+    "reportReleaseState": "BLOCKED_PENDING_VERSION_RECONCILIATION",
+    "versionReconciliationPending": true,
     "evidenceStateCounts": {
       "FOUND": 6,
       "UNCLEAR": 21,
@@ -145,7 +168,8 @@
       "evidenceMapRows": 58,
       "reviewedRows": 58,
       "unreviewedRows": 0,
-      "structurallyReady": true
+      "structurallyReady": false,
+      "blockedBy": ["methodology version conflict requires explicit validation"]
     },
     "independentAuditBatchFive": {
       "rowCount": 10,
