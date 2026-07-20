@@ -3,6 +3,8 @@ import path from "node:path";
 
 export type MarcondesReadinessRule = {
   ruleId: string;
+  displayTitle: string;
+  displayRequirement: string;
   requirement: string;
   reviewerOutcome: string;
   evidenceState: string;
@@ -43,13 +45,20 @@ const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-v
 type FrozenRow = Record<string, any>;
 const readJson = (name: string) => JSON.parse(fs.readFileSync(path.join(fixtureDir, name), "utf8")) as FrozenRow;
 
+function displayTitle(ruleId: string, requirement: string): string {
+  if (ruleId.endsWith("R-1-0012")) return "CIW tidal wetland conservation activities";
+  return requirement.split(/(?<=\.)\s+/)[0].replace(/\.$/, "") || "Requirement review";
+}
+
 export function buildMarcondesPreValidationReadinessReport(): MarcondesPreValidationReadinessReport {
   const gold = readJson("gold.json");
   const metadata = readJson("metadata.json");
   const release = readJson("release-status.json");
   const rows = (gold.rows as FrozenRow[]).map((row) => ({
     ruleId: row.ruleId,
-    requirement: row.requirement,
+    displayTitle: displayTitle(row.ruleReference, row.requirement ?? row.machineProposal?.requirementText ?? "Requirement text not recorded"),
+    displayRequirement: row.requirement ?? row.machineProposal?.requirementText ?? "Requirement text not recorded in the frozen Evidence Map.",
+    requirement: row.requirement ?? row.machineProposal?.requirementText ?? "Requirement text not recorded in the frozen Evidence Map.",
     reviewerOutcome: row.reviewerOutcome,
     evidenceState: row.finalEvidenceState,
     acceptedEvidence: row.acceptedEvidence,

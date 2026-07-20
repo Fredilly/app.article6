@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import MarcondesPreValidationReadinessPage from "@/app/internal/reports/prevalidation/marcondes/[auditId]/page";
+import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
 
 const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const sha = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, name))).digest("hex");
@@ -20,6 +21,15 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
     expect(html).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect((html.match(/data-testid=\"readiness-rule\"/g) ?? []).length).toBe(58);
+    expect(html).not.toContain("Manual review replaced");
+    expect(html).not.toContain("machine-selected evidence");
+    expect(html).toContain("The reviewer validated and corrected the machine proposal using PDF-backed project evidence.");
+    expect(html).toContain("Rejected evidence");
+    expect(html).toContain("View original rejected evidence");
+    expect(html).toContain("CIW tidal wetland conservation activities");
+    expect(html).toContain("Rule ID: R-1-0012");
+    const visibleMarkup = html.replace(/ data-rule-id="[^"]+"/g, "");
+    expect(visibleMarkup).not.toContain("Verra.AFOLU.VM0007.v1-8.");
   });
 
   it("exposes the Evidence Map navigation link and preserves truth artifact hashes", () => {
@@ -29,5 +39,16 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(sha("gold.json")).toBe("ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511");
     expect(sha("machine-proposal.json")).toBe("068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6");
     expect(sha("raw-evidence-map.json")).toBe("bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e");
+  });
+
+  it("keeps the finalized counts, outcomes, IDs, and rejected evidence in the report model", () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    expect(report.rules).toHaveLength(58);
+    expect(report.executiveSummary.evidenceStateCounts).toEqual({ FOUND: 6, UNCLEAR: 21, MISSING: 9, "N/A": 22 });
+    expect(report.executiveSummary.reviewerOutcomeCounts).toEqual({ CONFORMS: 6, ACTION_REQUIRED: 30, NOT_APPLICABLE: 22, NOT_ASSESSED: 0 });
+    expect(report.rules.every((rule) => rule.ruleId.startsWith("Verra.AFOLU.VM0007.v1-8.") && rule.displayTitle.length > 0 && rule.displayRequirement.length > 0)).toBe(true);
+    const gold = JSON.parse(fs.readFileSync(path.join(fixtureDir, "gold.json"), "utf8"));
+    expect(report.rules.map((rule) => rule.acceptedEvidence)).toEqual(gold.rows.map((row: { acceptedEvidence: unknown[] }) => row.acceptedEvidence));
+    expect(report.rules.map((rule) => rule.rejectedEvidence)).toEqual(gold.rows.map((row: { rejectedEvidence: unknown[] }) => row.rejectedEvidence));
   });
 });
