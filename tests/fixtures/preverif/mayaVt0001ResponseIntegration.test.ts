@@ -1,8 +1,10 @@
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
   baselineCommit,
+  finalizedCorrectionReason,
   finalizedRuleId,
   integrationTruthFile,
   machinePath,
@@ -38,6 +40,20 @@ describe("RC5-2 Maya VT0001 response integration", () => {
     expect(cryptoSha(machinePath)).toBe(machineProposalSha256);
     expect(fs.existsSync(path.join(root, integrationTruthFile))).toBe(true);
     expect(baselineCommit).toBe("1ed30d230618de4ee86c316ccbaf8363a98a879a");
+  });
+
+  test("finalizes R-3-0003 with a VT0001-specific correction reason and leaves other correction reasons unchanged", () => {
+    const integrated = readJson(integrationTruthFile);
+    const baseline = JSON.parse(execFileSync("git", ["show", `${baselineCommit}:${integrationTruthFile}`], { cwd: root }).toString("utf8"));
+    const integratedRows = new Map(integrated.decisions.map((row: any) => [row.stableRuleId, row]));
+    const baselineRows = new Map(baseline.decisions.map((row: any) => [row.stableRuleId, row]));
+    const target = integratedRows.get(finalizedRuleId);
+    expect(target.correctionReason).toBe(finalizedCorrectionReason);
+    expect(target.correctionReason).not.toContain("Wave 1 PDD finality reassessment");
+    for (const [id, row] of integratedRows) {
+      if (id === finalizedRuleId) continue;
+      expect(row.correctionReason).toBe(baselineRows.get(id).correctionReason);
+    }
   });
 
   test.each([

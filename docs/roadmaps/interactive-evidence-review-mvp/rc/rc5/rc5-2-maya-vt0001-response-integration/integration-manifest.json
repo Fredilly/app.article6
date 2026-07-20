@@ -74,7 +74,7 @@
     }
   },
   "integratedTruthPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-  "integratedTruthSha256": "5bb944fa5569b0cce72eb90f0b4dbf917deb7df2dae75e7da5a2d4921286a067",
+  "integratedTruthSha256": "f8d3a6cae2f3257026a5a39337268241acde08bc83f638e346f557e6684a3b93",
   "exactlyOneTransition": true,
   "nonTargetRowsUnchanged": true,
   "machineTruthChanged": false,

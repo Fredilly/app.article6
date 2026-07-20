@@ -32,6 +32,7 @@ export const packetSha256 = "156389d806998cbf19aa0fee156747d6a12ce1c35817d2416a6
 export const schemaSha256 = "f87cbdbfb8698b148d36387c4532f84d30098b2bf445e749f0245bd71cb3e804";
 export const packetManifestSha256 = "8ca88690e981c5d95df966f7d992a9560d2e8ddd2abf7f189f9157532a8a1eb1";
 export const machineProposalSha256 = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
+export const finalizedCorrectionReason = "Finalized from the independent VT0001 v3.0 interpretation review: Step 2 investment analysis and Step 3 barrier analysis are alternative pathways; Maya selected Step 2 Option I, so the conditional barrier-analysis rule is not applicable.";
 export const sourceTruthSha256: Record<string, string> = {
   [truthFiles[0]]: "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2",
   [truthFiles[1]]: "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
@@ -124,7 +125,7 @@ function buildIntegratedTruth() {
         if (row.stableRuleId !== finalizedRuleId) return row;
         if (row.reviewStatus !== "PROVISIONAL") throw new Error("R-3-0003 was not provisional before integration");
         const decision = responseById.get(finalizedRuleId)!;
-        return { ...row, reviewStatus: "REVIEWED", expertReviewRequired: false, finalEvidenceState: "FOUND", finalApplicability: "NOT_APPLICABLE", reviewerOutcome: "NOT_APPLICABLE", draftFindingCandidate: null, gap: "", clientAction: "", provisionalReason: null, assessmentReason: `${decision.methodologyInterpretation}\n\n${decision.mayaApplication}` };
+        return { ...row, reviewStatus: "REVIEWED", expertReviewRequired: false, finalEvidenceState: "FOUND", finalApplicability: "NOT_APPLICABLE", reviewerOutcome: "NOT_APPLICABLE", draftFindingCandidate: null, gap: "", clientAction: "", correctionReason: finalizedCorrectionReason, provisionalReason: null, assessmentReason: `${decision.methodologyInterpretation}\n\n${decision.mayaApplication}` };
       });
     }
     integrated.set(file, next);
