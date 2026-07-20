@@ -38,14 +38,7 @@ function copyReviewedTruthFiles() {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "maya-reviewed-truth-pins-"));
   const paths = reviewedTruthFilePins.map((pin, index) => {
     const copiedPath = path.join(tempDir, `${index}.json`);
-    const bytes = [
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
-      "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-    ].includes(pin.path)
-      ? execFileSync("git", ["show", `747bf16c7a2422157d776d565db82ec0fa3f1443:${pin.path}`], { cwd: process.cwd() })
-      : fs.readFileSync(path.join(process.cwd(), pin.path));
+    const bytes = execFileSync("git", ["show", `747bf16c7a2422157d776d565db82ec0fa3f1443:${pin.path}`], { cwd: process.cwd() });
     fs.writeFileSync(copiedPath, bytes);
     return copiedPath;
   });
