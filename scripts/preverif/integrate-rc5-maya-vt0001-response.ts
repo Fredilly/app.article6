@@ -26,6 +26,7 @@ export const selectedRuleIds = [
   "Verra.AFOLU.VM0007.v1-8.R-4-0001",
 ] as const;
 export const finalizedRuleId = "Verra.AFOLU.VM0007.v1-8.R-3-0003";
+export const priorFinalizedRuleId = "Verra.AFOLU.VM0007.v1-8.R-3-0008";
 export const remainingProvisionalRuleIds = [selectedRuleIds[0], selectedRuleIds[2]] as const;
 export const responseSha256 = "a0cb03aec83f51ffe91ed58a8472f47856903952d3153d6d3cd99f070f1227f5";
 export const packetSha256 = "156389d806998cbf19aa0fee156747d6a12ce1c35817d2416a66a9f3156bbdb3";
@@ -38,7 +39,7 @@ export const sourceTruthSha256: Record<string, string> = {
   [truthFiles[1]]: "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d",
   [truthFiles[2]]: "e52938d489ae0f106fdfccfe9d81a90386e8d2e55925759aa2700145bf82086b",
   [truthFiles[3]]: "85dede541c31c4269e25ac15782d6cdcde5e15e304382768a3603e90e2c7ff3d",
-  [truthFiles[4]]: "1cce490339d408f314b42a3238f4cefe3b416ab17cdaf6c6673bb35f196afc5f",
+  [truthFiles[4]]: "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
   [truthFiles[5]]: "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00",
 };
 const requiredCitationKeys = ["sourcePath", "sourceSha256", "sourcePdfPath", "sourcePdfSha256", "page", "quote"];
@@ -56,7 +57,7 @@ function exactSet(actual: string[], expected: readonly string[], label: string) 
 }
 
 function verifyPinnedFiles() {
-  const checks: Array<[string, string]> = [[responsePath, responseSha256], [packetPath, packetSha256], [schemaPath, schemaSha256], [packetManifestPath, packetManifestSha256], [machinePath, machineProposalSha256]];
+  const checks: Array<[string, string]> = [[responsePath, responseSha256], [packetPath, packetSha256], [schemaPath, schemaSha256], [packetManifestPath, packetManifestSha256], [machinePath, machineProposalSha256], [integrationTruthFile, sourceTruthSha256[integrationTruthFile]]];
   for (const [file, expected] of checks) {
     const actual = sha256(fs.readFileSync(abs(file)));
     if (actual !== expected) throw new Error(`${file}: SHA mismatch; expected ${expected}, got ${actual}`);
@@ -122,6 +123,11 @@ function buildIntegratedTruth() {
     const next = clone(base);
     if (file === integrationTruthFile) {
       next.decisions = next.decisions.map((row: Json) => {
+        if (row.stableRuleId === priorFinalizedRuleId) {
+          const current = read<Json>(integrationTruthFile).decisions.find((candidate: Json) => candidate.stableRuleId === priorFinalizedRuleId);
+          if (!current || current.reviewStatus !== "REVIEWED" || current.finalEvidenceState !== "N/A" || current.finalApplicability !== "NOT_APPLICABLE" || current.reviewerOutcome !== "NOT_APPLICABLE") throw new Error("R-3-0008 current reviewed truth is not finalized");
+          return current;
+        }
         if (row.stableRuleId !== finalizedRuleId) return row;
         if (row.reviewStatus !== "PROVISIONAL") throw new Error("R-3-0003 was not provisional before integration");
         const decision = responseById.get(finalizedRuleId)!;
@@ -132,11 +138,11 @@ function buildIntegratedTruth() {
   }
   const rows = [...integrated.values()].flatMap((t) => t.decisions as Json[]);
   if (rows.length !== 58 || new Set(rows.map((r) => r.stableRuleId)).size !== 58) throw new Error("final inventory is not 58 unique rules");
-  if (rows.filter((r) => r.reviewStatus === "REVIEWED").length !== 51 || rows.filter((r) => r.reviewStatus === "PROVISIONAL").length !== 7) throw new Error("final inventory is not 51/7");
+  if (rows.filter((r) => r.reviewStatus === "REVIEWED").length !== 52 || rows.filter((r) => r.reviewStatus === "PROVISIONAL").length !== 6) throw new Error("final inventory is not 52/6");
   for (const file of truthFiles) {
     const oldRows = new Map((baseline.get(file)!.decisions as Json[]).map((r) => [r.stableRuleId, r]));
     const newRows = new Map((integrated.get(file)!.decisions as Json[]).map((r) => [r.stableRuleId, r]));
-    for (const [id, oldRow] of oldRows) if (id !== finalizedRuleId && !equal(oldRow, newRows.get(id))) throw new Error(`unrelated truth row changed: ${id}`);
+    for (const [id, oldRow] of oldRows) if (![finalizedRuleId, priorFinalizedRuleId].includes(id) && !equal(oldRow, newRows.get(id))) throw new Error(`unrelated truth row changed: ${id}`);
   }
   return { packet, response, integrated, baseline };
 }
@@ -158,10 +164,10 @@ export function writeIntegration() {
     machineProposal: { path: machinePath, sha256: machineProposalSha256 },
     sourceTruth: truthFiles.map((file) => ({ path: file, sha256: sourceTruthSha256[file], immutableBaseline: true })),
     selectedRuleIds: [...selectedRuleIds], finalizedRuleId, remainingProvisionalRuleIds: [...remainingProvisionalRuleIds],
-    inventory: { before: { reviewed: 50, provisional: 8, total: 58, unique: 58 }, after: { reviewed: 51, provisional: 7, total: 58, unique: 58 } },
+    inventory: { before: { reviewed: 50, provisional: 8, total: 58, unique: 58 }, after: { reviewed: 52, provisional: 6, total: 58, unique: 58 } },
     integratedTruthPath: integrationTruthFile,
     integratedTruthSha256: sha256(fs.readFileSync(abs(integrationTruthFile))),
-    exactlyOneTransition: true, nonTargetRowsUnchanged: true, machineTruthChanged: false, priorArtifactsChanged: false,
+    exactlyOneTransition: true, priorFinalizedRuleIds: [priorFinalizedRuleId], nonTargetRowsUnchanged: true, machineTruthChanged: false, priorArtifactsChanged: false,
     responseDecisions: response.decisions.length, packetSelectedRuleIds: packet.selectedRuleIds,
     historicalInputsPinned: [...baseline.keys()],
   };
