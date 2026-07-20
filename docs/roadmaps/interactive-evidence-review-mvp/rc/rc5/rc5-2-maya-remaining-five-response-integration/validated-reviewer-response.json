@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "rc5-2-maya-remaining-five-review-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "machineRowSha256": "28298e9a9700ae3e806071694832576fc22016ead632768ef401f995e2281cdc",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "reviewerConfidence": null,
+      "provisionalReason": "The methodology contract requires that two project types cannot occur on the same piece of land, other than those including a WRC component. The PDD candidate evidence at pages 78 (labour and human rights) and 81 (dispute resolution and approvals) does not provide a boundary map, a delineation of the project area relative to other VCS project boundaries, or a project-level assertion that no overlap exists with any other VCS project. The PDD references a KML file uploaded to the Verra registry and shapefiles, but these are not included in the frozen source set. The boundary geometry required to satisfy the strict no-overlap rule is not available in the frozen evidence."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "machineRowSha256": "d4eea41a068f96ff59cb0e89ee6a804c6cecd37b17b71b628c22fd08b0b557b6",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "reviewerConfidence": null,
+      "provisionalReason": "The methodology contract requires proxy/reference-region similarity justification with the required underlying data and delineation rationale. Pages 97-98 describe proxy selection criteria and provide similarity tables asserting compliance with the VMD0006 20% threshold, but the underlying LIC parcel registry source data (Appendix 24) and the complete proxy area delineation documentation required by Module BL-PL are not included in the frozen source set. Without the underlying LIC data and full delineation evidence, the reviewer cannot confirm that the proxy similarity demonstration is complete and independently verifiable from the frozen packet alone."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "machineRowSha256": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "reviewerConfidence": null,
+      "provisionalReason": "The methodology contract (Section 5.3.1) requires that selection of carbon pools and the appropriate justification must be presented in the PD. Pages 87-88 list included pools and reference de minimis determinations for harvested wood products, belowground palm biomass, and dead wood. However, these de minimis determinations rely on Appendix 1 (Testing Significance of GHG Emissions), Appendix 21 (HWP estimation), and Appendix 22 (significance testing calculations), which are not included in the frozen source set. The methodology contract also requires symmetric accounting: pools included in baseline must also be included in project and leakage. While page 88 states that all included pools are accounted for in baseline, project, and activity-shifting leakage, the underlying de minimis justification for HWP exclusion cannot be independently verified without the absent appendices."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "machineRowSha256": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
+      "reviewStatus": "PROVISIONAL",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "reviewerConfidence": null,
+      "provisionalReason": "The methodology contract (Section 5.3.2 REDD) states that harvested wood products and dead wood must be included when they increase more or decrease less in the baseline than in the project scenario. In all other cases, only aboveground biomass is mandatory. It further states that where HWP and dead wood increase more or decrease less in the baseline case, the tool T-SIG or Appendix 1 must be used to determine significance. Page 87 lists AGB, BGB, palm AGB, standing and lying dead wood, and SOC as included pools, with harvested wood products listed without a clear include/exclude conclusion on that page alone. Page 88 states that harvested wood products are identified as de minimis following Appendix 1, referencing Appendix 21 (HWP estimation) and Appendix 22 (significance testing calculations). The underlying significance test results and HWP pool estimation workbooks are not included in the frozen source set. Without Appendices 21 and 22, the reviewer cannot independently determine whether the conditional HWP and dead wood branch under Section 5.3.2 was correctly applied."
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "machineRowSha256": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": true,
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": "The methodology contract states: Where project proponents use available data sourced from a jurisdictional baseline that meets the requirements set out in the VCS JNR Requirements, those data sources may be used under this methodology, where conservative. The rule is permissive (may be used), not prescriptive (must be used). Page 14 of the PDD explicitly states: The project is not located within a jurisdiction covered by a jurisdictional REDD+ program. Since no JNR program jurisdiction exists for this project area, the rule is structurally inapplicable. No JNR data is used or claimed. The evidence in the packet is sufficient to make this determination.",
+      "gap": "",
+      "clientAction": "",
+      "correctionReason": "The machine proposed NOT_APPLICABLE which is correct. The PDD explicitly states the project is not in a JNR jurisdiction, and the methodology rule is permissive. No JNR evidence is needed because none exists or is used by the project.",
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
+    }
+  ]
+}

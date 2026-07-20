@@ -212,47 +212,22 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
       "machineRowSha256": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "UNCLEAR",
-      "finalApplicability": "UNKNOWN",
-      "reviewerOutcome": "ACTION_REQUIRED",
-      "acceptedEvidence": [
-        {
-          "quote": "The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.\n2.1.2 Audit History (VCS, 4.1)\nProject not yet been validated.\n2.1.3 Sectoral Scope and Project Type (VCS, 3.2)",
-          "page": 14,
-          "sectionHeading": "2.1.1 Project Goals, Design and Long-Term Viability",
-          "spanId": "full-pdd:page-14:1",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
-        {
-          "quote": "The project’s methodology follows the\nstepwise approach to determine the most\nplausible baseline scenario.\n3.1.3 Project Boundary (VCS, 3.12)\n3.1.3.1 Geographic boundaries\nThe geographic boundaries, including the geodetic coordinators, of the MFC REDD project area where\nthe GHG emission reductions are taking place are described in Section 2.1.16. The shapefiles are\navailable to Verra and the VVB, and the kml file of the project boundaries was uploaded to the Verra\nregistry.\nFigure 10 presents the forest cover bench",
-          "page": 86,
-          "sectionHeading": "3.1.2 Applicability of Methodology (VCS, 3.1)",
-          "spanId": "full-pdd:page-86:2",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        },
-        {
-          "quote": "Similar activities to the proposed project occurring in Belize over the previous 10 years from project\ninitiation were analyzed for common practice. The owners of officially recognized and unofficial private\nprotected areas voluntarily accept terms and conditions of use to conserve biological diversity and\nother ecosystem services. When official private protected areas are designated, the central Belizean\ngovernment does not compensate owners for land use restrictions.\nThere are multiple private properties both officially recognized as private protected areas (e.g. Runaway\nCreek Nature Reserve, Monkey Bay Wildlife Sanctuary) and unofficial, privately owned conservation\nareas (e.g. Tropical Education Center and Belize Zoo) located within the MFC. Each of these private\nprotected areas are in the same geographic area (i.e. MFC), exist under the same regulatory framework,\nand have comparable environmental and ecological settings.\nThe key distinction between the MFC REDD project and these o",
-          "page": 92,
-          "sectionHeading": "3.1.5.2.3 Step 4. Common Practice Analysis",
-          "spanId": "full-pdd:page-92:3",
-          "documentId": "quick-check-review-question",
-          "documentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
-        }
-      ],
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "N/A",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
+      "acceptedEvidence": [],
       "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD states (page 14): 'The project is not located within a jurisdiction covered by a jurisdictional REDD+ program.' The methodology reference (page 86) states the project's baseline follows the stepwise approach. The common practice analysis (page 92) compares with private protected areas. The official VM0007 methodology does not explicitly address JNR jurisdictional data applicability for standalone REDD projects. A single statement that the project is not in a JNR-covered jurisdiction is insufficient to definitively determine whether JNR-based baseline data is applicable, not applicable, or should have been considered. The methodology's JNR applicability conditions need explicit review that cannot be resolved from the available evidence.",
-      "gap": "The frozen packet does not contain evidence showing whether VCS JNR Requirements were evaluated or whether jurisdictional baseline data was considered. The methodology's JNR applicability conditions are not fully present in the frozen source set.",
-      "clientAction": "Provide methodology text on JNR applicability conditions and evaluate whether jurisdictional baseline data is required, optional, or excluded for this project.",
-      "correctionReason": "Wave 1 PDD finality reassessment.",
+      "assessmentReason": "The methodology contract states: Where project proponents use available data sourced from a jurisdictional baseline that meets the requirements set out in the VCS JNR Requirements, those data sources may be used under this methodology, where conservative. The rule is permissive (may be used), not prescriptive (must be used). Page 14 of the PDD explicitly states: The project is not located within a jurisdiction covered by a jurisdictional REDD+ program. Since no JNR program jurisdiction exists for this project area, the rule is structurally inapplicable. No JNR data is used or claimed. The evidence in the packet is sufficient to make this determination.",
+      "gap": "",
+      "clientAction": "",
+      "correctionReason": "The machine proposed NOT_APPLICABLE which is correct. The PDD explicitly states the project is not in a JNR jurisdiction, and the methodology rule is permissive. No JNR evidence is needed because none exists or is used by the project.",
       "genericFailureCategory": "APPLICABILITY",
-      "reviewerConfidence": "LOW",
-      "provisionalReason": "The project states it is not in a JNR-covered jurisdiction, but this single statement is insufficient to determine JNR baseline data applicability. The methodology's JNR applicability conditions are not fully present in the frozen packet to resolve this interpretation."
+      "reviewerConfidence": "HIGH",
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-4-0002",

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "rc5-2-maya-remaining-five-response-manifest-v1",
+  "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-response-integration/validated-reviewer-response.json",
+  "responseSha256": "2ccb57ef1d63d4bf9d50e3775fe39c212913b0b93c5b1ef8def198f2572ae6c9",
+  "packetPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet/review-packet.json",
+  "packetSha256": "60ef0e0bb3c2833edd97839421881e434e992a95235c185440080ca890af1db3",
+  "schemaPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet/review-response-schema.json",
+  "schemaSha256": "5c8046b23ec04299654ccfaa8bf59db98952b1ac789b618ca7165c70e480bd0e",
+  "validatorCliPath": "scripts/preverif/validate-rc5-maya-remaining-five-review-response.ts",
+  "validatorCliSha256": "036f25a6b66237e0e9f240f48182b53bfdf7c8199be7c14833b458e266f250ea",
+  "validatorImplementationPath": "scripts/preverif/rc5-maya-remaining-five-response-validator.ts",
+  "validatorImplementationSha256": "1a5cd2ec1ce8f1c31c147fda4220fc074d84229a211973d84b6ce32da590bcdb",
+  "machineProposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+  "machineProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+  ],
+  "responsePreservedByteForByte": true
+}

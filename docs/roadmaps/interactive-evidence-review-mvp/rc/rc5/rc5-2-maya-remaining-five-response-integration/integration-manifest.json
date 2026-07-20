@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "rc5-2-maya-remaining-five-response-integration-manifest-v1",
+  "baselineCommit": "a9c4b79fe78dfba0e873d7e9acc22909d5a503de",
+  "responseManifestPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-response-integration/response-manifest.json",
+  "responseManifestSha256": "e69cc7a8d5bbb09045dec1a7f68b588e368bca71b57a5178772d38f2eae17711",
+  "responsePath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-response-integration/validated-reviewer-response.json",
+  "responseSha256": "2ccb57ef1d63d4bf9d50e3775fe39c212913b0b93c5b1ef8def198f2572ae6c9",
+  "integratedTruthPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
+  "integratedTruthSha256": "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
+  "machineProposalPath": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+  "machineProposalSha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+  "truthFiles": [
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/maya-adjudication-response.json",
+      "sha256": "f172fbf723fd002a9cb1bae54c140d0adbbbd4c5b06e616a6eed05ac5f606dd2"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-2-adjudication/reviewed-truth.json",
+      "sha256": "a26b0bae33cf0f436d80fe6c00622fdf0ddc65359cacc845dc764e994b0c263d"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-3-adjudication/reviewed-truth.json",
+      "sha256": "e52938d489ae0f106fdfccfe9d81a90386e8d2e55925759aa2700145bf82086b"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-4-adjudication/reviewed-truth.json",
+      "sha256": "85dede541c31c4269e25ac15782d6cdcde5e15e304382768a3603e90e2c7ff3d"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
+      "sha256": "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431"
+    },
+    {
+      "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-6-adjudication/reviewed-truth.json",
+      "sha256": "df6959a1d673859d00fb02adee99854e45970ecdeb123e6fe44bb96871cd6d00"
+    }
+  ],
+  "selectedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+    "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+  ],
+  "excludedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-3-0001",
+    "Verra.AFOLU.VM0007.v1-8.R-4-0001"
+  ],
+  "inventoryBefore": {
+    "reviewed": 51,
+    "provisional": 7,
+    "total": 58,
+    "unique": 58
+  },
+  "inventoryAfter": {
+    "reviewed": 52,
+    "provisional": 6,
+    "total": 58,
+    "unique": 58
+  },
+  "onlyTargetRuleChanged": true,
+  "nonTargetRowsUnchanged": true,
+  "machineTruthChanged": false,
+  "reviewerResponseMatchesValidatedFileExactly": true,
+  "historicalTruthRowsDeepCompared": true,
+  "historicalTruthCommit": "a9c4b79fe78dfba0e873d7e9acc22909d5a503de"
+}
