@@ -88,7 +88,7 @@
   "generatedFileSha256": {
     "review-packet.json": "60ef0e0bb3c2833edd97839421881e434e992a95235c185440080ca890af1db3",
     "reviewer-instructions.md": "e70d8bfbd6f6e81368dc485d9131df3a2e925ce2ebe3e58ce0da1509a23c0c72",
-    "review-response-schema.json": "1fe31cc056f23498592d98181396de54bbbb3016f0f89941a59f9470a2d71b3a",
+    "review-response-schema.json": "5c8046b23ec04299654ccfaa8bf59db98952b1ac789b618ca7165c70e480bd0e",
     "review-template.json": "9e7dcbbb5a4fb06f6445168554d6df8b28b4c3b0d19c274fd54058ad0bcbcf6a"
   }
 }

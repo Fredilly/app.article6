@@ -4,7 +4,6 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import Ajv2020 from "ajv/dist/2020.js";
 import { describe, it } from "@jest/globals";
 import {
   baselineCommit,
@@ -20,6 +19,7 @@ import {
   selectedRuleIds,
   truthFiles,
   vmPagesPath,
+  createReviewResponseValidator,
   writeArtifacts,
 } from "../../../scripts/preverif/generate-rc5-maya-remaining-five-review-packet";
 
@@ -64,8 +64,7 @@ function mutateTruthRow(ruleId: string, fn: (row: any) => void) {
 
 describe("RC5-2 Maya remaining-five independent review packet", () => {
   const artifacts = buildArtifacts();
-  const ajv = new Ajv2020({ allErrors: true, allowUnionTypes: true, strict: false });
-  const validateResponse = ajv.compile(artifacts.responseSchema);
+  const validateResponse = createReviewResponseValidator(artifacts.responseSchema);
   const packet = artifacts.packet;
   const template = artifacts.template;
 
@@ -117,11 +116,13 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
   });
 
   const expectValid = (candidate: any, label: string) => {
-    assert.equal(validateResponse(clone(candidate)), true, `${label}: ${JSON.stringify(validateResponse.errors)}`);
+    const result = validateResponse(clone(candidate));
+    assert.equal(result.valid, true, `${label}: ${JSON.stringify(result.errors)}`);
   };
 
   const expectInvalid = (candidate: any, label: string) => {
-    assert.equal(validateResponse(clone(candidate)), false, label);
+    const result = validateResponse(clone(candidate));
+    assert.equal(result.valid, false, label);
   };
 
   it("freezes exactly five selected IDs, the 51/7/58 inventory, and the blank template", () => {
@@ -156,6 +157,10 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     const current = truthFiles.flatMap((p) => JSON.parse(fs.readFileSync(file(p), "utf8")).decisions);
     const historicalById = new Map(historical.map((row: any) => [row.stableRuleId, row]));
     const currentById = new Map(current.map((row: any) => [row.stableRuleId, row]));
+    assert.equal(historical.length, 58);
+    assert.equal(current.length, 58);
+    assert.equal(historicalById.size, 58);
+    assert.equal(currentById.size, 58);
     for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
       assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
@@ -233,6 +238,27 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     }, "another rule machine hash");
   });
 
+  it("rejects duplicate and overlapping evidence arrays", () => {
+    const firstAllowed = exactAllowedEvidence[0][0];
+    expectInvalid({
+      ...reviewedResponse,
+      decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
+        index === 0 ? { ...decision, acceptedEvidence: [firstAllowed, firstAllowed] } : decision),
+    }, "duplicate accepted evidence");
+
+    expectInvalid({
+      ...reviewedResponse,
+      decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
+        index === 0 ? { ...decision, rejectedEvidence: [firstAllowed, firstAllowed] } : decision),
+    }, "duplicate rejected evidence");
+
+    expectInvalid({
+      ...reviewedResponse,
+      decisions: reviewedResponse.decisions.map((decision: any, index: number) =>
+        index === 0 ? { ...decision, acceptedEvidence: [firstAllowed], rejectedEvidence: [firstAllowed] } : decision),
+    }, "accepted/rejected overlap");
+  });
+
   it("rejects invalid final-state combinations and prohibited review states", () => {
     expectInvalid({
       ...reviewedResponse,
@@ -282,7 +308,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
   });
 
   it("keeps the reviewer response schema exactly five unique decisions and deterministic regeneration stable", () => {
-    assert.equal(validateResponse(reviewedResponse), true, JSON.stringify(validateResponse.errors));
+    assert.equal(validateResponse(reviewedResponse).valid, true);
     assert.equal(artifacts.responseSchema.properties.decisions.minItems, 5);
     assert.equal(artifacts.responseSchema.properties.decisions.maxItems, 5);
     assert.equal(artifacts.responseSchema.allOf.length, 5);
@@ -301,7 +327,18 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     }
   });
 
-  it("rejects frozen truth-row mutations for all selected and Appendix 17 provisional rows", () => {
+  it("rejects frozen truth-row mutations for all 58 historical rows", () => {
+    for (const truthFile of truthFiles) {
+      const rows = JSON.parse(fs.readFileSync(file(truthFile), "utf8")).decisions as Array<{ stableRuleId: string }>;
+      for (const row of rows) {
+        mutateTruthRow(row.stableRuleId, (truthRow) => {
+          truthRow.assessmentReason = `${truthRow.assessmentReason ?? ""} mutation`;
+        });
+      }
+    }
+  });
+
+  it("rejects frozen truth-row mutations for the selected and Appendix 17 rows", () => {
     for (const ruleId of [...selectedRuleIds, ...excludedRuleIds]) {
       mutateTruthRow(ruleId, (row) => { row.assessmentReason = `${row.assessmentReason ?? ""} mutation`; });
     }

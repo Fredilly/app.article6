@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import Ajv2020 from "ajv/dist/2020";
 
 const root = process.cwd();
 export const packetDir = path.join(root, "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-remaining-five-review-packet");
@@ -90,6 +91,25 @@ function loadTruth(commit?: string): Row[] {
   return truthFiles.flatMap((file) => JSON.parse((commit ? frozenBytes(file) : bytes(file)).toString("utf8")).decisions as Row[]);
 }
 
+function compareTruthRows(currentRows: Row[], historicalRows: Row[]) {
+  if (currentRows.length !== 58) throw new Error(`Current truth row count changed: ${currentRows.length}`);
+  if (historicalRows.length !== 58) throw new Error(`Historical truth row count changed: ${historicalRows.length}`);
+  const currentIds = currentRows.map((row) => row.stableRuleId).sort();
+  const historicalIds = historicalRows.map((row) => row.stableRuleId).sort();
+  if (JSON.stringify(currentIds) !== JSON.stringify(historicalIds)) throw new Error("Historical truth row IDs changed");
+  const currentById = new Map(currentRows.map((row) => [row.stableRuleId, row]));
+  const historicalById = new Map(historicalRows.map((row) => [row.stableRuleId, row]));
+  if (currentById.size !== 58) throw new Error(`Current truth row identity changed: ${currentById.size}`);
+  if (historicalById.size !== 58) throw new Error(`Historical truth row identity changed: ${historicalById.size}`);
+  for (const id of currentIds) {
+    const current = currentById.get(id);
+    const historical = historicalById.get(id);
+    if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
+      throw new Error(`Historical truth row changed: ${id}`);
+    }
+  }
+}
+
 function assertFrozenProvisionalRowsUnchanged(currentRows: Row[], historicalRows: Row[]) {
   const currentById = new Map(currentRows.map((row) => [row.stableRuleId, row]));
   const historicalById = new Map(historicalRows.map((row) => [row.stableRuleId, row]));
@@ -143,7 +163,7 @@ function evidenceItemsSchema(evidence: EvidenceObject[]) {
 
 function decisionSchema(rule: ReturnType<typeof buildArtifacts>["packet"]["rules"][number]) {
   const allowedEvidence = [...rule.authoritativeMethodologyEvidence, ...rule.mayaProjectEvidence] as EvidenceObject[];
-  const exactEvidenceArray = { type: "array", items: evidenceItemsSchema(allowedEvidence) };
+  const exactEvidenceArray = { type: "array", uniqueItems: true, items: evidenceItemsSchema(allowedEvidence) };
   const base = {
     type: "object",
     additionalProperties: false,
@@ -234,6 +254,7 @@ export function buildArtifacts() {
   assertFrozenSources();
   const currentRows = loadTruth();
   const historicalRows = loadTruth(baselineCommit);
+  compareTruthRows(currentRows, historicalRows);
   const frozenInventory = inventory(currentRows);
   const historicalInventory = inventory(historicalRows);
   if (JSON.stringify(historicalInventory) !== JSON.stringify(frozenInventory)) throw new Error("Historical baseline inventory differs from current inventory");
@@ -302,6 +323,38 @@ export function buildArtifacts() {
   const instructions = `# RC5-2 Maya independent review — remaining five\n\nReturn exactly five unique decisions, one for each selected rule ID in the packet. Review the complete contiguous VM0007 v1.8 evidence pages and the complete exact Maya project evidence objects. Do not consult or infer an answer from reviewed truth, prior responses, or machine judgments.\n\nFor each rule, select one final judgment: REVIEWED + FOUND + CONFORMS; REVIEWED + UNCLEAR + ACTION_REQUIRED; REVIEWED + MISSING + ACTION_REQUIRED; or REVIEWED + NOT_APPLICABLE. Use PROVISIONAL only when an authoritative interpretation remains genuinely unresolved or unavailable evidence prevents a defensible final judgment. Cite the exact source path, whole-file SHA, page, and complete quote for every material conclusion.\n\nThe excluded rules ${excludedRuleIds.join(" and ")} are outside this packet and remain separately blocked by unavailable Appendix 17 evidence. Do not decide or modify them.\n`;
   const manifest = { schemaVersion: "rc5-2-maya-remaining-five-review-manifest-v1", baselineCommit, selectedRuleIds: [...selectedRuleIds], excludedRuleIds: [...excludedRuleIds], inventory: frozenInventory, historicalTruth: { files: truthFiles, commit: baselineCommit, sha256: Object.fromEntries(truthFiles.map((f) => [f, sha256(frozenBytes(f))])) }, sources: { machineProposal: { path: proposalPath, sha256: machineSha }, ruleContracts: { path: rulesPath, sha256: sha256(bytes(rulesPath)), baselineSnapshot: contractSnapshot }, methodologyPdf: { path: vmPdfPath, sha256: sha256(bytes(vmPdfPath)) }, methodologyPages: { path: vmPagesPath, sha256: sha256(bytes(vmPagesPath)) }, mayaPdd: { path: pddPath, sha256: sha256(bytes(pddPath)) }, mayaExtraction: { path: extractionPath, sha256: sha256(bytes(extractionPath)) } }, generatedFiles: { packet: "review-packet.json", instructions: "reviewer-instructions.md", responseSchema: "review-response-schema.json", template: "review-template.json" }, reviewedTruthEmbedded: false, priorResponsesEmbedded: false };
   return { packet, responseSchema, template, instructions, manifest };
+}
+
+const canonicalJson = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b));
+    return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+};
+
+export function createReviewResponseValidator(responseSchema: object) {
+  const ajv = new Ajv2020({ allErrors: true, allowUnionTypes: true, strict: false });
+  const validate = ajv.compile(responseSchema);
+  return (candidate: unknown) => {
+    if (!validate(candidate)) return { valid: false, errors: validate.errors ?? [] };
+    const response = candidate as { decisions?: Array<{ acceptedEvidence?: EvidenceObject[]; rejectedEvidence?: EvidenceObject[] }> };
+    for (const decision of response.decisions ?? []) {
+      const accepted = new Set((decision.acceptedEvidence ?? []).map(canonicalJson));
+      const rejected = new Set((decision.rejectedEvidence ?? []).map(canonicalJson));
+      for (const evidence of accepted) {
+        if (rejected.has(evidence)) {
+          return { valid: false, errors: [{ message: "acceptedEvidence/rejectedEvidence overlap" }] };
+        }
+      }
+    }
+    return { valid: true, errors: [] as Array<{ message?: string }> };
+  };
+}
+
+export function validateReviewResponse(candidate: unknown) {
+  return createReviewResponseValidator(buildArtifacts().responseSchema)(candidate);
 }
 
 export function writeArtifacts(outputDir = packetDir) {

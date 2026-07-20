@@ -96,6 +96,7 @@
               },
               "acceptedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -273,6 +274,7 @@
               },
               "rejectedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -708,6 +710,7 @@
               },
               "acceptedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -925,6 +928,7 @@
               },
               "rejectedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -1400,6 +1404,7 @@
               },
               "acceptedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -1627,6 +1632,7 @@
               },
               "rejectedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -2112,6 +2118,7 @@
               },
               "acceptedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -2339,6 +2346,7 @@
               },
               "rejectedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -2824,6 +2832,7 @@
               },
               "acceptedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
@@ -3011,6 +3020,7 @@
               },
               "rejectedEvidence": {
                 "type": "array",
+                "uniqueItems": true,
                 "items": {
                   "anyOf": [
                     {
