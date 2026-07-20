@@ -145,6 +145,14 @@ export default function Vm0007EvidenceMapDraftPage({
     : null;
   return (
     <>
+      <nav className="border-b border-slate-200 bg-white px-6 py-3" aria-label="Evidence Map reports">
+        <a
+          href={`/internal/reports/prevalidation/marcondes/${encodeURIComponent(auditId)}`}
+          className="text-sm font-semibold text-blue-700 underline"
+        >
+          View Pre-Validation Readiness Report
+        </a>
+      </nav>
       <EvidenceMapWorkspace
         pkg={pkg}
         reviewedSnapshot={reviewedSnapshot}
