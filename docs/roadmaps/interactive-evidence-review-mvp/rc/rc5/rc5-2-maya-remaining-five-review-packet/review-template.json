@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "rc5-2-maya-remaining-five-review-response-v1",
+  "sourceDocument": {
+    "documentId": "quick-check-review-question",
+    "documentName": "12-maya-forest-corridor-redd-belize.pdf",
+    "contentSha256": "407caaa782e9d9e07b250999539fc809c2c41888b0f20a628a9e49dbeb977a5b"
+  },
+  "machineProposalRef": {
+    "path": "tests/fixtures/preverif/maya-forest-corridor-redd-belize-live/machine-proposal.json",
+    "sha256": "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b",
+    "proposalState": "MACHINE_PROPOSED"
+  },
+  "decisions": [
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0002",
+      "machineRowSha256": "28298e9a9700ae3e806071694832576fc22016ead632768ef401f995e2281cdc",
+      "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "provisionalReason": null,
+      "reviewerConfidence": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0004",
+      "machineRowSha256": "d4eea41a068f96ff59cb0e89ee6a804c6cecd37b17b71b628c22fd08b0b557b6",
+      "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "provisionalReason": null,
+      "reviewerConfidence": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0007",
+      "machineRowSha256": "4d5bee651a61f80324f1037a477e486814853587af6214b1fb9e648266aca40e",
+      "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "provisionalReason": null,
+      "reviewerConfidence": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-2-0008",
+      "machineRowSha256": "d754f9125ed4de837097397f213c6356c8002bfb71bc9b1eaff926735cecec89",
+      "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "provisionalReason": null,
+      "reviewerConfidence": null
+    },
+    {
+      "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0008",
+      "machineRowSha256": "e8d035dcec8cd8134998c06108db852dd538cb5426a350331cb7f0b9a13bec70",
+      "reviewStatus": "PENDING_INDEPENDENT_ADJUDICATION",
+      "expertReviewRequired": true,
+      "finalEvidenceState": null,
+      "finalApplicability": null,
+      "reviewerOutcome": null,
+      "acceptedEvidence": [],
+      "rejectedEvidence": [],
+      "assessmentReason": null,
+      "gap": null,
+      "clientAction": null,
+      "correctionReason": null,
+      "provisionalReason": null,
+      "reviewerConfidence": null
+    }
+  ]
+}
