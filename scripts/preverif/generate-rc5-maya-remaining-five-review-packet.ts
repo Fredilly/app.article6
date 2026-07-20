@@ -20,6 +20,8 @@ export const selectedRuleIds = [
 export const excludedRuleIds = ["Verra.AFOLU.VM0007.v1-8.R-3-0001", "Verra.AFOLU.VM0007.v1-8.R-4-0001"] as const;
 export const baselineCommit = "a9c4b79fe78dfba0e873d7e9acc22909d5a503de";
 export const machineSha = "e996de2eef1fc80aefa94e723903049ae4451fb161baccf337750694a394479b";
+const finalizedR30008Id = "Verra.AFOLU.VM0007.v1-8.R-3-0008";
+const finalizedR30008RowSha256 = "3c02927f44397bc3dfd38ebf4a67cb8b2047f8901cc874ca8d59e76ab0366daf";
 export const rulesPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/rules.rich.json";
 export const sectionsPath = "public/methodologies/Verra/AFOLU/VM0007/v1-8/sections.rich.json";
 export const vmPdfPath = "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-expert-batch-2-blocker-resolution/official-source/VM0007-REDD-Methodology-Framework-v1.8.pdf";
@@ -75,19 +77,18 @@ type EvidenceObject = {
   completeExactQuote: string;
 };
 
-function inventory(rows: Row[]) {
+function inventory(rows: Row[], expectedReviewed: number, expectedProvisional: number, expectedProvisionalIds: readonly string[]) {
   const unique = new Set(rows.map((r) => r.stableRuleId));
   const reviewed = rows.filter((r) => r.reviewStatus === "REVIEWED").length;
   const provisional = rows.filter((r) => r.reviewStatus === "PROVISIONAL").length;
-  if (rows.length !== 58 || unique.size !== 58 || reviewed !== 51 || provisional !== 7) throw new Error(`Current inventory mismatch: ${reviewed}/${provisional}/${unique.size}`);
+  if (rows.length !== 58 || unique.size !== 58 || reviewed !== expectedReviewed || provisional !== expectedProvisional) throw new Error(`Current inventory mismatch: ${reviewed}/${provisional}/${unique.size}`);
   const provisionalIds = rows.filter((r) => r.reviewStatus === "PROVISIONAL").map((r) => r.stableRuleId).sort();
-  if (JSON.stringify(provisionalIds) !== JSON.stringify([...selectedRuleIds, ...excludedRuleIds].sort())) throw new Error("Current provisional IDs mismatch");
-  for (const id of selectedRuleIds) if (rows.find((r) => r.stableRuleId === id)?.reviewStatus !== "PROVISIONAL") throw new Error(`Selected rule is not provisional: ${id}`);
+  if (JSON.stringify(provisionalIds) !== JSON.stringify([...expectedProvisionalIds].sort())) throw new Error("Current provisional IDs mismatch");
   for (const id of excludedRuleIds) {
     const row = rows.find((r) => r.stableRuleId === id);
     if (row?.reviewStatus !== "PROVISIONAL" || !JSON.stringify(row).includes("Appendix 17")) throw new Error(`Appendix 17 blocker missing: ${id}`);
   }
-  return { total: 58, unique: 58, reviewed: 51, provisional: 7, provisionalIds };
+  return { total: 58, unique: 58, reviewed: expectedReviewed, provisional: expectedProvisional, provisionalIds };
 }
 
 function loadTruth(commit?: string): Row[] {
@@ -107,16 +108,23 @@ function compareTruthRows(currentRows: Row[], historicalRows: Row[]) {
   for (const id of currentIds) {
     const current = currentById.get(id);
     const historical = historicalById.get(id);
-    if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
+    if (!current || !historical) {
       throw new Error(`Historical truth row changed: ${id}`);
     }
+    if (id === finalizedR30008Id) {
+      if (historical.reviewStatus !== "PROVISIONAL" || sha256(Buffer.from(JSON.stringify(current))) !== finalizedR30008RowSha256) {
+        throw new Error(`Historical truth row changed: ${id}`);
+      }
+      continue;
+    }
+    if (JSON.stringify(current) !== JSON.stringify(historical)) throw new Error(`Historical truth row changed: ${id}`);
   }
 }
 
 function assertFrozenProvisionalRowsUnchanged(currentRows: Row[], historicalRows: Row[]) {
   const currentById = new Map(currentRows.map((row) => [row.stableRuleId, row]));
   const historicalById = new Map(historicalRows.map((row) => [row.stableRuleId, row]));
-  for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
+  for (const id of [...selectedRuleIds.filter((id) => id !== finalizedR30008Id), ...excludedRuleIds]) {
     const current = currentById.get(id);
     const historical = historicalById.get(id);
     if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
@@ -258,9 +266,10 @@ export function buildArtifacts() {
   const currentRows = loadTruth();
   const historicalRows = loadTruth(baselineCommit);
   compareTruthRows(currentRows, historicalRows);
-  const frozenInventory = inventory(currentRows);
-  const historicalInventory = inventory(historicalRows);
-  if (JSON.stringify(historicalInventory) !== JSON.stringify(frozenInventory)) throw new Error("Historical baseline inventory differs from current inventory");
+  const currentInventory = inventory(currentRows, 52, 6, [...selectedRuleIds.filter((id) => id !== finalizedR30008Id), ...excludedRuleIds]);
+  const historicalInventory = inventory(historicalRows, 51, 7, [...selectedRuleIds, ...excludedRuleIds]);
+  const frozenInventory = historicalInventory;
+  if (JSON.stringify(historicalInventory) === JSON.stringify(currentInventory)) throw new Error("Historical baseline inventory unexpectedly matches current integrated inventory");
   assertFrozenProvisionalRowsUnchanged(currentRows, historicalRows);
   const rules = read<Row[]>(rulesPath);
   const contractSnapshot = validateContractSnapshot(rules);

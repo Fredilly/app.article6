@@ -168,7 +168,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     });
   };
 
-  it("freezes exactly five selected IDs, the 51/7/58 inventory, and the blank template", () => {
+  it("freezes exactly five selected IDs, the packet's pre-review 51/7/58 inventory, and the blank template", () => {
     assert.deepEqual(packet.selectedRuleIds, selectedRuleIds);
     assert.equal(packet.rules.length, 5);
     assert.deepEqual(packet.excludedRuleIds, excludedRuleIds);
@@ -194,7 +194,7 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.deepEqual(template.decisions.map((decision: any) => decision.stableRuleId), selectedRuleIds);
   });
 
-  it("loads historical truth from the immutable post-PR-1099 commit and deep-compares all seven provisional rows", () => {
+  it("loads historical truth from the immutable post-PR-1099 commit and deep-compares unchanged rows", () => {
     assert.equal(baselineCommit, "a9c4b79fe78dfba0e873d7e9acc22909d5a503de");
     const historical = truthFiles.flatMap((p) => JSON.parse(execFileSync("git", ["show", `${baselineCommit}:${p}`], { cwd: root }).toString("utf8")).decisions);
     const current = truthFiles.flatMap((p) => JSON.parse(fs.readFileSync(file(p), "utf8")).decisions);
@@ -204,9 +204,15 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(current.length, 58);
     assert.equal(historicalById.size, 58);
     assert.equal(currentById.size, 58);
-    for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
+    for (const id of currentById.keys()) {
+      if (id === "Verra.AFOLU.VM0007.v1-8.R-3-0008") continue;
       assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
+    const r30008 = currentById.get("Verra.AFOLU.VM0007.v1-8.R-3-0008");
+    assert.equal(r30008?.reviewStatus, "REVIEWED");
+    assert.equal(r30008?.finalEvidenceState, "N/A");
+    assert.equal(r30008?.finalApplicability, "NOT_APPLICABLE");
+    assert.equal(r30008?.reviewerOutcome, "NOT_APPLICABLE");
     for (const id of excludedRuleIds) assert.equal(currentById.get(id).reviewStatus, "PROVISIONAL");
   });
 

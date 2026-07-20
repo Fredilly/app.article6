@@ -40,7 +40,7 @@
     },
     {
       "path": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-      "sha256": "1cce490339d408f314b42a3238f4cefe3b416ab17cdaf6c6673bb35f196afc5f",
+      "sha256": "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
       "immutableBaseline": true
     },
     {
@@ -67,15 +67,18 @@
       "unique": 58
     },
     "after": {
-      "reviewed": 51,
-      "provisional": 7,
+      "reviewed": 52,
+      "provisional": 6,
       "total": 58,
       "unique": 58
     }
   },
   "integratedTruthPath": "docs/roadmaps/interactive-evidence-review-mvp/rc/rc5/rc5-2-maya-batch-5-adjudication/reviewed-truth.json",
-  "integratedTruthSha256": "f8d3a6cae2f3257026a5a39337268241acde08bc83f638e346f557e6684a3b93",
+  "integratedTruthSha256": "e907b8f5a0667ad59207218879570e15fcbce4aad45ac45b0d298faefaa0e431",
   "exactlyOneTransition": true,
+  "priorFinalizedRuleIds": [
+    "Verra.AFOLU.VM0007.v1-8.R-3-0008"
+  ],
   "nonTargetRowsUnchanged": true,
   "machineTruthChanged": false,
   "priorArtifactsChanged": false,
