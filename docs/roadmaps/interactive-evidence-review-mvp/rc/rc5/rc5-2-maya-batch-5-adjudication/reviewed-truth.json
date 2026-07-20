@@ -14,11 +14,11 @@
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0003",
       "machineRowSha256": "0d320b90c174f31a375c4856b6476cafbddc49ea51db02e48bbd3c3ad25d88ec",
-      "reviewStatus": "PROVISIONAL",
-      "expertReviewRequired": true,
-      "finalEvidenceState": "UNCLEAR",
-      "finalApplicability": "APPLICABLE",
-      "reviewerOutcome": "ACTION_REQUIRED",
+      "reviewStatus": "REVIEWED",
+      "expertReviewRequired": false,
+      "finalEvidenceState": "FOUND",
+      "finalApplicability": "NOT_APPLICABLE",
+      "reviewerOutcome": "NOT_APPLICABLE",
       "acceptedEvidence": [
         {
           "quote": "Sub-step 1b. Consistency of credible land use scenarios with enforced mandatory laws and regulations.\nBecause the project is private property, all alternatives presented in 1a are legal under Belizean law\n(see section 2.5.1).",
@@ -48,13 +48,13 @@
       "rejectedEvidence": [],
       "contradictionState": "NONE",
       "draftFindingCandidate": null,
-      "assessmentReason": "The PDD evidence includes Sub-step 1b (consistency of land use scenarios with enforced laws — all alternatives legal under Belizean law), Sub-step 2a (determine appropriate analysis method — simple cost analysis selected because the project generates no financial benefits other than VCS income), and a reference to Appendix XYZ for LIC data. However, the VT0001 barrier analysis decision tree itself is not present in the evidence. The rule requires two-step ordering: barrier analysis first, then investment analysis or qualitative GHG estimation as fallback. The PDD shows the investment analysis path was selected (Option I), but does not document the barrier screening step that should precede it under the VT0001 decision tree. The LIC data reference (Appendix XYZ) relates to deforestation parcel data, not to the barrier/decision-tree analysis. The VT0001 decision-tree text referenced in the official methodology passages cannot resolve whether barrier analysis is required before selecting Option I.",
-      "gap": "The VT0001 barrier analysis decision tree is not documented in the frozen PDD evidence. The PDD selects the investment analysis path but does not show the barrier screening step that should precede it.",
-      "clientAction": "Provide the VT0001 decision tree analysis showing whether alternatives were screened for barriers before selecting the investment analysis path (Option I).",
+      "assessmentReason": "VT0001 v3.0 establishes Step 2 (Investment Analysis) and Step 3 (Barrier Analysis) as ALTERNATIVE pathways, not sequential requirements. Page 2 Section 2 lists: 'STEP 2. Investment analysis ... or STEP 3. Barriers analysis' — the word 'or' makes them alternatives. Page 4 Sub-step 1c: 'Proceed to Step 2 (Investment analysis) or Step 3 (Barrier analysis), as it is necessary to undertake at least one of them.' Page 7 Step 3: 'Barrier analysis maybe performed instead of or as an extension of investment analysis.' The phrase 'instead of' confirms these are alternative pathways — Step 3 is not mandatory overlay on Step 2. Page 12 flowchart shows Step 2 and Step 3 as parallel branches from Step 1, both leading to Step 4. The barrier analysis decision tree (Step 3) only applies when the barrier analysis pathway is selected. When the investment analysis pathway (Step 2, Option I) is selected and validly completed, Step 3 is not triggered.\n\nThe Maya PDD selected the investment analysis pathway (Step 2, Option I — simple cost analysis), not the barrier analysis pathway (Step 3). The PDD documents (PDD page 92): Sub-step 2a 'Because the Project generates no financial or economic benefits other than VCS related income, the simple cost analysis (Option 1) is selected' and Sub-step 2b Option I. Since VT0001 makes Step 2 and Step 3 alternatives, and the PDD selected Step 2, the barrier analysis decision tree (R-3-0003's subject) is not applicable. The rule's condition ('Where VT0001 barrier analysis is used') is not triggered because the barrier analysis pathway was not selected.",
+      "gap": "",
+      "clientAction": "",
       "correctionReason": "Wave 1 PDD finality reassessment.",
       "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
-      "provisionalReason": "Sub-steps of the additionality analysis are documented, but the VT0001 barrier analysis decision tree (required for the two-step ordering) is not present, and the full VT0001 text in the frozen packet cannot resolve whether barrier analysis is mandatory before Option I."
+      "provisionalReason": null
     },
     {
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0004",
