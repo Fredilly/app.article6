@@ -59,8 +59,9 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(draft.rows.filter((row: any) => row.reviewState === "pending review").every((row: any) => row.reviewerOutcome === "NOT_ASSESSED" && row.draftFindingCandidate === null)).toBe(true);
     const unreviewed = draft.rows.filter((row: any) => !reviewedRuleIds.includes(row.ruleReference));
     expect(unreviewed).toHaveLength(0);
-    expect(gold.goldPromotionBlocked).toBe(false);
-    expect(gold.reportReleaseState).toBe("READY_FOR_REPORT_RELEASE");
+    const releaseStatus = read("release-status.json");
+    expect(releaseStatus.goldPromotionBlocked).toBe(true);
+    expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect(gold.rows).toHaveLength(58);
     expect(gold.rows.every((row: any) => reviewedRuleIds.includes(row.ruleId))).toBe(true);
   });
@@ -445,17 +446,21 @@ describe("Marcondes VM0007 v1.8 Evidence Map truth intake", () => {
     expect(row.draftFindingCandidate).toBe("NIR_CANDIDATE");
   });
 
-  it("records completed version qualification and report-layer readiness", () => {
+  it("records the explicit version conflict and blocks report-layer release", () => {
     const metadata = read("metadata.json");
     const excerpts = read("source-excerpts.json");
     const review = fs.readFileSync(path.join(dir, "REVIEW.md"), "utf8");
     expect(metadata.methodology.reconciled).toBe("VM0007 v1.8");
-    expect(metadata.methodology.versionQualified).toBe(true);
-    expect(metadata.methodology.reconciliationStatus).toBe("VERSION_QUALIFIED");
-    expect(metadata.review.versionReconciliationPending).toBe(false);
-    expect(metadata.review.reportReleaseState).toBe("READY_FOR_REPORT_RELEASE");
+    expect(metadata.methodology.versionQualified).toBe(false);
+    expect(metadata.methodology.reconciliationStatus).toBe("DOCUMENT_INCONSISTENCY_REQUIRES_EXPLICIT_VALIDATION");
+    expect(metadata.methodology.reviewerConclusion).toBe("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(metadata.methodology.reviewerRationale).toMatch(/exact VM0007 v1\.7 wording.*Table 30 and Table 31.*not evidence.*two methodology versions/i);
+    expect(metadata.methodology.affectedEvidenceMapRuleIds).toHaveLength(18);
+    expect(metadata.review.versionReconciliationPending).toBe(true);
+    expect(metadata.review.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect(excerpts.methodologyDeclarations).toHaveLength(5);
-    expect(review).toContain("VM0007 v1.8 is version-qualified");
+    expect(review).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(review).toContain("Client release is explicitly blocked");
     expect(review).toContain("58 of 58");
   });
 });

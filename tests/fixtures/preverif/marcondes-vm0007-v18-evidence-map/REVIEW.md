@@ -5,8 +5,8 @@
 - Finalized evidence states: FOUND 6, UNCLEAR 21, MISSING 9, N/A 22
 - Reviewer outcomes: CONFORMS 6, ACTION_REQUIRED 30, NOT_APPLICABLE 22, NOT_ASSESSED 0
 - Final findings: NIR_CANDIDATE 30, OFI_CANDIDATE 0, NCR_CANDIDATE 0, null for finalized N/A rows
-- Gold promotion: READY_FOR_REPORT_RELEASE
-- Report release state: READY_FOR_REPORT_RELEASE
+- Gold promotion: BLOCKED_PENDING_VERSION_RECONCILIATION
+- Report release state: BLOCKED_PENDING_VERSION_RECONCILIATION
 
 ## First-review truth intake: rules 39–48
 
@@ -27,7 +27,7 @@ Decisions and evidence basis:
 
 The source document SHA-256 remains `a28e013ddbb4522b93ec954e2f9ca950b5fb906d6ead708e2cc11d829a3e37ea`. Accepted quotes are verbatim from `raw-document-extraction.json`, with manual page/section/span provenance. The machine’s generic stitched proposal evidence was rejected for every new row. The project is APD REDD; no external VVB validation or certification is claimed.
 
-Gold promotion and report release are no longer blocked by review coverage. Gold coverage and independent-audit coverage are finalized at 58/58; no rules remain `NOT_ASSESSED`, and `independent-audit.json` contains all 58 ordered audit records.
+Gold coverage and independent-audit coverage are finalized at 58/58; no rules remain `NOT_ASSESSED`, and `independent-audit.json` contains all 58 ordered audit records. Release remains blocked for the separate methodology-version reconciliation below.
 
 The batch-five `officialRequirementQuote` fields were corrected to the exact verbatim `source_span_text` wording from the authoritative VM0007 v1.8 rule records. Citation suffixes, rule-title summaries, and synthesized interpretations remain in traceability summaries rather than official quotes. Batch-five quote integrity is tested against the authoritative rule records, including methodology/version/section/page traceability and manual project-evidence provenance.
 
@@ -61,7 +61,13 @@ The first 38 rows of the independent-audit fixture remain textually and semantic
 
 The ten new gold rows preserve their original machine-proposal row objects verbatim; reviewed truth and rejected evidence are recorded separately. Methodology traceability uses verbatim official excerpts and separately lists mandatory modules/tools. R-2-0014 is FOUND/CONFORMS: three PDD locations consistently establish 01 May 2023–30 April 2063, 40 years; the client action is retention-only.
 
-VM0007 v1.8 is version-qualified. The page 61 Section 3.1.1 VM0007 v1.7 wording remains a visible drafting contradiction; Table 30 and repeated project declarations identify v1.8. Version reconciliation is complete. Gold and report release are ready because review coverage is complete.
+## Methodology-version conflict reconciliation
+
+The reviewer conclusion is `DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE`, not a genuine methodology-version mismatch. Page 61 Section 3.1.1 preserves the exact v1.7 wording: “As required by VM0007 v1.7, the project area consists of contiguous, discrete areas covered by forest that meet the definition of eligible forest, which would be an area that has been forested for at least 10 years prior to the project start date.” Table 30 preserves the exact v1.8 applied-methodology declaration, Table 31 preserves the exact `VM0007 v1.8` declaration, and pages 13/other project declarations repeat v1.8. The v1.7 sentence is therefore treated as an outdated internal drafting reference; the reviewed methodology remains v1.8. The wording is not rewritten or silently normalized.
+
+Every Evidence Map row that cites or rejects page-61 methodology evidence is affected: R-3-0005, R-1-0006, R-1-0008, R-1-0010, R-1-0014, R-3-0006, R-2-0003, R-2-0004, R-2-0009, R-2-0010, R-2-0011, R-2-0012, R-2-0013, R-2-0014, R-2-0015, R-3-0003, R-5-0003, and R-5-0008. Their reviewed truth remains tied to the v1.8 rule IDs and preserves the page-61 evidence distinction; the conflict is visible to the report layer as a release blocker and drafting contradiction.
+
+Client release is explicitly blocked until an authorized reviewer validates this reconciliation against the source document. Full row coverage is not sufficient to clear this blocker.
 
 Accepted evidence for pages 12, 18–19, and 38 is located under 2 PROJECT DETAILS. Accepted evidence for pages 62–66 is located under 3 CLIMATE. Manually adjudicated evidence uses explicit manual:... provenance IDs; no fabricated parser element IDs are used.
 
