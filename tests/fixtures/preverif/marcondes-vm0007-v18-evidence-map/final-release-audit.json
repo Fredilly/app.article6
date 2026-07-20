@@ -1,0 +1,89 @@
+{
+  "artifactType": "MARCONDES_FINAL_58_RULE_RELEASE_AUDIT",
+  "artifactVersion": 1,
+  "stableProjectId": "marcondes-vm0007-v18",
+  "methodology": "Verra.AFOLU.VM0007.v1-8",
+  "auditBasis": {
+    "gold": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
+    "goldSha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+    "metadata": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/metadata.json",
+    "metadataSha256": "e6db518b70297bb0647cb39ea837387b0193833a39fdc8270d8c186342101b83",
+    "releaseStatus": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/release-status.json",
+    "releaseStatusSha256": "514af87d4096c684e0df118d30b6dd6f942af1434863eba14acf73ae0cfb1c19",
+    "independentAudit": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/independent-audit.json",
+    "independentAuditSha256": "aad500e67b7b8b9cfa34fe50b500b5e9ad25ad78f5ddc3968abffe970b58a89a",
+    "corrections": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/corrections.json",
+    "correctionsSha256": "61bae67f243d4b5c184b4e33205d7af5ccc2a8897e569bdd8d03bedf669a9787",
+    "rawEvidenceMapSha256": "bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e",
+    "rawDocumentExtractionSha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
+  },
+  "summary": {
+    "reviewedRows": 58,
+    "checkedRows": 58,
+    "cleanRows": 48,
+    "defectRows": 10,
+    "blockedRows": 0,
+    "releaseBlockers": 1,
+    "defectRuleIds": [
+      "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002",
+      "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"
+    ]
+  },
+  "checkedRuleIds": [
+    "R-1-0001", "R-1-0002", "R-1-0004", "R-1-0005", "R-2-0005", "R-2-0007", "R-3-0001", "R-3-0005", "R-6-0001", "R-6-0008",
+    "R-1-0003", "R-1-0006", "R-1-0007", "R-1-0008", "R-1-0009", "R-1-0010", "R-1-0011", "R-1-0012", "R-1-0013", "R-1-0014",
+    "R-1-0015", "R-2-0001", "R-2-0002", "R-2-0006", "R-2-0008", "R-2-0016", "R-3-0002", "R-3-0006",
+    "R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003",
+    "R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005",
+    "R-5-0006", "R-5-0007", "R-5-0008", "R-5-0009", "R-6-0002", "R-6-0003", "R-6-0004", "R-6-0005", "R-6-0006", "R-6-0007"
+  ],
+  "checks": [
+    "gold/metadata/release-status/corrections/independent-audit row identity and state agreement",
+    "accepted and rejected evidence shape, page, quote, section, span, and provenance",
+    "reviewer outcome, applicability, contradiction, draft finding, and client action consistency",
+    "raw extraction and raw evidence-map immutability",
+    "historical RC2/RC3 and PR #1101 artifact immutability"
+  ],
+  "defects": [
+    {
+      "ruleIds": ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"],
+      "status": "DEFECT",
+      "currentEvidence": {
+        "location": "gold.json and corrections.json rejectedEvidence",
+        "shape": "record is nested under evidence rather than carrying quote/page/section/spanId/provenance at record level",
+        "page": null,
+        "spanIdPattern": "manual:marcondes-pdd:page-undefined:<rule>-rejected",
+        "quote": "demonstration of additionality for an eligibility area shall: ..."
+      },
+      "defect": "Rejected evidence lacks a resolvable page and exact span, so its rejection provenance is not auditable under the final-release contract.",
+      "explicitCorrection": {
+        "action": "Flatten the rejected record and anchor it to the exact page-18 source text; retain it as rejected evidence because it is generic or non-project-specific for these rules.",
+        "page": 18,
+        "section": "3.5.5 The determination of baseline scenario and demonstration of additionality for an eligibility area",
+        "spanId": "manual:marcondes-pdd:page-18:r-3-5-5-rejected",
+        "quote": "The determination of the baseline scenario and demonstration of additionality for the eligibility area are based on the initial project activity instances implemented across 36 properties located within the municipalities of Nhamundá, Parintins, and Barreirinha in the state of Amazonas, within the Amazon Biome.",
+        "rejectionReason": "generic or non-project-specific evidence; does not establish the rule-specific requirement"
+      },
+      "correctionStatus": "BLOCKED_PENDING_PROTECTED_TRUTH_UPDATE"
+    }
+  ],
+  "releaseBlockers": [
+    {
+      "status": "BLOCKED",
+      "source": "release-status.json",
+      "ruleIds": ["R-3-0005", "R-1-0006", "R-1-0008", "R-1-0010", "R-1-0014", "R-3-0006", "R-2-0003", "R-2-0004", "R-2-0009", "R-2-0010", "R-2-0011", "R-2-0012", "R-2-0013", "R-2-0014", "R-2-0015", "R-3-0003", "R-5-0003", "R-5-0008"],
+      "reason": "The PDD preserves a page-61 VM0007 v1.7 reference alongside formal v1.8 declarations in Tables 30 and 31; client release remains blocked pending explicit validation."
+    }
+  ],
+  "truthChange": {
+    "machineProposalChanged": false,
+    "rawExtractionChanged": false,
+    "rawEvidenceMapChanged": false,
+    "historicalRc2Rc3Changed": false,
+    "mayaRc1Rc5Changed": false,
+    "pr1101ChangesModified": false,
+    "goldChanged": false,
+    "independentAuditChanged": false,
+    "correctionsChanged": false
+  }
+}
