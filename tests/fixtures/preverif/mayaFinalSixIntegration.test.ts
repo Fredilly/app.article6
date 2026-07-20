@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import { describe, it } from "@jest/globals";
-import { buildExpected, ids, machinePath, responsePath, truthFiles, validateResponse } from "../../../scripts/preverif/integrate-rc5-maya-final-six";
+import { baselineCommit, buildExpected, ids, machinePath, responsePath, truthFiles, validateResponse } from "../../../scripts/preverif/integrate-rc5-maya-final-six";
 
 const sha = (v: Buffer) => crypto.createHash("sha256").update(v).digest("hex");
 const root = process.cwd();
@@ -17,6 +17,7 @@ describe("RC5-2 Maya final six integration", () => {
   });
 
   it("produces 58/58 reviewed rows and leaves non-target rows byte-equivalent", () => {
+    assert.equal(baselineCommit, "cc14d592330aa32ba1ac3219c0b3fd8371835d74");
     const { before, out } = buildExpected();
     const rows = out.flatMap((doc: any) => doc.decisions);
     assert.equal(rows.length, 58);

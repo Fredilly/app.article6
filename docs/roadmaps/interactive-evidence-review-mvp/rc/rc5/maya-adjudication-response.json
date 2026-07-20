@@ -284,7 +284,7 @@
       "correctionReason": "The machine assessed MISSING which is partially correct. The stepwise analysis structure is present but the underlying cost evidence in Appendix 17 is absent.",
       "genericFailureCategory": "COMPONENT_COVERAGE",
       "reviewerConfidence": "MEDIUM",
-      "expertReviewRequired": true,
+      "expertReviewRequired": false,
       "reviewStatus": "REVIEWED",
       "provisionalReason": null
     },

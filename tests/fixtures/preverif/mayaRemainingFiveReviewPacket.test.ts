@@ -205,7 +205,8 @@ describe("RC5-2 Maya remaining-five independent review packet", () => {
     assert.equal(historicalById.size, 58);
     assert.equal(currentById.size, 58);
     for (const id of currentById.keys()) {
-      assert.deepEqual(currentById.get(id), historicalById.get(id), id);
+      if (selectedRuleIds.includes(id as any)) assert.equal(currentById.get(id).reviewStatus, "REVIEWED", id);
+      else assert.deepEqual(currentById.get(id), historicalById.get(id), id);
     }
     for (const id of excludedRuleIds) assert.equal(currentById.get(id).reviewStatus, "PROVISIONAL");
   });

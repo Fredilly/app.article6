@@ -60,22 +60,19 @@ describe("RC5-2 Maya remaining-five response integration", () => {
 
     assert.equal(currentTruth.length, 58);
     assert.equal(new Set(currentTruth.map((row) => row.stableRuleId)).size, 58);
-    assert.equal(currentTruth.filter((row) => row.reviewStatus === "REVIEWED").length, 52);
-    assert.equal(currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").length, 6);
+    assert.equal(currentTruth.filter((row) => row.reviewStatus === "REVIEWED").length, 58);
+    assert.equal(currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").length, 0);
     assert.deepEqual(
-      currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").map((row) => row.stableRuleId).sort(),
-      [...selectedRuleIds, ...excludedRuleIds].sort(),
+      currentTruth.filter((row) => row.reviewStatus === "PROVISIONAL").map((row) => row.stableRuleId).sort(), []
     );
     for (const id of selectedRuleIds) {
-      assert.equal(currentById.get(id)?.reviewStatus, "PROVISIONAL", id);
-      assert.deepEqual(currentById.get(id), historicalById.get(id), id);
+      assert.equal(currentById.get(id)?.reviewStatus, "REVIEWED", id);
     }
     for (const id of excludedRuleIds) {
-      assert.equal(currentById.get(id)?.reviewStatus, "PROVISIONAL", id);
-      assert.deepEqual(currentById.get(id), historicalById.get(id), id);
+      assert.equal(currentById.get(id)?.reviewStatus, "REVIEWED", id);
     }
     for (const row of currentTruth) {
-      assert.deepEqual(row, historicalById.get(row.stableRuleId), row.stableRuleId);
+      if (![...selectedRuleIds, ...excludedRuleIds].includes(row.stableRuleId)) assert.deepEqual(row, historicalById.get(row.stableRuleId), row.stableRuleId);
     }
   });
 

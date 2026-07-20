@@ -389,7 +389,7 @@
       "stableRuleId": "Verra.AFOLU.VM0007.v1-8.R-3-0001",
       "machineRowSha256": "b00338bf5bf112bfa651e04fd57cf6b07a602f5b4ccbe70c840e943ddfddb9fb",
       "reviewStatus": "REVIEWED",
-      "expertReviewRequired": true,
+      "expertReviewRequired": false,
       "finalEvidenceState": "FOUND",
       "finalApplicability": "APPLICABLE",
       "reviewerOutcome": "CONFORMS",

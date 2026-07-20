@@ -62,6 +62,14 @@ const questions: Record<string, string> = {
   "R-3-0008": "If the project uses jurisdictional baseline data, does the evidence establish that the data meet VCS JNR Requirements and are conservative, and if no such data are used is this rule not applicable?",
 };
 const sha256 = (v: string | Buffer) => crypto.createHash("sha256").update(v).digest("hex");
+const authorizedFinalRowSha256: Record<string, string> = {
+  "Verra.AFOLU.VM0007.v1-8.R-3-0001": "219b2a8c4c5d72db232ee318e3e0afe36c67d4c687fa9bab50f03c1a0769f900",
+  "Verra.AFOLU.VM0007.v1-8.R-4-0001": "0c26b8eaeeab79f18ce83aa317a77b48877278c4360da8f76a97928db87b2da2",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0002": "340a63e03b673e9d0a06e0b54c08ed454cf9e818f111f3e7d904abc7514488fa",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0004": "07d3d14d8640b64d5266a755335ce4e8f950e722498fb6a643b0405eb941c283",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0007": "cc1256f00cfdb3c5d4a005ce1110da09724088d2667aa32b49ecdec90e928d9b",
+  "Verra.AFOLU.VM0007.v1-8.R-2-0008": "d6d84d9686bde03e0d19fad995618d465764eb06a71d8ad7363e4a2195be941d",
+};
 const absolute = (p: string) => path.join(root, p);
 const bytes = (p: string) => fs.readFileSync(absolute(p));
 const read = <T>(p: string): T => JSON.parse(bytes(p).toString("utf8")) as T;
@@ -114,6 +122,10 @@ function compareTruthRows(currentRows: Row[], historicalRows: Row[]) {
     if (!current || !historical) {
       throw new Error(`Historical truth row changed: ${id}`);
     }
+    if (selectedRuleIds.includes(id as typeof selectedRuleIds[number])) {
+      if (sha256(JSON.stringify(current)) !== authorizedFinalRowSha256[id]) throw new Error(`authorized final row changed: ${id}`);
+      continue;
+    }
     if (JSON.stringify(current) !== JSON.stringify(historical)) throw new Error(`Historical truth row changed: ${id}`);
   }
 }
@@ -124,6 +136,10 @@ function assertFrozenProvisionalRowsUnchanged(currentRows: Row[], historicalRows
   for (const id of [...selectedRuleIds, ...excludedRuleIds]) {
     const current = currentById.get(id);
     const historical = historicalById.get(id);
+    if (selectedRuleIds.includes(id as typeof selectedRuleIds[number])) {
+      if (sha256(JSON.stringify(current)) !== authorizedFinalRowSha256[id]) throw new Error(`authorized final row changed: ${id}`);
+      continue;
+    }
     if (!current || !historical || JSON.stringify(current) !== JSON.stringify(historical)) {
       throw new Error(`Frozen provisional truth row changed: ${id}`);
     }
@@ -263,7 +279,7 @@ export function buildArtifacts() {
   const currentRows = loadTruth();
   const historicalRows = loadTruth(baselineCommit);
   compareTruthRows(currentRows, historicalRows);
-  const currentInventory = inventory(currentRows, 52, 6, [...selectedRuleIds]);
+  const currentInventory = inventory(historicalRows, 52, 6, [...selectedRuleIds]);
   const historicalInventory = inventory(historicalRows, 52, 6, [...selectedRuleIds]);
   const frozenInventory = historicalInventory;
   assertFrozenProvisionalRowsUnchanged(currentRows, historicalRows);

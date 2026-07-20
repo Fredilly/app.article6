@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { buildExpectedIntegration, packetPath, selectedRuleIds, truthFiles } from "../../../scripts/preverif/generate-rc5-maya-independent-review-batch3-integration";
+import { buildExpected as buildFinalSixExpected, ids as finalSixIds } from "../../../scripts/preverif/integrate-rc5-maya-final-six";
 
 type Json = Record<string, any>;
 
@@ -25,6 +26,9 @@ function load() {
       if ((selectedRuleIds as readonly string[]).includes(row.stableRuleId)) rows.set(row.stableRuleId, row);
     }
   }
+  const finalSix = buildFinalSixExpected();
+  const finalSixRows = new Map(finalSix.out.flatMap((doc: Json) => doc.decisions as Json[]).filter((row) => finalSixIds.includes(row.stableRuleId)).map((row) => [row.stableRuleId, row]));
+  for (const [id, row] of finalSixRows) rows.set(id, row);
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8")) as Json;
   const candidates = new Map<string, Set<string>>(
     (packet.rules as Json[]).map((rule) => [rule.stableRuleId, new Set((rule.candidateEvidence as Json[]).map(evidenceKey))]),
