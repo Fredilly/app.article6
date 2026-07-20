@@ -54,7 +54,7 @@ describe("Marcondes methodology-version conflict regression", () => {
     expect(gold.rows).toHaveLength(58);
     expect(releaseStatus.goldPromotionBlocked).toBe(true);
     expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
-    expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, "gold.json"))).digest("hex")).toBe("af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c");
+    expect(crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, "gold.json"))).digest("hex")).toBe("ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511");
 
     const declarations = new Map(excerpts.methodologyDeclarations.map((declaration: any) => [declaration.provenance.spanId, declaration]));
     expect(declarations.get("manual:page-61:section-3.1.1-v1.7")).toEqual(expect.objectContaining({

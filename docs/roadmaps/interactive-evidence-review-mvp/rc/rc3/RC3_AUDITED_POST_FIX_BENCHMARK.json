@@ -4,11 +4,11 @@
   "baselineIdentity": {
     "auditExecutionSha256": "770b05a6e82757d436c9f40c7698742f64ae1ad8c906b3b127926027f5198a25",
     "diagnosticPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_DIAGNOSTIC.json",
-    "diagnosticSha256": "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd",
+    "diagnosticSha256": "8dba5b3b83444212d5d90a781958f6c9bfb43189a69035932061551c5a6ab220",
     "path": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_BASELINE.json",
     "proposalPath": "docs/roadmaps/interactive-evidence-review-mvp/RC3_AUDITED_PRE_FIX_PROPOSAL.json",
     "proposalSha256": "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
-    "sha256": "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87"
+    "sha256": "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20"
   },
   "baselineMetrics": {
     "acceptedEvidenceF1": null,
@@ -148,7 +148,7 @@
   "regressions": [],
   "reviewedTruthIdentity": {
     "path": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
-    "sha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c"
+    "sha256": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511"
   },
   "ruleCount": 58,
   "schemaVersion": "vm0007-rc3-audited-post-fix-benchmark-v4",

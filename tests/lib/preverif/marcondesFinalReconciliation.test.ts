@@ -104,7 +104,7 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
     const current = read("gold.json");
     const historical = read("gold.rc2-rc3.json");
     const metadata = read("metadata.json");
-    const changed = current.rows.filter((row: any, index: number) => JSON.stringify(row) !== JSON.stringify(historical.rows[index]));
+    const changed = current.rows.filter((row: any, index: number) => JSON.stringify(stripRejectedProvenance(row)) !== JSON.stringify(stripRejectedProvenance(historical.rows[index])));
     expect(changed.map((row: any) => row.ruleReference)).toEqual(["R-3-0007", "R-3-0008", "R-5-0008", "R-6-0002", "R-6-0005"]);
     expect(metadata.review.reconciliation.map((row: any) => row.ruleId)).toEqual(changed.map((row: any) => row.ruleId));
     const extraction = read("raw-document-extraction.json");
@@ -124,3 +124,10 @@ describe("Marcondes finalized Evidence Map reconciliation", () => {
 });
 
 function byRule(rows: any[], ruleReference: string): any { return rows.find((row) => row.ruleReference === ruleReference); }
+
+function stripRejectedProvenance(row: any): any {
+  const affected = new Set(["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"]);
+  if (!affected.has(row.ruleReference)) return row;
+  const { rejectedEvidence: _rejectedEvidence, ...rest } = row;
+  return rest;
+}

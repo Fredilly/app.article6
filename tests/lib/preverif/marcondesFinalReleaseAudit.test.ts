@@ -6,6 +6,7 @@ const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-v
 const read = (name: string) => JSON.parse(fs.readFileSync(path.join(fixtureDir, name), "utf8")) as any;
 const sha256 = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, name))).digest("hex");
 const shortId = (value: string) => value.split(".").pop()!;
+const affectedRuleIds = ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"];
 
 describe("Marcondes final 58-rule release audit", () => {
   it("checks every reviewed row and records defects separately from the release blocker", () => {
@@ -38,11 +39,90 @@ describe("Marcondes final 58-rule release audit", () => {
       historicalRc2Rc3Changed: false,
       mayaRc1Rc5Changed: false,
       pr1101ChangesModified: false,
-      goldChanged: false,
+      goldChanged: true,
       independentAuditChanged: false,
-      correctionsChanged: false,
+      correctionsChanged: true,
     });
     expect(audit.auditBasis.rawEvidenceMapSha256).toBe(sha256("raw-evidence-map.json"));
     expect(audit.auditBasis.rawDocumentExtractionSha256).toBe(sha256("raw-document-extraction.json"));
+  });
+
+  it("requires the ten audited rejected records to be flat and fully auditable without changing their meaning", () => {
+    const gold = read("gold.json");
+    const corrections = read("corrections.json");
+    const affected = new Set(affectedRuleIds);
+    const expectedReason = "generic-text false support; wrong applicability pathway; incomplete or non-project-specific evidence";
+    const rows = gold.rows.filter((row: any) => affected.has(row.ruleReference));
+    expect(rows).toHaveLength(10);
+    expect(corrections.rejectedEvidence.filter((entry: any) => affected.has(shortId(entry.ruleId)))).toHaveLength(10);
+    for (const row of rows) {
+      expect(row.rejectedEvidence).toHaveLength(1);
+      const evidence = row.rejectedEvidence[0];
+      expect(evidence).not.toHaveProperty("evidence");
+      expect(evidence).toEqual(expect.objectContaining({ page: 18, section: "3.5.5 The determination of baseline scenario and demonstration of additionality for an eligibility area", spanId: "manual:marcondes-pdd:page-18:r-3-5-5-rejected", rejectionReason: expectedReason }));
+      expect(evidence.provenance).toEqual(expect.objectContaining({ docId: "quick-check-review-question", page: 18, spanId: evidence.spanId, sectionHeading: evidence.section, provenanceKind: "manual" }));
+      expect(evidence.provenance.sectionPath).toEqual(["2 PROJECT DETAILS", evidence.section]);
+      expect(evidence.quote).toBe("The determination of the baseline scenario and demonstration of additionality for the eligibility area are based on the initial project activity instances implemented across 36 properties located within the municipalities of Nhamundá, Parintins, and Barreirinha in the state of Amazonas, within the Amazon Biome.");
+      expect(row.acceptedEvidence).toEqual(expect.any(Array));
+      expect(row.finalEvidenceState).toBeDefined();
+      expect(row.reviewerOutcome).toBeDefined();
+    }
+    for (const entry of corrections.rejectedEvidence.filter((candidate: any) => affected.has(shortId(candidate.ruleId)))) {
+      expect(entry).not.toHaveProperty("evidence");
+      expect(entry.page).toBe(18);
+      expect(entry.spanId).toBe(entry.provenance.spanId);
+      expect(entry.provenance.page).toBe(entry.page);
+      expect(entry.rejectionReason).toBe(expectedReason);
+    }
+  });
+
+  it("proves the shared rejected anchor is intentional and does not erase rule-specific distinctions", () => {
+    const gold = read("gold.json");
+    const extraction = read("raw-document-extraction.json");
+    const affected = ["R-3-0004", "R-3-0007", "R-3-0008", "R-4-0001", "R-4-0002", "R-5-0001", "R-5-0002", "R-5-0003", "R-5-0004", "R-5-0005"];
+    const sharedSpanId = "manual:marcondes-pdd:page-18:r-3-5-5-rejected";
+    const sharedQuote = "The determination of the baseline scenario and demonstration of additionality for the eligibility area are based on the initial project activity instances implemented across 36 properties located within the municipalities of Nhamundá, Parintins, and Barreirinha in the state of Amazonas, within the Amazon Biome.";
+    const page18 = extraction.pages.find((page: any) => page.pageNumber === 18)?.text.replace(/\s+/g, " ");
+    const rows = affected.map((ruleId) => gold.rows.find((row: any) => row.ruleReference === ruleId));
+
+    expect(page18).toContain(sharedQuote.replace(/\s+/g, " "));
+    expect(rows.every(Boolean)).toBe(true);
+    expect(new Set(rows.map((row: any) => row.rejectedEvidence[0].spanId))).toEqual(new Set([sharedSpanId]));
+    expect(new Set(rows.map((row: any) => row.rejectedEvidence[0].quote))).toEqual(new Set([sharedQuote]));
+    expect(rows.every((row: any) => row.rejectedEvidence[0].provenance.spanId === sharedSpanId && row.rejectedEvidence[0].provenance.page === 18)).toBe(true);
+    expect(rows.every((row: any) => row.acceptedEvidence.every((evidence: any) => evidence.spanId !== sharedSpanId && evidence.provenance.spanId !== sharedSpanId))).toBe(true);
+    expect(new Set(rows.map((row: any) => row.acceptedEvidence.map((evidence: any) => evidence.spanId).join("|"))).size).toBeGreaterThan(1);
+    expect(new Set(rows.map((row: any) => row.reviewerCorrection.correction)).size).toBe(10);
+    expect(rows.every((row: any) => row.rejectedEvidence[0].ruleId === row.ruleId && row.rejectedEvidence[0].rejectionReason.length > 0)).toBe(true);
+  });
+
+  it("limits the protected-truth correction to ten rejected records", () => {
+    const gold = read("gold.json");
+    const corrections = read("corrections.json");
+    const machine = read("machine-proposal.json");
+    const affected = new Set(affectedRuleIds);
+    const correctedRows = gold.rows.filter((row: any) => affected.has(row.ruleReference));
+    const correctedRejections = corrections.rejectedEvidence.filter((entry: any) => affected.has(shortId(entry.ruleId)));
+    const correctedReviews = corrections.reviewerCorrections.filter((entry: any) => affected.has(shortId(entry.ruleId)));
+
+    expect(correctedRows).toHaveLength(10);
+    expect(new Set(correctedRows.map((row: any) => row.ruleReference))).toEqual(affected);
+    expect(new Set(correctedRejections.map((entry: any) => shortId(entry.ruleId)))).toEqual(affected);
+    expect(new Set(correctedReviews.map((entry: any) => shortId(entry.ruleId)))).toEqual(affected);
+    expect(gold.rows.filter((row: any) => row.rejectedEvidence.some((entry: any) => entry.spanId === "manual:marcondes-pdd:page-18:r-3-5-5-rejected"))).toHaveLength(10);
+
+    for (const row of correctedRows) {
+      const accepted = corrections.acceptedEvidence.filter((entry: any) => shortId(entry.ruleId) === row.ruleReference).map((entry: any) => entry.evidence);
+      const rejected = correctedRejections.find((entry: any) => shortId(entry.ruleId) === row.ruleReference);
+      const reviewer = correctedReviews.find((entry: any) => shortId(entry.ruleId) === row.ruleReference);
+      const finalTruth = corrections.finalTruth.find((entry: any) => shortId(entry.ruleId) === row.ruleReference);
+      expect(row.acceptedEvidence).toEqual(accepted);
+      expect(row.machineProposal).toEqual(machine.rows.find((candidate: any) => candidate.ruleReference === row.machineProposal.ruleReference));
+      expect(row.reviewerCorrection).toEqual(reviewer.correction);
+      expect(row.rejectedEvidence[0].rejectionReason).toBe(rejected.rejectionReason);
+      expect({ finalEvidenceState: row.finalEvidenceState, reviewerOutcome: row.reviewerOutcome }).toEqual(expect.objectContaining({ finalEvidenceState: finalTruth.finalEvidenceState, reviewerOutcome: finalTruth.reviewerOutcome }));
+      expect(row.clientAction).toEqual(expect.any(String));
+    }
+    expect(sha256("machine-proposal.json")).toBe("068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6");
   });
 });

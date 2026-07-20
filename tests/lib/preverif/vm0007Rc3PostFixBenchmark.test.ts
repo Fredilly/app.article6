@@ -26,15 +26,15 @@ const generator = path.join(root, "scripts/preverif/generate-vm0007-rc3-post-fix
 const sha256 = (file: string) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const read = (file: string) => JSON.parse(fs.readFileSync(file, "utf8"));
 const frozen = {
-  [path.join(baselineDir, "RC3_AUDITED_PRE_FIX_BASELINE.json")]: "12c6276c12ba62d7f93987e3d4097d732ab05ded1432621a5895aa7527e5be87",
+  [path.join(baselineDir, "RC3_AUDITED_PRE_FIX_BASELINE.json")]: "472b5512070df175c5cdad438993119edb6a2caa8258ca69cf8c901d80513e20",
   [path.join(baselineDir, "RC3_AUDITED_PRE_FIX_PROPOSAL.json")]: "2ffe9413b09a795edc50b15e9564716f9fcf51d916f13368b416d2b22088fb85",
-  [path.join(baselineDir, "RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json")]: "5b41f5650ad975757f4376c8ec7ff29dd1eb6738310637cf2eddb2191c436f8f",
-  [path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")]: "3dc8f4616eae03b1bfbc44e2a872f7177d56c06766c0524e22571573b6b298bd",
-  [path.join(artifactDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json")]: "e36325c78ea3e998e71b97adb1bb9f5a8e7c3e43fd1946c38003188e041da490",
-  [path.join(artifactDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json")]: "21bbd255153d524896517e48b58a6bb40425d9c37168605ab593c9ccf5a99c74",
-  [path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json")]: "f12754ca3e4c1eec6c9330139da46a3777276959c0b0dda569f6f93f023af329",
-  [path.join(baselineDir, "RC3_BASELINE_REGISTRY.json")]: "ab5a62d39d44913962b5379183654aaa27a919a3cfc4649626a6bf453a15c6ba",
-  [path.join(fixtureDir, "gold.json")]: "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+  [path.join(baselineDir, "RC3_AUDITED_PRE_FIX_BASELINE_MANIFEST.json")]: "bb881b7b02ab0c943c9d71ba6b92765b4a356a596241b7a5908cfa1d612861b3",
+  [path.join(artifactDir, "RC3_AUDITED_DIAGNOSTIC.json")]: "8dba5b3b83444212d5d90a781958f6c9bfb43189a69035932061551c5a6ab220",
+  [path.join(artifactDir, "RC3_AUDITED_SELECTED_MATCH_SUBTAXONOMY.json")]: "a9399e74f123e4b9fba9f6c33cb0c39355cc12b0d6ac27d7e48e180b63c17170",
+  [path.join(artifactDir, "RC3_AUDITED_SAME_RUN_HANDOFF_TRACE.json")]: "a42c57a247df91e1d64c0bc5311d0430b6fd25f44d2934c88fc6ff72721de5d0",
+  [path.join(artifactDir, "RC3_AUDITED_CURRENT_COMPARISON.json")]: "a481c4e318078dbb04c9cc5ae810bf71a3d0ebbbea02b7e787764f281fe90446",
+  [path.join(baselineDir, "RC3_BASELINE_REGISTRY.json")]: "7fb58ae86c33c7baf469d97f686404f872bd7ee502cff79549f86037363a29b6",
+  [path.join(fixtureDir, "gold.json")]: "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511",
   [path.join(fixtureDir, "raw-document-extraction.json")]: "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747",
 };
 

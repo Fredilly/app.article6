@@ -5,7 +5,7 @@
   "methodology": "Verra.AFOLU.VM0007.v1-8",
   "auditBasis": {
     "gold": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/gold.json",
-    "goldSha256": "af93a39a0b874377efe88648f6f4538c2454c9e8dcceae66086681b4a336f75c",
+    "goldSha256": "ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511",
     "metadata": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/metadata.json",
     "metadataSha256": "e6db518b70297bb0647cb39ea837387b0193833a39fdc8270d8c186342101b83",
     "releaseStatus": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/release-status.json",
@@ -13,7 +13,7 @@
     "independentAudit": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/independent-audit.json",
     "independentAuditSha256": "aad500e67b7b8b9cfa34fe50b500b5e9ad25ad78f5ddc3968abffe970b58a89a",
     "corrections": "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map/corrections.json",
-    "correctionsSha256": "61bae67f243d4b5c184b4e33205d7af5ccc2a8897e569bdd8d03bedf669a9787",
+    "correctionsSha256": "91cbe7ff32d4082e4f0d7d87fbdd71972a5bc9cbe155191358511a126d9241d4",
     "rawEvidenceMapSha256": "bd71459647c878855a9ebfe1fe3d6af6e9ec5c8ba89464091bc06ee0dbfe649e",
     "rawDocumentExtractionSha256": "7031b49bf70d541679788e65f74efef09921712a506a0ba4aa28d0b0bcd98747"
   },
@@ -82,8 +82,8 @@
     "historicalRc2Rc3Changed": false,
     "mayaRc1Rc5Changed": false,
     "pr1101ChangesModified": false,
-    "goldChanged": false,
+    "goldChanged": true,
     "independentAuditChanged": false,
-    "correctionsChanged": false
+    "correctionsChanged": true
   }
 }
