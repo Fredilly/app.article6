@@ -147,6 +147,20 @@ export default function Vm0007GapReportView({ report }: Vm0007GapReportViewProps
         )}
       </div>
 
+      {report.methodologyReconciliation ? sectionCard(
+        <div data-testid="methodology-reconciliation">
+          <h2 className="text-lg font-semibold text-slate-950">Methodology Review / Version Reconciliation</h2>
+          <div className="mt-3 grid gap-3 text-sm text-slate-700">
+            <div><span className="font-semibold text-slate-900">Finding:</span> {report.methodologyReconciliation.finding}</div>
+            <div><span className="font-semibold text-slate-900">Classification:</span> {report.methodologyReconciliation.classification}</div>
+            <div><span className="font-semibold text-slate-900">Assessment:</span> {report.methodologyReconciliation.assessment}</div>
+            <div><span className="font-semibold text-slate-900">Impact on review:</span> {report.methodologyReconciliation.impactOnReview}</div>
+            <div><span className="font-semibold text-slate-900">Release status:</span> {report.methodologyReconciliation.releaseStatus}</div>
+            <div><span className="font-semibold text-slate-900">Limitation:</span> {report.methodologyReconciliation.limitation}</div>
+          </div>
+        </div>,
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {sectionCard(
           <>
