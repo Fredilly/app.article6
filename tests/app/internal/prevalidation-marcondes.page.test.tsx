@@ -28,6 +28,16 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("View original rejected evidence");
     expect(html).toContain("CIW tidal wetland conservation activities");
     expect(html).toContain("Rule ID: R-1-0012");
+    expect(html).toContain("Total action required");
+    expect(html).toContain("Unclear evidence");
+    expect(html).toContain("Missing evidence");
+    expect(html).toContain("Other actions");
+    expect(html).toContain("Why it matters:");
+    expect(html).toContain("Required action:");
+    expect((html.match(/data-testid=\"priority-gap-card\"/g) ?? []).length).toBe(30);
+    expect(html).toContain("data-testid=\"priority-gap-group-missing-evidence\"");
+    expect(html).toContain("data-testid=\"priority-gap-group-unclear-evidence\"");
+    expect(html).toContain("data-testid=\"priority-gap-group-other-actions\"");
     const visibleMarkup = html.replace(/ data-rule-id="[^"]+"/g, "");
     expect(visibleMarkup).not.toContain("Verra.AFOLU.VM0007.v1-8.");
   });

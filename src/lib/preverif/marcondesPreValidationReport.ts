@@ -34,7 +34,7 @@ export type MarcondesPreValidationReadinessReport = {
     explanation: string;
     blocker: string;
   };
-  priorityGaps: Array<{ ruleId: string; action: string | null; state: string; outcome: string }>;
+  priorityGaps: Array<{ ruleId: string; displayRuleId: string; title: string; action: string | null; state: string; outcome: string; whyItMatters: string }>;
   rules: MarcondesReadinessRule[];
   limitations: string[];
 };
@@ -87,7 +87,15 @@ export function buildMarcondesPreValidationReadinessReport(): MarcondesPreValida
       explanation: release.methodologyVersionConflict.conclusion,
       blocker: release.reportReleaseBlocker,
     },
-    priorityGaps: rows.filter((row: MarcondesReadinessRule) => row.reviewerOutcome === "ACTION_REQUIRED").map((row: MarcondesReadinessRule) => ({ ruleId: row.ruleId, action: row.recommendedAction, state: row.evidenceState, outcome: row.reviewerOutcome })),
+    priorityGaps: rows.filter((row: MarcondesReadinessRule) => row.reviewerOutcome === "ACTION_REQUIRED").map((row: MarcondesReadinessRule) => ({
+      ruleId: row.ruleId,
+      displayRuleId: row.ruleId.split(".").at(-1) ?? row.ruleId,
+      title: row.displayTitle,
+      action: row.recommendedAction,
+      state: row.evidenceState,
+      outcome: row.reviewerOutcome,
+      whyItMatters: row.rationale,
+    })),
     rules: rows,
     limitations: ["This is an independent pre-validation readiness review.", "It is not validation, verification, certification, Verra approval, or VVB approval."],
   };

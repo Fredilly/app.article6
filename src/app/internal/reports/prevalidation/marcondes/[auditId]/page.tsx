@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { buildMarcondesPreValidationReadinessReport, type MarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
@@ -18,6 +18,20 @@ function rejectedEvidenceSummary(reason: string | undefined): string {
   if (/applicability|scope|aligned/i.test(reason)) return "The project-specific excerpt did not directly establish the applicability or scope required by this requirement.";
   return "The cited material did not provide sufficient project-specific support for this requirement.";
 }
+
+function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReportPriorityGap[] }) {
+  return <div className="mt-4" data-testid={`priority-gap-group-${label.toLowerCase().replaceAll(" ", "-")}`}>
+    <h3 className="text-lg font-semibold text-slate-900">{label} <span className="text-sm font-normal text-slate-500">({gaps.length})</span></h3>
+    <div className="mt-2 grid gap-3">{gaps.map((gap) => <article key={gap.ruleId} className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="priority-gap-card">
+      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.displayRuleId}</span></div>
+      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.state}</p>
+      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {clientFacingRationale(gap.whyItMatters)}</p>
+      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.action ?? "Reviewer action is recorded in the Evidence Map."}</p>
+    </article>)}</div>
+  </div>;
+}
+
+type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][number];
 
 function EvidenceList({ label, evidence, rejected = false }: { label: string; evidence: unknown[]; rejected?: boolean }) {
   return (
@@ -51,6 +65,9 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
   const report = buildMarcondesPreValidationReadinessReport();
   const counts = report.executiveSummary.evidenceStateCounts;
   const outcomes = report.executiveSummary.reviewerOutcomeCounts;
+  const missingGaps = report.priorityGaps.filter((gap) => gap.state === "MISSING");
+  const unclearGaps = report.priorityGaps.filter((gap) => gap.state === "UNCLEAR");
+  const otherGaps = report.priorityGaps.filter((gap) => gap.state !== "MISSING" && gap.state !== "UNCLEAR");
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -86,7 +103,15 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6" aria-labelledby="priority-gaps">
           <h2 id="priority-gaps" className="text-xl font-semibold">Priority Gaps</h2>
-          <ul className="mt-3 space-y-2">{report.priorityGaps.map((gap) => <li key={gap.ruleId} className="border-b border-slate-200 pb-2"><strong>{gap.ruleId.split(".").at(-1)}</strong> — {gap.state}; {gap.action ?? "Reviewer action is recorded in the Evidence Map."}</li>)}</ul>
+          <p className="mt-2 text-slate-700">Client-facing risk summary of the reviewed requirements requiring follow-up.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3" data-testid="priority-gap-counts">
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{report.priorityGaps.length}</div></div>
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unclear evidence</div><div className="text-2xl font-semibold">{unclearGaps.length}</div></div>
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Missing evidence</div><div className="text-2xl font-semibold">{missingGaps.length}</div></div>
+          </div>
+          <PriorityGapGroup label="Missing evidence" gaps={missingGaps} />
+          <PriorityGapGroup label="Unclear evidence" gaps={unclearGaps} />
+          <PriorityGapGroup label="Other actions" gaps={otherGaps} />
         </section>
 
         <section aria-labelledby="rule-appendix">
