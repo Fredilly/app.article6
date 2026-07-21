@@ -3,6 +3,7 @@
 import { afterEach, describe, expect, test } from "@jest/globals";
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import {
+  EVIDENCE_MAP_ERROR_CATEGORIES,
   buildAndSaveVm0007GapReportAudit,
   completeVm0007EvidenceMapGeneration,
   loadVm0007GapReportAudit,
@@ -20,7 +21,7 @@ const rawPddText = readQuickCheckFixtureText(
 afterEach(() => window.localStorage.clear());
 
 describe("VM0007 uploaded PDF source identity propagation", () => {
-  test("classifies timeout failures as structured timeout errors", () => {
+  test("classifies timeout failures as generation errors without adding a public category", () => {
     const result = completeVm0007EvidenceMapGeneration({
       audit: { auditId: "audit-timeout" } as never,
       auditSaved: true,
@@ -32,9 +33,12 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
     });
 
     expect(result.error).toMatchObject({
-      category: "TIMEOUT_ERROR",
-      userMessage: expect.stringContaining("timed out"),
+      category: "GENERATION_ERROR",
+      userMessage: expect.stringContaining("Retry generation"),
+      technicalMessage: "Evidence Map generation timed out",
     });
+    expect(result.error?.category).not.toBe("TIMEOUT_ERROR");
+    expect(EVIDENCE_MAP_ERROR_CATEGORIES).not.toContain("TIMEOUT_ERROR");
   });
 
   test("returns a structured validation error when draft generation is blocked", () => {

@@ -3,7 +3,6 @@ export const EVIDENCE_MAP_ERROR_CATEGORIES = [
   "METHODOLOGY_ERROR",
   "GENERATION_ERROR",
   "VALIDATION_ERROR",
-  "TIMEOUT_ERROR",
   "UNKNOWN_ERROR",
 ] as const;
 
@@ -25,8 +24,6 @@ const USER_MESSAGES: Record<EvidenceMapGenerationErrorCategory, string> = {
     "Evidence Map generation could not be completed. Retry generation, and confirm the uploaded PDD is available.",
   VALIDATION_ERROR:
     "The generated Evidence Map did not pass validation. Retry with a VM0007 v1.8 PDD.",
-  TIMEOUT_ERROR:
-    "Evidence Map generation timed out. Retry with a smaller text-based PDD.",
   UNKNOWN_ERROR:
     "Evidence Map could not be created because of an unexpected problem. Retry, and contact support if it continues.",
 };
@@ -82,7 +79,7 @@ export function classifyEvidenceMapGenerationError(input: {
     };
   }
   if (/timeout|timed out|abort/i.test(text)) {
-    return createEvidenceMapGenerationError("TIMEOUT_ERROR", text);
+    return createEvidenceMapGenerationError("GENERATION_ERROR", text);
   }
   if (/pdf|parse|extract|selectable text|scanned/i.test(text)) {
     return createEvidenceMapGenerationError("PDF_PARSE_ERROR", text);
