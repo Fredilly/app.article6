@@ -5,11 +5,11 @@ import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marco
 import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
 
 function decodePdfText(pdf: string): string {
-  return [...pdf.matchAll(/(\((?:\\.|[^\\)])*\)|<FEFF[0-9A-F]+>) Tj/g)].map(([, encoded]) => {
+  return [...pdf.matchAll(/(\((?:\\.|[^\\)])*\)|<[0-9A-F]+>) Tj/g)].map(([, encoded]) => {
     if (encoded.startsWith("(")) return encoded.slice(1, -1).replace(/\\([\\()])/g, "$1");
-    const bytes = Buffer.from(encoded.slice(5, -1), "hex");
+    const bytes = Buffer.from(encoded.slice(1, -1), "hex");
     let text = "";
-    for (let index = 0; index < bytes.length; index += 2) text += String.fromCharCode(bytes[index] * 256 + bytes[index + 1]);
+    for (let index = 0; index < bytes.length; index += 2) text += String.fromCodePoint(bytes[index] * 256 + bytes[index + 1]);
     return text;
   }).join(" ");
 }
@@ -22,19 +22,20 @@ describe("Marcondes pre-validation readiness PDF", () => {
   it("consumes the report model and preserves finalized truth", () => {
     const report = buildMarcondesPreValidationReadinessReport();
     const pdf = buildMarcondesPreValidationPdf(report).toString("latin1");
+    const pdfText = decodePdfText(pdf);
     expect(pdf).toContain("%PDF-1.4");
-    expect(pdf).toContain("FOUND: 6 | UNCLEAR: 21 | MISSING: 9 | N/A: 22");
-    expect(pdf).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
-    expect(pdf).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
-    expect((pdf.match(/Rule Appendix \d+ of 58/g) ?? []).length).toBe(58);
-    expect(pdf).toContain("Methodology Reconciliation");
-    expect(pdf).toContain("Disclaimer");
+    expect(pdfText).toContain("FOUND: 6 | UNCLEAR: 21 | MISSING: 9 | N/A: 22");
+    expect(pdfText).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(pdfText).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect((pdfText.match(/Rule Appendix \d+ of 58(?! \(continued\))/g) ?? []).length).toBe(58);
+    expect(pdfText).toContain("Methodology Reconciliation");
+    expect(pdfText).toContain("Disclaimer");
   });
 
   it("does not strengthen the report conclusions or make forbidden positive claims", () => {
     const report = buildMarcondesPreValidationReadinessReport();
     const reportText = JSON.stringify(report).toLowerCase();
-    const pdf = buildMarcondesPreValidationPdf(report).toString("latin1").toLowerCase();
+    const pdf = decodePdfText(buildMarcondesPreValidationPdf(report).toString("latin1")).toLowerCase();
     // Check for forbidden conclusions, not incidental source wording such as
     // "verified carbon standard" or a quoted future validation-stage action.
     const forbidden = /\b(?:report|project|readiness|review|conclusion)\s+(?:is\s+)?(?:verified|validated|approved|certified)\b|\bready for verification\b/;
@@ -57,5 +58,24 @@ describe("Marcondes pre-validation readiness PDF", () => {
     }
     expect(html).toContain("2013–2023");
     expect(pdfText).toContain("2013–2023");
+  });
+
+  it("preserves Unicode through actual PDF extraction", async () => {
+    const pdf = buildMarcondesPreValidationPdf(buildMarcondesPreValidationReadinessReport());
+    expect(pdf.toString("ascii")).toContain("/Subtype /Type0");
+    expect(pdf.toString("ascii")).toContain("/ToUnicode");
+    expect(pdf.toString("ascii")).toContain("/CIDToGIDMap");
+    const extracted = decodePdfText(pdf.toString("latin1"));
+    for (const value of ["2013–2023", "VM0007’s", "§5.1.1", "CO₂", "−"]) expect(extracted).toContain(value);
+  });
+
+  it("keeps priority gaps in the website category order", () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    const pdfText = decodePdfText(buildMarcondesPreValidationPdf(report).toString("latin1")).replace(/\s+/g, " ");
+    const expected = [
+      "R-3-0007", "R-5-0001", "R-5-0005", "R-5-0006", "R-5-0007", "R-5-0009", "R-6-0003", "R-6-0004", "R-6-0007",
+      "R-1-0001", "R-1-0004", "R-2-0005", "R-2-0007", "R-3-0001", "R-6-0001", "R-6-0008", "R-2-0001", "R-2-0006", "R-2-0008", "R-3-0002", "R-2-0003", "R-2-0010", "R-2-0012", "R-2-0013", "R-3-0003", "R-3-0004", "R-5-0003", "R-5-0008", "R-6-0002", "R-6-0005",
+    ];
+    expect([...pdfText.matchAll(/Rule ID:\s+(R-\d-\d{4})/g)].map(([, ruleId]) => ruleId).slice(0, expected.length)).toEqual(expected);
   });
 });
