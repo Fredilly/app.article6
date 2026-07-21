@@ -1,6 +1,23 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
 
 const esc = (value: string) => value.replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
+function clientFacingText(value: string): string {
+  return value
+    .replace(/Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The reviewed evidence was assessed against the methodology requirement. ")
+    .replace(/Manual review replaced the machine-selected evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The reviewed evidence was assessed against the methodology requirement. ")
+    .replace(/Manual re-adjudication corrected/gi, "The reviewed assessment corrected")
+    .replace(/The blind audit confirms/gi, "The reviewed assessment confirms")
+    .replace(/machine-selected/gi, "initially selected")
+    .replace(/machine proposal/gi, "initial assessment")
+    .replace(/truncated or mislocated evidence/gi, "incomplete evidence")
+    .replace(/truncated evidence/gi, "incomplete evidence")
+    .replace(/mislocated evidence/gi, "evidence that did not establish the requirement")
+    .replace(/previous accepted quote/gi, "earlier evidence excerpt")
+    .replace(/It was replaced with/gi, "The assessment relies on")
+    .replace(/replaced with/gi, "updated to use")
+    .replace(/re-adjudication/gi, "assessment review")
+    .replace(/blind audit/gi, "reviewed assessment");
+}
 const wrap = (value: string, width = 92) => {
   const words = value.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -72,9 +89,14 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
     { title: "Project Overview", lines: [...field("Project", report.project), ...field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
     { title: "Methodology Reconciliation", lines: [...field("Page 61 reference", report.methodologyReview.page61Reference), ...field("Declarations", report.methodologyReview.declarations), ...field("Classification", report.methodologyReview.classification), ...field("Explanation", report.methodologyReview.explanation), ...field("Release blocker", report.methodologyReview.blocker)] },
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([k, v]) => `${k}: ${v}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
-    { title: "Priority Gaps", lines: report.priorityGaps.flatMap((gap) => [textLine(gap.displayRuleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence state", gap.state), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.action ?? "Follow-up recorded in the Evidence Map."), textLine("", { gap: 10 })]) },
+    { title: "Priority Gaps", lines: report.priorityGaps.flatMap((gap) => [textLine(gap.displayRuleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence state", gap.state), ...field("Why it matters", clientFacingText(gap.whyItMatters)), ...field("Required action", clientFacingText(gap.action ?? "Follow-up recorded in the Evidence Map.")), textLine("", { gap: 10 })]) },
   ];
-  for (const [index, rule] of report.rules.entries()) sections.push({ title: `Rule Appendix ${index + 1} of ${report.rules.length}`, lines: [...field("Rule ID", rule.ruleId), ...field("Rule title", rule.displayTitle), ...field("Requirement", rule.displayRequirement), ...field("Evidence state", rule.evidenceState), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Rationale", rule.rationale), ...field("Recommended action", rule.recommendedAction ?? "None recorded.")] });
+  for (const [index, rule] of report.rules.entries()) {
+    const title = clientFacingText(rule.displayTitle);
+    const requirement = clientFacingText(rule.displayRequirement);
+    const sameRequirement = requirement.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() === title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    sections.push({ title: `Rule Appendix ${index + 1} of ${report.rules.length}`, lines: [...field("Rule ID", rule.ruleId), ...field("Rule title", title), ...(sameRequirement ? [] : field("Methodology requirement", requirement)), ...field("Evidence state", rule.evidenceState), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Rationale", clientFacingText(rule.rationale)), ...field("Recommended action", clientFacingText(rule.recommendedAction ?? "None recorded."))] });
+  }
   sections.push({ title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), ...field("Release state", report.releaseStatus)] });
   const pages = sections.flatMap((section) => {
     const lines = expandLines(section.lines);
