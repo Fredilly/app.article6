@@ -1,12 +1,6 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
 
-const clientSafe = (value: string) => value
-  .replace(/ready for verification/gi, "ready for a later assurance stage")
-  .replace(/validated/gi, "reviewed")
-  .replace(/verified/gi, "supported")
-  .replace(/approved/gi, "accepted")
-  .replace(/certified/gi, "formally concluded");
-const esc = (value: string) => clientSafe(value).replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
+const esc = (value: string) => value.replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
 const wrap = (value: string, width = 92) => {
   const words = value.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
