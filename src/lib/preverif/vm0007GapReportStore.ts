@@ -7,6 +7,10 @@ import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceM
 import { type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal";
+import {
+  classifyEvidenceMapGenerationError,
+  type EvidenceMapGenerationError,
+} from "@/lib/preverif/evidenceMapGenerationError";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
 
@@ -31,15 +35,17 @@ export type Vm0007EvidenceMapGenerationResult = {
   blockedBy: string[];
   auditId: string | null;
   audit: Vm0007GapReportAuditRecord | null;
+  error?: EvidenceMapGenerationError;
 };
 
-const failedGeneration = (blockedBy: string[] = []): Vm0007EvidenceMapGenerationResult => ({
+const failedGeneration = (blockedBy: string[] = [], error?: EvidenceMapGenerationError): Vm0007EvidenceMapGenerationResult => ({
   auditSaved: false,
   draftBuilt: false,
   draftSaved: false,
   blockedBy,
   auditId: null,
   audit: null,
+  ...(error ? { error } : { error: classifyEvidenceMapGenerationError({ blockedBy }) }),
 });
 
 export function completeVm0007EvidenceMapGeneration(input: {
@@ -50,11 +56,11 @@ export function completeVm0007EvidenceMapGeneration(input: {
   loadDraft?: (auditId: string) => Vm0007EvidenceMapDraftPackage | null;
 }): Vm0007EvidenceMapGenerationResult {
   if (!input.auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: input.audit.auditId, audit: input.audit };
-  if (!input.draft.ok) return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit };
+  if (!input.draft.ok) return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit, error: classifyEvidenceMapGenerationError({ blockedBy: input.draft.blockedBy }) };
   const saveDraft = input.saveDraft ?? saveVm0007EvidenceMapDraft;
   const loadDraft = input.loadDraft ?? loadVm0007EvidenceMapDraft;
-  if (!saveDraft(input.draft.package)) return { auditSaved: true, draftBuilt: true, draftSaved: false, blockedBy: ["draft_persistence_failed"], auditId: input.audit.auditId, audit: input.audit };
-  if (!loadDraft(input.audit.auditId)) return { auditSaved: true, draftBuilt: true, draftSaved: false, blockedBy: ["draft_persistence_failed"], auditId: input.audit.auditId, audit: input.audit };
+  if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+  if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
   return { auditSaved: true, draftBuilt: true, draftSaved: true, blockedBy: [], auditId: input.audit.auditId, audit: input.audit };
 }
 
@@ -135,7 +141,8 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   userAcceptedVersionWarning?: boolean;
 }): Vm0007EvidenceMapGenerationResult {
   if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return failedGeneration(["methodology_id_mismatch"]);
-  if (!input.rawPddText.trim() || input.rules.length === 0) return failedGeneration(["malformed_audit_output"]);
+  if (!input.rawPddText.trim()) return failedGeneration(["pdf_parse_failed"], classifyEvidenceMapGenerationError({ error: "PDF extraction returned no text" }));
+  if (input.rules.length === 0) return failedGeneration(["malformed_audit_output"]);
 
   const auditId = createVm0007GapReportAuditId();
   let built: ReturnType<typeof buildVm0007MachineProposal>;
@@ -152,8 +159,8 @@ export function buildAndSaveVm0007GapReportAudit(input: {
       rules: input.rules,
       userAcceptedVersionWarning: input.userAcceptedVersionWarning,
     });
-  } catch {
-    return failedGeneration(["malformed_audit_output"]);
+  } catch (error) {
+    return failedGeneration(["generation_failed"], classifyEvidenceMapGenerationError({ error }));
   }
 
   const record: Vm0007GapReportAuditRecord = {
