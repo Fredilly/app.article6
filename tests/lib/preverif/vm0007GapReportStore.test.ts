@@ -3,11 +3,11 @@
 import { afterEach, describe, expect, test } from "@jest/globals";
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import {
-  EVIDENCE_MAP_ERROR_CATEGORIES,
   buildAndSaveVm0007GapReportAudit,
   completeVm0007EvidenceMapGeneration,
   loadVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
+import { EVIDENCE_MAP_ERROR_CATEGORIES } from "@/lib/preverif/evidenceMapGenerationError";
 import { buildVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import {
   readQuickCheckFixtureText,
