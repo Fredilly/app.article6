@@ -39,7 +39,7 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
 
     expect(result.error).toEqual({
       category: "VALIDATION_ERROR",
-      userMessage: expect.stringContaining("did not pass validation"),
+      userMessage: "Evidence Map requires all 58 canonical VM0007 requirements.",
       technicalMessage: "canonical_rule_count_is_not_58",
     });
     expect(result.error?.technicalMessage).not.toContain("Error:");
