@@ -7,6 +7,7 @@ import {
   completeVm0007EvidenceMapGeneration,
   loadVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
+import { EVIDENCE_MAP_ERROR_CATEGORIES } from "@/lib/preverif/evidenceMapGenerationError";
 import { buildVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import {
   readQuickCheckFixtureText,
@@ -20,6 +21,26 @@ const rawPddText = readQuickCheckFixtureText(
 afterEach(() => window.localStorage.clear());
 
 describe("VM0007 uploaded PDF source identity propagation", () => {
+  test("classifies timeout failures as generation errors without adding a public category", () => {
+    const result = completeVm0007EvidenceMapGeneration({
+      audit: { auditId: "audit-timeout" } as never,
+      auditSaved: true,
+      draft: { ok: true, package: {} as never },
+      saveDraft: () => {
+        throw new Error("Evidence Map generation timed out");
+      },
+      loadDraft: () => null,
+    });
+
+    expect(result.error).toMatchObject({
+      category: "GENERATION_ERROR",
+      userMessage: expect.stringContaining("Retry generation"),
+      technicalMessage: "Evidence Map generation timed out",
+    });
+    expect(result.error?.category).not.toBe("TIMEOUT_ERROR");
+    expect(EVIDENCE_MAP_ERROR_CATEGORIES).not.toContain("TIMEOUT_ERROR");
+  });
+
   test("returns a structured validation error when draft generation is blocked", () => {
     const audit = {
       auditId: "audit-failure",

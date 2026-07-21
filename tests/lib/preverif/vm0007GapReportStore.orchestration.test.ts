@@ -26,6 +26,30 @@ describe("VM0007 Evidence Map generation orchestration", () => {
     expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => true, loadDraft: () => null })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["draft_persistence_failed"] });
   });
 
+  test("converts a thrown draft persistence error into the structured generation contract", () => {
+    const result = completeVm0007EvidenceMapGeneration({
+      audit,
+      auditSaved: true,
+      draft: builtDraft,
+      saveDraft: () => {
+        throw new Error("Quota exceeded while writing localStorage");
+      },
+      loadDraft: () => draftPackage,
+    });
+
+    expect(result).toMatchObject({
+      draftBuilt: true,
+      draftSaved: false,
+      blockedBy: ["draft_persistence_failed"],
+      error: {
+        category: "GENERATION_ERROR",
+        userMessage: expect.stringContaining("Retry generation"),
+        technicalMessage: "Quota exceeded while writing localStorage",
+      },
+    });
+    expect(result.error?.userMessage).not.toContain("Evidence Map could not be created. You can retry.");
+  });
+
   test("preserves internal blocker reasons while failing an unsaved audit", () => {
     const result = completeVm0007EvidenceMapGeneration({ audit, auditSaved: false, draft: builtDraft });
     expect(result).toMatchObject({ auditSaved: false, draftSaved: false, blockedBy: ["audit_persistence_failed"] });

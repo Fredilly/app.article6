@@ -21,11 +21,11 @@ const USER_MESSAGES: Record<EvidenceMapGenerationErrorCategory, string> = {
   METHODOLOGY_ERROR:
     "The methodology or version could not be confirmed. Select VM0007 v1.8 and retry.",
   GENERATION_ERROR:
-    "Evidence Map generation failed before it could be saved. Retry the generation.",
+    "Evidence Map generation could not be completed. Retry generation, and confirm the uploaded PDD is available.",
   VALIDATION_ERROR:
     "The generated Evidence Map did not pass validation. Retry with a VM0007 v1.8 PDD.",
   UNKNOWN_ERROR:
-    "Evidence Map generation failed unexpectedly. Retry, and contact support if the problem continues.",
+    "Evidence Map could not be created because of an unexpected problem. Retry, and contact support if it continues.",
 };
 
 function safeTechnicalMessage(value: unknown): string {
@@ -89,8 +89,8 @@ export function classifyEvidenceMapGenerationError(input: {
     return {
       ...error,
       userMessage: reasons.some((reason) => /persistence|validation/i.test(reason))
-        ? "Evidence Map draft could not be validated or saved. You can retry."
-        : "Evidence Map could not be created. You can retry.",
+        ? "Evidence Map draft could not be saved. Retry generation, and check that browser storage is available."
+        : error.userMessage,
     };
   }
   return createEvidenceMapGenerationError("UNKNOWN_ERROR", text);
