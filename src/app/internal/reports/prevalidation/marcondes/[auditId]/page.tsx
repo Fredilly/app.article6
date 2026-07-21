@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, type ClientGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientRuleFields, type ClientGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
@@ -17,19 +17,6 @@ function PriorityGapGroup({ label, gaps }: { label: string; gaps: ClientGapPrese
       <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.requiredAction}</p>
     </article>)}</div>
   </div>;
-}
-
-function EvidenceList({ label, evidence }: { label: string; evidence: string[] }) {
-  return (
-    <div>
-      <h4 className="font-medium text-slate-700">{label}</h4>
-      {evidence.length === 0 ? <p className="text-slate-500">None recorded.</p> : (
-        <ul className="mt-1 space-y-1">
-          {evidence.map((item, index) => <li key={`${item.slice(0, 24)}-${index}`} className="rounded border border-slate-200 bg-slate-50 p-2">{item}</li>)}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 export default async function MarcondesPreValidationReadinessPage({ params }: { params: Promise<{ auditId: string }> }) {
@@ -95,16 +82,8 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
 
         <section aria-labelledby="rule-appendix">
           <h2 id="rule-appendix" className="text-xl font-semibold text-slate-950">Rule-by-rule Appendix ({report.rules.length})</h2>
-          <div className="mt-3 grid gap-3">{presentation.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
-            <h3 className="font-semibold">{index + 1}. {rule.title}</h3>
-            <p className="mt-2"><strong>Rule ID</strong><br />{rule.ruleId}</p>
-            {rule.methodologyRequirement ? <p className="mt-2"><strong>Methodology requirement</strong><br />{rule.methodologyRequirement}</p> : null}
-            <p className="mt-2"><strong>Evidence status</strong><br />{rule.evidenceStatus}</p>
-            <p className="mt-2"><strong>Reviewer outcome</strong><br />{rule.reviewerOutcome}</p>
-            <p className="mt-2"><strong>Why it matters</strong><br />{rule.whyItMatters}</p>
-            <p className="mt-2"><strong>Required action</strong><br />{rule.requiredAction}</p>
-            <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} /></div>
-            <p className="mt-3"><strong>Rationale</strong><br />{rule.rationale}</p>
+          <div className="mt-3 grid gap-3">{presentation.rules.map((rule) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
+            {clientRuleFields(rule).map(({ label, value }) => <p className="mt-2" key={label}><strong>{label}:</strong> {value}</p>)}
           </article>)}</div>
         </section>
 

@@ -2,7 +2,29 @@ import { renderToStaticMarkup } from "react-dom/server";
 import MarcondesPreValidationReadinessPage from "@/app/internal/reports/prevalidation/marcondes/[auditId]/page";
 import { buildMarcondesPreValidationPdf } from "@/lib/preverif/marcondesPreValidationPdf";
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
+
+function decodePdfText(pdf: string): string {
+  return [...pdf.matchAll(/(\((?:\\.|[^\\)])*\)|<FEFF[0-9A-F]+>) Tj/g)].map(([, encoded]) => {
+    if (encoded.startsWith("(")) return encoded.slice(1, -1).replace(/\\([\\()])/g, "$1");
+    const bytes = Buffer.from(encoded.slice(5, -1), "hex");
+    let text = "";
+    for (let index = 0; index < bytes.length; index += 2) text += String.fromCharCode(bytes[index] * 256 + bytes[index + 1]);
+    return text;
+  }).join(" ");
+}
+
+function visibleHtmlText(html: string): string {
+  return html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'").replace(/&quot;/g, '"');
+}
+
+function textWithPdfLineWrap(value: string): string {
+  return value
+    .replace(/Marcondes VM0007 v1\.8 Pre-Validation Readiness Report(?: \| Page \d+ of \d+)?/g, "")
+    .replace(/Internal Release Candidate/g, "")
+    .replace(/Rule-by-rule Appendix \d+ of 58(?: \(continued\))?/g, "")
+    .replace(/\s+/g, " ");
+}
 
 describe("Marcondes pre-validation readiness PDF", () => {
   it("consumes the report model and preserves finalized truth", () => {
@@ -23,7 +45,6 @@ describe("Marcondes pre-validation readiness PDF", () => {
     expect(pdf).toContain("Disclaimer");
     expect(pdf).toContain("Rule ID");
     expect(pdf).toContain("Title");
-    expect(pdf).toContain("Methodology requirement");
     expect(pdf).toContain("Why it matters");
     expect(pdf).toContain("Required action");
     expect(pdf).toContain("Reviewer outcome");
@@ -54,10 +75,16 @@ describe("Marcondes pre-validation readiness PDF", () => {
       ...Array(9).fill("Missing evidence"),
       ...Array(21).fill("Unclear evidence"),
     ].concat(Array(0).fill("Other actions")));
-    for (const rule of presentation.rules) {
-      expect(html).toContain(`<strong>Rule ID</strong><br/>${rule.ruleId}`);
-      expect(pdf).toContain(`(${rule.ruleId}) Tj`);
+    const visibleHtml = visibleHtmlText(html);
+    const pdfText = decodePdfText(pdf);
+    for (const rule of presentation.rules) for (const field of clientRuleFields(rule)) {
+      expect(visibleHtml).toContain(`${field.label}: ${field.value}`);
+      expect(textWithPdfLineWrap(pdfText)).toContain(textWithPdfLineWrap(`${field.label}: ${field.value}`));
     }
+    expect(visibleHtml).toContain("2013–2023");
+    expect(pdfText).toContain("2013–2023");
+    expect(visibleHtml.match(/Rule ID:/g)).toHaveLength(58);
+    expect(pdfText.match(/Rule ID:/g)).toHaveLength(88);
     const gapPositions = ["Missing evidence", "Unclear evidence", "Other actions"].map((category) => html.indexOf(`priority-gap-group-${category.toLowerCase().replaceAll(" ", "-")}`));
     expect(gapPositions).toEqual([...gapPositions].sort((left, right) => left - right));
     expect(html).not.toMatch(/machine-selected|machine proposal|machine-generated|truncated evidence|mislocated evidence|blind audit|re-adjudication/i);

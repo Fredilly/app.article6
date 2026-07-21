@@ -1,7 +1,18 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation } from "./marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "./marcondesClientReportPresentation";
 
-const esc = (value: string) => value.replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
+function pdfText(value: string): string {
+  if ([...value].every((character) => character.charCodeAt(0) >= 0x20 && character.charCodeAt(0) <= 0x7e)) {
+    return `(${value.replace(/[\\()]/g, (c) => `\\${c}`)})`;
+  }
+  const bytes: string[] = ["FE", "FF"];
+  for (const character of value) {
+    const code = character.codePointAt(0) ?? 0;
+    const units = code <= 0xffff ? [code] : [0xd800 + ((code - 0x10000) >> 10), 0xdc00 + ((code - 0x10000) & 0x3ff)];
+    for (const unit of units) bytes.push((unit >> 8).toString(16).padStart(2, "0"), (unit & 0xff).toString(16).padStart(2, "0"));
+  }
+  return `<${bytes.join("").toUpperCase()}>`;
+}
 const wrap = (value: string, width = 92) => {
   const words = value.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -23,28 +34,25 @@ function textLine(text: string, options: Omit<PdfLine, "text"> = {}): PdfLine {
   return { text, ...options };
 }
 
-const field = (label: string, value: string): PdfLine[] => [
-  textLine(label, { font: "bold", size: 10, gap: 14 }),
-  textLine(value, { size: 10, gap: 16 }),
-];
+const field = (label: string, value: string): PdfLine[] => [textLine(`${label}: ${value}`, { size: 10, gap: 16 })];
 
 function expandLines(lines: PdfLine[]): DrawLine[] {
   return lines.flatMap((item) => wrap(item.text).map((text) => ({ text, font: item.font ?? "regular", size: item.size ?? 10, advance: item.gap ?? 13 })));
 }
 
 function page(reportTitle: string, pageNumber: number, totalPages: number, title: string, lines: DrawLine[], cover = false): string {
-  const content = ["BT", "/F2 8 Tf", `1 0 0 1 50 770 Tm`, `(${esc(reportTitle)}) Tj`, "/F1 8 Tf", `1 0 0 1 50 758 Tm`, "(Internal Release Candidate) Tj"];
+  const content = ["BT", "/F2 8 Tf", `1 0 0 1 50 770 Tm`, `${pdfText(reportTitle)} Tj`, "/F1 8 Tf", `1 0 0 1 50 758 Tm`, "(Internal Release Candidate) Tj"];
   if (cover) {
-    content.push("/F2 22 Tf", `1 0 0 1 50 650 Tm`, `(${esc("Marcondes REDD+")}) Tj`, "/F2 16 Tf", `1 0 0 1 50 610 Tm`, `(${esc("VM0007 v1.8")}) Tj`, "/F2 19 Tf", `1 0 0 1 50 565 Tm`, `(${esc("Pre-Validation Readiness Review")}) Tj`, "/F1 11 Tf", `1 0 0 1 50 520 Tm`, `(${esc("Prepared from reviewed Evidence Map")}) Tj`, "/F2 11 Tf", `1 0 0 1 50 460 Tm`, `(${esc(lines[0]?.text ?? "")}) Tj`);
+    content.push("/F2 22 Tf", `1 0 0 1 50 650 Tm`, `${pdfText("Marcondes REDD+")} Tj`, "/F2 16 Tf", `1 0 0 1 50 610 Tm`, `${pdfText("VM0007 v1.8")} Tj`, "/F2 19 Tf", `1 0 0 1 50 565 Tm`, `${pdfText("Pre-Validation Readiness Review")} Tj`, "/F1 11 Tf", `1 0 0 1 50 520 Tm`, `${pdfText("Prepared from reviewed Evidence Map")} Tj`, "/F2 11 Tf", `1 0 0 1 50 460 Tm`, `${pdfText(lines[0]?.text ?? "")} Tj`);
   } else {
-    content.push("/F2 17 Tf", `1 0 0 1 50 720 Tm`, `(${esc(title)}) Tj`);
+    content.push("/F2 17 Tf", `1 0 0 1 50 720 Tm`, `${pdfText(title)} Tj`);
     let y = 688;
     for (const item of lines) {
-      content.push(item.font === "bold" ? "/F2 10 Tf" : `/F1 ${item.size} Tf`, `1 0 0 1 50 ${y} Tm`, `(${esc(item.text)}) Tj`);
+      content.push(item.font === "bold" ? "/F2 10 Tf" : `/F1 ${item.size} Tf`, `1 0 0 1 50 ${y} Tm`, `${pdfText(item.text)} Tj`);
       y -= item.advance;
     }
   }
-  content.push("/F1 8 Tf", `1 0 0 1 50 28 Tm`, `(${esc(`${reportTitle} | Page ${pageNumber} of ${totalPages}`)}) Tj`, "ET");
+  content.push("/F1 8 Tf", `1 0 0 1 50 28 Tm`, `${pdfText(`${reportTitle} | Page ${pageNumber} of ${totalPages}`)} Tj`, "ET");
   return content.join("\n");
 }
 
@@ -74,10 +82,10 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
     { title: "Project Overview", lines: [...field("Project", report.project), ...field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
     { title: "Methodology Reconciliation", lines: [...field("Page 61 reference", report.methodologyReview.page61Reference), ...field("Declarations", report.methodologyReview.declarations), ...field("Classification", report.methodologyReview.classification), ...field("Explanation", report.methodologyReview.explanation), ...field("Release blocker", report.methodologyReview.blocker)] },
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([k, v]) => `${k}: ${v}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
-    ...(["Missing evidence", "Unclear evidence", "Other actions"] as const).map((category) => ({ title: category, lines: presentation.priorityGaps.filter((gap) => gap.category === category).flatMap((gap) => [textLine(gap.ruleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence status", gap.evidenceStatus), ...field("Reviewer outcome", gap.reviewerOutcome), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.requiredAction), textLine("", { gap: 10 })]) })),
+    ...(["Missing evidence", "Unclear evidence", "Other actions"] as const).map((category) => ({ title: category, lines: presentation.priorityGaps.filter((gap) => gap.category === category).flatMap((gap) => [...field("Rule ID", gap.ruleId), ...field("Title", gap.title), ...field("Evidence status", gap.evidenceStatus), ...field("Reviewer outcome", gap.reviewerOutcome), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.requiredAction), textLine("", { gap: 10 })]) })),
   ];
   for (const [index, rule] of presentation.rules.entries()) {
-    sections.push({ title: `Rule-by-rule Appendix ${index + 1} of ${presentation.rules.length}`, lines: [...field("Rule ID", rule.ruleId), ...field("Title", rule.title), ...(rule.methodologyRequirement ? field("Methodology requirement", rule.methodologyRequirement) : []), ...field("Evidence status", rule.evidenceStatus), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Why it matters", rule.whyItMatters), ...field("Required action", rule.requiredAction), ...field("Accepted evidence", rule.acceptedEvidence.join(" | ")), ...field("Rejected evidence", rule.rejectedEvidence.join(" | ")), ...field("Rationale", rule.rationale)] });
+    sections.push({ title: `Rule-by-rule Appendix ${index + 1} of ${presentation.rules.length}`, lines: clientRuleFields(rule).flatMap(({ label, value }) => field(label, value)) });
   }
   sections.push({ title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), ...field("Release state", report.releaseStatus)] });
   const pages = sections.flatMap((section) => {

@@ -6,7 +6,6 @@ export const CLIENT_GAP_CATEGORIES = ["Missing evidence", "Unclear evidence", "O
 export type ClientRulePresentation = {
   ruleId: string;
   title: string;
-  methodologyRequirement?: string;
   evidenceStatus: string;
   reviewerOutcome: string;
   whyItMatters: string;
@@ -34,6 +33,11 @@ export type MarcondesClientReportPresentation = {
   priorityGaps: ClientGapPresentation[];
 };
 
+export type ClientRuleField = {
+  label: (typeof CLIENT_RULE_HEADINGS)[number];
+  value: string;
+};
+
 export function clientFacingText(value: string): string {
   return value
     .replace(/Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The reviewed evidence was assessed against the methodology requirement. ")
@@ -55,27 +59,6 @@ export function clientFacingText(value: string): string {
     .replace(/blind audit/gi, "reviewed assessment");
 }
 
-function normalizedText(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-export function isNearDuplicate(left: string, right: string): boolean {
-  const normalizedLeft = normalizedText(left);
-  const normalizedRight = normalizedText(right);
-  if (!normalizedLeft || !normalizedRight) return false;
-  if (normalizedLeft === normalizedRight || normalizedLeft.includes(normalizedRight) || normalizedRight.includes(normalizedLeft)) return true;
-  const leftWords = new Set(normalizedLeft.split(" "));
-  const rightWords = new Set(normalizedRight.split(" "));
-  const overlap = [...leftWords].filter((word) => rightWords.has(word)).length;
-  return overlap / Math.max(leftWords.size, rightWords.size) >= 0.85;
-}
-
-export function methodologyRequirement(title: string, requirement: string): string | undefined {
-  const clientTitle = clientFacingText(title);
-  const clientRequirement = clientFacingText(requirement);
-  return isNearDuplicate(clientTitle, clientRequirement) ? undefined : clientRequirement;
-}
-
 function evidenceText(item: unknown, rejected: boolean): string {
   const entry = item as { quote?: string; page?: number; section?: string; rejectionReason?: string; provenance?: { docId?: string; page?: number; sectionHeading?: string } };
   const page = entry.page ?? entry.provenance?.page;
@@ -88,13 +71,11 @@ function evidenceText(item: unknown, rejected: boolean): string {
 
 function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
   const title = clientFacingText(rule.displayTitle);
-  const requirement = methodologyRequirement(rule.displayTitle, rule.displayRequirement);
   const rationale = clientFacingText(rule.rationale);
   const requiredAction = clientFacingText(rule.recommendedAction ?? "None recorded.");
   return {
     ruleId: rule.ruleId.split(".").at(-1) ?? rule.ruleId,
     title,
-    ...(requirement ? { methodologyRequirement: requirement } : {}),
     evidenceStatus: rule.evidenceState,
     reviewerOutcome: rule.reviewerOutcome,
     whyItMatters: rationale,
@@ -103,6 +84,24 @@ function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
     rejectedEvidence: rule.rejectedEvidence.map((item) => evidenceText(item, true)),
     rationale,
   };
+}
+
+export function clientEvidenceText(evidence: readonly string[]): string {
+  return evidence.length ? evidence.join(" | ") : "None recorded.";
+}
+
+export function clientRuleFields(rule: ClientRulePresentation): ClientRuleField[] {
+  return [
+    { label: "Rule ID", value: rule.ruleId },
+    { label: "Title", value: rule.title },
+    { label: "Evidence status", value: rule.evidenceStatus },
+    { label: "Reviewer outcome", value: rule.reviewerOutcome },
+    { label: "Why it matters", value: rule.whyItMatters },
+    { label: "Required action", value: rule.requiredAction },
+    { label: "Accepted evidence", value: clientEvidenceText(rule.acceptedEvidence) },
+    { label: "Rejected evidence", value: clientEvidenceText(rule.rejectedEvidence) },
+    { label: "Rationale", value: rule.rationale },
+  ];
 }
 
 export function buildMarcondesClientReportPresentation(report: MarcondesPreValidationReadinessReport): MarcondesClientReportPresentation {

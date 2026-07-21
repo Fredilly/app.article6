@@ -36,7 +36,8 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("58 rules reviewed");
     expect(html).toContain("Why it matters");
     expect(html).toContain("Required action");
-    expect(html).toContain("<strong>Rule ID</strong><br/>R-1-0012");
+    expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
+    expect(html).toContain("<strong>Title:</strong>");
     expect(html).toContain("Evidence status");
     expect(html).toContain("Reviewer outcome");
     expect(html).toContain("Accepted evidence");
@@ -73,6 +74,19 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(report.rules.map((rule) => rule.rejectedEvidence)).toEqual(gold.rows.map((row: { rejectedEvidence: unknown[] }) => row.rejectedEvidence));
   });
 
+  it("identifies truth-backed duplicate rationale and client action values without changing them", () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    expect(report.rules.filter((rule) => rule.rationale.trim() === (rule.recommendedAction ?? "").trim()).map((rule) => rule.ruleId)).toEqual([
+      "Verra.AFOLU.VM0007.v1-8.R-5-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0007",
+      "Verra.AFOLU.VM0007.v1-8.R-5-0009",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0003",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0004",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0006",
+      "Verra.AFOLU.VM0007.v1-8.R-6-0007",
+    ]);
+  });
+
   it("separates why-it-matters text from required action when the frozen wording duplicates", async () => {
     const html = renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) }));
     const gold = JSON.parse(fs.readFileSync(path.join(fixtureDir, "gold.json"), "utf8"));
@@ -82,6 +96,6 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
       return rationale.trim().toLowerCase() === row.clientAction.trim().toLowerCase();
     });
     expect(duplicateRows.length).toBeGreaterThan(0);
-    for (const row of duplicateRows) expect(html).toContain(`<strong>Required action</strong><br/>${row.clientAction}`);
+    for (const row of duplicateRows) expect(html).toContain(`<strong>Required action:</strong> ${row.clientAction}`);
   });
 });
