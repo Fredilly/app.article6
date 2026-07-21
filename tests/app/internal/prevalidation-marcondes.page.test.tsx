@@ -12,6 +12,8 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
   it("renders the report, frozen counts, methodology warning, and all 58 rules", async () => {
     const html = renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) }));
     expect(html).toContain("Marcondes VM0007 v1.8 Pre-Validation Readiness Report");
+    expect(html).toContain("Download PDF Report");
+    expect(html).toContain('href="/api/exports/internal/marcondes-prevalidation-report"');
     expect(html).toContain("6");
     expect(html).toContain("21");
     expect(html).toContain("9");
