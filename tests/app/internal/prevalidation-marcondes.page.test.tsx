@@ -41,6 +41,8 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("Reviewer outcome");
     expect(html).toContain("Accepted evidence");
     expect(html).toContain("Rejected evidence");
+    expect(html).not.toContain("<strong>Title</strong>");
+    expect(html).not.toContain("<strong>Recommended action</strong>");
     expect(html).not.toContain("<strong>Requirement:</strong>");
     expect(html).not.toMatch(/machine-selected|machine proposal|machine-generated|truncated evidence|mislocated evidence|blind audit|re-adjudication|replaced the machine|corrected the machine/i);
     expect((html.match(/data-testid=\"priority-gap-card\"/g) ?? []).length).toBe(30);

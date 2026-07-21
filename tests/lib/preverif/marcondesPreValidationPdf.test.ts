@@ -27,6 +27,7 @@ describe("Marcondes pre-validation readiness PDF", () => {
     expect(pdf).toContain("Why it matters");
     expect(pdf).toContain("Required action");
     expect(pdf).toContain("Reviewer outcome");
+    expect(pdf).not.toContain("Recommended action");
   });
 
   it("does not strengthen the report conclusions or make forbidden positive claims", () => {

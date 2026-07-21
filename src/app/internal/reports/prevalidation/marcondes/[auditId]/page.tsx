@@ -98,7 +98,6 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
           <div className="mt-3 grid gap-3">{presentation.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
             <h3 className="font-semibold">{index + 1}. {rule.title}</h3>
             <p className="mt-2"><strong>Rule ID</strong><br />{rule.ruleId}</p>
-            <p className="mt-2"><strong>Title</strong><br />{rule.title}</p>
             {rule.methodologyRequirement ? <p className="mt-2"><strong>Methodology requirement</strong><br />{rule.methodologyRequirement}</p> : null}
             <p className="mt-2"><strong>Evidence status</strong><br />{rule.evidenceStatus}</p>
             <p className="mt-2"><strong>Reviewer outcome</strong><br />{rule.reviewerOutcome}</p>
@@ -106,7 +105,6 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
             <p className="mt-2"><strong>Required action</strong><br />{rule.requiredAction}</p>
             <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} /></div>
             <p className="mt-3"><strong>Rationale</strong><br />{rule.rationale}</p>
-            <p className="mt-1"><strong>Recommended action</strong><br />{rule.recommendedAction}</p>
           </article>)}</div>
         </section>
 

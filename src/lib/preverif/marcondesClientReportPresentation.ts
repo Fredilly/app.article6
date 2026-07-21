@@ -1,6 +1,6 @@
 import type { MarcondesPreValidationReadinessReport, MarcondesReadinessRule } from "./marcondesPreValidationReport";
 
-export const CLIENT_RULE_HEADINGS = ["Rule ID", "Title", "Evidence status", "Reviewer outcome", "Why it matters", "Required action", "Accepted evidence", "Rejected evidence", "Rationale", "Recommended action"] as const;
+export const CLIENT_RULE_HEADINGS = ["Rule ID", "Title", "Evidence status", "Reviewer outcome", "Why it matters", "Required action", "Accepted evidence", "Rejected evidence", "Rationale"] as const;
 export const CLIENT_GAP_CATEGORIES = ["Missing evidence", "Unclear evidence", "Other actions"] as const;
 
 export type ClientRulePresentation = {
@@ -14,7 +14,6 @@ export type ClientRulePresentation = {
   acceptedEvidence: string[];
   rejectedEvidence: string[];
   rationale: string;
-  recommendedAction: string;
 };
 
 export type ClientGapPresentation = {
@@ -91,7 +90,6 @@ function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
   const title = clientFacingText(rule.displayTitle);
   const requirement = methodologyRequirement(rule.displayTitle, rule.displayRequirement);
   const rationale = clientFacingText(rule.rationale);
-  const recommendedAction = clientFacingText(rule.recommendedAction ?? "None recorded.");
   return {
     ruleId: rule.ruleId.split(".").at(-1) ?? rule.ruleId,
     title,
@@ -103,7 +101,6 @@ function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
     acceptedEvidence: rule.acceptedEvidence.map((item) => evidenceText(item, false)),
     rejectedEvidence: rule.rejectedEvidence.map((item) => evidenceText(item, true)),
     rationale,
-    recommendedAction,
   };
 }
 
