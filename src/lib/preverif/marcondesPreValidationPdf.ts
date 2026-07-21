@@ -1,6 +1,18 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "./marcondesClientReportPresentation";
 
-const esc = (value: string) => value.replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
+function pdfText(value: string): string {
+  if ([...value].every((character) => character.charCodeAt(0) >= 0x20 && character.charCodeAt(0) <= 0x7e)) {
+    return `(${value.replace(/[\\()]/g, (c) => `\\${c}`)})`;
+  }
+  const bytes: string[] = ["FE", "FF"];
+  for (const character of value) {
+    const code = character.codePointAt(0) ?? 0;
+    const units = code <= 0xffff ? [code] : [0xd800 + ((code - 0x10000) >> 10), 0xdc00 + ((code - 0x10000) & 0x3ff)];
+    for (const unit of units) bytes.push((unit >> 8).toString(16).padStart(2, "0"), (unit & 0xff).toString(16).padStart(2, "0"));
+  }
+  return `<${bytes.join("").toUpperCase()}>`;
+}
 const wrap = (value: string, width = 92) => {
   const words = value.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -14,8 +26,8 @@ const wrap = (value: string, width = 92) => {
 };
 
 function page(title: string, lines: string[]): string {
-  const content = ["BT", "/F1 18 Tf", "50 742 Td", `(${esc(title)}) Tj`, "/F1 9 Tf", "0 -28 Td"];
-  for (const line of lines.flatMap((item) => wrap(item))) { content.push(`(${esc(line)}) Tj`, "0 -13 Td"); }
+  const content = ["BT", "/F1 18 Tf", "50 742 Td", `${pdfText(title)} Tj`, "/F1 9 Tf", "0 -28 Td"];
+  for (const line of lines.flatMap((item) => wrap(item))) { content.push(`${pdfText(line)} Tj`, "0 -13 Td"); }
   content.push("ET");
   return content.join("\n");
 }
@@ -39,7 +51,8 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
   streams.push(page("Methodology Reconciliation", [`Page 61 reference: ${report.methodologyReview.page61Reference}`, report.methodologyReview.declarations, `Classification: ${report.methodologyReview.classification}`, report.methodologyReview.explanation, `Release blocker: ${report.methodologyReview.blocker}`]));
   streams.push(page("Readiness Summary", [`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([k, v]) => `${k}: ${v}`).join(" | ")}`, report.executiveSummary.readinessSummary]));
   streams.push(page("Priority Gaps", report.priorityGaps.map((gap) => `${gap.displayRuleId} — ${gap.title} [${gap.state}]. Required action: ${gap.action ?? "Follow-up recorded in the Evidence Map."}`)));
-  for (const [index, rule] of report.rules.entries()) streams.push(page(`Rule Appendix ${index + 1} of ${report.rules.length}`, [`${rule.ruleId}`, rule.displayTitle, `Requirement: ${rule.displayRequirement}`, `Evidence state: ${rule.evidenceState}; reviewer outcome: ${rule.reviewerOutcome}`, `Rationale: ${rule.rationale}`, `Recommended action: ${rule.recommendedAction ?? "None recorded."}`]));
+  const presentation = buildMarcondesClientReportPresentation(report);
+  for (const [index, rule] of presentation.rules.entries()) streams.push(page(`Rule Appendix ${index + 1} of ${presentation.rules.length}`, clientRuleFields(rule).map(({ label, value }) => `${label}: ${value}`)));
   streams.push(page("Disclaimer", ["This document is an independent pre-validation readiness review and internal release candidate.", "It does not provide a final assurance conclusion or positive release determination.", `Release state: ${report.releaseStatus}`]));
   return assemble(streams);
 }

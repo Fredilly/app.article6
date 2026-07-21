@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildMarcondesPreValidationReadinessReport, type MarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
@@ -10,13 +11,6 @@ function clientFacingRationale(rationale: string): string {
     /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
     "The reviewer validated and corrected the machine proposal using PDF-backed project evidence. ",
   );
-}
-
-function rejectedEvidenceSummary(reason: string | undefined): string {
-  if (!reason) return "The cited material was not accepted as sufficient support for this requirement.";
-  if (/incomplete|noisy|truncated|mislocated/i.test(reason)) return "The source excerpt was incomplete, noisy, or not located at the authoritative project evidence needed for this requirement.";
-  if (/applicability|scope|aligned/i.test(reason)) return "The project-specific excerpt did not directly establish the applicability or scope required by this requirement.";
-  return "The cited material did not provide sufficient project-specific support for this requirement.";
 }
 
 function normalizedText(value: string): string {
@@ -57,33 +51,6 @@ function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReportPriority
 
 type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][number];
 
-function EvidenceList({ label, evidence, rejected = false }: { label: string; evidence: unknown[]; rejected?: boolean }) {
-  return (
-    <div>
-      <h4 className="font-medium text-slate-700">{label}</h4>
-      {evidence.length === 0 ? <p className="text-slate-500">None recorded.</p> : (
-        <ul className="mt-1 space-y-1">
-          {evidence.map((item, index) => {
-            const entry = item as { quote?: string; page?: number; section?: string; rejectionReason?: string; provenance?: { docId?: string; page?: number; sectionHeading?: string } };
-            const page = entry.page ?? entry.provenance?.page;
-            const section = entry.section ?? entry.provenance?.sectionHeading;
-            if (rejected) return <li key={`${page ?? "none"}-${index}`} className="rounded border border-amber-200 bg-amber-50 p-3">
-              <div className="font-medium text-amber-950">Rejected evidence</div>
-              <div className="mt-1 text-sm"><strong>Source:</strong> {entry.provenance?.docId ?? "Project document"}{page ? `, page ${page}` : ""}{section ? `, ${section}` : ""}</div>
-              <div className="mt-1 text-sm"><strong>Reason rejected:</strong> {entry.rejectionReason ?? "Not accepted as sufficient support."}</div>
-              <div className="mt-1 text-sm"><strong>Summary:</strong> {rejectedEvidenceSummary(entry.rejectionReason)}</div>
-              <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">View original rejected evidence</summary><p className="mt-1 whitespace-pre-wrap">{entry.quote ?? "No quote recorded."}</p></details>
-            </li>;
-            return <li key={`${page ?? "none"}-${index}`} className="rounded border border-slate-200 bg-slate-50 p-2">
-              {entry.quote ?? "No quote recorded."}{page ? ` (page ${page})` : ""}{section ? ` — ${section}` : ""}
-            </li>;
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export default async function MarcondesPreValidationReadinessPage({ params }: { params: Promise<{ auditId: string }> }) {
   await params;
   const report = buildMarcondesPreValidationReadinessReport();
@@ -92,6 +59,7 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
   const missingGaps = report.priorityGaps.filter((gap) => gap.state === "MISSING");
   const unclearGaps = report.priorityGaps.filter((gap) => gap.state === "UNCLEAR");
   const otherGaps = report.priorityGaps.filter((gap) => gap.state !== "MISSING" && gap.state !== "UNCLEAR");
+  const presentation = buildMarcondesClientReportPresentation(report);
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -140,13 +108,8 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
 
         <section aria-labelledby="rule-appendix">
           <h2 id="rule-appendix" className="text-xl font-semibold text-slate-950">Rule-by-rule Appendix ({report.rules.length})</h2>
-          <div className="mt-3 grid gap-3">{report.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
-            <h3 className="font-semibold">{index + 1}. {rule.displayTitle} <span className="font-normal text-sm text-slate-500">(Rule ID: {rule.ruleId.split(".").at(-1)})</span></h3>
-            <p className="mt-2"><strong>Requirement:</strong> {rule.displayRequirement}</p>
-            <p className="mt-1"><strong>Evidence state:</strong> {rule.evidenceState} · <strong>Reviewer outcome:</strong> {rule.reviewerOutcome}</p>
-            <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} rejected /></div>
-            <p className="mt-3"><strong>Rationale:</strong> {clientFacingRationale(rule.rationale)}</p>
-            <p className="mt-1"><strong>Recommended action:</strong> {rule.recommendedAction ?? "None recorded."}</p>
+          <div className="mt-3 grid gap-3">{presentation.rules.map((rule) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
+            {clientRuleFields(rule).map(({ label, value }) => <p className="mt-2" key={label}><strong>{label}:</strong> {value}</p>)}
           </article>)}</div>
         </section>
 

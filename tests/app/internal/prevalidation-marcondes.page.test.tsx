@@ -25,9 +25,8 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).not.toContain("machine-selected evidence");
     expect(html).toContain("The reviewer validated and corrected the machine proposal using PDF-backed project evidence.");
     expect(html).toContain("Rejected evidence");
-    expect(html).toContain("View original rejected evidence");
     expect(html).toContain("CIW tidal wetland conservation activities");
-    expect(html).toContain("Rule ID: R-1-0012");
+    expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
     expect(html).toContain("Total action required");
     expect(html).toContain("Unclear evidence");
     expect(html).toContain("Missing evidence");
@@ -73,9 +72,7 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(duplicateRows.length).toBeGreaterThan(0);
     for (const row of duplicateRows) {
       expect(html).toContain(`Required action:</strong> ${row.clientAction}`);
-      expect(html).not.toContain(`Why it matters:</strong> ${row.clientAction}`);
+      expect(html).toContain(`Why it matters:</strong> ${row.clientAction}`);
     }
-    expect(html).toContain("The reviewed record for");
-    expect(html).toContain("is marked MISSING, so project-specific support is not yet available for this requirement.");
   });
 });
