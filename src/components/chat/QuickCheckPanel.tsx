@@ -94,6 +94,7 @@ import {
 } from "@/lib/preverif/vm0007GapReportStore";
 import {
   classifyEvidenceMapGenerationError,
+  logEvidenceMapGenerationFailure,
   type EvidenceMapGenerationError,
 } from "@/lib/preverif/evidenceMapGenerationError";
 
@@ -1283,7 +1284,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         rules,
       });
       if (!savedAudit || !savedAudit.draftSaved || !savedAudit.auditId) {
-        setUploadVm0007GenerationError(savedAudit?.error ?? mapVm0007EvidenceMapGenerationError(savedAudit?.blockedBy ?? ["draft_persistence_failed"]));
+        const generationError = savedAudit?.error ?? mapVm0007EvidenceMapGenerationError(savedAudit?.blockedBy ?? ["draft_persistence_failed"]);
+        logEvidenceMapGenerationFailure(generationError, "quick-check-panel/upload-evidence-map");
+        setUploadVm0007GenerationError(generationError);
         return;
       }
       setUploadVm0007GapReportAuditId(savedAudit.auditId);
@@ -1534,10 +1537,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
             rules: auditRules,
           });
           vm0007GapReportAuditId = savedAudit?.draftSaved ? savedAudit.auditId ?? undefined : undefined;
-        } catch (error) {
-          if (process.env.NODE_ENV !== "production") {
-            console.error("Failed to save VM0007 gap report audit output.", error);
+          if (savedAudit && (!savedAudit.draftSaved || !savedAudit.auditId)) {
+            logEvidenceMapGenerationFailure(savedAudit.error ?? mapVm0007EvidenceMapGenerationError(savedAudit.blockedBy), "quick-check-panel/quick-check-completion");
           }
+        } catch (error) {
+          logEvidenceMapGenerationFailure(classifyEvidenceMapGenerationError({ error }), "quick-check-panel/quick-check-completion");
         }
       }
       const nextResult = buildQuickCheckResult({
@@ -2931,6 +2935,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               title="Internal VM0007 report"
               onGenerate={handleGenerateUploadVm0007GapReport}
               generationError={uploadVm0007GenerationError}
+              failureSource="quick-check-panel/upload-evidence-map"
               generating={generatingUploadVm0007GapReport}
               generateDisabled={!canGenerateUploadVm0007Report}
               testId="vm0007-upload-report-section"

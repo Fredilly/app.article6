@@ -11,6 +11,7 @@ import { createEvidenceMapGenerationError } from "@/lib/preverif/evidenceMapGene
 describe("Vm0007GapReportLaunchButton", () => {
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
     container = document.createElement("div");
@@ -25,6 +26,7 @@ describe("Vm0007GapReportLaunchButton", () => {
     });
     container.remove();
     window.localStorage.clear();
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   function makeDraft(auditId: string): Vm0007EvidenceMapDraftPackage {
@@ -88,6 +90,46 @@ describe("Vm0007GapReportLaunchButton", () => {
     expect(container.textContent).toContain("Retry Evidence Map");
     container.querySelector("button")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  test("shows technical diagnostics and source outside production", async () => {
+    process.env.NODE_ENV = "development";
+    await act(async () => {
+      root.render(
+        <Vm0007GapReportLaunchButton
+          isVm0007Result
+          auditId="stale-audit"
+          onGenerate={jest.fn()}
+          failureSource="quick-check-panel/upload-evidence-map"
+          generationError={createEvidenceMapGenerationError("GENERATION_ERROR", "draft persistence failed: duplicate audit id")}
+        />,
+      );
+    });
+
+    expect(container.querySelector('[data-testid="evidence-map-generation-diagnostics"]')?.textContent).toContain(
+      "Technical: draft persistence failed: duplicate audit id",
+    );
+    expect(container.textContent).toContain("Source: quick-check-panel/upload-evidence-map");
+  });
+
+  test("hides technical diagnostics in production", async () => {
+    process.env.NODE_ENV = "production";
+    await act(async () => {
+      root.render(
+        <Vm0007GapReportLaunchButton
+          isVm0007Result
+          auditId="stale-audit"
+          onGenerate={jest.fn()}
+          failureSource="quick-check-panel/upload-evidence-map"
+          generationError={createEvidenceMapGenerationError("GENERATION_ERROR", "draft persistence failed: duplicate audit id")}
+        />,
+      );
+    });
+
+    expect(container.textContent).toContain("GENERATION ERROR");
+    expect(container.textContent).toContain("Evidence Map generation failed before it could be saved");
+    expect(container.querySelector('[data-testid="evidence-map-generation-diagnostics"]')).toBeNull();
+    expect(container.textContent).not.toContain("duplicate audit id");
   });
 
   test("shows a disabled helper state when VM0007 result has no audit id yet", async () => {

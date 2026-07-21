@@ -19,6 +19,7 @@ type Vm0007GapReportLaunchButtonProps = {
   generationError?: EvidenceMapGenerationError | null;
   generating?: boolean;
   generateDisabled?: boolean;
+  failureSource?: string;
   testId?: string;
 };
 
@@ -30,6 +31,7 @@ export default function Vm0007GapReportLaunchButton({
   generationError = null,
   generating = false,
   generateDisabled = false,
+  failureSource,
   testId = "vm0007-internal-report-section",
 }: Vm0007GapReportLaunchButtonProps) {
   const [draftPackage, setDraftPackage] = useState<Vm0007EvidenceMapDraftPackage | null>(null);
@@ -73,6 +75,12 @@ export default function Vm0007GapReportLaunchButton({
             <div className="mt-2 text-sm text-amber-800" role="alert" data-testid="evidence-map-generation-error">
               <strong className="font-semibold">{generationError.category.replaceAll("_", " ")}</strong>
               <span className="ml-2">{generationError.userMessage}</span>
+              {process.env.NODE_ENV !== "production" ? (
+                <div className="mt-2 border-t border-amber-200 pt-2 text-xs text-amber-900" data-testid="evidence-map-generation-diagnostics">
+                  <div><span className="font-semibold">Technical:</span> {generationError.technicalMessage}</div>
+                  {failureSource ? <div><span className="font-semibold">Source:</span> {failureSource}</div> : null}
+                </div>
+              ) : null}
             </div>
           ) : null}
           <div className="mt-2 text-sm text-slate-600">

@@ -15,6 +15,27 @@ export type EvidenceMapGenerationError = {
   technicalMessage: string;
 };
 
+export type EvidenceMapGenerationFailureLog = EvidenceMapGenerationError & {
+  timestamp: string;
+  source: string;
+};
+
+/** Log only the structured, sanitized failure details. Never pass document data here. */
+export function logEvidenceMapGenerationFailure(
+  error: EvidenceMapGenerationError,
+  source: string,
+  timestamp = new Date().toISOString(),
+): void {
+  const entry: EvidenceMapGenerationFailureLog = {
+    category: error.category,
+    userMessage: error.userMessage,
+    technicalMessage: error.technicalMessage,
+    timestamp,
+    source,
+  };
+  console.error(entry);
+}
+
 const USER_MESSAGES: Record<EvidenceMapGenerationErrorCategory, string> = {
   PDF_PARSE_ERROR:
     "The PDF could not be read. Upload a text-based PDF or retry the upload.",
