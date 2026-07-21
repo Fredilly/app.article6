@@ -25,11 +25,10 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect((html.match(/data-testid=\"readiness-rule\"/g) ?? []).length).toBe(58);
     expect(html).not.toContain("Manual review replaced");
     expect(html).not.toContain("machine-selected evidence");
-    expect(html).toContain("The reviewer validated and corrected the machine proposal using PDF-backed project evidence.");
+    expect(html).toContain("The reviewed evidence was assessed against the methodology requirement.");
     expect(html).toContain("Rejected evidence");
     expect(html).toContain("View original rejected evidence");
     expect(html).toContain("CIW tidal wetland conservation activities");
-    expect(html).toContain("Rule ID: R-1-0012");
     expect(html).toContain("Total action required");
     expect(html).toContain("Unclear evidence");
     expect(html).toContain("Missing evidence");
@@ -37,6 +36,14 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("58 rules reviewed");
     expect(html).toContain("Why it matters:");
     expect(html).toContain("Required action:");
+    expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
+    expect(html).toContain("Methodology requirement:");
+    expect(html).toContain("Evidence state:</strong>");
+    expect(html).toContain("Reviewer outcome:</strong>");
+    expect(html).toContain("Accepted evidence");
+    expect(html).toContain("Rejected evidence");
+    expect(html).not.toContain("<strong>Requirement:</strong>");
+    expect(html).not.toMatch(/machine-selected|machine proposal|machine-generated|truncated evidence|mislocated evidence|blind audit|re-adjudication|replaced the machine|corrected the machine/i);
     expect((html.match(/data-testid=\"priority-gap-card\"/g) ?? []).length).toBe(30);
     expect(html).toContain("data-testid=\"priority-gap-group-missing-evidence\"");
     expect(html).toContain("data-testid=\"priority-gap-group-unclear-evidence\"");

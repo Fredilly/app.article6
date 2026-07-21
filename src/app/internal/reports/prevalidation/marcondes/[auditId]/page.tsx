@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
 import { buildMarcondesPreValidationReadinessReport, type MarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { clientFacingText, methodologyRequirement } from "@/lib/preverif/marcondesClientReportPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
 };
-
-function clientFacingRationale(rationale: string): string {
-  return rationale.replace(
-    /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
-    "The reviewer validated and corrected the machine proposal using PDF-backed project evidence. ",
-  );
-}
 
 function rejectedEvidenceSummary(reason: string | undefined): string {
   if (!reason) return "The cited material was not accepted as sufficient support for this requirement.";
@@ -35,7 +29,7 @@ function isNearDuplicate(left: string, right: string): boolean {
 }
 
 function priorityGapWhyItMatters(gap: ReportPriorityGap): string {
-  const why = clientFacingRationale(gap.whyItMatters);
+  const why = clientFacingText(gap.whyItMatters);
   if (!gap.action || !isNearDuplicate(why, gap.action)) return why;
   const title = gap.title.toLowerCase();
   if (gap.state === "MISSING") return `The reviewed record for ${title} is marked MISSING, so project-specific support is not yet available for this requirement.`;
@@ -70,7 +64,7 @@ function EvidenceList({ label, evidence, rejected = false }: { label: string; ev
             if (rejected) return <li key={`${page ?? "none"}-${index}`} className="rounded border border-amber-200 bg-amber-50 p-3">
               <div className="font-medium text-amber-950">Rejected evidence</div>
               <div className="mt-1 text-sm"><strong>Source:</strong> {entry.provenance?.docId ?? "Project document"}{page ? `, page ${page}` : ""}{section ? `, ${section}` : ""}</div>
-              <div className="mt-1 text-sm"><strong>Reason rejected:</strong> {entry.rejectionReason ?? "Not accepted as sufficient support."}</div>
+              <div className="mt-1 text-sm"><strong>Reason rejected:</strong> {clientFacingText(entry.rejectionReason ?? "Not accepted as sufficient support.")}</div>
               <div className="mt-1 text-sm"><strong>Summary:</strong> {rejectedEvidenceSummary(entry.rejectionReason)}</div>
               <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">View original rejected evidence</summary><p className="mt-1 whitespace-pre-wrap">{entry.quote ?? "No quote recorded."}</p></details>
             </li>;
@@ -147,12 +141,14 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
         <section aria-labelledby="rule-appendix">
           <h2 id="rule-appendix" className="text-xl font-semibold text-slate-950">Rule-by-rule Appendix ({report.rules.length})</h2>
           <div className="mt-3 grid gap-3">{report.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
-            <h3 className="font-semibold">{index + 1}. {rule.displayTitle} <span className="font-normal text-sm text-slate-500">(Rule ID: {rule.ruleId.split(".").at(-1)})</span></h3>
-            <p className="mt-2"><strong>Requirement:</strong> {rule.displayRequirement}</p>
-            <p className="mt-1"><strong>Evidence state:</strong> {rule.evidenceState} · <strong>Reviewer outcome:</strong> {rule.reviewerOutcome}</p>
+            <h3 className="font-semibold">{index + 1}. {clientFacingText(rule.displayTitle)}</h3>
+            <p className="mt-2"><strong>Rule ID:</strong> {rule.ruleId.split(".").at(-1)}</p>
+            {methodologyRequirement(rule.displayTitle, rule.displayRequirement) ? <p className="mt-2"><strong>Methodology requirement:</strong> {methodologyRequirement(rule.displayTitle, rule.displayRequirement)}</p> : null}
+            <p className="mt-2"><strong>Evidence state:</strong> {rule.evidenceState}</p>
+            <p className="mt-1"><strong>Reviewer outcome:</strong> {rule.reviewerOutcome}</p>
             <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} rejected /></div>
-            <p className="mt-3"><strong>Rationale:</strong> {clientFacingRationale(rule.rationale)}</p>
-            <p className="mt-1"><strong>Recommended action:</strong> {rule.recommendedAction ?? "None recorded."}</p>
+            <p className="mt-3"><strong>Rationale:</strong> {clientFacingText(rule.rationale)}</p>
+            <p className="mt-1"><strong>Recommended action:</strong> {clientFacingText(rule.recommendedAction ?? "None recorded.")}</p>
           </article>)}</div>
         </section>
 

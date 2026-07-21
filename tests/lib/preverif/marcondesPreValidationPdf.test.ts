@@ -35,7 +35,7 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const forbidden = /\b(?:report|project|readiness|review|conclusion)\s+(?:is\s+)?(?:verified|validated|approved|certified)\b|\bready for verification\b/;
     expect(reportText).not.toMatch(forbidden);
     expect(pdf).not.toMatch(forbidden);
-    expect(pdf).not.toMatch(/machine-selected|machine proposal|truncated evidence|mislocated evidence|blind audit|prior accepted quote|re-adjudication/i);
+    expect(pdf).not.toMatch(/machine-selected|machine proposal|machine-generated|truncated evidence|mislocated evidence|blind audit|prior accepted quote|re-adjudication|replaced the machine|corrected the machine/i);
     expect(pdf).toContain("internal release candidate");
     expect(pdf).toContain("release blocker");
   });
