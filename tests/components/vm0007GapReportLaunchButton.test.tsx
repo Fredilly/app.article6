@@ -90,6 +90,25 @@ describe("Vm0007GapReportLaunchButton", () => {
     expect(onGenerate).toHaveBeenCalledTimes(1);
   });
 
+  test("renders an actionable structured generation error without the legacy fallback", async () => {
+    await act(async () => {
+      root.render(
+        <Vm0007GapReportLaunchButton
+          isVm0007Result
+          auditId="failed-audit"
+          onGenerate={jest.fn()}
+          generationError={createEvidenceMapGenerationError("GENERATION_ERROR", "localStorage quota exceeded")}
+        />,
+      );
+    });
+
+    expect(container.textContent).toContain("GENERATION ERROR");
+    expect(container.textContent).toContain("Retry generation");
+    expect(container.textContent).toContain("confirm the uploaded PDD is available");
+    expect(container.textContent).not.toContain("Evidence Map could not be created. You can retry.");
+    expect(container.textContent).not.toContain("localStorage quota exceeded");
+  });
+
   test("shows a disabled helper state when VM0007 result has no audit id yet", async () => {
     await act(async () => {
       root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId={null} />);

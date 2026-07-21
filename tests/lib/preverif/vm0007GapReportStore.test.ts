@@ -20,6 +20,23 @@ const rawPddText = readQuickCheckFixtureText(
 afterEach(() => window.localStorage.clear());
 
 describe("VM0007 uploaded PDF source identity propagation", () => {
+  test("classifies timeout failures as structured timeout errors", () => {
+    const result = completeVm0007EvidenceMapGeneration({
+      audit: { auditId: "audit-timeout" } as never,
+      auditSaved: true,
+      draft: { ok: true, package: {} as never },
+      saveDraft: () => {
+        throw new Error("Evidence Map generation timed out");
+      },
+      loadDraft: () => null,
+    });
+
+    expect(result.error).toMatchObject({
+      category: "TIMEOUT_ERROR",
+      userMessage: expect.stringContaining("timed out"),
+    });
+  });
+
   test("returns a structured validation error when draft generation is blocked", () => {
     const audit = {
       auditId: "audit-failure",

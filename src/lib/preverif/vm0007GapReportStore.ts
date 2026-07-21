@@ -59,8 +59,19 @@ export function completeVm0007EvidenceMapGeneration(input: {
   if (!input.draft.ok) return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit, error: classifyEvidenceMapGenerationError({ blockedBy: input.draft.blockedBy }) };
   const saveDraft = input.saveDraft ?? saveVm0007EvidenceMapDraft;
   const loadDraft = input.loadDraft ?? loadVm0007EvidenceMapDraft;
-  if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
-  if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+  try {
+    if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+    if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+  } catch (error) {
+    return {
+      ...failedGeneration(["draft_persistence_failed"], classifyEvidenceMapGenerationError({ error })),
+      auditSaved: true,
+      draftBuilt: true,
+      draftSaved: false,
+      auditId: input.audit.auditId,
+      audit: input.audit,
+    };
+  }
   return { auditSaved: true, draftBuilt: true, draftSaved: true, blockedBy: [], auditId: input.audit.auditId, audit: input.audit };
 }
 
@@ -176,8 +187,13 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     audit: built.audit,
     sourceDocument: built.sourceDocument,
   };
-  saveVm0007GapReportAudit(record);
-  const auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
+  let auditSaved = false;
+  try {
+    saveVm0007GapReportAudit(record);
+    auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
+  } catch (error) {
+    return failedGeneration(["audit_persistence_failed"], classifyEvidenceMapGenerationError({ error }));
+  }
   if (!auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: record.auditId, audit: record };
   return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft: built.draft });
 }
