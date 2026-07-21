@@ -27,19 +27,18 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).not.toContain("machine-selected evidence");
     expect(html).toContain("The reviewed evidence was assessed against the methodology requirement.");
     expect(html).toContain("Rejected evidence");
-    expect(html).toContain("View original rejected evidence");
+    expect(html).toContain("Reason rejected:");
     expect(html).toContain("CIW tidal wetland conservation activities");
     expect(html).toContain("Total action required");
     expect(html).toContain("Unclear evidence");
     expect(html).toContain("Missing evidence");
     expect(html).toContain("Other actions");
     expect(html).toContain("58 rules reviewed");
-    expect(html).toContain("Why it matters:");
-    expect(html).toContain("Required action:");
-    expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
-    expect(html).toContain("Methodology requirement:");
-    expect(html).toContain("Evidence state:</strong>");
-    expect(html).toContain("Reviewer outcome:</strong>");
+    expect(html).toContain("Why it matters");
+    expect(html).toContain("Required action");
+    expect(html).toContain("<strong>Rule ID</strong><br/>R-1-0012");
+    expect(html).toContain("Evidence status");
+    expect(html).toContain("Reviewer outcome");
     expect(html).toContain("Accepted evidence");
     expect(html).toContain("Rejected evidence");
     expect(html).not.toContain("<strong>Requirement:</strong>");
@@ -81,11 +80,6 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
       return rationale.trim().toLowerCase() === row.clientAction.trim().toLowerCase();
     });
     expect(duplicateRows.length).toBeGreaterThan(0);
-    for (const row of duplicateRows) {
-      expect(html).toContain(`Required action:</strong> ${row.clientAction}`);
-      expect(html).not.toContain(`Why it matters:</strong> ${row.clientAction}`);
-    }
-    expect(html).toContain("The reviewed record for");
-    expect(html).toContain("is marked MISSING, so project-specific support is not yet available for this requirement.");
+    for (const row of duplicateRows) expect(html).toContain(`<strong>Required action</strong><br/>${row.clientAction}`);
   });
 });

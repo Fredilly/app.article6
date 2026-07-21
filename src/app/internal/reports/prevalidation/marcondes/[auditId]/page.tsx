@@ -1,77 +1,31 @@
 import type { Metadata } from "next";
-import { buildMarcondesPreValidationReadinessReport, type MarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { clientFacingText, methodologyRequirement } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { buildMarcondesClientReportPresentation, type ClientGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
 };
 
-function rejectedEvidenceSummary(reason: string | undefined): string {
-  if (!reason) return "The cited material was not accepted as sufficient support for this requirement.";
-  if (/incomplete|noisy|truncated|mislocated/i.test(reason)) return "The source excerpt was incomplete, noisy, or not located at the authoritative project evidence needed for this requirement.";
-  if (/applicability|scope|aligned/i.test(reason)) return "The project-specific excerpt did not directly establish the applicability or scope required by this requirement.";
-  return "The cited material did not provide sufficient project-specific support for this requirement.";
-}
-
-function normalizedText(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-function isNearDuplicate(left: string, right: string): boolean {
-  const normalizedLeft = normalizedText(left);
-  const normalizedRight = normalizedText(right);
-  if (!normalizedLeft || !normalizedRight) return false;
-  if (normalizedLeft === normalizedRight || normalizedLeft.includes(normalizedRight) || normalizedRight.includes(normalizedLeft)) return true;
-  const leftWords = new Set(normalizedLeft.split(" "));
-  const rightWords = new Set(normalizedRight.split(" "));
-  const overlap = [...leftWords].filter((word) => rightWords.has(word)).length;
-  return overlap / Math.max(leftWords.size, rightWords.size) >= 0.85;
-}
-
-function priorityGapWhyItMatters(gap: ReportPriorityGap): string {
-  const why = clientFacingText(gap.whyItMatters);
-  if (!gap.action || !isNearDuplicate(why, gap.action)) return why;
-  const title = gap.title.toLowerCase();
-  if (gap.state === "MISSING") return `The reviewed record for ${title} is marked MISSING, so project-specific support is not yet available for this requirement.`;
-  if (gap.state === "UNCLEAR") return `The reviewed record for ${title} is UNCLEAR, so the available support does not yet establish a clear readiness position.`;
-  return `The existing reviewer rationale identifies follow-up needed for ${title} before readiness can be concluded.`;
-}
-
-function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReportPriorityGap[] }) {
+function PriorityGapGroup({ label, gaps }: { label: string; gaps: ClientGapPresentation[] }) {
   return <div className="mt-4" data-testid={`priority-gap-group-${label.toLowerCase().replaceAll(" ", "-")}`}>
     <h3 className="text-lg font-semibold text-slate-900">{label} <span className="text-sm font-normal text-slate-500">({gaps.length})</span></h3>
     <div className="mt-2 grid gap-3">{gaps.map((gap) => <article key={gap.ruleId} className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="priority-gap-card">
-      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.displayRuleId}</span></div>
-      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.state}</p>
-      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {priorityGapWhyItMatters(gap)}</p>
-      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.action ?? "Reviewer action is recorded in the Evidence Map."}</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">{gap.ruleId}</span></div>
+      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.evidenceStatus}</p>
+      <p className="mt-2 text-sm"><strong>Reviewer outcome:</strong> {gap.reviewerOutcome}</p>
+      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {gap.whyItMatters}</p>
+      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.requiredAction}</p>
     </article>)}</div>
   </div>;
 }
 
-type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][number];
-
-function EvidenceList({ label, evidence, rejected = false }: { label: string; evidence: unknown[]; rejected?: boolean }) {
+function EvidenceList({ label, evidence }: { label: string; evidence: string[] }) {
   return (
     <div>
       <h4 className="font-medium text-slate-700">{label}</h4>
       {evidence.length === 0 ? <p className="text-slate-500">None recorded.</p> : (
         <ul className="mt-1 space-y-1">
-          {evidence.map((item, index) => {
-            const entry = item as { quote?: string; page?: number; section?: string; rejectionReason?: string; provenance?: { docId?: string; page?: number; sectionHeading?: string } };
-            const page = entry.page ?? entry.provenance?.page;
-            const section = entry.section ?? entry.provenance?.sectionHeading;
-            if (rejected) return <li key={`${page ?? "none"}-${index}`} className="rounded border border-amber-200 bg-amber-50 p-3">
-              <div className="font-medium text-amber-950">Rejected evidence</div>
-              <div className="mt-1 text-sm"><strong>Source:</strong> {entry.provenance?.docId ?? "Project document"}{page ? `, page ${page}` : ""}{section ? `, ${section}` : ""}</div>
-              <div className="mt-1 text-sm"><strong>Reason rejected:</strong> {clientFacingText(entry.rejectionReason ?? "Not accepted as sufficient support.")}</div>
-              <div className="mt-1 text-sm"><strong>Summary:</strong> {rejectedEvidenceSummary(entry.rejectionReason)}</div>
-              <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">View original rejected evidence</summary><p className="mt-1 whitespace-pre-wrap">{entry.quote ?? "No quote recorded."}</p></details>
-            </li>;
-            return <li key={`${page ?? "none"}-${index}`} className="rounded border border-slate-200 bg-slate-50 p-2">
-              {entry.quote ?? "No quote recorded."}{page ? ` (page ${page})` : ""}{section ? ` — ${section}` : ""}
-            </li>;
-          })}
+          {evidence.map((item, index) => <li key={`${item.slice(0, 24)}-${index}`} className="rounded border border-slate-200 bg-slate-50 p-2">{item}</li>)}
         </ul>
       )}
     </div>
@@ -81,11 +35,12 @@ function EvidenceList({ label, evidence, rejected = false }: { label: string; ev
 export default async function MarcondesPreValidationReadinessPage({ params }: { params: Promise<{ auditId: string }> }) {
   await params;
   const report = buildMarcondesPreValidationReadinessReport();
+  const presentation = buildMarcondesClientReportPresentation(report);
   const counts = report.executiveSummary.evidenceStateCounts;
   const outcomes = report.executiveSummary.reviewerOutcomeCounts;
-  const missingGaps = report.priorityGaps.filter((gap) => gap.state === "MISSING");
-  const unclearGaps = report.priorityGaps.filter((gap) => gap.state === "UNCLEAR");
-  const otherGaps = report.priorityGaps.filter((gap) => gap.state !== "MISSING" && gap.state !== "UNCLEAR");
+  const missingGaps = presentation.priorityGaps.filter((gap) => gap.category === "Missing evidence");
+  const unclearGaps = presentation.priorityGaps.filter((gap) => gap.category === "Unclear evidence");
+  const otherGaps = presentation.priorityGaps.filter((gap) => gap.category === "Other actions");
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -140,15 +95,18 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
 
         <section aria-labelledby="rule-appendix">
           <h2 id="rule-appendix" className="text-xl font-semibold text-slate-950">Rule-by-rule Appendix ({report.rules.length})</h2>
-          <div className="mt-3 grid gap-3">{report.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
-            <h3 className="font-semibold">{index + 1}. {clientFacingText(rule.displayTitle)}</h3>
-            <p className="mt-2"><strong>Rule ID:</strong> {rule.ruleId.split(".").at(-1)}</p>
-            {methodologyRequirement(rule.displayTitle, rule.displayRequirement) ? <p className="mt-2"><strong>Methodology requirement:</strong> {methodologyRequirement(rule.displayTitle, rule.displayRequirement)}</p> : null}
-            <p className="mt-2"><strong>Evidence state:</strong> {rule.evidenceState}</p>
-            <p className="mt-1"><strong>Reviewer outcome:</strong> {rule.reviewerOutcome}</p>
-            <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} rejected /></div>
-            <p className="mt-3"><strong>Rationale:</strong> {clientFacingText(rule.rationale)}</p>
-            <p className="mt-1"><strong>Recommended action:</strong> {clientFacingText(rule.recommendedAction ?? "None recorded.")}</p>
+          <div className="mt-3 grid gap-3">{presentation.rules.map((rule, index) => <article key={rule.ruleId} className="rounded-xl border border-slate-200 bg-white p-5" data-testid="readiness-rule" data-rule-id={rule.ruleId}>
+            <h3 className="font-semibold">{index + 1}. {rule.title}</h3>
+            <p className="mt-2"><strong>Rule ID</strong><br />{rule.ruleId}</p>
+            <p className="mt-2"><strong>Title</strong><br />{rule.title}</p>
+            {rule.methodologyRequirement ? <p className="mt-2"><strong>Methodology requirement</strong><br />{rule.methodologyRequirement}</p> : null}
+            <p className="mt-2"><strong>Evidence status</strong><br />{rule.evidenceStatus}</p>
+            <p className="mt-2"><strong>Reviewer outcome</strong><br />{rule.reviewerOutcome}</p>
+            <p className="mt-2"><strong>Why it matters</strong><br />{rule.whyItMatters}</p>
+            <p className="mt-2"><strong>Required action</strong><br />{rule.requiredAction}</p>
+            <div className="mt-3 grid gap-3 text-sm"><EvidenceList label="Accepted evidence" evidence={rule.acceptedEvidence} /><EvidenceList label="Rejected evidence" evidence={rule.rejectedEvidence} /></div>
+            <p className="mt-3"><strong>Rationale</strong><br />{rule.rationale}</p>
+            <p className="mt-1"><strong>Recommended action</strong><br />{rule.recommendedAction}</p>
           </article>)}</div>
         </section>
 

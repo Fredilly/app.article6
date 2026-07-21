@@ -1,5 +1,5 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
-import { clientFacingText, methodologyRequirement } from "./marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation } from "./marcondesClientReportPresentation";
 
 const esc = (value: string) => value.replace(/[\\()]/g, (c) => `\\${c}`).replace(/[^\x20-\x7e]/g, "");
 const wrap = (value: string, width = 92) => {
@@ -68,17 +68,16 @@ function assemble(streams: string[]): Buffer {
 
 export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationReadinessReport): Buffer {
   const counts = report.executiveSummary.evidenceStateCounts;
+  const presentation = buildMarcondesClientReportPresentation(report);
   const sections: Array<{ title: string; lines: PdfLine[] }> = [
     { title: "Executive Summary", lines: [textLine(report.executiveSummary.readinessSummary), ...field("Rules reviewed", String(report.executiveSummary.rulesReviewed)), textLine(`FOUND: ${counts.FOUND} | UNCLEAR: ${counts.UNCLEAR} | MISSING: ${counts.MISSING} | N/A: ${counts["N/A"]}`), ...report.executiveSummary.keyLimitations.map((line) => textLine(line))] },
     { title: "Project Overview", lines: [...field("Project", report.project), ...field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
     { title: "Methodology Reconciliation", lines: [...field("Page 61 reference", report.methodologyReview.page61Reference), ...field("Declarations", report.methodologyReview.declarations), ...field("Classification", report.methodologyReview.classification), ...field("Explanation", report.methodologyReview.explanation), ...field("Release blocker", report.methodologyReview.blocker)] },
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([k, v]) => `${k}: ${v}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
-    { title: "Priority Gaps", lines: report.priorityGaps.flatMap((gap) => [textLine(gap.displayRuleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence state", gap.state), ...field("Why it matters", clientFacingText(gap.whyItMatters)), ...field("Required action", clientFacingText(gap.action ?? "Follow-up recorded in the Evidence Map.")), textLine("", { gap: 10 })]) },
+    ...(["Missing evidence", "Unclear evidence", "Other actions"] as const).map((category) => ({ title: category, lines: presentation.priorityGaps.filter((gap) => gap.category === category).flatMap((gap) => [textLine(gap.ruleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence status", gap.evidenceStatus), ...field("Reviewer outcome", gap.reviewerOutcome), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.requiredAction), textLine("", { gap: 10 })]) })),
   ];
-  for (const [index, rule] of report.rules.entries()) {
-    const title = clientFacingText(rule.displayTitle);
-    const requirement = methodologyRequirement(rule.displayTitle, rule.displayRequirement);
-    sections.push({ title: `Rule Appendix ${index + 1} of ${report.rules.length}`, lines: [...field("Rule ID", rule.ruleId.split(".").at(-1) ?? rule.ruleId), ...field("Rule title", title), ...(requirement ? field("Methodology requirement", requirement) : []), ...field("Evidence state", rule.evidenceState), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Rationale", clientFacingText(rule.rationale)), ...field("Recommended action", clientFacingText(rule.recommendedAction ?? "None recorded."))] });
+  for (const [index, rule] of presentation.rules.entries()) {
+    sections.push({ title: `Rule-by-rule Appendix ${index + 1} of ${presentation.rules.length}`, lines: [...field("Rule ID", rule.ruleId), ...field("Title", rule.title), ...(rule.methodologyRequirement ? field("Methodology requirement", rule.methodologyRequirement) : []), ...field("Evidence status", rule.evidenceStatus), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Why it matters", rule.whyItMatters), ...field("Required action", rule.requiredAction), ...field("Accepted evidence", rule.acceptedEvidence.join(" | ")), ...field("Rejected evidence", rule.rejectedEvidence.join(" | ")), ...field("Rationale", rule.rationale), ...field("Recommended action", rule.recommendedAction)] });
   }
   sections.push({ title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), ...field("Release state", report.releaseStatus)] });
   const pages = sections.flatMap((section) => {
