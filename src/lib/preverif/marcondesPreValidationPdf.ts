@@ -30,10 +30,13 @@ function loadFont(fileName: string): FontDefinition {
   if (cmapOffset === undefined || headOffset === undefined || hheaOffset === undefined || hmtxOffset === undefined) throw new Error("Marcondes PDF font tables are incomplete");
   const cmapTables = readUInt16(file, cmapOffset + 2);
   let format4Offset: number | undefined;
+  let format12Offset: number | undefined;
   for (let index = 0; index < cmapTables; index++) {
     const offset = cmapOffset + 4 + index * 8;
     const subtable = cmapOffset + readUInt32(file, offset + 4);
-    if (readUInt16(file, subtable) === 4 && (readUInt16(file, offset) === 3 || readUInt16(file, offset) === 0)) format4Offset = subtable;
+    const format = readUInt16(file, subtable);
+    if (format === 4 && (readUInt16(file, offset) === 3 || readUInt16(file, offset) === 0)) format4Offset = subtable;
+    if (format === 12 && readUInt16(file, offset) === 3) format12Offset = subtable;
   }
   if (format4Offset === undefined) throw new Error("Marcondes PDF font has no BMP cmap");
   const segments = readUInt16(file, format4Offset + 6) / 2;
@@ -41,7 +44,7 @@ function loadFont(fileName: string): FontDefinition {
   const startCodes = endCodes + segments * 2 + 2;
   const deltas = startCodes + segments * 2;
   const ranges = deltas + segments * 2;
-  const glyphFor = (codePoint: number): number => {
+  const glyphForFormat4 = (codePoint: number): number => {
     if (codePoint > 0xffff) return 0;
     for (let segment = 0; segment < segments; segment++) {
       const end = readUInt16(file, endCodes + segment * 2);
@@ -56,6 +59,18 @@ function loadFont(fileName: string): FontDefinition {
     }
     return 0;
   };
+  const glyphForFormat12 = (codePoint: number): number => {
+    if (format12Offset === undefined) return 0;
+    const groups = readUInt32(file, format12Offset + 12);
+    for (let group = 0; group < groups; group++) {
+      const offset = format12Offset + 16 + group * 12;
+      const start = readUInt32(file, offset);
+      const end = readUInt32(file, offset + 4);
+      if (codePoint >= start && codePoint <= end) return readUInt32(file, offset + 8) + codePoint - start;
+    }
+    return 0;
+  };
+  const glyphFor = (codePoint: number): number => glyphForFormat4(codePoint) || glyphForFormat12(codePoint);
   const unitsPerEm = readUInt16(file, headOffset + 18);
   const metricCount = readUInt16(file, hheaOffset + 34);
   const widthFor = (codePoint: number): number => {
@@ -66,15 +81,15 @@ function loadFont(fileName: string): FontDefinition {
   return { file, glyphFor, widthFor };
 }
 
-const regularFont = loadFont("LiberationSans-Regular.ttf");
+const regularFont = loadFont("NotoSans-Regular.ttf");
 const boldFont = loadFont("LiberationSans-Bold.ttf");
 
-function pdfText(value: string): string {
+function pdfText(value: string, font: FontDefinition): string {
   const bytes: string[] = [];
   for (const character of value) {
     const codePoint = character.codePointAt(0) ?? 0;
     if (codePoint > 0xffff) continue;
-    bytes.push(codePoint.toString(16).padStart(4, "0"));
+    bytes.push(font.glyphFor(codePoint).toString(16).padStart(4, "0"));
   }
   return `<${bytes.join("").toUpperCase()}>`;
 }
@@ -111,50 +126,43 @@ function wrapFieldValue(value: string, firstWidth: number, width = 92): string[]
 function textLine(text: string, gap = 13): PdfLine { return { text, gap }; }
 function field(label: string, value: string): PdfLine { return { label, value, gap: 16 }; }
 
-function toUnicodeMap(codePoints: readonly number[]): string {
-  const unique = [...new Set(codePoints)].filter((codePoint) => codePoint <= 0xffff);
-  const entries = unique.map((codePoint) => `<${codePoint.toString(16).padStart(4, "0")}> <${codePoint.toString(16).padStart(4, "0")}>`);
+function toUnicodeMap(font: FontDefinition, codePoints: readonly number[]): string {
+  const glyphs = new Map<number, number>();
+  for (const codePoint of codePoints) if (codePoint <= 0xffff) glyphs.set(font.glyphFor(codePoint), codePoint);
+  const entries = [...glyphs].filter(([glyph]) => glyph > 0).map(([glyph, codePoint]) => `<${glyph.toString(16).padStart(4, "0")}> <${codePoint.toString(16).padStart(4, "0")}>`);
   const blocks: string[] = [];
   for (let index = 0; index < entries.length; index += 100) blocks.push(`${Math.min(100, entries.length - index)} beginbfchar\n${entries.slice(index, index + 100).join("\n")}\nendbfchar`);
   return `/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /MarcondesUnicode def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n${blocks.join("\n")}\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend`;
 }
 
-function cidToGidMap(font: FontDefinition, codePoints: readonly number[]): Buffer {
-  const map = Buffer.alloc(65536 * 2);
-  for (const codePoint of codePoints) if (codePoint <= 0xffff) map.writeUInt16BE(font.glyphFor(codePoint), codePoint * 2);
-  return map;
-}
-
 function fontObjects(font: FontDefinition, name: string, codePoints: readonly number[], startId: number): { objects: PdfObject[]; id: number } {
   const fileId = startId;
   const descriptorId = startId + 1;
-  const cidMapId = startId + 2;
-  const cidFontId = startId + 3;
-  const toUnicodeId = startId + 4;
-  const type0Id = startId + 5;
-  const widths = [...new Set(codePoints)].filter((codePoint) => codePoint <= 0xffff).map((codePoint) => `${codePoint} [${font.widthFor(codePoint)}]`).join(" ");
+  const cidFontId = startId + 2;
+  const toUnicodeId = startId + 3;
+  const type0Id = startId + 4;
+  const widths = [...new Set(codePoints)].filter((codePoint) => codePoint <= 0xffff).map((codePoint) => [font.glyphFor(codePoint), font.widthFor(codePoint)] as const).filter(([glyph]) => glyph > 0).sort(([left], [right]) => left - right).map(([glyph, width]) => `${glyph} [${width}]`).join(" ");
   return {
     id: type0Id,
     objects: [
       `<< /Length ${font.file.length} /Length1 ${font.file.length} >>\nstream\n`,
       `<< /Type /FontDescriptor /FontName /${name} /Flags 32 /FontBBox [0 -300 2000 1000] /ItalicAngle 0 /Ascent 905 /Descent -211 /CapHeight 700 /StemV 80 /FontFile2 ${fileId} 0 R >>`,
-      `<< /Length 131072 >>\nstream\n`,
-      `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${name} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorId} 0 R /DW 600 /W [${widths}] /CIDToGIDMap ${cidMapId} 0 R >>`,
-      `<< /Length ${Buffer.byteLength(toUnicodeMap(codePoints), "ascii")} >>\nstream\n${toUnicodeMap(codePoints)}\nendstream`,
+      `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${name} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorId} 0 R /DW 600 /W [${widths}] /CIDToGIDMap /Identity >>`,
+      `<< /Length ${Buffer.byteLength(toUnicodeMap(font, codePoints), "ascii")} >>\nstream\n${toUnicodeMap(font, codePoints)}\nendstream`,
       `<< /Type /Font /Subtype /Type0 /BaseFont /${name} /Encoding /Identity-H /DescendantFonts [${cidFontId} 0 R] /ToUnicode ${toUnicodeId} 0 R >>`,
-    ].map((object, index) => index === 0 ? Buffer.concat([Buffer.from(object, "ascii"), font.file, Buffer.from("\nendstream", "ascii")]) : index === 2 ? Buffer.concat([Buffer.from(object, "ascii"), cidToGidMap(font, codePoints), Buffer.from("\nendstream", "ascii")]) : object),
+    ].map((object, index) => index === 0 ? Buffer.concat([Buffer.from(object, "ascii"), font.file, Buffer.from("\nendstream", "ascii")]) : object),
   };
 }
 
 function renderPage(title: string, lines: PdfLine[]): string {
-  const content = ["BT", "/F2 18 Tf", "50 742 Td", `${pdfText(title)} Tj`, "/F1 9 Tf", "0 -28 Td"];
+  const content = ["BT", "/F2 18 Tf", "50 742 Td", `${pdfText(title, boldFont)} Tj`, "/F1 9 Tf", "0 -28 Td"];
   for (const line of lines) {
     if (line.label) {
       const valueLines = wrapFieldValue(line.value ?? "", Math.max(20, 92 - line.label.length - 2));
-      content.push("/F2 9 Tf", `${pdfText(`${line.label}:`)} Tj`, "/F1 9 Tf", `${pdfText(` ${valueLines[0]}`)} Tj`, `0 -${valueLines.length === 1 ? line.gap ?? 16 : 13} Td`);
-      for (const valueLine of valueLines.slice(1)) content.push(`${pdfText(valueLine)} Tj`, "0 -13 Td");
+      content.push("/F2 9 Tf", `${pdfText(`${line.label}:`, boldFont)} Tj`, "/F1 9 Tf", `${pdfText(` ${valueLines[0]}`, regularFont)} Tj`, `0 -${valueLines.length === 1 ? line.gap ?? 16 : 13} Td`);
+      for (const valueLine of valueLines.slice(1)) content.push(`${pdfText(valueLine, regularFont)} Tj`, "0 -13 Td");
     } else {
-      for (const text of wrap(line.text ?? "")) content.push(`${pdfText(text)} Tj`, `0 -${line.gap ?? 13} Td`);
+      for (const text of wrap(line.text ?? "")) content.push(`${pdfText(text, regularFont)} Tj`, `0 -${line.gap ?? 13} Td`);
     }
   }
   content.push("ET");
@@ -177,7 +185,7 @@ function sectionPages(title: string, lines: PdfLine[]): string[] {
 
 function assemble(streams: string[], codePoints: readonly number[]): Buffer {
   const pageObjectCount = streams.length * 2;
-  const regular = fontObjects(regularFont, "LiberationSans", codePoints, 3 + pageObjectCount);
+  const regular = fontObjects(regularFont, "NotoSans", codePoints, 3 + pageObjectCount);
   const bold = fontObjects(boldFont, "LiberationSans-Bold", codePoints, 3 + pageObjectCount + regular.objects.length);
   const objects: PdfObject[] = ["<< /Type /Catalog /Pages 2 0 R >>", `<< /Type /Pages /Kids [${streams.map((_, index) => `${3 + index * 2} 0 R`).join(" ")}] /Count ${streams.length} >>`];
   streams.forEach((stream, index) => {
@@ -198,7 +206,7 @@ function assemble(streams: string[], codePoints: readonly number[]): Buffer {
 
 export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationReadinessReport): Buffer {
   const counts = report.executiveSummary.evidenceStateCounts;
-  const presentation = buildMarcondesClientReportPresentation(report);
+  const presentation = buildMarcondesPreValidationPdfPresentation(report);
   const priorityGaps = ["MISSING", "UNCLEAR", "OTHER"].flatMap((state) => report.priorityGaps.filter((gap) => state === "OTHER" ? gap.state !== "MISSING" && gap.state !== "UNCLEAR" : gap.state === state));
   const sections: Array<{ title: string; lines: PdfLine[] }> = [
     { title: report.title, lines: [textLine("Internal Release Candidate"), textLine(`${report.project} | ${report.methodology}`), textLine(report.releaseStatus)] },
@@ -211,6 +219,11 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
     { title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), field("Release state", report.releaseStatus)] },
   ];
   const streams = sections.flatMap((section) => sectionPages(section.title, section.lines));
-  const codePoints = [...new Set(streams.flatMap((stream) => [...stream].map((character) => character.codePointAt(0) ?? 0)))];
+  const sourceText = sections.flatMap((section) => [section.title, ...section.lines.flatMap((line) => [line.label ?? "", line.value ?? line.text ?? ""])]).join("\n");
+  const codePoints = [...new Set([...sourceText].map((character) => character.codePointAt(0) ?? 0))];
   return assemble(streams, codePoints);
+}
+
+export function buildMarcondesPreValidationPdfPresentation(report: MarcondesPreValidationReadinessReport) {
+  return buildMarcondesClientReportPresentation(report);
 }
