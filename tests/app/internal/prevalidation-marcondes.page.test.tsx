@@ -61,4 +61,21 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(report.rules.map((rule) => rule.acceptedEvidence)).toEqual(gold.rows.map((row: { acceptedEvidence: unknown[] }) => row.acceptedEvidence));
     expect(report.rules.map((rule) => rule.rejectedEvidence)).toEqual(gold.rows.map((row: { rejectedEvidence: unknown[] }) => row.rejectedEvidence));
   });
+
+  it("separates why-it-matters text from required action when the frozen wording duplicates", async () => {
+    const html = renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) }));
+    const gold = JSON.parse(fs.readFileSync(path.join(fixtureDir, "gold.json"), "utf8"));
+    const duplicateRows = gold.rows.filter((row: { reviewerOutcome: string; reviewerCorrection?: { correction?: string }; clientAction?: string }) => {
+      if (row.reviewerOutcome !== "ACTION_REQUIRED" || !row.clientAction) return false;
+      const rationale = row.reviewerCorrection?.correction ?? "";
+      return rationale.trim().toLowerCase() === row.clientAction.trim().toLowerCase();
+    });
+    expect(duplicateRows.length).toBeGreaterThan(0);
+    for (const row of duplicateRows) {
+      expect(html).toContain(`Required action:</strong> ${row.clientAction}`);
+      expect(html).not.toContain(`Why it matters:</strong> ${row.clientAction}`);
+    }
+    expect(html).toContain("The reviewed record for");
+    expect(html).toContain("is marked MISSING, so project-specific support is not yet available for this requirement.");
+  });
 });
