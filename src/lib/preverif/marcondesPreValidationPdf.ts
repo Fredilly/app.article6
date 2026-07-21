@@ -16,29 +16,34 @@ const wrap = (value: string, width = 92) => {
 };
 
 type PdfLine = { text: string; font?: "regular" | "bold"; size?: number; gap?: number };
+type DrawLine = { text: string; font: "regular" | "bold"; size: number; advance: number };
 
 function textLine(text: string, options: Omit<PdfLine, "text"> = {}): PdfLine {
   return { text, ...options };
 }
 
 const field = (label: string, value: string): PdfLine[] => [
-  textLine(label, { font: "bold", size: 10, gap: 2 }),
-  textLine(value, { size: 10, gap: 12 }),
+  textLine(label, { font: "bold", size: 10, gap: 14 }),
+  textLine(value, { size: 10, gap: 16 }),
 ];
 
-function page(reportTitle: string, pageNumber: number, totalPages: number, title: string, lines: PdfLine[], cover = false): string {
-  const content = ["BT", "/F2 8 Tf", "50 770 Td", `(${esc(reportTitle)}) Tj`, "/F1 8 Tf", "0 -12 Td", "(Internal Release Candidate) Tj"];
+function expandLines(lines: PdfLine[]): DrawLine[] {
+  return lines.flatMap((item) => wrap(item.text).map((text) => ({ text, font: item.font ?? "regular", size: item.size ?? 10, advance: item.gap ?? 13 })));
+}
+
+function page(reportTitle: string, pageNumber: number, totalPages: number, title: string, lines: DrawLine[], cover = false): string {
+  const content = ["BT", "/F2 8 Tf", `1 0 0 1 50 770 Tm`, `(${esc(reportTitle)}) Tj`, "/F1 8 Tf", `1 0 0 1 50 758 Tm`, "(Internal Release Candidate) Tj"];
   if (cover) {
-    content.push("/F2 22 Tf", "0 -50 Td", `(${esc("Marcondes REDD+")}) Tj`, "/F2 16 Tf", "0 -28 Td", `(${esc("VM0007 v1.8")}) Tj`, "/F2 19 Tf", "0 -34 Td", `(${esc("Pre-Validation Readiness Review")}) Tj`, "/F1 11 Tf", "0 -34 Td", `(${esc("Prepared from reviewed Evidence Map")}) Tj`, "/F2 11 Tf", "0 -42 Td", `(${esc(lines[0]?.text ?? "")}) Tj`);
+    content.push("/F2 22 Tf", `1 0 0 1 50 650 Tm`, `(${esc("Marcondes REDD+")}) Tj`, "/F2 16 Tf", `1 0 0 1 50 610 Tm`, `(${esc("VM0007 v1.8")}) Tj`, "/F2 19 Tf", `1 0 0 1 50 565 Tm`, `(${esc("Pre-Validation Readiness Review")}) Tj`, "/F1 11 Tf", `1 0 0 1 50 520 Tm`, `(${esc("Prepared from reviewed Evidence Map")}) Tj`, "/F2 11 Tf", `1 0 0 1 50 460 Tm`, `(${esc(lines[0]?.text ?? "")}) Tj`);
   } else {
-    content.push("/F2 17 Tf", "0 -38 Td", `(${esc(title)}) Tj`, "/F1 10 Tf", "0 -25 Td");
+    content.push("/F2 17 Tf", `1 0 0 1 50 720 Tm`, `(${esc(title)}) Tj`);
+    let y = 688;
     for (const item of lines) {
-      for (const wrapped of wrap(item.text)) {
-        content.push(item.font === "bold" ? "/F2 10 Tf" : `/F1 ${item.size ?? 10} Tf`, `(${esc(wrapped)}) Tj`, `0 -${item.gap ?? 13} Td`);
-      }
+      content.push(item.font === "bold" ? "/F2 10 Tf" : `/F1 ${item.size} Tf`, `1 0 0 1 50 ${y} Tm`, `(${esc(item.text)}) Tj`);
+      y -= item.advance;
     }
   }
-  content.push("/F1 8 Tf", "50 -730 Td", `(${esc(`${reportTitle} | Page ${pageNumber} of ${totalPages}`)}) Tj`, "ET");
+  content.push("/F1 8 Tf", `1 0 0 1 50 28 Tm`, `(${esc(`${reportTitle} | Page ${pageNumber} of ${totalPages}`)}) Tj`, "ET");
   return content.join("\n");
 }
 
@@ -67,11 +72,28 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
     { title: "Project Overview", lines: [...field("Project", report.project), ...field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
     { title: "Methodology Reconciliation", lines: [...field("Page 61 reference", report.methodologyReview.page61Reference), ...field("Declarations", report.methodologyReview.declarations), ...field("Classification", report.methodologyReview.classification), ...field("Explanation", report.methodologyReview.explanation), ...field("Release blocker", report.methodologyReview.blocker)] },
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([k, v]) => `${k}: ${v}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
-    { title: "Priority Gaps", lines: report.priorityGaps.flatMap((gap) => [textLine(gap.displayRuleId, { font: "bold", size: 11, gap: 3 }), textLine(gap.title, { font: "bold", gap: 3 }), ...field("Evidence state", gap.state), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.action ?? "Follow-up recorded in the Evidence Map."), textLine("", { gap: 8 })]) },
+    { title: "Priority Gaps", lines: report.priorityGaps.flatMap((gap) => [textLine(gap.displayRuleId, { font: "bold", size: 11, gap: 14 }), textLine(gap.title, { font: "bold", gap: 16 }), ...field("Evidence state", gap.state), ...field("Why it matters", gap.whyItMatters), ...field("Required action", gap.action ?? "Follow-up recorded in the Evidence Map."), textLine("", { gap: 10 })]) },
   ];
   for (const [index, rule] of report.rules.entries()) sections.push({ title: `Rule Appendix ${index + 1} of ${report.rules.length}`, lines: [...field("Rule ID", rule.ruleId), ...field("Rule title", rule.displayTitle), ...field("Requirement", rule.displayRequirement), ...field("Evidence state", rule.evidenceState), ...field("Reviewer outcome", rule.reviewerOutcome), ...field("Rationale", rule.rationale), ...field("Recommended action", rule.recommendedAction ?? "None recorded.")] });
   sections.push({ title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), ...field("Release state", report.releaseStatus)] });
-  const totalPages = sections.length + 1;
-  const streams = [page(report.title, 1, totalPages, "", [textLine(`Release status: ${report.releaseStatus}`)], true), ...sections.map((section, index) => page(report.title, index + 2, totalPages, section.title, section.lines))];
+  const pages = sections.flatMap((section) => {
+    const lines = expandLines(section.lines);
+    const chunks: DrawLine[][] = [];
+    let chunk: DrawLine[] = [];
+    let height = 0;
+    for (const line of lines) {
+      if (chunk.length > 0 && height + line.advance > 650) {
+        chunks.push(chunk);
+        chunk = [];
+        height = 0;
+      }
+      chunk.push(line);
+      height += line.advance;
+    }
+    if (chunk.length > 0 || chunks.length === 0) chunks.push(chunk);
+    return chunks.map((chunkLines, index) => ({ title: index === 0 ? section.title : `${section.title} (continued)`, lines: chunkLines }));
+  });
+  const totalPages = pages.length + 1;
+  const streams = [page(report.title, 1, totalPages, "", expandLines([textLine(`Release status: ${report.releaseStatus}`)]), true), ...pages.map((section, index) => page(report.title, index + 2, totalPages, section.title, section.lines))];
   return assemble(streams);
 }

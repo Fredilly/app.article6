@@ -8,7 +8,10 @@ describe("Marcondes pre-validation readiness PDF", () => {
     expect(pdf).toContain("%PDF-1.4");
     expect(pdf).toContain("Marcondes REDD+");
     expect(pdf).toContain("Prepared from reviewed Evidence Map");
-    expect(pdf).toContain("Page 1 of 65");
+    expect(pdf).toMatch(/Page 1 of \d+/);
+    const yPositions = [...pdf.matchAll(/1 0 0 1 50 (-?\d+) Tm/g)].map((match) => Number(match[1]));
+    expect(yPositions.length).toBeGreaterThan(100);
+    expect(yPositions.every((y) => y >= 28 && y <= 770)).toBe(true);
     expect(pdf).toContain("FOUND: 6 | UNCLEAR: 21 | MISSING: 9 | N/A: 22");
     expect(pdf).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect(pdf).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
