@@ -90,6 +90,7 @@ function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
   const title = clientFacingText(rule.displayTitle);
   const requirement = methodologyRequirement(rule.displayTitle, rule.displayRequirement);
   const rationale = clientFacingText(rule.rationale);
+  const requiredAction = clientFacingText(rule.recommendedAction ?? "None recorded.");
   return {
     ruleId: rule.ruleId.split(".").at(-1) ?? rule.ruleId,
     title,
@@ -97,7 +98,7 @@ function clientRule(rule: MarcondesReadinessRule): ClientRulePresentation {
     evidenceStatus: rule.evidenceState,
     reviewerOutcome: rule.reviewerOutcome,
     whyItMatters: rationale,
-    requiredAction: recommendedAction,
+    requiredAction,
     acceptedEvidence: rule.acceptedEvidence.map((item) => evidenceText(item, false)),
     rejectedEvidence: rule.rejectedEvidence.map((item) => evidenceText(item, true)),
     rationale,
