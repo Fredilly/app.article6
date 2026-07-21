@@ -8,6 +8,7 @@ import {
   VM0007_EVIDENCE_MAP_DRAFT_EVENT,
 } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import type { EvidenceMapGenerationError } from "@/lib/preverif/evidenceMapGenerationError";
 
 type Vm0007GapReportLaunchButtonProps = {
   isVm0007Result: boolean;
@@ -15,7 +16,7 @@ type Vm0007GapReportLaunchButtonProps = {
   projectId?: string | null;
   title?: string;
   onGenerate?: (() => void) | null;
-  generationError?: string | null;
+  generationError?: EvidenceMapGenerationError | null;
   generating?: boolean;
   generateDisabled?: boolean;
   testId?: string;
@@ -68,7 +69,12 @@ export default function Vm0007GapReportLaunchButton({
         </>
       ) : onGenerate ? (
         <>
-          {generationError ? <div className="mt-2 text-sm text-amber-800">{generationError}</div> : null}
+          {generationError ? (
+            <div className="mt-2 text-sm text-amber-800" role="alert" data-testid="evidence-map-generation-error">
+              <strong className="font-semibold">{generationError.category.replaceAll("_", " ")}</strong>
+              <span className="ml-2">{generationError.userMessage}</span>
+            </div>
+          ) : null}
           <div className="mt-2 text-sm text-slate-600">
             Create a machine-proposed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.
           </div>

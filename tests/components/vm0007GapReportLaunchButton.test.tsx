@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import Vm0007GapReportLaunchButton from "@/components/preverif/Vm0007GapReportLaunchButton";
 import { saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import type { Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import { createEvidenceMapGenerationError } from "@/lib/preverif/evidenceMapGenerationError";
 
 describe("Vm0007GapReportLaunchButton", () => {
   let container: HTMLDivElement;
@@ -77,12 +78,13 @@ describe("Vm0007GapReportLaunchButton", () => {
           isVm0007Result
           auditId="stale-audit"
           onGenerate={onGenerate}
-          generationError="Evidence Map requires a PDD that declares VM0007 v1.8."
+          generationError={createEvidenceMapGenerationError("METHODOLOGY_ERROR", "pdd_declared_version_mismatch")}
         />,
       );
     });
     expect(container.querySelector("a")).toBeNull();
-    expect(container.textContent).toContain("Evidence Map requires a PDD that declares VM0007 v1.8.");
+    expect(container.textContent).toContain("METHODOLOGY ERROR");
+    expect(container.textContent).toContain("methodology or version could not be confirmed");
     expect(container.textContent).toContain("Retry Evidence Map");
     container.querySelector("button")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onGenerate).toHaveBeenCalledTimes(1);

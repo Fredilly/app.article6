@@ -92,6 +92,10 @@ import { buildMethodologyVersionLock } from "@/lib/preverif/evidenceAudit";
 import {
   buildAndSaveVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
+import {
+  classifyEvidenceMapGenerationError,
+  type EvidenceMapGenerationError,
+} from "@/lib/preverif/evidenceMapGenerationError";
 
 type MethodInventoryRecord = {
   code: string;
@@ -664,26 +668,8 @@ function joinMethodologyLabels(values: string[]): string {
   return values.join(", ");
 }
 
-export function mapVm0007EvidenceMapGenerationError(blockedBy: readonly string[]): string {
-  if (blockedBy.some((reason) => reason === "methodology_id_mismatch" || reason === "rulebook_version_mismatch")) {
-    return "Evidence Map requires the VM0007 v1.8 methodology version.";
-  }
-  if (blockedBy.includes("pdd_declared_version_mismatch")) {
-    return "Evidence Map requires a PDD that declares VM0007 v1.8.";
-  }
-  if (blockedBy.includes("audit_not_successfully_audited")) {
-    return "The VM0007 evidence audit was not successfully completed.";
-  }
-  if (blockedBy.includes("canonical_rule_count_is_not_58")) {
-    return "Evidence Map requires all 58 canonical VM0007 requirements.";
-  }
-  if (blockedBy.some((reason) => ["missing_rule_ids", "duplicate_rule_ids", "unknown_rule_ids", "duplicate_canonical_rule_ids"].includes(reason))) {
-    return "Evidence Map could not match the complete set of 58 VM0007 requirements.";
-  }
-  if (blockedBy.some((reason) => reason.includes("persistence") || reason.includes("validation"))) {
-    return "Evidence Map draft could not be validated or saved. You can retry.";
-  }
-  return "Evidence Map could not be created. You can retry.";
+export function mapVm0007EvidenceMapGenerationError(blockedBy: readonly string[]): EvidenceMapGenerationError {
+  return classifyEvidenceMapGenerationError({ blockedBy });
 }
 
 export default function QuickCheckPanel({ initialMethod, initialVersion, onContinueToWorkspace, fixtureContract }: QuickCheckPanelProps) {
@@ -713,7 +699,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   const [evidenceCheckResults, setEvidenceCheckResults] = useState<StructuredEvidenceCheckResult[]>([]);
   const [runningEvidenceChecks, setRunningEvidenceChecks] = useState(false);
   const [uploadVm0007GapReportAuditId, setUploadVm0007GapReportAuditId] = useState<string | null>(null);
-  const [uploadVm0007GenerationError, setUploadVm0007GenerationError] = useState<string | null>(null);
+  const [uploadVm0007GenerationError, setUploadVm0007GenerationError] = useState<EvidenceMapGenerationError | null>(null);
   const [generatingUploadVm0007GapReport, setGeneratingUploadVm0007GapReport] = useState(false);
   const [selectedHeading, setSelectedHeading] = useState<DocumentHeading | null>(null);
   const [validatedResultKey, setValidatedResultKey] = useState<string | null>(null);
@@ -1297,12 +1283,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         rules,
       });
       if (!savedAudit || !savedAudit.draftSaved || !savedAudit.auditId) {
-        setUploadVm0007GenerationError(mapVm0007EvidenceMapGenerationError(savedAudit?.blockedBy ?? ["draft_persistence_failed"]));
+        setUploadVm0007GenerationError(savedAudit?.error ?? mapVm0007EvidenceMapGenerationError(savedAudit?.blockedBy ?? ["draft_persistence_failed"]));
         return;
       }
       setUploadVm0007GapReportAuditId(savedAudit.auditId);
-    } catch {
-      setUploadVm0007GenerationError("Evidence Map could not be created. You can retry.");
+    } catch (error) {
+      setUploadVm0007GenerationError(classifyEvidenceMapGenerationError({ error }));
     } finally {
       setGeneratingUploadVm0007GapReport(false);
     }

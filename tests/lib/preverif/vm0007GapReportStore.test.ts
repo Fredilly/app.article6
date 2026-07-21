@@ -20,6 +20,31 @@ const rawPddText = readQuickCheckFixtureText(
 afterEach(() => window.localStorage.clear());
 
 describe("VM0007 uploaded PDF source identity propagation", () => {
+  test("returns a structured validation error when draft generation is blocked", () => {
+    const audit = {
+      auditId: "audit-failure",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1.8",
+      loadedRulebookId: "VM0007",
+      loadedRulebookVersion: "v1.8",
+      methodology: null,
+      generatedAt: "2026-07-01T00:00:00Z",
+      audit: {} as never,
+    };
+    const result = completeVm0007EvidenceMapGeneration({
+      audit,
+      auditSaved: true,
+      draft: { ok: false, blockedBy: ["canonical_rule_count_is_not_58"] },
+    });
+
+    expect(result.error).toEqual({
+      category: "VALIDATION_ERROR",
+      userMessage: "Evidence Map requires all 58 canonical VM0007 requirements.",
+      technicalMessage: "canonical_rule_count_is_not_58",
+    });
+    expect(result.error?.technicalMessage).not.toContain("Error:");
+  });
+
   test("persists the SHA-256 of uploaded bytes through audit and Evidence Map package", async () => {
     const uploadedPdfBytes = new TextEncoder().encode(
       "original uploaded PDF bytes",
