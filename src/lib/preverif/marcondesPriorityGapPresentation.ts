@@ -21,7 +21,7 @@ type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][n
 function clientFacingRationale(rationale: string): string {
   return rationale.replace(
     /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
-    "The reviewer validated and corrected the machine proposal using PDF-backed project evidence. ",
+    "The reviewer validated the assessment against the VM0007 requirement using PDF-backed project evidence. ",
   );
 }
 

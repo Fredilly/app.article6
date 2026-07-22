@@ -26,8 +26,8 @@ describe("Marcondes client presentation model", () => {
   });
 
   it("uses the shared client wording for priority-gap rationale prefixes", () => {
-    const source = "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0004 with PDF-backed evidence. The available project evidence is incomplete.";
-    expect(clientFacingText(source)).toBe("The reviewed evidence was assessed against the methodology requirement. The available project evidence is incomplete.");
+    const source = "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0004 with PDF-backed evidence. The reviewer validated and corrected the machine proposal using PDF-backed project evidence. The available project evidence is incomplete.";
+    expect(clientFacingText(source)).toBe("The reviewed evidence was assessed against the methodology requirement. The reviewer validated and corrected the reviewed project evidence using PDF-backed project evidence. The available project evidence is incomplete.");
     expect(buildMarcondesClientReportPresentation(buildMarcondesPreValidationReadinessReport()).priorityGaps.every((gap) => !gap.whyItMatters.startsWith("Manual review replaced the machine-selected"))).toBe(true);
   });
 });

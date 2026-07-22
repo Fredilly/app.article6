@@ -50,7 +50,7 @@ describe("Vm0007GapReportLaunchButton", () => {
       root.render(<Vm0007GapReportLaunchButton isVm0007Result auditId={null} onGenerate={jest.fn()} />);
     });
     expect(container.textContent).toContain("Generate Evidence Map");
-    expect(container.textContent).toContain("Create a machine-proposed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.");
+    expect(container.textContent).toContain("Create a reviewed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.");
   });
 
   test("shows Open Evidence Map only after a valid draft is saved", async () => {
