@@ -45,7 +45,9 @@ export function clientFacingText(value: string): string {
     .replace(/replaced with/gi, "updated to use")
     .replace(/re-adjudication/gi, "assessment review")
     .replace(/blind audit confirms UNCLEAR\/ACTION_REQUIRED/gi, "assessment confirms UNCLEAR/ACTION_REQUIRED")
-    .replace(/blind audit/gi, "reviewed assessment");
+    .replace(/blind audit/gi, "reviewed assessment")
+    .replace(/BLOCKED_PENDING_VERSION_RECONCILIATION/g, "Methodology reference requires reconciliation before release.")
+    .replace(/DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE/g, "Document inconsistency caused by outdated reference.");
 }
 
 function clientPriorityGap(gap: MarcondesPreValidationReadinessReport["priorityGaps"][number]): ClientPriorityGapPresentation {
@@ -62,7 +64,7 @@ function evidenceText(item: unknown, rejected: boolean): string {
   const entry = item as { quote?: string; page?: number; section?: string; rejectionReason?: string; provenance?: { docId?: string; page?: number; sectionHeading?: string } };
   const page = entry.page ?? entry.provenance?.page;
   const section = entry.section ?? entry.provenance?.sectionHeading;
-  const source = entry.provenance?.docId;
+  const source = entry.provenance?.docId === "quick-check-review-question" ? "PDD" : entry.provenance?.docId;
   const location = [source, page ? `page ${page}` : undefined, section].filter(Boolean).join(", ");
   const reason = rejected && entry.rejectionReason ? `Reason rejected: ${clientFacingText(entry.rejectionReason)}. ` : "";
   return `${location ? `${location}: ` : ""}${reason}${clientFacingText(entry.quote ?? "")}`;

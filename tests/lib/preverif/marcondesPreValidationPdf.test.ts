@@ -36,8 +36,10 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const pdfText = decodePdfText(pdf);
     expect(pdf).toContain("%PDF-1.4");
     expect(pdfText).toContain("FOUND: 6 | UNCLEAR: 21 | MISSING: 9 | N/A: 22");
-    expect(pdfText).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
-    expect(pdfText).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(pdfText).not.toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(pdfText).not.toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(pdfText).toContain("Methodology reference requires reconciliation before release.");
+    expect(pdfText).toContain("Document inconsistency caused by outdated reference.");
     expect((pdfText.match(/Rule Appendix \d+ of 58(?! \(continued\))/g) ?? []).length).toBe(58);
     expect(pdfText).toContain("Methodology Reconciliation");
     expect(pdfText).toContain("Disclaimer");

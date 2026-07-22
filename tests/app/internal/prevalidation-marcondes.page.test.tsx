@@ -21,8 +21,10 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(html).toContain("22");
     expect(html).toContain("VM0007 v1.7");
     expect(html).toContain("Tables 30 and 31 declare VM0007 v1.8");
-    expect(html).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
-    expect(html).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(html).not.toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(html).not.toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(html).toContain("Document inconsistency caused by outdated reference.");
+    expect(html).toContain("Methodology reference requires reconciliation before release.");
     expect((html.match(/data-testid=\"readiness-rule\"/g) ?? []).length).toBe(58);
     expect(html).not.toContain("Manual review replaced");
     expect(html).not.toContain("machine-selected evidence");

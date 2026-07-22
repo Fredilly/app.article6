@@ -30,4 +30,16 @@ describe("Marcondes client presentation model", () => {
     expect(clientFacingText(source)).toBe("The available project evidence is incomplete and does not support CONFORMS. The reviewer validated and corrected the reviewed project evidence using PDF-backed project evidence. The assessment confirms UNCLEAR/ACTION_REQUIRED. The available project evidence is incomplete.");
     expect(buildMarcondesClientReportPresentation(buildMarcondesPreValidationReadinessReport()).priorityGaps.every((gap) => !gap.whyItMatters.startsWith("Manual review replaced the machine-selected"))).toBe(true);
   });
+
+  it("maps internal evidence sources and classifications only in client presentation", () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    const presentation = buildMarcondesClientReportPresentation(report);
+    const fields = presentation.rules.flatMap(clientRuleFields).map((field) => field.value).join(" | ");
+    expect(fields).not.toContain("quick-check-review-question");
+    expect(fields).toContain("PDD, page");
+    expect(presentation.rules).toHaveLength(58);
+    expect(presentation.rules.map((rule) => rule.ruleId)).toEqual(report.rules.map((rule) => rule.ruleId.split(".").at(-1)));
+    expect(presentation.rules.map((rule) => rule.evidenceStatus)).toEqual(report.rules.map((rule) => rule.evidenceState));
+    expect(presentation.rules.map((rule) => rule.reviewerOutcome)).toEqual(report.rules.map((rule) => rule.reviewerOutcome));
+  });
 });
