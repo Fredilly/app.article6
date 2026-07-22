@@ -76,10 +76,13 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const presentation = buildMarcondesClientReportPresentation(report);
     const pdfPresentation = buildMarcondesPreValidationPdfPresentation(report);
     const html = visibleHtmlText(renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) })));
+    const pdfText = decodePdfText(buildMarcondesPreValidationPdf(report).toString("latin1"));
+    const normalizedPdfText = pdfText.replace(/\s+/g, " ");
     expect(pdfPresentation.priorityGaps).toEqual(presentation.priorityGaps);
     for (const gap of presentation.priorityGaps) {
       for (const [label, value] of [["Rule ID", gap.ruleId], ["Title", gap.title], ["Evidence status", gap.evidenceStatus], ["Why it matters", gap.whyItMatters], ["Required action", gap.requiredAction]] as const) {
         expect(html).toContain(`${label}: ${value}`);
+        expect(normalizedPdfText).toContain(`${label}: ${value}`.replace(/\s+/g, " "));
       }
     }
     expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The reviewed evidence was assessed against the methodology requirement."))).toBe(true);
