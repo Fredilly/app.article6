@@ -18,7 +18,7 @@ export type MarcondesPreValidationReadinessReport = {
   title: string;
   project: "Marcondes REDD+";
   methodology: "VM0007 v1.8";
-  status: "Internal Release Candidate";
+  status: "Client Review Candidate";
   releaseStatus: string;
   executiveSummary: {
     rulesReviewed: number;
@@ -71,7 +71,7 @@ export function buildMarcondesPreValidationReadinessReport(): MarcondesPreValida
     title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report",
     project: "Marcondes REDD+",
     methodology: "VM0007 v1.8",
-    status: "Internal Release Candidate",
+    status: "Client Review Candidate",
     releaseStatus: release.reportReleaseState,
     executiveSummary: {
       rulesReviewed: metadata.review.reviewedRowCount,

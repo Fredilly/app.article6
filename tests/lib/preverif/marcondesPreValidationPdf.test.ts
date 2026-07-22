@@ -36,8 +36,10 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const pdfText = decodePdfText(pdf);
     expect(pdf).toContain("%PDF-1.4");
     expect(pdfText).toContain("FOUND: 6 | UNCLEAR: 21 | MISSING: 9 | N/A: 22");
-    expect(pdfText).toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
-    expect(pdfText).toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(pdfText).not.toContain("BLOCKED_PENDING_VERSION_RECONCILIATION");
+    expect(pdfText).not.toContain("DOCUMENT_INCONSISTENCY_OUTDATED_REFERENCE");
+    expect(pdfText).toContain("Methodology reference requires reconciliation before release.");
+    expect(pdfText).toContain("Document inconsistency caused by outdated reference.");
     expect((pdfText.match(/Rule Appendix \d+ of 58(?! \(continued\))/g) ?? []).length).toBe(58);
     expect(pdfText).toContain("Methodology Reconciliation");
     expect(pdfText).toContain("Disclaimer");
@@ -52,7 +54,9 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const forbidden = /\b(?:report|project|readiness|review|conclusion)\s+(?:is\s+)?(?:verified|validated|approved|certified)\b|\bready for verification\b/;
     expect(reportText).not.toMatch(forbidden);
     expect(pdf).not.toMatch(forbidden);
-    expect(pdf).toContain("internal release candidate");
+    expect(pdf).not.toContain("blind audit");
+    expect(pdf).not.toContain("internal release candidate");
+    expect(pdf).toContain("independent pre-validation readiness review for client assessment");
     expect(pdf).toContain("release blocker");
   });
 
@@ -61,6 +65,8 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const presentation = buildMarcondesClientReportPresentation(report);
     const html = visibleHtmlText(renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) })));
     const pdfText = decodePdfText(buildMarcondesPreValidationPdf(report).toString("latin1"));
+    expect(visibleHtmlText(html).toLowerCase()).not.toContain("blind audit");
+    expect(pdfText.toLowerCase()).not.toContain("blind audit");
     expect(presentation.rules).toHaveLength(58);
     expect(buildMarcondesPreValidationPdfPresentation(report)).toEqual(presentation);
     for (const rule of presentation.rules) for (const field of clientRuleFields(rule)) {
@@ -85,7 +91,7 @@ describe("Marcondes pre-validation readiness PDF", () => {
         expect(normalizedPdfText).toContain(`${label}: ${value}`.replace(/\s+/g, " "));
       }
     }
-    expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The reviewed evidence was assessed against the methodology requirement."))).toBe(true);
+    expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The available project evidence is incomplete and does not support CONFORMS."))).toBe(true);
   });
 
   it("renders required Unicode glyphs without missing-glyph fallbacks", async () => {

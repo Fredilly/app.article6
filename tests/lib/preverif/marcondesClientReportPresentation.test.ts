@@ -26,8 +26,20 @@ describe("Marcondes client presentation model", () => {
   });
 
   it("uses the shared client wording for priority-gap rationale prefixes", () => {
-    const source = "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0004 with PDF-backed evidence. The available project evidence is incomplete.";
-    expect(clientFacingText(source)).toBe("The reviewed evidence was assessed against the methodology requirement. The available project evidence is incomplete.");
+    const source = "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0004 with PDF-backed evidence. The reviewer validated and corrected the machine proposal using PDF-backed project evidence. The blind audit confirms UNCLEAR/ACTION_REQUIRED. The available project evidence is incomplete.";
+    expect(clientFacingText(source)).toBe("The available project evidence is incomplete and does not support CONFORMS. The reviewer validated and corrected the reviewed project evidence using PDF-backed project evidence. The assessment confirms UNCLEAR/ACTION_REQUIRED. The available project evidence is incomplete.");
     expect(buildMarcondesClientReportPresentation(buildMarcondesPreValidationReadinessReport()).priorityGaps.every((gap) => !gap.whyItMatters.startsWith("Manual review replaced the machine-selected"))).toBe(true);
+  });
+
+  it("maps internal evidence sources and classifications only in client presentation", () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    const presentation = buildMarcondesClientReportPresentation(report);
+    const fields = presentation.rules.flatMap(clientRuleFields).map((field) => field.value).join(" | ");
+    expect(fields).not.toContain("quick-check-review-question");
+    expect(fields).toContain("PDD, page");
+    expect(presentation.rules).toHaveLength(58);
+    expect(presentation.rules.map((rule) => rule.ruleId)).toEqual(report.rules.map((rule) => rule.ruleId.split(".").at(-1)));
+    expect(presentation.rules.map((rule) => rule.evidenceStatus)).toEqual(report.rules.map((rule) => rule.evidenceState));
+    expect(presentation.rules.map((rule) => rule.reviewerOutcome)).toEqual(report.rules.map((rule) => rule.reviewerOutcome));
   });
 });

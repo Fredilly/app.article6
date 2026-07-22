@@ -55,7 +55,7 @@ export default function Vm0007GapReportLaunchButton({
       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</div>
       {draftPackage && evidenceMapHref ? (
         <>
-          <div className="mt-2 text-sm text-slate-600">Open the persisted machine-proposed Evidence Map.</div>
+          <div className="mt-2 text-sm text-slate-600">Open the persisted reviewed Evidence Map.</div>
           <div className="mt-3">
             <Link
               href={evidenceMapHref}
@@ -76,7 +76,7 @@ export default function Vm0007GapReportLaunchButton({
             </div>
           ) : null}
           <div className="mt-2 text-sm text-slate-600">
-            Create a machine-proposed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.
+            Create a reviewed Evidence Map from the VM0007 methodology requirements and the uploaded PDD.
           </div>
           <div className="mt-3">
             <button

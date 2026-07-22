@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, clientRuleFields } from "./marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientFacingText, clientRuleFields } from "./marcondesClientReportPresentation";
 import { buildMarcondesPriorityGapPresentation, marcondesPriorityGapFields } from "./marcondesPriorityGapPresentation";
 
 type FontDefinition = {
@@ -210,14 +210,14 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
   const presentation = buildMarcondesPreValidationPdfPresentation(report);
   const priorityGaps = buildMarcondesPriorityGapPresentation(report);
   const sections: Array<{ title: string; lines: PdfLine[] }> = [
-    { title: report.title, lines: [textLine("Internal Release Candidate"), textLine(`${report.project} | ${report.methodology}`), textLine(report.releaseStatus)] },
+    { title: report.title, lines: [textLine(`${report.project} | ${report.methodology}`), textLine(clientFacingText(report.releaseStatus))] },
     { title: "Executive Summary", lines: [textLine(report.executiveSummary.readinessSummary), field("Rules reviewed", String(report.executiveSummary.rulesReviewed)), textLine(`FOUND: ${counts.FOUND} | UNCLEAR: ${counts.UNCLEAR} | MISSING: ${counts.MISSING} | N/A: ${counts["N/A"]}`), ...report.executiveSummary.keyLimitations.map(textLine)] },
     { title: "Project Overview", lines: [field("Project", report.project), field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
-    { title: "Methodology Reconciliation", lines: [field("Page 61 reference", report.methodologyReview.page61Reference), textLine(report.methodologyReview.declarations), field("Classification", report.methodologyReview.classification), textLine(report.methodologyReview.explanation), field("Release blocker", report.methodologyReview.blocker)] },
+    { title: "Methodology Reconciliation", lines: [field("Page 61 reference", report.methodologyReview.page61Reference), textLine(report.methodologyReview.declarations), field("Classification", clientFacingText(report.methodologyReview.classification)), textLine(report.methodologyReview.explanation), field("Release blocker", clientFacingText(report.methodologyReview.blocker))] },
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([key, value]) => `${key}: ${value}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
     { title: "Priority Gaps", lines: priorityGaps.flatMap((gap) => marcondesPriorityGapFields(gap).map(({ label, value }) => field(label, value)).concat(textLine(""))) },
     ...presentation.rules.map((rule, index) => ({ title: `Rule Appendix ${index + 1} of ${presentation.rules.length}`, lines: clientRuleFields(rule).map(({ label, value }) => field(label, value)) })),
-    { title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), field("Release state", report.releaseStatus)] },
+    { title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review for client assessment."), textLine("It does not provide a final assurance conclusion or positive release determination."), field("Release state", clientFacingText(report.releaseStatus))] },
   ];
   const streams = sections.flatMap((section) => sectionPages(section.title, section.lines));
   const sourceText = sections.flatMap((section) => [section.title, ...section.lines.flatMap((line) => [line.label ?? "", line.value ?? line.text ?? ""])]).join("\n");
