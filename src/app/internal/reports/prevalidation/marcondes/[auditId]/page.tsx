@@ -1,21 +1,60 @@
 import type { Metadata } from "next";
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, clientRuleFields, type ClientPriorityGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesPriorityGapPresentation, marcondesPriorityGapFields } from "@/lib/preverif/marcondesPriorityGapPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
 };
 
-function PriorityGapGroup({ label, gaps }: { label: string; gaps: ClientPriorityGapPresentation[] }) {
+function clientFacingRationale(rationale: string): string {
+  return rationale.replace(
+    /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
+    "The reviewer validated and corrected the machine proposal using PDF-backed project evidence. ",
+  );
+}
+
+function rejectedEvidenceSummary(reason: string | undefined): string {
+  if (!reason) return "The cited material was not accepted as sufficient support for this requirement.";
+  if (/incomplete|noisy|truncated|mislocated/i.test(reason)) return "The source excerpt was incomplete, noisy, or not located at the authoritative project evidence needed for this requirement.";
+  if (/applicability|scope|aligned/i.test(reason)) return "The project-specific excerpt did not directly establish the applicability or scope required by this requirement.";
+  return "The cited material did not provide sufficient project-specific support for this requirement.";
+}
+
+function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReturnType<typeof buildMarcondesPriorityGapPresentation> }) {
   return <div className="mt-4" data-testid={`priority-gap-group-${label.toLowerCase().replaceAll(" ", "-")}`}>
     <h3 className="text-lg font-semibold text-slate-900">{label} <span className="text-sm font-normal text-slate-500">({gaps.length})</span></h3>
     <div className="mt-2 grid gap-3">{gaps.map((gap) => <article key={gap.ruleId} className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="priority-gap-card">
-      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.ruleId}</span></div>
-      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.evidenceStatus}</p>
-      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {gap.whyItMatters}</p>
-      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.requiredAction}</p>
+      {marcondesPriorityGapFields(gap).map(({ label, value }) => <p className="mt-2 text-sm" key={label}><strong>{label}:</strong> {value}</p>)}
     </article>)}</div>
   </div>;
+}
+
+function EvidenceList({ label, evidence, rejected = false }: { label: string; evidence: unknown[]; rejected?: boolean }) {
+  return (
+    <div>
+      <h4 className="font-medium text-slate-700">{label}</h4>
+      {evidence.length === 0 ? <p className="text-slate-500">None recorded.</p> : (
+        <ul className="mt-1 space-y-1">
+          {evidence.map((item, index) => {
+            const entry = item as { quote?: string; page?: number; section?: string; rejectionReason?: string; provenance?: { docId?: string; page?: number; sectionHeading?: string } };
+            const page = entry.page ?? entry.provenance?.page;
+            const section = entry.section ?? entry.provenance?.sectionHeading;
+            if (rejected) return <li key={`${page ?? "none"}-${index}`} className="rounded border border-amber-200 bg-amber-50 p-3">
+              <div className="font-medium text-amber-950">Rejected evidence</div>
+              <div className="mt-1 text-sm"><strong>Source:</strong> {entry.provenance?.docId ?? "Project document"}{page ? `, page ${page}` : ""}{section ? `, ${section}` : ""}</div>
+              <div className="mt-1 text-sm"><strong>Reason rejected:</strong> {entry.rejectionReason ?? "Not accepted as sufficient support."}</div>
+              <div className="mt-1 text-sm"><strong>Summary:</strong> {rejectedEvidenceSummary(entry.rejectionReason)}</div>
+              <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">View original rejected evidence</summary><p className="mt-1 whitespace-pre-wrap">{entry.quote ?? "No quote recorded."}</p></details>
+            </li>;
+            return <li key={`${page ?? "none"}-${index}`} className="rounded border border-slate-200 bg-slate-50 p-2">
+              {entry.quote ?? "No quote recorded."}{page ? ` (page ${page})` : ""}{section ? ` — ${section}` : ""}
+            </li>;
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export default async function MarcondesPreValidationReadinessPage({ params }: { params: Promise<{ auditId: string }> }) {
@@ -24,9 +63,10 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
   const counts = report.executiveSummary.evidenceStateCounts;
   const outcomes = report.executiveSummary.reviewerOutcomeCounts;
   const presentation = buildMarcondesClientReportPresentation(report);
-  const missingGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "MISSING");
-  const unclearGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "UNCLEAR");
-  const otherGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus !== "MISSING" && gap.evidenceStatus !== "UNCLEAR");
+  const priorityGaps = buildMarcondesPriorityGapPresentation(report);
+  const missingGaps = priorityGaps.filter((gap) => gap.evidenceStatus === "MISSING");
+  const unclearGaps = priorityGaps.filter((gap) => gap.evidenceStatus === "UNCLEAR");
+  const otherGaps = priorityGaps.filter((gap) => gap.evidenceStatus !== "MISSING" && gap.evidenceStatus !== "UNCLEAR");
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -67,7 +107,7 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
           <h2 id="priority-gaps" className="text-xl font-semibold">Priority Gaps</h2>
           <p className="mt-2 text-slate-700">Client-facing risk summary of the reviewed requirements requiring follow-up.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3" data-testid="priority-gap-counts">
-            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{presentation.priorityGaps.length}</div></div>
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{priorityGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unclear evidence</div><div className="text-2xl font-semibold">{unclearGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Missing evidence</div><div className="text-2xl font-semibold">{missingGaps.length}</div></div>
           </div>
