@@ -44,8 +44,8 @@ function priorityGapWhyItMatters(gap: ReportPriorityGap): string {
   const why = clientFacingRationale(gap.whyItMatters);
   if (!gap.action || !isNearDuplicate(why, gap.action)) return why;
   const title = gap.title.toLowerCase();
-  if (gap.state === "MISSING") return `The reviewed record for ${title} is marked MISSING, so project-specific support is not yet available for this requirement.`;
-  if (gap.state === "UNCLEAR") return `The reviewed record for ${title} is UNCLEAR, so the available support does not yet establish a clear readiness position.`;
+  if (gap.state === "MISSING") return `The PDD does not provide enough project evidence for ${title} to support this requirement.`;
+  if (gap.state === "UNCLEAR") return `The project evidence does not provide a clear basis for ${title}, so the assessment remains UNCLEAR/ACTION_REQUIRED.`;
   return `The existing reviewer rationale identifies follow-up needed for ${title} before readiness can be concluded.`;
 }
 

@@ -85,7 +85,7 @@ describe("Marcondes pre-validation readiness PDF", () => {
         expect(normalizedPdfText).toContain(`${label}: ${value}`.replace(/\s+/g, " "));
       }
     }
-    expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The reviewed evidence was assessed against the methodology requirement."))).toBe(true);
+    expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The available project evidence is incomplete and does not support CONFORMS."))).toBe(true);
   });
 
   it("renders required Unicode glyphs without missing-glyph fallbacks", async () => {

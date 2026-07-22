@@ -210,7 +210,7 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
   const presentation = buildMarcondesPreValidationPdfPresentation(report);
   const priorityGaps = buildMarcondesPriorityGapPresentation(report);
   const sections: Array<{ title: string; lines: PdfLine[] }> = [
-    { title: report.title, lines: [textLine("Internal Release Candidate"), textLine(`${report.project} | ${report.methodology}`), textLine(report.releaseStatus)] },
+    { title: report.title, lines: [textLine(`${report.project} | ${report.methodology}`), textLine(report.releaseStatus)] },
     { title: "Executive Summary", lines: [textLine(report.executiveSummary.readinessSummary), field("Rules reviewed", String(report.executiveSummary.rulesReviewed)), textLine(`FOUND: ${counts.FOUND} | UNCLEAR: ${counts.UNCLEAR} | MISSING: ${counts.MISSING} | N/A: ${counts["N/A"]}`), ...report.executiveSummary.keyLimitations.map(textLine)] },
     { title: "Project Overview", lines: [field("Project", report.project), field("Methodology", report.methodology), textLine("Scope: independent pre-validation readiness review based on the finalized Evidence Map report model.")] },
     { title: "Methodology Reconciliation", lines: [field("Page 61 reference", report.methodologyReview.page61Reference), textLine(report.methodologyReview.declarations), field("Classification", report.methodologyReview.classification), textLine(report.methodologyReview.explanation), field("Release blocker", report.methodologyReview.blocker)] },

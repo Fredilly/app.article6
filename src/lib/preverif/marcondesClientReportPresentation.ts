@@ -29,7 +29,7 @@ export type ClientRuleField = {
 
 export function clientFacingText(value: string): string {
   return value
-    .replace(/Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The reviewed evidence was assessed against the methodology requirement. ")
+    .replace(/Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The available project evidence is incomplete and does not support CONFORMS. ")
     .replace(/Manual re-adjudication corrected/gi, "The reviewed assessment corrected")
     .replace(/machine-selected/gi, "initially selected")
     .replace(/machine proposal/gi, "reviewed project evidence")
@@ -44,6 +44,7 @@ export function clientFacingText(value: string): string {
     .replace(/corrected the machine/gi, "updated the assessment")
     .replace(/replaced with/gi, "updated to use")
     .replace(/re-adjudication/gi, "assessment review")
+    .replace(/blind audit confirms UNCLEAR\/ACTION_REQUIRED/gi, "assessment confirms UNCLEAR/ACTION_REQUIRED")
     .replace(/blind audit/gi, "reviewed assessment");
 }
 

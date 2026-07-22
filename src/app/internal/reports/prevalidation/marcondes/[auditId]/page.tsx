@@ -30,7 +30,6 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
         <header className="rounded-2xl border border-slate-200 bg-white p-6">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Internal Release Candidate</div>
           <h1 className="mt-2 text-3xl font-semibold text-slate-950">{report.title}</h1>
           <a className="mt-4 inline-flex rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" href="/api/exports/internal/marcondes-prevalidation-report">
             Download PDF Report
