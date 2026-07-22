@@ -26,7 +26,7 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect((html.match(/data-testid=\"readiness-rule\"/g) ?? []).length).toBe(58);
     expect(html).not.toContain("Manual review replaced");
     expect(html).not.toContain("machine-selected evidence");
-    expect(html).toContain("The reviewed evidence was assessed against the methodology requirement.");
+    expect(html).toContain("The available project evidence is incomplete and does not support CONFORMS.");
     expect(html).toContain("Rejected evidence");
     expect(html).toContain("CIW tidal wetland conservation activities");
     expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
