@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, clientRuleFields, type ClientPriorityGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesPriorityGapPresentation, marcondesPriorityGapFields } from "@/lib/preverif/marcondesPriorityGapPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
 };
 
-function PriorityGapGroup({ label, gaps }: { label: string; gaps: ClientPriorityGapPresentation[] }) {
+function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReturnType<typeof buildMarcondesPriorityGapPresentation> }) {
   return <div className="mt-4" data-testid={`priority-gap-group-${label.toLowerCase().replaceAll(" ", "-")}`}>
     <h3 className="text-lg font-semibold text-slate-900">{label} <span className="text-sm font-normal text-slate-500">({gaps.length})</span></h3>
     <div className="mt-2 grid gap-3">{gaps.map((gap) => <article key={gap.ruleId} className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="priority-gap-card">
-      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.ruleId}</span></div>
-      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.evidenceStatus}</p>
-      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {gap.whyItMatters}</p>
-      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.requiredAction}</p>
+      {marcondesPriorityGapFields(gap).map(({ label, value }) => <p className="mt-2 text-sm" key={label}><strong>{label}:</strong> {value}</p>)}
     </article>)}</div>
   </div>;
 }
@@ -24,9 +22,10 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
   const counts = report.executiveSummary.evidenceStateCounts;
   const outcomes = report.executiveSummary.reviewerOutcomeCounts;
   const presentation = buildMarcondesClientReportPresentation(report);
-  const missingGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "MISSING");
-  const unclearGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "UNCLEAR");
-  const otherGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus !== "MISSING" && gap.evidenceStatus !== "UNCLEAR");
+  const priorityGaps = buildMarcondesPriorityGapPresentation(report);
+  const missingGaps = priorityGaps.filter((gap) => gap.evidenceStatus === "MISSING");
+  const unclearGaps = priorityGaps.filter((gap) => gap.evidenceStatus === "UNCLEAR");
+  const otherGaps = priorityGaps.filter((gap) => gap.evidenceStatus !== "MISSING" && gap.evidenceStatus !== "UNCLEAR");
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -67,7 +66,7 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
           <h2 id="priority-gaps" className="text-xl font-semibold">Priority Gaps</h2>
           <p className="mt-2 text-slate-700">Client-facing risk summary of the reviewed requirements requiring follow-up.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3" data-testid="priority-gap-counts">
-            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{presentation.priorityGaps.length}</div></div>
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{priorityGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unclear evidence</div><div className="text-2xl font-semibold">{unclearGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Missing evidence</div><div className="text-2xl font-semibold">{missingGaps.length}</div></div>
           </div>
