@@ -71,6 +71,20 @@ describe("Marcondes pre-validation readiness PDF", () => {
     expect(pdfText).toContain("2013–2023");
   });
 
+  it("uses identical shared priority-gap fields for website and PDF presentation output", async () => {
+    const report = buildMarcondesPreValidationReadinessReport();
+    const presentation = buildMarcondesClientReportPresentation(report);
+    const pdfPresentation = buildMarcondesPreValidationPdfPresentation(report);
+    const html = visibleHtmlText(renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) })));
+    expect(pdfPresentation.priorityGaps).toEqual(presentation.priorityGaps);
+    for (const gap of presentation.priorityGaps) {
+      for (const [label, value] of [["Rule ID", gap.ruleId], ["Title", gap.title], ["Evidence status", gap.evidenceStatus], ["Why it matters", gap.whyItMatters], ["Required action", gap.requiredAction]] as const) {
+        expect(html).toContain(`${label}: ${value}`);
+      }
+    }
+    expect(presentation.priorityGaps.some((gap) => gap.whyItMatters.startsWith("The reviewed evidence was assessed against the methodology requirement."))).toBe(true);
+  });
+
   it("renders required Unicode glyphs without missing-glyph fallbacks", async () => {
     const pdf = buildMarcondesPreValidationPdf(buildMarcondesPreValidationReadinessReport());
     expect(pdf.toString("ascii")).toContain("/Subtype /Type0");

@@ -1,65 +1,32 @@
 import type { Metadata } from "next";
-import { buildMarcondesPreValidationReadinessReport, type MarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { buildMarcondesClientReportPresentation, clientRuleFields, type ClientPriorityGapPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
 
 export const metadata: Metadata = {
   title: "Marcondes VM0007 v1.8 Pre-Validation Readiness Report | app.article6",
 };
 
-function clientFacingRationale(rationale: string): string {
-  return rationale.replace(
-    /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
-    "The reviewer validated and corrected the machine proposal using PDF-backed project evidence. ",
-  );
-}
-
-function normalizedText(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-function isNearDuplicate(left: string, right: string): boolean {
-  const normalizedLeft = normalizedText(left);
-  const normalizedRight = normalizedText(right);
-  if (!normalizedLeft || !normalizedRight) return false;
-  if (normalizedLeft === normalizedRight || normalizedLeft.includes(normalizedRight) || normalizedRight.includes(normalizedLeft)) return true;
-  const leftWords = new Set(normalizedLeft.split(" "));
-  const rightWords = new Set(normalizedRight.split(" "));
-  const overlap = [...leftWords].filter((word) => rightWords.has(word)).length;
-  return overlap / Math.max(leftWords.size, rightWords.size) >= 0.85;
-}
-
-function priorityGapWhyItMatters(gap: ReportPriorityGap): string {
-  const why = clientFacingRationale(gap.whyItMatters);
-  if (!gap.action || !isNearDuplicate(why, gap.action)) return why;
-  const title = gap.title.toLowerCase();
-  if (gap.state === "MISSING") return `The reviewed record for ${title} is marked MISSING, so project-specific support is not yet available for this requirement.`;
-  if (gap.state === "UNCLEAR") return `The reviewed record for ${title} is UNCLEAR, so the available support does not yet establish a clear readiness position.`;
-  return `The existing reviewer rationale identifies follow-up needed for ${title} before readiness can be concluded.`;
-}
-
-function PriorityGapGroup({ label, gaps }: { label: string; gaps: ReportPriorityGap[] }) {
+function PriorityGapGroup({ label, gaps }: { label: string; gaps: ClientPriorityGapPresentation[] }) {
   return <div className="mt-4" data-testid={`priority-gap-group-${label.toLowerCase().replaceAll(" ", "-")}`}>
     <h3 className="text-lg font-semibold text-slate-900">{label} <span className="text-sm font-normal text-slate-500">({gaps.length})</span></h3>
     <div className="mt-2 grid gap-3">{gaps.map((gap) => <article key={gap.ruleId} className="rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="priority-gap-card">
-      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.displayRuleId}</span></div>
-      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.state}</p>
-      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {priorityGapWhyItMatters(gap)}</p>
-      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.action ?? "Reviewer action is recorded in the Evidence Map."}</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2"><h4 className="font-semibold text-slate-950">{gap.title}</h4><span className="text-sm text-slate-600">Rule ID: {gap.ruleId}</span></div>
+      <p className="mt-2 text-sm"><strong>Evidence status:</strong> {gap.evidenceStatus}</p>
+      <p className="mt-2 text-sm"><strong>Why it matters:</strong> {gap.whyItMatters}</p>
+      <p className="mt-2 text-sm"><strong>Required action:</strong> {gap.requiredAction}</p>
     </article>)}</div>
   </div>;
 }
-
-type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][number];
 
 export default async function MarcondesPreValidationReadinessPage({ params }: { params: Promise<{ auditId: string }> }) {
   await params;
   const report = buildMarcondesPreValidationReadinessReport();
   const counts = report.executiveSummary.evidenceStateCounts;
   const outcomes = report.executiveSummary.reviewerOutcomeCounts;
-  const missingGaps = report.priorityGaps.filter((gap) => gap.state === "MISSING");
-  const unclearGaps = report.priorityGaps.filter((gap) => gap.state === "UNCLEAR");
-  const otherGaps = report.priorityGaps.filter((gap) => gap.state !== "MISSING" && gap.state !== "UNCLEAR");
   const presentation = buildMarcondesClientReportPresentation(report);
+  const missingGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "MISSING");
+  const unclearGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus === "UNCLEAR");
+  const otherGaps = presentation.priorityGaps.filter((gap) => gap.evidenceStatus !== "MISSING" && gap.evidenceStatus !== "UNCLEAR");
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8" data-testid="marcondes-prevalidation-readiness-report">
       <div className="mx-auto grid max-w-6xl gap-6">
@@ -100,7 +67,7 @@ export default async function MarcondesPreValidationReadinessPage({ params }: { 
           <h2 id="priority-gaps" className="text-xl font-semibold">Priority Gaps</h2>
           <p className="mt-2 text-slate-700">Client-facing risk summary of the reviewed requirements requiring follow-up.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3" data-testid="priority-gap-counts">
-            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{report.priorityGaps.length}</div></div>
+            <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total action required</div><div className="text-2xl font-semibold">{presentation.priorityGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unclear evidence</div><div className="text-2xl font-semibold">{unclearGaps.length}</div></div>
             <div className="rounded-lg border border-slate-200 p-3"><div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Missing evidence</div><div className="text-2xl font-semibold">{missingGaps.length}</div></div>
           </div>

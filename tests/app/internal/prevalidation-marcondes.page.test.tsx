@@ -4,6 +4,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import MarcondesPreValidationReadinessPage from "@/app/internal/reports/prevalidation/marcondes/[auditId]/page";
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
+import { buildMarcondesClientReportPresentation } from "@/lib/preverif/marcondesClientReportPresentation";
 
 const fixtureDir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const sha = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(fixtureDir, name))).digest("hex");
@@ -25,7 +26,7 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect((html.match(/data-testid=\"readiness-rule\"/g) ?? []).length).toBe(58);
     expect(html).not.toContain("Manual review replaced");
     expect(html).not.toContain("machine-selected evidence");
-    expect(html).toContain("The reviewer validated and corrected the machine proposal using PDF-backed project evidence.");
+    expect(html).toContain("The reviewed evidence was assessed against the methodology requirement.");
     expect(html).toContain("Rejected evidence");
     expect(html).toContain("CIW tidal wetland conservation activities");
     expect(html).toContain("<strong>Rule ID:</strong> R-1-0012");
@@ -63,18 +64,13 @@ describe("Marcondes client-facing pre-validation readiness route", () => {
     expect(report.rules.map((rule) => rule.rejectedEvidence)).toEqual(gold.rows.map((row: { rejectedEvidence: unknown[] }) => row.rejectedEvidence));
   });
 
-  it("separates why-it-matters text from required action when the frozen wording duplicates", async () => {
+  it("renders shared priority-gap presentation fields without local wording rewrites", async () => {
     const html = renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) }));
-    const gold = JSON.parse(fs.readFileSync(path.join(fixtureDir, "gold.json"), "utf8"));
-    const duplicateRows = gold.rows.filter((row: { reviewerOutcome: string; reviewerCorrection?: { correction?: string }; clientAction?: string }) => {
-      if (row.reviewerOutcome !== "ACTION_REQUIRED" || !row.clientAction) return false;
-      const rationale = row.reviewerCorrection?.correction ?? "";
-      return rationale.trim().toLowerCase() === row.clientAction.trim().toLowerCase();
-    });
-    expect(duplicateRows.length).toBeGreaterThan(0);
-    for (const row of duplicateRows) {
-      expect(html).toContain(`Required action:</strong> ${row.clientAction}`);
-      expect(html).toContain(`Why it matters:</strong> ${row.clientAction}`);
+    const presentation = buildMarcondesClientReportPresentation(buildMarcondesPreValidationReadinessReport());
+    for (const gap of presentation.priorityGaps) {
+      expect(html).toContain(`Why it matters:</strong> ${gap.whyItMatters}`);
+      expect(html).toContain(`Required action:</strong> ${gap.requiredAction}`);
     }
+    expect(html).not.toContain("Manual review replaced the machine-selected");
   });
 });

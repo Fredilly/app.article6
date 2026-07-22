@@ -1,5 +1,5 @@
 import { buildMarcondesPreValidationReadinessReport } from "@/lib/preverif/marcondesPreValidationReport";
-import { buildMarcondesClientReportPresentation, CLIENT_RULE_HEADINGS, clientRuleFields } from "@/lib/preverif/marcondesClientReportPresentation";
+import { buildMarcondesClientReportPresentation, CLIENT_RULE_HEADINGS, clientRuleFields, clientFacingText } from "@/lib/preverif/marcondesClientReportPresentation";
 
 describe("Marcondes client presentation model", () => {
   it("keeps the exact nine-field contract for all 58 reviewed rules", () => {
@@ -23,5 +23,11 @@ describe("Marcondes client presentation model", () => {
       "R-6-0006",
       "R-6-0007",
     ]);
+  });
+
+  it("uses the shared client wording for priority-gap rationale prefixes", () => {
+    const source = "Manual review replaced the machine-selected truncated or mislocated evidence for R-1-0004 with PDF-backed evidence. The available project evidence is incomplete.";
+    expect(clientFacingText(source)).toBe("The reviewed evidence was assessed against the methodology requirement. The available project evidence is incomplete.");
+    expect(buildMarcondesClientReportPresentation(buildMarcondesPreValidationReadinessReport()).priorityGaps.every((gap) => !gap.whyItMatters.startsWith("Manual review replaced the machine-selected"))).toBe(true);
   });
 });

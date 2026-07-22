@@ -14,12 +14,20 @@ export type ClientRulePresentation = {
   rationale: string;
 };
 
+export type ClientPriorityGapPresentation = {
+  ruleId: string;
+  title: string;
+  evidenceStatus: string;
+  whyItMatters: string;
+  requiredAction: string;
+};
+
 export type ClientRuleField = {
   label: (typeof CLIENT_RULE_HEADINGS)[number];
   value: string;
 };
 
-function clientFacingText(value: string): string {
+export function clientFacingText(value: string): string {
   return value
     .replace(/Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/gi, "The reviewed evidence was assessed against the methodology requirement. ")
     .replace(/Manual re-adjudication corrected/gi, "The reviewed assessment corrected")
@@ -36,6 +44,16 @@ function clientFacingText(value: string): string {
     .replace(/replaced with/gi, "updated to use")
     .replace(/re-adjudication/gi, "assessment review")
     .replace(/blind audit/gi, "reviewed assessment");
+}
+
+function clientPriorityGap(gap: MarcondesPreValidationReadinessReport["priorityGaps"][number]): ClientPriorityGapPresentation {
+  return {
+    ruleId: gap.displayRuleId,
+    title: clientFacingText(gap.title),
+    evidenceStatus: gap.state,
+    whyItMatters: clientFacingText(gap.whyItMatters),
+    requiredAction: clientFacingText(gap.action ?? "Reviewer action is recorded in the Evidence Map."),
+  };
 }
 
 function evidenceText(item: unknown, rejected: boolean): string {
@@ -81,6 +99,6 @@ export function clientRuleFields(rule: ClientRulePresentation): ClientRuleField[
   ];
 }
 
-export function buildMarcondesClientReportPresentation(report: MarcondesPreValidationReadinessReport): { rules: ClientRulePresentation[] } {
-  return { rules: report.rules.map(clientRule) };
+export function buildMarcondesClientReportPresentation(report: MarcondesPreValidationReadinessReport): { priorityGaps: ClientPriorityGapPresentation[]; rules: ClientRulePresentation[] } {
+  return { priorityGaps: report.priorityGaps.map(clientPriorityGap), rules: report.rules.map(clientRule) };
 }
