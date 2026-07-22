@@ -5,6 +5,7 @@ import path from "node:path";
 const dir = path.join(process.cwd(), "tests/fixtures/preverif/marcondes-vm0007-v18-evidence-map");
 const read = (name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as Record<string, any>;
 const sha256 = (name: string) => crypto.createHash("sha256").update(fs.readFileSync(path.join(dir, name))).digest("hex");
+const freezeRecord = fs.readFileSync(path.join(process.cwd(), "docs/roadmaps/vm0007-evidence-map-mvp/marcondes-vm0007-v18-release-freeze-record.md"), "utf8");
 
 describe("Marcondes v1.0-rc1 internal release candidate", () => {
   const manifest = read("release-candidate-v1.0-rc1.json");
@@ -38,5 +39,27 @@ describe("Marcondes v1.0-rc1 internal release candidate", () => {
     expect(releaseStatus.reportReleaseState).toBe("BLOCKED_PENDING_VERSION_RECONCILIATION");
     expect(releaseStatus.goldPromotionBlocked).toBe(true);
     expect(releaseStatus.reportReleaseBlocker).toMatch(/page-61.*v1\.7.*Tables 30 and 31.*blocked/i);
+  });
+
+  it("pins the final client deliverable freeze inventory and protected artifacts", () => {
+    expect(freezeRecord).toContain("- Project: Marcondes VM0007 v1.8");
+    expect(freezeRecord).toContain("- Deliverable: Pre-Validation Readiness Report");
+    expect(freezeRecord).toContain("- Status: FROZEN");
+    expect(freezeRecord).toMatch(/\| Total rules \| 58 \|/);
+    expect(freezeRecord).toMatch(/\| FOUND \| 6 \|/);
+    expect(freezeRecord).toMatch(/\| UNCLEAR \| 21 \|/);
+    expect(freezeRecord).toMatch(/\| MISSING \| 9 \|/);
+    expect(freezeRecord).toMatch(/\| N\/A \| 22 \|/);
+    expect(freezeRecord).toMatch(/\| CONFORMS \| 6 \|/);
+    expect(freezeRecord).toMatch(/\| ACTION_REQUIRED \| 30 \|/);
+    expect(freezeRecord).toMatch(/\| NOT_APPLICABLE \| 22 \|/);
+    expect(freezeRecord).toContain("ad9576b39f90c28f829b013121eaf177f841c98b2a9997391b85027b4fcee511");
+    expect(freezeRecord).toContain("e6db518b70297bb0647cb39ea837387b0193833a39fdc8270d8c186342101b83");
+    expect(freezeRecord).toContain("514af87d4096c684e0df118d30b6dd6f942af1434863eba14acf73ae0cfb1c19");
+    expect(freezeRecord).toContain("9e12d0f356cd68267ad9d2d28e7bd18e64cbedccdfad5df841763356476392c9");
+    expect(freezeRecord).toContain("068731582d28bd73b35af18b67724fd45ef35964a2965de5aaf2cfb26ff65bf6");
+    expect(freezeRecord).toContain("6e61e9c04e19ef27d01d4bc668270e8776564a8b39f40ccf37f53b1529094473");
+    expect(freezeRecord).toContain("All 58 of 58 appendix rows match.");
+    expect(freezeRecord).toContain("Website and PDF consume the same presentation model.");
   });
 });
