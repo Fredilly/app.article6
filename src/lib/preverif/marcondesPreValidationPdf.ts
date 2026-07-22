@@ -217,7 +217,7 @@ export function buildMarcondesPreValidationPdf(report: MarcondesPreValidationRea
     { title: "Readiness Summary", lines: [textLine(`Reviewer outcomes: ${Object.entries(report.executiveSummary.reviewerOutcomeCounts).map(([key, value]) => `${key}: ${value}`).join(" | ")}`), textLine(report.executiveSummary.readinessSummary)] },
     { title: "Priority Gaps", lines: priorityGaps.flatMap((gap) => marcondesPriorityGapFields(gap).map(({ label, value }) => field(label, value)).concat(textLine(""))) },
     ...presentation.rules.map((rule, index) => ({ title: `Rule Appendix ${index + 1} of ${presentation.rules.length}`, lines: clientRuleFields(rule).map(({ label, value }) => field(label, value)) })),
-    { title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review and internal release candidate."), textLine("It does not provide a final assurance conclusion or positive release determination."), field("Release state", report.releaseStatus)] },
+    { title: "Disclaimer", lines: [textLine("This document is an independent pre-validation readiness review for client assessment."), textLine("It does not provide a final assurance conclusion or positive release determination."), field("Release state", report.releaseStatus)] },
   ];
   const streams = sections.flatMap((section) => sectionPages(section.title, section.lines));
   const sourceText = sections.flatMap((section) => [section.title, ...section.lines.flatMap((line) => [line.label ?? "", line.value ?? line.text ?? ""])]).join("\n");

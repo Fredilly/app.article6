@@ -52,7 +52,9 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const forbidden = /\b(?:report|project|readiness|review|conclusion)\s+(?:is\s+)?(?:verified|validated|approved|certified)\b|\bready for verification\b/;
     expect(reportText).not.toMatch(forbidden);
     expect(pdf).not.toMatch(forbidden);
-    expect(pdf).toContain("internal release candidate");
+    expect(pdf).not.toContain("blind audit");
+    expect(pdf).not.toContain("internal release candidate");
+    expect(pdf).toContain("independent pre-validation readiness review for client assessment");
     expect(pdf).toContain("release blocker");
   });
 
@@ -61,6 +63,8 @@ describe("Marcondes pre-validation readiness PDF", () => {
     const presentation = buildMarcondesClientReportPresentation(report);
     const html = visibleHtmlText(renderToStaticMarkup(await MarcondesPreValidationReadinessPage({ params: Promise.resolve({ auditId: "marcondes-redd-5953" }) })));
     const pdfText = decodePdfText(buildMarcondesPreValidationPdf(report).toString("latin1"));
+    expect(visibleHtmlText(html).toLowerCase()).not.toContain("blind audit");
+    expect(pdfText.toLowerCase()).not.toContain("blind audit");
     expect(presentation.rules).toHaveLength(58);
     expect(buildMarcondesPreValidationPdfPresentation(report)).toEqual(presentation);
     for (const rule of presentation.rules) for (const field of clientRuleFields(rule)) {

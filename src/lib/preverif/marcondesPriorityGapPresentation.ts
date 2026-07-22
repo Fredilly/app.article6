@@ -1,4 +1,5 @@
 import type { MarcondesPreValidationReadinessReport } from "./marcondesPreValidationReport";
+import { clientFacingText } from "./marcondesClientReportPresentation";
 
 export const PRIORITY_GAP_HEADINGS = ["Rule ID", "Title", "Evidence status", "Why it matters", "Required action"] as const;
 
@@ -19,10 +20,10 @@ export type MarcondesPriorityGapPresentation = {
 type ReportPriorityGap = MarcondesPreValidationReadinessReport["priorityGaps"][number];
 
 function clientFacingRationale(rationale: string): string {
-  return rationale.replace(
+  return clientFacingText(rationale.replace(
     /^Manual review replaced the machine-selected(?: truncated or mislocated)? evidence(?: for [^ ]+)? with PDF-backed evidence\.\s*/i,
-    "The reviewer validated the assessment against the VM0007 requirement using PDF-backed project evidence. ",
-  );
+    "The assessment uses available project evidence to assess the VM0007 requirement. ",
+  ));
 }
 
 function normalizedText(value: string): string {
