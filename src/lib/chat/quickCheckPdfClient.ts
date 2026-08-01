@@ -3,6 +3,7 @@ import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/qui
 import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 export type QuickCheckUploadProgress = (percent: number) => void;
 const SERVER_EXTRACTION_LIMIT = 4 * 1024 * 1024;
+const RECOVERED_TEXT_WARNING = "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
 export async function resolveQuickCheckPdfText(input: { bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void }): Promise<QuickCheckResolvedPdfText> {
   const { bytes, filename, onProgress, onConfirm, onConfirmed } = input;
   if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
@@ -33,5 +34,6 @@ async function handleExtractResponse(response: Response, originalBytes: ArrayBuf
   const payload = await response.json() as { text?: string; engine?: "pdf-parse" | "heuristic"; pages?: QuickCheckPdfPage[]; pdfRef?: string; parserAdapterId?: string; parserFallbackFrom?: string; parserDebug?: QuickCheckPdfParserDebug; metadata?: { parser?: "pdf-parse" | "heuristic"; diagnostics?: { failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text" | "invalid-file" }; } };
   const text = (Array.isArray(payload.pages) && payload.pages.length ? formatQuickCheckPdfPages(payload.pages) : payload.text) ?? "";
   const failureKind = payload.metadata?.diagnostics?.failureKind;
-  return { text, engine: payload.engine === "heuristic" || payload.metadata?.parser === "heuristic" ? "heuristic" : "pdf-parse", methodologyMentions: extractMethodologyMentions(text), warning: failureKind === "no-selectable-text" ? "No selectable text found in this PDF." : undefined, diagnosticCode: failureKind, pdfRef: uploadRef, parserAdapterId: payload.parserDebug?.parserAdapterId ?? payload.parserAdapterId, parserFallbackFrom: payload.parserDebug?.parserFallbackFrom ?? payload.parserFallbackFrom, parserDebug: payload.parserDebug };
+  const engine = payload.engine === "heuristic" || payload.metadata?.parser === "heuristic" ? "heuristic" : "pdf-parse";
+  return { text, engine, methodologyMentions: extractMethodologyMentions(text), warning: failureKind === "no-selectable-text" ? "No selectable text found in this PDF." : engine === "heuristic" && text.trim() ? RECOVERED_TEXT_WARNING : undefined, diagnosticCode: failureKind, pdfRef: uploadRef, parserAdapterId: payload.parserDebug?.parserAdapterId ?? payload.parserAdapterId, parserFallbackFrom: payload.parserDebug?.parserFallbackFrom ?? payload.parserFallbackFrom, parserDebug: payload.parserDebug };
 }
