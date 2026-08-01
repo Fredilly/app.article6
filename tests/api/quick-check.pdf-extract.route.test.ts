@@ -39,6 +39,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
     expect(response.status).toBe(200);
     const payload = await response.json();
     expect(payload.pdfRef).toBe(reference);
+    expect(payload.parsedDocument).toBeDefined();
     expect(payload.text).toContain("Project");
   }, 15000);
 

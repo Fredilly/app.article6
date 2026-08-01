@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 
-import { mkdirSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { mkdirSync, writeFileSync, existsSync, readdirSync, unlinkSync } from "fs";
 import path from "path";
 import os from "os";
 import { execFileSync } from "child_process";
@@ -14,7 +14,7 @@ import { formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
 import { withMetrics } from "@/lib/metrics";
-import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
+import { parseDocumentText, resolveConfiguredDocumentParserAdapterId, type ParsedDocument } from "@/lib/documentParsing";
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
 import { QuickCheckUploadError, retrieveQuickCheckUpload } from "@/lib/quickCheck/r2Upload";
 
@@ -125,6 +125,7 @@ function buildParserDebug(): ParserDebugPayload {
 async function extractAndRespond(
   bytes: ArrayBuffer,
   pdfRef: string,
+  parsedDocument?: ParsedDocument,
 ): Promise<NextResponse> {
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
   let diagnostics: PdfExtractionDiagnostics | undefined;
@@ -141,6 +142,7 @@ async function extractAndRespond(
         engine: extraction.engine,
         metadata: extraction.metadata,
         pdfRef,
+        parsedDocument,
         parserDebug,
       });
     }
@@ -158,6 +160,7 @@ async function extractAndRespond(
     text: fallbackText,
     engine: "heuristic",
     pdfRef,
+    parsedDocument,
     parserDebug,
     metadata: {
       parser: "heuristic",
@@ -210,10 +213,19 @@ async function handlePost(request: Request) {
       return qcJson({ error: "The uploaded PDF could not be retrieved.", code: "storage-unavailable" }, { status: 503 });
     }
     if (!isLikelyPdfBytes(retrieved.bytes)) return qcJson({ error: "The uploaded object is not a valid PDF.", code: "invalid-file" }, { status: 400 });
+    const pdfFilePath = saveTempPdf(retrieved.bytes);
     try {
-      return await extractAndRespond(retrieved.bytes, json.uploadRef);
+      let parsedDocument: ParsedDocument | undefined;
+      try {
+        parsedDocument = parseDocumentText({ rawText: "", pdfFilePath });
+      } catch {
+        parsedDocument = undefined;
+      }
+      return await extractAndRespond(retrieved.bytes, json.uploadRef, parsedDocument);
     } catch {
       return qcJson({ error: "The uploaded PDF could not be extracted.", code: "extraction-failed" }, { status: 422 });
+    } finally {
+      try { unlinkSync(pdfFilePath); } catch { /* best effort cleanup */ }
     }
   }
 

@@ -4,20 +4,20 @@ import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import type { StructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import type { ProjectFactField } from "@/lib/quickCheck/projectFacts/types";
 import { resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
-import { parseDocumentText } from "@/lib/documentParsing";
+import { parseDocumentText, type ParsedDocument } from "@/lib/documentParsing";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 
 initPymupdfAdapterRuntime();
 
 export { type StructuredQueryContext };
 
-export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?: string): Promise<StructuredQueryContext> {
-  const pdfFilePath = pdfRef ? await resolvePdfRef(pdfRef) : undefined;
+export async function resolveStructuredQueryContext(rawPddText: string, pdfRef?: string, parsedDocument?: ParsedDocument): Promise<StructuredQueryContext> {
+  const pdfFilePath = parsedDocument ? undefined : pdfRef ? await resolvePdfRef(pdfRef) : undefined;
 
   // When we have a real PDF path, parse with it to get PyMuPDF structure.
   // Otherwise, fall through to rawText-only parsing.
-  if (pdfFilePath) {
-    const parsed = parseDocumentText({ rawText: rawPddText, pdfFilePath });
+  if (parsedDocument || pdfFilePath) {
+    const parsed = parsedDocument ?? parseDocumentText({ rawText: rawPddText, pdfFilePath });
     const { buildArticle6DocumentModel } = await import("@/lib/documentModel");
     const { compileEvidenceDocumentFromStructure } = await import(
       "@/lib/quickCheck/evidence/compileEvidenceDocument"

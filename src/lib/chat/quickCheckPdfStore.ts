@@ -14,6 +14,7 @@ import path from "path";
 
 const store = new Map<string, { filePath: string; expiresAt: number }>();
 const r2Store = new Map<string, { filePath: string; expiresAt: number }>();
+const r2Inflight = new Map<string, Promise<string | undefined>>();
 const PDF_REF_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 function cleanExpired(): void {
@@ -56,19 +57,40 @@ export async function resolvePdfRef(
   // Signed references have exactly two URL-safe segments. Invalid values in
   // this shape are rejected rather than being treated as arbitrary paths.
   if (token.split(".").length === 2) {
-    cleanExpired();
-    const cached = r2Store.get(token);
-    if (cached && cached.expiresAt >= Date.now()) return cached.filePath;
-    r2Store.delete(token);
     try {
-      const { retrieveQuickCheckUpload } = await import("@/lib/quickCheck/r2Upload");
-      const retrieved = await retrieveQuickCheckUpload(token);
-      const dir = path.join(os.tmpdir(), "quick-check-pdfs");
-      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-      const filePath = path.join(dir, `r2-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
-      writeFileSync(filePath, Buffer.from(retrieved.bytes));
-      r2Store.set(token, { filePath, expiresAt: Date.now() + PDF_REF_TTL_MS });
-      return filePath;
+      const { retrieveQuickCheckUpload, verifyUploadReference } = await import("@/lib/quickCheck/r2Upload");
+      const claims = verifyUploadReference(token);
+      cleanExpired();
+      const cached = r2Store.get(token);
+      if (cached && cached.expiresAt >= Date.now() && existsSync(cached.filePath)) return cached.filePath;
+      if (cached) {
+        r2Store.delete(token);
+        try { unlinkSync(cached.filePath); } catch { /* best effort cleanup */ }
+      }
+      const existing = r2Inflight.get(token);
+      if (existing) return existing;
+      const pending = (async () => {
+        try {
+          const retrieved = await retrieveQuickCheckUpload(token);
+          const dir = path.join(os.tmpdir(), "quick-check-pdfs");
+          if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+          const filePath = path.join(dir, `r2-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`);
+          writeFileSync(filePath, Buffer.from(retrieved.bytes));
+          const expiresAt = Math.min(claims.expiresAt * 1000, Date.now() + PDF_REF_TTL_MS);
+          if (expiresAt <= Date.now()) {
+            try { unlinkSync(filePath); } catch { /* best effort cleanup */ }
+            return undefined;
+          }
+          r2Store.set(token, { filePath, expiresAt });
+          return filePath;
+        } catch {
+          return undefined;
+        } finally {
+          r2Inflight.delete(token);
+        }
+      })();
+      r2Inflight.set(token, pending);
+      return pending;
     } catch {
       return undefined;
     }

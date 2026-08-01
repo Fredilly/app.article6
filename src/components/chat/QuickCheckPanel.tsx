@@ -712,7 +712,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const uploadCacheRef = useRef(createQuickCheckPdfUploadCache());
-  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "processing" | "running" | "building">("uploading");
+  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "processing" | "running">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1148,7 +1148,6 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
         if (cancelled) return;
-        setUploadStatus("building");
         setUploadProgress(null);
         setExtractionState({ loading: false, analysis, error: null });
       })
@@ -1796,7 +1795,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const reviewFieldText = draft.claimText.trim();
       const claimIntents = classifyQuickCheckClaimIntents(effectiveClaimText);
       const structuredQueryContext = evidenceAnalysis.rawPddText?.trim()
-        ? await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.pdfRef)
+        ? await resolveStructuredQueryContext(evidenceAnalysis.rawPddText, evidenceAnalysis.parsedDocument ? undefined : evidenceAnalysis.pdfRef, evidenceAnalysis.parsedDocument)
         : undefined;
       const isReviewQuestion = detectRuntimeReviewPath({
         claimText: reviewFieldText,
@@ -1843,7 +1842,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           void fetchSemanticEvidenceCandidates({
             claimText: reviewFieldText,
             rawPddText: evidenceAnalysis.rawPddText,
-            pdfRef: evidenceAnalysis.pdfRef,
+            pdfRef: structuredQueryContext?.documentStructure ? undefined : evidenceAnalysis.pdfRef,
+            documentStructure: structuredQueryContext?.documentStructure,
             methodologyId: resolvedMethodologyId,
             methodologyVersion: resolvedMethodologyVersion,
           })
@@ -2483,7 +2483,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               </div>
               {uploadProgress !== null ? (
                 <div className="mt-5" role="status" aria-live="polite">
-                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "processing" ? "Processing uploaded PDF" : uploadStatus === "running" ? "Running Quick Check" : uploadStatus === "building" ? "Building Evidence Map" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
+                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "processing" ? "Processing uploaded PDF" : uploadStatus === "running" ? "Running Quick Check" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
                 </div>
               ) : null}

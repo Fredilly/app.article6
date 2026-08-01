@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, unlinkSync } from "fs";
 import { execFileSync } from "child_process";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
@@ -166,6 +166,64 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
     const ctx = await resolveStructuredQueryContext("Project Description", reference);
     expect(ctx.parsedDocument.rawText).toBeTruthy();
     expect((await resolvePdfRef(reference))).toBe(resolved);
+  });
+
+  it("does not use a cached R2 path after signed-reference expiry", async () => {
+    const bytes = readFileSync(FIXTURE);
+    process.env.QUICK_CHECK_UPLOAD_SIGNING_SECRET = "test-signing-secret";
+    process.env.VERCEL_ENV = "preview";
+    process.env.R2_ACCOUNT_ID = "account";
+    process.env.R2_BUCKET_NAME = "preview-bucket";
+    process.env.R2_ACCESS_KEY_ID = "access-key";
+    process.env.R2_SECRET_ACCESS_KEY = "secret-key";
+    const reference = issueUploadReference(bytes.length);
+    jest.spyOn(S3Client.prototype, "send").mockImplementation(async (command) => {
+      if (command instanceof HeadObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf" } as never;
+      if (command instanceof GetObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf", Body: { transformToByteArray: async () => new Uint8Array(bytes) } } as never;
+      throw new Error("unexpected command");
+    });
+    expect(await resolvePdfRef(reference)).toBeTruthy();
+    process.env.VERCEL_ENV = "production";
+    expect(await resolvePdfRef(reference)).toBeUndefined();
+    process.env.VERCEL_ENV = "preview";
+    const now = Date.now;
+    Date.now = () => now() + 601_000;
+    try { expect(await resolvePdfRef(reference)).toBeUndefined(); } finally { Date.now = now; }
+  });
+
+  it("rematerializes a deleted cached file and deduplicates concurrent resolution", async () => {
+    const bytes = readFileSync(FIXTURE);
+    process.env.QUICK_CHECK_UPLOAD_SIGNING_SECRET = "test-signing-secret";
+    process.env.VERCEL_ENV = "preview";
+    process.env.R2_ACCOUNT_ID = "account";
+    process.env.R2_BUCKET_NAME = "preview-bucket";
+    process.env.R2_ACCESS_KEY_ID = "access-key";
+    process.env.R2_SECRET_ACCESS_KEY = "secret-key";
+    const reference = issueUploadReference(bytes.length);
+    let gets = 0;
+    jest.spyOn(S3Client.prototype, "send").mockImplementation(async (command) => {
+      if (command instanceof HeadObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf" } as never;
+      if (command instanceof GetObjectCommand) {
+        gets += 1;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        return { ContentLength: bytes.length, ContentType: "application/pdf", Body: { transformToByteArray: async () => new Uint8Array(bytes) } } as never;
+      }
+      throw new Error("unexpected command");
+    });
+    const first = await resolvePdfRef(reference);
+    expect(first).toBeTruthy();
+    unlinkSync(first!);
+    const [second, third] = await Promise.all([resolvePdfRef(reference), resolvePdfRef(reference)]);
+    expect(second).toBe(third);
+    expect(gets).toBe(2);
+  });
+
+  it("uses the initial parsed artifact without resolving R2 again", async () => {
+    const parsed = parseDocumentText({ rawText: "Project Description", pdfFilePath: FIXTURE });
+    jest.restoreAllMocks();
+    const retrieve = jest.spyOn(S3Client.prototype, "send");
+    await resolveStructuredQueryContext("Project Description", "not-used-after-extraction", parsed);
+    expect(retrieve).not.toHaveBeenCalled();
   });
 
   it("resolveStructuredQueryContext without pdfRef falls back to current-extractor", async () => {

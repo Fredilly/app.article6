@@ -38,4 +38,20 @@ describe("POST /api/quick-check/semantic-evidence with signed R2 pdfRef", () => 
     expect((await response.json()).status).toBe("ok");
     expect(jest.mocked(suggestSemanticEvidence)).toHaveBeenCalledWith(expect.objectContaining({ pdfFilePath: expect.stringContaining("quick-check-pdfs") }));
   });
+
+  it("uses the initial parser artifact without resolving a deferred R2 reference", async () => {
+    jest.mocked(suggestSemanticEvidence).mockClear();
+    const response = await POST(new NextRequest("http://localhost/api/quick-check/semantic-evidence", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        claimText: "What is the project?",
+        rawPddText: "Project Description",
+        pdfRef: "invalid.reference",
+        documentStructure: { sections: [], blocks: [] },
+      }),
+    }));
+    expect(response.status).toBe(200);
+    expect(jest.mocked(suggestSemanticEvidence)).toHaveBeenCalledWith(expect.objectContaining({ pdfFilePath: undefined, documentStructure: { sections: [], blocks: [] } }));
+  });
 });
