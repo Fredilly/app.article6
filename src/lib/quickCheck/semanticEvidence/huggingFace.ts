@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { buildArticle6DocumentModel } from "@/lib/documentModel";
+import type { Article6DocumentModel } from "@/lib/documentModel";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { initDoclingAdapterRuntime } from "@/lib/documentParsing/adapters/doclingInit";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
@@ -24,6 +25,7 @@ type SuggestInput = {
   claimText: string;
   rawPddText: string;
   pdfFilePath?: string;
+  documentStructure?: Article6DocumentModel;
   methodologyId?: string;
   methodologyVersion?: string;
 };
@@ -49,8 +51,7 @@ function extractKeywords(claimText: string): string[] {
 }
 
 function buildCandidateBlocks(input: SuggestInput) {
-  const parsedDocument = parseDocumentText({ rawText: input.rawPddText, pdfFilePath: input.pdfFilePath });
-  const model = buildArticle6DocumentModel({ parsedDocument });
+  const model = input.documentStructure ?? buildArticle6DocumentModel({ parsedDocument: parseDocumentText({ rawText: input.rawPddText, pdfFilePath: input.pdfFilePath }) });
   const sectionById = new Map(model.sections.map((section) => [section.id, section]));
   const keywords = extractKeywords(input.claimText);
 

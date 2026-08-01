@@ -58,6 +58,7 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => {
     extractMethodologyMentions: (text: string) => string[];
   };
   return {
+    createQuickCheckPdfUploadCache: () => new Map(),
     resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => {
       const text = PDF_TEXT_BY_FILENAME[filename] ?? "";
       return {

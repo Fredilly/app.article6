@@ -1,14 +1,47 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { NextRequest } from "next/server";
+import { GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
 
 import { POST } from "@/app/api/quick-check/pdf-extract/route";
+import { issueUploadReference } from "@/lib/quickCheck/r2Upload";
 
 describe("POST /api/quick-check/pdf-extract", () => {
   beforeEach(() => {
     jest.restoreAllMocks();
+    process.env.QUICK_CHECK_UPLOAD_SIGNING_SECRET = "test-signing-secret";
+    process.env.VERCEL_ENV = "preview";
+    process.env.R2_ACCOUNT_ID = "account";
+    process.env.R2_BUCKET_NAME = "preview-bucket";
+    process.env.R2_ACCESS_KEY_ID = "access-key";
+    process.env.R2_SECRET_ACCESS_KEY = "secret-key";
   });
+
+  it("reports private R2 as the configured extraction storage", async () => {
+    const response = await (await import("@/app/api/quick-check/pdf-extract/route")).GET();
+    await expect(response.json()).resolves.toMatchObject({ storage: "private-r2" });
+  });
+
+  it("retrieves a confirmed private-R2 PDF and sends its bytes to the existing extractor", async () => {
+    const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf"));
+    const reference = issueUploadReference(bytes.length);
+    jest.spyOn(S3Client.prototype, "send").mockImplementation(async (command) => {
+      if (command instanceof HeadObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf" } as never;
+      if (command instanceof GetObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf", Body: { transformToByteArray: async () => new Uint8Array(bytes) } } as never;
+      throw new Error("unexpected command");
+    });
+    const response = await POST(new NextRequest("http://localhost/api/quick-check/pdf-extract", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ uploadRef: reference, objectKey: "client-controlled-key" }),
+    }));
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.pdfRef).toBe(reference);
+    expect(payload.parsedDocument).toBeDefined();
+    expect(payload.text).toContain("Project");
+  }, 15000);
 
   it("returns extracted text for a small valid pdf upload (raw application/pdf path)", async () => {
     const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf"));
@@ -132,7 +165,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
     const response = await POST(
       new NextRequest("http://localhost/api/quick-check/pdf-extract", {
         method: "POST",
-        body: form as any, // NextRequest accepts FormData in test env
+        body: form, // NextRequest accepts FormData in test env
       }),
     );
 

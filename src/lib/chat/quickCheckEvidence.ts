@@ -2,6 +2,7 @@ import type { EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { unzlibSync } from "fflate";
 import { getAttachmentBytes } from "@/lib/proofMap/attachments";
 import type { EvidenceAttachment, PddFragment, WorkbookEvidenceAsset, WorkbookRecordGroup } from "@/lib/proofMap/types";
+import type { ParsedDocument } from "@/lib/documentParsing";
 import {
   classifyQuickCheckDocument,
   type QuickCheckDocumentClassification,
@@ -49,6 +50,7 @@ export type QuickCheckEvidenceAnalysis = {
   warnings: string[];
   rawPddText?: string;
   pdfRef?: string;
+  parsedDocument?: ParsedDocument;
   parserAdapterId?: string;
   parserFallbackFrom?: string;
   parserDebug?: QuickCheckPdfParserDebug;
@@ -99,6 +101,7 @@ export type QuickCheckResolvedPdfText = {
     | "selected-methodology-mismatch"
     | "methodology-not-detected";
   pdfRef?: string;
+  parsedDocument?: ParsedDocument;
   parserAdapterId?: string;
   parserFallbackFrom?: string;
   parserDebug?: QuickCheckPdfParserDebug;
@@ -1069,6 +1072,7 @@ export async function analyzeQuickCheckEvidence(
   const warningSet = new Set<string>();
     const rawPddTextParts: string[] = [];
     let pdfRef: string | undefined;
+    let parsedDocument: ParsedDocument | undefined;
     let parserAdapterId: string | undefined;
     let parserFallbackFrom: string | undefined;
     let parserDebug: QuickCheckPdfParserDebug | undefined;
@@ -1121,6 +1125,7 @@ export async function analyzeQuickCheckEvidence(
           });
           text = resolved?.text ?? "";
           if (resolved?.pdfRef) pdfRef = resolved.pdfRef;
+          if (resolved?.parsedDocument) parsedDocument = resolved.parsedDocument;
           if (resolved?.parserAdapterId) parserAdapterId = resolved.parserAdapterId;
           if (resolved?.parserFallbackFrom) parserFallbackFrom = resolved.parserFallbackFrom;
           if (resolved?.parserDebug) parserDebug = resolved.parserDebug;
@@ -1178,6 +1183,7 @@ export async function analyzeQuickCheckEvidence(
     warnings,
     rawPddText: rawPddTextParts.length > 0 ? rawPddTextParts.join("\n\n") : undefined,
     pdfRef,
+    parsedDocument,
     parserAdapterId,
     parserFallbackFrom,
     parserDebug,

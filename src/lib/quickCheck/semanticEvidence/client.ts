@@ -10,6 +10,7 @@ export async function fetchSemanticEvidenceCandidates(input: {
   claimText: string;
   rawPddText: string;
   pdfRef?: string;
+  documentStructure?: unknown;
   methodologyId: string;
   methodologyVersion: string;
 }): Promise<SemanticEvidenceResponse> {
