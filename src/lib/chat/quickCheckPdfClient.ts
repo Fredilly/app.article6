@@ -4,11 +4,27 @@ import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickChe
 export type QuickCheckUploadProgress = (percent: number) => void;
 const SERVER_EXTRACTION_LIMIT = 4 * 1024 * 1024;
 const RECOVERED_TEXT_WARNING = "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
-export async function resolveQuickCheckPdfText(input: { bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void }): Promise<QuickCheckResolvedPdfText> {
+export type QuickCheckPdfUploadCache = Map<string, Promise<string>>;
+export function createQuickCheckPdfUploadCache(): QuickCheckPdfUploadCache { return new Map(); }
+const defaultUploadCache = createQuickCheckPdfUploadCache();
+export function clearQuickCheckUploadCache() { defaultUploadCache.clear(); }
+export async function resolveQuickCheckPdfText(input: { attachmentId?: string; sha256?: string; uploadCache?: QuickCheckPdfUploadCache; bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void }): Promise<QuickCheckResolvedPdfText> {
   const { bytes, filename, onProgress, onConfirm, onConfirmed } = input;
   if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
   if (!isLikelyPdfBytes(bytes)) throw new Error("Only valid PDF files can be uploaded.");
-  const uploadRef = await uploadPdfDirectly(bytes, onProgress, onConfirm, onConfirmed);
+  const cacheKey = input.sha256?.trim() || input.attachmentId?.trim();
+  const cache = input.uploadCache ?? defaultUploadCache;
+  const existing = cacheKey ? cache.get(cacheKey) : undefined;
+  let uploadRef: string;
+  if (existing) {
+    uploadRef = await existing;
+    onProgress?.(100);
+    onConfirmed?.();
+  } else {
+    const uploadPromise = uploadPdfDirectly(bytes, onProgress, onConfirm, onConfirmed);
+    if (cacheKey) cache.set(cacheKey, uploadPromise);
+    try { uploadRef = await uploadPromise; } catch (error) { if (cacheKey) cache.delete(cacheKey); throw error; }
+  }
   if (bytes.byteLength > SERVER_EXTRACTION_LIMIT) return { text: "", engine: "heuristic", methodologyMentions: [], pdfRef: uploadRef, warning: "This PDF was uploaded successfully, but server extraction for PDFs over 4 MiB is not available yet. Private-R2 processing will be added separately." };
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), filename || "document.pdf");

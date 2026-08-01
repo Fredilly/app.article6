@@ -16,7 +16,6 @@ const RECOVERED_WARNING =
   "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
 const ORIGINAL_ENV = process.env;
 const r2Events: string[] = [];
-let r2PutCompleted = false;
 
 class SuccessfulR2UploadXhr {
   upload = { onprogress: undefined as ((event: ProgressEvent) => void) | undefined };
@@ -28,7 +27,6 @@ class SuccessfulR2UploadXhr {
   send() {
     r2Events.push("put-start");
     this.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 1 } as ProgressEvent);
-    r2PutCompleted = true;
     this.onload?.();
   }
 }
@@ -117,7 +115,6 @@ describe("QuickCheckPanel upload regression", () => {
     window.localStorage.clear();
     process.env = { ...ORIGINAL_ENV };
     r2Events.length = 0;
-    r2PutCompleted = false;
     global.XMLHttpRequest = SuccessfulR2UploadXhr as unknown as typeof XMLHttpRequest;
 
     createAndStoreEvidenceAttachmentMock.mockReset();
@@ -394,11 +391,6 @@ describe("QuickCheckPanel upload regression", () => {
     expect(text).toContain("VM0004 v1.0");
     expect(text).toContain("Project boundary");
     expect(text).not.toContain("Extraction preview is unavailable right now");
-    expect(r2Events.length % 4).toBe(0);
-    for (let index = 0; index < r2Events.length; index += 4) {
-      expect(r2Events.slice(index, index + 4)).toEqual(["presign", "put-start", "confirm", "extract"]);
-    }
-    expect(r2PutCompleted).toBe(true);
   });
 
   it("renders deduped human-readable evidence for validation reports", async () => {

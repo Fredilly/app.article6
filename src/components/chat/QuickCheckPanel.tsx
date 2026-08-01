@@ -50,7 +50,7 @@ import {
   deriveQuickCheckExtractionState,
   normalizeQuickCheckUiResult,
 } from "@/lib/chat/quickCheckUi";
-import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+import { createQuickCheckPdfUploadCache, resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
 import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment, getAttachmentBytes } from "@/lib/proofMap/attachments";
@@ -710,6 +710,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     error: null,
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const uploadCacheRef = useRef(createQuickCheckPdfUploadCache());
   const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
@@ -1103,7 +1104,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   );
 
   const resolvePdfText = useCallback(
-    async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
+    async (input: { attachmentId: string; sha256?: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
       if (input.mime !== "application/pdf") {
         return {
           text: extractPdfText(input.bytes),
@@ -1111,6 +1112,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         };
       }
       return await resolveQuickCheckPdfText({
+        attachmentId: input.attachmentId,
+        sha256: input.sha256,
+        uploadCache: uploadCacheRef.current,
         bytes: input.bytes,
         filename: input.filename,
         onProgress: (percent) => setUploadProgress(percent),
