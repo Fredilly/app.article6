@@ -215,11 +215,14 @@ async function handlePost(request: Request) {
     if (!isLikelyPdfBytes(retrieved.bytes)) return qcJson({ error: "The uploaded object is not a valid PDF.", code: "invalid-file" }, { status: 400 });
     const pdfFilePath = saveTempPdf(retrieved.bytes);
     try {
-      let parsedDocument: ParsedDocument | undefined;
+      let parsedDocument: ParsedDocument;
       try {
         parsedDocument = parseDocumentText({ rawText: "", pdfFilePath });
       } catch {
-        parsedDocument = undefined;
+        return qcJson({
+          error: "The uploaded PDF could not be parsed for Quick Check processing.",
+          code: "extraction-failed",
+        }, { status: 422 });
       }
       return await extractAndRespond(retrieved.bytes, json.uploadRef, parsedDocument);
     } catch {
