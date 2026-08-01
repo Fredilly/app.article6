@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { withMetrics } from "@/lib/metrics";
+import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 /**
  * Quick Check PDF upload endpoint.
@@ -22,8 +23,8 @@ async function handlePost() {
   return NextResponse.json({
     ok: true,
     store: blobAvailable ? "vercel-blob" : "in-memory",
-    maxSizeBytes: 20 * 1024 * 1024,
-    maxSizeLabel: "20MB",
+    maxSizeBytes: MAX_QUICK_CHECK_PDF_BYTES,
+    maxSizeLabel: "50 MiB",
   });
 }
 
@@ -33,8 +34,8 @@ async function handleGet() {
   return NextResponse.json({
     ok: true,
     store: blobAvailable ? "vercel-blob" : "in-memory",
-    maxSizeBytes: 20 * 1024 * 1024,
-    maxSizeLabel: "20MB",
+    maxSizeBytes: MAX_QUICK_CHECK_PDF_BYTES,
+    maxSizeLabel: "50 MiB",
   });
 }
 

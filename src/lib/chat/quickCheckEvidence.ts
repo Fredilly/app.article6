@@ -105,6 +105,7 @@ export type QuickCheckResolvedPdfText = {
 };
 type ResolvePdfText = (input: {
   attachmentId: string;
+  sha256?: string;
   filename: string;
   mime: string;
   bytes: ArrayBuffer;
@@ -1113,6 +1114,7 @@ export async function analyzeQuickCheckEvidence(
         try {
           const resolved = await resolvePdfText({
             attachmentId: attachment.id,
+            sha256: attachment.sha256,
             filename: attachment.filename,
             mime: attachment.mime,
             bytes,

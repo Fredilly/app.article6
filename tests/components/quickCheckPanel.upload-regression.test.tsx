@@ -15,6 +15,21 @@ const RIMBA_RAYA_FALLBACK_TEXT = fs.readFileSync(
 const RECOVERED_WARNING =
   "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
 const ORIGINAL_ENV = process.env;
+const r2Events: string[] = [];
+
+class SuccessfulR2UploadXhr {
+  upload = { onprogress: undefined as ((event: ProgressEvent) => void) | undefined };
+  onload?: () => void;
+  onerror?: () => void;
+  status = 204;
+  open(_method: string, url: string) { if (url !== "https://r2.example.test/signed-put") throw new Error(`Unexpected XHR URL: ${url}`); }
+  setRequestHeader() {}
+  send() {
+    r2Events.push("put-start");
+    this.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 1 } as ProgressEvent);
+    this.onload?.();
+  }
+}
 
 jest.mock("@/lib/proofMap/attachments", () => ({
   ...jest.requireActual("@/lib/proofMap/attachments"),
@@ -84,15 +99,6 @@ describe("QuickCheckPanel upload regression", () => {
     throw new Error(`Timed out waiting for text: ${text}`);
   }
 
-  async function flushUntilFetch(path: string) {
-    for (let attempt = 0; attempt < 20; attempt += 1) {
-      await flushUi();
-      const fetchMock = global.fetch as jest.Mock;
-      if (fetchMock.mock.calls.some(([input]) => String(input).includes(path))) return;
-    }
-    throw new Error(`Timed out waiting for fetch: ${path}`);
-  }
-
   function clickButton(label: string) {
     const normalizedLabel = label.toLowerCase();
     const button = Array.from(container.querySelectorAll("button")).find((node) =>
@@ -108,6 +114,8 @@ describe("QuickCheckPanel upload regression", () => {
     root = createRoot(container);
     window.localStorage.clear();
     process.env = { ...ORIGINAL_ENV };
+    r2Events.length = 0;
+    global.XMLHttpRequest = SuccessfulR2UploadXhr as unknown as typeof XMLHttpRequest;
 
     createAndStoreEvidenceAttachmentMock.mockReset();
     createAndStoreEvidenceAttachmentMock.mockImplementation(async (input: { pin_id: string; file: File }) => {
@@ -127,6 +135,19 @@ describe("QuickCheckPanel upload regression", () => {
 
     global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.includes("/api/quick-check/r2-upload")) {
+        const body = JSON.parse(String(init?.body ?? "{}")) as { action?: string; uploadRef?: string; size?: number };
+        if (body.action === "presign") {
+          r2Events.push("presign");
+          return new Response(JSON.stringify({ uploadRef: "signed-upload-reference-fixture", url: "https://r2.example.test/signed-put", expiresIn: 300 }), { status: 200 });
+        }
+        if (body.action === "confirm") {
+          expect(body.uploadRef).toBe("signed-upload-reference-fixture");
+          r2Events.push("confirm");
+          return new Response(JSON.stringify({ uploadRef: body.uploadRef, size: body.size ?? 0 }), { status: 200 });
+        }
+        throw new Error(`Unexpected R2 action ${body.action}`);
+      }
       if (url.includes("/api/methods/inventory")) {
         return new Response(
           JSON.stringify({
@@ -136,6 +157,7 @@ describe("QuickCheckPanel upload regression", () => {
         );
       }
       if (url.includes("/api/quick-check/pdf-extract")) {
+        r2Events.push("extract");
         const form =
           init?.body && typeof init.body === "object" && "get" in init.body
             ? (init.body as FormData)

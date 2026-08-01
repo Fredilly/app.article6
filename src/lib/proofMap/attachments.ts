@@ -91,11 +91,15 @@ export type EvidenceAttachmentCreateResult =
 export async function createAndStoreEvidenceAttachment(input: {
   pin_id: string;
   file: File;
+  maxBytes?: number;
+  maxBytesLabel?: string;
 }): Promise<EvidenceAttachmentCreateResult> {
   const file = input.file;
+  const maxBytes = input.maxBytes ?? MAX_EVIDENCE_ATTACHMENT_BYTES;
+  const maxBytesLabel = input.maxBytesLabel ?? `${(maxBytes / (1024 * 1024)).toFixed(0)} MiB`;
   if (!file) return { ok: false, message: "No file selected." };
-  if (file.size > MAX_EVIDENCE_ATTACHMENT_BYTES) {
-    return { ok: false, message: `File too large (max ${(MAX_EVIDENCE_ATTACHMENT_BYTES / (1024 * 1024)).toFixed(0)}MB).` };
+  if (file.size > maxBytes) {
+    return { ok: false, message: `File too large (max ${maxBytesLabel}).` };
   }
 
   const mime = normalizeMime(file);

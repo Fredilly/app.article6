@@ -24,7 +24,7 @@ jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
         text: "",
         engine: "heuristic" as const,
         methodologyMentions: [],
-        warning: "PDF exceeds the Quick Check upload limit of 20MB.",
+        warning: "PDF exceeds the Quick Check upload limit of 50 MiB.",
         diagnosticCode: "file-too-large" as const,
       };
     }

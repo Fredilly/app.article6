@@ -50,7 +50,8 @@ import {
   deriveQuickCheckExtractionState,
   normalizeQuickCheckUiResult,
 } from "@/lib/chat/quickCheckUi";
-import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+import { createQuickCheckPdfUploadCache, resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment, getAttachmentBytes } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -708,6 +709,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     analysis: null,
     error: null,
   });
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const uploadCacheRef = useRef(createQuickCheckPdfUploadCache());
+  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1100,7 +1104,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   );
 
   const resolvePdfText = useCallback(
-    async (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
+    async (input: { attachmentId: string; sha256?: string; filename: string; mime: string; bytes: ArrayBuffer }) => {
       if (input.mime !== "application/pdf") {
         return {
           text: extractPdfText(input.bytes),
@@ -1108,8 +1112,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         };
       }
       return await resolveQuickCheckPdfText({
+        attachmentId: input.attachmentId,
+        sha256: input.sha256,
+        uploadCache: uploadCacheRef.current,
         bytes: input.bytes,
         filename: input.filename,
+        onProgress: (percent) => setUploadProgress(percent),
+        onConfirm: () => setUploadStatus("confirming"),
+        onConfirmed: () => setUploadStatus("confirmed"),
       });
     },
     [],
@@ -1128,6 +1138,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       analysis: null,
       error: null,
     });
+    setUploadProgress(null);
+    setUploadStatus("uploading");
 
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
@@ -1598,13 +1610,21 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!file) return;
 
     setIsDragActive(false);
+    if (file.size > MAX_QUICK_CHECK_PDF_BYTES) {
+      setFieldErrors({ evidence: "PDF exceeds the Quick Check upload limit of 50 MiB." });
+      return;
+    }
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setFieldErrors({ evidence: "Only PDF files can be uploaded to Quick Check." });
+      return;
+    }
     setSubmitting(true);
     resetQuickCheckUi();
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
     setRecoveryState(null);
     try {
       const evidenceId = newPinId();
-      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
+      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file, maxBytes: MAX_QUICK_CHECK_PDF_BYTES, maxBytesLabel: "50 MiB" });
       if (!attachmentResult.ok) {
         setFieldErrors({ evidence: attachmentResult.message });
         return;
@@ -2433,7 +2453,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 ref={fileRef}
                 type="file"
                 className="hidden"
-                accept=".pdf,.docx,.xlsx,.geojson,.kml,.zip"
+                accept=".pdf,application/pdf"
                 onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
               />
               <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -2442,7 +2462,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     Drop your document
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
-                    PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP
+                    PDF only · up to 50 MiB
                   </div>
                 </div>
                 <button
@@ -2454,6 +2474,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   Upload document
                 </button>
               </div>
+              {uploadProgress !== null ? (
+                <div className="mt-5" role="status" aria-live="polite">
+                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "confirmed" ? "Upload confirmed" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
+                </div>
+              ) : null}
 
               {!selectedEvidenceLabel ? (
                 <div className="mt-6 rounded-[1.5rem] border border-dashed border-slate-300 bg-[linear-gradient(135deg,rgba(248,250,252,0.95),rgba(241,245,249,0.9))] px-6 py-12 text-center">

@@ -30,6 +30,14 @@ const ENVIRA_GOLD_FIXTURE = JSON.parse(
 }>;
 
 const createAndStoreEvidenceAttachmentMock = jest.fn();
+class SuccessfulR2UploadXhr {
+  upload = { onprogress: undefined as ((event: ProgressEvent) => void) | undefined };
+  onload?: () => void;
+  status = 204;
+  open(_method: string, url: string) { if (url !== "https://r2.example.test/signed-put") throw new Error(`Unexpected XHR URL: ${url}`); }
+  setRequestHeader() {}
+  send() { this.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 1 } as ProgressEvent); this.onload?.(); }
+}
 let selectedRulebookVersion = "v1-0";
 let canonicalVm0007Rules: import("@/app/m/_lib/methodRules").RuleSummary[] = [];
 
@@ -147,6 +155,7 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
     document.body.appendChild(container);
     root = createRoot(container);
     window.localStorage.clear();
+    global.XMLHttpRequest = SuccessfulR2UploadXhr as unknown as typeof XMLHttpRequest;
 
     Object.defineProperty(window, "location", {
       configurable: true,
@@ -177,6 +186,12 @@ describe("QuickCheckPanel upload/session boundary smoke test — proves the pane
 
     global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.includes("/api/quick-check/r2-upload")) {
+        const body = JSON.parse(String(init?.body ?? "{}")) as { action?: string; uploadRef?: string; size?: number };
+        if (body.action === "presign") return new Response(JSON.stringify({ uploadRef: "signed-upload-reference-fixture", url: "https://r2.example.test/signed-put", expiresIn: 300 }), { status: 200 });
+        if (body.action === "confirm") return new Response(JSON.stringify({ uploadRef: body.uploadRef, size: body.size ?? 0 }), { status: 200 });
+        throw new Error(`Unexpected R2 action ${body.action}`);
+      }
       if (url.includes("/api/methods/inventory")) {
         return new Response(
           JSON.stringify({
