@@ -11,3 +11,9 @@ server-generated opaque reference. The browser uploads directly to R2, then
 the server confirms object existence, size, and content type with `HeadObject`.
 The confirmation response contains only the opaque upload reference and size;
 it does not return the bucket, object key, or a public URL.
+
+## Follow-up before rollout
+
+Add retention cleanup for abandoned Quick Check objects, remove duplicate
+Preview objects created during testing, and define the Production retention
+policy before rollout. This upload-only PR does not add a cleanup worker.
