@@ -26,14 +26,13 @@ describe("Quick Check PDF client", () => {
     const result = await resolveQuickCheckPdfText({ bytes: pdfBytes(5 * 1024 * 1024), filename: "large.pdf" });
     expect(result.text).toContain("Large project description");
     const extractionCall = (global.fetch as jest.Mock).mock.calls.find(([url]) => String(url).includes("pdf-extract"));
-    expect(JSON.parse(extractionCall[1].body)).toEqual({ uploadRef: "signed-reference" });
+    expect(JSON.parse(extractionCall[1].body)).toEqual({ uploadRef: "signed-reference", filename: "large.pdf" });
   });
 
   it("accepts a 48.95 MiB PDF and completes direct upload and extraction", async () => {
     const urls: string[] = [];
     global.fetch = jest.fn(async (url: RequestInfo | URL) => { urls.push(String(url)); return new Response(JSON.stringify(String(url).includes("r2-upload") ? { uploadRef: "signed-reference", url: "https://r2.example/signed", size: 48_950_000 } : { text: "extracted content", engine: "pdf-parse" })); }) as typeof fetch;
     const result = await resolveQuickCheckPdfText({ bytes: pdfBytes(48_950_000), filename: "large-pdd.pdf" });
-    expect(urls).toEqual(["/api/quick-check/r2-upload", "/api/quick-check/r2-upload"]);
     expect(result.pdfRef).toBe("signed-reference");
     expect(result.text).toContain("extracted content");
     expect(urls).toEqual(["/api/quick-check/r2-upload", "/api/quick-check/r2-upload", "/api/quick-check/pdf-extract"]);
@@ -58,11 +57,26 @@ describe("Quick Check PDF client", () => {
     }) as typeof fetch;
     const input = { attachmentId: "attachment-1", sha256: "sha-same", bytes: pdfBytes(100), filename: "same.pdf" };
     const [first, second] = await Promise.all([resolveQuickCheckPdfText(input), resolveQuickCheckPdfText(input)]);
-    await resolveQuickCheckPdfText({ ...input, filename: "renamed.pdf" });
+    await resolveQuickCheckPdfText({ ...input, sha256: undefined, filename: "renamed.pdf" });
     expect(first.pdfRef).toBe("shared-reference");
     expect(second.pdfRef).toBe("shared-reference");
     expect(presigns).toBe(1);
     expect(confirmations).toBe(1);
+    expect((global.fetch as jest.Mock).mock.calls.filter(([url]) => String(url).includes("pdf-extract")).length).toBe(1);
+  });
+
+  it("clears a failed extraction so the same attachment can retry", async () => {
+    let extractionAttempts = 0;
+    global.fetch = jest.fn(async (url: RequestInfo | URL) => {
+      if (String(url).includes("r2-upload")) return new Response(JSON.stringify({ uploadRef: "retry-extraction", url: "https://r2.example/signed", size: 100 }));
+      extractionAttempts += 1;
+      if (extractionAttempts === 1) return new Response(JSON.stringify({ error: "temporary extraction failure" }), { status: 503 });
+      return new Response(JSON.stringify({ text: "retried text", engine: "pdf-parse" }));
+    }) as typeof fetch;
+    const input = { attachmentId: "attachment-extraction-retry", sha256: "sha-extraction-retry", bytes: pdfBytes(100), filename: "retry.pdf" };
+    await expect(resolveQuickCheckPdfText(input)).rejects.toThrow("temporary extraction failure");
+    await expect(resolveQuickCheckPdfText(input)).resolves.toMatchObject({ text: "retried text" });
+    expect(extractionAttempts).toBe(2);
   });
 
   it("removes a failed cache entry so a later retry can upload", async () => {

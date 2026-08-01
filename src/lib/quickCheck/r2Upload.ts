@@ -56,9 +56,13 @@ export async function confirmQuickCheckUpload(reference: string) {
   try {
     const head = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: objectKey(claims) }));
     const actualSize = head.ContentLength;
-    if (actualSize === undefined || actualSize <= 0 || actualSize > MAX_QUICK_CHECK_PDF_BYTES || actualSize !== claims.expectedSize || head.ContentType?.toLowerCase() !== claims.contentType) {
+    if (actualSize !== undefined && actualSize > MAX_QUICK_CHECK_PDF_BYTES) {
       await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey(claims) })).catch(() => undefined);
-      throw new QuickCheckUploadError(actualSize && actualSize > MAX_QUICK_CHECK_PDF_BYTES ? "upload-too-large" : "upload-metadata-mismatch", "The uploaded PDF metadata did not match the requested upload.");
+      throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+    }
+    if (actualSize === undefined || actualSize <= 0 || actualSize !== claims.expectedSize || head.ContentType?.toLowerCase() !== claims.contentType) {
+      await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey(claims) })).catch(() => undefined);
+      throw new QuickCheckUploadError("upload-metadata-mismatch", "The uploaded PDF metadata did not match the requested upload.");
     }
     return { uploadRef: reference, size: actualSize };
   } catch (error) {
@@ -87,7 +91,8 @@ export async function retrieveQuickCheckUpload(reference: string): Promise<{ byt
     const size = head.ContentLength;
     const contentType = head.ContentType?.toLowerCase();
     if (size === undefined || size <= 0) throw new QuickCheckUploadError("upload-not-found", "The uploaded PDF was not found.");
-    if (size > MAX_QUICK_CHECK_PDF_BYTES || size !== claims.expectedSize) throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+    if (size > MAX_QUICK_CHECK_PDF_BYTES) throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+    if (size !== claims.expectedSize) throw new QuickCheckUploadError("upload-metadata-mismatch", "The uploaded PDF metadata did not match the upload reference.");
     if (contentType !== claims.contentType) throw new QuickCheckUploadError("upload-unsupported-content-type", "The uploaded object is not a PDF.");
 
     const object = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));

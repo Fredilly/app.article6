@@ -18,6 +18,11 @@ describe("POST /api/quick-check/pdf-extract", () => {
     process.env.R2_SECRET_ACCESS_KEY = "secret-key";
   });
 
+  it("reports private R2 as the configured extraction storage", async () => {
+    const response = await (await import("@/app/api/quick-check/pdf-extract/route")).GET();
+    await expect(response.json()).resolves.toMatchObject({ storage: "private-r2" });
+  });
+
   it("retrieves a confirmed private-R2 PDF and sends its bytes to the existing extractor", async () => {
     const bytes = fs.readFileSync(path.join(process.cwd(), "tests/fixtures/quick-check/plum-verra-demo-excerpt.pdf"));
     const reference = issueUploadReference(bytes.length);
@@ -159,7 +164,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
     const response = await POST(
       new NextRequest("http://localhost/api/quick-check/pdf-extract", {
         method: "POST",
-        body: form as any, // NextRequest accepts FormData in test env
+        body: form, // NextRequest accepts FormData in test env
       }),
     );
 

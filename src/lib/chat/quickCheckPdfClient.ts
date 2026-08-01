@@ -3,7 +3,7 @@ import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/qui
 import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 export type QuickCheckUploadProgress = (percent: number) => void;
 const RECOVERED_TEXT_WARNING = "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
-export type QuickCheckPdfUploadCache = Map<string, Promise<string>>;
+export type QuickCheckPdfUploadCache = Map<string, Promise<QuickCheckResolvedPdfText>>;
 export function createQuickCheckPdfUploadCache(): QuickCheckPdfUploadCache { return new Map(); }
 const defaultUploadCache = createQuickCheckPdfUploadCache();
 export function clearQuickCheckUploadCache() { defaultUploadCache.clear(); }
@@ -11,25 +11,30 @@ export async function resolveQuickCheckPdfText(input: { attachmentId?: string; s
   const { bytes, onProgress, onConfirm, onConfirmed, onRetrieving, onExtracting, onRunning } = input;
   if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
   if (!isLikelyPdfBytes(bytes)) throw new Error("Only valid PDF files can be uploaded.");
-  const cacheKey = input.sha256?.trim() || input.attachmentId?.trim();
+  const cacheKeys = [input.sha256?.trim(), input.attachmentId?.trim()].filter((key): key is string => Boolean(key));
   const cache = input.uploadCache ?? defaultUploadCache;
-  const existing = cacheKey ? cache.get(cacheKey) : undefined;
-  let uploadRef: string;
+  const existing = cacheKeys.map((key) => cache.get(key)).find(Boolean);
   if (existing) {
-    uploadRef = await existing;
+    for (const key of cacheKeys) cache.set(key, existing);
     onProgress?.(100);
-    onConfirmed?.();
-  } else {
-    const uploadPromise = uploadPdfDirectly(bytes, onProgress, onConfirm, onConfirmed);
-    if (cacheKey) cache.set(cacheKey, uploadPromise);
-    try { uploadRef = await uploadPromise; } catch (error) { if (cacheKey) cache.delete(cacheKey); throw error; }
+    return existing;
   }
-  onRetrieving?.();
-  const response = await fetch("/api/quick-check/pdf-extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uploadRef }), cache: "no-store" });
-  onExtracting?.();
-  const result = await handleExtractResponse(response, bytes, uploadRef);
-  onRunning?.();
-  return result;
+  const operation = (async () => {
+    const uploadRef = await uploadPdfDirectly(bytes, onProgress, onConfirm, onConfirmed);
+    onRetrieving?.();
+    onExtracting?.();
+    const response = await fetch("/api/quick-check/pdf-extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uploadRef, filename: input.filename || "document.pdf" }), cache: "no-store" });
+    const result = await handleExtractResponse(response, bytes, uploadRef);
+    onRunning?.();
+    return result;
+  })();
+  for (const key of cacheKeys) cache.set(key, operation);
+  try {
+    return await operation;
+  } catch (error) {
+    for (const key of cacheKeys) if (cache.get(key) === operation) cache.delete(key);
+    throw error;
+  }
 }
 async function uploadPdfDirectly(bytes: ArrayBuffer, onProgress?: QuickCheckUploadProgress, onConfirm?: () => void, onConfirmed?: () => void): Promise<string> {
   const presign = await fetch("/api/quick-check/r2-upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", size: bytes.byteLength, contentType: "application/pdf" }), cache: "no-store" });

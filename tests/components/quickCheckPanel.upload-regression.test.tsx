@@ -37,6 +37,7 @@ jest.mock("@/lib/proofMap/attachments", () => ({
 }));
 
 jest.mock("@/lib/chat/quickCheckPdfClient", () => ({
+  createQuickCheckPdfUploadCache: () => new Map(),
   resolveQuickCheckPdfText: async ({ filename }: { filename: string }) => ({
     text:
       filename === "fresh-monitoring-report.pdf"
@@ -169,7 +170,9 @@ describe("QuickCheckPanel upload regression", () => {
             ? filenameField
             : fileField && typeof fileField === "object" && "name" in fileField
               ? String((fileField as File).name)
-              : "";
+              : typeof init?.body === "string"
+                ? String((JSON.parse(init.body) as { filename?: string }).filename ?? "")
+                : "";
         return new Response(
           JSON.stringify({
             text:

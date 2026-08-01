@@ -239,9 +239,9 @@ function buildStructuredCheckAnswerText(input: {
 async function loadPreferredStructuredCheckText(
   evidenceSources: Array<{
     sourceLabel: string;
-    attachments: Array<{ id: string; filename: string; mime: string }>;
+    attachments: Array<{ id: string; sha256?: string; filename: string; mime: string }>;
   }>,
-  resolveFn: (input: { attachmentId: string; filename: string; mime: string; bytes: ArrayBuffer }) => Promise<{ text?: string | null } | null>,
+  resolveFn: (input: { attachmentId: string; sha256?: string; filename: string; mime: string; bytes: ArrayBuffer }) => Promise<{ text?: string | null } | null>,
 ): Promise<string | null> {
   const primaryAttachment = evidenceSources[0]?.attachments[0];
   if (!primaryAttachment?.id) return null;
@@ -251,6 +251,7 @@ async function loadPreferredStructuredCheckText(
 
   const resolved = await resolveFn({
     attachmentId: primaryAttachment.id,
+    sha256: primaryAttachment.sha256,
     filename: primaryAttachment.filename,
     mime: primaryAttachment.mime,
     bytes,
@@ -711,7 +712,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const uploadCacheRef = useRef(createQuickCheckPdfUploadCache());
-  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed" | "retrieving" | "extracting" | "running" | "building">("uploading");
+  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "processing" | "running" | "building">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1119,9 +1120,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         filename: input.filename,
         onProgress: (percent) => setUploadProgress(percent),
         onConfirm: () => setUploadStatus("confirming"),
-        onConfirmed: () => setUploadStatus("confirmed"),
-        onRetrieving: () => setUploadStatus("retrieving"),
-        onExtracting: () => setUploadStatus("extracting"),
+        onConfirmed: () => setUploadStatus("processing"),
+        onRetrieving: () => setUploadStatus("processing"),
+        onExtracting: () => setUploadStatus("processing"),
         onRunning: () => setUploadStatus("running"),
       });
     },
@@ -1148,10 +1149,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       .then((analysis) => {
         if (cancelled) return;
         setUploadStatus("building");
+        setUploadProgress(null);
         setExtractionState({ loading: false, analysis, error: null });
       })
       .catch((error) => {
         if (cancelled) return;
+        setUploadProgress(null);
         setExtractionState({
           loading: false,
           analysis: null,
@@ -2480,7 +2483,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               </div>
               {uploadProgress !== null ? (
                 <div className="mt-5" role="status" aria-live="polite">
-                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "confirmed" ? "Upload confirmed" : uploadStatus === "retrieving" ? "Retrieving uploaded PDF" : uploadStatus === "extracting" ? "Extracting document" : uploadStatus === "running" ? "Running Quick Check" : uploadStatus === "building" ? "Building Evidence Map" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
+                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "processing" ? "Processing uploaded PDF" : uploadStatus === "running" ? "Running Quick Check" : uploadStatus === "building" ? "Building Evidence Map" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
                 </div>
               ) : null}

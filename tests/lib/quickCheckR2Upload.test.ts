@@ -75,4 +75,15 @@ describe("Quick Check R2 upload references", () => {
     send.mockResolvedValueOnce({ ContentLength: 10, ContentType: "text/plain" } as never);
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-unsupported-content-type" });
   });
+
+  it("distinguishes size mismatches from objects that exceed the limit", async () => {
+    const reference = issueUploadReference(10);
+    const send = jest.spyOn(S3Client.prototype, "send");
+    send.mockResolvedValueOnce({ ContentLength: 9, ContentType: "application/pdf" } as never);
+    await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-metadata-mismatch" });
+    send.mockResolvedValueOnce({ ContentLength: 11, ContentType: "application/pdf" } as never);
+    await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-metadata-mismatch" });
+    send.mockResolvedValueOnce({ ContentLength: 50 * 1024 * 1024 + 1, ContentType: "application/pdf" } as never);
+    await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-too-large" });
+  });
 });

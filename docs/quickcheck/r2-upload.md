@@ -12,7 +12,8 @@ the server confirms object existence, size, and content type with `HeadObject`.
 The confirmation response contains only the opaque upload reference and size;
 it does not return the bucket, object key, or a public URL.
 
-After confirmation, Quick Check sends only the signed reference to the server.
+After confirmation, Quick Check sends the signed reference and non-authoritative
+display metadata to the server.
 The server verifies its signature and environment, resolves the opaque key,
 validates the private object metadata, and passes the retrieved bytes into the
 existing PDF extraction pipeline. The browser never receives or resends the

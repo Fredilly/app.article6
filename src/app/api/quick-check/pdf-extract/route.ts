@@ -124,7 +124,6 @@ function buildParserDebug(): ParserDebugPayload {
  */
 async function extractAndRespond(
   bytes: ArrayBuffer,
-  pdfFilePath: string,
   pdfRef: string,
 ): Promise<NextResponse> {
   let fallbackReason = "pdf-parse returned empty text — fell back to heuristic extractor";
@@ -212,8 +211,7 @@ async function handlePost(request: Request) {
     }
     if (!isLikelyPdfBytes(retrieved.bytes)) return qcJson({ error: "The uploaded object is not a valid PDF.", code: "invalid-file" }, { status: 400 });
     try {
-      const pdfFilePath = saveTempPdf(retrieved.bytes);
-      return await extractAndRespond(retrieved.bytes, pdfFilePath, json.uploadRef);
+      return await extractAndRespond(retrieved.bytes, json.uploadRef);
     } catch {
       return qcJson({ error: "The uploaded PDF could not be extracted.", code: "extraction-failed" }, { status: 422 });
     }
@@ -279,7 +277,7 @@ async function handlePost(request: Request) {
   const pdfRef = storePdfRef(pdfFilePath);
 
   // Extract text with pdf-parse, fall back to heuristic
-  return await extractAndRespond(bytes, pdfFilePath, pdfRef);
+  return await extractAndRespond(bytes, pdfRef);
 }
 
 async function handleGet() {
@@ -287,7 +285,7 @@ async function handleGet() {
     ok: true,
     engine: "pdf-parse",
     runtime: "nodejs",
-    storage: "vercel-blob",
+    storage: "private-r2",
   });
 }
 

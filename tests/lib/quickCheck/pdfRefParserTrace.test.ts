@@ -1,12 +1,14 @@
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { execFileSync } from "child_process";
 import path from "path";
 import { describe, expect, it } from "@jest/globals";
+import { GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 import { getStructuredQueryContext } from "@/lib/chat/quickCheckReviewQuestion";
 import { resolveStructuredQueryContext } from "@/lib/chat/quickCheckStructuredQuery";
 import { storePdfRef, resolvePdfRef } from "@/lib/chat/quickCheckPdfStore";
+import { issueUploadReference } from "@/lib/quickCheck/r2Upload";
 
 function isPymupdfAvailable(): boolean {
   const python3 = process.env.PYTHON3
@@ -143,6 +145,27 @@ describe("resolveStructuredQueryContext with pdfRef → PyMuPDF", () => {
       expect(ctx.parserAdapterId).toBe("pymupdf");
       expect(ctx.parserFallbackFrom).toBe("pymupdf");
     }
+  });
+
+  it("resolves a signed R2 pdfRef to a parser-compatible temporary path", async () => {
+    const bytes = readFileSync(FIXTURE);
+    process.env.QUICK_CHECK_UPLOAD_SIGNING_SECRET = "test-signing-secret";
+    process.env.VERCEL_ENV = "preview";
+    process.env.R2_ACCOUNT_ID = "account";
+    process.env.R2_BUCKET_NAME = "preview-bucket";
+    process.env.R2_ACCESS_KEY_ID = "access-key";
+    process.env.R2_SECRET_ACCESS_KEY = "secret-key";
+    const reference = issueUploadReference(bytes.length);
+    jest.spyOn(S3Client.prototype, "send").mockImplementation(async (command) => {
+      if (command instanceof HeadObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf" } as never;
+      if (command instanceof GetObjectCommand) return { ContentLength: bytes.length, ContentType: "application/pdf", Body: { transformToByteArray: async () => new Uint8Array(bytes) } } as never;
+      throw new Error("unexpected command");
+    });
+    const resolved = await resolvePdfRef(reference);
+    expect(resolved).toMatch(/quick-check-pdfs/);
+    const ctx = await resolveStructuredQueryContext("Project Description", reference);
+    expect(ctx.parsedDocument.rawText).toBeTruthy();
+    expect((await resolvePdfRef(reference))).toBe(resolved);
   });
 
   it("resolveStructuredQueryContext without pdfRef falls back to current-extractor", async () => {
