@@ -708,6 +708,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     analysis: null,
     error: null,
   });
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1110,6 +1111,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       return await resolveQuickCheckPdfText({
         bytes: input.bytes,
         filename: input.filename,
+        onProgress: (percent) => setUploadProgress(percent),
       });
     },
     [],
@@ -1128,6 +1130,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       analysis: null,
       error: null,
     });
+    setUploadProgress(null);
 
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
@@ -1598,6 +1601,14 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!file) return;
 
     setIsDragActive(false);
+    if (file.size > 50 * 1024 * 1024) {
+      setFieldErrors({ evidence: "PDF exceeds the Quick Check upload limit of 50MB." });
+      return;
+    }
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setFieldErrors({ evidence: "Only PDF files can be uploaded to Quick Check." });
+      return;
+    }
     setSubmitting(true);
     resetQuickCheckUi();
     setFieldErrors((current) => ({ ...current, evidence: undefined, general: undefined }));
@@ -2433,7 +2444,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                 ref={fileRef}
                 type="file"
                 className="hidden"
-                accept=".pdf,.docx,.xlsx,.geojson,.kml,.zip"
+                accept=".pdf,application/pdf"
                 onChange={(event) => void handleUpload(event.target.files?.[0] ?? null)}
               />
               <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -2442,7 +2453,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     Drop your document
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
-                    PDF, DOCX, XLSX, GEOJSON, KML, SHP ZIP
+                    PDF only · up to 50MB
                   </div>
                 </div>
                 <button
@@ -2454,6 +2465,12 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                   Upload document
                 </button>
               </div>
+              {uploadProgress !== null ? (
+                <div className="mt-5" role="status" aria-live="polite">
+                  <div className="flex justify-between text-xs text-slate-600"><span>Uploading PDF directly to secure storage…</span><span>{uploadProgress}%</span></div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
+                </div>
+              ) : null}
 
               {!selectedEvidenceLabel ? (
                 <div className="mt-6 rounded-[1.5rem] border border-dashed border-slate-300 bg-[linear-gradient(135deg,rgba(248,250,252,0.95),rgba(241,245,249,0.9))] px-6 py-12 text-center">

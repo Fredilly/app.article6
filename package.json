@@ -84,6 +84,8 @@
     "npm": ">=10"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1101.0",
+    "@aws-sdk/s3-request-presigner": "^3.1101.0",
     "@vercel/blob": "^2.5.0",
     "clsx": "^2.1.1",
     "fake-indexeddb": "^6.2.5",
