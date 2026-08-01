@@ -104,7 +104,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
   });
 
   it("rejects oversized PDF with file-too-large code", async () => {
-    const oversized = new Uint8Array(21 * 1024 * 1024); // > 20MB
+    const oversized = new Uint8Array((50 * 1024 * 1024) + 1); // > 50 MiB
     // make it look like PDF to pass magic check
     const header = new TextEncoder().encode("%PDF-1.4\n");
     oversized.set(header, 0);

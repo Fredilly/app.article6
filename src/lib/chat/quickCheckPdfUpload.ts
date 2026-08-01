@@ -3,7 +3,7 @@ export const MAX_QUICK_CHECK_PDF_BYTES = 50 * 1024 * 1024;
 export type QuickCheckPdfRouteErrorCode = "missing-file" | "invalid-file" | "file-too-large";
 
 export function formatQuickCheckPdfLimitLabel(): string {
-  return `${(MAX_QUICK_CHECK_PDF_BYTES / (1024 * 1024)).toFixed(0)}MB`;
+  return `${(MAX_QUICK_CHECK_PDF_BYTES / (1024 * 1024)).toFixed(0)} MiB`;
 }
 
 export function isLikelyPdfBytes(bytes: ArrayBuffer): boolean {

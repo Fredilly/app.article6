@@ -51,6 +51,7 @@ import {
   normalizeQuickCheckUiResult,
 } from "@/lib/chat/quickCheckUi";
 import { resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { coalesceEvidencePins, type EvidenceInventoryItem } from "@/lib/evidence/inventory";
 import { createAndStoreEvidenceAttachment, getAttachmentBytes } from "@/lib/proofMap/attachments";
 import { isRuleLikeId } from "@/lib/proofMap/pins";
@@ -1605,8 +1606,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     if (!file) return;
 
     setIsDragActive(false);
-    if (file.size > 50 * 1024 * 1024) {
-      setFieldErrors({ evidence: "PDF exceeds the Quick Check upload limit of 50MB." });
+    if (file.size > MAX_QUICK_CHECK_PDF_BYTES) {
+      setFieldErrors({ evidence: "PDF exceeds the Quick Check upload limit of 50 MiB." });
       return;
     }
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
@@ -1619,7 +1620,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setRecoveryState(null);
     try {
       const evidenceId = newPinId();
-      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file });
+      const attachmentResult = await createAndStoreEvidenceAttachment({ pin_id: evidenceId, file, maxBytes: MAX_QUICK_CHECK_PDF_BYTES, maxBytesLabel: "50 MiB" });
       if (!attachmentResult.ok) {
         setFieldErrors({ evidence: attachmentResult.message });
         return;
@@ -2457,7 +2458,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                     Drop your document
                   </div>
                   <div className="mt-2 text-sm text-slate-600">
-                    PDF only · up to 50MB
+                    PDF only · up to 50 MiB
                   </div>
                 </div>
                 <button
