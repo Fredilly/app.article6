@@ -1,12 +1,12 @@
 import { createHmac, randomUUID, timingSafeEqual } from "crypto";
-import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 const PREFIX = "quick-check/";
 const REFERENCE_TTL_SECONDS = 600;
 const PRESIGNED_URL_TTL_SECONDS = 300;
-export type UploadErrorCode = "storage-not-configured" | "upload-reference-invalid" | "upload-reference-expired" | "upload-not-found" | "upload-too-large" | "upload-metadata-mismatch" | "storage-unavailable";
+export type UploadErrorCode = "storage-not-configured" | "upload-reference-invalid" | "upload-reference-expired" | "upload-environment-mismatch" | "upload-not-found" | "upload-too-large" | "upload-unsupported-content-type" | "upload-metadata-mismatch" | "storage-unavailable";
 export class QuickCheckUploadError extends Error { constructor(public readonly code: UploadErrorCode, message: string) { super(message); } }
 type Claims = { objectId: string; expectedSize: number; contentType: "application/pdf"; environment: string; issuedAt: number; expiresAt: number };
 function envName() { return process.env.VERCEL_ENV || process.env.NODE_ENV || "development"; }
@@ -33,7 +33,8 @@ export function verifyUploadReference(reference: string): Claims {
     const actual = Buffer.from(signature);
     if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) throw new Error();
     const claims = JSON.parse(decode(payload)) as Claims;
-    if (claims.contentType !== "application/pdf" || !Number.isInteger(claims.expectedSize) || claims.expectedSize <= 0 || claims.expectedSize > MAX_QUICK_CHECK_PDF_BYTES || typeof claims.objectId !== "string" || claims.environment !== envName()) throw new Error();
+    if (claims.contentType !== "application/pdf" || !Number.isInteger(claims.expectedSize) || claims.expectedSize <= 0 || claims.expectedSize > MAX_QUICK_CHECK_PDF_BYTES || typeof claims.objectId !== "string") throw new Error();
+    if (claims.environment !== envName()) throw new QuickCheckUploadError("upload-environment-mismatch", "This upload reference belongs to a different environment.");
     if (!Number.isInteger(claims.issuedAt) || !Number.isInteger(claims.expiresAt) || claims.expiresAt <= Math.floor(Date.now() / 1000)) throw new QuickCheckUploadError("upload-reference-expired", "The upload reference has expired.");
     return claims;
   } catch (error) {
@@ -60,6 +61,42 @@ export async function confirmQuickCheckUpload(reference: string) {
       throw new QuickCheckUploadError(actualSize && actualSize > MAX_QUICK_CHECK_PDF_BYTES ? "upload-too-large" : "upload-metadata-mismatch", "The uploaded PDF metadata did not match the requested upload.");
     }
     return { uploadRef: reference, size: actualSize };
+  } catch (error) {
+    if (error instanceof QuickCheckUploadError) throw error;
+    if ((error as { name?: string }).name === "NotFound" || (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 404) throw new QuickCheckUploadError("upload-not-found", "The uploaded PDF was not found.");
+    throw new QuickCheckUploadError("storage-unavailable", "Upload storage is temporarily unavailable.");
+  }
+}
+
+async function bodyToBuffer(body: unknown): Promise<Buffer> {
+  if (body && typeof body === "object" && "transformToByteArray" in body && typeof body.transformToByteArray === "function") {
+    return Buffer.from(await body.transformToByteArray());
+  }
+  const chunks: Buffer[] = [];
+  for await (const chunk of body as AsyncIterable<Uint8Array | string>) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks);
+}
+
+/** Resolve and retrieve an upload without exposing the bucket or server-only object key. */
+export async function retrieveQuickCheckUpload(reference: string): Promise<{ bytes: ArrayBuffer; size: number }> {
+  const claims = verifyUploadReference(reference);
+  const { bucket, client } = config();
+  const key = objectKey(claims);
+  try {
+    const head = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    const size = head.ContentLength;
+    const contentType = head.ContentType?.toLowerCase();
+    if (size === undefined || size <= 0) throw new QuickCheckUploadError("upload-not-found", "The uploaded PDF was not found.");
+    if (size > MAX_QUICK_CHECK_PDF_BYTES || size !== claims.expectedSize) throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+    if (contentType !== claims.contentType) throw new QuickCheckUploadError("upload-unsupported-content-type", "The uploaded object is not a PDF.");
+
+    const object = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    if (object.ContentLength !== undefined && object.ContentLength !== size) throw new QuickCheckUploadError("upload-metadata-mismatch", "The uploaded PDF metadata did not match the upload reference.");
+    if (object.ContentType && object.ContentType.toLowerCase() !== claims.contentType) throw new QuickCheckUploadError("upload-unsupported-content-type", "The uploaded object is not a PDF.");
+    if (!object.Body) throw new QuickCheckUploadError("storage-unavailable", "The uploaded PDF could not be retrieved.");
+    const bytes = await bodyToBuffer(object.Body);
+    if (bytes.length !== size) throw new QuickCheckUploadError("upload-metadata-mismatch", "The uploaded PDF metadata did not match the upload reference.");
+    return { bytes: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer, size };
   } catch (error) {
     if (error instanceof QuickCheckUploadError) throw error;
     if ((error as { name?: string }).name === "NotFound" || (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 404) throw new QuickCheckUploadError("upload-not-found", "The uploaded PDF was not found.");

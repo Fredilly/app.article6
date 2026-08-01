@@ -2,14 +2,13 @@ import { extractMethodologyMentions, type QuickCheckPdfParserDebug, type QuickCh
 import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/quickCheckPdfPages";
 import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 export type QuickCheckUploadProgress = (percent: number) => void;
-const SERVER_EXTRACTION_LIMIT = 4 * 1024 * 1024;
 const RECOVERED_TEXT_WARNING = "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
 export type QuickCheckPdfUploadCache = Map<string, Promise<string>>;
 export function createQuickCheckPdfUploadCache(): QuickCheckPdfUploadCache { return new Map(); }
 const defaultUploadCache = createQuickCheckPdfUploadCache();
 export function clearQuickCheckUploadCache() { defaultUploadCache.clear(); }
-export async function resolveQuickCheckPdfText(input: { attachmentId?: string; sha256?: string; uploadCache?: QuickCheckPdfUploadCache; bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void }): Promise<QuickCheckResolvedPdfText> {
-  const { bytes, filename, onProgress, onConfirm, onConfirmed } = input;
+export async function resolveQuickCheckPdfText(input: { attachmentId?: string; sha256?: string; uploadCache?: QuickCheckPdfUploadCache; bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void; onRetrieving?: () => void; onExtracting?: () => void; onRunning?: () => void }): Promise<QuickCheckResolvedPdfText> {
+  const { bytes, onProgress, onConfirm, onConfirmed, onRetrieving, onExtracting, onRunning } = input;
   if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
   if (!isLikelyPdfBytes(bytes)) throw new Error("Only valid PDF files can be uploaded.");
   const cacheKey = input.sha256?.trim() || input.attachmentId?.trim();
@@ -25,12 +24,12 @@ export async function resolveQuickCheckPdfText(input: { attachmentId?: string; s
     if (cacheKey) cache.set(cacheKey, uploadPromise);
     try { uploadRef = await uploadPromise; } catch (error) { if (cacheKey) cache.delete(cacheKey); throw error; }
   }
-  if (bytes.byteLength > SERVER_EXTRACTION_LIMIT) return { text: "", engine: "heuristic", methodologyMentions: [], pdfRef: uploadRef, warning: "This PDF was uploaded successfully, but server extraction for PDFs over 4 MiB is not available yet. Private-R2 processing will be added separately." };
-  const form = new FormData();
-  form.append("file", new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), filename || "document.pdf");
-  form.append("filename", filename || "document.pdf");
-  const response = await fetch("/api/quick-check/pdf-extract", { method: "POST", body: form, cache: "no-store" });
-  return handleExtractResponse(response, bytes, uploadRef);
+  onRetrieving?.();
+  const response = await fetch("/api/quick-check/pdf-extract", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uploadRef }), cache: "no-store" });
+  onExtracting?.();
+  const result = await handleExtractResponse(response, bytes, uploadRef);
+  onRunning?.();
+  return result;
 }
 async function uploadPdfDirectly(bytes: ArrayBuffer, onProgress?: QuickCheckUploadProgress, onConfirm?: () => void, onConfirmed?: () => void): Promise<string> {
   const presign = await fetch("/api/quick-check/r2-upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", size: bytes.byteLength, contentType: "application/pdf" }), cache: "no-store" });

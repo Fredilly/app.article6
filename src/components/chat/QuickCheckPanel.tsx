@@ -711,7 +711,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const uploadCacheRef = useRef(createQuickCheckPdfUploadCache());
-  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed">("uploading");
+  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed" | "retrieving" | "extracting" | "running" | "building">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1120,6 +1120,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         onProgress: (percent) => setUploadProgress(percent),
         onConfirm: () => setUploadStatus("confirming"),
         onConfirmed: () => setUploadStatus("confirmed"),
+        onRetrieving: () => setUploadStatus("retrieving"),
+        onExtracting: () => setUploadStatus("extracting"),
+        onRunning: () => setUploadStatus("running"),
       });
     },
     [],
@@ -1144,6 +1147,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
         if (cancelled) return;
+        setUploadStatus("building");
         setExtractionState({ loading: false, analysis, error: null });
       })
       .catch((error) => {
@@ -2476,7 +2480,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               </div>
               {uploadProgress !== null ? (
                 <div className="mt-5" role="status" aria-live="polite">
-                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "confirmed" ? "Upload confirmed" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
+                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "confirmed" ? "Upload confirmed" : uploadStatus === "retrieving" ? "Retrieving uploaded PDF" : uploadStatus === "extracting" ? "Extracting document" : uploadStatus === "running" ? "Running Quick Check" : uploadStatus === "building" ? "Building Evidence Map" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
                 </div>
               ) : null}

@@ -13,10 +13,10 @@ import {
 import { formatQuickCheckPdfPages } from "@/lib/chat/quickCheckPdfPages";
 import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import { storePdfRef } from "@/lib/chat/quickCheckPdfStore";
-import { uploadPdfToBlob, isBlobUrl, downloadBlobToTemp } from "@/lib/chat/quickCheckPdfBlob";
 import { withMetrics } from "@/lib/metrics";
 import { resolveConfiguredDocumentParserAdapterId } from "@/lib/documentParsing";
 import { checkPymupdfAvailability } from "@/lib/documentParsing/adapters/pymupdfHelper";
+import { QuickCheckUploadError, retrieveQuickCheckUpload } from "@/lib/quickCheck/r2Upload";
 
 function qcJson(body: unknown, init?: ResponseInit): NextResponse {
   return NextResponse.json(body, {
@@ -184,65 +184,39 @@ async function extractAndRespond(
  * Supports two upload paths:
  *
  *   1. FormData / raw body (legacy, small files):
- *      Browser sends PDF bytes → server saves to /tmp → uploads to Blob for
- *      durability → returns blob URL as pdfRef.
- *      Limited by Vercel 4.5MB Function payload limit.
+ *      Browser sends PDF bytes and the existing in-memory reference path is
+ *      retained for compatibility.
  *
- *   2. Blob URL (direct browser-to-Blob upload):
- *      Browser uploads PDF directly to Vercel Blob via presigned URL, then
- *      sends the blob URL here for extraction.
- *      Bypasses Vercel Function body limit entirely.
+ *   2. Signed R2 upload reference:
+ *      The server verifies the reference, retrieves the private object, and
+ *      sends its bytes through the same extraction function.
  *
- * For path 2, the client POSTs JSON: { blobUrl: "https://...blob.vercel-storage.com/..." }
- * The server downloads the blob to /tmp and runs PyMuPDF extraction.
+ * For path 2, the client POSTs JSON: { uploadRef: "signed-reference" }.
  */
 async function handlePost(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
 
-  // --- Path 2: Blob URL (direct browser-to-Blob upload) ---
+  // --- Path 2: signed private R2 reference ---
   if (contentType.includes("application/json")) {
-    const json = await request.json().catch(() => ({})) as { blobUrl?: string; filename?: string };
-    const blobUrl = json.blobUrl;
-
-    if (!blobUrl || !isBlobUrl(blobUrl)) {
-      return qcJson(
-        { error: "Missing or invalid blobUrl.", code: "invalid-file" },
-        { status: 400 },
-      );
-    }
-
-    // Download blob to /tmp for PyMuPDF parsing
-    let pdfFilePath: string;
+    const json = await request.json().catch(() => ({})) as { uploadRef?: string };
+    if (!json.uploadRef || typeof json.uploadRef !== "string") return qcJson({ error: "Missing upload reference.", code: "upload-reference-invalid" }, { status: 400 });
+    let retrieved: Awaited<ReturnType<typeof retrieveQuickCheckUpload>>;
     try {
-      pdfFilePath = await downloadBlobToTemp(blobUrl);
+      retrieved = await retrieveQuickCheckUpload(json.uploadRef);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error("[quick-check/pdf-extract] Failed to download blob:", message);
-      return qcJson(
-        { error: "Failed to download PDF from Blob storage.", code: "parser-failed" },
-        { status: 502 },
-      );
+      if (error instanceof QuickCheckUploadError) {
+        const status = error.code === "upload-not-found" ? 404 : error.code === "storage-unavailable" ? 503 : 400;
+        return qcJson({ error: error.message, code: error.code }, { status });
+      }
+      return qcJson({ error: "The uploaded PDF could not be retrieved.", code: "storage-unavailable" }, { status: 503 });
     }
-
-    // Read bytes from temp file for extraction
-    const { readFileSync } = await import("fs");
-    const pdfBytes = readFileSync(pdfFilePath);
-    const pdfBytesArray = new Uint8Array(pdfBytes);
-    const pdfBytesBuffer = pdfBytesArray.buffer.slice(
-      pdfBytesArray.byteOffset,
-      pdfBytesArray.byteOffset + pdfBytesArray.byteLength,
-    ) as ArrayBuffer;
-
-    if (!isLikelyPdfBytes(pdfBytesBuffer)) {
-      return qcJson(
-        { error: "Blob content is not a valid PDF.", code: "invalid-file" },
-        { status: 400 },
-      );
+    if (!isLikelyPdfBytes(retrieved.bytes)) return qcJson({ error: "The uploaded object is not a valid PDF.", code: "invalid-file" }, { status: 400 });
+    try {
+      const pdfFilePath = saveTempPdf(retrieved.bytes);
+      return await extractAndRespond(retrieved.bytes, pdfFilePath, json.uploadRef);
+    } catch {
+      return qcJson({ error: "The uploaded PDF could not be extracted.", code: "extraction-failed" }, { status: 422 });
     }
-
-    // Extract text with pdf-parse, fall back to heuristic
-    const result = await extractAndRespond(pdfBytesBuffer, pdfFilePath, blobUrl);
-    return result;
   }
 
   // --- Path 1: FormData / raw bytes (legacy, small files) ---
@@ -299,19 +273,10 @@ async function handlePost(request: Request) {
     );
   }
 
-  // Save to temp, upload to Blob for durability, return blob URL as pdfRef
+  // Keep the small legacy byte path available without introducing a second
+  // storage upload. Direct browser uploads use the signed R2 path above.
   const pdfFilePath = saveTempPdf(bytes);
-  let pdfRef: string;
-
-  try {
-    const blob = await uploadPdfToBlob(bytes);
-    pdfRef = blob.url;
-    console.log("[quick-check/pdf-extract] Uploaded PDF to Blob storage:", blob.pathname);
-  } catch (error) {
-    // Blob upload failed — fall back to in-memory pdfRef
-    console.warn("[quick-check/pdf-extract] Failed to upload to Blob, using in-memory pdfRef:", error);
-    pdfRef = storePdfRef(pdfFilePath);
-  }
+  const pdfRef = storePdfRef(pdfFilePath);
 
   // Extract text with pdf-parse, fall back to heuristic
   return await extractAndRespond(bytes, pdfFilePath, pdfRef);

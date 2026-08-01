@@ -21,19 +21,22 @@ describe("Quick Check PDF client", () => {
     expect(JSON.parse(calls[1]!.body!)).toEqual({ action: "confirm", uploadRef: "signed-reference" });
   });
 
-  it("reports the temporary large-file extraction limitation after upload confirmation", async () => {
-    global.fetch = jest.fn(async (url: RequestInfo | URL) => new Response(JSON.stringify(String(url).includes("r2-upload") ? { uploadRef: "signed-reference", url: "https://r2.example/signed", size: 5 * 1024 * 1024 } : {}))) as typeof fetch;
+  it("retrieves and extracts a large PDF through the signed reference", async () => {
+    global.fetch = jest.fn(async (url: RequestInfo | URL) => new Response(JSON.stringify(String(url).includes("r2-upload") ? { uploadRef: "signed-reference", url: "https://r2.example/signed", size: 5 * 1024 * 1024 } : { pages: [{ pageNumber: 1, text: "Large project description" }], engine: "pdf-parse", metadata: { parser: "pdf-parse" } }))) as typeof fetch;
     const result = await resolveQuickCheckPdfText({ bytes: pdfBytes(5 * 1024 * 1024), filename: "large.pdf" });
-    expect(result.warning).toContain("server extraction for PDFs over 4 MiB is not available yet");
+    expect(result.text).toContain("Large project description");
+    const extractionCall = (global.fetch as jest.Mock).mock.calls.find(([url]) => String(url).includes("pdf-extract"));
+    expect(JSON.parse(extractionCall[1].body)).toEqual({ uploadRef: "signed-reference" });
   });
 
-  it("accepts a 48.95 MiB PDF and completes direct upload before the limitation", async () => {
+  it("accepts a 48.95 MiB PDF and completes direct upload and extraction", async () => {
     const urls: string[] = [];
-    global.fetch = jest.fn(async (url: RequestInfo | URL) => { urls.push(String(url)); return new Response(JSON.stringify({ uploadRef: "signed-reference", url: "https://r2.example/signed", size: 48_950_000 })); }) as typeof fetch;
+    global.fetch = jest.fn(async (url: RequestInfo | URL) => { urls.push(String(url)); return new Response(JSON.stringify(String(url).includes("r2-upload") ? { uploadRef: "signed-reference", url: "https://r2.example/signed", size: 48_950_000 } : { text: "extracted content", engine: "pdf-parse" })); }) as typeof fetch;
     const result = await resolveQuickCheckPdfText({ bytes: pdfBytes(48_950_000), filename: "large-pdd.pdf" });
     expect(urls).toEqual(["/api/quick-check/r2-upload", "/api/quick-check/r2-upload"]);
-    expect(result.warning).toContain("server extraction for PDFs over 4 MiB is not available yet");
     expect(result.pdfRef).toBe("signed-reference");
+    expect(result.text).toContain("extracted content");
+    expect(urls).toEqual(["/api/quick-check/r2-upload", "/api/quick-check/r2-upload", "/api/quick-check/pdf-extract"]);
   });
 
   it("accepts exactly 50 MiB and rejects 50 MiB plus one byte before presign", async () => {
