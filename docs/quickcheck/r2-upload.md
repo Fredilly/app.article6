@@ -2,12 +2,10 @@
 
 Configure `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and
 `R2_BUCKET_NAME` independently in Preview and Production. Set
-`R2_ALLOWED_UPLOAD_ORIGINS` to exact browser origins. Production is exact-only
-and HTTPS-only. Preview may additionally use the narrowly scoped dynamic policy
-from `R2_ALLOWED_PREVIEW_PROJECT_PREFIX` and
-`R2_ALLOWED_PREVIEW_TEAM_SUFFIX`; the example hostname
-`https://app-article6-feature-fredillys-projects.vercel.app` is accepted when
-those variables are configured. Never allow all `*.vercel.app` deployments.
+`R2_ALLOWED_UPLOAD_ORIGINS` to the exact browser origins allowed to presign
+uploads. This is the single source of truth in both Preview and Production.
+Production origins must use HTTPS. Preview deployment origins must be added
+explicitly when they change; no Vercel wildcard is supported.
 
 The application presign-origin policy and Cloudflare R2 bucket CORS are
 separate controls. R2 CORS must also permit each browser origin that the
