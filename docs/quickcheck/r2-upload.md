@@ -2,9 +2,19 @@
 
 Configure `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and
 `R2_BUCKET_NAME` independently in Preview and Production. Set
-`R2_ALLOWED_UPLOAD_ORIGINS` to the matching browser origin(s), and configure
-the same values in the R2 bucket CORS policy for `PUT` with the
-`Content-Type` request header exposed. Never commit these values.
+`R2_ALLOWED_UPLOAD_ORIGINS` to exact browser origins. Production is exact-only
+and HTTPS-only. Preview may additionally use the narrowly scoped dynamic policy
+from `R2_ALLOWED_PREVIEW_PROJECT_PREFIX` and
+`R2_ALLOWED_PREVIEW_TEAM_SUFFIX`; the example hostname
+`https://app-article6-feature-fredillys-projects.vercel.app` is accepted when
+those variables are configured. Never allow all `*.vercel.app` deployments.
+
+The application presign-origin policy and Cloudflare R2 bucket CORS are
+separate controls. R2 CORS must also permit each browser origin that the
+application authorizes for `PUT` with the `Content-Type` request header
+exposed. If the current R2 CORS configuration only supports exact origins,
+each new Preview hostname still requires an operational CORS update; do not
+replace this with `*`.
 
 The upload API issues a five-minute, PDF-only presigned `PutObject` URL for a
 server-generated opaque reference. The browser uploads directly to R2, then
