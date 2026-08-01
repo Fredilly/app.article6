@@ -1,31 +1,37 @@
-import { extractMethodologyMentions, extractPdfText, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { extractMethodologyMentions, type QuickCheckPdfParserDebug, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
+import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/quickCheckPdfPages";
 import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
-
 export type QuickCheckUploadProgress = (percent: number) => void;
-
-export async function resolveQuickCheckPdfText(input: { bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress }): Promise<QuickCheckResolvedPdfText> {
-  const { bytes, onProgress } = input;
-  if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50MB.");
+const SERVER_EXTRACTION_LIMIT = 4 * 1024 * 1024;
+export async function resolveQuickCheckPdfText(input: { bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void }): Promise<QuickCheckResolvedPdfText> {
+  const { bytes, filename, onProgress, onConfirm, onConfirmed } = input;
+  if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
   if (!isLikelyPdfBytes(bytes)) throw new Error("Only valid PDF files can be uploaded.");
-  const uploadRef = await uploadPdfDirectly(bytes, onProgress);
-  const text = extractPdfText(bytes);
-  return { text, engine: "heuristic", methodologyMentions: extractMethodologyMentions(text), pdfRef: uploadRef };
+  const uploadRef = await uploadPdfDirectly(bytes, onProgress, onConfirm, onConfirmed);
+  if (bytes.byteLength > SERVER_EXTRACTION_LIMIT) return { text: "", engine: "heuristic", methodologyMentions: [], pdfRef: uploadRef, warning: "This PDF was uploaded successfully, but server extraction for PDFs over 4 MiB is not available yet. Private-R2 processing will be added separately." };
+  const form = new FormData();
+  form.append("file", new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), filename || "document.pdf");
+  form.append("filename", filename || "document.pdf");
+  const response = await fetch("/api/quick-check/pdf-extract", { method: "POST", body: form, cache: "no-store" });
+  return handleExtractResponse(response, bytes, uploadRef);
 }
-
-async function uploadPdfDirectly(bytes: ArrayBuffer, onProgress?: QuickCheckUploadProgress): Promise<string> {
+async function uploadPdfDirectly(bytes: ArrayBuffer, onProgress?: QuickCheckUploadProgress, onConfirm?: () => void, onConfirmed?: () => void): Promise<string> {
   const presign = await fetch("/api/quick-check/r2-upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", size: bytes.byteLength, contentType: "application/pdf" }), cache: "no-store" });
   const data = await presign.json() as { uploadRef?: string; url?: string; error?: string };
   if (!presign.ok || !data.uploadRef || !data.url) throw new Error(data.error ?? "Could not start the PDF upload.");
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", data.url!);
-    xhr.setRequestHeader("Content-Type", "application/pdf");
-    xhr.upload.onprogress = (event) => { if (event.lengthComputable) onProgress?.(Math.round(event.loaded / event.total * 100)); };
-    xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error("R2 upload failed. Check CORS configuration and retry."));
-    xhr.onerror = () => reject(new Error("PDF upload was interrupted. Check your connection and retry."));
-    xhr.send(bytes);
-  });
-  const confirmed = await fetch("/api/quick-check/r2-upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "confirm", uploadRef: data.uploadRef, size: bytes.byteLength }), cache: "no-store" });
-  if (!confirmed.ok) throw new Error("The PDF upload could not be confirmed. Please retry.");
+  await new Promise<void>((resolve, reject) => { const xhr = new XMLHttpRequest(); xhr.open("PUT", data.url!); xhr.setRequestHeader("Content-Type", "application/pdf"); xhr.upload.onprogress = (event) => { if (event.lengthComputable) onProgress?.(Math.round(event.loaded / event.total * 100)); }; xhr.onload = () => { if (xhr.status >= 200 && xhr.status < 300) { onProgress?.(100); resolve(); } else reject(new Error("R2 upload failed. Check CORS configuration and retry.")); }; xhr.onerror = () => reject(new Error("PDF upload was interrupted. Check your connection and retry.")); xhr.send(bytes); });
+  onProgress?.(100);
+  onConfirm?.();
+  const confirmed = await fetch("/api/quick-check/r2-upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "confirm", uploadRef: data.uploadRef }), cache: "no-store" });
+  const result = await confirmed.json().catch(() => ({})) as { error?: string };
+  if (!confirmed.ok) throw new Error(result.error ?? "The PDF upload could not be confirmed. Please retry.");
+  onConfirmed?.();
   return data.uploadRef;
+}
+async function handleExtractResponse(response: Response, originalBytes: ArrayBuffer, uploadRef: string): Promise<QuickCheckResolvedPdfText> {
+  if (!response.ok) { const payload = await response.json().catch(() => ({})) as { error?: string; code?: string }; throw new Error(payload.error ?? `PDF extraction failed (${response.status}).`); }
+  const payload = await response.json() as { text?: string; engine?: "pdf-parse" | "heuristic"; pages?: QuickCheckPdfPage[]; pdfRef?: string; parserAdapterId?: string; parserFallbackFrom?: string; parserDebug?: QuickCheckPdfParserDebug; metadata?: { parser?: "pdf-parse" | "heuristic"; diagnostics?: { failureKind?: "file-too-large" | "parser-failed" | "no-selectable-text" | "invalid-file" }; } };
+  const text = (Array.isArray(payload.pages) && payload.pages.length ? formatQuickCheckPdfPages(payload.pages) : payload.text) ?? "";
+  const failureKind = payload.metadata?.diagnostics?.failureKind;
+  return { text, engine: payload.engine === "heuristic" || payload.metadata?.parser === "heuristic" ? "heuristic" : "pdf-parse", methodologyMentions: extractMethodologyMentions(text), warning: failureKind === "no-selectable-text" ? "No selectable text found in this PDF." : undefined, diagnosticCode: failureKind, pdfRef: uploadRef, parserAdapterId: payload.parserDebug?.parserAdapterId ?? payload.parserAdapterId, parserFallbackFrom: payload.parserDebug?.parserFallbackFrom ?? payload.parserFallbackFrom, parserDebug: payload.parserDebug };
 }

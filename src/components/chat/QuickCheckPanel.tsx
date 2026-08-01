@@ -709,6 +709,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     error: null,
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<"uploading" | "confirming" | "confirmed">("uploading");
   const [session, setSession] = useState<QuickCheckSessionState>(() =>
     loadQuickCheckSession({
       methodologyId: initialMethod?.trim() || undefined,
@@ -1112,6 +1113,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
         bytes: input.bytes,
         filename: input.filename,
         onProgress: (percent) => setUploadProgress(percent),
+        onConfirm: () => setUploadStatus("confirming"),
+        onConfirmed: () => setUploadStatus("confirmed"),
       });
     },
     [],
@@ -1131,6 +1134,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       error: null,
     });
     setUploadProgress(null);
+    setUploadStatus("uploading");
 
     void analyzeQuickCheckEvidence(selectedEvidenceSources, { resolvePdfText })
       .then((analysis) => {
@@ -2467,7 +2471,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
               </div>
               {uploadProgress !== null ? (
                 <div className="mt-5" role="status" aria-live="polite">
-                  <div className="flex justify-between text-xs text-slate-600"><span>Uploading PDF directly to secure storage…</span><span>{uploadProgress}%</span></div>
+                  <div className="flex justify-between text-xs text-slate-600"><span>{uploadStatus === "confirming" ? "Confirming upload…" : uploadStatus === "confirmed" ? "Upload confirmed" : "Uploading PDF directly to secure storage…"}</span><span>{uploadProgress}%</span></div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-slate-900 transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>
                 </div>
               ) : null}
