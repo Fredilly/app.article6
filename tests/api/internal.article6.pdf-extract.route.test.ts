@@ -71,9 +71,12 @@ describe("POST /api/internal/article6/pdf-extract", () => {
   });
 
   it("rejects malformed size and PDF signature", async () => {
-    const fetchMock = jest.spyOn(global, "fetch");
+    const parser = jest.fn();
+    setPymupdfImplementationForTests({ isAvailable: () => true, parseText: parser });
+    const fetchMock = jest.spyOn(global, "fetch").mockResolvedValue(new Response(PDF_BYTES, { headers: { "content-length": String(PDF_BYTES.length), "content-type": "application/pdf" } }));
     const wrongSize = await POST(request({ submissionReference: "A6-20260802-85KFMT", documentUrl: "https://r2.example.test/signed", filename: "pdd.pdf", fileSize: PDF_BYTES.length + 1 }));
     expect(wrongSize.status).toBe(422);
+    expect(parser).not.toHaveBeenCalled();
     fetchMock.mockResolvedValue(new Response(Buffer.from("not a pdf"), { headers: { "content-length": "10" } }));
     const wrongSignature = await POST(request({ submissionReference: "A6-20260802-85KFMT", documentUrl: "https://r2.example.test/signed", filename: "pdd.pdf", fileSize: 10 }));
     expect(wrongSignature.status).toBe(422);
