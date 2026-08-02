@@ -7,6 +7,7 @@ import { randomUUID, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { parseDocumentText } from "@/lib/documentParsing";
 import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { initPymupdfAdapterRuntime } from "@/lib/documentParsing/adapters/pymupdfInit";
 
 const MAX_PREVIEW_LENGTH = 2000;
 const DOWNLOAD_TIMEOUT_MS = 30_000;
@@ -89,7 +90,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     const bytes = await downloadPdf(documentUrl, fileSize);
     const pdfFilePath = saveTempPdf(bytes);
     try {
+      initPymupdfAdapterRuntime();
       const parsed = parseDocumentText({ rawText: "", pdfFilePath }, "pymupdf");
+      const parserFallback = parsed.diagnostics?.metadata?.fallback_from === "pymupdf";
+      if (parserFallback || parsed.parserName !== "pymupdf") return json({ error: "PDF extraction failed." }, 422);
       const extractedTextPreview = parsed.normalizedText.replace(/\r\n?/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, MAX_PREVIEW_LENGTH);
       const extractionStatus = extractedTextPreview && !extractedTextPreview.startsWith("%PDF") ? "completed" : "empty";
       return json({
