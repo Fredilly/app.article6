@@ -10,6 +10,7 @@ import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal
 import {
   classifyEvidenceMapGenerationError,
   type EvidenceMapGenerationError,
+  type EvidenceMapGenerationStage,
 } from "@/lib/preverif/evidenceMapGenerationError";
 
 const VM0007_GAP_REPORT_AUDIT_PREFIX = "a6:vm0007-gap-report-audit:v1:";
@@ -38,15 +39,27 @@ export type Vm0007EvidenceMapGenerationResult = {
   error?: EvidenceMapGenerationError;
 };
 
-const failedGeneration = (blockedBy: string[] = [], error?: EvidenceMapGenerationError): Vm0007EvidenceMapGenerationResult => ({
+type GenerationContext = {
+  stage?: EvidenceMapGenerationStage;
+  extractedTextLength?: number;
+  ruleCount?: number;
+  evidenceFileName?: string;
+  generatedAt?: string;
+};
+
+const failedGeneration = (blockedBy: string[] = [], error?: EvidenceMapGenerationError, context: GenerationContext = {}): Vm0007EvidenceMapGenerationResult => {
+  const resolvedError = error ?? classifyEvidenceMapGenerationError({ blockedBy, ...context });
+  console.error("VM0007 Evidence Map generation diagnostic", resolvedError.diagnostic);
+  return {
   auditSaved: false,
   draftBuilt: false,
   draftSaved: false,
   blockedBy,
   auditId: null,
   audit: null,
-  ...(error ? { error } : { error: classifyEvidenceMapGenerationError({ blockedBy }) }),
-});
+  error: resolvedError,
+  };
+};
 
 export function completeVm0007EvidenceMapGeneration(input: {
   audit: Vm0007GapReportAuditRecord;
@@ -54,17 +67,24 @@ export function completeVm0007EvidenceMapGeneration(input: {
   draft: DraftBuildResult;
   saveDraft?: (draft: Vm0007EvidenceMapDraftPackage) => boolean;
   loadDraft?: (auditId: string) => Vm0007EvidenceMapDraftPackage | null;
+  context?: GenerationContext;
 }): Vm0007EvidenceMapGenerationResult {
-  if (!input.auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: input.audit.auditId, audit: input.audit };
-  if (!input.draft.ok) return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit, error: classifyEvidenceMapGenerationError({ blockedBy: input.draft.blockedBy }) };
+  const context = { evidenceFileName: input.audit.evidenceFileName, generatedAt: input.audit.generatedAt, ruleCount: input.audit.audit?.totalRules ?? 0, ...input.context };
+  if (!input.auditSaved) return { ...failedGeneration(["audit_persistence_failed"], undefined, { ...context, stage: "audit_persistence" }), auditId: input.audit.auditId, audit: input.audit };
+  if (!input.draft.ok) {
+    const error = classifyEvidenceMapGenerationError({ blockedBy: input.draft.blockedBy, ...context, stage: "draft_validation" });
+    console.error("VM0007 Evidence Map generation diagnostic", error.diagnostic);
+    return { auditSaved: true, draftBuilt: false, draftSaved: false, blockedBy: input.draft.blockedBy, auditId: input.audit.auditId, audit: input.audit, error };
+  }
   const saveDraft = input.saveDraft ?? saveVm0007EvidenceMapDraft;
   const loadDraft = input.loadDraft ?? loadVm0007EvidenceMapDraft;
   try {
-    if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
-    if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_persistence_failed"]), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+    if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_save_returned_false", "localStorage_unavailable"], undefined, { ...context, stage: "draft_persistence" }), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+    if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_reload_verification_failed"], undefined, { ...context, stage: "draft_reload_verification" }), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
   } catch (error) {
+    const stage = /load/i.test(error instanceof Error ? error.message : "") ? "draft_reload_verification" : "draft_persistence";
     return {
-      ...failedGeneration(["draft_persistence_failed"], classifyEvidenceMapGenerationError({ error })),
+      ...failedGeneration(["draft_persistence_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage })),
       auditSaved: true,
       draftBuilt: true,
       draftSaved: false,
@@ -150,15 +170,17 @@ export function buildAndSaveVm0007GapReportAudit(input: {
   rawPddText: string;
   rules: readonly RuleSummary[];
   userAcceptedVersionWarning?: boolean;
+  buildMachineProposal?: typeof buildVm0007MachineProposal;
 }): Vm0007EvidenceMapGenerationResult {
-  if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return failedGeneration(["methodology_id_mismatch"]);
-  if (!input.rawPddText.trim()) return failedGeneration(["pdf_parse_failed"], classifyEvidenceMapGenerationError({ error: "PDF extraction returned no text" }));
-  if (input.rules.length === 0) return failedGeneration(["malformed_audit_output"]);
+  const context = { extractedTextLength: input.rawPddText.length, ruleCount: input.rules.length, evidenceFileName: input.evidenceFileName, generatedAt: nowIso() };
+  if (input.methodology.methodologyId.trim().toUpperCase() !== "VM0007") return failedGeneration(["methodology_id_mismatch"], undefined, { ...context, stage: "input_validation" });
+  if (!input.rawPddText.trim()) return failedGeneration(["pdf_parse_failed"], classifyEvidenceMapGenerationError({ error: "PDF extraction returned no text", ...context, stage: "input_validation", sensitiveText: input.rawPddText }), { ...context, stage: "input_validation" });
+  if (input.rules.length === 0) return failedGeneration(["malformed_audit_output"], undefined, { ...context, stage: "input_validation" });
 
   const auditId = createVm0007GapReportAuditId();
   let built: ReturnType<typeof buildVm0007MachineProposal>;
   try {
-    built = buildVm0007MachineProposal({
+    built = (input.buildMachineProposal ?? buildVm0007MachineProposal)({
       auditId,
       generatedAt: nowIso(),
       methodologyId: input.loadedRulebookId,
@@ -171,7 +193,7 @@ export function buildAndSaveVm0007GapReportAudit(input: {
       userAcceptedVersionWarning: input.userAcceptedVersionWarning,
     });
   } catch (error) {
-    return failedGeneration(["generation_failed"], classifyEvidenceMapGenerationError({ error }));
+    return failedGeneration(["generation_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage: "machine_proposal_generation", sensitiveText: input.rawPddText }), { ...context, stage: "machine_proposal_generation" });
   }
 
   const record: Vm0007GapReportAuditRecord = {
@@ -192,8 +214,8 @@ export function buildAndSaveVm0007GapReportAudit(input: {
     saveVm0007GapReportAudit(record);
     auditSaved = loadVm0007GapReportAudit(record.auditId) !== null;
   } catch (error) {
-    return failedGeneration(["audit_persistence_failed"], classifyEvidenceMapGenerationError({ error }));
+    return failedGeneration(["audit_persistence_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage: "audit_persistence", sensitiveText: input.rawPddText }), { ...context, stage: "audit_persistence" });
   }
-  if (!auditSaved) return { ...failedGeneration(["audit_persistence_failed"]), auditId: record.auditId, audit: record };
-  return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft: built.draft });
+  if (!auditSaved) return { ...failedGeneration(["audit_persistence_failed"], undefined, { ...context, stage: "audit_persistence" }), auditId: record.auditId, audit: record };
+  return completeVm0007EvidenceMapGeneration({ audit: record, auditSaved: true, draft: built.draft, context });
 }

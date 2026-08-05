@@ -97,14 +97,15 @@ describe("Vm0007GapReportLaunchButton", () => {
           isVm0007Result
           auditId="failed-audit"
           onGenerate={jest.fn()}
-          generationError={createEvidenceMapGenerationError("GENERATION_ERROR", "localStorage quota exceeded")}
+          generationError={createEvidenceMapGenerationError("PERSISTENCE_ERROR", "localStorage quota exceeded", { stage: "draft_persistence" })}
         />,
       );
     });
 
-    expect(container.textContent).toContain("GENERATION ERROR");
+    expect(container.textContent).toContain("PERSISTENCE ERROR");
     expect(container.textContent).toContain("Retry generation");
-    expect(container.textContent).toContain("confirm the uploaded PDD is available");
+    expect(container.textContent).toContain("Diagnostic ID: vm0007-gen-");
+    expect(container.textContent).toContain("Failure stage: draft_persistence");
     expect(container.textContent).not.toContain("Evidence Map could not be created. You can retry.");
     expect(container.textContent).not.toContain("localStorage quota exceeded");
   });

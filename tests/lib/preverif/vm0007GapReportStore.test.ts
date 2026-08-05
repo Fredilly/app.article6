@@ -1,13 +1,13 @@
 /** @jest-environment jsdom */
 
-import { afterEach, describe, expect, test } from "@jest/globals";
+import { afterEach, describe, expect, jest, test } from "@jest/globals";
 import { sha256ArrayBuffer } from "@/lib/proof/hash";
 import {
   buildAndSaveVm0007GapReportAudit,
   completeVm0007EvidenceMapGeneration,
   loadVm0007GapReportAudit,
 } from "@/lib/preverif/vm0007GapReportStore";
-import { EVIDENCE_MAP_ERROR_CATEGORIES } from "@/lib/preverif/evidenceMapGenerationError";
+import { EVIDENCE_MAP_ERROR_CATEGORIES, getBrowserStorageDiagnostics } from "@/lib/preverif/evidenceMapGenerationError";
 import { buildVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraft";
 import {
   readQuickCheckFixtureText,
@@ -58,12 +58,50 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
       draft: { ok: false, blockedBy: ["canonical_rule_count_is_not_58"] },
     });
 
-    expect(result.error).toEqual({
+    expect(result.error).toMatchObject({
       category: "VALIDATION_ERROR",
       userMessage: "Evidence Map requires all 58 canonical VM0007 requirements.",
       technicalMessage: "canonical_rule_count_is_not_58",
+      diagnostic: { stage: "draft_validation", diagnosticId: expect.stringMatching(/^vm0007-gen-/), blockedBy: ["canonical_rule_count_is_not_58"] },
     });
     expect(result.error?.technicalMessage).not.toContain("Error:");
+  });
+
+  test("classifies a machine proposal exception and redacts extracted text", () => {
+    const secretText = "PRIVATE PROJECT EVIDENCE 123";
+    const result = buildAndSaveVm0007GapReportAudit({
+      methodology: { methodologyId: "VM0007", methodologyName: "VM0007", methodologyAlias: null, pddDeclaredMethodologyVersion: "v1.8", versionStatus: "DECLARED", evidencePage: 1, evidenceSection: "Methodology", evidenceQuote: "VM0007 v1.8" },
+      loadedRulebookId: "VM0007", loadedRulebookVersion: "v1.8", rawPddText: secretText, rules: VM0007_SYNCED_RULES,
+      buildMachineProposal: () => { throw new Error(`proposal failed: ${secretText}`); },
+    });
+    expect(result.error?.diagnostic).toMatchObject({ stage: "machine_proposal_generation", extractedTextLength: secretText.length, ruleCount: 58 });
+    expect(JSON.stringify(result.error?.diagnostic)).not.toContain(secretText);
+  });
+
+  test("classifies explicit localStorage quota and unavailable storage failures as persistence errors", () => {
+    const quota = completeVm0007EvidenceMapGeneration({ audit: { auditId: "quota", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => { const error = new DOMException("quota", "QuotaExceededError"); throw error; }, loadDraft: () => null });
+    expect(quota.error?.category).toBe("PERSISTENCE_ERROR");
+    expect(quota.error?.diagnostic.stage).toBe("draft_persistence");
+    const unavailable = completeVm0007EvidenceMapGeneration({ audit: { auditId: "unavailable", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => false, loadDraft: () => null });
+    expect(unavailable.error?.category).toBe("PERSISTENCE_ERROR");
+    expect(unavailable.error?.diagnostic.blockedBy).toContain("localStorage_unavailable");
+  });
+
+  test("reports unavailable localStorage without exposing document content", () => {
+    const localStorageGetter = jest.spyOn(window, "localStorage", "get").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    try {
+      expect(getBrowserStorageDiagnostics().localStorageAvailable).toBe(false);
+    } finally {
+      localStorageGetter.mockRestore();
+    }
+  });
+
+  test("classifies a saved draft that cannot be reloaded", () => {
+    const result = completeVm0007EvidenceMapGeneration({ audit: { auditId: "reload", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => true, loadDraft: () => null });
+    expect(result.error?.diagnostic.stage).toBe("draft_reload_verification");
+    expect(result.error?.diagnostic.blockedBy).toEqual(["draft_reload_verification_failed"]);
   });
 
   test("persists the SHA-256 of uploaded bytes through audit and Evidence Map package", async () => {
