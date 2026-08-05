@@ -14,6 +14,7 @@ describe("POST /api/internal/article6/pdf-extract", () => {
     process.env.ARTICLE6_PROCESSOR_SECRET = "shared-secret";
     process.env.ARTICLE6_PROCESSOR_ALLOWED_HOSTS = "r2.example.test";
     setPymupdfImplementationForTests(null);
+    jest.restoreAllMocks();
   });
 
   it("requires the shared server secret", async () => {
@@ -21,15 +22,25 @@ describe("POST /api/internal/article6/pdf-extract", () => {
     expect(response.status).toBe(401);
   });
 
-  it("rejects arbitrary document hosts before downloading", async () => {
+  it("rejects arbitrary document hosts before downloading and logs safe failure details", async () => {
     const fetchMock = jest.spyOn(global, "fetch");
+    const logMock = jest.spyOn(console, "log").mockImplementation(() => undefined);
     const response = await POST(request({ submissionReference: "A6-20260802-85KFMT", documentUrl: "https://evil.example.test/pdd.pdf", filename: "pdd.pdf", fileSize: 10 }));
     expect(response.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
-    fetchMock.mockRestore();
+    expect(logMock).toHaveBeenCalledWith("[api/internal/article6/pdf-extract] validation failed", expect.objectContaining({
+      reason: "documentUrl hostname is not allowed",
+      documentUrlType: "string",
+      documentUrlLength: expect.any(Number),
+      documentUrlHostname: "evil.example.test",
+      allowedHosts: ["r2.example.test"],
+    }));
+    const loggedPayload = logMock.mock.calls.find(([message]) => message === "[api/internal/article6/pdf-extract] validation failed")?.[1] as Record<string, unknown> | undefined;
+    expect(loggedPayload).toBeDefined();
+    expect(Object.keys(loggedPayload ?? {})).toEqual(["reason", "documentUrlType", "documentUrlLength", "documentUrlHostname", "allowedHosts"]);
   });
 
-  it("downloads an allowed PDF without redirects, invokes PyMuPDF, and cleans up its temp file", async () => {
+  it("accepts a signed R2 URL on the allowed host", async () => {
     let parsingPath = "";
     let parsingPathExisted = false;
     setPymupdfImplementationForTests({
@@ -48,7 +59,12 @@ describe("POST /api/internal/article6/pdf-extract", () => {
       expect(init?.redirect).toBe("error");
       return new Response(PDF_BYTES, { status: 200, headers: { "content-length": String(PDF_BYTES.length), "content-type": "application/pdf" } });
     });
-    const response = await POST(request({ submissionReference: "A6-20260802-85KFMT", documentUrl: "https://r2.example.test/signed", filename: "pdd.pdf", fileSize: PDF_BYTES.length }));
+    const response = await POST(request({
+      submissionReference: "A6-20260802-85KFMT",
+      documentUrl: "https://r2.example.test/signed?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test&X-Amz-Signature=abc123",
+      filename: "pdd.pdf",
+      fileSize: PDF_BYTES.length,
+    }));
     const payload = await response.json();
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(1);
