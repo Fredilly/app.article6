@@ -5,7 +5,7 @@ import {
 import type { MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
 import { type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
-import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft, type Vm0007EvidenceMapDraftSaveResult } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal";
 import {
   classifyEvidenceMapGenerationError,
@@ -65,7 +65,7 @@ export function completeVm0007EvidenceMapGeneration(input: {
   audit: Vm0007GapReportAuditRecord;
   auditSaved: boolean;
   draft: DraftBuildResult;
-  saveDraft?: (draft: Vm0007EvidenceMapDraftPackage) => boolean;
+  saveDraft?: (draft: Vm0007EvidenceMapDraftPackage) => Vm0007EvidenceMapDraftSaveResult;
   loadDraft?: (auditId: string) => Vm0007EvidenceMapDraftPackage | null;
   context?: GenerationContext;
 }): Vm0007EvidenceMapGenerationResult {
@@ -79,12 +79,32 @@ export function completeVm0007EvidenceMapGeneration(input: {
   const saveDraft = input.saveDraft ?? saveVm0007EvidenceMapDraft;
   const loadDraft = input.loadDraft ?? loadVm0007EvidenceMapDraft;
   try {
-    if (!saveDraft(input.draft.package)) return { ...failedGeneration(["draft_save_returned_false", "localStorage_unavailable"], undefined, { ...context, stage: "draft_persistence" }), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
+    const saveResult = saveDraft(input.draft.package);
+    if (!saveResult.ok) {
+      return {
+        ...failedGeneration([saveResult.reason], undefined, { ...context, stage: saveResult.reason === "draft_validation_failed" ? "draft_validation" : "draft_persistence" }),
+        auditSaved: true,
+        draftBuilt: true,
+        draftSaved: false,
+        auditId: input.audit.auditId,
+        audit: input.audit,
+      };
+    }
+  } catch (error) {
+    return {
+      ...failedGeneration(["draft_persistence_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage: "draft_persistence" })),
+      auditSaved: true,
+      draftBuilt: true,
+      draftSaved: false,
+      auditId: input.audit.auditId,
+      audit: input.audit,
+    };
+  }
+  try {
     if (!loadDraft(input.audit.auditId)) return { ...failedGeneration(["draft_reload_verification_failed"], undefined, { ...context, stage: "draft_reload_verification" }), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
   } catch (error) {
-    const stage = /load/i.test(error instanceof Error ? error.message : "") ? "draft_reload_verification" : "draft_persistence";
     return {
-      ...failedGeneration(["draft_persistence_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage })),
+      ...failedGeneration(["draft_reload_verification_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage: "draft_reload_verification" })),
       auditSaved: true,
       draftBuilt: true,
       draftSaved: false,

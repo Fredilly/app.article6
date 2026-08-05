@@ -162,7 +162,7 @@ export function classifyEvidenceMapGenerationError(input: {
           : error.userMessage,
     };
   }
-  if (reasons.some((reason) => /malformed|missing_|duplicate_|unknown_|canonical_|audit_|rule_ids|rule_count|source_document/i.test(reason))) {
+  if (reasons.some((reason) => /draft_validation|malformed|missing_|duplicate_|unknown_|canonical_|audit_|rule_ids|rule_count|source_document/i.test(reason))) {
     const error = createEvidenceMapGenerationError("VALIDATION_ERROR", text, context);
     return {
       ...error,

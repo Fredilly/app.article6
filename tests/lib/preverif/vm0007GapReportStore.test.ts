@@ -82,9 +82,9 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
     const quota = completeVm0007EvidenceMapGeneration({ audit: { auditId: "quota", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => { const error = new DOMException("quota", "QuotaExceededError"); throw error; }, loadDraft: () => null });
     expect(quota.error?.category).toBe("PERSISTENCE_ERROR");
     expect(quota.error?.diagnostic.stage).toBe("draft_persistence");
-    const unavailable = completeVm0007EvidenceMapGeneration({ audit: { auditId: "unavailable", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => false, loadDraft: () => null });
+    const unavailable = completeVm0007EvidenceMapGeneration({ audit: { auditId: "unavailable", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => ({ ok: false, reason: "storage_unavailable" }), loadDraft: () => null });
     expect(unavailable.error?.category).toBe("PERSISTENCE_ERROR");
-    expect(unavailable.error?.diagnostic.blockedBy).toContain("localStorage_unavailable");
+    expect(unavailable.error?.diagnostic.blockedBy).toContain("storage_unavailable");
   });
 
   test("reports unavailable localStorage without exposing document content", () => {
@@ -99,7 +99,7 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
   });
 
   test("classifies a saved draft that cannot be reloaded", () => {
-    const result = completeVm0007EvidenceMapGeneration({ audit: { auditId: "reload", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => true, loadDraft: () => null });
+    const result = completeVm0007EvidenceMapGeneration({ audit: { auditId: "reload", generatedAt: "2026-07-01T00:00:00Z", audit: { totalRules: 58 } } as never, auditSaved: true, draft: { ok: true, package: {} as never }, saveDraft: () => ({ ok: true }), loadDraft: () => null });
     expect(result.error?.diagnostic.stage).toBe("draft_reload_verification");
     expect(result.error?.diagnostic.blockedBy).toEqual(["draft_reload_verification_failed"]);
   });
@@ -155,7 +155,7 @@ describe("VM0007 uploaded PDF source identity propagation", () => {
       draft: directDraft,
       saveDraft: (draft) => {
         persisted = draft;
-        return true;
+        return { ok: true };
       },
       loadDraft: () => persisted,
     });

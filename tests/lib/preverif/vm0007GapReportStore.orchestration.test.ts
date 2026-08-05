@@ -1,5 +1,6 @@
 import { describe, expect, test, jest } from "@jest/globals";
 import type { Vm0007EvidenceMapDraftPackage, DraftBuildResult } from "@/lib/preverif/vm0007EvidenceMapDraft";
+import type { Vm0007EvidenceMapDraftSaveResult } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { completeVm0007EvidenceMapGeneration, type Vm0007GapReportAuditRecord } from "@/lib/preverif/vm0007GapReportStore";
 
 const audit = { auditId: "audit-1", generatedAt: "2026-07-01T00:00:00Z", evidenceFileName: "pdd.pdf", audit: { totalRules: 58 } } as Vm0007GapReportAuditRecord;
@@ -13,7 +14,7 @@ describe("VM0007 Evidence Map generation orchestration", () => {
   });
 
   test("reports successful audit and draft persistence only after reload", () => {
-    const saveDraft = jest.fn(() => true);
+    const saveDraft = jest.fn((): Vm0007EvidenceMapDraftSaveResult => ({ ok: true }));
     const loadDraft = jest.fn(() => draftPackage);
     const result = completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft, loadDraft });
     expect(result).toMatchObject({ auditSaved: true, draftBuilt: true, draftSaved: true, blockedBy: [] });
@@ -21,9 +22,10 @@ describe("VM0007 Evidence Map generation orchestration", () => {
     expect(loadDraft).toHaveBeenCalledWith("audit-1");
   });
 
-  test("treats save false and load null as draft failures", () => {
-    expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => false, loadDraft: () => draftPackage })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["draft_save_returned_false", "localStorage_unavailable"], error: { category: "PERSISTENCE_ERROR", diagnostic: { stage: "draft_persistence" } } });
-    expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => true, loadDraft: () => null })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["draft_reload_verification_failed"], error: { category: "PERSISTENCE_ERROR", diagnostic: { stage: "draft_reload_verification" } } });
+  test("distinguishes draft validation and storage failures", () => {
+    expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: false, reason: "draft_validation_failed" }), loadDraft: () => draftPackage })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["draft_validation_failed"], error: { category: "VALIDATION_ERROR", diagnostic: { stage: "draft_validation" } } });
+    expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: false, reason: "storage_unavailable" }), loadDraft: () => draftPackage })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["storage_unavailable"], error: { category: "PERSISTENCE_ERROR", diagnostic: { stage: "draft_persistence" } } });
+    expect(completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: true }), loadDraft: () => null })).toMatchObject({ draftBuilt: true, draftSaved: false, blockedBy: ["draft_reload_verification_failed"], error: { category: "PERSISTENCE_ERROR", diagnostic: { stage: "draft_reload_verification" } } });
   });
 
   test("converts a thrown draft persistence error into the structured generation contract", () => {
@@ -48,6 +50,13 @@ describe("VM0007 Evidence Map generation orchestration", () => {
       },
     });
     expect(result.error?.userMessage).not.toContain("Evidence Map could not be created. You can retry.");
+  });
+
+  test("keeps save and reload exceptions in their exact stages regardless of wording", () => {
+    const saveResult = completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => { throw new Error("not a load error"); }, loadDraft: () => draftPackage });
+    expect(saveResult.error?.diagnostic.stage).toBe("draft_persistence");
+    const reloadResult = completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: true }), loadDraft: () => { throw new Error("write wording only"); } });
+    expect(reloadResult.error?.diagnostic.stage).toBe("draft_reload_verification");
   });
 
 

@@ -52,7 +52,7 @@ describe("VM0007 v1.8 draft Evidence Map", () => {
     if (!built.ok) return;
     expect(built.package.rows[0].gap).toBe("");
     expect(built.package.rows[4].proposedApplicability).toBe("NOT_APPLICABLE");
-    expect(saveVm0007EvidenceMapDraft(built.package)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(built.package)).toEqual({ ok: true });
     const reloaded = loadVm0007EvidenceMapDraft("mixed-audit");
     expect(reloaded?.rows).toHaveLength(58);
     expect(validateVm0007EvidenceMapDraftPackage(reloaded, "mixed-audit")).toBe(true);
