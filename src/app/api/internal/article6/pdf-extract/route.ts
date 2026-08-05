@@ -81,9 +81,18 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!hasValidSecret(request)) return json({ error: "Authentication required." }, 401);
   let body: RequestBody;
   try { body = await request.json() as RequestBody; } catch { return json({ error: "Invalid request." }, 400); }
+  console.log("[api/internal/article6/pdf-extract] request body keys", Object.keys(body ?? {}));
   const documentUrl = allowedDocumentUrl(body.documentUrl);
   const fileSize = typeof body.fileSize === "number" ? body.fileSize : NaN;
   if (!documentUrl || typeof body.submissionReference !== "string" || typeof body.filename !== "string" || !Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_QUICK_CHECK_PDF_BYTES) {
+    console.log("[api/internal/article6/pdf-extract] validation failed", {
+      hasDocumentUrl: Boolean(documentUrl),
+      submissionReferenceType: typeof body.submissionReference,
+      filenameType: typeof body.filename,
+      fileSizeType: typeof body.fileSize,
+      fileSize,
+      maxBytes: MAX_QUICK_CHECK_PDF_BYTES,
+    });
     return json({ error: "Invalid extraction request." }, 400);
   }
   try {
