@@ -19,6 +19,14 @@ type RequestBody = {
   fileSize?: unknown;
 };
 
+type DocumentUrlValidationFailure = {
+  reason: string;
+  documentUrlType: string;
+  documentUrlLength: number | null;
+  documentUrlHostname: string | null;
+  allowedHosts: string[];
+};
+
 function json(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
@@ -32,14 +40,65 @@ function hasValidSecret(request: Request): boolean {
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
-function allowedDocumentUrl(value: unknown): URL | null {
-  if (typeof value !== "string") return null;
+function allowedDocumentUrl(value: unknown): { url: URL | null; failure: DocumentUrlValidationFailure | null } {
+  const allowedHosts = (process.env.ARTICLE6_PROCESSOR_ALLOWED_HOSTS || "").split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
+  const documentUrlType = typeof value;
+  const documentUrlValue = typeof value === "string" ? value : null;
+  const documentUrlLength = documentUrlValue === null ? null : documentUrlValue.length;
+
+  if (documentUrlValue === null || !documentUrlValue.trim()) {
+    return {
+      url: null,
+      failure: {
+        reason: "documentUrl must be a non-empty string",
+        documentUrlType,
+        documentUrlLength,
+        documentUrlHostname: null,
+        allowedHosts,
+      },
+    };
+  }
+
   try {
-    const url = new URL(value);
-    const allowedHosts = (process.env.ARTICLE6_PROCESSOR_ALLOWED_HOSTS || "").split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
-    if (url.protocol !== "https:" || url.username || url.password || url.hash || !allowedHosts.includes(url.hostname.toLowerCase())) return null;
-    return url;
-  } catch { return null; }
+    const url = new URL(documentUrlValue);
+    if (url.protocol !== "https:") {
+      return {
+        url: null,
+        failure: {
+          reason: "documentUrl must use https:",
+          documentUrlType,
+          documentUrlLength,
+          documentUrlHostname: url.hostname || null,
+          allowedHosts,
+        },
+      };
+    }
+    const documentUrlHostname = url.hostname.toLowerCase();
+    if (url.username || url.password || url.hash || !allowedHosts.includes(documentUrlHostname)) {
+      return {
+        url: null,
+        failure: {
+          reason: "documentUrl hostname is not allowed",
+          documentUrlType,
+          documentUrlLength,
+          documentUrlHostname,
+          allowedHosts,
+        },
+      };
+    }
+    return { url, failure: null };
+  } catch {
+    return {
+      url: null,
+      failure: {
+        reason: "documentUrl is not a valid URL",
+        documentUrlType,
+        documentUrlLength,
+        documentUrlHostname: null,
+        allowedHosts,
+      },
+    };
+  }
 }
 
 async function downloadPdf(url: URL, expectedSize: number): Promise<Buffer> {
@@ -82,16 +141,15 @@ export async function POST(request: Request): Promise<NextResponse> {
   let body: RequestBody;
   try { body = await request.json() as RequestBody; } catch { return json({ error: "Invalid request." }, 400); }
   console.log("[api/internal/article6/pdf-extract] request body keys", Object.keys(body ?? {}));
-  const documentUrl = allowedDocumentUrl(body.documentUrl);
+  const { url: documentUrl, failure: documentUrlFailure } = allowedDocumentUrl(body.documentUrl);
   const fileSize = typeof body.fileSize === "number" ? body.fileSize : NaN;
   if (!documentUrl || typeof body.submissionReference !== "string" || typeof body.filename !== "string" || !Number.isInteger(fileSize) || fileSize <= 0 || fileSize > MAX_QUICK_CHECK_PDF_BYTES) {
-    console.log("[api/internal/article6/pdf-extract] validation failed", {
-      hasDocumentUrl: Boolean(documentUrl),
-      submissionReferenceType: typeof body.submissionReference,
-      filenameType: typeof body.filename,
-      fileSizeType: typeof body.fileSize,
-      fileSize,
-      maxBytes: MAX_QUICK_CHECK_PDF_BYTES,
+    console.log("[api/internal/article6/pdf-extract] validation failed", documentUrlFailure ?? {
+      reason: "submissionReference, filename, or fileSize validation failed",
+      documentUrlType: typeof body.documentUrl,
+      documentUrlLength: typeof body.documentUrl === "string" ? body.documentUrl.length : null,
+      documentUrlHostname: null,
+      allowedHosts: (process.env.ARTICLE6_PROCESSOR_ALLOWED_HOSTS || "").split(",").map((host) => host.trim().toLowerCase()).filter(Boolean),
     });
     return json({ error: "Invalid extraction request." }, 400);
   }
