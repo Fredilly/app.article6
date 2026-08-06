@@ -176,7 +176,7 @@ function savePackage(auditId: string, rows = makeRows(auditId)) {
       blockedBy: [],
       contractVersion: "vm0007-evidence-map-draft-v1",
     } as Vm0007EvidenceMapDraftPackage),
-  ).toBe(true);
+  ).toEqual({ ok: true });
 }
 
 async function renderPage(
@@ -644,7 +644,7 @@ describe("VM0007 Evidence Map review workspace", () => {
         finalizedAt,
         finalizationBasis: "Reviewer-approved Evidence Map finalization.",
       } as Vm0007EvidenceMapDraftPackage),
-    ).toBe(true);
+    ).toEqual({ ok: true });
     const truthBefore = loadVm0007EvidenceMapDraft(auditId)?.rows[0];
 
     const { container, root } = await renderPage(auditId);

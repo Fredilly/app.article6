@@ -61,7 +61,7 @@ describe("VM0007 draft package storage validation", () => {
   ])("rejects %s without throwing or saving", (_, mutate) => {
     const invalid = mutate(makePackage());
     expect(() => saveVm0007EvidenceMapDraft(invalid)).not.toThrow();
-    expect(saveVm0007EvidenceMapDraft(invalid)).toBe(false);
+    expect(saveVm0007EvidenceMapDraft(invalid)).toEqual({ ok: false, reason: "draft_validation_failed" });
     localStorage.setItem("article6:vm0007-evidence-map-draft:v1:storage-audit", JSON.stringify(invalid));
     expect(() => loadVm0007EvidenceMapDraft("storage-audit")).not.toThrow();
     expect(loadVm0007EvidenceMapDraft("storage-audit")).toBeNull();
@@ -76,7 +76,7 @@ describe("VM0007 draft package storage validation", () => {
     const legacyPackage = makePackage();
     expect(legacyPackage.rows.every((row) => !("acceptedEvidence" in row) && !("rejectedEvidence" in row) && !("supportedComponents" in row) && !("missingComponents" in row) && !("reasonSelected" in row))).toBe(true);
     expect(validateVm0007EvidenceMapDraftPackage(legacyPackage, legacyPackage.auditId)).toBe(true);
-    expect(saveVm0007EvidenceMapDraft(legacyPackage)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(legacyPackage)).toEqual({ ok: true });
     expect(loadVm0007EvidenceMapDraft(legacyPackage.auditId)).not.toBeNull();
   });
 
@@ -107,7 +107,7 @@ describe("VM0007 draft package storage validation", () => {
     pkg.rows[0] = { ...pkg.rows[0], rejectedEvidence: [richEvidenceRecord] };
 
     expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(false);
-    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(false);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toEqual({ ok: false, reason: "draft_validation_failed" });
   });
 
   test("allows supported and explicitly not-applicable rows with empty gaps", () => {
@@ -124,7 +124,7 @@ describe("VM0007 draft package storage validation", () => {
       quote: "Scope evidence", page: 1, section: "Scope", spanId: "span-2", provenance: { docId: "doc-1", page: 1, sectionPath: ["S-1"], spanId: "span-2", sectionHeading: "Scope", sourceType: "PDD" },
     };
     expect(validateVm0007EvidenceMapDraftPackage(pkg)).toBe(true);
-    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toEqual({ ok: true });
     const loaded = loadVm0007EvidenceMapDraft(pkg.auditId);
     expect(loaded?.rows[0].gap).toBe("");
     expect(loaded?.rows[1].proposedApplicability).toBe("NOT_APPLICABLE");

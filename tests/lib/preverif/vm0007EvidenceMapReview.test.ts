@@ -98,7 +98,7 @@ describe("VM0007 persisted Evidence Map reviewer workflow", () => {
 
   test("draft opens with 58 pending rows and approval/edit survive save and reload", () => {
     const pkg = makePackage();
-    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toEqual({ ok: true });
     let loaded = loadVm0007EvidenceMapDraft(pkg.auditId)!;
     expect(loaded.rows).toHaveLength(58);
     expect(loaded.rows[0].reviewState).toBe("pending review");

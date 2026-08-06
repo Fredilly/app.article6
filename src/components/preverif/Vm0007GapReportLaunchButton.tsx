@@ -73,6 +73,11 @@ export default function Vm0007GapReportLaunchButton({
             <div className="mt-2 text-sm text-amber-800" role="alert" data-testid="evidence-map-generation-error">
               <strong className="font-semibold">{generationError.category.replaceAll("_", " ")}</strong>
               <span className="ml-2">{generationError.userMessage}</span>
+              <div className="mt-1 text-xs text-amber-700">
+                Diagnostic ID: <span data-testid="evidence-map-diagnostic-id">{generationError.diagnostic.diagnosticId}</span>
+                <span className="mx-1">·</span>
+                Failure stage: <span data-testid="evidence-map-failure-stage">{generationError.diagnostic.stage}</span>
+              </div>
             </div>
           ) : null}
           <div className="mt-2 text-sm text-slate-600">
