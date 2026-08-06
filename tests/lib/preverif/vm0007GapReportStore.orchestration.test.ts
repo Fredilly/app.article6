@@ -45,15 +45,19 @@ describe("VM0007 Evidence Map generation orchestration", () => {
     expect(reloadResult.error?.diagnostic.stage).toBe("draft_reload_verification");
   });
 
-  test("removes only the new orphan audit when terminal draft persistence fails", () => {
+  test.each(["null", "exception"])("removes both new records on terminal draft reload %s", (failure) => {
     localStorage.setItem("a6:vm0007-gap-report-audit:v1:audit-1", "new audit");
+    localStorage.setItem("article6:vm0007-evidence-map-draft:v1:audit-1", "new draft");
     localStorage.setItem("a6:vm0007-gap-report-audit:v1:previous", "previous audit");
     localStorage.setItem("article6:vm0007-evidence-map-draft:v1:previous", "previous draft");
-    const result = completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: false, reason: "storage_write_failed" }), loadDraft: () => draftPackage });
-    expect(result.blockedBy).toEqual(["storage_write_failed"]);
+    localStorage.setItem("article6:unrelated", "keep");
+    const result = completeVm0007EvidenceMapGeneration({ audit, auditSaved: true, draft: builtDraft, saveDraft: () => ({ ok: true }), loadDraft: failure === "null" ? () => null : () => { throw new Error("reload failed"); } });
+    expect(result.blockedBy).toEqual(["draft_reload_verification_failed"]);
     expect(localStorage.getItem("a6:vm0007-gap-report-audit:v1:audit-1")).toBeNull();
+    expect(localStorage.getItem("article6:vm0007-evidence-map-draft:v1:audit-1")).toBeNull();
     expect(localStorage.getItem("a6:vm0007-gap-report-audit:v1:previous")).toBe("previous audit");
     expect(localStorage.getItem("article6:vm0007-evidence-map-draft:v1:previous")).toBe("previous draft");
+    expect(localStorage.getItem("article6:unrelated")).toBe("keep");
   });
 
   test("preserves every PR #1127 diagnostic stage", () => {

@@ -5,7 +5,7 @@ import {
 import type { MethodologyEvidenceAuditSummary } from "@/lib/preverif/evidenceAudit";
 import type { EvidenceMapSourceDocumentIdentity } from "@/lib/evidence/evidenceMapDependencyContract";
 import { type DraftBuildResult, type Vm0007EvidenceMapDraftPackage } from "@/lib/preverif/vm0007EvidenceMapDraft";
-import { loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft, type Vm0007EvidenceMapDraftSaveResult } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
+import { clearVm0007EvidenceMapDraft, loadVm0007EvidenceMapDraft, saveVm0007EvidenceMapDraft, type Vm0007EvidenceMapDraftSaveResult } from "@/lib/preverif/vm0007EvidenceMapDraftStore";
 import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal";
 import {
   classifyEvidenceMapGenerationError,
@@ -87,10 +87,12 @@ export function completeVm0007EvidenceMapGeneration(input: {
   }
   try {
     if (!loadDraft(input.audit.auditId)) {
+      clearVm0007EvidenceMapDraft(input.audit.auditId);
       clearVm0007GapReportAudit(input.audit.auditId);
       return { ...failedGeneration(["draft_reload_verification_failed"], undefined, { ...context, stage: "draft_reload_verification" }), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
     }
   } catch (error) {
+    clearVm0007EvidenceMapDraft(input.audit.auditId);
     clearVm0007GapReportAudit(input.audit.auditId);
     return { ...failedGeneration(["draft_reload_verification_failed"], classifyEvidenceMapGenerationError({ error, ...context, stage: "draft_reload_verification" })), auditSaved: true, draftBuilt: true, draftSaved: false, auditId: input.audit.auditId, audit: input.audit };
   }

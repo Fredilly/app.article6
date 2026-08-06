@@ -46,15 +46,16 @@ export function pruneOldVm0007Pairs(storage: Storage, currentId: string, retain 
     if (storageKey?.startsWith(VM0007_EVIDENCE_MAP_DRAFT_PREFIX)) draftIds.add(storageKey.slice(VM0007_EVIDENCE_MAP_DRAFT_PREFIX.length));
   }
 
-  const completePairs = [...auditIds].filter((auditId) => draftIds.has(auditId) && auditId !== currentId).map((auditId) => ({
+  const completePairs = [...auditIds].filter((auditId) => draftIds.has(auditId)).map((auditId) => ({
     auditId,
     timestamp: Math.max(
       readTimestamp(storage.getItem(`${VM0007_GAP_REPORT_AUDIT_PREFIX}${auditId}`)),
       readTimestamp(storage.getItem(`${VM0007_EVIDENCE_MAP_DRAFT_PREFIX}${auditId}`)),
     ),
-  })).sort((left, right) => right.timestamp - left.timestamp || right.auditId.localeCompare(left.auditId));
+  })).map((pair) => pair.auditId === currentId ? { ...pair, timestamp: Number.POSITIVE_INFINITY } : pair)
+    .sort((left, right) => right.timestamp - left.timestamp || right.auditId.localeCompare(left.auditId));
 
-  for (const pair of completePairs.slice(retain)) {
+  for (const pair of completePairs.slice(retain).filter((pair) => pair.auditId !== currentId)) {
     storage.removeItem(`${VM0007_GAP_REPORT_AUDIT_PREFIX}${pair.auditId}`);
     storage.removeItem(`${VM0007_EVIDENCE_MAP_DRAFT_PREFIX}${pair.auditId}`);
   }

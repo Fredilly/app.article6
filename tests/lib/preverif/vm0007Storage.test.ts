@@ -76,6 +76,18 @@ test("retries a quota failure exactly once", () => {
   expect(storage.getItem("a6:vm0007-gap-report-audit:v1:retry")).toBe("value");
 });
 
+test("retains exactly three complete pairs after saving the fourth, including the newest pair", () => {
+  const storage = makeStorage();
+  seedPair(storage, "pair-1", "2026-01-01T00:00:00.000Z");
+  seedPair(storage, "pair-2", "2026-01-02T00:00:00.000Z");
+  seedPair(storage, "pair-3", "2026-01-03T00:00:00.000Z");
+  writeVm0007Storage(storage, `${VM0007_GAP_REPORT_AUDIT_PREFIX}pair-4`, JSON.stringify({ generatedAt: "2026-01-04T00:00:00.000Z" }), "pair-4");
+  writeVm0007Storage(storage, `${VM0007_EVIDENCE_MAP_DRAFT_PREFIX}pair-4`, JSON.stringify({ generatedAt: "2026-01-04T00:00:00.000Z" }), "pair-4");
+
+  const completeIds = ["pair-1", "pair-2", "pair-3", "pair-4"].filter((auditId) => storage.getItem(`${VM0007_GAP_REPORT_AUDIT_PREFIX}${auditId}`) && storage.getItem(`${VM0007_EVIDENCE_MAP_DRAFT_PREFIX}${auditId}`));
+  expect(completeIds).toEqual(["pair-2", "pair-3", "pair-4"]);
+});
+
 test("progressively evicts the oldest eligible pairs until a quota retry succeeds", () => {
   const storage = makeStorage();
   seedPair(storage, "old-1", "2026-01-01T00:00:00.000Z");
