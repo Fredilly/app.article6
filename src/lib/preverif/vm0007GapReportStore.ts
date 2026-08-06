@@ -75,7 +75,7 @@ export function completeVm0007EvidenceMapGeneration(input: {
   try {
     const saveResult = saveDraft(input.draft.package);
     if (!saveResult.ok) {
-      clearVm0007GapReportAudit(input.audit.auditId);
+      if (saveResult.reason !== "draft_validation_failed") clearVm0007GapReportAudit(input.audit.auditId);
       const error = saveResult.reason === "storage_write_failed" && saveResult.serializedBytes !== undefined
         ? classifyEvidenceMapGenerationError({ error: `storage_write_failed; serialized_bytes=${saveResult.serializedBytes}`, blockedBy: [saveResult.reason], ...context, stage: "draft_persistence" })
         : undefined;
