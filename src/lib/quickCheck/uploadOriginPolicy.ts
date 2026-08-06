@@ -8,6 +8,8 @@ export type UploadOriginDecision =
   | { allowed: true; normalizedOrigin: string }
   | { allowed: false; code: OriginPolicyFailureCode; status: 403 | 503; error: string };
 
+const TRUSTED_VERCEL_PREVIEW_HOST_RE = /^app-article6-[a-z0-9-]+-fredillys-projects\.vercel\.app$/i;
+
 function environment(): string {
   return process.env.VERCEL_ENV || process.env.NODE_ENV || "development";
 }
@@ -32,10 +34,16 @@ function configuredOrigins(): string[] {
     .map((url) => url.origin);
 }
 
+function isTrustedVercelPreviewOrigin(origin: URL): boolean {
+  return origin.protocol === "https:" && TRUSTED_VERCEL_PREVIEW_HOST_RE.test(origin.hostname);
+}
+
 export function authorizeQuickCheckUploadOrigin(originHeader: string | null): UploadOriginDecision {
   if (!originHeader) return { allowed: false, code: "origin-required", status: 403, error: "A browser Origin header is required." };
   const origin = parseOrigin(originHeader);
   if (!origin) return { allowed: false, code: "origin-invalid", status: 403, error: "The browser Origin header is invalid." };
+
+  if (isTrustedVercelPreviewOrigin(origin)) return { allowed: true, normalizedOrigin: origin.origin };
 
   const exactOrigins = configuredOrigins();
   if (exactOrigins.includes(origin.origin) && (environment() !== "production" || origin.protocol === "https:")) return { allowed: true, normalizedOrigin: origin.origin };
