@@ -3,12 +3,13 @@ import {
   type Vm0007EvidenceMapDraftPackage,
 } from "./vm0007EvidenceMapDraft";
 import type { ReviewerWorkflowState } from "@/lib/evidence/readinessReport";
+import {
+  VM0007_EVIDENCE_MAP_DRAFT_PREFIX,
+  writeVm0007Storage,
+} from "@/lib/preverif/vm0007Storage";
 
-const PREFIX = "article6:vm0007-evidence-map-draft:v1:";
+const PREFIX = VM0007_EVIDENCE_MAP_DRAFT_PREFIX;
 export const VM0007_EVIDENCE_MAP_DRAFT_EVENT = "vm0007-evidence-map-draft";
-export type Vm0007EvidenceMapDraftSaveResult =
-  | { ok: true }
-  | { ok: false; reason: "draft_validation_failed" | "storage_unavailable" | "storage_write_failed" };
 const storage = () => typeof window === "undefined" ? null : window.localStorage;
 const key = (auditId: string) => `${PREFIX}${auditId.trim()}`;
 
@@ -63,18 +64,14 @@ export function loadVm0007EvidenceMapDraft(auditId: string): Vm0007EvidenceMapDr
   } catch { return null; }
 }
 
-export function saveVm0007EvidenceMapDraft(pkg: Vm0007EvidenceMapDraftPackage): Vm0007EvidenceMapDraftSaveResult {
+export function saveVm0007EvidenceMapDraft(pkg: Vm0007EvidenceMapDraftPackage): boolean {
   const normalized = normalizeVm0007EvidenceMapDraftPackage(pkg);
-  if (!validateVm0007EvidenceMapDraftPackage(normalized)) return { ok: false, reason: "draft_validation_failed" };
+  if (!validateVm0007EvidenceMapDraftPackage(normalized)) return false;
   const target = storage();
-  if (!target) return { ok: false, reason: "storage_unavailable" };
-  try {
-    target.setItem(key(normalized.auditId), JSON.stringify(normalized));
-  } catch {
-    return { ok: false, reason: "storage_write_failed" };
-  }
+  if (!target) return false;
+  writeVm0007Storage(target, key(normalized.auditId), JSON.stringify(normalized), normalized.auditId.trim());
   window.dispatchEvent(new CustomEvent(VM0007_EVIDENCE_MAP_DRAFT_EVENT, { detail: { auditId: normalized.auditId, state: "saved", package: normalized } }));
-  return { ok: true };
+  return true;
 }
 
 export function clearVm0007EvidenceMapDraft(auditId: string): boolean {
