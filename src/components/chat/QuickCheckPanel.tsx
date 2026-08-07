@@ -1273,7 +1273,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.rulebookVersion);
       const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
         methodologyId: detectedVm0007Method.methodologyId,
-        methodologyVersion: detectedVm0007Method.methodologyVersion,
+        methodologyVersion: detectedVm0007Method.rulebookVersion,
         evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel,
         sourcePdfSha256: selectedUpload?.attachment.sha256 ?? selectedPins.find((pin) => pin.pdd_document)?.pdd_document?.sha256 ?? null,
         rawPddText,

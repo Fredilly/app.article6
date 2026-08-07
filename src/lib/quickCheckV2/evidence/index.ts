@@ -18,8 +18,6 @@
  * - No LLM
  */
 
-import { extractMethodologyReferencesFromQuote } from "@/lib/quickCheckV2/methodologyParsing";
-
 export type QuickCheckV2Block = {
   spanId: string;
   page: number;
@@ -240,13 +238,6 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
         findFirstBlock(blocks, (block) =>
           /^Applied$/i.test(block.text.trim()) && /title and reference|application of methodology/i.test(block.sectionHeading ?? ""),
         ) ??
-        findFirstBlock(blocks, (block) => {
-          const hasFormalHeading = /title and reference|methodology applied|application of methodology/i.test(
-            `${block.sectionHeading ?? ""} ${block.text}`,
-          );
-          return hasFormalHeading && extractMethodologyReferencesFromQuote(block.text)
-            .some((reference) => !/^VMD\d{4}$/i.test(reference.methodologyId) && Boolean(reference.pddDeclaredMethodologyVersion));
-        }) ??
         findFirstBlock(blocks, (block) =>
           /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
           /\bMethodology\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i.test(block.text) &&
@@ -1976,7 +1967,19 @@ function getFactContractEvidence(
     return null;
   }
 
-  const block = definition.find(getEvidenceBlocks(document));
+  const evidenceBlocks = getEvidenceBlocks(document);
+  const block = definition.find(evidenceBlocks) ?? (checkName === "methodology"
+    ? findFirstBlock(
+      document.blocks.filter((candidate) =>
+        candidate.blockType === "heading" &&
+        PRIMARY_METHODOLOGY_CODE_RE.test(candidate.text) &&
+        !/\bVMD\d{4}\b/i.test(candidate.text) &&
+        /\b(?:v(?:ersion)?\.?\s*\d+(?:[.-]\d+){0,2})\b/i.test(candidate.text) &&
+        !/\b(?:PDD|document|template|revision|history)\b/i.test(candidate.text),
+      ),
+      () => true,
+    )
+    : null);
   const blockText = block?.text ?? "";
   const needsMethodologyExpansion =
     checkName === "methodology" &&

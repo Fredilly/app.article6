@@ -28,6 +28,10 @@ export function normalizeDashCharacters(value: string): string {
   return value.replace(/[\u2010-\u2015]/g, "-");
 }
 
+function isPlausibleMethodologyVersion(value: string | null): value is string {
+  return Boolean(value && /^v\d+(?:\.\d{1,2}){0,2}$/i.test(value));
+}
+
 function stripWrappingQuotes(value: string): string {
   return value.replace(/^[“"'\(\[]+/, "").replace(/[”"'\)\]]+$/, "").trim();
 }
@@ -267,12 +271,13 @@ export function resolveMethodologyDeclarationFromText(
     const quote = normalized.slice(start, start + 500);
     const reference = extractMethodologyReferencesFromQuote(quote)
       .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
-    if (reference?.pddDeclaredMethodologyVersion) {
+    const version = reference?.pddDeclaredMethodologyVersion ?? null;
+    if (isPlausibleMethodologyVersion(version)) {
       const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
         && /\bModule\b|\bTool\b/i.test(quote)
         && /\([^)]*(?:REDD|MF)\)/i.test(quote);
       candidates.push({
-        version: reference.pddDeclaredMethodologyVersion,
+        version,
         rank: isMethodologyTableRow ? 4 : /Applied/i.test(match[1] ?? "") ? 3 : 2,
         quote,
       });
@@ -285,8 +290,9 @@ export function resolveMethodologyDeclarationFromText(
     const quote = normalized.slice(start, start + 220);
     const reference = extractMethodologyReferencesFromQuote(quote)
       .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
-    if (reference?.pddDeclaredMethodologyVersion) {
-      candidates.push({ version: reference.pddDeclaredMethodologyVersion, rank: 1, quote });
+    const version = reference?.pddDeclaredMethodologyVersion ?? null;
+    if (isPlausibleMethodologyVersion(version)) {
+      candidates.push({ version, rank: 1, quote });
     }
   }
 

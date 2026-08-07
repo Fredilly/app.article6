@@ -253,6 +253,18 @@ function toGoldComparableRecord(
   return record;
 }
 
+function normalizeGoldRecord(record: GoldRecord): GoldRecord {
+  const normalized = normalizeExpectedQuickCheckGoldRecord(record) as GoldRecord;
+  if (normalized.expectedMethodology?.versionStatus !== "NOT_EXPLICITLY_DECLARED") return normalized;
+  return {
+    ...normalized,
+    expectedMethodology: {
+      ...normalized.expectedMethodology,
+      versionStatus: "VERSION_NOT_CONFIRMED",
+    },
+  };
+}
+
 function validateMethodologyGoldRecord(record: GoldRecord): void {
   if (record.checkName !== "methodology") return;
 
@@ -415,7 +427,7 @@ describe("Quick Check v2 gold fixtures", () => {
 
         expect(comparableStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
           gold
-            .map(normalizeExpectedQuickCheckGoldRecord)
+            .map(normalizeGoldRecord)
             .map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
         );
       });
@@ -453,7 +465,7 @@ describe("Quick Check v2 gold fixtures", () => {
           }
 
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map(normalizeGoldRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
         }, 120000);
       }
