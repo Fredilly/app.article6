@@ -83,6 +83,39 @@ function loadQuickCheckV2FixtureViews(): Array<{
 }
 
 describe("quick check ui helpers", () => {
+  it("reports explicit methodology/version states instead of confidence-only wording", () => {
+    const baseAnalysis = {
+      facts: [],
+      parsedEvidenceLabels: ["pdd.pdf"],
+      documentTypes: ["PDD / PDF"],
+      methodologyMentions: ["VM0007"],
+      extractionConfidence: 0.2,
+      warnings: [],
+      rawPddText: "Applied Methodology VM0007 REDD+ Methodology Framework v1.8",
+    };
+    const resolution = (versionStatus: "VERSION_CONFIRMED" | "VERSION_NOT_CONFIRMED" | "CONFLICTING_DECLARATION", methodologyVersion: string | null) => ({
+      status: "single" as const,
+      rawMentions: ["VM0007"],
+      programSignals: [],
+      signals: [],
+      matchedMethods: [{
+        methodologyId: "VM0007",
+        methodologyVersion,
+        versionStatus,
+        rulebookVersion: "v1.8",
+        matchedSignals: ["VM0007"],
+        canonicalKeys: ["VM0007"],
+        priority: 0,
+      }],
+      unsupportedCanonicalKeys: [],
+      primaryMethodology: null,
+    });
+
+    expect(buildExtractionPreviewViewModel({ analysis: baseAnalysis, methodologyResolution: resolution("VERSION_CONFIRMED", "v1.8") }).methodologyState).toBe("Version confirmed");
+    expect(buildExtractionPreviewViewModel({ analysis: { ...baseAnalysis, rawPddText: "VM0007 REDD+ Methodology Framework" }, methodologyResolution: resolution("VERSION_NOT_CONFIRMED", null) }).methodologyState).toBe("Version missing");
+    expect(buildExtractionPreviewViewModel({ analysis: baseAnalysis, methodologyResolution: resolution("CONFLICTING_DECLARATION", null) }).methodologyState).toBe("Conflicting declaration");
+  });
+
   it("builds a claim-relevant extraction snapshot", () => {
     const snapshot = buildQuickCheckExtractionSnapshot({
       claimText: "The boundary description matches the mapped project area",

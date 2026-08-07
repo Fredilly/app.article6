@@ -164,6 +164,7 @@ export type ExtractionPreviewViewModel = {
   detectedDocumentConfidence?: string;
   detectedDocumentEvidence?: string[];
   detectedMethodology?: string;
+  methodologyState?: "Methodology detected" | "Version confirmed" | "Version missing" | "Conflicting declaration" | "Methodology not detected";
   methodologyConfidence?: ExtractionPreviewConfidence;
   primaryMethodology?: ClassificationDisplayItem;
   monitoringMethodology?: ClassificationDisplayItem;
@@ -642,6 +643,18 @@ export function buildExtractionPreviewViewModel(input: {
     methodologyConfidence = "low";
   }
 
+  const methodologyState = input.methodologyResolution?.status === "multiple"
+    ? "Conflicting declaration"
+    : input.methodologyResolution?.matchedMethods.length
+      ? input.methodologyResolution.matchedMethods.some((method) => method.versionStatus === "CONFLICTING_DECLARATION")
+        ? "Conflicting declaration"
+        : input.methodologyResolution.matchedMethods.some((method) => method.versionStatus === "VERSION_CONFIRMED")
+          ? "Version confirmed"
+          : "Version missing"
+      : input.analysis.methodologyMentions.length > 0
+        ? "Methodology detected"
+        : "Methodology not detected";
+
   const warning =
     fallbackWarning ??
     (detectedMethodology !== "Not confidently detected" ||
@@ -686,6 +699,7 @@ export function buildExtractionPreviewViewModel(input: {
     detectedDocumentConfidence: formatConfidencePercent(documentClassification.confidence),
     detectedDocumentEvidence: compactDocumentEvidence(documentClassification.evidence),
     detectedMethodology,
+    methodologyState,
     methodologyConfidence,
     primaryMethodology: dedupedMethodologies.primaryMethodology,
     monitoringMethodology: dedupedMethodologies.monitoringMethodology,

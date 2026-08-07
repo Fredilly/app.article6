@@ -101,7 +101,7 @@ describe("buildQuickCheckMethodologyIdentity", () => {
 
     expect(identity?.methodologyId).toBe("VM0007");
     expect(identity?.pddDeclaredMethodologyVersion).toBeNull();
-    expect(identity?.versionStatus).toBe("NOT_EXPLICITLY_DECLARED");
+    expect(identity?.versionStatus).toBe("VERSION_NOT_CONFIRMED");
   });
 
   it("prefers the formal VM0007 row over the cover version", () => {
@@ -182,5 +182,28 @@ describe("buildQuickCheckMethodologyIdentity", () => {
     expect(built.methodology?.pddDeclaredMethodologyVersion).toBe("v1.8");
     expect(built.audit.versionMatch).toBe(true);
     expect(built.draft.ok).toBe(true);
+  });
+
+  it("does not pass a VM0007 draft when the PDD has no declared version", async () => {
+    const rulesResult = await loadMethodRules("VM0007", "v1-8");
+    const rawPddText = fs.readFileSync(
+      path.join(process.cwd(), "tests/fixtures/quick-check/v2/methodology-version-provenance/vm0007-without-version.txt"),
+      "utf8",
+    );
+    const built = buildVm0007MachineProposal({
+      auditId: "missing-methodology-version-regression",
+      generatedAt: "2026-08-07T00:00:00.000Z",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-8",
+      rawPddText,
+      rules: rulesResult.rules,
+    });
+
+    expect(built.methodology?.methodologyId).toBe("VM0007");
+    expect(built.methodology?.pddDeclaredMethodologyVersion).toBeNull();
+    expect(built.methodology?.versionStatus).toBe("VERSION_NOT_CONFIRMED");
+    expect(built.audit.pddDeclaredMethodologyVersion).toBe("");
+    expect(built.audit.versionMatch).toBe(false);
+    expect(built.draft.ok).toBe(false);
   });
 });

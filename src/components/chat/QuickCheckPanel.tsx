@@ -617,27 +617,6 @@ function extractionStateBadgeClass(value: string): string {
   return "border-rose-200 bg-rose-50 text-rose-800";
 }
 
-function confidenceLabel(value: "high" | "medium" | "low" | "unknown" | undefined): string {
-  if (value === "high") return "High";
-  if (value === "medium") return "Medium";
-  if (value === "low") return "Low";
-  return "Unknown";
-}
-
-function confidenceBarWidth(value: "high" | "medium" | "low" | "unknown" | undefined): string {
-  if (value === "high") return "100%";
-  if (value === "medium") return "68%";
-  if (value === "low") return "36%";
-  return "18%";
-}
-
-function confidenceBarTone(value: "high" | "medium" | "low" | "unknown" | undefined): string {
-  if (value === "high") return "bg-emerald-500";
-  if (value === "medium") return "bg-sky-500";
-  if (value === "low") return "bg-amber-500";
-  return "bg-slate-300";
-}
-
 function formatMethodLabel(id: string, version?: string | null): string {
   return `${id}${version ? ` ${version}` : ""}`;
 }
@@ -932,10 +911,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || "";
   }, [draft.methodologyId, draft.status, resolvedWorkspaceMethod]);
   const workspaceMethodologyVersion = useMemo(() => {
-    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyVersion) {
-      return resolvedWorkspaceMethod.methodologyVersion;
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.rulebookVersion) {
+      return resolvedWorkspaceMethod.rulebookVersion ?? "";
     }
-    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.methodologyVersion || "";
+    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.rulebookVersion || "";
   }, [draft.methodologyVersion, draft.status, resolvedWorkspaceMethod]);
   const methodologyMismatch = useMemo(() => {
     if (!draft.methodologyId.trim()) return null;
@@ -1281,7 +1260,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   }
 
   async function handleGenerateUploadVm0007GapReport() {
-    if (!detectedVm0007Method?.methodologyVersion) return;
+    if (!detectedVm0007Method?.rulebookVersion || !detectedVm0007Method.methodologyVersion) return;
     if (!isProjectDescriptionPdd) return;
     const rawPddText = extractionState.analysis?.rawPddText?.trim();
     if (!rawPddText) return;
@@ -1291,7 +1270,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     setUploadVm0007GapReportAuditId(null);
     setFieldErrors({});
     try {
-      const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.methodologyVersion);
+      const rules = await fetchRules(detectedVm0007Method.methodologyId, detectedVm0007Method.rulebookVersion);
       const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
         methodologyId: detectedVm0007Method.methodologyId,
         methodologyVersion: detectedVm0007Method.methodologyVersion,
@@ -1816,7 +1795,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const resolvedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
       const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.rulebookVersion ?? "" : "");
 
       if (isReviewQuestion) {
         const firstSource = selectedEvidenceSources[0];
@@ -1889,7 +1868,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const selectedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
       const selectedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.rulebookVersion ?? "" : "");
       const allowedMethodologyIds = draft.methodologyId.trim()
         ? new Set([draft.methodologyId.trim()])
         : currentMethodologyResolution.status === "single" || currentMethodologyResolution.status === "multiple"
@@ -2631,19 +2610,11 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
                                   </div>
                                 </div>
                               ) : null}
-                              <div>
-                                <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3">
-                                  <span className="text-sm text-slate-500">Confidence</span>
-                                  <span className="font-medium text-slate-700">
-                                    {confidenceLabel(extractionPreviewView.methodologyConfidence)}
-                                  </span>
-                                </div>
-                                <div className="ml-[6rem] mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
-                                  <div
-                                    className={`h-full rounded-full ${confidenceBarTone(extractionPreviewView.methodologyConfidence)}`}
-                                    style={{ width: confidenceBarWidth(extractionPreviewView.methodologyConfidence) }}
-                                  />
-                                </div>
+                              <div className="grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3">
+                                <span className="text-sm text-slate-500">State</span>
+                                <span className="font-medium text-slate-700">
+                                  {extractionPreviewView.methodologyState ?? "Methodology not detected"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -3701,7 +3672,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
 
           {(selectedMethodRecord && draft.methodologyVersion) || (methodologyResolution.status === "single" && !draft.methodologyId.trim()) ? (
             <div className="text-xs text-slate-500" aria-live="polite">
-              Narrowing matches to {(selectedMethodRecord?.code ?? methodologyResolution.matchedMethods[0]?.methodologyId) ?? ""} · {(draft.methodologyVersion || methodologyResolution.matchedMethods[0]?.methodologyVersion) ?? ""}.
+              Narrowing matches to {(selectedMethodRecord?.code ?? methodologyResolution.matchedMethods[0]?.methodologyId) ?? ""} · {draft.methodologyVersion || "version not confirmed"}.
             </div>
           ) : null}
         </div>

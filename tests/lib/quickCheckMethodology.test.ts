@@ -2,6 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
 import { prioritizeMethodologyMentions, resolvePrimaryMethodology, resolveQuickCheckMethodology } from "@/lib/chat/quickCheckMethodology";
+import { resolveMethodologyDeclarationFromText } from "@/lib/quickCheckV2/methodologyParsing";
 import { extractMethodologyMentions } from "@/lib/chat/quickCheckEvidence";
 
 const methods = [
@@ -19,6 +20,8 @@ describe("quick check methodology resolver", () => {
 
     expect(result.status).toBe("single");
     expect(result.matchedMethods[0]?.methodologyId).toBe("VM0007");
+    expect(result.matchedMethods[0]?.methodologyVersion).toBeNull();
+    expect(result.matchedMethods[0]?.versionStatus).toBe("VERSION_NOT_CONFIRMED");
   });
 
   it("resolves UNFCCC aliases against AR-prefixed pack codes", () => {
@@ -64,6 +67,56 @@ describe("quick check methodology resolver", () => {
     expect(
       prioritizeMethodologyMentions(["APD", "VCS", "VM0007", "VMD0001", "REDD+ Methodology Framework"]),
     ).toEqual(["VM0007", "REDD+ Methodology Framework", "VMD0001", "APD", "VCS"]);
+  });
+});
+
+describe("methodology declaration version resolution", () => {
+  const fixtureRoot = path.join(process.cwd(), "tests/fixtures/quick-check/v2/methodology-version-provenance");
+  const read = (name: string) => fs.readFileSync(path.join(fixtureRoot, name), "utf8");
+
+  it("confirms a formal VM0007 v1.8 row", () => {
+    expect(resolveMethodologyDeclarationFromText(read("formal-vm0007-v18.txt"), "VM0007")).toMatchObject({
+      version: "v1.8",
+      status: "VERSION_CONFIRMED",
+    });
+  });
+
+  it("ignores PDD Version 1.3 when the formal row declares VM0007 v1.8", () => {
+    expect(resolveMethodologyDeclarationFromText(read("document-and-formal-vm0007.txt"), "VM0007")).toMatchObject({
+      version: "v1.8",
+      status: "VERSION_CONFIRMED",
+    });
+  });
+
+  it("returns a detected methodology with no confirmed version", () => {
+    const result = resolveQuickCheckMethodology({
+      mentions: ["VM0007"],
+      methods,
+      rawText: read("vm0007-without-version.txt"),
+    });
+    expect(result.matchedMethods[0]).toMatchObject({
+      methodologyId: "VM0007",
+      methodologyVersion: null,
+      versionStatus: "VERSION_NOT_CONFIRMED",
+    });
+  });
+
+  it("does not use module or tool versions for VM0007", () => {
+    expect(resolveMethodologyDeclarationFromText(read("module-tool-versions.txt"), "VM0007")).toMatchObject({
+      version: null,
+      status: "VERSION_NOT_CONFIRMED",
+    });
+  });
+
+  it("keeps the existing Marcondes declaration confirmed", () => {
+    const marcondes = fs.readFileSync(
+      path.join(process.cwd(), "tests/fixtures/quick-check/v2/marcondes-pdd/extracted.txt"),
+      "utf8",
+    );
+    expect(resolveMethodologyDeclarationFromText(marcondes, "VM0007")).toMatchObject({
+      version: "v1.8",
+      status: "VERSION_CONFIRMED",
+    });
   });
 });
 

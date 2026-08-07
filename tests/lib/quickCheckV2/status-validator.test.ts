@@ -384,7 +384,7 @@ describe("Quick Check v2 — Phase 5 deterministic status validator", () => {
 
     expect(result.methodology?.methodologyId).toBe("VM0007");
     expect(result.methodology?.pddDeclaredMethodologyVersion).toBeNull();
-    expect(result.methodology?.versionStatus).toBe("NOT_EXPLICITLY_DECLARED");
+    expect(result.methodology?.versionStatus).toBe("VERSION_NOT_CONFIRMED");
   });
 
   it("returns only checkName, status, answer, evidence, and reason", () => {

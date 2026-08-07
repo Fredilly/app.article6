@@ -14,6 +14,12 @@ export type MethodologyReference = Readonly<{
   pddDeclaredMethodologyVersion: string | null;
 }>;
 
+export type MethodologyDeclarationResolution = Readonly<{
+  version: string | null;
+  status: "VERSION_CONFIRMED" | "VERSION_NOT_CONFIRMED" | "CONFLICTING_DECLARATION";
+  evidenceQuote: string | null;
+}>;
+
 export function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -237,6 +243,65 @@ export function extractMethodologyReferencesFromQuote(quote: string): Methodolog
   }
 
   return references;
+}
+
+/** Resolve only methodology-declaration versions from a document's extracted text. */
+export function resolveMethodologyDeclarationFromText(
+  text: string | undefined,
+  methodologyId: string,
+): MethodologyDeclarationResolution {
+  const normalized = normalizeWhitespace(normalizeDashCharacters(text ?? ""));
+  if (!normalized || !methodologyId.trim()) {
+    return { version: null, status: "VERSION_NOT_CONFIRMED", evidenceQuote: null };
+  }
+
+  const escapedCode = methodologyId.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const formalDeclarationPattern = new RegExp(
+    `((?:Applied(?:\\s+Methodology)?|Methodology))\\s+${escapedCode}\\b`,
+    "gi",
+  );
+  const candidates: Array<{ version: string; rank: number; quote: string }> = [];
+
+  for (const match of normalized.matchAll(formalDeclarationPattern)) {
+    const start = match.index ?? 0;
+    const quote = normalized.slice(start, start + 500);
+    const reference = extractMethodologyReferencesFromQuote(quote)
+      .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+    if (reference?.pddDeclaredMethodologyVersion) {
+      const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
+        && /\bModule\b|\bTool\b/i.test(quote)
+        && /\([^)]*(?:REDD|MF)\)/i.test(quote);
+      candidates.push({
+        version: reference.pddDeclaredMethodologyVersion,
+        rank: isMethodologyTableRow ? 4 : /Applied/i.test(match[1] ?? "") ? 3 : 2,
+        quote,
+      });
+    }
+  }
+
+  const codePattern = new RegExp(`\\b${escapedCode}\\b`, "gi");
+  for (const match of normalized.matchAll(codePattern)) {
+    const start = match.index ?? 0;
+    const quote = normalized.slice(start, start + 220);
+    const reference = extractMethodologyReferencesFromQuote(quote)
+      .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+    if (reference?.pddDeclaredMethodologyVersion) {
+      candidates.push({ version: reference.pddDeclaredMethodologyVersion, rank: 1, quote });
+    }
+  }
+
+  if (candidates.length === 0) {
+    return { version: null, status: "VERSION_NOT_CONFIRMED", evidenceQuote: null };
+  }
+
+  const highestRank = Math.max(...candidates.map((candidate) => candidate.rank));
+  const selected = candidates.filter((candidate) => candidate.rank === highestRank);
+  const versions = Array.from(new Set(selected.map((candidate) => candidate.version)));
+  if (versions.length > 1) {
+    return { version: null, status: "CONFLICTING_DECLARATION", evidenceQuote: selected.map((candidate) => candidate.quote).join(" | ") };
+  }
+
+  return { version: versions[0]!, status: "VERSION_CONFIRMED", evidenceQuote: selected[0]!.quote };
 }
 
 export function formatMethodologyReference(reference: MethodologyReference, options?: {

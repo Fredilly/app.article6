@@ -18,6 +18,8 @@
  * - No LLM
  */
 
+import { extractMethodologyReferencesFromQuote } from "@/lib/quickCheckV2/methodologyParsing";
+
 export type QuickCheckV2Block = {
   spanId: string;
   page: number;
@@ -235,6 +237,16 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
   methodology: {
     find(blocks) {
       return (
+        findFirstBlock(blocks, (block) =>
+          /^Applied$/i.test(block.text.trim()) && /title and reference|application of methodology/i.test(block.sectionHeading ?? ""),
+        ) ??
+        findFirstBlock(blocks, (block) => {
+          const hasFormalHeading = /title and reference|methodology applied|application of methodology/i.test(
+            `${block.sectionHeading ?? ""} ${block.text}`,
+          );
+          return hasFormalHeading && extractMethodologyReferencesFromQuote(block.text)
+            .some((reference) => !/^VMD\d{4}$/i.test(reference.methodologyId) && Boolean(reference.pddDeclaredMethodologyVersion));
+        }) ??
         findFirstBlock(blocks, (block) =>
           /\bTitle and Reference of Methodology\b/i.test(block.sectionHeading ?? "") &&
           /\bMethodology\s+(VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i.test(block.text) &&

@@ -650,9 +650,13 @@ function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): Methodol
     expectedMethodologyId: methodologyId,
   });
   const declaredReference = tableDeclaredReference ?? extractDeclaredMethodologyReferenceFromText(input.rawText ?? "", methodologyId);
-  const pddDeclaredMethodologyVersion = input.versionContext?.pddDeclaredMethodologyVersion?.trim()
-    || [declaredReference.declaredMethodologyId, ...declaredReference.declaredRulebookVersions].filter(Boolean).join(" ").trim()
-    || "";
+  const versionContextValue = input.versionContext?.pddDeclaredMethodologyVersion;
+  const inferredDeclaredVersion = declaredReference.declaredRulebookVersions.length > 0
+    ? [declaredReference.declaredMethodologyId, ...declaredReference.declaredRulebookVersions].filter(Boolean).join(" ").trim()
+    : "";
+  const pddDeclaredMethodologyVersion = versionContextValue !== undefined
+    ? versionContextValue.trim()
+    : inferredDeclaredVersion;
 
   return buildMethodologyVersionLock({
     methodologyId,
