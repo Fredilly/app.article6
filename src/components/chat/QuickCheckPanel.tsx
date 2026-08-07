@@ -1196,6 +1196,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
   async function buildAndSaveVm0007GapReportAuditWithWarning(input: {
     methodologyId: string;
     methodologyVersion: string;
+    declaredMethodologyId?: string;
+    pddDeclaredMethodologyVersion?: string | null;
     evidenceFileName?: string;
     sourcePdfSha256?: string | null;
     rawPddText: string;
@@ -1209,11 +1211,33 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     const methodologyResult = validateAnswerResults(extractAnswersForAllChecks(parsedDocument))
       .find((result) => result.checkName === "methodology");
     const methodology = methodologyResult?.methodology;
+    const resolvedDeclaredMethodologyId = input.declaredMethodologyId?.trim() || methodology?.methodologyId || input.methodologyId;
+    const resolvedDeclaredMethodologyVersion = input.pddDeclaredMethodologyVersion !== undefined
+      ? input.pddDeclaredMethodologyVersion ?? ""
+      : methodology?.pddDeclaredMethodologyVersion || "";
     const versionLock = buildMethodologyVersionLock({
-      methodologyId: methodology?.methodologyId || input.methodologyId,
+      methodologyId: resolvedDeclaredMethodologyId,
       rulebookVersion: input.methodologyVersion,
-      pddDeclaredMethodologyVersion: methodology?.pddDeclaredMethodologyVersion || "",
+      pddDeclaredMethodologyVersion: resolvedDeclaredMethodologyVersion,
+      pddDeclaredMethodologyId: input.declaredMethodologyId,
     });
+    const resolvedMethodology = methodology
+      ? {
+          ...methodology,
+          methodologyId: resolvedDeclaredMethodologyId,
+          pddDeclaredMethodologyVersion: resolvedDeclaredMethodologyVersion || null,
+          versionStatus: resolvedDeclaredMethodologyVersion ? "DECLARED" as const : methodology.versionStatus,
+        }
+      : {
+          methodologyId: resolvedDeclaredMethodologyId,
+          methodologyName: resolvedDeclaredMethodologyId,
+          methodologyAlias: "",
+          pddDeclaredMethodologyVersion: resolvedDeclaredMethodologyVersion || null,
+          versionStatus: resolvedDeclaredMethodologyVersion ? "DECLARED" as const : "UNKNOWN" as const,
+          evidencePage: 0,
+          evidenceSection: "",
+          evidenceQuote: input.rawPddText.trim(),
+        };
     if (!versionLock.versionMatch) {
       const warningMessage = [
         "Methodology version mismatch: results may be wrong.",
@@ -1239,16 +1263,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     }
 
     return buildAndSaveVm0007GapReportAudit({
-      methodology: methodology ?? {
-        methodologyId: input.methodologyId,
-        methodologyName: input.methodologyId,
-        methodologyAlias: "",
-        pddDeclaredMethodologyVersion: null,
-        versionStatus: "UNKNOWN",
-        evidencePage: 0,
-        evidenceSection: "",
-        evidenceQuote: input.rawPddText.trim(),
-      },
+      methodology: resolvedMethodology,
       loadedRulebookId: input.methodologyId,
       loadedRulebookVersion: input.methodologyVersion,
       evidenceFileName: input.evidenceFileName,
@@ -1274,6 +1289,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
         methodologyId: detectedVm0007Method.methodologyId,
         methodologyVersion: detectedVm0007Method.rulebookVersion,
+        declaredMethodologyId: detectedVm0007Method.methodologyId,
+        pddDeclaredMethodologyVersion: detectedVm0007Method.methodologyVersion,
         evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel,
         sourcePdfSha256: selectedUpload?.attachment.sha256 ?? selectedPins.find((pin) => pin.pdd_document)?.pdd_document?.sha256 ?? null,
         rawPddText,
@@ -1523,6 +1540,8 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           const savedAudit = await buildAndSaveVm0007GapReportAuditWithWarning({
             methodologyId: candidate.methodologyId,
             methodologyVersion: candidate.methodologyVersion,
+            declaredMethodologyId: methodologyResolution.matchedMethods.find((method) => method.methodologyId === candidate.methodologyId)?.methodologyId,
+            pddDeclaredMethodologyVersion: methodologyResolution.matchedMethods.find((method) => method.methodologyId === candidate.methodologyId)?.methodologyVersion,
             evidenceFileName: activeDraft.evidenceFileName,
             sourcePdfSha256: (() => {
               const activeUpload = activeSession.stagedUploads.find((upload) => activeDraft.evidenceIds.includes(upload.evidenceId));

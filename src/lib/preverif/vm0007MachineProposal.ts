@@ -39,7 +39,7 @@ export function buildVm0007MachineProposal(input: {
   const context = getStructuredQueryContext(input.rawPddText);
   const parsedDocument = parseExtractedText(input.rawPddText, context.evidenceDocument.docId, context.parsedDocument.adapterId ?? "quick-check-panel");
   const methodologyResult = validateAnswerResults(extractAnswersForAllChecks(parsedDocument)).find((result) => result.checkName === "methodology");
-  const methodology = methodologyResult?.methodology ?? buildQuickCheckMethodologyIdentity(methodologyResult?.evidence ?? null) ?? input.methodology ?? null;
+  const methodology = input.methodology ?? methodologyResult?.methodology ?? buildQuickCheckMethodologyIdentity(methodologyResult?.evidence ?? null) ?? null;
   const audit = auditEvidence({
     rules: input.rules.map(mapRule), evidenceDocument: context.evidenceDocument, getContract: getVm0007EvidenceContract,
     normalizeRuleId: normalizeVm0007RuleId, sections: context.documentStructure.sections, rawText: input.rawPddText,
