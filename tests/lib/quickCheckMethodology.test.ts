@@ -88,6 +88,36 @@ describe("methodology declaration version resolution", () => {
     });
   });
 
+  it("resolves the real Roraima extraction without promoting its document version", () => {
+    const rawText = fs.readFileSync(
+      path.join(process.cwd(), "tests/fixtures/quick-check/v2/roraima-vm0007-pdd/extracted.txt"),
+      "utf8",
+    );
+    const result = resolveQuickCheckMethodology({
+      mentions: ["VM0007"],
+      methods,
+      rawText,
+    });
+
+    expect(result).toMatchObject({ status: "single" });
+    expect(result.matchedMethods[0]).toMatchObject({
+      methodologyId: "VM0007",
+      methodologyVersion: "v1.8",
+      versionStatus: "VERSION_CONFIRMED",
+    });
+  });
+
+  it("only reports a conflict when the same methodology has two formal declarations", () => {
+    expect(resolveMethodologyDeclarationFromText([
+      "PDD Version 1.3",
+      "Applied Methodology VM0007 REDD+ Methodology Framework v1.7",
+      "Applied Methodology VM0007 REDD+ Methodology Framework v1.8",
+    ].join("\n"), "VM0007")).toMatchObject({
+      version: null,
+      status: "CONFLICTING_DECLARATION",
+    });
+  });
+
   it("returns a detected methodology with no confirmed version", () => {
     const result = resolveQuickCheckMethodology({
       mentions: ["VM0007"],

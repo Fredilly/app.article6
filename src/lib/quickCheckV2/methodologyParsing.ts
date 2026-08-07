@@ -32,6 +32,32 @@ function isPlausibleMethodologyVersion(value: string | null): value is string {
   return Boolean(value && /^v\d+(?:\.\d{1,2}){0,2}$/i.test(value));
 }
 
+function isVersionStructurallyTiedToMethodology(quote: string, methodologyId: string, version: string): boolean {
+  const normalized = normalizeWhitespace(normalizeDashCharacters(quote));
+  const escapedCode = methodologyId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^v/i, "");
+  const codePattern = new RegExp(`\\b${escapedCode}\\b`, "gi");
+
+  for (const match of normalized.matchAll(codePattern)) {
+    const codeEnd = (match.index ?? 0) + match[0]!.length;
+    const nextCode = normalized.slice(codeEnd).search(GLOBAL_PRIMARY_METHODOLOGY_CODE_RE);
+    const scope = normalized.slice(codeEnd, nextCode >= 0 ? codeEnd + nextCode : undefined);
+    const blocked = scope.search(/\b(?:PDD|document|revision|history|template|module|tool)\b/i);
+    const usableScope = blocked >= 0 ? scope.slice(0, blocked) : scope;
+    if (!usableScope.trim()) continue;
+
+    const explicit = usableScope.match(new RegExp(`\\b(?:version|ver\\.?|v\\.?)\\s*${escapedVersion}\\b`, "i"));
+    if (explicit) return true;
+
+    const formalPrefix = normalized.slice(0, match.index ?? 0).match(/(?:^|\b(?:Applied(?:\s+Methodology)?|Methodology)\s+)$/i);
+    if (formalPrefix && new RegExp(`(?:^|\\s)${escapedVersion}(?=\\s|$)`, "i").test(usableScope)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function stripWrappingQuotes(value: string): string {
   return value.replace(/^[“"'\(\[]+/, "").replace(/[”"'\)\]]+$/, "").trim();
 }
@@ -272,7 +298,7 @@ export function resolveMethodologyDeclarationFromText(
     const reference = extractMethodologyReferencesFromQuote(quote)
       .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
     const version = reference?.pddDeclaredMethodologyVersion ?? null;
-    if (isPlausibleMethodologyVersion(version)) {
+    if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
       const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
         && /\bModule\b|\bTool\b/i.test(quote)
         && /\([^)]*(?:REDD|MF)\)/i.test(quote);
@@ -291,7 +317,7 @@ export function resolveMethodologyDeclarationFromText(
     const reference = extractMethodologyReferencesFromQuote(quote)
       .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
     const version = reference?.pddDeclaredMethodologyVersion ?? null;
-    if (isPlausibleMethodologyVersion(version)) {
+    if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
       candidates.push({ version, rank: 1, quote });
     }
   }
