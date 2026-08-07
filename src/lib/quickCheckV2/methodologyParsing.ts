@@ -14,12 +14,48 @@ export type MethodologyReference = Readonly<{
   pddDeclaredMethodologyVersion: string | null;
 }>;
 
+export type MethodologyDeclarationResolution = Readonly<{
+  version: string | null;
+  status: "VERSION_CONFIRMED" | "VERSION_NOT_CONFIRMED" | "CONFLICTING_DECLARATION";
+  evidenceQuote: string | null;
+}>;
+
 export function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
 export function normalizeDashCharacters(value: string): string {
   return value.replace(/[\u2010-\u2015]/g, "-");
+}
+
+function isPlausibleMethodologyVersion(value: string | null): value is string {
+  return Boolean(value && /^v\d+(?:\.\d{1,2}){0,2}$/i.test(value));
+}
+
+function isVersionStructurallyTiedToMethodology(quote: string, methodologyId: string, version: string): boolean {
+  const normalized = normalizeWhitespace(normalizeDashCharacters(quote));
+  const escapedCode = methodologyId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^v/i, "");
+  const codePattern = new RegExp(`\\b${escapedCode}\\b`, "gi");
+
+  for (const match of normalized.matchAll(codePattern)) {
+    const codeEnd = (match.index ?? 0) + match[0]!.length;
+    const nextCode = normalized.slice(codeEnd).search(GLOBAL_PRIMARY_METHODOLOGY_CODE_RE);
+    const scope = normalized.slice(codeEnd, nextCode >= 0 ? codeEnd + nextCode : undefined);
+    const blocked = scope.search(/\b(?:PDD|document|revision|history|template|module|tool)\b/i);
+    const usableScope = blocked >= 0 ? scope.slice(0, blocked) : scope;
+    if (!usableScope.trim()) continue;
+
+    const explicit = usableScope.match(new RegExp(`\\b(?:version|ver\\.?|v\\.?)\\s*${escapedVersion}\\b`, "i"));
+    if (explicit) return true;
+
+    const formalPrefix = normalized.slice(0, match.index ?? 0).match(/(?:^|\b(?:Applied(?:\s+Methodology)?|Methodology)\s+)$/i);
+    if (formalPrefix && new RegExp(`(?:^|\\s)${escapedVersion}(?=\\s|$)`, "i").test(usableScope)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function stripWrappingQuotes(value: string): string {
@@ -64,40 +100,43 @@ function findLikelyAliasMatch(body: string): RegExpMatchArray | null {
 
 function extractVersionFromSegment(segment: string): string | null {
   const normalized = normalizeWhitespace(normalizeDashCharacters(segment));
-  const explicitVersion = normalized.match(
-    /\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i,
-  );
-  if (explicitVersion?.[1]) {
+  // A reference segment starts at the methodology code.  Only accept an
+  // explicit version after that code, and stop before module/tool rows.  In
+  // particular, never scan the whole selected quote: a cover's "Version
+  // 1.3" is document metadata, not a methodology declaration.
+  const methodologyScope = normalized.split(METHODOLOGY_ROW_BOUNDARY_RE)[0]!.trim();
+  const explicitVersions = [...methodologyScope.matchAll(
+    /\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/gi,
+  )];
+  for (const explicitVersion of explicitVersions) {
+    const prefix = methodologyScope.slice(0, explicitVersion.index ?? 0);
+    if (!PRIMARY_METHODOLOGY_CODE_RE.test(prefix)) continue;
+    if (/\b(?:PDD|document|revision|history|template|module|tool)\s*$/i.test(prefix)) continue;
     return normalizeDeclaredMethodologyVersion(explicitVersion[0]);
   }
 
-  const parentheticalVersion = normalized.match(/\((?:[^)]*?)\bversion\s*([0-9]+(?:[.-][0-9]+){0,2})\b[^)]*\)/i);
-  if (parentheticalVersion?.[1]) {
-    return normalizeDeclaredMethodologyVersion(parentheticalVersion[0]);
-  }
-
-  const methodologyRowVersion = normalized.match(
+  const methodologyRowVersion = methodologyScope.match(
     /\bMethodology\s+(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(?:(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+)?(.+?)\s+([0-9]+(?:[.-][0-9]+){0,2})\b(?=\s+(?:Module|Tool|$))/i,
   );
   if (methodologyRowVersion?.[2]) {
     return normalizeDeclaredMethodologyVersion(methodologyRowVersion[2]);
   }
 
-  const terminalVersionMatches = [...normalized.matchAll(
+  const terminalVersionMatches = [...methodologyScope.matchAll(
     /([0-9]+(?:[.-][0-9]+){0,2})(?=\s+(?:Module|Tool|$))/gi,
   )];
   if (terminalVersionMatches[0]?.[1]) {
     return normalizeDeclaredMethodologyVersion(terminalVersionMatches[0][1]);
   }
 
-  const bareTrailingVersion = normalized.match(
+  const bareTrailingVersion = methodologyScope.match(
     /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\s+(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4}\s+)?[^.]*?\([^)]+\)\s+([0-9]+(?:[.-][0-9]+){0,2})\s*$/i,
   );
   if (bareTrailingVersion?.[1]) {
     return normalizeDeclaredMethodologyVersion(bareTrailingVersion[1]);
   }
 
-  const plainTrailingVersion = normalized.match(/(?:^|\s)([0-9]+(?:[.-][0-9]+){0,2})\s*$/);
+  const plainTrailingVersion = methodologyScope.match(/(?:^|\s)([0-9]+(?:[.-][0-9]+){0,2})\s*$/);
   if (plainTrailingVersion?.[1]) {
     return normalizeDeclaredMethodologyVersion(plainTrailingVersion[1]);
   }
@@ -146,7 +185,7 @@ function extractMethodologyReferenceFromSegment(segment: string, code: string): 
 }
 
 function extractMethodologyReferenceFromRowSegment(segment: string, code: string): MethodologyReference {
-  const normalized = normalizeWhitespace(normalizeDashCharacters(segment));
+  const normalized = isolateMethodologyRowBody(segment);
   const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const rowMatch = normalized.match(
     new RegExp(
@@ -234,6 +273,86 @@ export function extractMethodologyReferencesFromQuote(quote: string): Methodolog
   }
 
   return references;
+}
+
+/** Resolve only methodology-declaration versions from a document's extracted text. */
+export function resolveMethodologyDeclarationFromText(
+  text: string | undefined,
+  methodologyId: string,
+): MethodologyDeclarationResolution {
+  const sourceLines = normalizeDashCharacters(text ?? "").split(/\r?\n/);
+  if (!sourceLines.some((line) => line.trim()) || !methodologyId.trim()) {
+    return { version: null, status: "VERSION_NOT_CONFIRMED", evidenceQuote: null };
+  }
+
+  const escapedCode = methodologyId.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const versionToken = /\b(?:version|ver\.?|v\.?)\s*\d+(?:[.-]\d+){0,2}\b|\b\d+\.\d+(?:[.-]\d+)?\b/i;
+  const structuralBoundary = /^(?:\d+(?:\.\d+)*\s+\S|(?:Applied(?:\s+Methodology)?|Methodology|Module|Tool)\b)/i;
+  const declarationBlockAt = (lineIndex: number): string => {
+    const lines = [sourceLines[lineIndex]!.trim()];
+    const nextLine = sourceLines[lineIndex + 1]?.trim() ?? "";
+    if (
+      nextLine
+      && !structuralBoundary.test(nextLine)
+      && versionToken.test(nextLine)
+      && !versionToken.test(lines[0]!)
+    ) {
+      lines.push(nextLine);
+    }
+    return normalizeWhitespace(lines.join(" "));
+  };
+  const formalDeclarationPattern = new RegExp(
+    `((?:Applied(?:\\s+Methodology)?|Methodology))\\s+${escapedCode}\\b`,
+    "gi",
+  );
+  const candidates: Array<{ version: string; rank: number; quote: string }> = [];
+
+  for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex += 1) {
+    const line = sourceLines[lineIndex]!.trim();
+    for (const match of line.matchAll(formalDeclarationPattern)) {
+      const quote = declarationBlockAt(lineIndex).slice(match.index ?? 0);
+      const reference = extractMethodologyReferencesFromQuote(quote)
+        .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+      const version = reference?.pddDeclaredMethodologyVersion ?? null;
+      if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
+        const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
+          && /\bModule\b|\bTool\b/i.test(quote)
+          && /\([^)]*(?:REDD|MF)\)/i.test(quote);
+        candidates.push({
+          version,
+          rank: isMethodologyTableRow ? 4 : /Applied/i.test(match[1] ?? "") ? 3 : 2,
+          quote,
+        });
+      }
+    }
+  }
+
+  const codePattern = new RegExp(`\\b${escapedCode}\\b`, "gi");
+  for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex += 1) {
+    const line = sourceLines[lineIndex]!.trim();
+    for (const match of line.matchAll(codePattern)) {
+      const quote = declarationBlockAt(lineIndex).slice(match.index ?? 0);
+      const reference = extractMethodologyReferencesFromQuote(quote)
+        .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+      const version = reference?.pddDeclaredMethodologyVersion ?? null;
+      if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
+        candidates.push({ version, rank: 1, quote });
+      }
+    }
+  }
+
+  if (candidates.length === 0) {
+    return { version: null, status: "VERSION_NOT_CONFIRMED", evidenceQuote: null };
+  }
+
+  const highestRank = Math.max(...candidates.map((candidate) => candidate.rank));
+  const selected = candidates.filter((candidate) => candidate.rank === highestRank);
+  const versions = Array.from(new Set(selected.map((candidate) => candidate.version)));
+  if (versions.length > 1) {
+    return { version: null, status: "CONFLICTING_DECLARATION", evidenceQuote: selected.map((candidate) => candidate.quote).join(" | ") };
+  }
+
+  return { version: versions[0]!, status: "VERSION_CONFIRMED", evidenceQuote: selected[0]!.quote };
 }
 
 export function formatMethodologyReference(reference: MethodologyReference, options?: {

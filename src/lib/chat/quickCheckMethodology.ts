@@ -1,3 +1,5 @@
+import { resolveMethodologyDeclarationFromText } from "@/lib/quickCheckV2/methodologyParsing";
+
 type MethodInventoryRecord = {
   code: string;
   versions: string[];
@@ -15,7 +17,9 @@ export type QuickCheckMethodologySignal = {
 
 export type QuickCheckResolvedMethodology = {
   methodologyId: string;
-  methodologyVersion: string;
+  methodologyVersion: string | null;
+  rulebookVersion?: string;
+  versionStatus?: "VERSION_CONFIRMED" | "VERSION_NOT_CONFIRMED" | "CONFLICTING_DECLARATION";
   matchedSignals: string[];
   canonicalKeys: string[];
   priority: number;
@@ -190,6 +194,14 @@ function parseMethodologySignal(mention: string): QuickCheckMethodologySignal | 
 
 function pickVersion(method: MethodInventoryRecord): string {
   return method.latestVersion ?? method.versions[0] ?? "";
+}
+
+function resolveDeclaredVersion(rawText: string | undefined, methodologyId: string): {
+  version: string | null;
+  status: QuickCheckResolvedMethodology["versionStatus"];
+} {
+  const resolution = resolveMethodologyDeclarationFromText(rawText, methodologyId);
+  return { version: resolution.version, status: resolution.status };
 }
 
 function buildMethodAliasKeys(methodologyId: string): string[] {
@@ -404,15 +416,16 @@ export function resolvePrimaryMethodology(input: {
       secondaryCanonicalKeys,
     };
   }
-  const methodologyVersion = pickVersion(matchedMethodRecord);
-  if (!methodologyVersion) return null;
+  const declared = resolveDeclaredVersion(input.rawText, matchedMethodRecord.code);
 
   return {
     canonicalKey: effectiveTop.canonicalKey,
     supported: true,
     matchedMethod: {
       methodologyId: matchedMethodRecord.code,
-      methodologyVersion,
+      methodologyVersion: declared.version,
+      rulebookVersion: pickVersion(matchedMethodRecord),
+      versionStatus: declared.status,
       matchedSignals: rawMentions.filter((mention) => {
         const signal = parseMethodologySignal(mention);
         return signal?.canonicalKey === effectiveTop.canonicalKey;
@@ -463,8 +476,7 @@ export function resolveQuickCheckMethodology(input: {
       continue;
     }
     for (const method of candidates) {
-      const methodologyVersion = pickVersion(method);
-      if (!methodologyVersion) continue;
+      const declared = resolveDeclaredVersion(input.rawText, method.code);
       const existing = matchedMethods.get(method.code);
       if (existing) {
         existing.matchedSignals = Array.from(new Set([...existing.matchedSignals, signal.raw]));
@@ -474,7 +486,9 @@ export function resolveQuickCheckMethodology(input: {
       }
       matchedMethods.set(method.code, {
         methodologyId: method.code,
-        methodologyVersion,
+        methodologyVersion: declared.version,
+        rulebookVersion: pickVersion(method),
+        versionStatus: declared.status,
         matchedSignals: [signal.raw],
         canonicalKeys: [signal.canonicalKey],
         priority: signal.priority,

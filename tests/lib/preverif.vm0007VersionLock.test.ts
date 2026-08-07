@@ -68,6 +68,7 @@ function auditVm0007(
   rawText: string,
   options?: {
     versionContext?: {
+      methodologyId?: string;
       pddDeclaredMethodologyVersion: string;
     };
     userAcceptedVersionWarning?: boolean;
@@ -92,6 +93,7 @@ function auditVm0007WithDocument(
   rawText: string,
   options?: {
     versionContext?: {
+      methodologyId?: string;
       pddDeclaredMethodologyVersion: string;
     };
     userAcceptedVersionWarning?: boolean;
@@ -298,6 +300,48 @@ describe("VM0007 version lock", () => {
     expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
     expect(audit.versionMismatchReason).toBe("");
     expect(audit.results).toHaveLength(58);
+  });
+
+  it("uses the resolved VM0007 identity instead of re-deriving it from the version string", () => {
+    const audit = auditVm0007(ENVIRA_TEXT, {
+      getContract: makeVersionedContract("v1-8"),
+      versionContext: {
+        methodologyId: "VM0007",
+        pddDeclaredMethodologyVersion: "v1.8",
+      },
+    });
+
+    expect(audit.methodologyId).toBe("VM0007");
+    expect(audit.rulebookVersion).toBe("v1.8");
+    expect(audit.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(audit.versionMatch).toBe(true);
+    expect(audit.versionMismatchReason).toBe("");
+  });
+
+  it("accepts a resolved non-VM0007 methodology identity with its declared version", () => {
+    const lock = buildMethodologyVersionLock({
+      methodologyId: "VM0015",
+      rulebookVersion: "v2.0",
+      pddDeclaredMethodologyId: "VM0015",
+      pddDeclaredMethodologyVersion: "v2.0",
+    });
+
+    expect(lock.methodologyId).toBe("VM0015");
+    expect(lock.pddDeclaredMethodologyVersion).toBe("v2.0");
+    expect(lock.versionMatch).toBe(true);
+    expect(lock.versionMismatchReason).toBe("");
+  });
+
+  it("does not accept a declared version when the PDD methodology ID is missing", () => {
+    const audit = auditVm0007("Project evidence without a methodology declaration.", {
+      getContract: makeVersionedContract("v1-8"),
+      versionContext: {
+        pddDeclaredMethodologyVersion: "v1.8",
+      },
+    });
+
+    expect(audit.versionMatch).toBe(false);
+    expect(audit.versionMismatchReason).toContain("PDD-declared methodology ID is missing");
   });
 
   it("allows a normalized VM0007 v1-8 declaration to pass the version lock", () => {

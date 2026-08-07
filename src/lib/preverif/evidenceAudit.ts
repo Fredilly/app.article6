@@ -156,7 +156,9 @@ export type MethodologyEvidenceAuditInput = {
   evidenceDocument: EvidenceDocument;
   getContract: (rule: MethodologyRuleLike | string) => MethodologyEvidenceContract;
   normalizeRuleId?: (ruleId: string) => string;
-  versionContext?: Partial<Pick<MethodologyVersionLock, "methodologyId" | "rulebookVersion" | "pddDeclaredMethodologyVersion">>;
+  versionContext?: Partial<Pick<MethodologyVersionLock, "methodologyId" | "rulebookVersion" | "pddDeclaredMethodologyVersion">> & {
+    pddDeclaredMethodologyId?: string;
+  };
   userAcceptedVersionWarning?: boolean;
   sections?: readonly Pick<
     DocumentStructure["sections"][number],
@@ -498,7 +500,8 @@ function extractDeclaredMethodologyReferenceFromText(rawText: string, expectedMe
 
   const lines = methodologyBlock.split(/\n+/);
   const declarationVersions = collectProseDeclaredVersions(lines, expectedId);
-  const declaredMethodologyId = expectedId || extractDeclaredMethodologyId(methodologyBlock) || "";
+  const extractedMethodologyId = extractDeclaredMethodologyId(methodologyBlock);
+  const declaredMethodologyId = extractedMethodologyId || (declarationVersions.length > 0 ? expectedId : "");
 
   return {
     declaredMethodologyId,
@@ -541,6 +544,7 @@ export function buildMethodologyVersionLock(input: {
   methodologyId: string;
   rulebookVersion: string;
   pddDeclaredMethodologyVersion: string;
+  pddDeclaredMethodologyId?: string;
   userAcceptedVersionWarning?: boolean;
 }): MethodologyVersionLock {
   const methodologyId = normalizeMethodologyId(input.methodologyId);
@@ -550,9 +554,12 @@ export function buildMethodologyVersionLock(input: {
   const standaloneDeclaredVersion = isStandaloneDeclaredVersion(pddDeclaredMethodologyVersionRaw)
     ? normalizeMethodologyVersion(pddDeclaredMethodologyVersionRaw)
     : null;
+  const declaredMethodologyId = input.pddDeclaredMethodologyId === undefined
+    ? methodologyId
+    : normalizeMethodologyId(input.pddDeclaredMethodologyId);
   const declaredReference = standaloneDeclaredVersion
     ? {
-      declaredMethodologyId: methodologyId,
+      declaredMethodologyId,
       declaredRulebookVersions: [standaloneDeclaredVersion],
     }
     : extractDeclaredMethodologyReferenceFromText(pddDeclaredMethodologyVersionRaw, methodologyId);
@@ -639,7 +646,7 @@ function resolveStableId(rule: MethodologyEvidenceAuditRule): string {
 function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): MethodologyVersionLock {
   const firstRule = input.rules[0];
   const firstContract = firstRule ? input.getContract(firstRule) : null;
-  const methodologyId = input.versionContext?.methodologyId?.trim()
+  const resolvedMethodologyId = input.versionContext?.methodologyId?.trim()
     || firstContract?.methodologyId
     || "";
   const rulebookVersion = input.versionContext?.rulebookVersion?.trim()
@@ -647,17 +654,25 @@ function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): Methodol
     || "";
   const tableDeclaredReference = extractDeclaredMethodologyReferenceFromTables({
     evidenceDocument: input.evidenceDocument,
-    expectedMethodologyId: methodologyId,
+    expectedMethodologyId: resolvedMethodologyId,
   });
-  const declaredReference = tableDeclaredReference ?? extractDeclaredMethodologyReferenceFromText(input.rawText ?? "", methodologyId);
-  const pddDeclaredMethodologyVersion = input.versionContext?.pddDeclaredMethodologyVersion?.trim()
-    || [declaredReference.declaredMethodologyId, ...declaredReference.declaredRulebookVersions].filter(Boolean).join(" ").trim()
-    || "";
+  const declaredReference = tableDeclaredReference ?? extractDeclaredMethodologyReferenceFromText(input.rawText ?? "", resolvedMethodologyId);
+  const versionContextValue = input.versionContext?.pddDeclaredMethodologyVersion;
+  const inferredDeclaredVersion = declaredReference.declaredRulebookVersions.length > 0
+    ? [declaredReference.declaredMethodologyId, ...declaredReference.declaredRulebookVersions].filter(Boolean).join(" ").trim()
+    : "";
+  const pddDeclaredMethodologyVersion = versionContextValue !== undefined
+    ? versionContextValue.trim()
+    : inferredDeclaredVersion;
+  const declaredMethodologyId = input.versionContext?.pddDeclaredMethodologyId !== undefined
+    ? input.versionContext.pddDeclaredMethodologyId.trim()
+    : input.versionContext?.methodologyId?.trim() || declaredReference.declaredMethodologyId;
 
   return buildMethodologyVersionLock({
-    methodologyId,
+    methodologyId: resolvedMethodologyId,
     rulebookVersion,
     pddDeclaredMethodologyVersion,
+    pddDeclaredMethodologyId: declaredMethodologyId,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
 }

@@ -12,18 +12,32 @@ describe("Quick Check upload origin policy", () => {
   });
 
   it("accepts a configured origin in Preview and Production", () => {
-    process.env.R2_ALLOWED_UPLOAD_ORIGINS = "https://app.article6.example";
-    expect(authorizeQuickCheckUploadOrigin("https://app.article6.example").allowed).toBe(true);
+    process.env.R2_ALLOWED_UPLOAD_ORIGINS = "https://app.article6.org";
+    expect(authorizeQuickCheckUploadOrigin("https://app.article6.org").allowed).toBe(true);
     process.env.VERCEL_ENV = "production";
-    expect(authorizeQuickCheckUploadOrigin("https://app.article6.example").allowed).toBe(true);
-    expect(authorizeQuickCheckUploadOrigin("https://app-article6-git-fix-evidence-map-gen-53d19e-fredillys-projects.vercel.app").allowed).toBe(false);
+    expect(authorizeQuickCheckUploadOrigin("https://app.article6.org").allowed).toBe(true);
   });
 
-  it("allows the current app.article6 Vercel preview hostname without an explicit override", () => {
-    expect(authorizeQuickCheckUploadOrigin("https://app-article6-git-fix-evidence-map-gen-53d19e-fredillys-projects.vercel.app")).toEqual({
-      allowed: true,
-      normalizedOrigin: "https://app-article6-git-fix-evidence-map-gen-53d19e-fredillys-projects.vercel.app",
-    });
+  it.each([undefined, "production"]) (
+    "accepts an app.article6 Vercel Preview hostname when VERCEL_ENV is %s",
+    (vercelEnv) => {
+      if (vercelEnv === undefined) delete process.env.VERCEL_ENV;
+      else process.env.VERCEL_ENV = vercelEnv;
+      delete process.env.R2_ALLOWED_UPLOAD_ORIGINS;
+
+      expect(authorizeQuickCheckUploadOrigin("https://app-article6-feature-123-fredillys-projects.vercel.app")).toMatchObject({
+        allowed: true,
+        normalizedOrigin: "https://app-article6-feature-123-fredillys-projects.vercel.app",
+      });
+    },
+  );
+
+  it("still requires exact R2 configuration for app.article6.org", () => {
+    delete process.env.R2_ALLOWED_UPLOAD_ORIGINS;
+    expect(authorizeQuickCheckUploadOrigin("https://app.article6.org").allowed).toBe(false);
+
+    process.env.R2_ALLOWED_UPLOAD_ORIGINS = "https://app.article6.org";
+    expect(authorizeQuickCheckUploadOrigin("https://app.article6.org").allowed).toBe(true);
   });
 
   it("rejects an unconfigured origin", () => {
@@ -50,14 +64,21 @@ describe("Quick Check upload origin policy", () => {
     expect(authorizeQuickCheckUploadOrigin("https://app.article6.example:444").allowed).toBe(false);
   });
 
-  it("rejects unrelated and lookalike Vercel hostnames", () => {
-    process.env.R2_ALLOWED_UPLOAD_ORIGINS = "https://app.article6.example";
-    expect(authorizeQuickCheckUploadOrigin("https://other-project-fredillys-projects.vercel.app").allowed).toBe(false);
-    expect(authorizeQuickCheckUploadOrigin("https://evil-app-article6-feature-fredillys-projects.vercel.app").allowed).toBe(false);
+  it("rejects unrelated Vercel projects and lookalike domains", () => {
+    delete process.env.R2_ALLOWED_UPLOAD_ORIGINS;
+    expect(authorizeQuickCheckUploadOrigin("https://other-app-feature-fredillys-projects.vercel.app").allowed).toBe(false);
+    expect(authorizeQuickCheckUploadOrigin("https://app-article6-feature-fredillys-projects.vercel.app.evil.example").allowed).toBe(false);
+    expect(authorizeQuickCheckUploadOrigin("https://app-article6-feature-fredillys-projects.vercel.app.attacker.com").allowed).toBe(false);
   });
 
-  it("rejects HTTP Vercel preview origins", () => {
-    expect(authorizeQuickCheckUploadOrigin("http://app-article6-git-fix-evidence-map-gen-53d19e-fredillys-projects.vercel.app").allowed).toBe(false);
+  it("rejects non-origin URL forms for trusted Vercel Preview hostnames", () => {
+    delete process.env.R2_ALLOWED_UPLOAD_ORIGINS;
+    const host = "app-article6-feature-fredillys-projects.vercel.app";
+    expect(authorizeQuickCheckUploadOrigin(`http://${host}`).allowed).toBe(false);
+    expect(authorizeQuickCheckUploadOrigin(`https://${host}/upload`).code).toBe("origin-invalid");
+    expect(authorizeQuickCheckUploadOrigin(`https://${host}?debug=1`).code).toBe("origin-invalid");
+    expect(authorizeQuickCheckUploadOrigin(`https://${host}#fragment`).code).toBe("origin-invalid");
+    expect(authorizeQuickCheckUploadOrigin(`https://user:pass@${host}`).code).toBe("origin-invalid");
   });
 
   it("requires an Origin header and configured allowlist", () => {

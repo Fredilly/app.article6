@@ -8,6 +8,8 @@ export type UploadOriginDecision =
   | { allowed: true; normalizedOrigin: string }
   | { allowed: false; code: OriginPolicyFailureCode; status: 403 | 503; error: string };
 
+const TRUSTED_VERCEL_PREVIEW_HOST_RE = /^app-article6-[a-z0-9-]+-fredillys-projects\.vercel\.app$/i;
+
 function environment(): string {
   return process.env.VERCEL_ENV || process.env.NODE_ENV || "development";
 }
@@ -32,10 +34,8 @@ function configuredOrigins(): string[] {
     .map((url) => url.origin);
 }
 
-const APP_ARTICLE6_VERCEL_PREVIEW_HOST = /^app-article6-[a-z0-9-]+-fredillys-projects\.vercel\.app$/i;
-
-function isAppArticle6VercelPreviewOrigin(origin: URL): boolean {
-  return environment() === "preview" && origin.protocol === "https:" && origin.hostname.endsWith(".vercel.app") && APP_ARTICLE6_VERCEL_PREVIEW_HOST.test(origin.hostname);
+function isTrustedVercelPreviewOrigin(origin: URL): boolean {
+  return origin.protocol === "https:" && TRUSTED_VERCEL_PREVIEW_HOST_RE.test(origin.hostname);
 }
 
 export function authorizeQuickCheckUploadOrigin(originHeader: string | null): UploadOriginDecision {
@@ -43,9 +43,10 @@ export function authorizeQuickCheckUploadOrigin(originHeader: string | null): Up
   const origin = parseOrigin(originHeader);
   if (!origin) return { allowed: false, code: "origin-invalid", status: 403, error: "The browser Origin header is invalid." };
 
+  if (isTrustedVercelPreviewOrigin(origin)) return { allowed: true, normalizedOrigin: origin.origin };
+
   const exactOrigins = configuredOrigins();
   if (exactOrigins.includes(origin.origin) && (environment() !== "production" || origin.protocol === "https:")) return { allowed: true, normalizedOrigin: origin.origin };
-  if (isAppArticle6VercelPreviewOrigin(origin)) return { allowed: true, normalizedOrigin: origin.origin };
 
   if (!exactOrigins.length) return { allowed: false, code: "upload-origin-not-configured", status: 503, error: "Upload origins are not configured. Set R2_ALLOWED_UPLOAD_ORIGINS." };
   return { allowed: false, code: "cors-denied", status: 403, error: "This browser origin is not allowed to upload Quick Check PDFs." };

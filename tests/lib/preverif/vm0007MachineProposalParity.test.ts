@@ -5,6 +5,68 @@ import { loadMethodRules } from "@/app/m/_lib/methodRules";
 import { buildVm0007MachineProposal } from "@/lib/preverif/vm0007MachineProposal";
 
 describe("VM0007 machine proposal generation parity", () => {
+  it.each([
+    ["missing declared methodology ID", { methodologyId: "", pddDeclaredMethodologyVersion: "v1.8" }, "PDD-declared methodology ID is missing"],
+    ["missing declared methodology version", { methodologyId: "VM0007", pddDeclaredMethodologyVersion: null }, "PDD-declared methodology version is missing"],
+    ["mismatched declared methodology version", { methodologyId: "VM0007", pddDeclaredMethodologyVersion: "v1.7" }, "rulebook version mismatch"],
+  ])("blocks when the resolved declared identity is %s", async (_label, identity, expectedReason) => {
+    const rulesResult = await loadMethodRules("VM0007", "v1-8");
+    const built = buildVm0007MachineProposal({
+      auditId: `canonical-identity-${_label}`,
+      generatedAt: "2026-01-01T00:00:00.000Z",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-8",
+      methodology: {
+        methodologyId: identity.methodologyId,
+        methodologyName: "VM0007",
+        methodologyAlias: null,
+        pddDeclaredMethodologyVersion: identity.pddDeclaredMethodologyVersion,
+        versionStatus: identity.pddDeclaredMethodologyVersion ? "DECLARED" : "VERSION_NOT_CONFIRMED",
+        evidencePage: 1,
+        evidenceSection: "Caller resolution",
+        evidenceQuote: "Caller-resolved identity",
+      },
+      rawPddText: "Project description without a second methodology declaration.",
+      rules: rulesResult.rules,
+    });
+
+    expect(built.audit.versionMatch).toBe(false);
+    expect(built.audit.versionMismatchReason).toContain(expectedReason);
+    expect(built.draft.ok).toBe(false);
+  });
+
+  it("preserves a resolved declared identity through the canonical draft path", async () => {
+    const rulesResult = await loadMethodRules("VM0007", "v1-8");
+    const built = buildVm0007MachineProposal({
+      auditId: "canonical-resolved-identity",
+      generatedAt: "2026-01-01T00:00:00.000Z",
+      methodologyId: "VM0007",
+      methodologyVersion: "v1-8",
+      methodology: {
+        methodologyId: "VM0007",
+        methodologyName: "VM0007",
+        methodologyAlias: null,
+        pddDeclaredMethodologyVersion: "v1.8",
+        versionStatus: "DECLARED",
+        evidencePage: 1,
+        evidenceSection: "Caller resolution",
+        evidenceQuote: "Caller-resolved VM0007 v1.8",
+      },
+      rawPddText: "Project description without a second methodology declaration.",
+      rules: rulesResult.rules,
+    });
+
+    expect(built.audit.methodologyId).toBe("VM0007");
+    expect(built.audit.rulebookVersion).toBe("v1.8");
+    expect(built.audit.pddDeclaredMethodologyVersion).toBe("v1.8");
+    expect(built.audit.versionMatch).toBe(true);
+    expect(built.draft.ok).toBe(true);
+    if (!built.draft.ok) return;
+    expect(built.draft.package.methodologyId).toBe("VM0007");
+    expect(built.draft.package.rulebookVersion).toBe("v1.8");
+    expect(built.draft.package.pddDeclaredMethodologyVersion).toBe("v1.8");
+  });
+
   it("is deterministic for the same PDF SHA, app version, and generation config", async () => {
     const appVersion = (JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8")) as { version: string }).version;
     const rawPddText = [

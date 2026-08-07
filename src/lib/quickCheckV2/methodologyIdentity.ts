@@ -9,6 +9,8 @@ import {
 
 export type QuickCheckMethodologyVersionStatus =
   | "DECLARED"
+  | "VERSION_NOT_CONFIRMED"
+  | "CONFLICTING_DECLARATION"
   | "NOT_EXPLICITLY_DECLARED"
   | "UNKNOWN";
 
@@ -124,7 +126,7 @@ function extractMethodologyName(body: string): string {
 
 function versionStatusFromQuote(version: string | null, body: string): QuickCheckMethodologyVersionStatus {
   if (version) return "DECLARED";
-  return body.trim() ? "NOT_EXPLICITLY_DECLARED" : "UNKNOWN";
+  return body.trim() ? "VERSION_NOT_CONFIRMED" : "UNKNOWN";
 }
 
 export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence | null | undefined): QuickCheckMethodologyIdentity | null {
@@ -138,7 +140,7 @@ export function buildQuickCheckMethodologyIdentity(evidence: RetrievedEvidence |
   if (primaryReference) {
     const versionStatus = primaryReference.pddDeclaredMethodologyVersion
       ? "DECLARED"
-      : "NOT_EXPLICITLY_DECLARED";
+      : "VERSION_NOT_CONFIRMED";
 
     return {
       methodologyId: primaryReference.methodologyId,
