@@ -666,7 +666,7 @@ function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): Methodol
     : inferredDeclaredVersion;
   const declaredMethodologyId = input.versionContext?.pddDeclaredMethodologyId !== undefined
     ? input.versionContext.pddDeclaredMethodologyId.trim()
-    : declaredReference.declaredMethodologyId;
+    : input.versionContext?.methodologyId?.trim() || declaredReference.declaredMethodologyId;
 
   return buildMethodologyVersionLock({
     methodologyId: resolvedMethodologyId,
