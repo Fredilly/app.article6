@@ -43,7 +43,12 @@ export function buildVm0007MachineProposal(input: {
   const audit = auditEvidence({
     rules: input.rules.map(mapRule), evidenceDocument: context.evidenceDocument, getContract: getVm0007EvidenceContract,
     normalizeRuleId: normalizeVm0007RuleId, sections: context.documentStructure.sections, rawText: input.rawPddText,
-    versionContext: { methodologyId: input.methodologyId, rulebookVersion: input.methodologyVersion, pddDeclaredMethodologyVersion: methodology?.pddDeclaredMethodologyVersion ?? "" },
+    versionContext: {
+      methodologyId: input.methodologyId,
+      rulebookVersion: input.methodologyVersion,
+      pddDeclaredMethodologyId: methodology?.methodologyId,
+      pddDeclaredMethodologyVersion: methodology?.pddDeclaredMethodologyVersion ?? "",
+    },
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
   const sourceDocument: EvidenceMapSourceDocumentIdentity = {

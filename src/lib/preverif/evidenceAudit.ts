@@ -664,12 +664,15 @@ function resolveAuditVersionLock(input: MethodologyEvidenceAuditInput): Methodol
   const pddDeclaredMethodologyVersion = versionContextValue !== undefined
     ? versionContextValue.trim()
     : inferredDeclaredVersion;
+  const declaredMethodologyId = input.versionContext?.pddDeclaredMethodologyId !== undefined
+    ? input.versionContext.pddDeclaredMethodologyId.trim()
+    : declaredReference.declaredMethodologyId;
 
   return buildMethodologyVersionLock({
     methodologyId: resolvedMethodologyId,
     rulebookVersion,
     pddDeclaredMethodologyVersion,
-    pddDeclaredMethodologyId: input.versionContext?.methodologyId?.trim() || declaredReference.declaredMethodologyId,
+    pddDeclaredMethodologyId: declaredMethodologyId,
     userAcceptedVersionWarning: input.userAcceptedVersionWarning,
   });
 }
