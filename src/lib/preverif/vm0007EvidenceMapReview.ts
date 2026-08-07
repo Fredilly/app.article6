@@ -193,7 +193,7 @@ function applyTransition(pkgInput: Vm0007EvidenceMapDraftPackage, rowId: string,
     finalizationBasis: null,
     rows: pkg.rows.map((row) => row.rowId === rowId ? updatedRow : row),
   };
-  if (!saveVm0007EvidenceMapDraft(updated)) return { ok: false, reason: "draft-persistence-failed" };
+  if (!saveVm0007EvidenceMapDraft(updated).ok) return { ok: false, reason: "draft-persistence-failed" };
   clearQuickCheckReadinessPayload(pkg.auditId);
   return { ok: true, package: updated, row: updatedRow };
 }
@@ -312,7 +312,7 @@ export function finalizeVm0007EvidenceMap(pkgInput: Vm0007EvidenceMapDraftPackag
     };
   }
   const finalized: Vm0007EvidenceMapDraftPackage = { ...pkg, rows: finalizedRows, finalizationState: "finalized", finalizedBy: reviewerRef(reviewerIdentity), finalizedAt: timestamp, finalizationBasis: "Reviewer-approved Evidence Map finalization." };
-  if (!saveVm0007EvidenceMapDraft(finalized)) return { ok: false, package: pkg, blockedBy: ["draft-persistence-failed"], pipeline };
+  if (!saveVm0007EvidenceMapDraft(finalized).ok) return { ok: false, package: pkg, blockedBy: ["draft-persistence-failed"], pipeline };
   return { ok: true, package: finalized, pipeline };
 }
 

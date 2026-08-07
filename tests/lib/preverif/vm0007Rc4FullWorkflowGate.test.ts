@@ -166,7 +166,7 @@ describe("RC4-4 full 58-rule reviewer workflow gate", () => {
 
   test("keeps all 58 rules addressable and makes navigation deterministic", () => {
     const pkg = makePackage();
-    expect(saveVm0007EvidenceMapDraft(pkg)).toBe(true);
+    expect(saveVm0007EvidenceMapDraft(pkg)).toEqual({ ok: true });
     const presentation = buildMachineEvidenceMapPresentation(pkg);
     expect(presentation.rows).toHaveLength(58);
     expect(new Set(presentation.rows.map((row) => row.rowId)).size).toBe(58);

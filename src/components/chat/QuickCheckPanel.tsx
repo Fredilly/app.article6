@@ -1285,7 +1285,9 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       }
       setUploadVm0007GapReportAuditId(savedAudit.auditId);
     } catch (error) {
-      setUploadVm0007GenerationError(classifyEvidenceMapGenerationError({ error }));
+      const generationError = classifyEvidenceMapGenerationError({ error, stage: "machine_proposal_generation", extractedTextLength: rawPddText.length, evidenceFileName: draft.evidenceFileName || selectedEvidenceLabel });
+      console.error("VM0007 Evidence Map generation diagnostic", generationError.diagnostic);
+      setUploadVm0007GenerationError(generationError);
     } finally {
       setGeneratingUploadVm0007GapReport(false);
     }
