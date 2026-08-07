@@ -112,7 +112,13 @@ describe("quick check ui helpers", () => {
     });
 
     expect(buildExtractionPreviewViewModel({ analysis: baseAnalysis, methodologyResolution: resolution("VERSION_CONFIRMED", "v1.8") }).methodologyState).toBe("Version confirmed");
-    expect(buildExtractionPreviewViewModel({ analysis: { ...baseAnalysis, rawPddText: "VM0007 REDD+ Methodology Framework" }, methodologyResolution: resolution("VERSION_NOT_CONFIRMED", null) }).methodologyState).toBe("Version missing");
+    const missingVersionView = buildExtractionPreviewViewModel({ analysis: { ...baseAnalysis, rawPddText: "VM0007 REDD+ Methodology Framework" }, methodologyResolution: resolution("VERSION_NOT_CONFIRMED", null) });
+    expect(missingVersionView.methodologyState).toBe("Version missing");
+    expect(missingVersionView.detectedMethodology).toBe("VM0007");
+    expect(missingVersionView.detectedMethodology).not.toContain("v1.8");
+    const confirmedVersionView = buildExtractionPreviewViewModel({ analysis: baseAnalysis, methodologyResolution: resolution("VERSION_CONFIRMED", "v1.8") });
+    expect(confirmedVersionView.methodologyState).toBe("Version confirmed");
+    expect(confirmedVersionView.detectedMethodology).toBe("VM0007 v1.8");
     expect(buildExtractionPreviewViewModel({ analysis: baseAnalysis, methodologyResolution: resolution("CONFLICTING_DECLARATION", null) }).methodologyState).toBe("Conflicting declaration");
   });
 

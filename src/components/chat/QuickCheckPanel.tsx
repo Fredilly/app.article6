@@ -911,10 +911,10 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
     return draft.methodologyId.trim() || resolvedWorkspaceMethod?.methodologyId || "";
   }, [draft.methodologyId, draft.status, resolvedWorkspaceMethod]);
   const workspaceMethodologyVersion = useMemo(() => {
-    if (draft.status !== "checked" && resolvedWorkspaceMethod?.rulebookVersion) {
-      return resolvedWorkspaceMethod.rulebookVersion ?? "";
+    if (draft.status !== "checked" && resolvedWorkspaceMethod?.methodologyVersion) {
+      return resolvedWorkspaceMethod.methodologyVersion;
     }
-    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.rulebookVersion || "";
+    return draft.methodologyVersion.trim() || resolvedWorkspaceMethod?.methodologyVersion || "";
   }, [draft.methodologyVersion, draft.status, resolvedWorkspaceMethod]);
   const methodologyMismatch = useMemo(() => {
     if (!draft.methodologyId.trim()) return null;
@@ -1797,7 +1797,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const resolvedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
       const resolvedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.rulebookVersion ?? "" : "");
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
 
       if (isReviewQuestion) {
         const firstSource = selectedEvidenceSources[0];
@@ -1870,7 +1870,7 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
       const selectedMethodologyId = draft.methodologyId.trim()
         || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyId ?? "" : "");
       const selectedMethodologyVersion = draft.methodologyVersion.trim()
-        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.rulebookVersion ?? "" : "");
+        || (currentMethodologyResolution.status === "single" ? currentMethodologyResolution.matchedMethods[0]?.methodologyVersion ?? "" : "");
       const allowedMethodologyIds = draft.methodologyId.trim()
         ? new Set([draft.methodologyId.trim()])
         : currentMethodologyResolution.status === "single" || currentMethodologyResolution.status === "multiple"
