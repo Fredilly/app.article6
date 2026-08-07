@@ -8,3 +8,6 @@ Type (methodology, module, tool) Reference ID Title Version
 Applied Methodology VM0007 VM0007 REDD+ Methodology Framework (REDD+MF) 1.8
 Module VMD0001 Estimation of carbon stocks in the above- and below-ground biomass 1.2
 Tool VT0001 Tool for the Demonstration and Assessment of Additionality 3.0
+
+Later unrelated document text
+Version 6.1

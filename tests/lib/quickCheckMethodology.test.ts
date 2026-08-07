@@ -88,6 +88,18 @@ describe("methodology declaration version resolution", () => {
     });
   });
 
+  it("does not pair a later unrelated Version 6.1 with the formal VM0007 v1.8 row", () => {
+    const result = resolveMethodologyDeclarationFromText(read(
+      "../roraima-vm0007-pdd/extracted.txt",
+    ), "VM0007");
+
+    expect(result).toMatchObject({
+      version: "v1.8",
+      status: "VERSION_CONFIRMED",
+    });
+    expect(result.evidenceQuote).not.toContain("6.1");
+  });
+
   it("resolves the real Roraima extraction without promoting its document version", () => {
     const rawText = fs.readFileSync(
       path.join(process.cwd(), "tests/fixtures/quick-check/v2/roraima-vm0007-pdd/extracted.txt"),

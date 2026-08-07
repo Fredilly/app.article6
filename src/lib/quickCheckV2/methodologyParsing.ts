@@ -280,45 +280,64 @@ export function resolveMethodologyDeclarationFromText(
   text: string | undefined,
   methodologyId: string,
 ): MethodologyDeclarationResolution {
-  const normalized = normalizeWhitespace(normalizeDashCharacters(text ?? ""));
-  if (!normalized || !methodologyId.trim()) {
+  const sourceLines = normalizeDashCharacters(text ?? "").split(/\r?\n/);
+  if (!sourceLines.some((line) => line.trim()) || !methodologyId.trim()) {
     return { version: null, status: "VERSION_NOT_CONFIRMED", evidenceQuote: null };
   }
 
   const escapedCode = methodologyId.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const versionToken = /\b(?:version|ver\.?|v\.?)\s*\d+(?:[.-]\d+){0,2}\b|\b\d+\.\d+(?:[.-]\d+)?\b/i;
+  const structuralBoundary = /^(?:\d+(?:\.\d+)*\s+\S|(?:Applied(?:\s+Methodology)?|Methodology|Module|Tool)\b)/i;
+  const declarationBlockAt = (lineIndex: number): string => {
+    const lines = [sourceLines[lineIndex]!.trim()];
+    const nextLine = sourceLines[lineIndex + 1]?.trim() ?? "";
+    if (
+      nextLine
+      && !structuralBoundary.test(nextLine)
+      && versionToken.test(nextLine)
+      && !versionToken.test(lines[0]!)
+    ) {
+      lines.push(nextLine);
+    }
+    return normalizeWhitespace(lines.join(" "));
+  };
   const formalDeclarationPattern = new RegExp(
     `((?:Applied(?:\\s+Methodology)?|Methodology))\\s+${escapedCode}\\b`,
     "gi",
   );
   const candidates: Array<{ version: string; rank: number; quote: string }> = [];
 
-  for (const match of normalized.matchAll(formalDeclarationPattern)) {
-    const start = match.index ?? 0;
-    const quote = normalized.slice(start, start + 500);
-    const reference = extractMethodologyReferencesFromQuote(quote)
-      .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
-    const version = reference?.pddDeclaredMethodologyVersion ?? null;
-    if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
-      const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
-        && /\bModule\b|\bTool\b/i.test(quote)
-        && /\([^)]*(?:REDD|MF)\)/i.test(quote);
-      candidates.push({
-        version,
-        rank: isMethodologyTableRow ? 4 : /Applied/i.test(match[1] ?? "") ? 3 : 2,
-        quote,
-      });
+  for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex += 1) {
+    const line = sourceLines[lineIndex]!.trim();
+    for (const match of line.matchAll(formalDeclarationPattern)) {
+      const quote = declarationBlockAt(lineIndex).slice(match.index ?? 0);
+      const reference = extractMethodologyReferencesFromQuote(quote)
+        .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+      const version = reference?.pddDeclaredMethodologyVersion ?? null;
+      if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
+        const isMethodologyTableRow = /^Applied/i.test(match[1] ?? "")
+          && /\bModule\b|\bTool\b/i.test(quote)
+          && /\([^)]*(?:REDD|MF)\)/i.test(quote);
+        candidates.push({
+          version,
+          rank: isMethodologyTableRow ? 4 : /Applied/i.test(match[1] ?? "") ? 3 : 2,
+          quote,
+        });
+      }
     }
   }
 
   const codePattern = new RegExp(`\\b${escapedCode}\\b`, "gi");
-  for (const match of normalized.matchAll(codePattern)) {
-    const start = match.index ?? 0;
-    const quote = normalized.slice(start, start + 220);
-    const reference = extractMethodologyReferencesFromQuote(quote)
-      .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
-    const version = reference?.pddDeclaredMethodologyVersion ?? null;
-    if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
-      candidates.push({ version, rank: 1, quote });
+  for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex += 1) {
+    const line = sourceLines[lineIndex]!.trim();
+    for (const match of line.matchAll(codePattern)) {
+      const quote = declarationBlockAt(lineIndex).slice(match.index ?? 0);
+      const reference = extractMethodologyReferencesFromQuote(quote)
+        .find((item) => item.methodologyId.toUpperCase() === methodologyId.trim().toUpperCase());
+      const version = reference?.pddDeclaredMethodologyVersion ?? null;
+      if (isPlausibleMethodologyVersion(version) && isVersionStructurallyTiedToMethodology(quote, methodologyId, version)) {
+        candidates.push({ version, rank: 1, quote });
+      }
     }
   }
 
