@@ -1,6 +1,6 @@
 import { extractMethodologyMentions, type QuickCheckPdfParserDebug, type QuickCheckResolvedPdfText } from "@/lib/chat/quickCheckEvidence";
 import { formatQuickCheckPdfPages, type QuickCheckPdfPage } from "@/lib/chat/quickCheckPdfPages";
-import { isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { formatQuickCheckPdfLimitLabel, isLikelyPdfBytes, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 import type { ParsedDocument } from "@/lib/documentParsing";
 export type QuickCheckUploadProgress = (percent: number) => void;
 const RECOVERED_TEXT_WARNING = "Server extraction failed, but Quick Check recovered document signals locally. Review extracted details before relying on matches.";
@@ -10,7 +10,7 @@ const defaultUploadCache = createQuickCheckPdfUploadCache();
 export function clearQuickCheckUploadCache() { defaultUploadCache.clear(); }
 export async function resolveQuickCheckPdfText(input: { attachmentId?: string; sha256?: string; uploadCache?: QuickCheckPdfUploadCache; bytes: ArrayBuffer; filename: string; onProgress?: QuickCheckUploadProgress; onConfirm?: () => void; onConfirmed?: () => void; onRetrieving?: () => void; onExtracting?: () => void; onRunning?: () => void }): Promise<QuickCheckResolvedPdfText> {
   const { bytes, onProgress, onConfirm, onConfirmed, onRetrieving, onExtracting, onRunning } = input;
-  if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error("PDF exceeds the Quick Check upload limit of 50 MiB.");
+  if (bytes.byteLength > MAX_QUICK_CHECK_PDF_BYTES) throw new Error(`PDF exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`);
   if (!isLikelyPdfBytes(bytes)) throw new Error("Only valid PDF files can be uploaded.");
   const cacheKeys = [input.sha256?.trim(), input.attachmentId?.trim()].filter((key): key is string => Boolean(key));
   const cache = input.uploadCache ?? defaultUploadCache;

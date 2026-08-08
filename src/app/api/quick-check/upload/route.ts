@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { withMetrics } from "@/lib/metrics";
-import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { formatQuickCheckPdfLimitLabel, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 /**
  * Quick Check PDF upload endpoint.
@@ -24,7 +24,7 @@ async function handlePost() {
     ok: true,
     store: blobAvailable ? "vercel-blob" : "in-memory",
     maxSizeBytes: MAX_QUICK_CHECK_PDF_BYTES,
-    maxSizeLabel: "50 MiB",
+    maxSizeLabel: formatQuickCheckPdfLimitLabel(),
   });
 }
 
@@ -35,7 +35,7 @@ async function handleGet() {
     ok: true,
     store: blobAvailable ? "vercel-blob" : "in-memory",
     maxSizeBytes: MAX_QUICK_CHECK_PDF_BYTES,
-    maxSizeLabel: "50 MiB",
+    maxSizeLabel: formatQuickCheckPdfLimitLabel(),
   });
 }
 

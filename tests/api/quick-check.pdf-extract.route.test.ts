@@ -6,6 +6,7 @@ import path from "path";
 
 import { POST } from "@/app/api/quick-check/pdf-extract/route";
 import { issueUploadReference } from "@/lib/quickCheck/r2Upload";
+import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 describe("POST /api/quick-check/pdf-extract", () => {
   beforeEach(() => {
@@ -137,7 +138,7 @@ describe("POST /api/quick-check/pdf-extract", () => {
   });
 
   it("rejects oversized PDF with file-too-large code", async () => {
-    const oversized = new Uint8Array((50 * 1024 * 1024) + 1); // > 50 MiB
+    const oversized = new Uint8Array(MAX_QUICK_CHECK_PDF_BYTES + 1); // > 150 MiB
     // make it look like PDF to pass magic check
     const header = new TextEncoder().encode("%PDF-1.4\n");
     oversized.set(header, 0);
