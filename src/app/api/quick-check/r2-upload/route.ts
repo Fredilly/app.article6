@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { confirmQuickCheckUpload, MAX_QUICK_CHECK_PDF_BYTES, presignQuickCheckUpload, QuickCheckUploadError } from "@/lib/quickCheck/r2Upload";
+import { formatQuickCheckPdfLimitLabel, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { confirmQuickCheckUpload, presignQuickCheckUpload, QuickCheckUploadError } from "@/lib/quickCheck/r2Upload";
 import { authorizeQuickCheckUploadOrigin } from "@/lib/quickCheck/uploadOriginPolicy";
 export const runtime = "nodejs";
 const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -9,7 +10,7 @@ export async function POST(request: Request) {
     if (body.action === "presign") {
       const originDecision = authorizeQuickCheckUploadOrigin(request.headers.get("origin"));
       if (!originDecision.allowed) return json({ error: originDecision.error, code: originDecision.code }, originDecision.status);
-      if (!Number.isInteger(body.size) || body.size! <= 0 || body.size! > MAX_QUICK_CHECK_PDF_BYTES) return json({ error: "PDF must be smaller than 50 MiB.", code: "upload-too-large" }, 413);
+      if (!Number.isInteger(body.size) || body.size! <= 0 || body.size! > MAX_QUICK_CHECK_PDF_BYTES) return json({ error: `PDF must be no larger than ${formatQuickCheckPdfLimitLabel()}.`, code: "upload-too-large" }, 413);
       if (body.contentType !== "application/pdf") return json({ error: "Only PDF files are accepted.", code: "invalid-file" }, 415);
       return json(await presignQuickCheckUpload(body.size!));
     }

@@ -1,7 +1,7 @@
 import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
+import { formatQuickCheckPdfLimitLabel, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 const PREFIX = "quick-check/";
 const REFERENCE_TTL_SECONDS = 600;
@@ -58,7 +58,7 @@ export async function confirmQuickCheckUpload(reference: string) {
     const actualSize = head.ContentLength;
     if (actualSize !== undefined && actualSize > MAX_QUICK_CHECK_PDF_BYTES) {
       await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey(claims) })).catch(() => undefined);
-      throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+      throw new QuickCheckUploadError("upload-too-large", `The uploaded PDF exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`);
     }
     if (actualSize === undefined || actualSize <= 0 || actualSize !== claims.expectedSize || head.ContentType?.toLowerCase() !== claims.contentType) {
       await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: objectKey(claims) })).catch(() => undefined);
@@ -91,7 +91,7 @@ export async function retrieveQuickCheckUpload(reference: string): Promise<{ byt
     const size = head.ContentLength;
     const contentType = head.ContentType?.toLowerCase();
     if (size === undefined || size <= 0) throw new QuickCheckUploadError("upload-not-found", "The uploaded PDF was not found.");
-    if (size > MAX_QUICK_CHECK_PDF_BYTES) throw new QuickCheckUploadError("upload-too-large", "The uploaded PDF exceeds the Quick Check upload limit.");
+    if (size > MAX_QUICK_CHECK_PDF_BYTES) throw new QuickCheckUploadError("upload-too-large", `The uploaded PDF exceeds the Quick Check upload limit of ${formatQuickCheckPdfLimitLabel()}.`);
     if (size !== claims.expectedSize) throw new QuickCheckUploadError("upload-metadata-mismatch", "The uploaded PDF metadata did not match the upload reference.");
     if (contentType !== claims.contentType) throw new QuickCheckUploadError("upload-unsupported-content-type", "The uploaded object is not a PDF.");
 

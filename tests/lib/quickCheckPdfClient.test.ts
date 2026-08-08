@@ -1,11 +1,16 @@
 /** @jest-environment jsdom */
 import { clearQuickCheckUploadCache, resolveQuickCheckPdfText } from "@/lib/chat/quickCheckPdfClient";
+import { formatQuickCheckPdfLimitLabel, MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 function pdfBytes(size: number) { const bytes = new Uint8Array(size); bytes.set(new TextEncoder().encode("%PDF-1.4\n(sample)\n%%EOF")); return bytes.buffer; }
 class FakeXhr { upload = { onprogress: undefined as ((event: ProgressEvent) => void) | undefined }; onload?: () => void; onerror?: () => void; status = 200; open() {} setRequestHeader() {} send() { this.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 1 } as ProgressEvent); this.onload?.(); } }
 
 describe("Quick Check PDF client", () => {
   beforeEach(() => { clearQuickCheckUploadCache(); global.XMLHttpRequest = FakeXhr as unknown as typeof XMLHttpRequest; });
+
+  it("reports the 150 MiB user-facing limit", () => {
+    expect(formatQuickCheckPdfLimitLabel()).toBe("150 MiB");
+  });
 
   it("uploads directly, confirms with only the reference, and preserves server page extraction", async () => {
     const calls: Array<{ url: string; body?: string }> = [];
@@ -38,10 +43,14 @@ describe("Quick Check PDF client", () => {
     expect(urls).toEqual(["/api/quick-check/r2-upload", "/api/quick-check/r2-upload", "/api/quick-check/pdf-extract"]);
   });
 
-  it("accepts exactly 50 MiB and rejects 50 MiB plus one byte before presign", async () => {
-    global.fetch = jest.fn(async () => new Response(JSON.stringify({ uploadRef: "signed-reference", url: "https://r2.example/signed", size: 50 * 1024 * 1024 }))) as typeof fetch;
-    await expect(resolveQuickCheckPdfText({ bytes: pdfBytes(50 * 1024 * 1024), filename: "limit.pdf" })).resolves.toMatchObject({ pdfRef: "signed-reference" });
-    await expect(resolveQuickCheckPdfText({ bytes: pdfBytes(50 * 1024 * 1024 + 1), filename: "over-limit.pdf" })).rejects.toThrow("50 MiB");
+  it("accepts just under and exactly 150 MiB, and rejects 150 MiB plus one byte before presign", async () => {
+    const limit = MAX_QUICK_CHECK_PDF_BYTES;
+    global.fetch = jest.fn(async () => new Response(JSON.stringify({ uploadRef: "signed-reference", url: "https://r2.example/signed", size: limit }))) as typeof fetch;
+    await expect(resolveQuickCheckPdfText({ bytes: pdfBytes(limit - 1), filename: "under-limit.pdf" })).resolves.toMatchObject({ pdfRef: "signed-reference" });
+    clearQuickCheckUploadCache();
+    await expect(resolveQuickCheckPdfText({ bytes: pdfBytes(limit), filename: "limit.pdf" })).resolves.toMatchObject({ pdfRef: "signed-reference" });
+    clearQuickCheckUploadCache();
+    await expect(resolveQuickCheckPdfText({ bytes: pdfBytes(limit + 1), filename: "over-limit.pdf" })).rejects.toThrow("150 MiB");
   });
 
   it("shares concurrent uploads and reuses the confirmed reference by SHA-256", async () => {

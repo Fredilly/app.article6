@@ -1,4 +1,4 @@
-export const MAX_QUICK_CHECK_PDF_BYTES = 50 * 1024 * 1024;
+export const MAX_QUICK_CHECK_PDF_BYTES = 150 * 1024 * 1024;
 
 export type QuickCheckPdfRouteErrorCode = "missing-file" | "invalid-file" | "file-too-large";
 

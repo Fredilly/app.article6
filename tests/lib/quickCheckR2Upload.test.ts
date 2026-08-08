@@ -1,5 +1,6 @@
 import { GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { issueUploadReference, retrieveQuickCheckUpload, verifyUploadReference } from "@/lib/quickCheck/r2Upload";
+import { MAX_QUICK_CHECK_PDF_BYTES } from "@/lib/chat/quickCheckPdfUpload";
 
 describe("Quick Check R2 upload references", () => {
   beforeEach(() => {
@@ -15,6 +16,11 @@ describe("Quick Check R2 upload references", () => {
   it("binds size, content type, environment, and expiry to a signed reference", () => {
     const reference = issueUploadReference(1234);
     expect(verifyUploadReference(reference)).toMatchObject({ expectedSize: 1234, contentType: "application/pdf", environment: "preview" });
+  });
+
+  it("accepts a signed reference at exactly 150 MiB", () => {
+    const reference = issueUploadReference(MAX_QUICK_CHECK_PDF_BYTES);
+    expect(verifyUploadReference(reference).expectedSize).toBe(MAX_QUICK_CHECK_PDF_BYTES);
   });
 
   it("rejects altered and wrong-environment references", () => {
@@ -70,7 +76,7 @@ describe("Quick Check R2 upload references", () => {
     const send = jest.spyOn(S3Client.prototype, "send");
     send.mockRejectedValueOnce(Object.assign(new Error("not found"), { name: "NotFound" }));
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-not-found" });
-    send.mockResolvedValueOnce({ ContentLength: 51 * 1024 * 1024, ContentType: "application/pdf" } as never);
+    send.mockResolvedValueOnce({ ContentLength: MAX_QUICK_CHECK_PDF_BYTES + 1, ContentType: "application/pdf" } as never);
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-too-large" });
     send.mockResolvedValueOnce({ ContentLength: 10, ContentType: "text/plain" } as never);
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-unsupported-content-type" });
@@ -83,7 +89,7 @@ describe("Quick Check R2 upload references", () => {
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-metadata-mismatch" });
     send.mockResolvedValueOnce({ ContentLength: 11, ContentType: "application/pdf" } as never);
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-metadata-mismatch" });
-    send.mockResolvedValueOnce({ ContentLength: 50 * 1024 * 1024 + 1, ContentType: "application/pdf" } as never);
+    send.mockResolvedValueOnce({ ContentLength: MAX_QUICK_CHECK_PDF_BYTES + 1, ContentType: "application/pdf" } as never);
     await expect(retrieveQuickCheckUpload(reference)).rejects.toMatchObject({ code: "upload-too-large" });
   });
 });
