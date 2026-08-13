@@ -2436,13 +2436,13 @@ export default function QuickCheckPanel({ initialMethod, initialVersion, onConti
           <div className="flex w-full items-start justify-center">
             <div className="w-full">
               <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-                Quick Check
+                Pre-validation evidence readiness
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
-                Assess a carbon project document fast.
+                Find the evidence gaps before your validator does.
               </p>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-[15px]">
-                Upload one file. We extract the signal, detect the method, and tell you if it can support review.
+                Article6 reviews project documentation against applicable methodology requirements to identify missing, unclear, and unsupported evidence before validation begins.
               </p>
             </div>
             {loadingMethods || submitting ? <Loader2 className="mt-1 h-5 w-5 animate-spin text-slate-400" /> : null}

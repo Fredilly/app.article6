@@ -41,7 +41,11 @@ export default function RootLayout({
           </header>
           <div className="flex-1">{children}</div>
           <footer className="border-t border-slate-200/80 bg-white/92">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-end gap-3 px-4 py-3 md:px-8">
+            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
+              <nav className="flex flex-wrap items-center gap-3 text-xs text-slate-600" aria-label="Footer">
+                <Link href="/sample-assessment" className="hover:text-slate-900">Sample assessment</Link>
+                <Link href="/how-it-works" className="hover:text-slate-900">How it works</Link>
+              </nav>
               <HealthBadge />
               <FooterHealth />
             </div>
