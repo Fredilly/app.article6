@@ -75,6 +75,11 @@
       "id": "makanza-congo-pdd",
       "directory": "makanza-congo-pdd",
       "adjudicationStatus": "pending"
+    },
+    {
+      "id": "5595-asvata-alm-india",
+      "directory": "5595-asvata-alm-india",
+      "adjudicationStatus": "pending"
     }
   ]
 }
