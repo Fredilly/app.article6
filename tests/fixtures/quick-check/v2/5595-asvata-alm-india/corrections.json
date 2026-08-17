@@ -1,0 +1,94 @@
+[
+  {
+    "checkName": "host_country",
+    "machineStatus": "UNCLEAR",
+    "reviewedStatus": "FOUND",
+    "machineEvidencePage": 14,
+    "machineEvidence": "The project is being executed in the states of Maharashtra, and Telangana as depicted in the map presented below.",
+    "acceptedEvidencePage": 1,
+    "acceptedEvidence": "IMPROVED AGRICULTURAL LAND MANAGEMENT GROUPED CARBON PROJECT IN INDIA",
+    "rejectionReason": "The machine under-assessed strong country evidence. The project title directly identifies India.",
+    "failureCategory": "qualifying evidence missed"
+  },
+  {
+    "checkName": "methodology",
+    "machineStatus": "FOUND",
+    "reviewedStatus": "UNCLEAR",
+    "machineEvidencePage": 34,
+    "machineEvidence": "Methodology VM0042 Methodology for improved agricultural land management 2.0",
+    "acceptedEvidencePage": 34,
+    "acceptedEvidence": "Methodology VM0042 Methodology for improved agricultural land management 2.0",
+    "conflictingEvidence": [
+      {
+        "page": 4,
+        "quote": "structured as a grouped project under the VM0042 v2.0 methodology"
+      },
+      {
+        "page": 5,
+        "quote": "The project adheres to the Improved Land Management (VM0042 v2.1) Methodology."
+      },
+      {
+        "page": 6,
+        "quote": "VM0042 Improved Agricultural Land Management version 2.1"
+      },
+      {
+        "page": 7,
+        "quote": "VM0042 Improved Agricultural Land Management V2.1 methodology"
+      },
+      {
+        "page": 36,
+        "quote": "As per VM0042 v2.0 methodology"
+      },
+      {
+        "page": 37,
+        "quote": "methodology VM0042 v2.1 requirements"
+      }
+    ],
+    "rejectionReason": "VM0042 is clear, but the PDD contains unresolved v2.0/v2.1 contradictions. A single version must not be reported as confidently FOUND.",
+    "failureCategory": "contradiction missed"
+  },
+  {
+    "checkName": "baseline_scenario",
+    "machineStatus": "FOUND",
+    "reviewedStatus": "FOUND",
+    "machineEvidencePage": 36,
+    "machineEvidence": "As per VM0042 v2.0 methodology, continuation of pre-project agricultural management practices is the most plausible baseline scenario.",
+    "acceptedEvidencePage": 36,
+    "acceptedEvidence": "Continuation of pre-project agricultural management practices, including excessive fertiliser application, burning of crop residue, and intensive tillage practice.",
+    "rejectionReason": null,
+    "failureCategory": null
+  },
+  {
+    "checkName": "additionality",
+    "machineStatus": "FOUND",
+    "reviewedStatus": "UNCLEAR",
+    "machineEvidencePage": 37,
+    "machineEvidence": "Additionality Methods ... the additionality of this project is demonstrated in two steps:",
+    "acceptedEvidencePage": 37,
+    "acceptedEvidence": "Regulatory surplus responses are populated, while barrier analysis and common practice analysis are only listed as required steps.",
+    "rejectionReason": "The machine treated an additionality framework statement as completed substantive evidence. Barrier/common-practice demonstrations are absent.",
+    "failureCategory": "assessment too strong"
+  },
+  {
+    "checkName": "leakage",
+    "machineStatus": "FOUND",
+    "reviewedStatus": "UNCLEAR",
+    "machineEvidencePage": 39,
+    "machineEvidence": "Describe the procedure for quantification of leakage emissions in accordance with the applied methodology.",
+    "acceptedEvidencePage": 22,
+    "acceptedEvidence": "The possible source of leakage could be increase of fuel wood and grazing activity outside the project boundary ... Therefore, there was no displacement of pre-project grazing activities.",
+    "rejectionReason": "The machine selected untouched VCS template instructions as project evidence. Page 22 contains only qualitative leakage discussion and does not provide the required quantification procedure/results.",
+    "failureCategory": "generic-text false support"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "machineStatus": "FOUND",
+    "reviewedStatus": "FOUND",
+    "machineEvidencePage": 22,
+    "machineEvidence": "Stakeholder Identification ... A three-step approach is adopted by ASVATA for identifying the relevant stakeholders...",
+    "acceptedEvidencePage": 27,
+    "acceptedEvidence": "Date of stakeholder consultation 30-April-2025 ... a diverse mix of participants attended, including farmers, landowners, government employees, researchers, NGOs and ASVATA employees.",
+    "rejectionReason": "Stakeholder-identification process text is related but weaker than the direct dated consultation record.",
+    "failureCategory": "qualifying evidence missed"
+  }
+]

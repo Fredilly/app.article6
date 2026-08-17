@@ -1,0 +1,96 @@
+[
+  {
+    "checkName": "host_country",
+    "expectedStatus": "UNCLEAR",
+    "expectedAnswer": null,
+    "goldQuote": "14 The project is being executed in the states of Maharashtra, and Telangana as depicted in the map presented below.",
+    "page": 14,
+    "sectionHeading": "Project Location",
+    "sectionPath": [
+      "1",
+      "1.13"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p14:b520:6a00380b",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "methodology",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "VM0042 Methodology for improved agricultural land management v2.0",
+    "goldQuote": "Methodology VM0042 Methodology for improved agricultural land management 2.0",
+    "page": 34,
+    "sectionHeading": "Title and Reference of Methodology",
+    "sectionPath": [
+      "3",
+      "3.1"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p34:b1296:2319f030",
+    "sourceType": "fact_contract",
+    "expectedMethodology": {
+      "methodologyId": "VM0042",
+      "methodologyName": "Methodology for improved agricultural land management",
+      "methodologyAlias": null,
+      "pddDeclaredMethodologyVersion": "v2.0",
+      "versionStatus": "DECLARED",
+      "evidencePage": 34,
+      "evidenceSection": "Title and Reference of Methodology",
+      "evidenceQuote": "Methodology VM0042 Methodology for improved agricultural land management 2.0"
+    }
+  },
+  {
+    "checkName": "baseline_scenario",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "As per VM0042 v2.0 methodology, continuation of pre-project agricultural management practices is the most plausible baseline scenario",
+    "goldQuote": "As per VM0042 v2.0 methodology, continuation of pre-project agricultural management practices is the most plausible baseline scenario. The conventional agriculture practices in baseline scenario of the project area includes practices such as:",
+    "page": 36,
+    "sectionHeading": "Baseline Scenario",
+    "sectionPath": [
+      "3",
+      "3.4"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p36:b1443:d933d8a7",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "additionality",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Additionality Methods As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042 v2.1 requirements, the additionality of this project is demonstrated in two steps",
+    "goldQuote": "Additionality Methods As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042 v2.1 requirements, the additionality of this project is demonstrated in two steps:",
+    "page": 37,
+    "sectionHeading": "Additionality",
+    "sectionPath": [
+      "3",
+      "3.5"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p37:b1471:1e0413aa",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "leakage",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Describe the procedure for quantification of leakage emissions in accordance with the applied methodology",
+    "goldQuote": "Describe the procedure for quantification of leakage emissions in accordance with the applied methodology. Specify the reductions and removals separately where the applied methodology provides procedures and equations to do so. Include all relevant equations here and provide sufficient information to allow the reader to reproduce the calculations. Explain and justify all relevant methodological choices (e.g., with respect to selection of emission factors and default values). Include all calculations in the emission reduction and removal calculation spreadsheet.",
+    "page": 39,
+    "sectionHeading": "Leakage Emissions",
+    "sectionPath": [
+      "5",
+      "5.3"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p39:b1525:e20ed1b",
+    "sourceType": "exact_section"
+  },
+  {
+    "checkName": "stakeholder_consultation",
+    "expectedStatus": "FOUND",
+    "expectedAnswer": "Stakeholder Identification Stakeholder Identification A three-step approach is adopted by ASVATA for identifying the relevant stakeholders associated with the project throughout its lifetime",
+    "goldQuote": "Stakeholder Identification Stakeholder Identification A three-step approach is adopted by ASVATA for identifying the relevant stakeholders associated with the project throughout its lifetime. The following figure represents the approach adopted for stakeholder identification: 23 Figure 1: Stakeholder’s identification process The first step involves developing a logical framework model for the designed project to identify activities based on intended and un-intended impacts associated with the project activities. This step included the identification of benefits and co-benefits aligned with the project activity to identify the potential stakeholders associated at different stages of the project cycle. A multi-method approach combining desk review, field scoping, and participatory mapping to identify stakeholders under the three-step approach. The following table provides a description of the different approaches adopted to identify the stakeholders. 24 To identify the stakeholders, a list of potential types/categories of stakeholders was created. The stakeholder’s types/categories identified were as follows: • Community/neighbour • Landowner/ farmers • Local policymaker • NGOs • Employees • National association/National focal point • Companies • Universities/research institutes Using this list as a guide, a list of stakeholders to be proactively contacted was created per country. The list of stakeholders included all landowners and farmers S. No. Activity Description",
+    "page": 22,
+    "sectionHeading": "Stakeholder Engagement and Consultation",
+    "sectionPath": [
+      "2",
+      "2.1"
+    ],
+    "spanId": "5595-asvata-alm-india-extracted:p22:b808:1c75a98e",
+    "sourceType": "exact_section"
+  }
+]

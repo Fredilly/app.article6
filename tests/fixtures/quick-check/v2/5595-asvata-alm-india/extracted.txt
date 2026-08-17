@@ -1,0 +1,2006 @@
+Page 1
+1
+IMPROVED AGRICULTURAL LAND
+MANAGEMENT GROUPED CARBON
+PROJECT IN INDIA
+Project title Improved Agricultural Land Management Grouped Carbon Project In India
+Project ID Verra Project ID
+Monitoring period 07-June-2022 to 30-April-2025
+Crediting period 07-June-2022 to 06-June-2052
+Original date of issue 27-05-2025
+Most recent date of
+issue 01-07-2025
+Version 1.1
+VCS Standard Version 4.7
+Prepared by Asvata Climate Solutions Private Limited,
+
+Page 2
+2
+CONTENTS
+1 PROJECT DETAILS................................................................................................. 4
+1.1 Summary Description of the Project ................................................................................ 4
+1.2 Audit History ......................................................................................................................... 4
+1.3 Sectoral Scope and Project Type..................................................................................... 5
+1.4 Project Eligibility................................................................................................................... 5
+1.5 Project Design ..................................................................................................................... 7
+1.6 Project Proponent .............................................................................................................. 9
+1.7 Other Entities Involved in the Project ............................................................................... 9
+1.8 Ownership.......................................................................................................................... 10
+1.9 Project Start Date ............................................................................................................. 10
+1.10 Project Crediting Period .................................................................................................. 10
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals ...................... 11
+1.12 Description of the Project Activity .................................................................................. 12
+1.13 Project Location................................................................................................................ 13
+1.14 Conditions Prior to Project Initiation ............................................................................... 14
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks ....................... 16
+1.16 Double Counting and Participation under Other GHG Programs............................. 16
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions .............................. 17
+1.18 Sustainable Development Contributions....................................................................... 18
+1.19 Additional Information Relevant to the Project............................................................ 22
+2 SAFEGUARDS AND STAKEHOLDER ENGAGEMENT .......................................... 22
+2.1 Stakeholder Engagement and Consultation ................................................................ 22
+2.2 Risks to Stakeholders and the Environment ................................................................... 30
+2.3 Respect for Human Rights and Equity ........................................................................... 31
+2.4 Ecosystem Health ............................................................................................................. 33
+3 APPLICATION OF METHODOLOGY................................................................... 34
+3.1 Title and Reference of Methodology ............................................................................ 34
+3.2 Applicability of Methodology ......................................................................................... 34
+3.3 Project Boundary .............................................................................................................. 35
+3.4 Baseline Scenario ............................................................................................................. 36
+3.5 Additionality ...................................................................................................................... 37
+3.6 Methodology Deviations ................................................................................................. 37
+4 IMPLEMENTATION STATUS ................................................................................. 38
+4.1 Implementation Status of the Project Activity .............................................................. 38
+5 QUANTIFICATION OF ESTIMATED GHG EMISSION REDUCTIONS AND
+REMOVALS ......................................................................................................... 38
+5.1 Baseline Emissions ............................................................................................................. 38
+5.2 Project Emissions ............................................................................................................... 39
+5.3 Leakage Emissions ............................................................................................................ 39
+5.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals ...................... 39
+6 MONITORING .................................................................................................... 41
+6.1 Data and Parameters Available at Validation............................................................. 41
+6.2 Data and Parameters Monitored ................................................................................... 41
+
+Page 3
+3
+6.3 Monitoring Plan ................................................................................................................. 42
+7 QUANTIFICATION OF GHG EMISSION REDUCTIONS AND REMOVALS .......... 43
+7.1 Data and Parameters Monitored ................................................................................... 43
+7.2 Baseline Emissions ............................................................................................................. 43
+7.3 Project Emissions ............................................................................................................... 43
+7.4 Leakage Emissions ............................................................................................................ 44
+7.5 GHG Emission Reductions and Carbon Dioxide Removals ........................................ 44
+APPENDIX 1: COMMERCIALLY SENSITIVE INFORMATION.......................................... 47
+APPENDIX X: <TITLE OF APPENDIX> ............................................................................ 48
+
+Page 4
+VCS Joint Project Description & Monitoring Report Template, v4.4
+4
+1 PROJECT DETAILS
+1.1 Summary Description of the Project
+The project activity facilitates the transition of smallholder farming systems toward
+sustainable and climate-resilient agricultural practices. Core interventions include reduced
+or zero tillage, incorporation of cover crops, and the replacement of synthetic fertilizers with
+organic nutrient inputs. These practices are designed to reduce greenhouse gas (GHG)
+emissions—specifically carbon dioxide (CO₂), methane (CH₄), and nitrous oxide (N₂O)—
+while enhancing atmospheric carbon removal through increased Soil Organic Carbon (SOC)
+sequestration. Through improved residue management, elevated biomass inputs, and
+reduced soil disturbance, the project simultaneously supports climate change mitigation and
+the long-term enhancement of soil fertility.
+Developed by Asvata, the initiative is structured as a grouped project under the VM0042 v2.0
+methodology (Methodology for Improved Agricultural Land Management), with a total
+potential implementation area of 20,000 hectares. This grouped approach allows for the
+phased inclusion of additional project activity instances over time. Crop selection—including
+cotton and other regionally relevant species—is tailored to agro ecological conditions and
+local agronomic practices to optimize both mitigation outcomes and farmer co-benefits.
+To date, the project has enrolled 1,499 smallholder farmers managing a cumulative area of
+2,222 hectares in and around Nagpur, Maharashtra, for implementation of improved
+Agricultural Land Management (ALM) practices. Baseline assessments indicate that
+approximately 80% of participating farmers previously practiced monoculture cotton
+cultivation, often followed by extended fallow periods. The remaining 20% engaged in short-
+duration cereal or wheat cropping. Conventional practices prevalent across the baseline
+scenario included high-intensity tillage and synthetic fertilizer application, both of which
+contribute to GHG emissions and soil degradation.
+The transition to regenerative practices under this project is expected to improve soil
+biophysical properties, enhance productivity, and strengthen resilience to climatic variability.
+Emission reductions and removals are rigorously quantified and monitored in accordance
+with the methodological framework of VM0042, ensuring environmental integrity and
+verifiability. The project targets a cumulative mitigation potential of approximately 1,951,250
+tCO₂e over a 30-year crediting period.
+During the first monitoring period, spanning June 7, 2022, to April 30, 2025, the project was
+operational across 5,000 hectares, resulting in verified GHG mitigation outcomes totaling
+119,583 tCO₂e.
+This project represents an integrated approach to sustainable land management, delivering
+quantifiable climate benefits while promoting livelihood resilience among smallholder
+communities in Maharashtra and Telangana. It contributes meaningfully to national and
+global climate targets by mainstreaming regenerative agriculture practices at scale.
+
+Page 5
+VCS Joint Project Description & Monitoring Report Template, v4.4
+5
+1.2 Audit History
+As this project is presently under development, this section will be updated during project
+validation to include the monitoring periods.
+Audit type Period Program Validation/verification
+body name
+Number of years
+Validation 07-06-2022 VCS Validation/verification
+body name
+30 years
+Verification 07-06-2022 –
+30-04-2025
+VCS 2 years 10
+months
+1.3 Sectoral Scope and Project Type
+Sectoral scope Sectoral Scope 14, Agriculture Forestry and Other Land
+Use (AFOLU)
+AFOLU project category1 Agricultural Land Management (ALM)
+Project activity type Improved Cropland Management (ICM)
+1.4 Project Eligibility
+General eligibility
+The project activity is within the VCS Program's scope. The project reduces the greenhouse
+gases (GHGs) listed in the Kyoto Protocol, including CO2, CH4, and N2O from agricultural
+residue management, as well as N2O from fertiliser reduction. The project adheres to the
+Improved Land Management (VM0042 v2.1) Methodology. The agricultural land
+management (ALM) approach offers methods for calculating the removals and reductions of
+greenhouse gas (GHG) emissions (CO2, CH4, and N2O) brought about by the
+implementation of improved ALM practices.
+Project eligibility according to the scope listed in section 2.1.1 in VCS Standard v4.7
+S.No Eligibility Description/Justification
+1 The seven Kyoto Protocol
+greenhouse gases
+The project reduces the greenhouse
+gases (GHGs) listed in the Kyoto
+Protocol, including CO2, CH4, and N2O
+from agricultural residue management,
+as well as N2O from fertilizer reduction.
+2 Ozone-depleting substances (ODS) The project activity does not involve ODS.
+1 See Appendix 1 of the VCS Standard
+
+Page 6
+VCS Joint Project Description & Monitoring Report Template, v4.4
+6
+3
+Project activities supported by a
+methodology approved under the
+VCS Program through the
+methodology development and
+review process.
+The project activity is supported by
+VM0042 methodology approved under
+the VCS Program.
+4
+Project activities supported by a
+methodology approved under an
+approved GHG program, unless
+explicitly excluded (see the Verra
+website for exclusions)
+The project activity does not belong to
+any category which is excluded by Verra.
+5
+Jurisdictional REDD+ programs and
+nested REDD+ projects as set out in
+the Jurisdictional and Nested
+REDD+ (JNR) Requirements
+The project is not a Jurisdictional REDD+
+or nested REDD+ project.
+Furthermore, the project is suitable under the terms of the VCS Programme because it
+cannot be classified into any of the excluded project categories listed in Table 1 of the VCS
+Standard v4.7 section 2.1.3.
+AFOLU projects are expected to start the pipeline listing procedure within three years from
+the project start date, according section 3.8.2 of VCS standard v4.7. The project start date
+is 7th June-2022, and the three-year period is until 7th June 2025 before the listing of the
+project document has been completed with VERRA.
+The VM0042 Methodology is applicable to a wide range of project activities that, in
+comparison to the baseline scenario, improve SOC storage and/or decrease net emissions
+of CO2, CH4, and N2O from ALM operations. Since the project activity involves increasing
+SOC storage and lowering net emissions of CO2, CH4, and N2O, it complies with the
+methodology.
+AFOLU project eligibility
+• The Project is an Agricultural Land Management (ALM) project, which is an eligible AFOLU
+project category in line with Appendix 1, VCS Standard 4.7. The Project is an eligible ALM
+project as it includes Improved Cropland Management activities that reduce and sequester
+net GHG emissions of cropland systems.
+• The Project focuses on increasing soil organic carbon (SOC) storage in annual cropping
+systems through the implementation of regenerative agricultural practices as well as
+reducing net emissions of carbon dioxide (CO2), methane (CH4) and nitrogen (N2O) through
+activities which improve the efficiency of fertiliser use. The Project activities follow the
+eligibility criteria laid out by the VM0042 Improved Agricultural Land Management version
+2.1 approved by Verra on 11 sept 2024 (hereafter referred to as “VM0042”)
+• The area where the Project activities occur has not been cleared, converted or degraded
+of native ecosystems throughout the 10-years prior to the project start date and does not
+
+Page 7
+VCS Joint Project Description & Monitoring Report Template, v4.4
+7
+occur on a wetland. This will be assessed using GIS technology for each field submitted
+for verification and proof of this will be presented in the monitoring reports. This is a
+voluntary Project, meaning that the emission reductions and sequestration would not have
+taken place in the absence of the Project.
+Transfer project eligibility
+The project activity is not a transfer project and not seeking CPAs registration. Hence this
+section is not applicable.
+1.5 Project Design
+Indicate if the project has been designed as:
+☐ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+☒ Grouped project
+Grouped Project Design
+Grouped projects are structured in such a way that they allow for project expansion in the
+phases following subsequent project validation. Based on the assumption that an increasing
+number of project activity instances (fields) will be adopting a set of eligible ALM practices
+and get enrolled in this project as the project expands within the defined project boundary.
+This means that this project will include further project activity instances (fields) during the
+subsequent validation/ verification phases of the project Validation will be based upon initial
+project activity instances located within the project area. The eligibility criteria for the
+inclusion of new project instances will comply with VCS Standard v4.7, and the VM0042
+methodology criteria listed below.
+Eligibility Criteria
+The project instances will be eligible for inclusion in this grouped project as they meet
+eligibility criteria set out in 3.6.16- 3.6.17 of the VCS Standard v4.7 as described in table 1
+below:
+S.No Eligibility Criterion New project activity instances
+should comply
+1
+Meet the applicability conditions set
+out in the methodology applied to the
+project
+The new project instance should
+meet the applicability conditions set
+in VM0042 Improved Agricultural
+Land Management V2.1
+methodology
+2 Use the technologies or measures
+specified in the project description.
+The new project instance should
+follow sustainable agricultural
+practices as defined in the project
+
+Page 8
+VCS Joint Project Description & Monitoring Report Template, v4.4
+8
+description which includes reductioin
+the use of synthetic
+fertilizer, reduced tillage, crop rotation
+and crop residue management.
+3
+Apply the technologies or measures
+in the same manner as specified in
+the project description.
+The new project instance should
+follow the activities mentioned in
+Description of the Project Activity in
+section 1.12
+4
+Are subject to the baseline scenario
+determined in the project description
+for the specified project activity and
+geographic area.
+The new project activity instances will
+be installed in an Indian state subject
+to the same baseline scenario
+determined in Section 3.4.
+5
+Have characteristics with respect to
+additionality that are consistent with
+the initial instances for the specified
+project activity and geographic area.
+For example, the new project activity
+instances have financial, technical
+and/or other parameters (such as the
+size/scale of the instances)
+consistent with the initial instances, or
+face the same investment,
+technological and/or other barriers as
+the initial instances.
+Each new project activity instance will
+demonstrate additionality as per
+methodology and standard
+requirements defined during initial
+validation
+6
+Occur within one of the designated
+geographic areas specified in the
+project description.
+Each project activity instance will be
+in the geographic boundary specified
+in section 1.13.
+7
+Conform with at least one complete
+set of eligibility criteria for the
+inclusion of new project activity
+instances. Partial conformance with
+multiple sets of eligibility criteria is
+insufficient.
+Each new project activity instance will
+comply with the complete set of
+eligibility criteria as established in this
+document
+8
+Be included in the monitoring report
+with sufficient technical, financial,
+geographic, and other relevant
+information to demonstrate
+conformance with the
+applicable set of eligibility criteria and
+enable evidence gathering by the
+validation/verification body
+Each new project activity instance will
+be included in the monitoring report
+with sufficient technical, geographic,
+and other relevant information to
+demonstrate conformance with the
+eligibility criteria and provide
+evidence to the validation/verification
+body (VVB).
+9
+Have evidence of project ownership,
+in respect of each project activity
+instance, held by the project
+proponent from the respective
+start date of each project activity
+instance (i.e., the date upon which
+the project activity instance began
+reducing or removing GHG
+emissions).
+Each new project activity instance will
+demonstrate ownership by the PP
+from the prospective start date.
+
+Page 9
+VCS Joint Project Description & Monitoring Report Template, v4.4
+9
+10
+Have a start date that is the same as
+or later than the grouped project start
+date
+Each new project activity instance will
+have a start date that is same or later
+than the grouped project start date,
+which is 7th June 2022.
+11
+Only be eligible for crediting from the
+later of start date of the project activity
+instance or the start of the verification
+period in which
+they were added to the grouped
+project, through to the end of the total
+project crediting period.
+Each new project activity instance will
+be eligible for crediting from the start
+date of the project activity instance
+throughout to the end of the project
+crediting period.
+12 Not be or have been enrolled in
+another VCS project.
+Each new project activity instance will
+not be previously enrolled in another
+VCS project
+13
+Adhere to the clustering and capacity
+limit requirements for multiple project
+activity instances set out in 3.6.8 –
+3.6.9.
+Each new project activity instance
+must adhere to the clustering and
+capacity limit requirements.
+1.6 Project Proponent
+Organization name Asvata Climate Solutions Private Limited
+Role in the project Project Developer
+Contact person Navin Mathur
+Title Chief operating officer
+Address Dr Annie Besant Rd, near Old Passport Office, Hanuman Nagar,
+Worli, Mumbai, Maharashtra 400030, India
+Telephone +91 98670 15373
+Email navin.mathur@asvata.com
+1.7 Other Entities Involved in the Project
+Organization name RPG Foundation
+Contact person Manasi Rane
+Title Program lead
+Address Dr Annie Besant Rd, near Old Passport Office, Hanuman Nagar,
+Worli, Mumbai, Maharashtra 400030, India
+
+Page 10
+VCS Joint Project Description & Monitoring Report Template, v4.4
+10
+Telephone +91 9960378453
+Email vikram@rpgf.in
+1.8 Ownership
+The lands utilized for implementing the VCS project activity are legally owned by small and
+marginal farmers. These lands are under the implementation control of the Project Proponent
+(PP) through an agreement signed between the smallholder farmers and the PP at the start
+date of the VCS project activity, and are expected to remain under such control throughout
+the crediting period. This agreement complies with the VCS Standard Version 4.7, paragraph
+3.7.1, point 6.
+Additionally, as the rightful owners of their respective farmlands, the farmers have the
+authority to grant RPGF overall control and responsibility for the Improved Agricultural Land
+Management Project, as the Project Proponent, without infringing upon their rights. Each
+participating farmer formally assigns their carbon rights to RPGF through a signed
+agreement, which are subsequently transferred to ASVATA. The revenue generated from the
+sale of carbon offsets will be distributed among stakeholders in accordance with the policies
+and decisions set by ASVATA’s management.
+Supporting evidence of project ownership, such as MOUs, agreement documents, and land
+ownership records, are held by the Project Proponent and can be provided to the
+Validation/Verification Body upon request.
+1.9 Project Start Date
+Project start date 07-June-2022
+Justification The project start date, as defined by the VCS standard, is the
+commencement of activities aimed at generating reductions or
+removals of GHG emissions. For this project, the start date is
+07June-2022, on which the first activity to initiate the project,
+i.e., farmer engagement took place.
+1.10 Project Crediting Period
+Crediting period ☐ Seven years, twice renewable
+☐ Ten years, fixed
+
+Page 11
+VCS Joint Project Description & Monitoring Report Template, v4.4
+11
+☒ Other (state the selected crediting period and justify how it
+conforms with the VCS Program requirements)
+(According to 3.9.3 of VCS Standard 4.7, which states “For all
+AFOLU projects other than such ALM projects described in 3.9.2,
+the initial project crediting period shall be a minimum of 20 years
+up to a maximum of 100 years, which may be renewed at most
+four times, with a total project crediting period not to exceed 100
+years.” The current project has a crediting period of 30 years)
+Start and end date of
+first or fixed crediting
+period
+07-June-2022 to 06-June-2052
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals
+☒ < 300,000 tCO2e/year (project)
+☐ ≥ 300,000 tCO2e/year (large project)
+Calendar year of crediting period Estimated GHG emission reductions or removals
+(tCO2e)
+07-June-2022 to 31-December-2022 8,750
+01-January-2023 to 31-December-2023 35,000
+01-January-2024 to 31-December-2024 52,500
+01-January-2025 to 31-December-2025 70,000
+01-January-2026 to 31-December-2026 70,000
+01-January-2027 to 31-December-2027 70,000
+01-January-2028 to 31-December-2028 70,000
+01-January-2029 to 31-December-2029 70,000
+01-January-2030 to 31-December-2030 70,000
+01-January-2031 to 31-December-2031 70,000
+01-January-2032 to 31-December-2032 70,000
+01-January-2033 to 31-December-2033 70,000
+01-January-2034 to 31-December-2034 70,000
+01-January-2035 to 31-December-2035 70,000
+01-January-2036 to 31-December-2036 70,000
+
+Page 12
+VCS Joint Project Description & Monitoring Report Template, v4.4
+12
+01-January-2037 to 31-December-2037 70,000
+01-January-2038 to 31-December-2038 70,000
+01-January-2039 to 31-December-2039 70,000
+01-January-2040 to 31-December-2040 70,000
+01-January-2041 to 31-December-2041 70,000
+01-January-2042 to 31-December-2042 70,000
+01-January-2043 to 31-December-2043 70,000
+01-January-2044 to 31-December-2044 70,000
+01-January-2045 to 31-December-2045 70,000
+01-January-2046 to 31-December-2046 70,000
+01-January-2047 to 31-December-2047 70,000
+01-January-2048 to 31-December-2048 70,000
+01-January-2049 to 31-December-2049 70,000
+01-January-2050 to 31-December-2050 70,000
+01-January-2051 to 31-December-2051 70,000
+01-January-YYYY to 06-June-2052 35,000
+Total estimated ERRs during the first or
+fixed crediting period
+19,51,250
+Total number of years 30
+Average annual ERRs 65,041.67
+1.12 Description of the Project Activity
+RPGF Group, actively promotes regenerative and sustainable farming practices among
+farmers. These practices include, but are not limited to, crop rotation, crop residue
+management, improved land and nutrient management techniques—such as balancing the
+application of organic and inorganic nitrogen fertilizers. The specific practices implemented
+under this initiative are outlined below:
+A. Crop Rotation
+i. Under baseline conditions (non-project farmers), over 80% of cotton farmers engage
+in monocropping. Typically, after harvesting cotton in January or February, fields are
+left fallow for approximately nine months, from March through May.
+
+Page 13
+VCS Joint Project Description & Monitoring Report Template, v4.4
+13
+ii. In contrast, farmers participating in the IALM project utilize their land throughout the
+year by adopting cotton-wheat or cotton-bengal gram cropping sequences. This
+ensures continuous crop cover across all seasons.
+B. Improved Tillage Practices
+Adoption of improved tillage methods enhances soil structure by minimizing compaction and
+erosion, increasing soil carbon sequestration, and maintaining or improving soil fertility.
+These practices support the accumulation of organic matter and stimulate microbial activity,
+thereby improving nutrient cycling and leading to more stable and higher crop yields.
+i. Traditionally, most cotton farmers in the Nagpur district performed deep ploughing
+(over 30 cm) annually, followed by one or two harrowing operations using cultivators
+and rotavators. These tillage activities typically occurred between the second week
+of May and the end of the month.
+ii. Farmers associated with ASVATA, within the same geographical area, have adopted
+regenerative tillage practices. These farmers now conduct shallow tillage (<15 cm)
+only once every two to three years, followed by one or two harrowing passes during
+cotton cultivation. Tillage operations are usually carried out from the end of April to
+mid-June. On average, primary tillage depth ranges from 10–15 cm, while secondary
+tillage is between 6–8 cm. Additionally, approximately 30–40% of these farmers now
+use bullock-drawn implements for field preparation.
+C. Reduced Use of Synthetic Fertilizers
+RPG farmers have fully transitioned away from inorganic fertilizers in cotton cultivation,
+relying entirely on organic inputs. Most organic farmers utilize Farm Yard Manure (FYM),
+vermicompost, Jeevamrutha, biofertilizers, and green manures. Maintaining and gradually
+improving soil fertility is essential for achieving economically viable yields. To produce
+organic cotton, it is crucial to enhance and sustain the organic matter content of the soil,
+thereby improving its physical properties, structure, and nutrient availability. Given the limited
+availability of large quantities of FYM, combining different sources with diverse biological
+properties is recommended to meet crop nutrient demands effectively.
+D. Crop Residue Management
+Conventional farmers typically remove and burn cotton stalks immediately after harvest. In
+contrast, program farmers leave cotton stalks in the field post-harvest to prevent soil erosion
+caused by wind and rain. These residues are either incorporated into the soil using rotavators
+or are uprooted and converted into biochar or compost. The estimated quantity of cotton
+plant residue is approximately 2.7 tons per hectare.
+1.13 Project Location
+
+Page 14
+VCS Joint Project Description & Monitoring Report Template, v4.4
+14
+The project is being executed in the states of Maharashtra, and Telangana as depicted in
+the map presented below.
+Figure: Project Locations
+1.14 Conditions Prior to Project Initiation
+• Ecosystem type: The ecosystem type before the project initiation was terrestrial
+ecosystem with land classified as agricultural lands.
+• Current and historical land-use: The chosen project sites have a historical background
+of being utilized for agricultural purposes. To validate that the project locations are indeed
+agricultural or croplands, a Land Use Land Cover (LULC) map will be created for the
+project area. This map will serve as evidence of the land's agricultural nature.
+• Climatic conditions: Maharashtra has typical monsoon climate, with hot, rainy and cold
+weather seasons. Tropical conditions prevail all over the state, and even the hill stations
+are not that cold. Dew, frost, hail can also be happened sometimes according to the
+seasonal weather2
+a. Summer: March, April and May are the hottest months. During April and May
+thunderstorms are common all over the state. Temperature varies between
+22°C-39°C during this season.
+2 https://www.maharashtratourism.net/climate.html#google_vignette
+
+Page 15
+VCS Joint Project Description & Monitoring Report Template, v4.4
+15
+b. Rainy: Rainfall starts normally in the first week of June. July is the wettest month
+in Maharashtra, while August too gets substantial rain. Monsoon starts its retreat
+with the coming of September from the state.
+c. Winter: Cool dry spell, with clear skies gentle breeze and pleasant weather
+prevails from November to February. But the eastern part of Maharashtra
+sometimes receives some rainfall. Temperature varies between 12°C-34°C
+during this season.
+d. Rainfall: Rainfall in Maharashtra differs from region to region. Thane, Raigad,
+Ratnagiri and Sindhudurg districts, receive heavy rains of an average of 200
+centimeters annually. But the districts of Nasik, Pune, Ahmednagar, Dhule,
+Jalgaon, Satara, Sangli, Solapur and parts of Kolhapur get rainfall less than 50
+centimeters. Rainfall particularly concentrates to the Konkan and Sahyadrian
+Maharashtra. Central Maharashtra receives less rainfall. However, under the
+influence of the Bay of Bengal, eastern Vidarbha receives good rainfall in July,
+August and September.
+• Hydrology: In central India, groundwater is a primary source of drinking water and
+supports more than 70–80% of the water demand for agriculture. Groundwater
+resources are heavily dependent on the Indian summer monsoon (June–
+September), as 90% of the annual rainfall receives only during the monsoon season
+and 10% of the annual rainfall in the remaining seasons of the year. Groundwater
+resources in the northern region of central India become more vulnerable due to a
+deficit in monsoon rainfall3.
+• Soil type and Health: India exhibits a diverse range of soil types, reflecting its varied
+geography and climate. The most prevalent soil types appear to be alluvial soils,
+black soils, and red soils, which are found in significant quantities across multiple
+states. Alluvial soils are particularly dominant in the northern plains, with Uttar
+Pradesh having the largest area (23,089.58 Ha) covered by alluvial soils. Other
+states with substantial alluvial soil coverage include Bihar, Madhya Pradesh, Punjab,
+and West Bengal. This is consistent with the presence of major river systems like the
+Ganges and its tributaries in these regions. Black soils, often associated with cotton-
+growing regions, are most prominent in Maharashtra (15,423.78 Ha) and Madhya
+Pradesh (15,203.57 Ha). These soils are also found in significant amounts in Gujarat,
+Karnataka, and Andhra Pradesh, indicating their prevalence in central and western
+India. Red soils cover large areas in several states, with Madhya Pradesh (16,601.28
+Ha) and Andhra Pradesh (9,930.11 Ha) having the most extensive coverage. These
+3 https://www.mdpi.com/2306-
+5338/9/12/222#:~:text=In%20central%20India%2C%20groundwater%20is,extraction%20%5B23%2C28%5D.
+
+Page 16
+VCS Joint Project Description & Monitoring Report Template, v4.4
+16
+soils are also common in Karnataka, Tamil Nadu, and Odisha, suggesting their
+prevalence in peninsular India4.
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks
+India does not regulate GHG emissions from agriculture in the smallholder farming systems.
+By adhering to following laws and regulations, the project will demonstrate its commitment
+to promoting sustainable agriculture practices while ensuring compliance with local, regional,
+and national legal frameworks in the project area
+• Fertilizer Control Order, 1985
+• Seeds Bill, 2004
+• Insecticide (Amendment) Act, 2000
+• Protection of Plant Varieties and Farmers’ Rights Act, 2001
+• Farmers & Farm Workers Commission Act, 2017
+• Environment (Protection) Act, 1986
+• Air (Prevention and Control of Pollution) Act, 1981
+• Water (Prevention & Control of Pollution) Act, 1974
+• National Biodiversity Act, 2002: Compliance with this act is ensured by promoting
+regenerative practices that conserve biodiversity by minimizes agrochemical use
+hence increase soil diversity.
+• Air (Prevention and Control of Pollution) Act, 1981: Compliance with this act will be
+ensured by implementing practices that reduce air pollution associated with
+agricultural activities, such as promoting the avoidance of burning crop residues.
+• Water (Prevention & Control of Pollution) Act, 1974: The project's regenerative
+practices, including fertigation and reduced tillage, prevent water pollution and
+promote water conservation. It ensures compliance with regulations for water quality
+protection by minimizing nutrient runoff and soil erosion.
+• Environment (Protection) Act, 1986: The project ensures compliance with this act by
+implementing environmentally sustainable practices and minimizing adverse impacts
+on the environment. This includes adhering to regulations related to air and water
+quality waste management, and environmental pollution. The project promotes
+4 https://360analytika.com/state-wise-area-by-major-soil-type-in-india/
+
+Page 17
+VCS Joint Project Description & Monitoring Report Template, v4.4
+17
+regenerative practices to reduce environmental pollution and conserve natural
+resources.
+1.16 Double Counting and Participation under Other GHG Programs
+No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity
+under another GHG program?
+☐ Yes ☒ No
+Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+If yes, provide the registration number and the date of project inactivity under the other GHG
+program.
+Is the project active under the other program?
+☐ Yes ☒ No
+Project proponents, or their authorized representative, must attest that the project is no longer
+active in the other GHG program in the Registration Representation.
+Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+If yes, provide the program name(s), reason(s) and date for the rejection, justification of
+eligibility under the VCS Program, and any other relevant information.
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions
+No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+Are project reductions and removals or project activities also included in an emissions trading
+program or binding emission limit? See the VCS Program Definitions for definitions of
+emissions trading program and binding emission limit.
+
+Page 18
+VCS Joint Project Description & Monitoring Report Template, v4.4
+18
+☐ Yes
+☒ No
+No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-
+related environmental credit system? See the VCS Program Definitions for definition of GHG-
+related environmental credit system.
+☐ Yes
+☒ No
+Supply Chain (Scope 3) Emissions
+Do the project activities specified in Section 1.12 affect the emissions footprint of any
+product(s) (goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+1.18 Sustainable Development Contributions
+Sustainable Development Contributions Activity Description
+SDG SDG Impact
+The adoption of advanced regenerative agricultural
+practices promotes increased crop productivity and
+economic well-being, empowering individuals to achieve
+a sustainable livelihood. Through the use of effective
+methods, both the quality and quantity of agricultural
+output are enhanced, helping to ensure adequate food
+availability for all.
+This project aligns with the SDG target 4.3 by providing
+vocational trainings to the individuals associated with the
+project activity. By engaging individuals from local
+communities, the initiative promotes equal access to
+education and technical skills needed for effective
+participation in ALM activities.
+Unsustainable agricultural practices which affect the
+productivity of land, which in turn affect the quality and
+the quantity of the produce. Due to this, a large section of
+farmers is heavily affected, and it is more pronounced for
+the small and marginal farmers. Often the only source of
+income for these farmers/landowners is agriculture,
+making them vulnerable to poverty in case of crop failure.
+This implementation of project activities will create job
+opportunities and support regional development by
+providing training and employment in rural areas.
+
+Page 19
+VCS Joint Project Description & Monitoring Report Template, v4.4
+19
+The project activity involves the implementation of ALM
+activities over an area of 2,200 ha across the project
+boundary. This plantation activity will help in the
+reduction/removal of net GHG emissions from the
+atmosphere and the addition of more oxygen into the
+surrounding environment, thus creating a clean
+environment. An estimated total 225,533 tCO2e will be
+removed during a crediting period of 30 years. Therefore,
+the project activity will promote climate mitigation and
+adaptation strategies.
+The ALM activities will promote various ecosystem
+services including improvement of the microclimate of the
+area, conservation of soil by reducing soil erosion,
+enhancing ground water quality & quantity, and
+increasing soil health of the project area.
+NITI Aayog is the central institution responsible for driving the attainment of SDGs in
+India, spearheading the 2030 Agenda through a collaborative and competitive approach
+among states. The organization works rigorously to monitor all the 17 Goals over 100
+indicators nationwide.
+Sustainable Development Contributions Activity Monitoring
+
+Page 20
+VCS Joint Project Description & Monitoring Report Template, v4.4
+20
+Table 1: Sustainable Development Contributions
+Row number
+SDG
+target
+SDG indicator Net impact on SDG
+indicator Current project contributions Contributions over project lifetime
+1) 2.4
+2.4.1 Proportion of agricultural
+area under productive and
+sustainable development.
+Implemented activities
+to increase
+Implemented ALM activities
+on 5,000 ha for MP01
+The project aims to promote sustainable
+agricultural activities in more than
+20,000 ha of area during the project
+lifetime.
+2) 4.3
+Project-specific indicator:
+Number of individuals who
+received any vocational
+training to enable their
+employment in project activity
+or elsewhere.
+Implemented activities
+to decrease
+Vocational training sessions
+with respect to
+implementation of
+sustainable agricultural
+practices.
+Contribute to increasing vocational and
+relevant skills of local individuals by
+providing non-formal education and
+training on issues related to climate
+change, implementation of project
+activities and its management, with
+specific skill-building in operations and
+surveying activities related to ALM and
+its monitoring under VCS
+
+Page 21
+VCS Joint Project Description & Monitoring Report Template, v4.4
+21
+3) 8.3
+Project Specific Indicator:
+Number of local individuals
+employed during the project
+lifetime.
+Implemented activities
+to increase
+A total of 5 individuals were
+directly employed in
+Maharashtra and
+Telangana, respectively
+during the MP01
+Contribute to the generation of
+employment in the informal sector by
+contracting locals with target
+employment of 15 employees for varying
+lengths of time over the project lifetime.
+Employment comprises all persons of
+working age who, during a short
+reference period (minimum one week),
+or full time (more than 6 months) will be
+engaged in any activity to produce goods
+or provide services for pay or profit.
+4) 13.0 Tonnes of greenhouse gas
+emissions avoided or removed
+Implemented activities
+to increase
+Total carbon sequestration
+in the current MP is 119,583
+tCO2e
+Prevented the release of 19,51,250
+tonnes of carbon into the atmosphere
+5) 15.3
+15.3.1 Proportion of land that
+is degraded over total land
+area
+Implemented activities
+to decrease
+The total area covered
+under the current MP is
+5,000
+The project activity aims to restore
+20,000 area of land during the project
+lifetime.
+
+Page 22
+VCS Joint Project Description & Monitoring Report Template, v4.4
+22
+1.19 Additional Information Relevant to the Project
+Leakage Management
+The aim of the project is to increase organic input from farmyard manure, compost to
+increase soil nutrient and soil carbon. The crop residue produced after harvest is
+integrated into the soil.
+The possible source of leakage could be increase of fuel wood and grazing activity
+outside the project boundary due to decrease in supply for fodder and fuel for cooking.
+However, the cropland in the project area do not allow grazing in any time of the year.
+Therefore, there was no displacement of pre-project grazing activities.
+Commercially Sensitive Information
+No commercially sensitive information has been excluded from the public version of the
+project description
+Further Information
+No further information is added.
+2 SAFEGUARDS AND STAKEHOLDER
+ENGAGEMENT
+2.1 Stakeholder Engagement and Consultation
+Stakeholder Identification
+Stakeholder Identification A three-step approach is adopted by ASVATA for
+identifying the relevant stakeholders associated with the
+project throughout its lifetime. The following figure
+represents the approach adopted for stakeholder
+identification:
+
+Page 23
+VCS Joint Project Description & Monitoring Report Template, v4.4
+23
+Figure 1: Stakeholder’s identification process
+The first step involves developing a logical framework
+model for the designed project to identify activities based
+on intended and un-intended impacts associated with the
+project activities. This step included the identification of
+benefits and co-benefits aligned with the project activity
+to identify the potential stakeholders associated at
+different stages of the project cycle. A multi-method
+approach combining desk review, field scoping, and
+participatory mapping to identify stakeholders under the
+three-step approach. The following table provides a
+description of the different approaches adopted to
+identify the stakeholders.
+
+Page 24
+VCS Joint Project Description & Monitoring Report Template, v4.4
+24
+To identify the stakeholders, a list of potential
+types/categories of stakeholders was created.
+The stakeholder’s types/categories identified were as
+follows:
+• Community/neighbour
+• Landowner/ farmers
+• Local policymaker
+• NGOs
+• Employees
+• National association/National focal point
+• Companies
+• Universities/research institutes
+Using this list as a guide, a list of stakeholders to be
+proactively contacted was created per country. The list
+of stakeholders included all landowners and farmers
+S.
+No. Activity Description
+1 Desk Review
+Review land use records,
+historical LULC data,
+development plans, and
+existing stakeholder data
+2
+Key
+Informant
+Consultations
+Interview officials, elders, IP
+leaders, and civil society
+organizations to identify actors
+not captured in records
+3
+Participatory
+Community
+Mapping
+Facilitate site-level community
+mapping to identify areas used
+for farming, rituals,
+settlements etc.
+4 Categorize
+Stakeholders
+Classify stakeholders into: a)
+Direct stakeholders (e.g.,
+farmers, local residents); and
+b) Indirect stakeholders (e.g.
+NGOs, media, academic
+institutions etc.)
+5 Profile and
+Analyze
+For each stakeholder group,
+determine: location, role,
+access/tenure status,
+vulnerability, cultural or
+economic importance, and
+engagement preference.
+
+Page 25
+VCS Joint Project Description & Monitoring Report Template, v4.4
+25
+that were participating or expected to participate in the
+Project at that time
+Legal or customary
+tenure/access rights
+The farmers participating in the Project are either
+themselves the landowners of the land they are farming
+on or hold a lease agreement to this land.
+Stakeholder diversity and
+changes over time
+The local stakeholder group comprises farmers and
+landowners within the project area where local
+consultations are conducted. Below is a delineation of the
+diversity within each stakeholder category along with
+potential shifts in their composition over time.
+• Small holder farmers: Predominantly rural-based,
+these stakeholders are deeply entrenched in
+agricultural activities, forming the backbone of the local
+economy. Their livelihoods depend on the performance
+of crop and livestock markets, rendering their income
+subject to fluctuations influenced by climatic conditions,
+market trends, and governmental policies. The lifestyle
+of farmers and landowners varies significantly based
+on factors such as farm size, agricultural practices
+adopted, and access to resources. These disparities
+shape their perspectives and priorities concerning the
+project.
+• Community members: The community comprises
+individuals with strong ties to rural livelihoods,
+underscoring their affinity for agrarian activities and
+traditional practices. They exhibit a mosaic of social,
+economic, and cultural backgrounds, contributing to
+the vibrancy and heterogeneity of the local population.
+Economic diversity is evident within the community,
+with disparities in income levels, employment
+opportunities, and access to resources shaping
+individual experiences and aspirations. Cultural norms,
+traditions, and values prevalent within the community
+influence stakeholder interactions, perceptions of the
+project, and decision-making processes.
+• Local Policymakers: The local policymakers have
+authority and influence in shaping agricultural policies
+and developmental initiatives. Their work often
+revolves around agricultural issues, positioning them
+as crucial intermediaries between governmental
+bodies and grassroots stakeholders.
+• Non-Governmental Organizations (NGOs): NGO
+employees typically specialize in areas related to
+agriculture, championing causes aligned with
+sustainable farming practices, rural development, or
+
+Page 26
+VCS Joint Project Description & Monitoring Report Template, v4.4
+26
+environmental conservation. These stakeholders are
+driven by a shared commitment to effecting positive
+change within the agricultural landscape. NGOs play a
+pivotal role in amplifying the voices of marginalized
+stakeholders, providing technical expertise, and
+facilitating community engagement initiatives.
+• Employees: They are employed by the PP, These
+stakeholders contribute to the operational and logistical
+facets of agricultural endeavors. They plays an
+important role in connecting stakeholders to the project
+and are important for stakeholder engagement.
+• Universities/Research Institutes: This additional
+stakeholder category encompasses individuals
+engaged in academia or pursuing education within
+institute/university settings. Their focus on scientific
+research related to agriculture brings a specialized
+perspective to the stakeholder landscape.
+Interactions among these diverse stakeholder groups
+further enrich the dialogue surrounding the project's
+objectives and implementation strategies. These
+stakeholder groups are expected to stay made up of a
+similar make-up in the future.
+Expected changes in well-being The stakeholders most likely to be impacted by the project
+are smallholder’s farmers of the project area. As provided
+in the section 1.12, it is expected that the project relative
+to baseline scenario will have positive impact on the
+environment such as:
+• Increase carbon sequestration in the soil and
+therewith improved soil quality.
+• Reduced erosion and improved soil quality.
+• Increased resilience to extreme weather events
+such as droughts and flooding.
+• Improved water retention in the soil, less runoff and
+• Reducing pollution of water bodies creating
+improved water quality.
+• Improved biodiversity such as increased
+development of micro-organisms, strengthening of
+ecosystems.
+• Reduced pollutants in the soil, air and water, due to
+the reduced use of chemical fertilisers
+Moreover, the project provides the following co benefits
+such as:
+• Knowledge and skill enhancement: Farmers will gain
+awareness of sustainable agricultural methods
+
+Page 27
+VCS Joint Project Description & Monitoring Report Template, v4.4
+27
+through training sessions conducted by the project
+partners (PP), fostering local skill development.
+• Income boost: Farmer livelihoods will improve as they
+earn additional income through carbon credits.
+• Encouragement for young farmers: The project aims
+to motivate the younger generation to remain in or
+engage with farming activities.
+• Potential for both direct and indirect employment
+opportunities on farms.
+Location of stakeholders All identified stakeholder groups, as outlined in the table
+above, were actively encouraged to participate in the
+consultation process conducted within the project areas of
+Maharashtra and Telangana It is anticipated that local
+communities, and customary rights holders will not be
+affected by the project
+Location of resources The project will encompass project activity instances
+location in the states of Maharashtra and Telangana.
+Stakeholder Consultation and Ongoing Communication
+Date of stakeholder
+consultation
+30-April-2025
+Stakeholder engagement
+process
+The aim of the stakeholder consultation is to meaningfully
+engage local stakeholders and to discuss environmental,
+social, and economic impacts, both positive contributions
+and potential risks that the project may have during
+planning, implementation and operational stages of the
+project.
+During these stakeholder consultation meetings, a
+diverse mix of participants attended, including farmers,
+landowners, government employees, researchers, NGOs
+and ASVATA employees.
+Consultation outcome During the stakeholder consultation meeting, the
+following questions were discussed:
+• Farmer eligibility for the carbon project
+• Cropping systems and common agricultural
+practices
+• Awareness regarding carbon credits
+• Queries regarding third-party auditing
+• Discussion on benefit-sharing mechanisms
+
+Page 28
+VCS Joint Project Description & Monitoring Report Template, v4.4
+28
+• Questions about the monitoring process for adopted
+farming practices
+• Discussion on the social and environmental impact
+of project
+All questions, discussions, and responses are
+documented comprehensively in the meeting minutes and
+feedback forms.
+Ongoing communication Ongoing conversations are kept open, via email,
+WhatsApp, and phone calls in addition to in-person
+meetings where applicable, such that project
+stakeholders can always reach a project proponent
+representative
+Stakeholder input All valuable discussions and inputs from stakeholders
+who participated in the consultation meetings were
+carefully documented and integrated into various sections
+of this PD. Common feedback, such as inquiries
+regarding training and guidance on carbon farming, as
+well as local agronomic advice, was raised by the farmers.
+In response, the project is actively addressing these
+concerns by organizing continuous training sessions.
+Additionally, regular awareness meetings are being
+conducted at the village level to emphasize the
+significance of regenerative agriculture and highlight
+carbon as a co-benefit, encouraging farmers to adopt
+these practices.
+
+Page 29
+VCS Joint Project Description & Monitoring Report Template, v4.4
+29
+Free Prior and Informed Consent
+Obtaining consent The principle of Free, Prior, and Informed Consent (FPIC)
+ensures that farmers have the right to self-determination
+and to give or withhold consent to projects affecting their
+ancestral domains, lands, territories, and resources. It is a
+fundamental process for recognizing farmer’s rights,
+building trust, and legitimizing project presence in areas
+with cultural, spiritual, and territorial significance.
+FPIC was secured at the initiation of the carbon project
+development by the farmer communities within the project
+area. Comprehensive details about the planned project
+activities, involvement of farmers, expected outcomes,
+benefits and co-benefits and potential risks associated
+with the project were provided by the PP to the
+communities. FPIC survey forms were signed by
+representatives of the communities.
+Outcome of FPIC Apart from the farmers, there are no customary right
+holders of the land nor are there any indigenous people or
+other local community members who hold the authority to
+determine or consent to the activities conducted on the
+land that is part of this Project.
+Grievance Redress Procedure
+Development process The feedback and grievance redressal mechanism has
+the following objectives:
+• To inform decision making related to project design
+and development, integrating feedback into the
+project.
+• To serve as a mechanism for timely resolution of a
+problem and prevent problems from escalating into
+social conflict.
+• To be part of the project monitoring and evaluation
+process and contribute to learnings.
+Grievance redress procedure The project proponent ensures that a structured
+mechanism is in place to address stakeholder disputes
+during project planning and implementation. A complaint
+register is maintained at the project office for farmers to
+record their concerns and all registered grievances are
+reviewed and resolved in a timely manner. Farmers can
+also directly contact the PP team via phone for support
+
+Page 30
+VCS Joint Project Description & Monitoring Report Template, v4.4
+30
+during project implementation, and any concerns raised
+are recorded and addressed promptly.
+Public Comments
+Public comments are to be addressed in the Final PD.
+2.2 Risks to Stakeholders and the Environment
+Management Experience
+The project proponent (ASVATA) have relevant experience managing sustainable agriculture
+activities.
+Risk Assessment
+Risks identified Mitigation or preventative measure
+taken
+Natural and human-induced
+risks to stakeholders’
+wellbeing
+No risk identified
+Project proponent continuously
+ensures that stakeholders’ wellbeing
+is protected from any natural and
+human-induced risks
+Risks to stakeholder
+participation No risk identified.
+Stakeholders have the freedom to
+choose whether or not they wish to
+participate in the project.
+Working conditions No risk identified
+Compared to the baseline scenario,
+the working conditions on the farms
+will remain similar. The project
+activities such as reducing tillage,
+improving crop residue management,
+avoidance of residue burning and
+fertigation will result in no significant
+change in working conditions.
+Safety of women and girls No risk identified
+Compared to the baseline scenario,
+the Project will have no impact on the
+safety of minority and marginalized
+groups, including children.
+Safety of minority and
+marginalized groups,
+including children
+No risk identified
+Compared to the baseline scenario,
+the Project will have no impact on the
+safety of minority and marginalized
+groups, including children.
+Pollutants (air, noise,
+discharges to water,
+generation of waste, and
+No risk identified
+The project will decrease the
+pollutants, notably by reducing the
+use of high-input fertilizers through
+fertigation. This shift is expected to
+
+Page 31
+VCS Joint Project Description & Monitoring Report Template, v4.4
+31
+release of hazardous
+materials and chemical
+pesticides and fertilizers)
+have a positive environmental impact,
+as the projected farming practices are
+predicted to enhance water retention
+in the soil, thereby diminishing
+surface runoff. Monitoring of fertilizer
+usage will be conducted throughout
+the project, with any changes in
+fertilizer application carefully
+documented and accounted.
+2.3 Respect for Human Rights and Equity
+Labor and Work
+Risks identified5 Mitigation or preventative measure(s)
+taken
+Discrimination No risk identified
+The project has a zero-tolerance
+policy toward discrimination and all
+employees are made aware of this
+upon hiring, as per the Indian labour
+law.
+Sexual harassment No risk identified
+The project proponent has a zero-
+tolerance policy toward sexual
+harassment
+Gender equity in
+labor and work No risk identified
+The Project is open to all farmers no
+matter their gender. All farmers
+receive the same terms and
+conditions in the formal agreement.
+All farmers must comply with local,
+regional and national laws, including
+all laws regarding gender equity and
+equal pay for labour and work.
+Forced labor
+Child labor
+Human trafficking
+No risk identified
+The project strictly complies with
+Indian laws and regulations pertaining
+to human trafficking, forced labor, and
+child labor, including but not limited to
+the Immoral Traffic (Prevention) Act,
+the Bonded Labour System
+(Abolition) Act, the Child Labour
+(Prohibition and Regulation) Act, and
+the Juvenile Justice (Care and
+Protection of Children) Act.
+5 The identified risks and commensurate mitigation or preventative measure(s) for forced labor, child labor, and
+human trafficking, must be inclusive of staff and contracted workers employed by third parties.
+
+Page 32
+VCS Joint Project Description & Monitoring Report Template, v4.4
+32
+Human Rights
+Not applicable for this Project.
+The Project area does not have indigenous peoples or alternative customary rights
+holders other than those involved in the Project. The local communities were invited to
+participate in the local stakeholder consultation process
+Indigenous Peoples and Cultural Heritage
+The Project area does not have indigenous people or cultural heritage that is at risk of
+being lost due to the project activities and thus does not require protection.
+Property Rights
+Risks identified Mitigation or preventative measure(s) taken
+Rights to territories and resources The ownership of the land solely belongs to
+the farmers who have adopted regenerative
+practices and are enrolled in this carbon
+project.
+Benefit Sharing
+Process used to design the
+benefit sharing plan
+The benefit-sharing plan is designed to allocate a
+significant portion of the revenue from carbon credit sales
+to participant farmers, enhancing their livelihoods and
+improving the surrounding environment. The remaining
+revenue is designated to cover project development and
+management costs for Asvata.
+Summary of the benefit sharing
+plan
+The Landowner will receive incentives in accordance with
+the mutually agreed terms, contingent upon the Project
+Proponent’s successful generation of carbon revenue
+following the project’s validation and registration under
+the Verified Carbon Standard (VCS).
+Approval and dissemination of
+benefit sharing plan
+The benefit sharing mechanism has been agreed upon
+after due consultations among the project participants
+and approved by the project management.
+The benefit sharing plan is duly mentioned in the
+agreement made among the participant farmer, and
+ASVATA, and disseminated to the farmers participated in
+
+Page 33
+VCS Joint Project Description & Monitoring Report Template, v4.4
+33
+this project, during the consultations and stakeholder
+meetings conducted by the project team and took the
+approval of the beneficiaries through signing of the
+agreement.
+Benefit sharing during the
+monitoring period
+A Monitoring Committee comprising representatives of
+ASVATA and RPGF will ensure that the share of the
+benefits from the sale of the Carbon Credits are passed
+on to the participating farmers.
+2.4 Ecosystem Health
+Risks identified Mitigation or preventative
+measure(s) taken
+Impacts on biodiversity
+and ecosystems No risk identified
+The project activities will positively
+impact biodiversity and
+ecosystems, such as increased
+development of micro-organisms
+thereby strengthening ecosystems
+Soil degradation and soil
+erosion No risk identified The project activities will reduce
+soil degradation and soil erosion
+Water consumption and
+stress No risk identified
+Water consumption and stress is
+expected to remain the same as in
+the baseline of the project.
+Rare, Threatened, and Endangered species
+Is the project located in or adjacent to habitats for rare, threatened, or endangered species?
+☐ Yes ☒ No
+Introduction of species
+Not applicable as the project does not involve the introduction of any invasive species into
+the project area. The crop varieties utilized by farmers are regionally accepted, and the
+project activities strictly adhere to this principle. Neither do any of the project activities allow
+any invasive species to thrive through project implementation. The different crop varieties
+reported by farmers in the project area will be duly recorded, particularly for cotton.
+Ecosystem conversion
+The Project does not clear or drain existing natural ecosystems and has not done so in at
+least the 10 years prior to the project start date. For each project instance, a GIS check will
+be done to confirm that the project area has not been cleared of natural ecosystems in the
+past 10 years and is not located on a wetland, peatland, or forest.
+
+Page 34
+VCS Joint Project Description & Monitoring Report Template, v4.4
+34
+3 APPLICATION OF METHODOLOGY
+3.1 Title and Reference of Methodology
+Type
+(methodology,
+tool or module).
+Reference ID, if
+applicable Title Version
+Methodology VM0042 Methodology for improved agricultural
+land management 2.0
+Tool VCS AFOLU Non-Permanence Risk Tool
+2.0
+(Online
+version)
+3.2 Applicability of Methodology
+Methodology ID Applicability condition Justification of compliance
+VM0042 Project must introduce or
+implement one or more new
+changes to pre-existing
+agricultural management
+practices; Reduced (organic
+or inorganic) application,
+improved water
+management, residue
+incorporation, improved crop
+planting and harvesting, and
+improve grazing practices.
+Condition met. The project
+aims to implement multiple
+activities like reduced
+inorganic application of
+fertilizers, residue
+management, crop rotation
+and improved tillage
+practices. Details are given
+in section 1.12.
+... Any quantitative adjustment
+(e.g., decrease in fertilizer
+application rate) must
+exceed 5% of the pre-
+existing value.
+Condition met. The
+quantitative adjustments in
+project scenario will be more
+than 5% of baseline
+scenario.
+The project activities must be
+implemented on either
+cropland or grassland at the
+project start date and remain
+cropland or grassland
+throughout the project
+crediting period
+Condition met. The project
+involves only croplands as
+per the methodological
+guidelines.
+The project area must not
+have been cleared of Native
+ecosystems within the last
+ten years prior to the project
+start date
+Condition met. LULC is
+done to prove the
+applicability condition.
+
+Page 35
+VCS Joint Project Description & Monitoring Report Template, v4.4
+35
+The project activity proposed
+is not expected to result in a
+sustained reduction of
+greater than 5% in
+productivity.
+The project activities are
+implemented to increase the
+productivity of the crops.
+If the project activity involves
+the application of biochar, it
+must be produced using
+feedstock that would
+otherwise have been left to
+decay in aerobic or
+anaerobic conditions or been
+burned in an uncontrolled
+manner.
+Not applicable.
+The project activities occur
+on a wetland; however, this
+condition does not exclude
+crops subject to artificial
+flooding, provided it is
+demonstrated that crop
+cultivation does not impact
+the hydrology of any nearby
+wetlands.
+The project area is not
+falling under the category of
+wetlands.
+3.3 Project Boundary
+Source Gas Included? Justification/Explanation
+Baseline
+Soil
+Organic
+Carbon
+CO2 Yes The proposed project activities will increase
+the overall net SOC pool in the project
+scenario.
+CH4 No Excluded as the project activity dose no
+cause significant change
+N2O No Excluded as the project activity dose no
+cause significant change
+Other No Excluded as the project activity dose no
+cause significant change
+Use of
+nitrogen
+fertilizers
+CO2 No Excluded as the project activity dose no
+cause significant change
+CH4 No Excluded as the project activity dose no
+cause significant change
+N2O Yes The project activities encourage the reduction
+of N fertilizer by either site-specific nutrient
+
+Page 36
+VCS Joint Project Description & Monitoring Report Template, v4.4
+36
+Source Gas Included? Justification/Explanation
+management or by replacing it with organic
+fertilsers.
+Other No Excluded as the project activity dose no
+cause significant change
+Project
+Soil
+Organic
+Carbon
+CO2 Yes The proposed project activities will increase
+the overall net SOC pool in the project
+scenario.
+CH4 No Excluded as the project activity dose no
+cause significant change
+N2O No Excluded as the project activity dose no
+cause significant change
+Other No Excluded as the project activity dose no
+cause significant change
+Use of
+nitrogen
+fertilizers
+CO2 No Excluded as the project activity dose no
+cause significant change
+CH4 No Excluded as the project activity dose no
+cause significant change
+N2O Yes The project activities encourage the reduction
+of N fertilizer by either site-specific nutrient
+management or by replacing it with organic
+fertilsers.
+Other No Excluded as the project activity dose no
+cause significant change
+3.4 Baseline Scenario
+As per VM0042 v2.0 methodology, continuation of pre-project agricultural management
+practices is the most plausible baseline scenario. The conventional agriculture practices in
+baseline scenario of the project area includes practices such as:
+1. Excessive fertiliser application through broadcasting
+2. Burning of crop residue
+3. Intensive tillage practice
+
+Page 37
+VCS Joint Project Description & Monitoring Report Template, v4.4
+37
+The baseline scenario is determined for each sample unit (e.g. for each field) by applying a
+historical look-back period to produce an annual schedule of activities to be repeated over
+the first crediting period. This is determined via the collection of information pertaining to
+reduced fertilizer use, water management, reduced tillage, crop residue management and
+avoidance of burning practices during the three-year period immediately before the project
+start date. Information relating to agricultural management activities was sourced via farmer
+signed attestation, survey and remote sensing analysis.
+3.5 Additionality
+Regulatory Surplus
+Is the project registered or seeking registration in an UNFCCC Annex 1 or Non-Annex 1 country?
+☐ Annex 1 country ☒ Non-Annex 1 country
+Are the project activities mandated by any law, statute, or other regulatory framework?
+☐ Yes ☒ No
+If the project is located inside a Non-Annex 1 country and the project activities are mandated by
+a law, statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks
+systematically enforced?
+☐ Yes ☒ No
+If no, describe which mandated laws, statutes, or other regulatory frameworks require project
+activities and provide evidence of systematic non-enforcement to demonstrate regulatory
+surplus.
+Additionality Methods
+As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042
+v2.1 requirements, the additionality of this project is demonstrated in two steps:
+1. The project shall demonstrate regulatory surplus at validation and each project
+crediting period renewal.
+a. Regularity surplus
+b. Barrier analysis
+c. Common practice analysis
+2. Additionality shall be demonstrated and assessed in accordance with the
+requirements set out in the methodology applied to the project.
+3.6 Methodology Deviations
+Not applicable. There is no methodology deviation.
+
+Page 38
+VCS Joint Project Description & Monitoring Report Template, v4.4
+38
+4 IMPLEMENTATION STATUS
+4.1 Implementation Status of the Project Activity
+For all projects, describe the implementation status of the project activity(s), including
+information on the following:
+• The operation of the project activity(s) during the monitoring period, including any
+information on events that may impact the GHG emission reductions or removals and
+monitoring.
+• Any other changes (e.g., to project proponent or other entities).
+For AFOLU projects, include information on the following:
+• Where no new project activities have been implemented during the current monitoring
+period, demonstrate that previously implemented project activities continued to be
+implemented during the current monitoring period.
+• Report any loss of carbon stock that occurred during the monitoring period. The date of the
+loss(es), date of discovery(s), size (hectares impacted) and extent (tCO2e) of the loss must
+be described. Specify if the loss meets the definition of a loss event and/or reversal. In all
+cases, justify how the project meets VCS requirements related to loss events and reversals.
+5 QUANTIFICATION OF ESTIMATED GHG
+EMISSION REDUCTIONS AND
+REMOVALS
+5.1 Baseline Emissions
+Describe the procedure for quantification of baseline emissions and/or carbon stock changes
+in accordance with the applied methodology. Baseline emissions may be negative where
+carbon stock increases (sinks) exceed baseline emissions. Specify the reductions and removals
+separately where the applied methodology provides procedures and equations to do so. Include
+all relevant equations here and provide sufficient information to allow the reader to reproduce
+the calculations. Explain and justify all relevant methodological choices (e.g., with respect to
+selection of emission factors and default values). Include all calculations in the emission
+reduction and removal calculation spreadsheet.
+
+Page 39
+VCS Joint Project Description & Monitoring Report Template, v4.4
+39
+5.2 Project Emissions
+Describe the procedure for quantification of project emissions and/or carbon stock changes in
+accordance with the applied methodology. Project emissions may be negative where carbon
+stock increases (sinks) exceed project emissions. Specify the reductions and removals
+separately where the applied methodology provides procedures and equations to do so. Include
+all relevant equations here and provide sufficient information to allow the reader to reproduce
+the calculations. Explain and justify all relevant methodological choices (e.g., with respect to
+selection of emission factors and default values). Include all calculations in the emission
+reduction and removal calculation spreadsheet.
+5.3 Leakage Emissions
+Describe the procedure for quantification of leakage emissions in accordance with the applied
+methodology. Specify the reductions and removals separately where the applied methodology
+provides procedures and equations to do so. Include all relevant equations here and provide
+sufficient information to allow the reader to reproduce the calculations. Explain and justify all
+relevant methodological choices (e.g., with respect to selection of emission factors and default
+values). Include all calculations in the emission reduction and removal calculation
+spreadsheet.
+5.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals
+Describe the procedure for the quantification of estimated GHG emission reductions
+(reductions) and carbon dioxide removals (removals). Include all relevant equations.
+For data and parameters monitored, use the estimated data/parameter values provided in
+Section 6.2 below. Document how each equation is applied, in a manner that enables the
+reader to reproduce the calculations. Provide calculations for all key equations to allow the
+reader to reproduce the annual calculations for estimated reductions or removals. Specify the
+reductions and removals separately where the applied methodology provides procedures and
+equations to do so. Include all of the above in the emission reduction and removal calculation
+spreadsheet.
+Complete the tables below by vintage period (calendar year). Note that the baseline or project
+emissions subtotals may be negative where sinks exceed emissions. Only specify the estimated
+VCUs for reductions and removals separately where the applied methodology provides
+procedures and equations to do so.
+For projects that are not required to assess permanence risk, complete the table below for the
+project crediting period.
+
+Page 40
+VCS Joint Project Description & Monitoring Report Template, v4.4
+40
+Vintage
+period
+Estimated
+baseline
+emissions
+(tCO2e)
+Estimated
+project
+emissions
+(tCO2e)
+Estimated
+leakage
+emissions
+(tCO2e)
+Estimated
+reduction
+VCUs (tCO2e)
+Estimated
+removal
+VCUs (tCO2e)
+Estimated
+total VCUs
+(tCO2e)
+DD-MMM-
+YYYY to 31-
+Dec-YYYY
+Example:
+50,000
+Example:
+20,000
+Example:
+10,000
+Example:
+10,000
+Example:
+10,000
+Example:
+20,000
+01-Jan-YYYY
+to 31-Dec-
+YYYY
+01-Jan-YYYY
+to DD-MMM-
+YYYY
+Total
+For projects required to assess permanence risk, complete the table below for the project
+crediting period.
+Note that the buffer pool allocation is split proportionally between the estimated reductions
+and removals. (For example, if a project is estimated to achieve 20,000 tCO2e removals and
+80,000 tCO2e reductions and has a buffer contribution of 20%, or 20,000, the estimated
+removal VCUs would be 16,000 and reduction VCUs would be 64,000).
+Vintage
+period Estimated
+baseline
+emissions
+(tCO2e)
+Estimated
+project
+emissions
+(tCO2e)
+Estimated
+leakage
+emissions
+(tCO2e)
+Estimated
+buffer pool
+allocation
+(tCO2e)
+Estimated
+reduction
+VCUs
+(tCO2e)
+Estimated
+removal
+VCUs
+(tCO2e)
+Estimated
+total VCU
+issuance
+(tCO2e)
+DD-MMM-
+YYYY to 31-
+Dec-YYYY
+Example:
+50,000
+Example:
+20,000
+Example:
+10,000
+Example:
+4,000
+Example:
+8,000
+Example:
+8,000
+Example:
+16,000
+01-Jan-
+YYYY to 31-
+Dec-YYYY
+01-Jan-
+YYYY to
+DD-MMM-
+YYYY
+Total
+
+Page 41
+VCS Joint Project Description & Monitoring Report Template, v4.4
+41
+6 MONITORING
+6.1 Data and Parameters Available at Validation
+Data / Parameter
+Data unit Indicate the unit of measure
+Description Provide a brief description of the data/parameter
+Source of data Indicate the source(s) of data
+Value applied: Provide the value applied
+Justification of choice of
+data or description of
+measurement methods
+and procedures applied
+Justify the choice of data source, providing references where
+applicable. Where values are based on measurement, include a
+description of the measurement methods and procedures applied (e.g.,
+what standards or protocols have been followed), indicate the
+responsible person/entity that undertook the measurement, the date of
+the measurement and the measurement results. More detailed
+information may be provided in an appendix.
+Purpose of data Indicate one of the following:
+• Determination of baseline scenario (AFOLU projects only)
+• Calculation of baseline emissions
+• Calculation of project emissions
+• Calculation of leakage
+Comments Provide any additional comments
+6.2 Data and Parameters Monitored
+Data / Parameter
+Data unit Indicate the unit of measure
+Description Provide a brief description of the data/parameter
+Source of data Indicate the source(s) of data
+
+Page 42
+VCS Joint Project Description & Monitoring Report Template, v4.4
+42
+Description of
+measurement methods
+and procedures applied
+Specify the measurement methods and procedures, any standards or
+protocols followed, and the person/entity responsible for the
+measurement. Include any relevant information regarding the accuracy
+of the measurements (e.g., accuracy associated with meter equipment
+or laboratory tests).
+Frequency of
+monitoring/recording
+Specify measurement and recording frequency
+Value applied: Provide an estimated value for the data/parameter
+Monitoring equipment Identify equipment used to monitor the data/parameter including type,
+accuracy class, and serial number of equipment, as appropriate.
+QA/QC procedures
+applied
+Describe the quality assurance and quality control (QA/QC) procedures
+applied, including the calibration procedures where applicable.
+Purpose of data Indicate one of the following:
+• Calculation of baseline emissions
+• Calculation of project emissions
+• Calculation of leakage
+Calculation method Where relevant, provide the calculation method, including any
+equations, used to establish the data/parameter.
+Comments Provide any additional comments
+6.3 Monitoring Plan
+Describe the process and schedule for obtaining, compiling, and analyzing the monitored data
+and parameters set out in Section 6.2 (Data and Parameters Monitored) above.
+Include details on the following:
+• The methods used for measuring, recording, storing, aggregating, collating and reporting
+on monitored data and parameters. Where relevant, include the processes used for
+calibrating monitoring equipment.
+• The organizational structure, responsibilities and competencies of the personnel that
+carried out monitoring activities.
+• The procedures for internal auditing and QA/QC.
+• The procedures for handling non-conformances with the validated monitoring plan.
+
+Page 43
+VCS Joint Project Description & Monitoring Report Template, v4.4
+43
+• Any sampling approaches used, including target precision levels, sample sizes, sample site
+locations, stratification, frequency of measurement and QA/QC procedures.
+Where appropriate, include line diagrams to display the GHG data collection and management
+system.
+7 QUANTIFICATION OF GHG EMISSION
+REDUCTIONS AND REMOVALS
+7.1 Data and Parameters Monitored
+Data / Parameter
+Data unit Indicate the unit of measure
+Description Provide a brief description of the data/parameter
+Value applied: Provide the monitored value for the data/parameter
+Comments Provide any additional comments
+7.2 Baseline Emissions
+Quantify the baseline emissions and/or carbon stock changes for the monitoring period in
+accordance with the applied methodology. Baseline emissions may be negative where carbon
+stock increases (sinks) exceed baseline emissions. Specify the reductions and removals
+separately where the applied methodology provides procedures and equations to do so. Include
+all relevant equations here and provide sufficient information to allow the reader to reproduce
+the calculation. Include all calculations in the emission reduction and removal calculation
+spreadsheet.
+7.3 Project Emissions
+Quantify project emission and/or carbon stock changes for the monitoring period in
+accordance with the applied methodology. Project emissions may be negative where carbon
+stock increases (sinks) exceed project emissions Specify the reductions and removals
+separately where the applied methodology provides procedures and equations to do so.
+Include all relevant equations here and provide sufficient information to allow the reader to
+reproduce the calculation. Include all calculations in the emission reduction and removal
+calculation spreadsheet.
+
+Page 44
+VCS Joint Project Description & Monitoring Report Template, v4.4
+44
+7.4 Leakage Emissions
+Quantify leakage emissions for the monitoring period in accordance with the applied
+methodology. Specify the reductions and removals separately where the applied methodology
+provides procedures and equations to do so. Include all relevant equations here and provide
+sufficient information to allow the reader to reproduce the calculation. Include all calculations
+in the emission reduction and removal calculation spreadsheet.
+7.5 GHG Emission Reductions and Carbon Dioxide Removals
+Quantify the GHG emission reductions (reductions) and carbon dioxide removals (removals) for
+the monitoring period. Include all relevant equations.
+Complete the tables below by vintage period (calendar year). Note that the baseline or project
+emissions subtotals may be negative where sinks exceed emissions. Only specify the estimated
+VCUs for reductions and removals separately where the applied methodology provides
+procedures and equations to do so.
+For projects that are not required to assess permanence risk, complete the table below for the
+project crediting period:
+Vintage
+period
+Baseline
+emissions
+(tCO2e)
+Project
+emissions
+(tCO2e)
+Leakage
+emissions
+(tCO2e)
+Reduction
+VCUs (tCO2e)
+Removal
+VCUs (tCO2e)
+Total VCUs
+(tCO2e)
+DD-MMM-
+YYYY to 31-
+Dec-YYYY
+Example:
+50,000
+Example:
+20,000
+Example:
+10,000
+Example:
+10,000
+Example:
+10,000
+Example:
+20,000
+01-Jan-YYYY
+to 31-Dec-
+YYYY
+01-Jan-YYYY
+to DD-MMM-
+YYYY
+...
+Total
+For projects required to assess permanence risk:
+i) Provide the requested information using the table below:
+State the non-permanence risk rating (%)
+
+Page 45
+VCS Joint Project Description & Monitoring Report Template, v4.4
+45
+Has the non-permanence risk report been
+attached as either an appendix or a
+separate document?
+☐ Yes ☐ No
+For ARR and IFM projects with harvesting,
+state, in tCO2ethe Long-term Average (LTA).
+Has the LTA been updated based on
+monitored data, if applicable?
+☐ Yes ☐ No
+If no, provide justification.
+State, in tCO2e, the expected total GHG
+benefit to date
+If a loss occurred (including a loss event or
+reversal), state the amount of tCO2e lost:
+Vintage
+period Baseline
+emissions
+(tCO2e)
+Project
+emissions
+(tCO2e)
+Leakage
+emissions
+(tCO2e)
+Buffer pool
+allocation
+(tCO2e)
+Reductions
+VCUs
+(tCO2e)
+Removals
+VCUs
+(tCO2e)
+Total
+VCU
+issuanc
+e
+(tCO2e)
+DD-MMM-
+YYYY to 31-
+Dec-YYYY
+Example:
+50,000
+Example:
+20,000
+Example:
+10,000
+Example:
+4,000
+Example:
+8,000
+Example:
+8,000
+Exampl
+e:
+16,000
+01-Jan-YYYY
+to 31-Dec-
+YYYY
+01-Jan-YYYY
+to DD-MMM-
+YYYY
+Total
+Vintage period Ex-ante
+estimated
+reductions/
+removals
+Achieved
+reductions/
+removals
+Percent
+difference
+Explanation for the difference
+DD-MMM-YYYY
+to 31-Dec-YYYY
+01-Jan-YYYY to
+31-Dec-YYYY
+
+Page 46
+VCS Joint Project Description & Monitoring Report Template, v4.4
+46
+…
+01-Jan-YYYY to
+DD-MMM-YYYY
+Total
+
+Page 47
+VCS Joint Project Description & Monitoring Report Template, v4.3
+47
+APPENDIX 1: COMMERCIALLY SENSITIVE
+INFORMATION
+Use the table below to describe the commercially sensitive information included in the project
+description to be excluded in the public version.
+Section Information Justification
+
+Page 48
+VCS Joint Project Description & Monitoring Report Template, v4.4
+48
+APPENDIX X: <TITLE OF APPENDIX>
+Use appendices for supporting information. Delete this appendix (title and instructions) where no
+appendix is required.
