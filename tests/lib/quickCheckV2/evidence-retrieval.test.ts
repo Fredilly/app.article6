@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
+import { extractAnswerForCheck } from "@/lib/quickCheckV2/answers";
 import {
   loadAndParseExtractedText,
   retrieveEvidenceForAllChecks,
@@ -147,6 +148,40 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(stakeholder?.quote).toContain("Table 7. Stakeholder comments received and actions taken");
     expect(stakeholder?.quote).toContain("Request for inclusion of Freetown Sibun in the project");
     expect(stakeholder?.quote).toContain("Activities planned for La Democracia will include backyard gardens");
+  });
+
+  it("prefers project-summary country evidence over a consultant address", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p2:b1:summary",
+        page: 2,
+        text: "Brazil. The project implements improved agricultural land management practices.",
+        blockType: "body",
+        sectionHeading: "Summary Description of the Project",
+        sectionPath: ["1", "1.1"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p7:b1:contact",
+        page: 7,
+        text: "Address 10F, Block C, 515 Central Road, District, Lima, Brazil",
+        blockType: "body",
+        sectionHeading: "Other Entities Involved in the Project",
+        sectionPath: ["1", "1.7"],
+        source: "primary",
+      },
+    ]);
+
+    const evidence = retrieveEvidenceForCheck(synthetic, "host_country").evidence;
+    expect(evidence).toMatchObject({
+      sourceType: "fact_contract",
+      quote: "Brazil.",
+      page: 2,
+      sectionHeading: "Summary Description of the Project",
+      sectionPath: ["1", "1.1"],
+      spanId: "synthetic-doc:p2:b1:summary",
+    });
+    expect(extractAnswerForCheck(synthetic, "host_country").answer).toBe("Brazil");
   });
 
   it("prefers an additionality conclusion over an earlier VT0001 introduction", () => {
