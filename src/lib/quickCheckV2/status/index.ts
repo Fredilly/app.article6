@@ -103,8 +103,13 @@ function hasWithoutProjectNarrative(evidence: RetrievedEvidence): boolean {
 function isAdditionalityFrameworkOnly(text: string): boolean {
   const lower = text.toLowerCase();
   const framework = /\b(?:requirements?|in two steps|shall be demonstrated|must be demonstrated|regulatory surplus)\b/.test(lower);
-  const completed = /\b(?:barrier analysis|investment analysis|common practice analysis)\b.{0,80}\b(?:completed|conducted|results?|concluded|demonstrated|identified)\b/.test(lower)
-    || /\b(?:concluded|demonstrated|identified)\b.{0,80}\b(?:barrier|common practice|investment)\b/.test(lower);
+  const analysis = /\b(?:barrier analysis|investment analysis|common practice analysis)\b/;
+  const completionVerb = /\b(?:completed|conducted|performed|undertaken|documented|reported|concluded)\b/;
+  const completed = (
+    analysis.test(lower) && completionVerb.test(lower.slice(Math.max(0, lower.search(analysis) - 80), lower.search(analysis) + 160))
+  ) || (
+    completionVerb.test(lower) && analysis.test(lower.slice(Math.max(0, lower.search(completionVerb) - 20), lower.search(completionVerb) + 160))
+  );
   return framework && !completed;
 }
 

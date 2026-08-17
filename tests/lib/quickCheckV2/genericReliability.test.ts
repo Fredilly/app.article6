@@ -85,6 +85,23 @@ describe("Quick Check v2 generic reliability protections", () => {
     expect(result.status).toBe("UNCLEAR");
   });
 
+  it("does not treat referenced additionality steps as completed project analysis", () => {
+    const result = status(
+      "additionality",
+      "The project establishes regulatory surplus. Barrier analysis and common practice analysis are required by the methodology and will be addressed in the applicable sections.",
+    );
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("insufficient_substantive_evidence");
+  });
+
+  it("accepts completed project-specific barrier and common-practice analysis", () => {
+    const result = status(
+      "additionality",
+      "The project conducted a barrier analysis and common practice analysis. The analyses concluded that the project is additional because the activities are not common practice and face substantial implementation barriers, while regulatory surplus was confirmed.",
+    );
+    expect(result.status).toBe("FOUND");
+  });
+
   it("does not silently resolve contradictory methodology versions", () => {
     const result = validateAnswerResult({
       ...answer("methodology", "Methodology VM0042 Methodology for improved agricultural land management 2.0"),
