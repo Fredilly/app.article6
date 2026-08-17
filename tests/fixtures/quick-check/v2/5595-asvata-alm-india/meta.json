@@ -6,5 +6,6 @@
   "comparisonMode": "full",
   "phase": "fixture_intake",
   "registry": "UNKNOWN",
-  "documentType": "PDD / Project Description"
+  "documentType": "PDD / Project Description",
+  "adjudicationStatus": "pending"
 }
