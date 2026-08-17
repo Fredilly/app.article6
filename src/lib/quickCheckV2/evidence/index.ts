@@ -1445,6 +1445,45 @@ function buildForwardSectionQuote(
   return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 
+function expandAdditionalityRequirementBlock(
+  document: QuickCheckV2ExtractedDocument,
+  block: QuickCheckV2Block,
+): QuickCheckV2Block {
+  if (
+    !/\b(?:barrier analysis|common practice analysis|additionality shall be)\b/i.test(
+      block.text,
+    )
+  ) {
+    return block;
+  }
+
+  const blockIndex = document.blocks.findIndex(
+    (candidate) => candidate.spanId === block.spanId,
+  );
+  if (blockIndex <= 0) {
+    return block;
+  }
+
+  let regulatorySurplusBlock: QuickCheckV2Block | null = null;
+  for (let index = blockIndex - 1; index >= 0; index -= 1) {
+    const candidate = document.blocks[index]!;
+    if (
+      candidate.sectionPath.join(">") !== block.sectionPath.join(">") ||
+      candidate.blockType === "heading"
+    ) {
+      break;
+    }
+    if (/\badditionality methods\b/i.test(candidate.text)) {
+      return candidate;
+    }
+    if (/\bregulatory surplus\b/i.test(candidate.text)) {
+      regulatorySurplusBlock = candidate;
+    }
+  }
+
+  return regulatorySurplusBlock ?? block;
+}
+
 function splitEvidenceSentences(value: string): string[] {
   return value
     .replace(/\s+/g, " ")
@@ -2064,7 +2103,10 @@ function getFactContractEvidence(
   }
 
   const block = definition.find(getEvidenceBlocks(document));
-  const blockText = block?.text ?? "";
+  const evidenceBlock = block && checkName === "additionality"
+    ? expandAdditionalityRequirementBlock(document, block)
+    : block;
+  const blockText = evidenceBlock?.text ?? "";
   const needsMethodologyExpansion =
     checkName === "methodology" &&
     (/\bMethodology\s+for\b/i.test(blockText) ||
@@ -2076,20 +2118,20 @@ function getFactContractEvidence(
     checkName === "stakeholder_consultation" &&
     (/\bFPIC Principal Assembly\b/i.test(blockText) ||
       /\bPhase 2 — On-Site Field Engagement and Validation\b/i.test(blockText));
-  const quote = block
+  const quote = evidenceBlock
     ? trimQuoteForCheck(
       checkName,
       needsStakeholderExpansion
-        ? buildForwardSectionQuote(document, block)
+        ? buildForwardSectionQuote(document, evidenceBlock)
         : checkName === "methodology" && /\bMethodology\s+for\b/i.test(blockText)
-          ? buildForwardSectionQuote(document, block)
+          ? buildForwardSectionQuote(document, evidenceBlock)
           : needsMethodologyExpansion || shouldExpandQuote(blockText)
-          ? buildQuoteFromBlock(document, block)
-          : block.text,
+          ? buildQuoteFromBlock(document, evidenceBlock)
+          : evidenceBlock.text,
     )
     : null;
-  if (!block) return null;
-  const evidence = toEvidence(block, "fact_contract", quote ?? block.text);
+  if (!evidenceBlock) return null;
+  const evidence = toEvidence(evidenceBlock, "fact_contract", quote ?? evidenceBlock.text);
   if (
     checkName === "host_country" &&
     evidence.page === 1 &&
@@ -2280,23 +2322,28 @@ function getExactSectionEvidence(
   const block = getBestExactSectionBlock(document, buildSectionTree(document), checkName);
   if (!block) return null;
 
+  const evidenceStartBlock =
+    checkName === "additionality"
+      ? expandAdditionalityRequirementBlock(document, block)
+      : block;
+
   const rawQuote = (
     checkName === "additionality" ||
     (checkName === "leakage" &&
-      !/\bThis section is not required at the Under Development stage\b/i.test(block.text)) ||
+      !/\bThis section is not required at the Under Development stage\b/i.test(evidenceStartBlock.text)) ||
     checkName === "stakeholder_consultation"
   )
-    ? buildForwardSectionQuote(document, block)
-    : buildQuoteFromBlock(document, block);
+    ? buildForwardSectionQuote(document, evidenceStartBlock)
+    : buildQuoteFromBlock(document, evidenceStartBlock);
   const quote = trimQuoteForCheck(checkName, rawQuote);
-  if (checkName === "leakage" && isTemplateInstruction(quote, block.sectionHeading ?? "")) {
+  if (checkName === "leakage" && isTemplateInstruction(quote, evidenceStartBlock.sectionHeading ?? "")) {
     return null;
   }
   if (isDelegatedSupportingDocumentReference(quote)) {
     return null;
   }
 
-  return toEvidence(block, "exact_section", quote);
+  return toEvidence(evidenceStartBlock, "exact_section", quote);
 }
 
 function getRawTextFallbackEvidence(
