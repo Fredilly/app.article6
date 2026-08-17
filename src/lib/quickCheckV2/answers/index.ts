@@ -578,10 +578,32 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     ) {
       return "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the likely baseline commodity; timber leakage is excluded as de minimis.";
     }
+    const screensLeakagePathways =
+      /\bleakage (?:pathways?|through)|may result in leakage\b/i.test(quote);
+    const leakageMethodology = quote.match(/\b(?:VM|VMD)\d{4}\b/i)?.[0]?.toUpperCase();
+    const projectNonApplicabilityReason = sentenceContaining(
+      quote,
+      /\bthe project\b.*\b(?:does not|doesn't|do not)\b/i,
+    );
     if (
       /\bnot applicable\b/i.test(quote) &&
-      /\bleakage (?:pathways?|through)|may result in leakage\b/i.test(quote)
+      screensLeakagePathways &&
+      projectNonApplicabilityReason
     ) {
+      const rationale = projectNonApplicabilityReason
+        .split(/\s*;\s*(?:thus|therefore)\b/i, 1)[0]!
+        .replace(/^The project\b/i, "the project");
+      const conciseRationale = /\bthe project\b\s+(?:does not|doesn't|do not)\s+(?:involve|include)\b/i.test(
+        rationale,
+      )
+        ? "the project does not involve the identified leakage activities"
+        : rationale;
+      const methodologyContext = leakageMethodology
+        ? ` ${leakageMethodology}`
+        : "";
+      return `The project screens the${methodologyContext} leakage pathways and concludes that leakage is not applicable because ${conciseRationale}.`;
+    }
+    if (/\bnot applicable\b/i.test(quote) && screensLeakagePathways) {
       return "The project screens the identified leakage pathways and concludes that leakage is not applicable to the project.";
     }
     if (/\bno leakage was identified\b/i.test(quote) || /\bly\s*=\s*0\b/i.test(quote) || /\bnot applicable\b/i.test(quote)) {

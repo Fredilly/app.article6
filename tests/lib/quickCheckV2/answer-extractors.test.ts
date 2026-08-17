@@ -241,12 +241,12 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     });
   });
 
-  it("summarizes substantive leakage screening without overstating it as no leakage", () => {
+  it("preserves methodology context and project-specific rationale for leakage non-applicability", () => {
     const result = extractAnswerFromEvidence({
       checkName: "leakage",
       evidence: {
         sourceType: "exact_section",
-        quote: "According to the methodology, projects may result in leakage through displacement and diversion pathways. The project does not involve those activities; thus, leakage is not applicable to this project.",
+        quote: "According to paragraph 8.4 of VM0042, improved agricultural land management projects may result in leakage through identified pathways. The project does not involve the identified leakage activities; thus, leakage is not applicable to this project.",
         page: 17,
         sectionHeading: "Additional Information Relevant to the Project",
         sectionPath: ["1", "1.19"],
@@ -254,7 +254,9 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
       },
     });
 
-    expect(result.answer).toBe("The project screens the identified leakage pathways and concludes that leakage is not applicable to the project.");
+    expect(result.answer).toBe("The project screens the VM0042 leakage pathways and concludes that leakage is not applicable because the project does not involve the identified leakage activities.");
+    expect(result.answer).toContain("VM0042");
+    expect(result.answer).toContain("because the project does not involve the identified leakage activities");
     expect(result.answer).not.toBe("No leakage was identified.");
   });
 
