@@ -1629,6 +1629,18 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
   }
 
   if (checkName === "leakage") {
+    const pathwayIndex = sentences.findIndex((sentence) =>
+      /\bleakage (?:pathways?|through)|may result in leakage\b/i.test(sentence),
+    );
+    if (pathwayIndex >= 0) {
+      const conclusionIndex = sentences.findIndex((sentence, index) =>
+        index >= pathwayIndex && /\bnot applicable\b|\bno leakage\b|\bno displacement\b|\bnegligible leakage\b/i.test(sentence),
+      );
+      if (conclusionIndex >= 0) {
+        return sentences.slice(0, conclusionIndex + 1).join(" ");
+      }
+    }
+
     const underDevelopmentPlaceholder = quote.match(
       /This section is not required at the Under Development stage in accordance with Section 3\.1\.6[\s\S]*?The relevant information will be provided(?:\s+during the validation stage of the project\.)?/i,
     );

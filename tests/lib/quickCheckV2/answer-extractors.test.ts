@@ -241,6 +241,40 @@ describe("Quick Check v2 — Phase 4 tiny answer extractors", () => {
     });
   });
 
+  it("summarizes substantive leakage screening without overstating it as no leakage", () => {
+    const result = extractAnswerFromEvidence({
+      checkName: "leakage",
+      evidence: {
+        sourceType: "exact_section",
+        quote: "According to the methodology, projects may result in leakage through displacement and diversion pathways. The project does not involve those activities; thus, leakage is not applicable to this project.",
+        page: 17,
+        sectionHeading: "Additional Information Relevant to the Project",
+        sectionPath: ["1", "1.19"],
+        spanId: "synthetic-doc:p17:b1:leakage",
+      },
+    });
+
+    expect(result.answer).toBe("The project screens the identified leakage pathways and concludes that leakage is not applicable to the project.");
+    expect(result.answer).not.toBe("No leakage was identified.");
+  });
+
+  it("summarizes partial additionality evidence instead of repeating methodology requirements", () => {
+    const result = extractAnswerFromEvidence({
+      checkName: "additionality",
+      evidence: {
+        sourceType: "exact_section",
+        quote: "The project addresses regulatory surplus. Barrier analysis and common practice analysis are required by the methodology, but the project-specific analyses are not provided.",
+        page: 26,
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        spanId: "synthetic-doc:p26:b1:additionality",
+      },
+    });
+
+    expect(result.answer).toBe("Regulatory surplus is addressed, but project-specific barrier and common-practice analyses are not provided.");
+    expect(result.answer).not.toContain("shall be demonstrated");
+  });
+
   it("does not mark the Marcondes leakage placeholder as FOUND", () => {
     const result = marcondesAnswers.find((item) => item.checkName === "leakage");
     expect(result?.answer).toBeNull();

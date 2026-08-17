@@ -469,6 +469,16 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     ) {
       return quote;
     }
+    if (
+      /\b(?:requirements?|in two steps|shall be demonstrated|must be demonstrated|regulatory surplus)\b/i.test(quote) &&
+      /\b(?:barrier analysis|investment analysis|common practice analysis)\b/i.test(quote) &&
+      !/\b(?:barrier analysis|investment analysis|common practice analysis)\b.{0,80}\b(?:completed|conducted|performed|undertaken|documented|reported|concluded)\b/i.test(quote) &&
+      !/\b(?:completed|conducted|performed|undertaken|documented|reported|concluded)\b.{0,80}\b(?:barrier analysis|investment analysis|common practice analysis)\b/i.test(quote)
+    ) {
+      return /\bregulatory surplus\b/i.test(quote)
+        ? "Regulatory surplus is addressed, but project-specific barrier and common-practice analyses are not provided."
+        : "Additionality requirements are stated, but project-specific barrier and common-practice analyses are not provided.";
+    }
     const selectedBaseline = quote.match(
       /Alternative [A-Z]\s*-\s*(.+?)\s*-\s*is selected as the baseline scenario/i,
     );
@@ -567,6 +577,12 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
       /\bSugarcane\b/i.test(quote)
     ) {
       return "Leakage is assessed under VMD0009 LK-ASP using Approach 2 Market Leakage Assessment; sugarcane is the likely baseline commodity; timber leakage is excluded as de minimis.";
+    }
+    if (
+      /\bnot applicable\b/i.test(quote) &&
+      /\bleakage (?:pathways?|through)|may result in leakage\b/i.test(quote)
+    ) {
+      return "The project screens the identified leakage pathways and concludes that leakage is not applicable to the project.";
     }
     if (/\bno leakage was identified\b/i.test(quote) || /\bly\s*=\s*0\b/i.test(quote) || /\bnot applicable\b/i.test(quote)) {
       return "No leakage was identified.";
