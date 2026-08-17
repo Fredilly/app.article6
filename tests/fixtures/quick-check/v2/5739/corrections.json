@@ -8,6 +8,18 @@
     "evidenceBoundaryDifference": "Representational; the canonical evidence boundary now includes the Leakage Management heading plus the two substantive paragraphs and conclusion.",
     "status": "Post-freeze canonicalization"
   },
+  "finalPostFixCanonicalization": {
+    "checkName": "additionality",
+    "status": "Final post-fix canonicalization",
+    "expectedStatus": "UNCLEAR",
+    "interpretation": "Status and substantive interpretation are unchanged: regulatory surplus is addressed, but project-specific barrier and common-practice analyses are absent/not provided.",
+    "wordingDifference": "Representational; both answers express the same reviewed finding.",
+    "previousAnswer": "Regulatory surplus is addressed, but project-specific barrier analysis and common-practice analysis are absent; additionality is not demonstrated in the project description",
+    "canonicalAnswer": "Regulatory surplus is addressed, but project-specific barrier and common-practice analyses are not provided",
+    "previousSpanId": "5739-extracted:p26:b1003:3c0ef0c1",
+    "canonicalSpanId": "5739-extracted:p26:b1003:207395a1",
+    "spanNote": "The span change preserves the same underlying p26:b1003 evidence block and is not a truth change."
+  },
   "corrections": [
     {
       "checkName": "host_country",
@@ -75,14 +87,14 @@
       "spanId": "5739-extracted:p26:b1009:8cca9ec5",
       "sourceType": "exact_section",
       "correctedStatus": "UNCLEAR",
-      "correctedAnswer": "Regulatory surplus is addressed, but project-specific barrier analysis and common-practice analysis are absent; additionality is not demonstrated in the project description",
+      "correctedAnswer": "Regulatory surplus is addressed, but project-specific barrier and common-practice analyses are not provided",
       "correctedQuote": "Additionality Methods As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042v2.1 requirements, the additionality of this project is demonstrated in two steps: 1. The project shall demonstrate regulatory surplus at validation and each project crediting period renewal. A. Regularity surplus B. Barrier analysis C. Common practice analysis 2. Additionality shall be demonstrated and assessed in accordance with the requirements set out in the methodology applied to the project.",
       "correctedPage": 26,
       "correctedSectionHeading": "Additionality",
       "correctedSectionPath": ["3", "3.5"],
-      "correctedSpanId": "5739-extracted:p26:b1003:3c0ef0c1",
+      "correctedSpanId": "5739-extracted:p26:b1003:207395a1",
       "correctedSourceType": "exact_section",
-      "reviewNote": "Section 3.5 on pages 25–26 addresses regulatory surplus and refers to later steps, but provides no project-specific barrier analysis or common-practice analysis. The generic statement that additionality shall be demonstrated is a requirement, not proof that it was demonstrated.",
+      "reviewNote": "Final post-fix canonicalization. Status and substantive interpretation are unchanged: regulatory surplus is addressed, but project-specific barrier and common-practice analyses are absent/not provided. The wording difference is representational; both answers express the same reviewed finding. The span change preserves the same underlying p26:b1003 evidence block and is not a truth change. The generic statement that additionality shall be demonstrated is a requirement, not proof that it was demonstrated.",
       "rejectedEvidence": [{"quote": "B. Barrier analysis C. Common practice analysis 2. Additionality shall be demonstrated and assessed in accordance with the requirements set out in the methodology applied to the project.", "page": 26, "reason": "This lists required steps and states a requirement; it does not provide the project's barrier or common-practice analyses or establish that additionality was demonstrated."}]
     },
     {

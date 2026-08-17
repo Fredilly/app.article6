@@ -45,12 +45,12 @@
   {
     "checkName": "additionality",
     "expectedStatus": "UNCLEAR",
-    "expectedAnswer": "Regulatory surplus is addressed, but project-specific barrier analysis and common-practice analysis are absent; additionality is not demonstrated in the project description",
+    "expectedAnswer": "Regulatory surplus is addressed, but project-specific barrier and common-practice analyses are not provided",
     "goldQuote": "Additionality Methods As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042v2.1 requirements, the additionality of this project is demonstrated in two steps: 1. The project shall demonstrate regulatory surplus at validation and each project crediting period renewal. A. Regularity surplus B. Barrier analysis C. Common practice analysis 2. Additionality shall be demonstrated and assessed in accordance with the requirements set out in the methodology applied to the project.",
     "page": 26,
     "sectionHeading": "Additionality",
     "sectionPath": ["3", "3.5"],
-    "spanId": "5739-extracted:p26:b1003:3c0ef0c1",
+    "spanId": "5739-extracted:p26:b1003:207395a1",
     "sourceType": "exact_section"
   },
   {

@@ -24,6 +24,10 @@ Adjudication is complete. The machine proposal is preserved in `gold.draft.json`
 
 The leakage row received a post-freeze canonicalization after independent adjudication classified the remaining mismatch as `MIXED`. The answer difference was truth-bearing and was fixed in production by #1140. The evidence-boundary difference is representational. The canonical evidence now starts at `5739-extracted:p17:b590:dd2dbaa7` and includes the `Leakage Management` heading, the paragraph beginning “According to paragraph 8.4 of VM0042...”, the paragraph beginning “The project does not involve...”, and the conclusion “Thus, it is not applicable to this project.”
 
+## Final additionality canonicalization
+
+The additionality row received the final post-fix canonicalization after the runtime evidence boundary was corrected to `5739-extracted:p26:b1003:207395a1`. Status remains `UNCLEAR`, and the substantive interpretation is unchanged: regulatory surplus is addressed, but project-specific barrier and common-practice analyses are absent/not provided. The wording difference is representational; both answers express the same reviewed finding. The span change preserves the same underlying `p26:b1003` evidence block and is not a truth change.
+
 ## PR2 discrepancy reserve
 
 The original PR1 runtime disagreed with the reviewed truth for three rows: it chose a consultant address containing `Minhang` instead of the project location `China`; treated the additionality requirement/list as `FOUND` despite absent project-specific barrier and common-practice analyses; and selected page-27 leakage omission boilerplate instead of the substantive page-17 screening. The leakage answer mismatch was truth-bearing and was fixed by #1140; this post-freeze change only canonicalizes the evidence boundary. This fixture records the PDF truth and preserves the machine proposal.
