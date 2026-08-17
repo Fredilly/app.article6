@@ -7,6 +7,7 @@ import {
   type QuickCheckV2ExtractedDocument,
   type RetrievedCheckEvidence,
 } from "@/lib/quickCheckV2/evidence";
+import { validateAnswerResult } from "@/lib/quickCheckV2/status";
 
 const ENVIRA_FIXTURE_PATH =
   "tests/fixtures/quick-check/v2/envira/extracted.txt";
@@ -284,6 +285,136 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.quote).toContain("Alternative A - Clearing of Forest and Conversion to Agriculture - is selected as the baseline scenario.");
     expect(result.evidence!.quote).toContain("simple cost analysis (Option 1) is selected.");
     expect(result.evidence!.quote).not.toContain("The following analysis was conducted to determine alternative baseline scenarios");
+    expect(validateAnswerResult(extractAnswerForCheck(synthetic, "additionality")).status).toBe("FOUND");
+  });
+
+  it("retains regulatory-surplus context within the same additionality requirement block", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:heading",
+        page: 1,
+        text: "3.5 Additionality",
+        blockType: "heading",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2:body",
+        page: 1,
+        text: "Unrelated earlier additionality narrative.",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b3:body",
+        page: 1,
+        text: "Additionality Methods",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b4:body",
+        page: 1,
+        text: "The project shall demonstrate regulatory surplus at validation.",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b5:body",
+        page: 1,
+        text: "B. Barrier analysis",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b6:body",
+        page: 1,
+        text: "C. Common practice analysis",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b7:body",
+        page: 1,
+        text: "Additionality shall be demonstrated in accordance with the methodology.",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "additionality");
+    expect(result.evidence?.spanId).toBe("synthetic-doc:p1:b3:body");
+    expect(result.evidence?.quote).toContain("regulatory surplus");
+    expect(result.evidence?.quote).toContain("Barrier analysis");
+    expect(result.evidence?.quote).toContain("Common practice analysis");
+    expect(result.evidence?.quote).not.toContain("Unrelated earlier additionality narrative");
+  });
+
+  it("keeps requirement-only additionality evidence UNCLEAR", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p1:b1:heading",
+        page: 1,
+        text: "3.5 Additionality",
+        blockType: "heading",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b2:body",
+        page: 1,
+        text: "Additionality Methods",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b3:body",
+        page: 1,
+        text: "B. Barrier analysis",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b4:body",
+        page: 1,
+        text: "C. Common practice analysis",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p1:b5:body",
+        page: 1,
+        text: "Additionality shall be demonstrated in accordance with the methodology.",
+        blockType: "body",
+        sectionHeading: "Additionality",
+        sectionPath: ["3", "3.5"],
+        source: "primary",
+      },
+    ]);
+
+    const result = validateAnswerResult(extractAnswerForCheck(synthetic, "additionality"));
+    expect(result.status).toBe("UNCLEAR");
+    expect(result.reason).toBe("insufficient_substantive_evidence");
   });
 
   it("prefers a formal additionality section over an earlier without-project narrative", () => {

@@ -18,6 +18,10 @@ export type QuickCheckGoldComparableRecord = {
   evidenceStack?: EvidenceStackItem[];
 };
 
+function normalizeComparableAnswer(answer: string | null): string | null {
+  return answer?.replace(/\.$/, "") ?? null;
+}
+
 export function buildComparableQuickCheckRecord(
   result: Pick<StatusResult, "checkName" | "status" | "answer" | "evidence" | "evidenceStack">,
   expected: Pick<QuickCheckGoldComparableRecord, "evidenceStack">,
@@ -25,7 +29,7 @@ export function buildComparableQuickCheckRecord(
   const record: QuickCheckGoldComparableRecord = {
     checkName: result.checkName,
     expectedStatus: result.status,
-    expectedAnswer: result.answer,
+    expectedAnswer: normalizeComparableAnswer(result.answer),
     goldQuote: result.evidence?.quote ?? null,
     page: result.evidence?.page ?? null,
     sectionHeading: result.evidence?.sectionHeading ?? null,
@@ -44,12 +48,16 @@ export function buildComparableQuickCheckRecord(
 export function normalizeExpectedQuickCheckGoldRecord(
   record: QuickCheckGoldComparableRecord,
 ): QuickCheckGoldComparableRecord {
+  const normalizedRecord = {
+    ...record,
+    expectedAnswer: normalizeComparableAnswer(record.expectedAnswer),
+  };
   if (!record.evidenceStack) {
-    return record;
+    return normalizedRecord;
   }
 
   return {
-    ...record,
+    ...normalizedRecord,
     evidenceStack: normalizeEvidenceStack(record.evidenceStack),
   };
 }

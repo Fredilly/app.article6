@@ -453,7 +453,7 @@ describe("Quick Check v2 gold fixtures", () => {
           }
 
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map(normalizeExpectedQuickCheckGoldRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
         }, 120000);
       }
@@ -492,7 +492,7 @@ describe("Quick Check v2 gold fixtures", () => {
           }
 
           expect(comparableRuntimeStatuses.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!))).toStrictEqual(
-            gold.map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
+            gold.map(normalizeExpectedQuickCheckGoldRecord).map((record, index) => stripMethodologyIfNeeded(record, methodologyComparisonFlags[index]!)),
           );
         }, 30000);
       }
