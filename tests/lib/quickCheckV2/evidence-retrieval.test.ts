@@ -755,6 +755,15 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
         sectionPath: ["1", "1.19"],
         source: "primary",
       },
+      {
+        spanId: "synthetic-doc:p10:b4:following",
+        page: 10,
+        text: "Commercially Sensitive Information. Further Information follows in the next section.",
+        blockType: "body",
+        sectionHeading: "Additional Information Relevant to the Project",
+        sectionPath: ["1", "1.19"],
+        source: "primary",
+      },
     ]);
 
     const result = retrieveEvidenceForCheck(synthetic, "leakage");
@@ -764,6 +773,7 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
       sectionHeading: "Additional Information Relevant to the Project",
     });
     expect(result.evidence?.quote).toContain("not applicable");
+    expect(result.evidence?.quote).not.toContain("Commercially Sensitive Information");
   });
 
   it("keeps omission-only leakage evidence as the fallback", () => {
