@@ -184,6 +184,60 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(extractAnswerForCheck(synthetic, "host_country").answer).toBe("Brazil");
   });
 
+  it("prefers a project-summary country after page five over an early consultant address", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p2:b1:contact",
+        page: 2,
+        text: "Address 10F, Block C, 515 Central Road, District, Lima, China",
+        blockType: "body",
+        sectionHeading: "Other Entities Involved in the Project",
+        sectionPath: ["1", "1.7"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p6:b1:summary",
+        page: 6,
+        text: "China. The project improves agricultural land management.",
+        blockType: "body",
+        sectionHeading: "Summary Description of the Project",
+        sectionPath: ["1", "1.1"],
+        source: "primary",
+      },
+    ]);
+
+    const evidence = retrieveEvidenceForCheck(synthetic, "host_country").evidence;
+    expect(evidence).toMatchObject({
+      quote: "China.",
+      page: 6,
+      sectionHeading: "Summary Description of the Project",
+      spanId: "synthetic-doc:p6:b1:summary",
+    });
+    expect(extractAnswerForCheck(synthetic, "host_country").answer).toBe("China");
+  });
+
+  it("excludes a contact country when no project-level country evidence exists", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p2:b1:contact",
+        page: 2,
+        text: "Address 10F, Block C, 515 Central Road, District, Lima, China",
+        blockType: "body",
+        sectionHeading: "Other Entities Involved in the Project",
+        sectionPath: ["1", "1.7"],
+        source: "primary",
+      },
+    ]);
+
+    expect(retrieveEvidenceForCheck(synthetic, "host_country").evidence).toBeNull();
+    expect(extractAnswerForCheck(synthetic, "host_country").answer).toBeNull();
+  });
+
+  it("keeps existing fixture host-country answers stable", () => {
+    expect(extractAnswerForCheck(enviraDoc, "host_country").answer).toBe("Brazil");
+    expect(extractAnswerForCheck(mayaDoc, "host_country").answer).toBe("Belize");
+  });
+
   it("prefers an additionality conclusion over an earlier VT0001 introduction", () => {
     const synthetic = makeSyntheticDocument([
       {

@@ -228,7 +228,6 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
           const firstSentence = splitEvidenceSentences(block.text)[0]?.trim() ?? "";
           const standaloneCountry = extractCountryName(firstSentence);
           return (
-            block.page <= 5 &&
             PROJECT_HOST_COUNTRY_CONTEXT_RE.test(context) &&
             !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(context) &&
             Boolean(standaloneCountry && standaloneCountry.toLowerCase() === firstSentence.replace(/[.!?]+$/, "").toLowerCase())
@@ -237,10 +236,13 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
         findFirstBlock(blocks, (block) =>
           /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(block.text) &&
           /\b(?:province|district|regency|location|located)\b/i.test(block.text) &&
-          block.sectionPath.length > 0,
+          block.sectionPath.length > 0 &&
+          !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(`${block.sectionHeading ?? ""} ${block.sectionPath.join(" ")}`),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\blocated\b/i.test(block.text) && /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text),
+          /\blocated\b/i.test(block.text) &&
+          /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text) &&
+          !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(`${block.sectionHeading ?? ""} ${block.sectionPath.join(" ")}`),
         ) ??
         findFirstBlock(blocks, (block) =>
           /\bproject location\b/i.test(block.sectionHeading ?? "") &&
