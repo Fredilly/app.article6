@@ -37,6 +37,7 @@ import { normalizeDeclaredMethodologyVersion } from "@/lib/chat/methodologyVersi
 import type { EvidenceStackItem } from "@/lib/evidence/evidenceStack";
 import { buildQuickCheckEvidenceStack } from "@/lib/quickCheckV2/evidenceStackAdapter";
 import { buildQuickCheckEvidenceStackWithCompanions } from "@/lib/quickCheckV2/evidenceStackProducer";
+import { extractCountryName } from "@/lib/quickCheckV2/countryParsing";
 
 export type AnswerResult = {
   checkName: StructuredCheckId;
@@ -259,6 +260,8 @@ const ANSWER_EXTRACTORS: Record<StructuredCheckId, AnswerExtractor> = {
     if (explicitField) {
       return explicitField[1]!;
     }
+    const country = extractCountryName(quote);
+    if (country) return country;
 
     const projectLocationLead = quote.match(
       /\bProject location\s+(?:The\s+)?([^,]+?)(?=,|$)/i,

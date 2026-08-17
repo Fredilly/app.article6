@@ -42,6 +42,10 @@ export type StatusReason =
   | "provenance_incomplete"
   | "under_development_stub"
   | "without_project_narrative_not_additionality_proof"
+  | "methodology_version_conflict"
+  | "insufficient_substantive_evidence"
+  | "template_instruction_evidence"
+  | "qualitative_leakage_only"
   | "answer_and_provenance_complete";
 
 export type StatusResult = {
@@ -94,6 +98,26 @@ function hasWithoutProjectNarrative(evidence: RetrievedEvidence): boolean {
     /\bin the absence of\b/i.test(evidence.quote) ||
     /\bproject was not implemented with the intent\b/i.test(evidence.quote)
   );
+}
+
+function isAdditionalityFrameworkOnly(text: string): boolean {
+  const lower = text.toLowerCase();
+  const framework = /\b(?:requirements?|in two steps|shall be demonstrated|must be demonstrated|regulatory surplus)\b/.test(lower);
+  const completed = /\b(?:barrier analysis|investment analysis|common practice analysis)\b.{0,80}\b(?:completed|conducted|results?|concluded|demonstrated|identified)\b/.test(lower)
+    || /\b(?:concluded|demonstrated|identified)\b.{0,80}\b(?:barrier|common practice|investment)\b/.test(lower);
+  return framework && !completed;
+}
+
+function isTemplateInstruction(text: string): boolean {
+  return /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(text.trim())
+    && /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(text);
+}
+
+function isQualitativeLeakageOnly(text: string): boolean {
+  const lower = text.toLowerCase();
+  const quantitative = /\b(?:quantif|equation|calculation|calculated|tco2e?|emission factor|measured|estimated|procedure for)\w*/.test(lower);
+  const qualitative = /\b(?:possible source|grazing|fuel wood|qualitative|no displacement)\b/.test(lower);
+  return qualitative && !quantitative;
 }
 
 export function validateAnswerResult(result: AnswerResult): StatusResult {
@@ -208,6 +232,55 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
       answer: normalizedResult.answer,
       evidence: normalizedResult.evidence,
       reason: "without_project_narrative_not_additionality_proof",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (normalizedResult.checkName === "methodology" &&
+    groupEvidenceStackByRole(normalizedResult.evidenceStack).caveat.some((item) => /conflicting methodology version/i.test(item.label ?? ""))) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "methodology_version_conflict",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (normalizedResult.checkName === "additionality" && isAdditionalityFrameworkOnly(normalizedResult.evidence.quote)) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "insufficient_substantive_evidence",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (normalizedResult.checkName === "leakage" && isTemplateInstruction(normalizedResult.evidence.quote)) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "template_instruction_evidence",
+      ...(methodology ? { methodology } : {}),
+      ...evidenceStackProps,
+    };
+  }
+
+  if (normalizedResult.checkName === "leakage" && isQualitativeLeakageOnly(normalizedResult.evidence.quote)) {
+    return {
+      checkName: normalizedResult.checkName,
+      status: "UNCLEAR",
+      answer: normalizedResult.answer,
+      evidence: normalizedResult.evidence,
+      reason: "qualitative_leakage_only",
       ...(methodology ? { methodology } : {}),
       ...evidenceStackProps,
     };

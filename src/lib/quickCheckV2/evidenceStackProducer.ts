@@ -18,6 +18,7 @@ const TARGET_CHECKS = new Set<StructuredCheckId>([
   "leakage",
   "stakeholder_consultation",
 ]);
+const METHODOLOGY_VERSION_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b[^\n.]{0,100}?\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i;
 
 const UNDER_DEVELOPMENT_RE = /\bthis section is under development\b/i;
 const NOT_REQUIRED_RE = /\b(?:this )?section is not required (?:for|at) the Under Development stage\b|\bsection not required (?:for|at) the Under Development stage\b/i;
@@ -188,11 +189,55 @@ function collectStakeholderSupportingCompanions(
     });
 }
 
+function collectMethodologyVersionConflictCompanions(
+  document: QuickCheckV2ExtractedDocument,
+): EvidenceStackItem[] {
+  const mentions = document.blocks.filter((block) =>
+    (block.blockType === "body" || block.blockType === "table") &&
+    METHODOLOGY_VERSION_RE.test(block.text) &&
+    !/\bas required by\b/i.test(block.text),
+  );
+  const versionsByMethodology = new Map<string, Set<string>>();
+  for (const block of mentions) {
+    const version = block.text.match(METHODOLOGY_VERSION_RE)?.[1];
+    const methodologyId = block.text.match(/\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i)?.[0].toUpperCase();
+    if (!version || !methodologyId) continue;
+    const versions = versionsByMethodology.get(methodologyId) ?? new Set<string>();
+    versions.add(version.replace(/-/g, "."));
+    versionsByMethodology.set(methodologyId, versions);
+  }
+  const conflictingMethodologies = new Set(
+    Array.from(versionsByMethodology.entries())
+      .filter(([, versions]) => versions.size > 1)
+      .map(([methodologyId]) => methodologyId),
+  );
+  if (conflictingMethodologies.size === 0) return [];
+
+  return mentions.flatMap((block) => {
+    const methodologyId = block.text.match(/\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b/i)?.[0].toUpperCase();
+    if (!methodologyId || !conflictingMethodologies.has(methodologyId)) return [];
+    const item = toCompanionItem(
+      block,
+      "caveat",
+      "Conflicting methodology version declaration",
+      "The document declares more than one version of the same methodology; the version cannot be resolved confidently.",
+    );
+    return validateEvidenceStack([item]).valid ? [item] : [];
+  });
+}
+
 export function buildQuickCheckEvidenceStackWithCompanions(
   document: QuickCheckV2ExtractedDocument,
   selectedEvidence: RetrievedCheckEvidence,
 ): EvidenceStackItem[] {
   const primaryStack = buildQuickCheckEvidenceStack(selectedEvidence.evidence);
+
+  if (selectedEvidence.checkName === "methodology") {
+    return sortEvidenceStack(dedupeEvidenceStack([
+      ...primaryStack,
+      ...collectMethodologyVersionConflictCompanions(document),
+    ]));
+  }
 
   if (!TARGET_CHECKS.has(selectedEvidence.checkName) || primaryStack.length === 0) {
     return primaryStack;
