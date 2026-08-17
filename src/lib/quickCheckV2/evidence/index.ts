@@ -1,3 +1,5 @@
+import { extractCountryName } from "@/lib/quickCheckV2/countryParsing";
+
 /**
  * Quick Check v2 — Phase 3 evidence retrieval with fixed source priority.
  *
@@ -228,6 +230,11 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
           /\bproject location\b/i.test(block.sectionHeading ?? "") &&
           /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text),
         ) ??
+        findFirstBlock(blocks, (block) =>
+          block.page <= 2 &&
+          /\bproject title\b/i.test(block.text) &&
+          Boolean(extractCountryName(block.text)),
+        ) ??
         null
       );
     },
@@ -390,6 +397,8 @@ const RAW_TEXT_FALLBACKS: Record<StructuredCheckId, RawFallbackDefinition> = {
         LEAKAGE_NOT_APPLICABLE_RE.test(block.text) ||
         /\bmarket leakage\b/i.test(block.text) ||
         /\bactivity shifting leakage\b/i.test(block.text) ||
+        /\bpossible source of leakage\b/i.test(block.text) ||
+        /\bno displacement of\b/i.test(block.text) ||
         /\breductions in wood harvest\b/i.test(block.text) ||
         /\bcould shift to other areas\b/i.test(block.text) ||
         /\bdisplaced to\b/i.test(block.text)
@@ -969,6 +978,15 @@ function isDelegatedSupportingDocumentReference(text: string): boolean {
   return /please refer to supporting documen(?:t|ts)/i.test(text);
 }
 
+function isTemplateInstruction(text: string, context = ""): boolean {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  const imperative = /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(normalized);
+  const instructional = /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(normalized);
+  const templateContext = /\b(?:template|VCS|Verra|applied methodology|calculation spreadsheet|leakage emissions)\b/i.test(`${context} ${normalized}`);
+  const projectSpecific = /\b(?:project|activity|calculated|measured|estimated|recorded|observed|result(?:ed)?|during the monitoring|because|therefore)\b/i.test(normalized);
+  return imperative && instructional && templateContext && !projectSpecific;
+}
+
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
   return blocks.filter((block) => {
     const text = block.text.trim();
@@ -976,7 +994,8 @@ function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[
       text.length > 0 &&
       !isBoilerplateSectionBlock(block) &&
       !isLikelyTableOfContentsLine(text) &&
-      !isDelegatedSupportingDocumentReference(text)
+      !isDelegatedSupportingDocumentReference(text) &&
+      !isTemplateInstruction(text, block.sectionHeading ?? "")
     );
   });
 }
@@ -1187,7 +1206,7 @@ function chooseBestSectionBlock(
       ) ??
       (displacementBlock ? getParagraphStartBlock(usableBlocks, displacementBlock) : null) ??
       findFirstBlock(usableBlocks, (block) =>
-        /\bleakage\b/i.test(block.text) && !/\bnot applicable\b/i.test(block.text),
+        /\bleakage\b/i.test(block.text) && !/\bnot applicable\b/i.test(block.text) && !isTemplateInstruction(block.text, block.sectionHeading ?? ""),
       ) ??
       usableBlocks[0] ??
       null
@@ -1196,6 +1215,13 @@ function chooseBestSectionBlock(
 
   if (checkName === "stakeholder_consultation") {
     return (
+      findFirstBlock(usableBlocks, (block) =>
+        /\b(?:date of )?stakeholder consultation\b/i.test(block.text) &&
+        (/\b\d{1,2}[-/]?[A-Za-z]+[-/]?\d{4}\b/i.test(block.text) || /\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b/.test(block.text)),
+      ) ??
+      findFirstBlock(usableBlocks, (block) =>
+        /\bdate of stakeholder\b/i.test(block.text),
+      ) ??
       findFirstBlock(usableBlocks, (block) =>
         /\bpublic consultations\b/i.test(block.text) &&
         /\bconsent\b/i.test(block.text),
@@ -1911,7 +1937,8 @@ function getBestExactSectionBlock(
       /\bpublic consultations\b/i.test(selectedBlock.text) ||
       /\bnecessary consent\b/i.test(selectedBlock.text) ||
       /\bFree, Prior and Informed Consent\b/i.test(selectedBlock.text) ||
-      /\bFPIC\b/i.test(selectedBlock.text)
+      /\bFPIC\b/i.test(selectedBlock.text) ||
+      /\bdate of stakeholder\b/i.test(selectedBlock.text)
     ) &&
     !/\bThis section is not required at the Under Development stage\b/i.test(selectedBlock.text);
 
@@ -2091,6 +2118,23 @@ function getExactSectionEvidence(
   }
 
   if (checkName === "stakeholder_consultation") {
+    const datedConsultationBlock = findFirstBlock(evidenceBlocks, (block) =>
+      /\bdate of stakeholder\b/i.test(block.text) &&
+      !evidenceBlocks.some((candidate) =>
+        /\bTable 7\b/i.test(candidate.text) && /\bcomments received and actions taken\b/i.test(candidate.text),
+      ),
+    );
+    if (datedConsultationBlock) {
+      return toEvidence(
+        datedConsultationBlock,
+        "exact_section",
+        trimQuoteForCheck(
+          checkName,
+          buildForwardSectionQuote(document, datedConsultationBlock),
+        ),
+      );
+    }
+
     const noCommentsBlock = findFirstBlock(evidenceBlocks, (block) =>
       /\bSo far, no comments have been received from local stakeholders\b/i.test(block.text),
     );
@@ -2173,6 +2217,9 @@ function getExactSectionEvidence(
     ? buildForwardSectionQuote(document, block)
     : buildQuoteFromBlock(document, block);
   const quote = trimQuoteForCheck(checkName, rawQuote);
+  if (checkName === "leakage" && isTemplateInstruction(quote, block.sectionHeading ?? "")) {
+    return null;
+  }
   if (isDelegatedSupportingDocumentReference(quote)) {
     return null;
   }
@@ -2186,7 +2233,7 @@ function getRawTextFallbackEvidence(
 ): RetrievedEvidence | null {
   const definition = RAW_TEXT_FALLBACKS[checkName];
   const candidateBlocks = getEvidenceBlocks(document).filter(
-    (candidate) => !isDelegatedSupportingDocumentReference(candidate.text),
+    (candidate) => !isDelegatedSupportingDocumentReference(candidate.text) && !isTemplateInstruction(candidate.text, candidate.sectionHeading ?? ""),
   );
   const block = findFirstBlock(
     candidateBlocks,
