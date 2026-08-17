@@ -978,10 +978,13 @@ function isDelegatedSupportingDocumentReference(text: string): boolean {
   return /please refer to supporting documen(?:t|ts)/i.test(text);
 }
 
-function isTemplateInstruction(text: string): boolean {
+function isTemplateInstruction(text: string, context = ""): boolean {
   const normalized = text.replace(/\s+/g, " ").trim();
-  return /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(normalized)
-    && /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(normalized);
+  const imperative = /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(normalized);
+  const instructional = /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(normalized);
+  const templateContext = /\b(?:template|VCS|Verra|applied methodology|calculation spreadsheet|leakage emissions)\b/i.test(`${context} ${normalized}`);
+  const projectSpecific = /\b(?:project|activity|calculated|measured|estimated|recorded|observed|result(?:ed)?|during the monitoring|because|therefore)\b/i.test(normalized);
+  return imperative && instructional && templateContext && !projectSpecific;
 }
 
 function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[] {
@@ -992,7 +995,7 @@ function getUsableSectionBlocks(blocks: QuickCheckV2Block[]): QuickCheckV2Block[
       !isBoilerplateSectionBlock(block) &&
       !isLikelyTableOfContentsLine(text) &&
       !isDelegatedSupportingDocumentReference(text) &&
-      !isTemplateInstruction(text)
+      !isTemplateInstruction(text, block.sectionHeading ?? "")
     );
   });
 }
@@ -1203,7 +1206,7 @@ function chooseBestSectionBlock(
       ) ??
       (displacementBlock ? getParagraphStartBlock(usableBlocks, displacementBlock) : null) ??
       findFirstBlock(usableBlocks, (block) =>
-        /\bleakage\b/i.test(block.text) && !/\bnot applicable\b/i.test(block.text) && !isTemplateInstruction(block.text),
+        /\bleakage\b/i.test(block.text) && !/\bnot applicable\b/i.test(block.text) && !isTemplateInstruction(block.text, block.sectionHeading ?? ""),
       ) ??
       usableBlocks[0] ??
       null
@@ -2214,7 +2217,7 @@ function getExactSectionEvidence(
     ? buildForwardSectionQuote(document, block)
     : buildQuoteFromBlock(document, block);
   const quote = trimQuoteForCheck(checkName, rawQuote);
-  if (checkName === "leakage" && isTemplateInstruction(quote)) {
+  if (checkName === "leakage" && isTemplateInstruction(quote, block.sectionHeading ?? "")) {
     return null;
   }
   if (isDelegatedSupportingDocumentReference(quote)) {
@@ -2230,7 +2233,7 @@ function getRawTextFallbackEvidence(
 ): RetrievedEvidence | null {
   const definition = RAW_TEXT_FALLBACKS[checkName];
   const candidateBlocks = getEvidenceBlocks(document).filter(
-    (candidate) => !isDelegatedSupportingDocumentReference(candidate.text) && !isTemplateInstruction(candidate.text),
+    (candidate) => !isDelegatedSupportingDocumentReference(candidate.text) && !isTemplateInstruction(candidate.text, candidate.sectionHeading ?? ""),
   );
   const block = findFirstBlock(
     candidateBlocks,

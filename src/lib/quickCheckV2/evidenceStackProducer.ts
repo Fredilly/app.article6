@@ -19,6 +19,8 @@ const TARGET_CHECKS = new Set<StructuredCheckId>([
   "stakeholder_consultation",
 ]);
 const METHODOLOGY_VERSION_RE = /\b(?:VM\d{4}|VMD\d{4}|ACM\d{4}|AM\d{4}|AMS-[A-Z0-9.]+|AR-ACM\d{4}|AR-AM[A-Z0-9.-]+|AR-AMS[A-Z0-9.-]*|GS-VER\d+|VT\d{4})\b[^\n.]{0,100}?\b(?:version|ver\.?|v\.?)\s*([0-9]+(?:[.-][0-9]+){0,2})\b/i;
+const METHODOLOGY_DECLARATION_CONTEXT_RE = /\b(?:title and reference|application of methodology|applicability|eligibility|methodology identification|methodology applied|summary description|project design)\b/i;
+const METHODOLOGY_NON_DECLARATION_RE = /\b(?:previously|formerly|historical|supersed(?:ed|es?)|replaced|transition|migration|migrat(?:ed|ing)|compared with|comparison|older|newer|prior version|reference only|example|as required by)\b/i;
 
 const UNDER_DEVELOPMENT_RE = /\bthis section is under development\b/i;
 const NOT_REQUIRED_RE = /\b(?:this )?section is not required (?:for|at) the Under Development stage\b|\bsection not required (?:for|at) the Under Development stage\b/i;
@@ -195,7 +197,8 @@ function collectMethodologyVersionConflictCompanions(
   const mentions = document.blocks.filter((block) =>
     (block.blockType === "body" || block.blockType === "table") &&
     METHODOLOGY_VERSION_RE.test(block.text) &&
-    !/\bas required by\b/i.test(block.text),
+    METHODOLOGY_DECLARATION_CONTEXT_RE.test(getRelevantText(block)) &&
+    !METHODOLOGY_NON_DECLARATION_RE.test(getRelevantText(block)),
   );
   const versionsByMethodology = new Map<string, Set<string>>();
   for (const block of mentions) {

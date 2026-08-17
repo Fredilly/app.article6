@@ -108,16 +108,22 @@ function isAdditionalityFrameworkOnly(text: string): boolean {
   return framework && !completed;
 }
 
-function isTemplateInstruction(text: string): boolean {
-  return /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(text.trim())
-    && /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(text);
+function isTemplateInstruction(text: string, context = ""): boolean {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  const imperative = /^(?:describe|specify|include|explain|provide|state|indicate)\b/i.test(normalized);
+  const instructional = /\b(?:procedure|equations?|calculations?|quantification|methodological choices|sufficient information)\b/i.test(normalized);
+  const templateContext = /\b(?:template|VCS|Verra|applied methodology|calculation spreadsheet|leakage emissions)\b/i.test(`${context} ${normalized}`);
+  const projectSpecific = /\b(?:project|activity|calculated|measured|estimated|recorded|observed|result(?:ed)?|during the monitoring|because|therefore)\b/i.test(normalized);
+  return imperative && instructional && templateContext && !projectSpecific;
 }
 
 function isQualitativeLeakageOnly(text: string): boolean {
   const lower = text.toLowerCase();
   const quantitative = /\b(?:quantif|equation|calculation|calculated|tco2e?|emission factor|measured|estimated|procedure for)\w*/.test(lower);
-  const qualitative = /\b(?:possible source|grazing|fuel wood|qualitative|no displacement)\b/.test(lower);
-  return qualitative && !quantitative;
+  const definitive = /\b(?:no leakage|no displacement|leakage emissions? (?:are|were) negligible|negligible leakage)\b/.test(lower);
+  const reasoned = /\b(?:because|therefore|since|due to|as a result|does not allow|do not allow|not permit|not permitted)\b/.test(lower);
+  const vague = /\b(?:possible source|grazing|fuel wood|qualitative|may cause|could cause|leakage is|leakage was discussed)\b/.test(lower);
+  return !quantitative && ((!definitive && vague) || (definitive && !reasoned));
 }
 
 export function validateAnswerResult(result: AnswerResult): StatusResult {
@@ -262,7 +268,7 @@ export function validateAnswerResult(result: AnswerResult): StatusResult {
     };
   }
 
-  if (normalizedResult.checkName === "leakage" && isTemplateInstruction(normalizedResult.evidence.quote)) {
+  if (normalizedResult.checkName === "leakage" && isTemplateInstruction(normalizedResult.evidence.quote, normalizedResult.evidence.sectionHeading ?? "")) {
     return {
       checkName: normalizedResult.checkName,
       status: "UNCLEAR",
