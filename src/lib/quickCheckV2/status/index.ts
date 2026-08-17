@@ -120,8 +120,8 @@ function isTemplateInstruction(text: string, context = ""): boolean {
 function isQualitativeLeakageOnly(text: string): boolean {
   const lower = text.toLowerCase();
   const quantitative = /\b(?:quantif|equation|calculation|calculated|tco2e?|emission factor|measured|estimated|procedure for)\w*/.test(lower);
-  const definitive = /\b(?:no leakage|no displacement|leakage emissions? (?:are|were) negligible|negligible leakage)\b/.test(lower);
-  const reasoned = /\b(?:because|therefore|since|due to|as a result|does not allow|do not allow|not permit|not permitted)\b/.test(lower);
+  const definitive = /\b(?:no leakage|no displacement|no leakage was identified|no leakage to be considered|leakage emissions? (?:are|were) negligible|negligible leakage)\b/.test(lower);
+  const reasoned = /\b(?:because|therefore|since|due to|as a result|hence|thus|does not allow|do not allow|not permit|not permitted|identified|accounted|determined|considered)\b/.test(lower);
   const vague = /\b(?:possible source|grazing|fuel wood|qualitative|may cause|could cause|leakage is|leakage was discussed)\b/.test(lower);
   return !quantitative && ((!definitive && vague) || (definitive && !reasoned));
 }
