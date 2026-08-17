@@ -99,6 +99,11 @@ const PRIMARY_METHODOLOGY_CODE_RE =
 const LEAKAGE_NOT_APPLICABLE_RE =
   /\bleakage\s*:\s*(?:not applicable|n\/a|none)\b|\bno leakage\b/i;
 
+const PROJECT_HOST_COUNTRY_CONTEXT_RE =
+  /\b(?:summary|overview|project description|project details|project location|general description|project design|project background|introduction|geographic location|geographic reference)\b/i;
+const CONTACT_HOST_COUNTRY_CONTEXT_RE =
+  /\b(?:other entities|contact|address|telephone|email|organization|consultant|proponent|participant|developer|role in the project)\b/i;
+
 const CHECK_SECTION_MAPPINGS: Record<
   StructuredCheckId,
   {
@@ -218,13 +223,26 @@ const FACT_CONTRACTS: Partial<Record<StructuredCheckId, FactContractDefinition>>
           /\bhost party(?:\(ies\))?\b/i.test(block.sectionHeading ?? "") &&
           /^[A-Z][A-Za-z]+(?:[ -][A-Z][A-Za-z]+)*$/.test(block.text.trim()),
         ) ??
+        findFirstBlock(blocks, (block) => {
+          const context = `${block.sectionHeading ?? ""} ${block.sectionPath.join(" ")}`;
+          const firstSentence = splitEvidenceSentences(block.text)[0]?.trim() ?? "";
+          const standaloneCountry = extractCountryName(firstSentence);
+          return (
+            PROJECT_HOST_COUNTRY_CONTEXT_RE.test(context) &&
+            !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(context) &&
+            Boolean(standaloneCountry && standaloneCountry.toLowerCase() === firstSentence.replace(/[.!?]+$/, "").toLowerCase())
+          );
+        }) ??
         findFirstBlock(blocks, (block) =>
           /\b[A-Z][a-z]+,\s*[A-Z][A-Za-z-]+(?:\s*\(|$)/.test(block.text) &&
           /\b(?:province|district|regency|location|located)\b/i.test(block.text) &&
-          block.sectionPath.length > 0,
+          block.sectionPath.length > 0 &&
+          !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(`${block.sectionHeading ?? ""} ${block.sectionPath.join(" ")}`),
         ) ??
         findFirstBlock(blocks, (block) =>
-          /\blocated\b/i.test(block.text) && /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text),
+          /\blocated\b/i.test(block.text) &&
+          /\b[A-Z][a-z]+,\s*[A-Z][a-z]+\b/.test(block.text) &&
+          !CONTACT_HOST_COUNTRY_CONTEXT_RE.test(`${block.sectionHeading ?? ""} ${block.sectionPath.join(" ")}`),
         ) ??
         findFirstBlock(blocks, (block) =>
           /\bproject location\b/i.test(block.sectionHeading ?? "") &&
@@ -1481,6 +1499,13 @@ function trimQuoteForCheck(checkName: StructuredCheckId, quote: string): string 
       return quotedMethodology[0]!.trim();
     }
     return sentences.find((sentence) => /\b(VM\d{4}|VMD\d{4})\b/i.test(sentence)) ?? quote.trim();
+  }
+
+  if (checkName === "host_country") {
+    const firstSentence = sentences[0]?.trim();
+    if (firstSentence && extractCountryName(firstSentence)?.toLowerCase() === firstSentence.replace(/[.!?]+$/, "").toLowerCase()) {
+      return firstSentence;
+    }
   }
 
   if (checkName === "additionality" && /\bThis section is under development\b/i.test(quote)) {
