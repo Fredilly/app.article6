@@ -80,6 +80,11 @@
       "id": "5595-asvata-alm-india",
       "directory": "5595-asvata-alm-india",
       "adjudicationStatus": "pending"
+    },
+    {
+      "id": "5739",
+      "directory": "5739",
+      "adjudicationStatus": "reviewed"
     }
   ]
 }

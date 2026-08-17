@@ -1,0 +1,1104 @@
+Page 1
+TUMED LEFT BANNER IMPROVED
+AGRICULTURAL LAND MANAGEMENT
+PROJECT
+Document Prepared by Shanghai Discovery Energy Services Co., Ltd.
+Project title Tumed Left Banner Improved Agricultural Land Management Project
+Project ID 5739
+Crediting period 22-Sep-2022 to 21-Sep-2042
+Original date of issue 16-Sep-2025
+Most recent date of
+issue 16-Sep-2025
+Version 1.0
+VCS Standard Version 4.7
+Prepared by
+Ms. Guan Wenyu, Ms. Ding Wenjun, Mr. Fu Jinyu
+Shanghai Discovery Energy Services Co., Ltd.
+Email: carbonprojects@discoveryesco.com
+Tel: +86 021 3468 8219
+
+Page 2
+CONTENTS
+1 PROJECT DETAILS................................................................................................. 4
+1.1 Summary Description of the Project ................................................................................ 4
+1.2 Audit History......................................................................................................................... 4
+1.3 Sectoral Scope and Project Type .................................................................................... 4
+1.4 Project Eligibility .................................................................................................................. 5
+1.5 Project Design ..................................................................................................................... 5
+1.6 Project Proponent .............................................................................................................. 6
+1.7 Other Entities Involved in the Project ............................................................................... 6
+1.8 Ownership............................................................................................................................ 7
+1.9 Project Start Date ............................................................................................................... 7
+1.10 Project Crediting Period .................................................................................................... 7
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals ........................ 8
+1.12 Description of the Project Activity .................................................................................... 9
+1.13 Project Location ............................................................................................................... 11
+1.14 Conditions Prior to Project Initiation ............................................................................... 12
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks ....................... 14
+1.16 Double Counting and Participation under Other GHG Programs ............................ 15
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions.............................. 16
+1.18 Sustainable Development Contributions ...................................................................... 16
+1.19 Additional Information Relevant to the Project ........................................................... 17
+2 SAFEGUARDS AND STAKEHOLDER ENGAGEMENT .......................................... 18
+2.1 Stakeholder Engagement and Consultation................................................................ 18
+2.2 Risks to Stakeholders and the Environment................................................................... 18
+2.3 Respect for Human Rights and Equity ........................................................................... 18
+2.4 Ecosystem Health ............................................................................................................. 18
+3 APPLICATION OF METHODOLOGY ................................................................... 19
+3.1 Title and Reference of Methodology ............................................................................ 19
+3.2 Applicability of Methodology ......................................................................................... 19
+3.3 Project Boundary .............................................................................................................. 23
+3.4 Baseline Scenario ............................................................................................................. 25
+
+Page 3
+3.5 Additionality ...................................................................................................................... 25
+3.6 Methodology Deviations ................................................................................................. 26
+4 QUANTIFICATION OF ESTIMATED GHG EMISSION REDUCTIONS AND
+REMOVALS ......................................................................................................... 27
+4.1 Baseline Emissions ............................................................................................................. 27
+4.2 Project Emissions ............................................................................................................... 27
+4.3 Leakage Emissions ............................................................................................................ 27
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals ...................... 27
+5 MONITORING .................................................................................................... 28
+5.1 Data and Parameters Available at Validation ............................................................ 28
+5.2 Data and Parameters Monitored ................................................................................... 28
+5.3 Monitoring Plan ................................................................................................................. 28
+APPENDIX 1: COMMERCIALLY SENSITIVE INFORMATION.......................................... 29
+
+Page 4
+VCS Project Description Template, v4.4
+4
+1 PROJECT DETAILS
+1.1 Summary Description of the Project
+Tumed Left Banner Improved Agricultural Land Management Project (hereinafter referred to as
+“the project”) is located in Tumed Left Banner, Hohhot City, Inner Mongolia Autonomous Region,
+China. The purpose of the project is to adopt improved agricultural land management practices
+to prevent the severe soil degradation and salinization caused by pre-existing conventional tillage
+in local crop land.
+In the context of the Project, improved practices are categorized according to practices leading
+to a change in pre-project agricultural management practices, and these could include: improved
+fertilizer (increased organic or reduced synthetic) application; soil conditioners application;
+improved water management/irrigation; improved residue management.
+The project plans to implement improved agricultural land management practices in 37,272.2
+ha field in the first crediting period to increase soil organic carbon (SOC). The project proponent
+not only introduced more efficient and appropriate tillage method with Tumed Left Banner
+Agriculture and Animal Husbandry Bureau (TAAHB) to the farmers, but also provide technical
+training and support to the farmers.
+The scenario existing prior to the project’s implementation is primarily conventional farming and
+conventional irrigation methods, with less application of organic fertilizers and straw mulching,
+which increase soil disturbance and the loss of soil organic matter (SOM). The baseline scenario
+is the same as the conditions existing prior to the project initiation.
+During the first crediting period from 22-Sep-2022 to 21-Sep-2042, the project is expected to
+generate GHG emission removals of 1,530,799 tCO2e, with an average annual GHG emission
+removal of 76,540 tCO2e.
+1.2 Audit History
+Audit type Period Program Validation/verification
+body name
+Number of
+years
+Validation To be listed VCS To be listed NA
+1.3 Sectoral Scope and Project Type
+Sectoral scope 14. Agriculture, forestry and other land use (AFOLU)
+AFOLU project category 1 Agricultural Land Management (ALM)
+1 See Appendix 1 of the VCS Standard
+
+Page 5
+VCS Project Description Template, v4.4
+5
+Project activity type Improved Cropland Management (ICM)
+1.4 Project Eligibility
+General eligibility
+The Project adopts measures to increase removals of CO2, a Kyoto Protocol greenhouse gas. The
+applied methodology VM0042 has been approved under the VCS Program through the
+methodology approval process. Scope 1) and Scope 3) included in Section 2.1.1 of VCS Standard
+version 4.7 are hence met, and the other three scopes are irrelevant.
+The project activity is not any of the activities excluded in Table 1 of VCS Standard version 4.7.
+As per Section 3.8.2 of VCS Standard version 4.7, AFOLU projects shall initiate the pipeline listing
+process within three years of the project start date. As the Project starts on 22-Sep-2022, the
+pipeline listing deadline would be 21-Sep-2025. The Project initiates the pipeline listing process
+before the deadline.
+In addition, the project has not generated GHG emissions primarily for the purpose of their
+subsequent reduction, removal, or destruction.
+Therefore, the Project meets the general eligibility requirements.
+AFOLU project eligibility
+As per Section A1.2 of VCS Standard version 4.7, eligible ALM activities are those that reduce
+net GHG emissions on croplands and grasslands by increasing carbon stocks in soils and woody
+biomass and/or decreasing CO2, N2O and/or CH4 emissions from soils. The project area shall not
+be cleared of native ecosystems within the 10-year period prior to the project start date. The
+category of Improved Cropland Management (ICM) includes practices that demonstrably reduce
+net GHG emissions of cropland systems by increasing soil carbon stocks, reducing soil N2O
+emissions, and/or reducing CH4 emissions.
+The Project is expected to reduce net GHG emissions on croplands by increasing carbon stocks
+in soils. The project area belongs to the native ecosystem of cropland. No clearing or conversion
+took place within at least 10 years of the project start date and the project area has not been
+converted, cleared, drained or degraded to generate GHG credits.
+Therefore, the Project meets the AFOLU-specific eligibility requirements.
+Transfer project eligibility
+This section is irrelevant as the project is not a transfer project.
+1.5 Project Design
+
+Page 6
+VCS Project Description Template, v4.4
+6
+This project is a single project activity. The project has been designed as:
+☒ Single location or installation
+☐ Multiple locations or project activity instances (but not a grouped project)
+☐ Grouped project
+Grouped project design
+Not applicable as the Project is not a grouped project.
+1.6 Project Proponent
+Organization name Tumed Left Banner Aletan Agricultural and Animal Husbandry
+Development Investment Co., LTD
+Contact person Wang Jianfeng
+Title Chairman
+Address West of Quansheng Road, Chasuqi Town, Tumed Left Banner, Hohhot,
+Inner Mongolia Autonomous Region, China
+Telephone +86 18686089126
+Email 1208737893@qq.com
+1.7 Other Entities Involved in the Project
+Organization name Shanghai Discovery Energy Services Co., Ltd.
+Role in the project VCS Consultant
+Contact person Guan Wenyu
+Title Project Manager
+Address 10F, Block C, 515 Shennan Road, Minhang District, Shanghai, China
+Telephone +86 021 3468 8219
+Email carbonprojects@discoveryesco.com
+
+Page 7
+VCS Project Description Template, v4.4
+7
+1.8 Ownership
+According to Article 10 of the Constitution of the People’s Republic of China2 and the provisions
+of the Land Management Law of People’s Republic of China3, the land belongs to the state or
+collectives and the ownership is non-transferable, while the land use right can be transferred
+by law.
+The fields in the project area are owned by village collectives (project ownership arising under
+law) and used by farmer households through family-based contracting. Since these fields are
+all legal agricultural fields, and the ownership is clear, there is no dispute over land ownership
+in the project site.
+The village collective who owns the project land all agreed to authorize Tumed Left Banner
+Aletan Agricultural and Animal Husbandry Development Investment Co., LTD (hereinafter “the
+project proponent”) the agricultural land management rights and carbon sink revenue rights of
+the project area in the whole crediting period, while the project proponent should be
+responsible for the maintenance and overall management of the improved agricultural land
+during the whole crediting period. In addition, the project proponent will also be responsible for
+development of the carbon credits and ensure that the carbon revenue will be used for
+sustainable development and management of the project activities.
+Shanghai Discovery Energy Services Co., Ltd. as a consultancy is responsible for helping project
+proponent in the development and management of carbon projects.
+1.9 Project Start Date
+Project start date 22-Sep-2022
+Justification According to VCS standard, v4.7, the project start date is the date on
+which activities that lead to the generation of GHG emission reductions
+or removals are implemented. The start date of improved agricultural
+land management is 22-Sep-2022. Thus, the start date of the project
+is 22-Sep-2022.
+1.10 Project Crediting Period
+Crediting period ☐ Seven years, twice renewable
+2 http://www.gov.cn/guoqing/2018-03/22/content_5276318.htm
+3 http://www.npc.gov.cn/npc/c2/c30834/201909/t20190905_300663.html
+
+Page 8
+VCS Project Description Template, v4.4
+8
+☐ Ten years, fixed
+☒ Other
+According to paragraph 3.9.2 and 3.9.3 of VCS standard version 4.7,
+for ALM projects not focusing exclusively on reducing N2O, CH4 and/or
+fossil-derived CO2 emissions, the project crediting period shall be a
+minimum of 20 years up to a maximum of 100 years, which may be
+renewed at most four times with a total project crediting period not
+to exceed 100 years. Moreover, according to paragraph 3.2.5 of VCS
+Standard version 4.7, for all ALM projects, the project proponent
+shall, for the duration of the project, reassess the baseline every ten
+years.
+Thus, the project adopts 20 years, three times renewable crediting
+period for a total of 80 years. The first crediting period of the project
+is 20 years from 22-Sep-2022 to 21-Sep-2042.
+Start and end date of
+first or fixed crediting
+period
+22-Sep-2022 to 21-Sep-2042
+1.11 Project Scale and Estimated GHG Emission Reductions or Removals
+Indicate the estimated annual GHG emission reductions/removals (ERRs) of the project:
+☒ < 300,000 tCO2e/year (project)
+☐ ≥ 300,000 tCO2e/year (large project)
+Calendar year of crediting period Estimated GHG emission reductions or removals
+(tCO2e)
+22-Sep-2022 to 31-Dec-2022 8,948
+01-Jan-2023 to 31-Dec-2023 38,205
+01-Jan-2024 to 31-Dec-2024 56,266
+01-Jan-2025 to 31-Dec-2025 80,537
+01-Jan-2026 to 31-Dec-2026 80,537
+01-Jan-2027 to 31-Dec-2027 80,537
+01-Jan-2028 to 31-Dec-2028 80,537
+
+Page 9
+VCS Project Description Template, v4.4
+9
+01-Jan-2029 to 31-Dec-2029 80,537
+01-Jan-2030 to 31-Dec-2030 80,537
+01-Jan-2031 to 31-Dec-2031 80,537
+01-Jan-2032 to 31-Dec-2032 80,537
+01-Jan-2033 to 31-Dec-2033 80,537
+01-Jan-2034 to 31-Dec-2034 80,537
+01-Jan-2035 to 31-Dec-2035 80,537
+01-Jan-2036 to 31-Dec-2036 80,537
+01-Jan-2037 to 31-Dec-2037 80,537
+01-Jan-2038 to 31-Dec-2038 80,537
+01-Jan-2039 to 31-Dec-2039 80,537
+01-Jan-2040 to 31-Dec-2040 80,537
+01-Jan-2041 to 31-Dec-2041 80,537
+01-Jan-2042 to 21-Sep-2042 58,251
+Total estimated ERRs during the first
+or fixed crediting period 1,530,799
+Total number of years 20
+Average annual ERRs 76,540
+1.12 Description of the Project Activity
+There is no REDD+ component to the project and the project is not located within a jurisdiction
+covered by any jurisdictional REDD+ program.
+The proposed ALM project activities aim to promote a variety of environmental and climate-
+friendly agricultural practices, mainly including soil improvement and irrigation, to enhance soil
+carbon sinks for agricultural management and saline-alkali land remediation.
+The project plans to implement the improved agricultural land management practices in
+37,272.2 ha field in Tumed Left Banner in the first crediting period.
+Before the project was implemented, the project initiator cooperated with the TAAHB to provide
+farmers with corresponding agricultural technology training, including the application methods
+of soil organic fertilizers and soil conditioners, as well as the key points of water-saving irrigation
+measures management, to ensure the effective implementation of the project.
+
+Page 10
+VCS Project Description Template, v4.4
+10
+During the project implementation period, the project owner cooperated with the TAAHB to carry
+out the construction of the drainage and irrigation pipeline system and drip irrigation measures,
+complete the selection and application of organic fertilizers and soil conditioners , and arrange
+the straw returning to the field after the harvest. The project owner not only provides
+corresponding technical training for farmers, but also supervises them in soil improvement,
+irrigation and crop residue management operations, and checks the completion of various
+measures. Farmers are the main operators who practice these improved agricultural land
+management measures and are responsible for recording their cultivation practice in logbooks
+provided by the project proponent. The technicians should carry out periodic inspections
+according to the requirements in Monitoring and Quality Control Manual.
+The project start date is 22-Sep-2022. The project activity is expected to generate GHG
+emission removals of 76,540 tCO2e per year and contributes to 3 SDGs. Please refer to section
+1.18 for the details.
+The table below shows the Practice Categories implemented on the initial project activity
+instances, during the first monitoring period. The table shows the changes adopted,
+corresponding conventional farming practices, and key-characteristics and measures employed
+that would lead to reduction or removal of GHG emissions.
+Practice
+Category
+IALM Changes
+(>5%)
+Baseline activities
+(conventional
+agriculture)
+Key- Characteristics & measures
+employed
+Improved
+fertilizer use
+(organic or
+inorganic)
+application
+Organic
+fertilizer use
+Before the
+implementation of the
+project, the
+application rate of
+organic fertilizer was
+low, and there were no
+scientific standards
+for the sources and
+application methods
+of the fertilizer.
+Well-rotted farmyard organic
+fertilizer contains a large amount of
+organic carbon. After being applied
+to the soil, it can directly replenish
+the carbon source for the soil.
+Continuous application can form a
+virtuous cycle of "soil-plant”: After
+the organic carbon in the soil
+increases, crops grow more
+vigorously, absorb more CO₂
+through photosynthesis, and when
+the crop residues return to the soil,
+they can further replenish the
+carbon source.
+Soil
+conditioners
+application
+Organic
+improvers:
+humic acid
+Traditional farming
+methods do not apply
+soil conditioners.
+Organic soil conditioners play a role
+in transforming saline-alkali soil.
+After humic acid and
+microorganisms are applied to the
+
+Page 11
+VCS Project Description Template, v4.4
+11
+soil, they can directly increase the
+organic carbon content in the soil,
+promote the formation of soil
+aggregate structure, enhance
+carbon sequestration capacity.
+Improved
+water
+management/
+irrigation
+Build
+irrigation and
+drainage
+systems and
+carry out
+earthen canal
+lining.
+Introduce
+water-saving
+and precision
+agriculture
+technologies,
+such as sub-
+film drip
+irrigation and
+water and
+fertilizer
+integration
+technology.
+Before the project was
+implemented, it
+mainly relied on
+flooding irrigation,
+which not only wasted
+water resources but
+also led to the
+destruction of soil
+structure and the loss
+of nutrients.
+The various drainage
+and irrigation facilities
+are not complete, and
+saline-alkali land has
+formed in many areas
+within the banner.
+By means of dual irrigation through
+Wells and channels and the
+construction of field drainage
+facilities, the salt-rich layer is
+controlled below the root layer of
+crops, the physical and chemical
+structure of the soil is improved,
+and the accumulation of soil
+organic carbon is promoted.
+Water-saving measures such as
+drip irrigation can save a large
+amount of water resources and the
+consumption of water pumping
+energy (such as diesel pumps and
+electricity).
+Residue
+Management
+Crop residue
+left on the
+land to decay.
+The implementation
+rate of returning crop
+residue on the land is
+low, and some crop
+residue is directly
+burned.
+Leaving agricultural residue in field
+after harvesting and returning plant
+material to the soil.
+1.13 Project Location
+This project is located in Tumed Left Banner, Hohhot City, Inner Mongolia. It includes Shaerqin
+Town, Beishizhou Township, Shandai Town, Tabusai Township, Baimiaozi Town, Bikeqi Town,
+Chilechuan Town, and Chasuqi Town. The geographical coordinate range is: 111°42 'to 111°49'
+east longitude and 40°36 'to 40°41' north latitude.
+The location of the project activity in Tumed Left Banner which is illustrated in Figure 1-1. And
+the KML file has also been submitted.
+
+Page 12
+VCS Project Description Template, v4.4
+12
+Figure 1-1
+1.14 Conditions Prior to Project Initiation
+The conditions existing before the project initiation are the same as the baseline scenario, please
+refer to Section 3.4 (Baseline Scenario).
+Ecosystem type: The project area exclusively belongs to the cropland ecosystem.
+Current and historical land-use: Supervised classification using historic satellite images of the
+region has been applied to show that the project area has been cropland for at least 10 years
+prior to the project start, i.e., from 2012 to 2022.
+The following table shows the present and prior environmental conditions of the project area:
+Condition Description
+Climate
+Tumed Left Banner has a mid-temperate semi-arid continental monsoon
+climate with distinct four seasons. According to Volume 4 of 2019
+Refinement to the 2006 IPCC Guidelines for National Greenhouse Gas
+Inventories It belongs to the Cool temperate moist climate zone. Spring is
+
+Page 13
+VCS Project Description Template, v4.4
+13
+dry and windy, summer is hot and less rainy, autumn is cool and short, and
+winter is cold and dry. The annual average temperature is about 6.3°C, and
+the annual average precipitation is 330-410 mm, with most precipitation
+concentrated in July-September. The annual average sunshine hours are
+2,876, and the frost-free period is 130-140 days. The temperature
+difference between day and night is relatively large, and the climatic
+conditions have a certain impact on agricultural production, which requires
+relying on irrigation to ensure crop growth4.
+Hydrology
+The main rivers in Tumed Left Banner include the Dahei River, Xiaohei River,
+and Shila Wusu River, all belonging to the Yellow River system. These rivers
+provide an important water source for local agricultural irrigation, industrial
+water use, and domestic water use. In addition, there are some lakes and
+reservoirs, such as Hasuhai. The groundwater resources in the region are
+relatively abundant, but the distribution is uneven, and there is shallow
+groundwater salinization in some areas.
+Topography
+Tumed Left Banner is located in the southern part of the Inner Mongolia
+Plateau, with the terrain mainly being plain and a small amount of
+mountains and hills in the north. The overall terrain is high in the north and
+low in the south, with an average altitude of about 1,000 meters. The plain
+area is flat and open, being the main agricultural production area; the
+northern mountainous and hilly areas have relatively small terrain
+undulations and relatively little vegetation coverage.
+Soils
+The main soil types in Tumed Left Banner include chestnut soil, chao soil,
+saline soil, and aeolian sandy soil. Chestnut soil is widely distributed and is
+one of the main agricultural soils, but it has low organic matter content and
+relatively weak fertility. Chao soil is mainly distributed along rivers, with good
+soil moisture conditions, but some areas have salinization problems. Saline
+soil and aeolian sandy soil are distributed in local areas, with low soil
+productivity and requiring improvement before they can be used for
+agricultural production.
+4 Design documents for improved agricultural land management in Tumed Left Banner
+
+Page 14
+VCS Project Description Template, v4.4
+14
+Relevant
+historical
+conditions
+Tumed Left Banner has long been dominated by nomadic herding. During
+the Qin and Han dynasties, a small number of people from the Central Plains
+moved in, bringing about small-scale farming. During the reign of Altan Khan
+in the Ming Dynasty, Han people were encouraged to emigrate and build
+water conservancy projects, and some grasslands gradually turned into
+farmland. The Qing Dynasty's "westward Migration" led to a large influx of
+Han people. During the Qianlong period, the arable land in the Tumed Plain
+was basically reclaimed, and the economy shifted towards a balance
+between agriculture and animal husbandry. In modern times, especially
+after the founding of the People's Republic of China, agricultural
+infrastructure has been continuously improved and mechanization has
+been advanced. The scale and output of farmland have significantly
+increased. Today, it has become one of the important grain-producing areas
+in Inner Mongolia.
+Type of
+vegetation
+The vegetation within the project area is dominated by agricultural
+vegetation, which primarily consists of crops like corn and sunflowers—
+these are widely distributed across the plain agricultural regions. Besides,
+a small number of arbor and shrub species can be found along rivers and
+around villages, with examples including poplar, willow, and sea buckthorn.
+Ecosystems
+The project area exclusively belongs to the cropland ecosystem, which is
+centered around crops such as corn and sunflowers. Relying on the local
+cool temperate climate and irrigation conditions, a stable planting pattern
+has been formed. In addition to contiguous crop communities, the system is
+also equipped with infrastructure such as ditches and field ridges. In some
+areas, crop residues are retained to cover the ground surface. This
+ecosystem not only provides local food and cash crop output, but also fixes
+carbon sinks through photosynthesis of crops and reduces soil erosion
+through crop residue mulching
+1.15 Compliance with Laws, Statutes and Other Regulatory Frameworks
+The proposed project activities are intended to follow all applicable legal and regulatory
+requirements of local, state and national policies. There are no laws today in China that prevent
+the implementation of the proposed project activity. The following legislation are considered for
+the project activity:
+
+Page 15
+VCS Project Description Template, v4.4
+15
+The following national laws and regulations have been identified as associated with the project:
+Constitution of the People’s Republic of China5, Agriculture Law of the People’s Republic of
+China6, Land Management Law of People’s Republic of China7, Law of the People’s Republic of
+China on Land Contract in Rural Areas8, Production Safety Law of the People’s Republic of China9,
+Labour Law of the People’s Republic of China 10 , Regulations on the Protection of Basic
+Farmland11.
+The project also complies with the following provincial regulation and national/industry
+standards:
+• Regulations of Inner Mongolia for the Administration of Farmland Construction Projects12
+• Land Spatial Planning of Inner Mongolia (2021-2035)13
+• Regulations of Inner Mongolia on Land Administration14
+• Inner Mongolia rural Industry development "14th Five-Year Plan"15
+1.16 Double Counting and Participation under Other GHG Programs
+No Double Issuance
+Is the project receiving or seeking credit for reductions and removals from a project activity
+under another GHG program?
+☐ Yes ☒ No
+Registration in Other GHG Programs
+Has the project registered under any other GHG programs?
+☐ Yes ☒ No
+Is the project active under the other program?
+☐ Yes ☒ No
+5 https://www.gov.cn/guoqing/2018-03/22/content_5276318.htm
+6 http://www.gov.cn/ziliao/flfg/2005-09/12/content_30998.htm
+7 http://www.gov.cn/banshi/2005-05/26/content_989.htm
+8 http://www.zfs.moa.gov.cn/flfg/202002/t20200217_6337175.htm
+9 https://www.mem.gov.cn/fw/flfgbz/fl/202107/t20210716_392186.shtml
+10 http://www.gov.cn/banshi/2005-05/25/content_905.htm
+11 http://www.gov.cn/zhengce/2020-12/26/content_5574284.htm
+12 http://nmt.nmg.gov.cn/gk/zfxxgk/fdzdgknr/zcfg/202111/t20211125_ 1961999.html
+13 https://new.qq.com/rain/a/20210630a0d15o00
+14 http://www.nmgrd.gov.cn/zyfbx/tzggx/202210/t20221010_408768.html
+15 https://www.nmg.gov.cn/zwgk/zfxxgk/zfxxgkml/ghxx/zxgh/202204/t20220418_2040496.html
+
+Page 16
+VCS Project Description Template, v4.4
+16
+Projects Rejected by Other GHG Programs
+Has the project been rejected by any other GHG programs?
+☐ Yes ☒ No
+1.17 Double Claiming, Other Forms of Credit, and Scope 3 Emissions
+No Double Claiming with Emissions Trading Programs or Binding Emission Limits
+Are project reductions and removals or project activities also included in an emissions trading
+program or binding emission limit? See the VCS Program Definitions for definitions of
+emissions trading program and binding emission limit.
+☐ Yes ☒ No
+No Double Claiming with Other Forms of Environmental Credit
+Has the project activity sought, received, or is planning to receive credit from another GHG-
+related environmental credit system? See the VCS Program Definitions for definition of GHG-
+related environmental credit system.
+☐ Yes ☒ No
+Supply Chain (Scope 3) Emissions
+Do the project activities specified in Section 1.12 affect the emissions footprint of any
+product(s) (goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+Is the project proponent(s) or authorized representative a buyer or seller of the product(s)
+(goods or services) that are part of a supply chain?
+☐ Yes ☒ No
+Has the project proponent(s) or authorized representative posted a public statement on their
+website saying, “Carbon credits may be issued through Verified Carbon Standard project
+[project ID] for the greenhouse gas emission reductions or removals associated with [project
+proponent or authorized representative organization name(s)] [name of product(s) whose
+emissions footprint is changed by the project activities].”
+☐ Yes ☒ No
+1.18 Sustainable Development Contributions
+
+Page 17
+VCS Project Description Template, v4.4
+17
+The Project provides many benefits that will help achieve China’s Sustainable Development Goals,
+a set of 17 universal goals covering the thematic areas of environmental, economic, and social
+development.
+During the implementation of the project, it is estimated to achieve 3 SDGs as follows:
+Goal 4 Quality Education: In order to implement improved agricultural
+land management, farmers were trained and educated, including the
+principle, technical operation method, monitoring method of improve
+organic fertilizer and soil conditioners application, improve water
+management/irrigation, reduce tillage/improve residue management.
+During each monitoring period, training record will be provided.
+Goal 15 Life on land: The project strives to achieve a land degradation-
+neutral world, while it also has a positive impact on the ecosystem of the
+project land as the soil disturbance is mitigated. The project activity
+prevented 37,272.2 ha of cropland to be degraded. During each
+monitoring period, proportion of land that is degraded over total land area
+in project district will be provided.
+Goal 13 Climate Action : By replacing the traditional farming and large-
+scale field irrigation models with the application of organic fertilizers and
+soil conditioners, large-scale straw returning to the field and water-saving
+irrigation, the project achieves significant GHG reduction and removal,
+hence contributing to climate change mitigation. During each monitoring
+period, the GHG reduction and removal will be calculated according to the
+applied methodology VM0042.
+1.19 Additional Information Relevant to the Project
+Leakage Management
+According to paragraph 8.4 of VM0042 (version 2.1) , improved ALM projects may result in
+leakage through: new application of organic fertilizers and soil conditioners from outside the
+project area (i.e., organic amendments applied in the project from outside of the project area,
+that were not previously applied in the historical look-back period); productivity declines;
+displacement of livestock outside of the project boundary; and/or diversion of biomass residues
+that were used for bioenergy applications in the baseline scenario.
+The project does not involve manure treatment, productivity declines, the displacement of
+livestock outside of the project boundary or diversion of biomass residues that were used for
+bioenergy applications in the baseline scenario. Thus, it is not applicable to this project.
+Commercially Sensitive Information
+
+Page 18
+VCS Project Description Template, v4.4
+18
+None of the project documents will be considered as commercially sensitive information, and
+all the documentation is available to any stakeholders.
+Further Information
+There is no further information that may have a bearing on the eligibility of the project, the net
+GHG emission reductions or removals, or the quantification of the project’s net GHG emission
+reductions or removals.
+2 SAFEGUARDS AND STAKEHOLDER
+ENGAGEMENT
+2.1 Stakeholder Engagement and Consultation
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+2.2 Risks to Stakeholders and the Environment
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+2.3 Respect for Human Rights and Equity
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+2.4 Ecosystem Health
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+
+Page 19
+VCS Project Description Template, v4.4
+19
+3 APPLICATION OF METHODOLOGY
+3.1 Title and Reference of Methodology
+Type (methodology,
+tool or module).
+Reference ID, if
+applicable
+Title Version
+Methodology VM0042 Methodology for Improved
+Agricultural Land Management 2.1
+3.2 Applicability of Methodology
+Methodology
+ID Applicability condition Justification of compliance
+VM0042
+Projects must introduce or implement one or
+more new changes to pre-existing agricultural
+management practices which:
+a) Reduce fertilizer (organic or inorganic)
+application;
+b) Improve water management/irrigation;
+c) Reduce tillage/improve residue management;
+d) Improve crop planting and harvesting (e.g.,
+improved agroforestry, crop rotations, cover
+crops); and/or
+e) Improve grazing management.
+Appendix 1 provides a non-exhaustive list of
+eligible ALM practices. A change in practice
+constitutes adoption of a new practice, cessation
+of a pre-existing practice or adjustment to a pre-
+existing practice that results in GHG emissions
+reduction or removal.
+The agricultural management practice
+prior to the project initiation was
+primarily conventional tillage with
+broad irrigation. The main categories
+of project practice include the
+application of organic fertilizers and soil
+conditioners, straw returning to the field,
+and the construction of water-saving
+irrigation measures, which belong to
+option a ) b ) and c) in accordance
+with Appendix 1.
+VM0042
+Projects that introduce or implement quantitative
+adjustments (e.g., decrease in fertilizer
+application rate) must exceed five percent of the
+pre-existing value, calculated as the average
+value over the historical look-back period,
+Before the implementation of the
+project, organic fertilizers had not been
+applied on a large scale, and chemical
+fertilizers were mainly applied to
+cultivated land. This project has
+
+Page 20
+VCS Project Description Template, v4.4
+20
+developed for the baseline schedule of activities
+(see Section 6). Appendix 1 gives additional
+details and guidance on practices and on
+determining practice change.
+effectively enhanced soil fertility by
+scientifically applying organic fertilizers
+throughout the entire area and applying
+soil conditioners to severely salinized
+soil.
+VM0042
+Project activities must be implemented on land
+that is either cropland or grassland at the project
+start date and remains cropland or grassland
+throughout the project crediting period except
+under the following scenarios:
+a) Introduction of temporary grassland into
+cropland where it is demonstrated, prior to the
+project start date and to the addition of new
+project activity instances, that the integration of
+forage crops (e.g., annual/perennial grasses,
+legumes) into annual crops is planned as part of
+a long- term agricultural management system
+(e.g., Integrated Crop-Livestock System). Project
+proponents must provide documentation on the
+long-term management plans that cover the
+duration of the project, that describe proposed
+practices, crops and expected benefits and
+outcomes of integrated grassland-cropland
+management; or
+b) A one-time conversion from grassland to
+cropland or vice versa where it is demonstrated
+prior to project validation that project lands in
+the baseline scenario are degraded and the
+introduction of improved land use change
+practices would significantly improve soil health.
+project proponents must provide documentation
+demonstrating that lands are degraded at the
+start of the project and degradation will continue
+in the baseline scenario due to the presence of
+degradation drivers or pressures in the baseline
+scenario. See Appendix 2 for procedures on how
+to propose this type of land use change.
+The project is implemented on the
+cultivated land within the territory of
+Tumed Left Banner. The project area
+was cropland at the project start date
+and will remain cropland throughout
+the project crediting period; no land use
+change will occur.
+
+Page 21
+VCS Project Description Template, v4.4
+21
+VM0042
+Empirical or process-based models used to
+estimate stock change/emissions via
+Quantification Approach 1 must be:
+a) Publicly available, though not necessarily free
+of charge, from a reputable and recognized
+source (e.g., the model developer’s website, IPCC
+or government agency). Sufficient conceptual
+documentation of inputs, outputs and
+information on how the model functionally
+represents SOC dynamics must be accessible to
+the public. Providing the source code or an API for
+independent replication of calculations is not
+required;
+b) Shown in peer-reviewed scientific studies to
+successfully simulate changes in SOC and trace
+gas emissions resulting from the changes in ALM
+practices included in the project description;
+c) Able to support repetition of the project model
+simulations. This includes clear versioning of the
+model used in the project and stable software
+support, as well as fully reported sources and
+values for all parameters used with the project
+version of the model. Where multiple sets of
+parameter values are used in the project, clearly
+identify the sources of varying parameter sets and
+how they were applied to estimate stock
+change/emissions in the project. Acceptable
+sources include peer- reviewed literature and
+statements from appropriate expert groups that
+demonstrate evidence of expertise with the model
+via authorship of peer reviewed model
+publications or authorship of reports for entities
+a) The programme initially uses the RothC
+model for the quantification of increased
+carbon stock in the soil, attributable to the
+adopted IALMs. This is a publicly available
+model and has been demonstrated to be
+used for exactly this purpose at global level. It
+is freely available from the Rothamsted
+Research16 website.
+b) The project proponent’s choice for using the
+RothC model as a point of departure for
+quantification of carbon stock, is based on
+peer-reviewed scientific studies that
+demonstrate the model’s applicability for this
+purpose17.
+c) The project proponent has developed a
+model calibration and validation manual
+which describes:
+-Sources for parameters datasets used.
+How parameters are used;
+-The protocol for using different datasets for
+calibration and validation.
+In addition, the manual prescribes that the
+model shall be calibrated for each zone and
+validated for each combination of practice
+category and crop functional group within each
+zone. In case an alternative model shall be
+identified to meet the requirements, the above
+shall too be documented in an updated
+Model Validation Report. The model is to be
+validated by an independent institution and
+16 https://www.rothamsted.ac.uk/rothamsted-carbon-model-rothc
+17 RothC is a model for the turnover of organic carbon in non-waterlogged topsoil that allows for the effects of soil type, temperature,
+soil moisture and plant cover on the turnover process. It uses a monthly time step to calculate total organic carbon (t ha-1), microbial
+biomass carbon (t ha-1) and Δ14C (from which the equivalent radiocarbon age of the soil can be calculated) on a years to centuries
+timescale. RothC was originally developed and parameterized from the Rothamsted long-term field experiments - hence the name. It was
+extended to model turnover in grassland and in woodland and to operate in different soils and under different climates. It has now been
+widely tested and used at the plot, field, regional and global scales using data from many long-term experiments, different regions, and
+countries throughout the world. Version 26.3 was used in the validation of this Programme. The Model Validation Report will be provided
+in the validation process.
+
+Page 22
+VCS Project Description Template, v4.4
+22
+supporting climate-smart agriculture. These
+sources must describe the datasets and statistical
+processes used to set parameter values;
+d) Validated per datasets and procedures
+detailed in Section 5.2 of VMD0053 Model
+Calibration and Validation Guidance for the
+Methodology for Improved Agricultural Land
+Management. Model prediction error must be
+calculated using datasets as described in
+Section 5.2.5 of VMD0053 and must use the
+same parameters or sets of parameters applied
+to estimate stock change/emissions in the
+project; and
+e) Using the same model version in the baseline
+and project scenarios. Further, the same
+parameters/parameter sets must be used in the
+baseline and project scenarios. Model input data
+must be derived following guidance in Table 6
+and Table 8. Model uncertainty must be
+quantified following guidance in Section 8.6.
+Models may be recalibrated or revised based on
+new data, or a new model may be applied,
+provided the above requirements are met.
+this forms part of the Project Proponent
+records.
+d) The model applied will demonstrate how it
+meets the requirements set out in the
+VMD0053 “Model Calibration and Validation
+Guidance for the Methodology for Improved
+Agricultural Land management”. The model is
+to be validated by an independent institution
+and this forms part of the Project Proponent
+records.
+e) The same model version is used in
+the baseline and project scenarios.
+Further, the same parameters sets are
+used in the baseline and project
+scenarios. Model input data is derived
+following guidance in Table 6 and Table
+8 of VM00042(version2.1). Model
+uncertainty is quantified following
+guidance in Section 8.6 of VM00042
+(version 2.1).
+Methodol
+ogy ID
+Not applicable under the following
+conditions
+Justification of compliance
+VM0042 The project area has been cleared of native
+ecosystems within the 10-year period
+immediately prior to the project start date.
+The project area has not been cleared of
+native ecosystems (cropland) within the
+10-year period prior to the project start
+date.
+VM0042 The project activity is expected to cause a
+sustained reduction in productivity of greater
+than 5%18, as demonstrated by peer-reviewed
+and/or published studies on the activity in
+the region or a comparable region.
+The improved agricultural land
+management can increase the crop
+yield based on the recording of TAAHB.
+Thus, the project does not result in a
+18 5% is the threshold for emissions that can be considered de minimis (see VCS Methodology Requirements v4.4,
+Section 3.3.7).
+
+Page 23
+VCS Project Description Template, v4.4
+23
+sustained reduction of greater than 5%
+in productivity.
+VM0042 The project activities occur on a wetland. this
+condition does not exclude crops subject to
+artificial flooding where it is demonstrated
+that crop cultivation does not impact the
+hydrology of any nearby wetlands.
+The project activity occurs on upland
+corn and sunflower fields and does not
+occur on any wetland.
+VM0042 The project activity is a biochar application.
+Biochar may be applied as a soil amendment
+in the project area provided that the total
+organic carbon content of the biochar applied
+is subtracted from the estimated SOC stock
+change in the project scenario at each
+verification event.
+The project does not include application
+of biochar as a soil amendment.
+As described above, this methodology VM0042 (version 2.1) is applicable to the project.
+3.3 Project Boundary
+According to the applied methodology VM0042 (Version 2.1), the selected carbon pools
+included in the project boundary in the baseline and project scenarios are listed in Table 3-1
+below.
+Table 3-1 Selected Carbon Pools in the Baseline and Project Scenario
+Source Included? Justification/Explanation
+Aboveground
+woody biomass
+No The project activities are mainly aimed at crops and do
+not involve woody plants, so it is not included.
+Aboveground
+non- woody
+biomass
+No According to methodology, this carbon pool is not included
+Belowground
+woody biomass
+No The project activities are mainly aimed at crops and do
+not involve woody plants, so it is not included.
+Belowground
+non- woody
+biomass
+No According to methodology, this carbon pool is not included
+Deadwood No According to methodology, this carbon pool is not included
+
+Page 24
+VCS Project Description Template, v4.4
+24
+Litter No According to methodology, this carbon pool is not included
+Soil organic
+carbon Yes Major carbon pool affected by project activity that is
+expected to increase in the project scenario.
+Wood products No According to methodology, this carbon pool is not included
+According to the applied methodology VM0042 (version 2.1), the spatial extent of the project
+boundary encompasses all lands subject to implementation of the proposed improved
+agricultural land management practices.
+Therefore, the project boundary includes all the farmlands within the IALM project in Tumed
+Left Banner. The map of the project boundary is provided in Figure 1-1 of section 1.13; a KML
+file is also submitted for identification of the project boundary.
+Selected GHG Sources in the Baseline and Project Scenario are listed in Table below.
+Source Gas Included? Justification/Explanation
+Soil organic carbon CO2 Yes This is the primary source of emission removals that
+the project is aiming to achieve. Quantified as stock
+change in the pool, rather than an emissions source.
+Fossil fuel CO2 No This project does not generate additional use of
+agricultural machinery and is consistent with the
+baseline scenario.
+Soil
+methanogenesis CH4 No Excluded from the project, as model used for SOC
+turnover does not have an exclusive soil
+methanogenesis element in calculations. It has been
+excluded from both the baseline and project activity.
+Enteric
+fermentation
+CH4 No The project does not involve any livestock.
+Manure deposition
+CH4 No The project does not use any manure as fertilizer.
+N2O No The project does not use any manure as fertilizer.
+Use of
+nitrogen
+fertilizers
+N2O No The nitrogen fertilization is lower in the with-project
+scenario relative to the baseline scenario, N2O
+emissions from nitrogen fertilizers are not included in
+the project boundary.
+Use of nitrogen
+fixing species
+N2O No The project does not involve nitrogen fixing species.
+
+Page 25
+VCS Project Description Template, v4.4
+25
+3.4 Baseline Scenario
+Development of schedule of activities in the baseline scenario
+According to the applied methodology VM0042 (version 2.1), continuation of pre-project ALM
+practices is the most plausible baseline scenario. Following the methodology guidance, the
+baseline scenario is determined by producing an annual schedule of activities from the practices
+applied in each field/farming unit/project activity instance, from a historic look-back period (of
+at least three years or to include one complete crop-cycle). Baseline emissions/stock changes
+are then modeled (Quantification Approach 1) or (for SOC stock change only) directly measured
+in baseline control sites subject to the annual schedule of activities (Quantification Approach 2).
+Note that under Quantification Approach 1, direct SOC stock estimates are also required at t =0
+to serve as model input for model initialization. The emission removals of the project are
+estimated via Quantification Approach 1.
+The geographic area of the project is divided into smaller areas (strata) which are homogeneous
+with respect to climatic and edaphic conditions. This is to reduce the required number of soil
+samples to be taken for quantification of baseline emissions without increasing uncertainty. The
+information on the characteristics of each stratum is obtained from Tumed Left Banner
+Agricultural and Animal Husbandry Bureau.
+The crops grown in this project site are harvested once a year. Annual tillage and fertilization
+operations are carried out in both the baseline year and the project year, which are regarded as
+annual cycles. Therefore, the baseline practice assessment covers a three-year historical
+retrospective period.
+3.5 Additionality
+The Project uses a project method for the demonstration of additionality in accordance with the
+applied methodology VM0042 version 2.1 and VCS Methodology Requirements version 4.4.
+Refer to Section3.5.1for Step 1 (Regulatory Surplus).
+Refer to Section3.5.2 for Step 2 and Step 3.
+Regulatory Surplus
+Biomass burning
+CO2 No The project does not burn any biomass.
+CH4 No The project does not burn any biomass.
+N2O No The project does not burn any biomass.
+Woody biomass CO2 No The project activity does not involve woody biomass.
+
+Page 26
+VCS Project Description Template, v4.4
+26
+Is the project located in an UNFCCC Annex 1 or Non-Annex 1 country?
+☐ Annex 1 country ☒ Non-Annex 1 country
+Are the project activities mandated by any law, statute, or other regulatory framework?
+☐ Yes ☒ No
+If the project is located inside a Non-Annex 1 country and the project activities are mandated by
+a law, statute, or other regulatory framework, are such laws, statutes, or regulatory frameworks
+systematically enforced?
+☐ Yes ☐ No
+The project is located inside a Non-Annex 1 country and the project activities are not mandated
+by a law, statute, or other regulatory framework.
+Additionality Methods
+As per the latest version of the VCS Standard, section 3.14.1 and methodology VM0042v2.1
+requirements, the additionality of this project is demonstrated in two steps:
+1. The project shall demonstrate regulatory surplus at validation and each project crediting period
+renewal.
+A. Regularity surplus
+B. Barrier analysis
+C. Common practice analysis
+2. Additionality shall be demonstrated and assessed in accordance with the requirements set out
+in the methodology applied to the project.
+3.6 Methodology Deviations
+No deviations from the procedures indicated by the methodology have been made.
+
+Page 27
+VCS Project Description Template, v4.4
+27
+4 QUANTIFICATION OF ESTIMATED GHG
+EMISSION REDUCTIONS AND
+REMOVALS
+4.1 Baseline Emissions
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+4.2 Project Emissions
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+4.3 Leakage Emissions
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+4.4 Estimated GHG Emission Reductions and Carbon Dioxide Removals
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+
+Page 28
+VCS Project Description Template, v4.4
+28
+5 MONITORING
+5.1 Data and Parameters Available at Validation
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+5.2 Data and Parameters Monitored
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+5.3 Monitoring Plan
+This section has been omitted in accordance with the VERRA Registration and Issuance Process
+v4.6 October 16, 2024 - §3.1.3 – Pipeline Listing Process.
+
+Page 29
+APPENDIX 1: COMMERCIALLY SENSITIVE
+INFORMATION
+The project is to be listed, this section is not required.

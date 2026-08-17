@@ -1,0 +1,20 @@
+{
+  "id": "5739",
+  "title": "Tumed Left Banner Improved Agricultural Land Management Project",
+  "documentId": "5739-extracted",
+  "runtimeMode": "static",
+  "comparisonMode": "full",
+  "phase": "fixture_intake",
+  "registry": "UNKNOWN",
+  "documentType": "PDD / Project Description",
+  "adjudicationStatus": "reviewed",
+  "reviewedRuleIds": [
+    "host_country",
+    "methodology",
+    "baseline_scenario",
+    "additionality",
+    "leakage",
+    "stakeholder_consultation"
+  ],
+  "reviewNote": "All six Quick Check rows independently reviewed against source.pdf. Host-country machine evidence was rejected as a consultant address; China is accepted from the project summary on page 4."
+}
