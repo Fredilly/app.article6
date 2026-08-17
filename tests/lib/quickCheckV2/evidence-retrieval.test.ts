@@ -708,6 +708,94 @@ describe("Quick Check v2 — Phase 3 evidence retrieval", () => {
     expect(result.evidence!.quote).toBe("Leakage: Not applicable");
   });
 
+  it("prefers substantive leakage screening over omission boilerplate", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "4.3 Leakage Emissions",
+        blockType: "heading",
+        sectionHeading: "Leakage Emissions",
+        sectionPath: ["4", "4.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:omission",
+        page: 3,
+        text: "This section has been omitted in accordance with the registration process.",
+        blockType: "body",
+        sectionHeading: "Leakage Emissions",
+        sectionPath: ["4", "4.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p10:b1:heading",
+        page: 10,
+        text: "1.19 Additional Information Relevant to the Project",
+        blockType: "heading",
+        sectionHeading: "Additional Information Relevant to the Project",
+        sectionPath: ["1", "1.19"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p10:b2:screening",
+        page: 10,
+        text: "Leakage Management: the project screens leakage pathways including displacement and diversion of biomass.",
+        blockType: "body",
+        sectionHeading: "Additional Information Relevant to the Project",
+        sectionPath: ["1", "1.19"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p10:b3:conclusion",
+        page: 10,
+        text: "The project does not involve these activities; thus, leakage is not applicable to this project.",
+        blockType: "body",
+        sectionHeading: "Additional Information Relevant to the Project",
+        sectionPath: ["1", "1.19"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "leakage");
+    expect(result.evidence).toMatchObject({
+      page: 10,
+      sectionPath: ["1", "1.19"],
+      sectionHeading: "Additional Information Relevant to the Project",
+    });
+    expect(result.evidence?.quote).toContain("not applicable");
+  });
+
+  it("keeps omission-only leakage evidence as the fallback", () => {
+    const synthetic = makeSyntheticDocument([
+      {
+        spanId: "synthetic-doc:p3:b1:heading",
+        page: 3,
+        text: "4.3 Leakage Emissions",
+        blockType: "heading",
+        sectionHeading: "Leakage Emissions",
+        sectionPath: ["4", "4.3"],
+        source: "primary",
+      },
+      {
+        spanId: "synthetic-doc:p3:b2:omission",
+        page: 3,
+        text: "This section has been omitted in accordance with the registration process.",
+        blockType: "body",
+        sectionHeading: "Leakage Emissions",
+        sectionPath: ["4", "4.3"],
+        source: "primary",
+      },
+    ]);
+
+    const result = retrieveEvidenceForCheck(synthetic, "leakage");
+    expect(result.evidence).toMatchObject({
+      page: 3,
+      sectionHeading: "Leakage Emissions",
+      sectionPath: ["4", "4.3"],
+    });
+  });
+
   it("recognizes stakeholder consultation with a trailing colon in the heading", () => {
     const synthetic = makeSyntheticDocument([
       {

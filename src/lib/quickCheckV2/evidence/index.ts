@@ -937,6 +937,25 @@ function findSectionsByHeadingText(
   return results;
 }
 
+function findFirstSectionWithBodyEvidence(
+  document: QuickCheckV2ExtractedDocument,
+  tree: SectionTreeNode[],
+  predicate: (blocks: QuickCheckV2Block[]) => boolean,
+): SectionTreeNode | null {
+  function walk(nodes: SectionTreeNode[]): SectionTreeNode | null {
+    for (const node of nodes) {
+      if (predicate(collectSectionBodyBlocks(document, node))) {
+        return node;
+      }
+      const childMatch = walk(node.children);
+      if (childMatch) return childMatch;
+    }
+    return null;
+  }
+
+  return walk(tree);
+}
+
 function getHeadingMatchQuality(
   headingText: string,
   searchTexts: string[],
@@ -1900,6 +1919,22 @@ function getBestExactSectionBlock(
       null;
   } else if (checkName === "leakage") {
     bestSection =
+      findFirstSectionWithBodyEvidence(document, tree, (bodyBlocks) => {
+        const screeningPages = new Set(
+          bodyBlocks.filter((block) =>
+            /\bcommunity-use buffer zone\b/i.test(block.text) ||
+            /\breducing pressure on surrounding forests\b/i.test(block.text) ||
+            /\breducing pressure on surrounding forest\b/i.test(block.text) ||
+            /\bleakage (?:pathways?|through)|may result in leakage\b/i.test(block.text),
+          ).map((block) => block.page),
+        );
+        const hasPathwayScreening = screeningPages.size > 0;
+        const hasProjectConclusion = bodyBlocks.some((block) =>
+          screeningPages.has(block.page) &&
+          /\bnot applicable\b|\bno leakage\b|\bno displacement\b|\bnegligible leakage\b/i.test(block.text),
+        );
+        return hasPathwayScreening && hasProjectConclusion;
+      }) ??
       sectionsWithBodies.find(({ bodyBlocks }) =>
         bodyBlocks.some((block) =>
           /\bcommunity-use buffer zone\b/i.test(block.text) ||
