@@ -20,6 +20,10 @@ Adjudication is complete. The machine proposal is preserved in `gold.draft.json`
 - `leakage`: ACCEPTED the substantive `Leakage Management` evidence in section 1.19 on page 17. The project screens the VM0042 leakage pathways and concludes that the identified activities are not applicable. The page-27 section 4.3 omission is rejected as boilerplate rather than project-specific leakage evidence.
 - `stakeholder_consultation`: ACCEPTED the explicit omission statement in section 2.1 on page 18.
 
+## Post-freeze leakage canonicalization
+
+The leakage row received a post-freeze canonicalization after independent adjudication classified the remaining mismatch as `MIXED`. The answer difference was truth-bearing and was fixed in production by #1140. The evidence-boundary difference is representational. The canonical evidence now starts at `5739-extracted:p17:b590:dd2dbaa7` and includes the `Leakage Management` heading, the paragraph beginning “According to paragraph 8.4 of VM0042...”, the paragraph beginning “The project does not involve...”, and the conclusion “Thus, it is not applicable to this project.”
+
 ## PR2 discrepancy reserve
 
-The unchanged PR1 runtime still disagrees with the reviewed truth for three rows: it chooses a consultant address containing `Minhang` instead of the project location `China`; treats the additionality requirement/list as `FOUND` despite absent project-specific barrier and common-practice analyses; and selects page-27 leakage omission boilerplate instead of the substantive page-17 screening. This fixture records the PDF truth and preserves the machine proposal; production extraction logic is intentionally unchanged in PR1.
+The original PR1 runtime disagreed with the reviewed truth for three rows: it chose a consultant address containing `Minhang` instead of the project location `China`; treated the additionality requirement/list as `FOUND` despite absent project-specific barrier and common-practice analyses; and selected page-27 leakage omission boilerplate instead of the substantive page-17 screening. The leakage answer mismatch was truth-bearing and was fixed by #1140; this post-freeze change only canonicalizes the evidence boundary. This fixture records the PDF truth and preserves the machine proposal.

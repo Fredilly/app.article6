@@ -1,6 +1,13 @@
 {
   "status": "REVIEWED",
   "reviewedRuleIds": ["host_country", "methodology", "baseline_scenario", "additionality", "leakage", "stakeholder_consultation"],
+  "postFreezeCanonicalization": {
+    "checkName": "leakage",
+    "classification": "MIXED",
+    "answerDifference": "Truth-bearing; the answer difference was fixed in production by #1140.",
+    "evidenceBoundaryDifference": "Representational; the canonical evidence boundary now includes the Leakage Management heading plus the two substantive paragraphs and conclusion.",
+    "status": "Post-freeze canonicalization"
+  },
   "corrections": [
     {
       "checkName": "host_country",
@@ -90,13 +97,13 @@
       "sourceType": "exact_section",
       "correctedStatus": "FOUND",
       "correctedAnswer": "The project screens the VM0042 leakage pathways and concludes that leakage is not applicable because the project does not involve the identified leakage activities",
-      "correctedQuote": "According to paragraph 8.4 of VM0042 (version 2.1) , improved ALM projects may result in leakage through: new application of organic fertilizers and soil conditioners from outside the project area (i.e., organic amendments applied in the project from outside of the project area, that were not previously applied in the historical look-back period); productivity declines; displacement of livestock outside of the project boundary; and/or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. The project does not involve manure treatment, productivity declines, the displacement of livestock outside of the project boundary or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. Thus, it is not applicable to this project.",
+      "correctedQuote": "Leakage Management According to paragraph 8.4 of VM0042 (version 2.1) , improved ALM projects may result in leakage through: new application of organic fertilizers and soil conditioners from outside the project area (i.e., organic amendments applied in the project from outside of the project area, that were not previously applied in the historical look-back period); productivity declines; displacement of livestock outside of the project boundary; and/or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. The project does not involve manure treatment, productivity declines, the displacement of livestock outside of the project boundary or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. Thus, it is not applicable to this project.",
       "correctedPage": 17,
       "correctedSectionHeading": "Additional Information Relevant to the Project",
       "correctedSectionPath": ["1", "1.19"],
-      "correctedSpanId": "5739-extracted:p17:b591:5ed05d0f",
+      "correctedSpanId": "5739-extracted:p17:b590:dd2dbaa7",
       "correctedSourceType": "exact_section",
-      "reviewNote": "The substantive Leakage Management discussion in section 1.19 on page 17 identifies the VM0042 leakage pathways and concludes that they are not applicable. The page-27 section omission is boilerplate and does not establish the project's leakage assessment.",
+      "reviewNote": "Post-freeze canonicalization after independent adjudication classified the prior answer/evidence mismatch as MIXED. The answer difference was truth-bearing and was fixed in production by #1140; the evidence-boundary difference is representational. The canonical evidence now starts at the Leakage Management heading and includes the VM0042 pathway paragraph, the project-specific non-applicability paragraph, and the conclusion. The page-27 section omission is boilerplate and does not establish the project's leakage assessment.",
       "rejectedEvidence": [{"quote": "This section has been omitted in accordance with the VERRA Registration and Issuance Process", "page": 27, "reason": "Section 4.3 omission boilerplate does not provide the project's substantive VM0042 leakage pathway screening or conclusion."}]
     },
     {
@@ -120,6 +127,6 @@
   "pr2Discrepancies": [
     "Host-country answer extraction selects Minhang from a consultant address instead of China from the project location.",
     "Additionality runtime output treats the requirement to perform barrier and common-practice analysis as proof of FOUND additionality, although the project-specific analyses are absent.",
-    "Leakage runtime output selects page-27 omission boilerplate instead of the substantive VM0042 leakage-pathway screening and not-applicable conclusion on page 17."
+    "Leakage runtime output previously selected page-27 omission boilerplate instead of the substantive VM0042 leakage-pathway screening and not-applicable conclusion on page 17; production evidence selection and answer fidelity were fixed by #1138 and #1140."
   ]
 }

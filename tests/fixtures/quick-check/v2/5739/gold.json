@@ -57,11 +57,11 @@
     "checkName": "leakage",
     "expectedStatus": "FOUND",
     "expectedAnswer": "The project screens the VM0042 leakage pathways and concludes that leakage is not applicable because the project does not involve the identified leakage activities",
-    "goldQuote": "According to paragraph 8.4 of VM0042 (version 2.1) , improved ALM projects may result in leakage through: new application of organic fertilizers and soil conditioners from outside the project area (i.e., organic amendments applied in the project from outside of the project area, that were not previously applied in the historical look-back period); productivity declines; displacement of livestock outside of the project boundary; and/or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. The project does not involve manure treatment, productivity declines, the displacement of livestock outside of the project boundary or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. Thus, it is not applicable to this project.",
+    "goldQuote": "Leakage Management According to paragraph 8.4 of VM0042 (version 2.1) , improved ALM projects may result in leakage through: new application of organic fertilizers and soil conditioners from outside the project area (i.e., organic amendments applied in the project from outside of the project area, that were not previously applied in the historical look-back period); productivity declines; displacement of livestock outside of the project boundary; and/or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. The project does not involve manure treatment, productivity declines, the displacement of livestock outside of the project boundary or diversion of biomass residues that were used for bioenergy applications in the baseline scenario. Thus, it is not applicable to this project.",
     "page": 17,
     "sectionHeading": "Additional Information Relevant to the Project",
     "sectionPath": ["1", "1.19"],
-    "spanId": "5739-extracted:p17:b591:5ed05d0f",
+    "spanId": "5739-extracted:p17:b590:dd2dbaa7",
     "sourceType": "exact_section"
   },
   {
